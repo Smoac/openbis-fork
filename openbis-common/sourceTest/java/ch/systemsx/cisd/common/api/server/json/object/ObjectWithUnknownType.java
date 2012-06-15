@@ -16,36 +16,30 @@
 
 package ch.systemsx.cisd.common.api.server.json.object;
 
-import org.testng.Assert;
-
-import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.api.server.json.common.ObjectCounter;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectMap;
 import ch.systemsx.cisd.common.api.server.json.common.ObjectType;
+import ch.systemsx.cisd.common.api.server.json.common.ObjectMap;
 
 /**
  * @author pkupczyk
  */
-@SuppressWarnings("hiding")
-@JsonObject(ObjectWithTypeC.TYPE)
-public class ObjectWithTypeC extends ObjectWithType
+public class ObjectWithUnknownType
 {
 
-    public static final String TYPE = "ObjectWithTypeC";
+    public static final String TYPE = "ObjectWithUnknownType";
 
-    public static final String CLASS = ".LegacyObjectWithTypeC";
+    public static final String CLASS = ".LegacyObjectWithUnknownType";
 
-    public static final String C = "c";
+    public static final String PROPERTY = "property";
 
-    public static final String C_VALUE = "cValue";
+    public static final String PROPERTY_VALUE = "propertyValue";
 
-    public String c;
+    public String property;
 
-    public static ObjectWithTypeC createObject()
+    public static ObjectWithUnknownType createObject()
     {
-        ObjectWithTypeC object = new ObjectWithTypeC();
-        object.base = BASE_VALUE;
-        object.c = C_VALUE;
+        ObjectWithUnknownType object = new ObjectWithUnknownType();
+        object.property = PROPERTY_VALUE;
         return object;
     }
 
@@ -54,21 +48,8 @@ public class ObjectWithTypeC extends ObjectWithType
         ObjectMap map = new ObjectMap();
         map.putId(objectCounter);
         map.putType(TYPE, CLASS, objectType);
-        map.putField(BASE, BASE_VALUE);
-        map.putField(C, C_VALUE);
+        map.putField(PROPERTY, PROPERTY_VALUE);
         return map;
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        Assert.assertNotNull(obj);
-        Assert.assertEquals(getClass(), obj.getClass());
-
-        ObjectWithTypeC casted = (ObjectWithTypeC) obj;
-        Assert.assertEquals(base, casted.base);
-        Assert.assertEquals(c, casted.c);
-        return true;
     }
 
 }

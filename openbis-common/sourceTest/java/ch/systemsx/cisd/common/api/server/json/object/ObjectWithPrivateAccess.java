@@ -16,15 +16,28 @@
 
 package ch.systemsx.cisd.common.api.server.json.object;
 
+import org.testng.Assert;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.common.api.server.json.common.ObjectCounter;
+import ch.systemsx.cisd.common.api.server.json.common.ObjectMap;
+import ch.systemsx.cisd.common.api.server.json.common.ObjectType;
 
 /**
  * @author pkupczyk
  */
 
-@JsonObject("ObjectWithPrivateAccess")
+@JsonObject(ObjectWithPrivateAccess.TYPE)
 public class ObjectWithPrivateAccess
 {
+
+    public static final String TYPE = "ObjectWithPrivateAccess";
+
+    public static final String CLASS = ".LegacyObjectWithPrivateAccess";
+
+    public static final String FIELD = "field";
+
+    public static final String FIELD_VALUE = "fieldValue";
 
     private String field;
 
@@ -41,6 +54,33 @@ public class ObjectWithPrivateAccess
     private void setField(String field)
     {
         this.field = field;
+    }
+
+    public static ObjectWithPrivateAccess createObject()
+    {
+        ObjectWithPrivateAccess object = new ObjectWithPrivateAccess();
+        object.field = FIELD_VALUE;
+        return object;
+    }
+
+    public static ObjectMap createMap(ObjectCounter objectCounter, ObjectType objectType)
+    {
+        ObjectMap map = new ObjectMap();
+        map.putId(objectCounter);
+        map.putType(TYPE, CLASS, objectType);
+        map.putField("field", "fieldValue");
+        return map;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        Assert.assertNotNull(obj);
+        Assert.assertEquals(getClass(), obj.getClass());
+
+        ObjectWithPrivateAccess casted = (ObjectWithPrivateAccess) obj;
+        Assert.assertEquals(field, casted.field);
+        return true;
     }
 
 }

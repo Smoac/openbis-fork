@@ -1,6 +1,11 @@
 package ch.systemsx.cisd.common.api.server.json.object;
 
+import org.testng.Assert;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.common.api.server.json.common.ObjectCounter;
+import ch.systemsx.cisd.common.api.server.json.common.ObjectMap;
+import ch.systemsx.cisd.common.api.server.json.common.ObjectType;
 
 /*
  * Copyright 2012 ETH Zuerich, CISD
@@ -21,10 +26,49 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("ObjectWithTypeA")
+@SuppressWarnings("hiding")
+@JsonObject(ObjectWithTypeA.TYPE)
 public class ObjectWithTypeA extends ObjectWithType
 {
 
+    public static final String TYPE = "ObjectWithTypeA";
+
+    public static final String CLASS = ".LegacyObjectWithTypeA";
+
+    public static final String A = "a";
+
+    public static final String A_VALUE = "aValue";
+
     public String a;
+
+    public static ObjectWithTypeA createObject()
+    {
+        ObjectWithTypeA object = new ObjectWithTypeA();
+        object.base = BASE_VALUE;
+        object.a = A_VALUE;
+        return object;
+    }
+
+    public static ObjectMap createMap(ObjectCounter objectCounter, ObjectType objectType)
+    {
+        ObjectMap map = new ObjectMap();
+        map.putId(objectCounter);
+        map.putType(TYPE, CLASS, objectType);
+        map.putField(BASE, BASE_VALUE);
+        map.putField(A, A_VALUE);
+        return map;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        Assert.assertNotNull(obj);
+        Assert.assertEquals(getClass(), obj.getClass());
+
+        ObjectWithTypeA casted = (ObjectWithTypeA) obj;
+        Assert.assertEquals(base, casted.base);
+        Assert.assertEquals(a, casted.a);
+        return true;
+    }
 
 }

@@ -1,6 +1,5 @@
 package ch.systemsx.cisd.common.api.server.json.object;
 
-
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.api.server.json.JsonUniqueCheckIgnore;
 
@@ -24,7 +23,7 @@ import ch.systemsx.cisd.common.api.server.json.JsonUniqueCheckIgnore;
  * @author pkupczyk
  */
 @JsonUniqueCheckIgnore
-@JsonObject("ObjectWithTypeA")
+@JsonObject(ObjectWithTypeA.TYPE)
 public class ObjectWithTypeALegalDuplicate
 {
 

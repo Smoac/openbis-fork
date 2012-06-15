@@ -16,14 +16,28 @@
 
 package ch.systemsx.cisd.common.api.server.json.object;
 
+import org.testng.Assert;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.common.api.server.json.common.ObjectCounter;
+import ch.systemsx.cisd.common.api.server.json.common.ObjectMap;
+import ch.systemsx.cisd.common.api.server.json.common.ObjectType;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("ObjectWithNestedTypes")
+@SuppressWarnings("hiding")
+@JsonObject(ObjectWithNestedTypes.TYPE)
 public class ObjectWithNestedTypes
 {
+
+    public static final String TYPE = "ObjectWithNestedTypes";
+
+    public static final String CLASS = ".LegacyObjectWithNestedTypes";
+
+    public static final String PROPERTY_NESTED = "propertyNested";
+
+    public static final String PROPERTY_NESTED_CHILD = "propertyNestedChild";
 
     // TODO: check why it doesn't work properly during both serialization and deserialization
     // public Object propertyObject;
@@ -32,16 +46,122 @@ public class ObjectWithNestedTypes
 
     public ObjectNestedChild propertyNestedChild;
 
-    @JsonObject("ObjectNested")
+    @JsonObject(ObjectNested.TYPE)
     public static class ObjectNested
     {
+        public static final String TYPE = "ObjectNested";
+
+        public static final String CLASS = ".LegacyObjectNested";
+
+        public static final String NESTED = "nested";
+
+        public static final String NESTED_VALUE = "nestedValue";
+
         public String nested;
+
+        public static ObjectNested createObject()
+        {
+            ObjectNested object = new ObjectNested();
+            object.nested = NESTED_VALUE;
+            return object;
+        }
+
+        public static ObjectMap createMap(ObjectCounter objectCounter, ObjectType objectType)
+        {
+            ObjectMap map = new ObjectMap();
+            map.putId(objectCounter);
+            map.putType(TYPE, CLASS, objectType);
+            map.putField(NESTED, NESTED_VALUE);
+            return map;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            Assert.assertNotNull(obj);
+            Assert.assertEquals(getClass(), obj.getClass());
+
+            ObjectNested casted = (ObjectNested) obj;
+            Assert.assertEquals(nested, casted.nested);
+            return true;
+        }
+
     }
 
-    @JsonObject("ObjectNestedChild")
+    @JsonObject(ObjectNestedChild.TYPE)
     public static class ObjectNestedChild extends ObjectNested
     {
+        public static final String TYPE = "ObjectNestedChild";
+
+        public static final String CLASS = ".LegacyObjectNestedChild";
+
+        public static final String NESTED_CHILD = "nestedChild";
+
+        public static final String NESTED_CHILD_VALUE = "nestedChildValue";
+
         public String nestedChild;
+
+        public static ObjectNestedChild createObject()
+        {
+            ObjectNestedChild object = new ObjectNestedChild();
+            object.nested = NESTED_VALUE;
+            object.nestedChild = NESTED_CHILD_VALUE;
+            return object;
+        }
+
+        public static ObjectMap createMap(ObjectCounter objectCounter, ObjectType objectType)
+        {
+            ObjectMap map = new ObjectMap();
+            map.putId(objectCounter);
+            map.putType(TYPE, CLASS, objectType);
+            map.putField(NESTED, NESTED_VALUE);
+            map.putField(NESTED_CHILD, NESTED_CHILD_VALUE);
+            return map;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            Assert.assertNotNull(obj);
+            Assert.assertEquals(getClass(), obj.getClass());
+
+            ObjectNestedChild casted = (ObjectNestedChild) obj;
+            Assert.assertEquals(nested, casted.nested);
+            Assert.assertEquals(nestedChild, casted.nestedChild);
+            return true;
+        }
+
+    }
+
+    public static ObjectWithNestedTypes createObject()
+    {
+        ObjectWithNestedTypes object = new ObjectWithNestedTypes();
+        object.propertyNested = ObjectNested.createObject();
+        object.propertyNestedChild = ObjectNestedChild.createObject();
+        return object;
+    }
+
+    public static ObjectMap createMap(ObjectCounter objectCounter, ObjectType objectType)
+    {
+        ObjectMap map = new ObjectMap();
+        map.putId(objectCounter);
+        map.putType(TYPE, CLASS, objectType);
+        map.putField(PROPERTY_NESTED, ObjectNested.createMap(objectCounter, objectType).toMap());
+        map.putField(PROPERTY_NESTED_CHILD, ObjectNestedChild.createMap(objectCounter, objectType)
+                .toMap());
+        return map;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        Assert.assertNotNull(obj);
+        Assert.assertEquals(getClass(), obj.getClass());
+
+        ObjectWithNestedTypes casted = (ObjectWithNestedTypes) obj;
+        Assert.assertEquals(propertyNested, casted.propertyNested);
+        Assert.assertEquals(propertyNestedChild, casted.propertyNestedChild);
+        return true;
     }
 
 }

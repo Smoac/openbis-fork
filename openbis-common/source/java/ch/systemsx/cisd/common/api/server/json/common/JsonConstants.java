@@ -22,11 +22,18 @@ package ch.systemsx.cisd.common.api.server.json.common;
 public class JsonConstants
 {
 
+    private static final String ID_FIELD = "@id";
+
     private static final String TYPE_FIELD = "@type";
 
     private static final String LEGACY_CLASS_FIELD = "@class";
 
     private static final String CLASSES_PREFIX = "ch.systemsx";
+
+    public static final String getIdField()
+    {
+        return ID_FIELD;
+    }
 
     public static final String getTypeField()
     {

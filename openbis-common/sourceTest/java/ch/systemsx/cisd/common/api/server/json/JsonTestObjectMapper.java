@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.api.server.json;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 
@@ -58,32 +59,30 @@ public class JsonTestObjectMapper extends ObjectMapper
         setAnnotationIntrospector(new JsonTypeAndClassAnnotationIntrospector(getClassMapping()));
         setSubtypeResolver(new JsonReflectionsSubTypeResolver(getTypeMapping()));
         setSerializerFactory(new JsonSerializerFactory());
+        configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
     }
 
     private static IJsonClassValueToClassObjectsMapping getClassMapping()
     {
         JsonStaticClassValueToClassObjectsMapping classMapping =
                 new JsonStaticClassValueToClassObjectsMapping();
-        classMapping.addClass(".LegacyObjectWithType", ObjectWithType.class);
-        classMapping.addClass(".LegacyObjectWithTypeA", ObjectWithTypeA.class);
-        classMapping.addClass(".LegacyObjectWithTypeA", ObjectWithTypeALegalDuplicate.class);
-        classMapping.addClass(".LegacyObjectWithTypeAA", ObjectWithTypeAA.class);
-        classMapping.addClass(".LegacyObjectWithTypeB", ObjectWithTypeB.class);
-        classMapping.addClass(".LegacyObjectWithTypeB", ObjectWithTypeBIllegalDuplicate.class);
-        classMapping.addClass(".LegacyObjectWithTypeButNoSubtypes",
-                ObjectWithTypeButNoSubtypes.class);
-        classMapping.addClass(".LegacyObjectNested", ObjectNested.class);
-        classMapping.addClass(".LegacyObjectNestedChild", ObjectNestedChild.class);
-        classMapping.addClass(".LegacyObjectWithPrimitiveTypes", ObjectWithPrimitiveTypes.class);
-        classMapping.addClass(".LegacyObjectWithNestedTypes", ObjectWithNestedTypes.class);
-        classMapping.addClass(".LegacyObjectWithEnumTypes", ObjectWithEnumTypes.class);
-        classMapping.addClass(".LegacyObjectWithContainerTypes", ObjectWithContainerTypes.class);
-        classMapping.addClass(".LegacyObjectWithDateTypes", ObjectWithDateTypes.class);
-        classMapping.addClass(".LegacyObjectWithIgnoredProperties",
-                ObjectWithIgnoredProperties.class);
-        classMapping.addClass(".LegacyObjectWithRenamedProperties",
-                ObjectWithRenamedProperties.class);
-        classMapping.addClass(".LegacyObjectWithPrivateAccess", ObjectWithPrivateAccess.class);
+        classMapping.addClass(ObjectWithType.CLASS, ObjectWithType.class);
+        classMapping.addClass(ObjectWithTypeA.CLASS, ObjectWithTypeA.class);
+        classMapping.addClass(ObjectWithTypeA.CLASS, ObjectWithTypeALegalDuplicate.class);
+        classMapping.addClass(ObjectWithTypeAA.CLASS, ObjectWithTypeAA.class);
+        classMapping.addClass(ObjectWithTypeB.CLASS, ObjectWithTypeB.class);
+        classMapping.addClass(ObjectWithTypeB.CLASS, ObjectWithTypeBIllegalDuplicate.class);
+        classMapping.addClass(ObjectWithTypeButNoSubtypes.CLASS, ObjectWithTypeButNoSubtypes.class);
+        classMapping.addClass(ObjectNested.CLASS, ObjectNested.class);
+        classMapping.addClass(ObjectNestedChild.CLASS, ObjectNestedChild.class);
+        classMapping.addClass(ObjectWithPrimitiveTypes.CLASS, ObjectWithPrimitiveTypes.class);
+        classMapping.addClass(ObjectWithNestedTypes.CLASS, ObjectWithNestedTypes.class);
+        classMapping.addClass(ObjectWithEnumTypes.CLASS, ObjectWithEnumTypes.class);
+        classMapping.addClass(ObjectWithContainerTypes.CLASS, ObjectWithContainerTypes.class);
+        classMapping.addClass(ObjectWithDateTypes.CLASS, ObjectWithDateTypes.class);
+        classMapping.addClass(ObjectWithIgnoredProperties.CLASS, ObjectWithIgnoredProperties.class);
+        classMapping.addClass(ObjectWithRenamedProperties.CLASS, ObjectWithRenamedProperties.class);
+        classMapping.addClass(ObjectWithPrivateAccess.CLASS, ObjectWithPrivateAccess.class);
         return classMapping;
     }
 

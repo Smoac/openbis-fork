@@ -19,13 +19,17 @@ package ch.systemsx.cisd.common.api.server.json.introspector;
 import java.util.HashMap;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.common.api.server.json.common.JsonConstants;
 import ch.systemsx.cisd.common.api.server.json.mapping.IJsonClassValueToClassObjectsMapping;
 import ch.systemsx.cisd.common.api.server.json.resolver.JsonTypeAndClassResolverBuilder;
 
@@ -52,6 +56,13 @@ public class JsonTypeAndClassAnnotationIntrospector extends JacksonAnnotationInt
     {
         JsonObject tn = ac.getAnnotation(JsonObject.class);
         return (tn == null) ? null : tn.value();
+    }
+
+    @Override
+    public ObjectIdInfo findObjectIdInfo(Annotated ann)
+    {
+        return new ObjectIdInfo(JsonConstants.getIdField(), Object.class,
+                ObjectIdGenerators.IntSequenceGenerator.class);
     }
 
     @Override

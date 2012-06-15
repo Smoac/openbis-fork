@@ -16,20 +16,77 @@
 
 package ch.systemsx.cisd.common.api.server.json.object;
 
+import org.testng.Assert;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.common.api.server.json.common.ObjectCounter;
+import ch.systemsx.cisd.common.api.server.json.common.ObjectMap;
+import ch.systemsx.cisd.common.api.server.json.common.ObjectType;
 
 /**
  * @author pkupczyk
  */
 
-@JsonObject("ObjectWithDateTypes")
+@JsonObject(ObjectWithDateTypes.TYPE)
 public class ObjectWithDateTypes
 {
+
+    private static final long DAY_IN_MILLIS = 24 * 3600 * 1000;
+
+    public static final String TYPE = "ObjectWithDateTypes";
+
+    public static final String CLASS = ".LegacyObjectWithDateTypes";
+
+    public static final String UTIL_DATE = "utilDate";
+
+    public static final java.util.Date UTIL_DATE_VALUE = new java.util.Date(DAY_IN_MILLIS);
+
+    public static final String SQL_DATE = "sqlDate";
+
+    public static final java.sql.Date SQL_DATE_VALUE = new java.sql.Date(DAY_IN_MILLIS * 2);
+
+    public static final String SQL_TIMESTAMP = "sqlTimestamp";
+
+    public static final java.sql.Timestamp SQL_TIMESTAMP_VALUE = new java.sql.Timestamp(
+            DAY_IN_MILLIS * 3);
 
     public java.util.Date utilDate;
 
     public java.sql.Date sqlDate;
 
     public java.sql.Timestamp sqlTimestamp;
+
+    public static ObjectWithDateTypes createObject()
+    {
+        ObjectWithDateTypes object = new ObjectWithDateTypes();
+        object.utilDate = UTIL_DATE_VALUE;
+        object.sqlDate = SQL_DATE_VALUE;
+        object.sqlTimestamp = SQL_TIMESTAMP_VALUE;
+        return object;
+    }
+
+    public static ObjectMap createMap(ObjectCounter objectCounter, ObjectType objectType)
+    {
+        ObjectMap map = new ObjectMap();
+        map.putId(objectCounter);
+        map.putType(TYPE, CLASS, objectType);
+        map.putField(UTIL_DATE, UTIL_DATE_VALUE);
+        map.putField(SQL_DATE, SQL_DATE_VALUE);
+        map.putField(SQL_TIMESTAMP, SQL_TIMESTAMP_VALUE);
+        return map;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        Assert.assertNotNull(obj);
+        Assert.assertEquals(getClass(), obj.getClass());
+
+        ObjectWithDateTypes casted = (ObjectWithDateTypes) obj;
+        Assert.assertEquals(utilDate, casted.utilDate);
+        Assert.assertEquals(sqlDate, casted.sqlDate);
+        Assert.assertEquals(sqlTimestamp, casted.sqlTimestamp);
+        return true;
+    }
 
 }

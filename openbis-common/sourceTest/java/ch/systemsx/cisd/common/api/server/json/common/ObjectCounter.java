@@ -1,8 +1,3 @@
-package ch.systemsx.cisd.common.api.server.json.object;
-
-import ch.systemsx.cisd.base.annotation.JsonObject;
-import ch.systemsx.cisd.common.api.server.json.JsonUniqueCheckIgnore;
-
 /*
  * Copyright 2012 ETH Zuerich, CISD
  *
@@ -19,14 +14,29 @@ import ch.systemsx.cisd.common.api.server.json.JsonUniqueCheckIgnore;
  * limitations under the License.
  */
 
+package ch.systemsx.cisd.common.api.server.json.common;
+
 /**
  * @author pkupczyk
  */
-@JsonObject(ObjectWithTypeB.TYPE)
-@JsonUniqueCheckIgnore
-public class ObjectWithTypeBIllegalDuplicate extends ObjectWithType
+public class ObjectCounter
 {
 
-    public String b;
+    private int counter;
+
+    public ObjectCounter()
+    {
+        this.counter = 1;
+    }
+
+    public int current()
+    {
+        return counter;
+    }
+
+    public int next()
+    {
+        return counter++;
+    }
 
 }
