@@ -57,7 +57,7 @@ public final class SampleTableTest extends AbstractBOTest
 
     private final SampleTable createSampleTableBO()
     {
-        return new SampleTable(daoFactory, EXAMPLE_SESSION);
+        return new SampleTable(daoFactory, EXAMPLE_SESSION, null);
     }
 
 }

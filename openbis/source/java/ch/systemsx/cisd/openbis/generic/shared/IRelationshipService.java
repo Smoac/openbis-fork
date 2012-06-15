@@ -19,11 +19,13 @@ package ch.systemsx.cisd.openbis.generic.shared;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
@@ -49,5 +51,19 @@ public interface IRelationshipService
             ProjectIdentifier project,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             SpaceIdentifier space);
+
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @Capability("ASSIGN_SAMPLE_TO_EXPERIMENT")
+    public void assignSampleToExperiment(IAuthSession session,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
+            SampleIdentifier sample,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            ExperimentIdentifier experiment);
+
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @Capability("UNASSIGN_SAMPLE_FROM_EXPERIMENT")
+    public void unassignSampleFromExperiment(IAuthSession session,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
+            SampleIdentifier sample);
 
 }

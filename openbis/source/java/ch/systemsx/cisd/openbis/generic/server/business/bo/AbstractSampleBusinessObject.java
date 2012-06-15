@@ -31,11 +31,11 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -71,15 +71,21 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
      */
     protected boolean onlyNewSamples = true;
 
-    AbstractSampleBusinessObject(final IDAOFactory daoFactory, final Session session)
+    protected IRelationshipService relationshipService;
+
+    AbstractSampleBusinessObject(final IDAOFactory daoFactory, final Session session,
+            IRelationshipService relationshipService)
     {
         super(daoFactory, session, EntityKind.SAMPLE);
+        this.relationshipService = relationshipService;
     }
 
     AbstractSampleBusinessObject(final IDAOFactory daoFactory, final Session session,
-            final IEntityPropertiesConverter entityPropertiesConverter)
+            final IEntityPropertiesConverter entityPropertiesConverter,
+            IRelationshipService relationshipService)
     {
         super(daoFactory, session, entityPropertiesConverter);
+        this.relationshipService = relationshipService;
     }
 
     private final void defineSampleProperties(final SamplePE sample,
@@ -466,7 +472,9 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                             + "because there are already datasets attached to the sample.",
                     sample.getIdentifier());
         }
-        sample.setExperiment(null);
+
+        SampleIdentifier sampleId = IdentifierHelper.sample(sample);
+        relationshipService.unassignSampleFromExperiment(session, sampleId);
     }
 
     private void changeExperiment(SamplePE sample, ExperimentIdentifier identifier,
@@ -481,16 +489,9 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         ensureExperimentIsValid(identifier, newExperiment, sample);
         ensureSampleAttachableToExperiment(sample);
 
-        changeDatasetsExperiment(sample.getDatasets(), newExperiment);
-        sample.setExperiment(newExperiment);
-    }
+        SampleIdentifier sampleId = IdentifierHelper.sample(sample);
 
-    private void changeDatasetsExperiment(Set<DataPE> datasets, ExperimentPE experiment)
-    {
-        for (DataPE dataset : datasets)
-        {
-            dataset.setExperiment(experiment);
-        }
+        relationshipService.assignSampleToExperiment(session, sampleId, identifier);
     }
 
     private void ensureSampleAttachableToExperiment(SamplePE sample)

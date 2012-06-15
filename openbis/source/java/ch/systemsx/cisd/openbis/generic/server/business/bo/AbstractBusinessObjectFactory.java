@@ -21,6 +21,7 @@ import javax.annotation.Resource;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 
 /**
  * An <i>abstract</i> <i>Business Object</i> factory.
@@ -31,27 +32,36 @@ public abstract class AbstractBusinessObjectFactory
 {
     @Resource(name = ComponentNames.DAO_FACTORY)
     private IDAOFactory daoFactory;
-    
+
     @Resource(name = ComponentNames.DSS_FACTORY)
     private IDataStoreServiceFactory dssFactory;
+
+    protected IRelationshipService relationshipService;
 
     protected AbstractBusinessObjectFactory()
     {
     }
 
-    protected AbstractBusinessObjectFactory(final IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory)
+    protected AbstractBusinessObjectFactory(final IDAOFactory daoFactory,
+            IDataStoreServiceFactory dssFactory, IRelationshipService relationshipService)
     {
         this.daoFactory = daoFactory;
         this.dssFactory = dssFactory;
+        this.relationshipService = relationshipService;
     }
 
     protected final IDAOFactory getDaoFactory()
     {
         return daoFactory;
     }
-    
+
     protected final IDataStoreServiceFactory getDSSFactory()
     {
         return dssFactory;
+    }
+
+    protected final IRelationshipService getRelationshipService()
+    {
+        return this.relationshipService;
     }
 }

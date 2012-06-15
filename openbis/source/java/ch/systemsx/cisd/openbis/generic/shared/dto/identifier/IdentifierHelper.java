@@ -88,6 +88,30 @@ public final class IdentifierHelper
         return createSampleIdentifier(databaseInstance, group, sampleCode);
     }
 
+    public static final SampleIdentifier sample(final SamplePE sample)
+    {
+        SampleIdentifier sampleId;
+        if (sample.getSpace() == null)
+        {
+            sampleId =
+                    new SampleIdentifier(new DatabaseInstanceIdentifier(sample
+                            .getDatabaseInstance().getCode()), sample.getCode());
+        } else
+        {
+            sampleId =
+                    new SampleIdentifier(new SpaceIdentifier(new DatabaseInstanceIdentifier(sample
+                            .getSpace().getDatabaseInstance().getCode()), sample.getSpace()
+                            .getCode()), sample.getCode());
+        }
+
+        if (sample.getContainer() != null)
+        {
+            sampleId.addContainerCode(sample.getContainer().getCode());
+        }
+
+        return sampleId;
+    }
+
     /**
      * Creates a {@link SampleIdentifier} from given <var>samplePE</var>.
      */

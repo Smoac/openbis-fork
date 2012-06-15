@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -48,13 +49,25 @@ public class ExperimentUpdateBuilder extends Builder<ExperimentUpdatesDTO>
         updates.setProperties(experiment.getProperties());
         updates.setAttachments(new ArrayList<NewAttachment>());
         updates.setNewSamples(new ArrayList<NewSamplesWithTypes>());
-
+        updates.setProjectIdentifier(new ProjectIdentifier("CISD", experiment.getProject()
+                .getSpace().getCode(), experiment.getProject().getCode()));
     }
 
     public ExperimentUpdateBuilder withProject(Project project)
     {
         updates.setProjectIdentifier(new ProjectIdentifier("CISD", project.getSpace()
                 .getCode(), project.getCode()));
+        return this;
+    }
+
+    public ExperimentUpdateBuilder withSamples(Sample... samples)
+    {
+        String[] codes = new String[samples.length];
+        for (int i = 0; i < samples.length; i++)
+        {
+            codes[i] = samples[i].getCode();
+        }
+        updates.setSampleCodes(codes);
         return this;
     }
 

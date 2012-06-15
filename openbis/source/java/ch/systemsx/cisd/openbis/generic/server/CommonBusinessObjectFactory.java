@@ -93,13 +93,10 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         ICommonBusinessObjectFactory
 {
 
-    private IRelationshipService relationshipService;
-
     public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
             IRelationshipService relationshipService)
     {
-        super(daoFactory, dssFactory);
-        this.relationshipService = relationshipService;
+        super(daoFactory, dssFactory, relationshipService);
     }
 
     @Override
@@ -129,7 +126,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public final ISampleTable createSampleTable(final Session session)
     {
-        return new SampleTable(getDaoFactory(), session);
+        return new SampleTable(getDaoFactory(), session, relationshipService);
     }
 
     @Override
@@ -153,7 +150,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public final ISampleBO createSampleBO(final Session session)
     {
-        return new SampleBO(getDaoFactory(), session);
+        return new SampleBO(getDaoFactory(), session, getRelationshipService());
     }
 
     @Override
@@ -177,7 +174,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public IExperimentTable createExperimentTable(final Session session)
     {
-        return new ExperimentTable(getDaoFactory(), session, relationshipService);
+        return new ExperimentTable(getDaoFactory(), session, getRelationshipService());
     }
 
     @Override
@@ -189,7 +186,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public final IExperimentBO createExperimentBO(final Session session)
     {
-        return new ExperimentBO(getDaoFactory(), session, relationshipService);
+        return new ExperimentBO(getDaoFactory(), session, getRelationshipService());
     }
 
     @Override
@@ -226,7 +223,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public IProjectBO createProjectBO(Session session)
     {
-        return new ProjectBO(getDaoFactory(), session, relationshipService);
+        return new ProjectBO(getDaoFactory(), session, getRelationshipService());
     }
 
     @Override

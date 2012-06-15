@@ -17,6 +17,10 @@
 package ch.systemsx.cisd.openbis.systemtest.relationshipservice;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
@@ -38,4 +42,20 @@ public abstract class Builder<T>
     }
 
     public abstract T create();
+
+    protected static SampleIdentifier getSampleIdentifier(Sample sample)
+    {
+        DatabaseInstanceIdentifier dbin;
+        if (sample.getSpace() != null)
+        {
+            dbin = new DatabaseInstanceIdentifier(sample.getSpace().getInstance().getCode());
+            return new SampleIdentifier(new SpaceIdentifier(dbin, sample.getSpace().getCode()),
+                    sample.getCode());
+        } else
+        {
+            dbin = new DatabaseInstanceIdentifier(sample.getDatabaseInstance().getCode());
+            return new SampleIdentifier(dbin, sample.getCode());
+        }
+
+    }
 }

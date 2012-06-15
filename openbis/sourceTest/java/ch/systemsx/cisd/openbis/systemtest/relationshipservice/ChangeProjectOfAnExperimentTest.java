@@ -37,7 +37,7 @@ public class ChangeProjectOfAnExperimentTest extends RelationshipServiceTest
     @Test(dataProvider = "All 2-permutations of space level roles weaker than {ADMIN, ADMIN}",
             expectedExceptions =
                 { AuthorizationFailureException.class })
-    public void assigningExperimentToProjectInDifferentSpaceIsNotAllowedWithoutSpaceAdminRoleOnBothSpaces(
+    public void assigningExperimentToProjectIsNotAllowedWithSpaceRolesWeakerThanAdmin(
             RoleCode sourceSpaceRole, RoleCode destinationSpaceRole)
     {
         Space sourceSpace = create(aSpace());
@@ -101,25 +101,25 @@ public class ChangeProjectOfAnExperimentTest extends RelationshipServiceTest
     }
 
     @Test
-    public void assigningExperimentToProjectInAnotherSpaceChangesTheSpaceOfSamplesInThatExperimentAccordingly()
+    public void assigningExperimentToProjectInAnotherSpaceChangesTheSpaceOfSamplesInThatExperiment()
     {
-        Space sourceSpace = aSpace().create();
-        Space destinationSpace = aSpace().create();
+        Space sourceSpace = create(aSpace());
+        Space destinationSpace = create(aSpace());
 
-        Project sourceProject = aProject().withCode("source").inSpace(sourceSpace).create();
+        Project sourceProject = create(aProject().withCode("source").inSpace(sourceSpace));
         Project destinationProject =
-                aProject().withCode("destination").inSpace(destinationSpace).create();
+                create(aProject().withCode("destination").inSpace(destinationSpace));
 
-        Experiment experiment = anExperiment().inProject(sourceProject).create();
+        Experiment experiment = create(anExperiment().inProject(sourceProject));
 
-        Sample sample = aSample().inExperiment(experiment).create();
+        Sample sample = create(aSample().inExperiment(experiment));
 
         ExperimentUpdatesDTO updates =
-                anExperimentUpdate(experiment).withProject(destinationProject).create();
+                create(anExperimentUpdate(experiment).withProject(destinationProject));
 
         String session =
-                aSession().withSpaceRole(RoleCode.ADMIN, sourceSpace).withSpaceRole(RoleCode.ADMIN,
-                        destinationSpace).create();
+                create(aSession().withSpaceRole(RoleCode.ADMIN, sourceSpace).withSpaceRole(
+                        RoleCode.ADMIN, destinationSpace));
 
         commonServer.updateExperiment(session, updates);
 

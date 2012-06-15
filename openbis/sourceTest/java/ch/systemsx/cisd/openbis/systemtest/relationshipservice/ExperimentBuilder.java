@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest.relationshipservice;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
@@ -28,22 +29,58 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 public class ExperimentBuilder extends Builder<Experiment>
 {
+    private String code;
+
     private Project project;
+
+    private String session;
+
+    private String[] samples;
+
+    private List<NewSamplesWithTypes> newSamples;
 
     public ExperimentBuilder(ICommonServerForInternalUse commonServer, IGenericServer genericServer)
     {
         super(commonServer, genericServer);
+        this.session = systemSession;
+        this.samples = new String[0];
+        this.newSamples = null;
+        this.code = UUID.randomUUID().toString();
     }
 
     @SuppressWarnings("hiding")
     public ExperimentBuilder inProject(Project project)
     {
         this.project = project;
+        return this;
+    }
+
+    public ExperimentBuilder withCode(String code)
+    {
+        this.code = code;
+        return this;
+    }
+
+    public ExperimentBuilder asUser(String session)
+    {
+        this.session = session;
+        return this;
+    }
+
+    public ExperimentBuilder withSamples(Sample... samples)
+    {
+        String[] sampleIds = new String[samples.length];
+        for (int i = 0; i < samples.length; i++)
+        {
+            sampleIds[i] = samples[i].getIdentifier();
+        }
+        this.samples = sampleIds;
         return this;
     }
 
@@ -63,16 +100,16 @@ public class ExperimentBuilder extends Builder<Experiment>
 
         String experimentId = "/" + this.project.getSpace().getCode() + "/" +
                 this.project.getCode() + "/"
-                + UUID.randomUUID().toString();
+                + this.code;
 
         NewExperiment details = new NewExperiment(experimentId, experimentType.getCode());
         details.setAttachments(new ArrayList<NewAttachment>());
         details.setGenerateCodes(false);
-        details.setNewSamples(new ArrayList<NewSamplesWithTypes>());
+        details.setNewSamples(this.newSamples);
         details.setProperties(new IEntityProperty[0]);
         details.setRegisterSamples(false);
-        details.setSamples(new String[0]);
-        genericServer.registerExperiment(systemSession, details,
+        details.setSamples(this.samples);
+        genericServer.registerExperiment(this.session, details,
                 new ArrayList<NewAttachment>());
         return getExperiment(experimentId);
     }

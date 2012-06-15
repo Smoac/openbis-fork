@@ -21,6 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
@@ -31,29 +32,65 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 public class ChangeSpaceOfAProjectTest extends RelationshipServiceTest
 {
     @Test
-    public void spaceAdminOfBothSpacesIsAllowedToUpdateProjectSpaceRelationship()
+    public void assigningProjecToSpaceChangesSpaceOfAllSamplesOfAllExperimentsInThatProject()
     {
-        Space sourceSpace = aSpace().create();
-        Space destinationSpace = aSpace().create();
-        Project project = aProject().inSpace(sourceSpace).create();
+        Space sourceSpace = create(aSpace());
+        Space destinationSpace = create(aSpace());
+        Project project = create(aProject().inSpace(sourceSpace));
 
-        Experiment experiment1 = anExperiment().inProject(project).create();
-        Experiment experiment2 = anExperiment().inProject(project).create();
+        Experiment experiment1 = create(anExperiment().inProject(project));
+        Experiment experiment2 = create(anExperiment().inProject(project));
 
-        Sample sample1 = aSample().inExperiment(experiment1).create();
-        Sample sample2 = aSample().inExperiment(experiment2).create();
+        Sample sample1 = create(aSample().inExperiment(experiment1));
+        Sample sample2 = create(aSample().inExperiment(experiment2));
 
-        ProjectUpdatesDTO updates = aProjectUpdate(project).withSpace(destinationSpace).create();
+        ProjectUpdatesDTO updates = create(aProjectUpdate(project).withSpace(destinationSpace));
 
         String session =
-                aSession().withSpaceRole(RoleCode.ADMIN, sourceSpace).withSpaceRole(RoleCode.ADMIN,
-                        destinationSpace).create();
+                create(aSession().withSpaceRole(RoleCode.ADMIN, sourceSpace).withSpaceRole(
+                        RoleCode.ADMIN, destinationSpace));
 
         commonServer.updateProject(session, updates);
 
         assertThat(serverSays(project), is(inSpace(destinationSpace)));
         assertThat(serverSays(sample1), is(inSpace(destinationSpace)));
         assertThat(serverSays(sample2), is(inSpace(destinationSpace)));
+    }
+
+    @Test(dataProvider = "All 2-permutations of space level roles weaker than {ADMIN, ADMIN}",
+            expectedExceptions =
+                { AuthorizationFailureException.class })
+    public void assigningProjectToSpaceIsNotAllowedWithSpaceRolesWeakerThanAdmin(
+            RoleCode sourceRole, RoleCode destinationRole)
+    {
+        Space sourceSpace = create(aSpace());
+        Space destinationSpace = create(aSpace());
+        Project project = create(aProject().inSpace(sourceSpace));
+
+        ProjectUpdatesDTO updates = create(aProjectUpdate(project).withSpace(destinationSpace));
+
+        String session =
+                create(aSession().withSpaceRole(sourceRole, sourceSpace).withSpaceRole(
+                        destinationRole, destinationSpace));
+
+        commonServer.updateProject(session, updates);
+    }
+
+    @Test(dataProvider = "Instance level roles below ADMIN",
+            expectedExceptions =
+                { AuthorizationFailureException.class })
+    public void assigningProjectToSpaceIsNotAllowedWithInstanceRolesWeakerThanAdmin(RoleCode role)
+    {
+        Space sourceSpace = create(aSpace());
+        Space destinationSpace = create(aSpace());
+        Project project = create(aProject().inSpace(sourceSpace));
+
+        ProjectUpdatesDTO updates = create(aProjectUpdate(project).withSpace(destinationSpace));
+
+        String session =
+                create(aSession().withInstanceRole(role));
+
+        commonServer.updateProject(session, updates);
     }
 
 }

@@ -17,14 +17,15 @@
 package ch.systemsx.cisd.openbis.systemtest.relationshipservice;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -66,7 +67,14 @@ public class SampleBuilder extends Builder<Sample>
         SampleType sampleType = new SampleType();
         sampleType.setCode(UUID.randomUUID().toString());
         sampleType.setContainerHierarchyDepth(0);
-        sampleType.setDatabaseInstance(this.experiment.getProject().getSpace().getInstance());
+
+        if (this.experiment != null)
+        {
+            sampleType.setDatabaseInstance(this.experiment.getProject().getSpace().getInstance());
+        } else if (this.space != null)
+        {
+            sampleType.setDatabaseInstance(this.space.getInstance());
+        }
         sampleType.setDescription("description");
         sampleType.setGeneratedCodePrefix("prefix");
         sampleType.setListable(true);
@@ -79,10 +87,13 @@ public class SampleBuilder extends Builder<Sample>
         {
             identifier = "/" + this.experiment.getProject().getSpace().getCode() + "/"
                     + UUID.randomUUID().toString().toUpperCase();
-        } else
+        } else if (this.space != null)
         {
             identifier = "/" + this.space.getCode() + "/"
                     + UUID.randomUUID().toString().toUpperCase();
+        } else
+        {
+            identifier = "/" + UUID.randomUUID().toString().toUpperCase();
         }
 
         NewSample data = new NewSample();
@@ -101,18 +112,9 @@ public class SampleBuilder extends Builder<Sample>
 
         genericServer.registerSample(systemSession, data, new ArrayList<NewAttachment>());
 
-        ListSampleCriteria criteria =
-                ListSampleCriteria.createForExperiment(new TechId(experiment.getId()));
-        List<Sample> samples = commonServer.listSamples(systemSession, criteria);
-
-        for (Sample s : samples)
-        {
-            if (s.getIdentifier().equals(identifier))
-            {
-                return s;
-            }
-        }
-        throw new IllegalStateException("Sample registration failed");
+        BasicEntityDescription info = new BasicEntityDescription(EntityKind.SAMPLE, identifier);
+        IEntityInformationHolderWithPermId holder =
+                commonServer.getEntityInformationHolder(systemSession, info);
+        return commonServer.getSampleInfo(systemSession, new TechId(holder.getId())).getParent();
     }
-
 }

@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -86,6 +87,11 @@ public abstract class RelationshipServiceTest extends SystemTestCase
         return new SampleBuilder(commonServer, genericServer);
     }
 
+    protected DataSetBuilder aDataSet()
+    {
+        return new DataSetBuilder(commonServer, genericServer, etlService);
+    }
+
     protected ProjectUpdateBuilder aProjectUpdate(Project project)
     {
         return new ProjectUpdateBuilder(commonServer, genericServer, project);
@@ -94,6 +100,11 @@ public abstract class RelationshipServiceTest extends SystemTestCase
     protected ExperimentUpdateBuilder anExperimentUpdate(Experiment experiment)
     {
         return new ExperimentUpdateBuilder(commonServer, genericServer, experiment);
+    }
+
+    protected SampleUpdateBuilder aSampleUpdate(Sample sample)
+    {
+        return new SampleUpdateBuilder(commonServer, genericServer, sample);
     }
 
     protected SessionBuilder aSession()
@@ -121,6 +132,11 @@ public abstract class RelationshipServiceTest extends SystemTestCase
         return new InSpaceMatcher(space);
     }
 
+    protected Matcher<Object> inExperiment(Experiment experiment)
+    {
+        return new InExperimentMatcher(experiment);
+    }
+
     protected Matcher<Experiment> inProject(Project project)
     {
         return new InProjectMatcher(project);
@@ -141,5 +157,10 @@ public abstract class RelationshipServiceTest extends SystemTestCase
         SampleParentWithDerived result =
                 commonServer.getSampleInfo(systemSessionToken, new TechId(sample.getId()));
         return result.getParent();
+    }
+
+    protected ExternalData serverSays(ExternalData data)
+    {
+        return etlService.tryGetDataSet(systemSessionToken, data.getCode());
     }
 }

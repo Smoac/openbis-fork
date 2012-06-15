@@ -20,14 +20,17 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
@@ -48,6 +51,9 @@ public class RelationshipService implements IRelationshipService
 
     private static final String ERR_DATABASE_NOT_FOUND =
             "Database '%s' not found";
+
+    private static final String ERR_SAMPLE_NOT_FOUND =
+            "Sample '%s' not found";
 
     private DAOFactory daoFactory;
 
@@ -74,6 +80,55 @@ public class RelationshipService implements IRelationshipService
         {
             SampleUtils.setSamplesGroup(experiment, space);
         }
+    }
+
+    @Override
+    public void assignSampleToExperiment(IAuthSession session, SampleIdentifier sampleId,
+            ExperimentIdentifier experimentId)
+    {
+        SamplePE sample = findSample(sampleId);
+        ExperimentPE experiment = findExperiment(experimentId);
+        sample.setExperiment(experiment);
+
+        for (DataPE dataset : sample.getDatasets())
+        {
+            dataset.setExperiment(experiment);
+        }
+    }
+
+    @Override
+    public void unassignSampleFromExperiment(IAuthSession session, SampleIdentifier sampleId)
+    {
+        SamplePE sample = findSample(sampleId);
+        if (sample.getExperiment() != null)
+        {
+            sample.getExperiment().removeSample(sample);
+        }
+    }
+
+    private SamplePE findSample(SampleIdentifier sampleId)
+    {
+        SamplePE sample;
+        if (sampleId.getDatabaseInstanceLevel() != null)
+        {
+            DatabaseInstancePE dbin = findDatabaseInstance(sampleId.getDatabaseInstanceLevel());
+            sample = daoFactory.getSampleDAO().tryFindByCodeAndDatabaseInstance(
+                    sampleId.getSampleCode(),
+                    dbin);
+        } else
+        {
+            SpacePE space = findSpace(sampleId.getSpaceLevel());
+            sample =
+                    daoFactory.getSampleDAO()
+                            .tryFindByCodeAndSpace(sampleId.getSampleCode(), space);
+        }
+
+        if (sample == null)
+        {
+            throw UserFailureException.fromTemplate(ERR_SAMPLE_NOT_FOUND, sampleId);
+        }
+
+        return sample;
     }
 
     private ExperimentPE findExperiment(ExperimentIdentifier experimentId)
@@ -134,4 +189,5 @@ public class RelationshipService implements IRelationshipService
     {
         this.daoFactory = daoFactory;
     }
+
 }

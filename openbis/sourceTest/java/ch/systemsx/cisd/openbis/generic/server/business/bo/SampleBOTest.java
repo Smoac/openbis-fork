@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -94,6 +94,8 @@ public final class SampleBOTest extends AbstractBOTest
         sample.setCode(DEFAULT_SAMPLE_CODE);
         sample.setModificationDate(new Date());
         sample.setSampleType(createSampleTypePE(SAMPLE_TYPE));
+        sample.setDatabaseInstance(new DatabaseInstancePE());
+        sample.getDatabaseInstance().setCode("code");
         return sample;
     }
 
@@ -324,103 +326,6 @@ public final class SampleBOTest extends AbstractBOTest
     }
 
     @Test
-    public final void testDetachFromExperiment()
-    {
-        final SamplePE sample = createAnySample();
-        sample.setExperiment(new ExperimentPE());
-        sample.setId(SAMPLE_TECH_ID.getId());
-
-        prepareExperimentUpdateOnly(sample);
-        ExperimentIdentifier experimentIdentifier = null;
-
-        updateSampleExperiment(SAMPLE_TECH_ID, sample, experimentIdentifier);
-        assertNull(sample.getExperiment());
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public final void testDetachFromExperimentWithDatasetsFails()
-    {
-        final SamplePE sample = createAnySample();
-        sample.setExperiment(new ExperimentPE());
-        sample.setId(SAMPLE_TECH_ID.getId());
-
-        prepareTryToLoadOfSampleWithId(sample);
-        prepareNoPropertiesToUpdate(sample);
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(dataDAO).hasDataSet(with(sample));
-                    will(returnValue(true));
-                }
-            });
-        ExperimentIdentifier experimentIdentifier = null;
-        String errorMsg =
-                "Cannot detach the sample 'XX' from the experiment because there are already datasets attached to the sample.";
-        try
-        {
-            updateSampleExperiment(SAMPLE_TECH_ID, sample, experimentIdentifier);
-        } catch (UserFailureException e)
-        {
-            assertEquals(errorMsg, e.getMessage());
-            return;
-        }
-        fail("Following exception expected: " + errorMsg);
-    }
-
-    @Test
-    public final void testEditExperiment()
-    {
-        final ProjectPE project = createProject();
-        // create experiment which we will attach the sample
-        final ExperimentPE experimentToAttach = new ExperimentPE();
-        experimentToAttach.setCode("exp1");
-        experimentToAttach.setProject(project);
-        final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier();
-        experimentIdentifier.setExperimentCode("exp1");
-        experimentIdentifier.setProjectCode(project.getCode());
-        experimentIdentifier.setSpaceCode(project.getSpace().getCode());
-        experimentIdentifier.setDatabaseInstanceCode(project.getSpace().getDatabaseInstance()
-                .getCode());
-
-        // create a sample already attached to an experiment
-        final ExperimentPE sampleExperiment = new ExperimentPE();
-        sampleExperiment.setCode("exp2");
-        sampleExperiment.setProject(project);
-        final SamplePE sample = new SamplePE();
-        sample.setId(SAMPLE_TECH_ID.getId());
-        sample.setCode("sampleCode");
-        sample.setExperiment(sampleExperiment);
-        sample.setSpace(EXAMPLE_GROUP);
-        sample.setSampleType(createSampleTypePE(SAMPLE_TYPE));
-
-        Date now = new Date();
-        sample.setModificationDate(now);
-
-        prepareTryToLoadOfSampleWithId(sample);
-        prepareNoPropertiesToUpdate(sample);
-        context.checking(new Expectations()
-            {
-                {
-                    one(projectDAO).tryFindProject(experimentIdentifier.getDatabaseInstanceCode(),
-                            experimentIdentifier.getSpaceCode(),
-                            experimentIdentifier.getProjectCode());
-                    will(returnValue(project));
-
-                    one(experimentDAO).tryFindByCodeAndProject(project,
-                            experimentIdentifier.getExperimentCode());
-                    will(returnValue(experimentToAttach));
-                }
-            });
-        createSampleBO().update(
-                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, experimentIdentifier, Collections
-                        .<NewAttachment> emptyList(), now, null, null, null));
-
-        assertEquals(experimentToAttach, sample.getExperiment());
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public final void testEditSampleChangeGroupToShared()
     {
         final SamplePE sample = createSample("sampleCode", EXAMPLE_GROUP);
@@ -439,6 +344,9 @@ public final class SampleBOTest extends AbstractBOTest
 
                     allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(false));
+
+                    allowing(relationshipService).unassignSampleFromExperiment(
+                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)));
                 }
             });
         String newSampleIdentifierWithoutDb = "/" + sample.getCode();
@@ -491,6 +399,10 @@ public final class SampleBOTest extends AbstractBOTest
 
                     allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(false));
+
+                    allowing(relationshipService).unassignSampleFromExperiment(
+                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)));
+
                 }
             });
         assertNull(sample.getGeneratedFrom());
@@ -558,6 +470,10 @@ public final class SampleBOTest extends AbstractBOTest
 
                     allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(false));
+
+                    allowing(relationshipService).unassignSampleFromExperiment(
+                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)));
+
                 }
             });
         assertEquals(0, sample.getParents().size());
@@ -615,6 +531,10 @@ public final class SampleBOTest extends AbstractBOTest
 
                     allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(false));
+
+                    allowing(relationshipService).unassignSampleFromExperiment(
+                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)));
+
                 }
             });
         assertNull(sample.getContainer());
@@ -659,6 +579,9 @@ public final class SampleBOTest extends AbstractBOTest
                     one(sampleDAO).createOrUpdateSample(sample, EXAMPLE_PERSON);
                     one(propertiesConverter).checkMandatoryProperties(sample.getProperties(),
                             sample.getSampleType());
+
+                    allowing(relationshipService).unassignSampleFromExperiment(
+                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)));
                 }
             });
         assertNull(sample.getContainer());
@@ -940,7 +863,7 @@ public final class SampleBOTest extends AbstractBOTest
 
     private final SampleBO createSampleBO()
     {
-        return new SampleBO(daoFactory, EXAMPLE_SESSION, propertiesConverter);
+        return new SampleBO(daoFactory, EXAMPLE_SESSION, propertiesConverter, relationshipService);
     }
 
     private SampleType createSampleType(final String sampleTypeCode)

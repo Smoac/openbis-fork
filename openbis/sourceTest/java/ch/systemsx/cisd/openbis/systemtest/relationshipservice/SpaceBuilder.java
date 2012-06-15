@@ -26,17 +26,25 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 public class SpaceBuilder extends Builder<Space>
 {
 
+    private String code;
+
     public SpaceBuilder(ICommonServerForInternalUse commonServer, IGenericServer genericServer)
     {
         super(commonServer, genericServer);
+        this.code = UUID.randomUUID().toString();
+    }
+
+    public SpaceBuilder withCode(String code)
+    {
+        this.code = code;
+        return this;
     }
 
     @Override
     public Space create()
     {
-        String spaceCode = UUID.randomUUID().toString();
-        commonServer.registerSpace(systemSession, spaceCode, "description");
-        return getSpace(spaceCode);
+        commonServer.registerSpace(systemSession, code, "description");
+        return getSpace(code);
     }
 
     private Space getSpace(String spaceCode)

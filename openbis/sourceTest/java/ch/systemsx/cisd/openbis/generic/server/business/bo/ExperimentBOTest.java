@@ -473,44 +473,6 @@ public final class ExperimentBOTest extends AbstractBOTest
     }
 
     @Test
-    public final void testEditSamples()
-    {
-        // we test if this sample will stay assigned to the experiment if it was assigned before
-        SamplePE untouchedSample = createSampleWithCode("untouchedSample");
-        // we test unasignment of this sample from the experiment
-        SamplePE unassignedSample = createSampleWithCode("unassignedSample");
-        // we test if this sample will be assigned to the experiment
-        SamplePE assignedSample = createSampleWithCode("assignedSample");
-
-        final ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
-        final ExperimentPE exp = CommonTestUtils.createExperiment(identifier);
-        exp.setSamples(Arrays.asList(untouchedSample, unassignedSample));
-
-        prepareLoadExperimentByIdentifier(identifier, exp);
-        prepareTryFindSample(exp.getProject().getSpace(), assignedSample.getCode(), assignedSample);
-        prepareNoDatasetsFound();
-        final ExperimentBO expBO = loadExperiment(identifier, exp);
-
-        String[] editedSamples = new String[]
-            { untouchedSample.getCode(), assignedSample.getCode() };
-        expBO.setExperimentSamples(editedSamples);
-        assertEquals(exp, untouchedSample.getExperiment());
-        assertEquals(exp, assignedSample.getExperiment());
-        assertNull(unassignedSample.getExperiment());
-    }
-
-    private void prepareNoDatasetsFound()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(dataDAO).hasDataSet((with(any(SamplePE.class))));
-                    will(returnValue(false));
-                }
-            });
-    }
-
-    @Test
     public final void testEditSamplesAddingAssignedSampleFails()
     {
         SamplePE assignedSample = createSampleWithCode("assignedSample");

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -62,15 +63,17 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
     private boolean spaceUpdated;
 
-    public SampleBO(final IDAOFactory daoFactory, final Session session)
+    public SampleBO(final IDAOFactory daoFactory, final Session session,
+            final IRelationshipService relationshipService)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, relationshipService);
     }
 
     SampleBO(final IDAOFactory daoFactory, final Session session,
-            final IEntityPropertiesConverter entityPropertiesConverter)
+            final IEntityPropertiesConverter entityPropertiesConverter,
+            IRelationshipService relationshipService)
     {
-        super(daoFactory, session, entityPropertiesConverter);
+        super(daoFactory, session, entityPropertiesConverter, relationshipService);
     }
 
     //
@@ -215,7 +218,12 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         checkSampleInGroup(sample);
         checkSampleUnused(sample);
         checkSampleWithoutDatasets();
-        sample.setExperiment(experiment);
+
+        SampleIdentifier sampleId = IdentifierHelper.sample(sample);
+
+        this.relationshipService.assignSampleToExperiment(session,
+                sampleId,
+                IdentifierHelper.createExperimentIdentifier(experiment));
         try
         {
             getSampleDAO().updateSample(sample, findPerson());
@@ -224,6 +232,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             throwException(ex,
                     String.format("Couldn't update sample '%s'", sample.getSampleIdentifier()));
         }
+
         dataChanged = spaceUpdated = false;
     }
 

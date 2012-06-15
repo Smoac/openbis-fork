@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -68,9 +69,10 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
     private boolean businessRulesChecked;
 
-    public SampleTable(final IDAOFactory daoFactory, final Session session)
+    public SampleTable(final IDAOFactory daoFactory, final Session session,
+            IRelationshipService relationshipService)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, relationshipService);
     }
 
     @Override
