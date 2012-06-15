@@ -22,47 +22,50 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * Builder of a {@link Person} instance.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class PersonBuilder
 {
     private final Person person = new Person();
+    {
+        person.setActive(true);
+    }
 
     public PersonBuilder userID(String userID)
     {
         person.setUserId(userID);
         return this;
     }
-    
+
     public PersonBuilder name(String firstName, String lastName)
     {
         person.setFirstName(firstName);
         person.setLastName(lastName);
         return this;
     }
-    
+
     public PersonBuilder email(String email)
     {
         person.setEmail(email);
         return this;
     }
-    
+
     public PersonBuilder registrator(Person registrator)
     {
         person.setRegistrator(registrator);
         return this;
     }
-    
+
     public PersonBuilder registrationDate(Date registrationDate)
     {
         person.setRegistrationDate(registrationDate);
         return this;
     }
-    
+
     public final Person getPerson()
     {
         return person;
     }
-    
+
 }
