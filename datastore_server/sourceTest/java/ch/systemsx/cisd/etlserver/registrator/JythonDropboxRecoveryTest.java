@@ -1024,6 +1024,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         private void prepareExpectations(int retryCount)
         {
+            ignoring(openBisService).heartbeat();
             // get experiment
             atLeast(1).of(openBisService).tryToGetExperiment(
                     new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier());

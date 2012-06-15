@@ -50,6 +50,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
+import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
 import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
@@ -131,6 +132,14 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         stagingDirectory = new File(workingDirectory, "staging");
         stagingDirectory.mkdirs();
 
+        DssRegistrationHealthMonitor.getInstance(openBisService, workingDirectory);
+
+        context.checking(new Expectations()
+            {
+                {
+                    ignoring(openBisService).heartbeat();
+                }
+            });
     }
 
     @Test
