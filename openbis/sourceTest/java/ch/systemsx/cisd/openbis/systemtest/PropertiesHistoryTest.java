@@ -37,8 +37,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -100,12 +100,12 @@ public class PropertiesHistoryTest extends SystemTestCase
 
         List<TableModelRowWithObject<EntityHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);
-        assertEquals("[BACTERIUM, bacterium, BACTERIUM-X [BACTERIUM], Doe, John]", sortedHistory
-                .get(0).getValues().subList(0, 4).toString());
-        assertEquals("[DESCRIPTION, Description, A simple experiment, System User]", sortedHistory
-                .get(1).getValues().subList(0, 4).toString());
-        assertEquals("[GENDER, Gender, MALE [GENDER], System User]", sortedHistory.get(2)
-                .getValues().subList(0, 4).toString());
+        assertEquals("[BACTERIUM, bacterium, , BACTERIUM-X [BACTERIUM], Doe, John]", sortedHistory
+                .get(0).getValues().subList(0, 5).toString());
+        assertEquals("[DESCRIPTION, Description, , A simple experiment, System User]",
+                sortedHistory.get(1).getValues().subList(0, 5).toString());
+        assertEquals("[GENDER, Gender, , MALE [GENDER], System User]", sortedHistory.get(2)
+                .getValues().subList(0, 5).toString());
         assertEquals(3, sortedHistory.size());
         assertValidDates(sortedHistory.get(0));
         assertValidDates(sortedHistory.get(1));
@@ -188,12 +188,12 @@ public class PropertiesHistoryTest extends SystemTestCase
 
         List<TableModelRowWithObject<EntityHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);
-        assertEquals("[BACTERIUM, bacterium, BACTERIUM-X [BACTERIUM], System User]", sortedHistory
-                .get(0).getValues().subList(0, 4).toString());
-        assertEquals("[COMMENT, Comment, very advanced stuff, System User]", sortedHistory.get(1)
-                .getValues().subList(0, 4).toString());
-        assertEquals("[GENDER, Gender, MALE [GENDER], Doe, John]", sortedHistory.get(2).getValues()
-                .subList(0, 4).toString());
+        assertEquals("[BACTERIUM, bacterium, , BACTERIUM-X [BACTERIUM], System User]",
+                sortedHistory.get(0).getValues().subList(0, 5).toString());
+        assertEquals("[COMMENT, Comment, , very advanced stuff, System User]", sortedHistory.get(1)
+                .getValues().subList(0, 5).toString());
+        assertEquals("[GENDER, Gender, , MALE [GENDER], Doe, John]", sortedHistory.get(2)
+                .getValues().subList(0, 5).toString());
         assertEquals(3, sortedHistory.size());
         assertValidDates(sortedHistory.get(0));
         assertValidDates(sortedHistory.get(1));
@@ -269,12 +269,12 @@ public class PropertiesHistoryTest extends SystemTestCase
 
         List<TableModelRowWithObject<EntityHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);
-        assertEquals("[BACTERIUM, bacterium, BACTERIUM1 [BACTERIUM], System User]", sortedHistory
-                .get(0).getValues().subList(0, 4).toString());
-        assertEquals("[COMMENT, Comment, no comment, System User]", sortedHistory.get(1)
-                .getValues().subList(0, 4).toString());
-        assertEquals("[GENDER, Gender, FEMALE [GENDER], System User]", sortedHistory.get(2)
-                .getValues().subList(0, 4).toString());
+        assertEquals("[BACTERIUM, bacterium, , BACTERIUM1 [BACTERIUM], System User]", sortedHistory
+                .get(0).getValues().subList(0, 5).toString());
+        assertEquals("[COMMENT, Comment, , no comment, System User]", sortedHistory.get(1)
+                .getValues().subList(0, 5).toString());
+        assertEquals("[GENDER, Gender, , FEMALE [GENDER], System User]", sortedHistory.get(2)
+                .getValues().subList(0, 5).toString());
         assertEquals(3, sortedHistory.size());
         assertValidDates(sortedHistory.get(0));
         assertValidDates(sortedHistory.get(1));
@@ -327,10 +327,10 @@ public class PropertiesHistoryTest extends SystemTestCase
 
         List<TableModelRowWithObject<EntityHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);
-        assertEquals("[DESCRIPTION, Description, test bacterium 1, System User]", sortedHistory
-                .get(0).getValues().subList(0, 4).toString());
-        assertEquals("[ORGANISM, Organism, FLY [ORGANISM], System User]", sortedHistory.get(1)
-                .getValues().subList(0, 4).toString());
+        assertEquals("[DESCRIPTION, Description, , test bacterium 1, System User]", sortedHistory
+                .get(0).getValues().subList(0, 5).toString());
+        assertEquals("[ORGANISM, Organism, , FLY [ORGANISM], System User]", sortedHistory.get(1)
+                .getValues().subList(0, 5).toString());
         assertEquals(2, sortedHistory.size());
         assertValidDates(sortedHistory.get(0));
         assertValidDates(sortedHistory.get(1));
@@ -355,18 +355,17 @@ public class PropertiesHistoryTest extends SystemTestCase
         {
             sortedHistory.add(gridRowModel.getOriginalObject());
         }
-        Collections.sort(sortedHistory,
-                new Comparator<TableModelRowWithObject<EntityHistory>>()
-                    {
+        Collections.sort(sortedHistory, new Comparator<TableModelRowWithObject<EntityHistory>>()
+            {
 
-                        @Override
-                        public int compare(TableModelRowWithObject<EntityHistory> o1,
-                                TableModelRowWithObject<EntityHistory> o2)
-                        {
-                            return o1.getObjectOrNull().getPropertyType().getCode()
-                                    .compareTo(o2.getObjectOrNull().getPropertyType().getCode());
-                        }
-                    });
+                @Override
+                public int compare(TableModelRowWithObject<EntityHistory> o1,
+                        TableModelRowWithObject<EntityHistory> o2)
+                {
+                    return o1.getObjectOrNull().getPropertyType().getCode()
+                            .compareTo(o2.getObjectOrNull().getPropertyType().getCode());
+                }
+            });
         return sortedHistory;
     }
 
