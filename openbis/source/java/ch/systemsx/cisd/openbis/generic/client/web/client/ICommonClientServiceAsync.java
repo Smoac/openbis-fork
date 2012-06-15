@@ -272,15 +272,15 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> asyncCallback);
 
     /**
-     * @see ICommonClientService#listEntityPropertyHistory(ListEntityHistoryCriteria)
+     * @see ICommonClientService#listEntityHistory(ListEntityHistoryCriteria)
      */
-    public void listEntityPropertyHistory(ListEntityHistoryCriteria criteria,
+    public void listEntityHistory(ListEntityHistoryCriteria criteria,
             AsyncCallback<TypedTableResultSet<EntityHistory>> asyncCallback);
 
     /**
-     * @see ICommonClientService#prepareExportEntityPropertyHistory(TableExportCriteria)
+     * @see ICommonClientService#prepareExportEntityHistory(TableExportCriteria)
      */
-    public void prepareExportEntityPropertyHistory(
+    public void prepareExportEntityHistory(
             TableExportCriteria<TableModelRowWithObject<EntityHistory>> criteria,
             AsyncCallback<String> asyncCallback);
 

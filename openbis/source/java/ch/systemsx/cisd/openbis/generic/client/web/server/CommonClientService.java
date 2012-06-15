@@ -414,7 +414,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public String prepareExportEntityPropertyHistory(
+    public String prepareExportEntityHistory(
             TableExportCriteria<TableModelRowWithObject<EntityHistory>> criteria)
     {
         return prepareExportEntities(criteria);
@@ -608,7 +608,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public TypedTableResultSet<EntityHistory> listEntityPropertyHistory(
+    public TypedTableResultSet<EntityHistory> listEntityHistory(
             ListEntityHistoryCriteria criteria)
     {
         String sessionToken = getSessionToken();

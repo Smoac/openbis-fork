@@ -322,10 +322,10 @@ public interface ICommonClientService extends IClientService
             final TableExportCriteria<TableModelRowWithObject<PropertyType>> criteria)
             throws UserFailureException;
 
-    public TypedTableResultSet<EntityHistory> listEntityPropertyHistory(
+    public TypedTableResultSet<EntityHistory> listEntityHistory(
             ListEntityHistoryCriteria criteria);
 
-    public String prepareExportEntityPropertyHistory(
+    public String prepareExportEntityHistory(
             TableExportCriteria<TableModelRowWithObject<EntityHistory>> criteria);
 
     /**

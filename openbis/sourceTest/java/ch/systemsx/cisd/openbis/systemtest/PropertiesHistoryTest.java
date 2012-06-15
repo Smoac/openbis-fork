@@ -96,7 +96,7 @@ public class PropertiesHistoryTest extends SystemTestCase
         criteria.setEntityKind(EntityKind.EXPERIMENT);
         criteria.setEntityID(id);
         TypedTableResultSet<EntityHistory> propertyHistory =
-                commonClientService.listEntityPropertyHistory(criteria);
+                commonClientService.listEntityHistory(criteria);
 
         List<TableModelRowWithObject<EntityHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);
@@ -184,7 +184,7 @@ public class PropertiesHistoryTest extends SystemTestCase
         criteria.setEntityKind(EntityKind.SAMPLE);
         criteria.setEntityID(id);
         TypedTableResultSet<EntityHistory> propertyHistory =
-                commonClientService.listEntityPropertyHistory(criteria);
+                commonClientService.listEntityHistory(criteria);
 
         List<TableModelRowWithObject<EntityHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);
@@ -265,7 +265,7 @@ public class PropertiesHistoryTest extends SystemTestCase
         criteria.setEntityKind(EntityKind.DATA_SET);
         criteria.setEntityID(id);
         TypedTableResultSet<EntityHistory> propertyHistory =
-                commonClientService.listEntityPropertyHistory(criteria);
+                commonClientService.listEntityHistory(criteria);
 
         List<TableModelRowWithObject<EntityHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);
@@ -323,7 +323,7 @@ public class PropertiesHistoryTest extends SystemTestCase
         criteria.setEntityID(id);
 
         TypedTableResultSet<EntityHistory> propertyHistory =
-                commonClientService.listEntityPropertyHistory(criteria);
+                commonClientService.listEntityHistory(criteria);
 
         List<TableModelRowWithObject<EntityHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);

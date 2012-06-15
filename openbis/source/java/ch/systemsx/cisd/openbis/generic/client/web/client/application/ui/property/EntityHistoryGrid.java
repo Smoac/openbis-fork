@@ -90,7 +90,7 @@ public class EntityHistoryGrid extends TypedTableGrid<EntityHistory>
         criteria.copyPagingConfig(resultSetConfig);
         criteria.setEntityKind(entityKind);
         criteria.setEntityID(entityID);
-        viewContext.getService().listEntityPropertyHistory(criteria, callback);
+        viewContext.getService().listEntityHistory(criteria, callback);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class EntityHistoryGrid extends TypedTableGrid<EntityHistory>
             TableExportCriteria<TableModelRowWithObject<EntityHistory>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        viewContext.getService().prepareExportEntityPropertyHistory(exportCriteria, callback);
+        viewContext.getService().prepareExportEntityHistory(exportCriteria, callback);
     }
 
 }
