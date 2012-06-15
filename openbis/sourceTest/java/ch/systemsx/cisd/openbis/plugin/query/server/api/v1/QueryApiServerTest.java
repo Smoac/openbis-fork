@@ -96,6 +96,7 @@ public class QueryApiServerTest extends AbstractServerTestCase
                     person.setUserId("Albert");
                     person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays
                             .asList(new RoleAssignmentPE())));
+                    person.setActive(true);
                     will(returnValue(Arrays.asList(person)));
 
                     one(personDAO).tryFindPersonByUserId(SESSION.getUserName());
@@ -314,7 +315,8 @@ public class QueryApiServerTest extends AbstractServerTestCase
                     one(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(new Session("u", SESSION_TOKEN, new Principal(), "", 1)));
 
-                    one(commonServer).createReportFromAggregationService(with(SESSION_TOKEN), with(descriptionMatcher), with(serviceParams));
+                    one(commonServer).createReportFromAggregationService(with(SESSION_TOKEN),
+                            with(descriptionMatcher), with(serviceParams));
                     SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
                     builder.addFullHeader("Integer", "Double", "String");
                     builder.addRow(Arrays.asList(new IntegerTableCell(42), new DoubleTableCell(
@@ -324,7 +326,8 @@ public class QueryApiServerTest extends AbstractServerTestCase
             });
 
         QueryTableModel tableModel =
-                queryApiServer.createReportFromAggregationService(SESSION_TOKEN, "DS", "S1", serviceParams);
+                queryApiServer.createReportFromAggregationService(SESSION_TOKEN, "DS", "S1",
+                        serviceParams);
 
         DatastoreServiceDescription description = descriptionMatcher.recordedObject();
         assertEquals("S1", description.getKey());
@@ -332,7 +335,8 @@ public class QueryApiServerTest extends AbstractServerTestCase
         assertEquals("DS", description.getDatastoreCode());
         assertEquals("[]", Arrays.asList(description.getDatasetTypeCodes()).toString());
         assertEquals(DataStoreServiceKind.QUERIES, description.getServiceKind());
-        assertEquals(ReportingPluginType.AGGREGATION_TABLE_MODEL, description.tryReportingPluginType());
+        assertEquals(ReportingPluginType.AGGREGATION_TABLE_MODEL,
+                description.tryReportingPluginType());
         List<QueryTableColumn> columns = tableModel.getColumns();
         assertEquals("Integer", columns.get(0).getTitle());
         assertEquals(QueryTableColumnDataType.LONG, columns.get(0).getDataType());
