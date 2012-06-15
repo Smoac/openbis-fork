@@ -186,6 +186,7 @@ public class CommonTestUtils
         person.setLastName(principal.getLastName());
         person.setEmail(principal.getEmail());
         person.setDatabaseInstance(createHomeDatabaseInstance());
+        person.setActive(true);
 
         return person;
     }
