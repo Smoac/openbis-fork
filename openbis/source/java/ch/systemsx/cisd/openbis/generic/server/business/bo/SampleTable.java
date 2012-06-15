@@ -467,9 +467,14 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             }
             if (false == sample.getModificationDate().equals(sampleUpdates.getVersion()))
             {
-                throw new EnvironmentFailureException("Sample with identifier "
-                        + sampleUpdates.getSampleIdentifier()
-                        + " has been updated since it was retrieved.");
+                StringBuffer sb = new StringBuffer();
+                sb.append("Sample ");
+                sb.append(sampleUpdates.getSampleIdentifier());
+                sb.append(" has been updated since it was retrieved.\n");
+                sb.append("[Current: " + sample.getModificationDate());
+                sb.append(", Retrieved: " + sampleUpdates.getVersion());
+                sb.append("]");
+                throw new EnvironmentFailureException(sb.toString());
             }
             prepareBatchUpdate(sample, sampleUpdates, sampleOwnerCache, experimentCache,
                     propertiesCache);

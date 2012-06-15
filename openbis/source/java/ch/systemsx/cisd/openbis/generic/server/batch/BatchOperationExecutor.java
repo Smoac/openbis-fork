@@ -18,7 +18,7 @@ public class BatchOperationExecutor
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             BatchOperationExecutor.class);
 
-    private static final int DEFAULT_BATCH_SIZE = 1000;
+    private static final int DEFAULT_BATCH_SIZE = 999;
 
     public static <S> void executeInBatches(IBatchOperation<S> strategy)
     {
@@ -71,17 +71,25 @@ public class BatchOperationExecutor
             final List<S> batch = allEntities.subList(startIndex, endIndex);
             operationLog.info(String.format("%s %s progress: %d/%d", strategy.getEntityName(),
                     strategy.getOperationName(), startIndex, maxIndex));
+            notifyProgressListener(progressListenerOrNull, progressPhaseOrNull, maxIndex,
+                    startIndex);
             strategy.execute(batch);
-            if (null != progressListenerOrNull)
-            {
-                progressListenerOrNull.update(progressPhaseOrNull, endIndex, maxIndex);
-            }
+            notifyProgressListener(progressListenerOrNull, progressPhaseOrNull, maxIndex, endIndex);
             operationLog.info(String.format("%s %s progress: %d/%d", strategy.getEntityName(),
                     strategy.getOperationName(), endIndex, maxIndex));
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug(getMemoryUsageMessage());
             }
+        }
+    }
+
+    private static void notifyProgressListener(IProgressListener progressListenerOrNull,
+            String progressPhaseOrNull, int maxIndex, int currentIndex)
+    {
+        if (null != progressListenerOrNull)
+        {
+            progressListenerOrNull.update(progressPhaseOrNull, maxIndex, currentIndex);
         }
     }
 

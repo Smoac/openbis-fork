@@ -1642,21 +1642,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         {
             return Collections.emptyList();
         }
-        List<SampleUpdatesDTO> instanceSamples = new ArrayList<SampleUpdatesDTO>();
-        List<SampleUpdatesDTO> spaceSamples = new ArrayList<SampleUpdatesDTO>();
-        for (SampleUpdatesDTO sampleUpdate : sampleUpdates)
-        {
-            SampleIdentifier sampleIdentifier = sampleUpdate.getSampleIdentifier();
-            if (sampleIdentifier.isDatabaseInstanceLevel())
-            {
-                instanceSamples.add(sampleUpdate);
-            } else
-            {
-                spaceSamples.add(sampleUpdate);
-            }
-        }
-        assertInstanceSampleUpdateAllowed(session, instanceSamples);
-        assertSpaceSampleUpdateAllowed(session, spaceSamples);
+        assertSampleUpdatesAllowed(session, sampleUpdates);
         final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
         final List<Sample> results = new ArrayList<Sample>();
 
@@ -1672,8 +1658,28 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                     };
 
         BatchOperationExecutor.executeInBatches(new SampleUpdate(sampleTable, sampleUpdates,
-                delegate), progress, "updateSamples");
+                delegate), 100, progress, "updateSamples");
         return results;
+    }
+
+    private void assertSampleUpdatesAllowed(final Session session,
+            List<SampleUpdatesDTO> sampleUpdates)
+    {
+        List<SampleUpdatesDTO> instanceSamples = new ArrayList<SampleUpdatesDTO>();
+        List<SampleUpdatesDTO> spaceSamples = new ArrayList<SampleUpdatesDTO>();
+        for (SampleUpdatesDTO sampleUpdate : sampleUpdates)
+        {
+            SampleIdentifier sampleIdentifier = sampleUpdate.getSampleIdentifier();
+            if (sampleIdentifier.isDatabaseInstanceLevel())
+            {
+                instanceSamples.add(sampleUpdate);
+            } else
+            {
+                spaceSamples.add(sampleUpdate);
+            }
+        }
+        assertInstanceSampleUpdateAllowed(session, instanceSamples);
+        assertSpaceSampleUpdateAllowed(session, spaceSamples);
     }
 
     private void assertInstanceSampleUpdateAllowed(Session session,
