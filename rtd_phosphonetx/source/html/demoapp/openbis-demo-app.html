@@ -4,11 +4,13 @@
     <title>openBIS Proteomics Demo Web App</title>
     <link type="text/css" rel="stylesheet" href="body-style.css" />
     <link type="text/css" rel="stylesheet" href="button.css" />
+    <link type="text/css" rel="stylesheet" href="tree.css" />
     <script type="text/javascript" src="d3.js"></script>
     <script type="text/javascript" src="d3.layout.js"></script>
     <script type="text/javascript" src="d3.time.js"></script>
     <script type="text/javascript" src="jquery.js"></script>
     <script type="text/javascript" src="openbis.js"></script>
+    <script type="text/javascript" src="proteomics-demo.js"></script>
     <!-- To speed development, cache the requests -->
     <!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
 <script>
@@ -17,150 +19,6 @@
 //openbisServer = new openbis('https://sprint-openbis.ethz.ch/openbis/openbis', 'https://sprint-openbis.ethz.ch:443/datastore_server');
 openbisServer = new openbis('http://localhost:8888/openbis/openbis', 'http://localhost:8889/datastore_server');
 
-function getAppHeight(){
-    return Math.max($(window).height() - 50, getVisibleLeafsCountForNode(root) * 30);
-}
-
-function getAppWidth(){
-    return $(window).width();
-}
-
-
-var didCreateVis = false;
-
-/// The visualization, referenced by functions that display content
-var vis;
-
-/**
- * Create the DOM elements to store the visualization (tree + inspectors)
- */
-function createVis()
-{ 
-    if (didCreateVis) return;
-    
-    // Create a div to house the tree visualization and the inspectors
-    vis = d3.select("#main").append("div").attr("id", "vis");
-
-    didCreateVis = true;
-}
-
-function translateSrc(d)
-{
-    var translate;
-    if (d.parent != undefined) {
-        var y0 = (null != d.parent.y0) ? d.parent.y0 : d.parent.y;
-        var x0 = (null != d.parent.x0) ? d.parent.x0 : d.parent.x;
-        translate = "translate(" + y0 + "," + x0 + ")";
-    } else {
-        translate = "translate(" + 0 + "," + 0 + ")";
-    }
-    
-    return translate;
-}
-
-function translateDst(d)
-{
-    d.x0 = d.x;
-    d.y0 = d.y;
-    var translate =     "translate(" + d.y + "," + d.x + ")";
-    
-    return translate;
-}
-
-/**
- * Convert properties to pairs
- */
-function props_to_pairs(d)
-{
-    var pairs = [];
-    for (var prop in d) {
-        var pair = [prop, d[prop]];
-        pairs.push(pair);
-    }
-    pairs.sort(function(a, b) { 
-        if (a[0] == b[0]) return 0;
-        // Sort in reverse lexicographical
-        return (a[0] < b[0]) ? -1 : 1;
-    });
-    return pairs;
-}
-
-/**
- * Display the samples returned by the server
- */
-function displayReturnedResults(data)
-{
-    if (data.error) {
-        console.log(data.error);
-        vis.append("p").text("Could not retrieve data.");
-        return;
-    }
-    
-    // This will show the object in the log -- helpful for debugging
-    // console.log(data);
-    clearVis();
-    
-    var headers = data.result.columns;
-    var rows = data.result.rows;
-    
-
-  var svg = vis.append("svg:svg").attr("width", 300).attr("height", 200);
-  svg.append("svg:path").attr("d", "M20 30 L 80 90 L 0 110 Z").attr("stroke", "black").attr("fill", "yellow");
-    
-//    var svg = vis.append("svg").attr("width", 600).attr("height", 400);
-//    svg.selectAll("rect").data(rows)
-//        .enter().append("rect").attr("y", function(d, i) { return 10 * i; }).attr("width", "10").attr("height", "10");
-    
-    
-    var table = vis.append("table").data([rows]);
-    table.enter().append("table").attr("class", "result");
-    
-    var headerRow = table.selectAll("tr.headers").data([headers])
-        .enter().append("tr").attr("class", "headers");
-        
-    headerRow.selectAll("th").data(function(d) { return d })
-        .enter().append("th").text(function(d) { return d.title });
-        
-    var row = table.selectAll("tr.rows").data(rows);
-    row.enter().append("tr").attr("class", function(d,i) { if (i % 2 == 0) return "evenRow"; else return "oddRow"; });
-    
-    row.selectAll("td").data(function(d) { return d })
-        .enter()
-            .append("td")
-            .style("padding", "0px 5px")
-            .style("border", "1px solid black")
-            .text(function(d) { return d.value });
-}
-
-function clearVis()
-{
-    $('#vis > *').remove();
-}
-
-/**
- * Request samples matching some criteria from the server and show them in the Page.
- */
-function queryForResults(parameters)
-{
-    openbisServer.createReportFromAggregationService("DSS1", "demo-proteomics-aggregation", parameters, displayReturnedResults);
-}
-
-
-function enterApp(data)
-{
-    if(data.result == null){
-        alert("Login or password incorrect");
-        $("#username").focus();
-        return;
-    }
-    
-    $("#login-form-div").hide();
-    $("#main").show();
-    
-    $('#openbis-logo').height(30);
-    
-    createVis()
-}
 
 
 $(document).ready(function() {
@@ -222,9 +80,11 @@ $(document).ready(function() {
     <div id="main">
         <button id="logout-button">Logout</button>
         <form id="query-form" action="javascript:">
-            Space:<input id="space" type="text" required="required"> 
-            Protein:<input id="protein" type="text" required="required"> 
-            <button class="query-button" id="query-button" type="submit">Go</button>
+            <table>
+              <tr><td>Space</td><td><input id="space" type="text" required="required"></td></tr>
+              <tr><td>Protein</td><td><input id="protein" type="text" required="required"></td></tr>
+              <tr><td></td><td style="text-align: right"><button class="query-button" id="query-button" type="submit">Search</button></td></tr>
+            </table>
         </form>
     </div>
 </body>

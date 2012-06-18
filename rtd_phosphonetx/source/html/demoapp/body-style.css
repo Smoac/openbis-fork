@@ -1,4 +1,4 @@
-body { font: 14px "Trebuchet MS", sans-serif; }
+body { font: 12px "Verdana", sans-serif; }
 
 h1 { font: 16px; }
 h3 { font: 12px; }
@@ -7,5 +7,8 @@ div#vis { padding-top: 10px;}
 div#vis div { padding-top: 2px;}
 
 .headers { background-color: #eee; }
-.evenRow { background-color: #ffe; }
-.oddRow { background-color: white; }
+
+div#vis tr:nth-child(even) { background-color: #EEE; }
+div#vis tr:nth-child(odd) { background-color: white; }
+
+#main form { padding-top: 10px;}
