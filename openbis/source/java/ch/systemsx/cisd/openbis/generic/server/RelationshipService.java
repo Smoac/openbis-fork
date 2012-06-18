@@ -55,6 +55,9 @@ public class RelationshipService implements IRelationshipService
     private static final String ERR_SAMPLE_NOT_FOUND =
             "Sample '%s' not found";
 
+    private static final String ERR_DATASET_NOT_FOUND =
+            "Sample '%s' not found";
+
     private DAOFactory daoFactory;
 
     @Override
@@ -123,6 +126,25 @@ public class RelationshipService implements IRelationshipService
         SpacePE space = sample.getSpace();
         sample.setSpace(null);
         sample.setDatabaseInstance(space.getDatabaseInstance());
+    }
+
+    @Override
+    public void assignDataSetToExperiment(IAuthSession session, String dataSetCode,
+            ExperimentIdentifier experimentId)
+    {
+        DataPE data = findDataSet(dataSetCode);
+        ExperimentPE experiment = findExperiment(experimentId);
+        data.setExperiment(experiment);
+    }
+
+    private DataPE findDataSet(String dataSetCode)
+    {
+        DataPE data = daoFactory.getDataDAO().tryToFindDataSetByCode(dataSetCode);
+        if (data == null)
+        {
+            throw UserFailureException.fromTemplate(ERR_DATASET_NOT_FOUND, dataSetCode);
+        }
+        return data;
     }
 
     private SamplePE findSample(SampleIdentifier sampleId)

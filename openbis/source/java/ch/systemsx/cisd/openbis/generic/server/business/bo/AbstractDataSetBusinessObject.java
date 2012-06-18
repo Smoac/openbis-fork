@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
+import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -51,15 +53,22 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdentifierBusinessObject
 {
 
-    public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session)
+    private IRelationshipService relationshipService;
+
+    public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session,
+            IRelationshipService relationshipService)
     {
         super(daoFactory, session, EntityKind.DATA_SET);
+        this.relationshipService = relationshipService;
     }
 
     public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session,
-            IEntityPropertiesConverter entityPropertiesConverter)
+            IEntityPropertiesConverter entityPropertiesConverter,
+            IRelationshipService relationshipService)
     {
         super(daoFactory, session, entityPropertiesConverter);
+        this.relationshipService = relationshipService;
+
     }
 
     protected void enrichWithParentsAndExperiment(DataPE dataPE)
@@ -134,7 +143,8 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
     {
         if (experiment.equals(data.getExperiment()) == false)
         {
-            data.setExperiment(experiment);
+            relationshipService.assignDataSetToExperiment(session, data.getCode(), IdentifierHelper
+                    .createExperimentIdentifier(experiment));
         }
     }
 

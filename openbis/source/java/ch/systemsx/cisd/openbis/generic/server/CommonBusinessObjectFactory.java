@@ -156,19 +156,20 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public IDataBO createDataBO(Session session)
     {
-        return new DataBO(getDaoFactory(), session);
+        return new DataBO(getDaoFactory(), session, getRelationshipService());
     }
 
     @Override
     public final IDataSetTable createDataSetTable(final Session session)
     {
-        return new DataSetTable(getDaoFactory(), getDSSFactory(), session);
+        return new DataSetTable(getDaoFactory(), getDSSFactory(), session, getRelationshipService());
     }
 
     @Override
     public IDeletedDataSetTable createDeletedDataSetTable(Session session)
     {
-        return new DeletedDataSetTable(getDaoFactory(), getDSSFactory(), session);
+        return new DeletedDataSetTable(getDaoFactory(), getDSSFactory(), session,
+                getRelationshipService());
     }
 
     @Override

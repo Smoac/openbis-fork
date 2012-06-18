@@ -92,7 +92,8 @@ public final class DataSetTableTest extends AbstractBOTest
 
     private final DataSetTable createDataSetTable()
     {
-        return new DataSetTable(daoFactory, dssFactory, ManagerTestTool.EXAMPLE_SESSION);
+        return new DataSetTable(daoFactory, dssFactory, ManagerTestTool.EXAMPLE_SESSION,
+                relationshipService);
     }
 
     @BeforeMethod
@@ -543,8 +544,8 @@ public final class DataSetTableTest extends AbstractBOTest
         final ExternalDataPE d3Available = createDataSet("d3a", dss3, AVAILABLE);
         final ExternalDataPE d3NonAvailable = createDataSet("d3n", dss3, ARCHIVED);
         final ExternalDataPE[] allDataSets =
-                    { d2Available1, d2Available2, d2NonAvailable1, d2NonAvailable2, d3Available,
-                            d3NonAvailable, d2NonAvailable3 };
+            { d2Available1, d2Available2, d2NonAvailable1, d2NonAvailable2, d3Available,
+                    d3NonAvailable, d2NonAvailable3 };
         context.checking(new Expectations()
             {
                 {
@@ -578,8 +579,8 @@ public final class DataSetTableTest extends AbstractBOTest
         final ExternalDataPE d3Archived = createDataSet("d3a", dss3, ARCHIVED);
         final ExternalDataPE d3NonArchived = createDataSet("d3n", dss3, AVAILABLE);
         final ExternalDataPE[] allDataSets =
-                    { d2Archived1, d2Archived2, d2NonArchived1, d2NonArchived2, d3Archived,
-                            d3NonArchived, d2NonAvailable3 };
+            { d2Archived1, d2Archived2, d2NonArchived1, d2NonArchived2, d3Archived,
+                    d3NonArchived, d2NonAvailable3 };
         context.checking(new Expectations()
             {
                 {

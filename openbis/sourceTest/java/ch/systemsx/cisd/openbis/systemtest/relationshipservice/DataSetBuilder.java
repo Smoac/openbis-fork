@@ -20,22 +20,26 @@ import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
-public class DataSetBuilder extends Builder<ExternalData>
+public class DataSetBuilder extends Builder<DataSet>
 {
 
     private IETLLIMSService etlService;
 
     private SampleIdentifier sampleIdentifier;
+
+    private ExperimentIdentifier experimentIdentifier;
 
     private String code;
 
@@ -50,11 +54,21 @@ public class DataSetBuilder extends Builder<ExternalData>
     public DataSetBuilder inSample(Sample sample)
     {
         this.sampleIdentifier = getSampleIdentifier(sample);
+        if (sample.getExperiment() != null)
+        {
+            inExperiment(sample.getExperiment());
+        }
+        return this;
+    }
+
+    public DataSetBuilder inExperiment(Experiment experiment)
+    {
+        this.experimentIdentifier = new ExperimentIdentifier(experiment);
         return this;
     }
 
     @Override
-    public ExternalData create()
+    public DataSet create()
     {
         DataSetType dataSetType = new DataSetType();
         dataSetType.setCode(UUID.randomUUID().toString());
@@ -69,10 +83,17 @@ public class DataSetBuilder extends Builder<ExternalData>
         data.setLocation("location");
         data.setStorageFormat(StorageFormat.PROPRIETARY);
         data.setDataStoreCode("STANDARD");
+        data.setExperimentIdentifierOrNull(this.experimentIdentifier);
 
-        etlService.registerDataSet(systemSession, sampleIdentifier, data);
+        if (this.sampleIdentifier != null)
+        {
+            etlService.registerDataSet(systemSession, sampleIdentifier, data);
+        } else
+        {
+            etlService.registerDataSet(systemSession, experimentIdentifier, data);
+        }
 
-        return etlService.tryGetDataSet(systemSession, this.code);
+        return (DataSet) etlService.tryGetDataSet(systemSession, this.code);
 
     }
 }

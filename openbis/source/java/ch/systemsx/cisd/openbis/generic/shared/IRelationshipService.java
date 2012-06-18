@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -79,4 +80,12 @@ public interface IRelationshipService
     public void unassignSampleFromSpace(IAuthSession session,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             SampleIdentifier sample);
+
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @Capability("ASSIGN_DATASET_TO_EXPERIMENT")
+    public void assignDataSetToExperiment(IAuthSession session,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            String dataSetCode,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            ExperimentIdentifier experiment);
 }

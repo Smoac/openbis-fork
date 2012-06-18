@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEventBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
@@ -195,9 +196,9 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     private List<DataPE> dataSets;
 
     public DataSetTable(final IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
-            final Session session)
+            final Session session, IRelationshipService relationshipService)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, relationshipService);
         this.dssFactory = dssFactory;
     }
 

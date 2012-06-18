@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDele
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
@@ -101,9 +102,9 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
     private List<DeletedDataPE> deletedDataSets;
 
     public DeletedDataSetTable(final IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
-            final Session session)
+            final Session session, IRelationshipService relationshipService)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, relationshipService);
         this.dssFactory = dssFactory;
     }
 

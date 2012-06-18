@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
+import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -75,15 +76,15 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
 
     private DataStorePE dataStore;
 
-    public DataBO(IDAOFactory daoFactory, Session session)
+    public DataBO(IDAOFactory daoFactory, Session session, IRelationshipService relationshipService)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, relationshipService);
     }
 
     public DataBO(IDAOFactory daoFactory, Session exampleSession,
-            IEntityPropertiesConverter propertiesConverter)
+            IEntityPropertiesConverter propertiesConverter, IRelationshipService relationshipService)
     {
-        super(daoFactory, exampleSession, propertiesConverter);
+        super(daoFactory, exampleSession, propertiesConverter, relationshipService);
     }
 
     @Override

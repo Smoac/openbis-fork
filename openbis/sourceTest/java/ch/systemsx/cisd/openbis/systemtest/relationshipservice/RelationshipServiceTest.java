@@ -21,6 +21,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -105,6 +106,11 @@ public abstract class RelationshipServiceTest extends SystemTestCase
     protected SampleUpdateBuilder aSampleUpdate(Sample sample)
     {
         return new SampleUpdateBuilder(commonServer, genericServer, sample);
+    }
+
+    protected DataSetUpdateBuilder anUpdateOf(DataSet dataset)
+    {
+        return new DataSetUpdateBuilder(commonServer, genericServer, dataset);
     }
 
     protected SessionBuilder aSession()
