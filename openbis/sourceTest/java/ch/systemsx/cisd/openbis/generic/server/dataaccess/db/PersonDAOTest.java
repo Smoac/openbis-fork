@@ -103,7 +103,7 @@ public final class PersonDAOTest extends AbstractDAOTest
         personDAO.createPerson(testPerson2);
         personDAO.createPerson(testPerson3);
         final List<PersonPE> persons = personDAO.listPersons();
-        assertEquals(7, persons.size());
+        assertEquals(8, persons.size());
         final PersonPE testPersonFromDB = personDAO.getPerson(testPerson.getId());
         assertEquals(testPerson, testPersonFromDB);
         final PersonPE testPersonFromDB2 = personDAO.getPerson(testPerson2.getId());
@@ -219,6 +219,13 @@ public final class PersonDAOTest extends AbstractDAOTest
         final PersonPE personDTO = personDAO.listPersons().get(0);
         final Long id = personDTO.getId();
         assertEquals(personDTO, personDAO.getPerson(id));
+    }
+
+    @Test
+    public void testCountActivePersons()
+    {
+        IPersonDAO personDAO = daoFactory.getPersonDAO();
+        assertEquals(4, personDAO.countActivePersons());
     }
 
     @SuppressWarnings("deprecation")

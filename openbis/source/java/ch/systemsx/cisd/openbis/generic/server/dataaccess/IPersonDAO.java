@@ -82,4 +82,10 @@ public interface IPersonDAO extends IGenericDAO<PersonPE>
      */
     public void updatePerson(final PersonPE person) throws DataAccessException;
 
+    /**
+     * Returns the count of active persons. By active we understand persons with
+     * <code>is_active</code> flag set to <code>false</code> and with no roles/groups assignements
+     * defined.
+     */
+    public int countActivePersons() throws DataAccessException;
 }

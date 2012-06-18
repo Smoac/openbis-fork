@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -24,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -47,6 +49,22 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
     private static final Class<PersonPE> ENTITY_CLASS = PersonPE.class;
 
     private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
+
+    public static final String ACTIVE_PERSONS_QUERY =
+            "select count(*) from (                                                       "
+                    + "    select distinct p.user_id from persons p                       "
+                    + "    where p.is_active = true                                       "
+                    + "  union                                                            "
+                    + "    select distinct p.user_id from persons p                       "
+                    + "      left join role_assignments ra on ra.pers_id_grantee=p.id     "
+                    + "    where ra.role_code != 'ETL_SERVER'                             "
+                    + "  union                                                            "
+                    + "    select distinct p.user_id from persons p                       "
+                    + "      left join authorization_group_persons agp on agp.pers_id=p.id"
+                    + "      left join authorization_groups ag on ag.id=agp.ag_id         "
+                    + "      left join role_assignments ra on ra.ag_id_grantee=ag.id      "
+                    + "    where ra.role_code != 'ETL_SERVER'                             "
+                    + ") as active_users                                                  ";
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
@@ -204,6 +222,19 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
                     .getCurrentMethod().getName(), list.size()));
         }
         return list;
+    }
+
+    @Override
+    public final int countActivePersons() throws DataAccessException
+    {
+        return ((BigInteger) executeStatelessAction(new StatelessHibernateCallback()
+            {
+                @Override
+                public Object doInStatelessSession(StatelessSession session)
+                {
+                    return session.createSQLQuery(ACTIVE_PERSONS_QUERY).uniqueResult();
+                }
+            })).intValue();
     }
 
     @Override
