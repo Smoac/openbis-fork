@@ -92,4 +92,8 @@ public interface IClientService extends RemoteService
      */
     public void logout(DisplaySettings displaySettings, boolean simpleViewMode);
 
+    /**
+     * Deactivates persons with specified codes.
+     */
+    public void deactivatePersons(List<String> personsCodes) throws UserFailureException;
 }

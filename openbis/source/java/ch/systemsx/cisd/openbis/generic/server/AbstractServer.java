@@ -395,6 +395,23 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     }
 
     @Override
+    public void deactivatePersons(String sessionToken, List<String> personsCodes)
+    {
+        checkSession(sessionToken);
+        for (String personCode : personsCodes)
+        {
+            PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(personCode);
+            if (person != null)
+            {
+                person.setActive(false);
+                person.clearAuthorizationGroups();
+                person.setRoleAssignments(new HashSet<RoleAssignmentPE>());
+                getDAOFactory().getPersonDAO().updatePerson(person);
+            }
+        }
+    }
+
+    @Override
     public SessionContextDTO tryToAuthenticateAnonymously()
     {
         if (userForAnonymousLogin == null)

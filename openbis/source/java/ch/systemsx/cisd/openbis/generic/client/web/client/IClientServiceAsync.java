@@ -64,4 +64,6 @@ public interface IClientServiceAsync
     public void logout(DisplaySettings displaySettings, boolean simpleViewMode,
             AsyncCallback<Void> callback);
 
+    /** @see IClientService#deactivatePersons(List) */
+    public void deactivatePersons(List<String> personsCodes, AsyncCallback<Void> callback);
 }

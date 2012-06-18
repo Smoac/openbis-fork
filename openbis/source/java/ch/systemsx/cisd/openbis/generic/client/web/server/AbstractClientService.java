@@ -482,6 +482,13 @@ public abstract class AbstractClientService implements IClientService,
         return extractCustomImportProperties();
     }
 
+    @Override
+    public void deactivatePersons(List<String> personsCodes) throws UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        getServer().deactivatePersons(sessionToken, personsCodes);
+    }
+
     protected WebClientConfiguration getWebClientConfiguration()
     {
         return webClientConfigurationProvider.getWebClientConfiguration();

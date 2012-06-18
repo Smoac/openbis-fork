@@ -972,11 +972,6 @@ public interface ICommonClientService extends IClientService
     public void removePersonsFromAuthorizationGroup(TechId authorizationGroupId,
             List<String> personsCodes) throws UserFailureException;
 
-    /**
-     * Deactivates persons with specified codes.
-     */
-    public void deactivatePersons(List<String> personsCodes) throws UserFailureException;
-
     // -- custom grid filters
 
     /**

@@ -1113,12 +1113,6 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public void deactivatePersons(String sessionToken, List<String> personsCodes)
-    {
-        logTracking(sessionToken, "deactivatePersons", "PERSONS(%s)", abbreviate(personsCodes));
-    }
-
-    @Override
     public List<GridCustomFilter> listFilters(String sessionToken, String gridId)
     {
         logAccess(sessionToken, "listFilters", "GRID(%s)", gridId);

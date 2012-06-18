@@ -247,6 +247,12 @@ public abstract class AbstractServerLogger implements IServer
     }
 
     @Override
+    public void deactivatePersons(String sessionToken, List<String> personsCodes)
+    {
+        logTracking(sessionToken, "deactivatePersons", "PERSONS(%s)", abbreviate(personsCodes));
+    }
+
+    @Override
     public boolean isArchivingConfigured(String sessionToken)
     {
         // Do not log that

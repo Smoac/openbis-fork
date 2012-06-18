@@ -879,11 +879,6 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void removePersonsFromAuthorizationGroup(TechId create, List<String> personsCodes,
             AsyncCallback<Void> callback);
 
-    /**
-     * @see ICommonClientService#deactivatePersons(List)
-     */
-    public void deactivatePersons(List<String> personsCodes, AsyncCallback<Void> callback);
-
     // -- custom grid filters
 
     /**

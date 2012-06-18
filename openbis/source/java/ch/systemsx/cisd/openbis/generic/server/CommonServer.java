@@ -24,7 +24,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -2249,23 +2248,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         bo.loadByTechId(authorizationGroupId);
         bo.removePersons(personsCodes);
         bo.save();
-    }
-
-    @Override
-    public void deactivatePersons(String sessionToken, List<String> personsCodes)
-    {
-        checkSession(sessionToken);
-        for (String personCode : personsCodes)
-        {
-            PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(personCode);
-            if (person != null)
-            {
-                person.setActive(false);
-                person.clearAuthorizationGroups();
-                person.setRoleAssignments(new HashSet<RoleAssignmentPE>());
-                getDAOFactory().getPersonDAO().updatePerson(person);
-            }
-        }
     }
 
     // --- grid custom filters and columns

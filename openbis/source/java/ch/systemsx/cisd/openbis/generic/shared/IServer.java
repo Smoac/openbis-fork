@@ -102,6 +102,13 @@ public interface IServer extends ISessionProvider
     public void logout(final String sessionToken) throws UserFailureException;
 
     /**
+     * Deactivates specified persons.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    public void deactivatePersons(String sessionToken, List<String> personsCodes);
+
+    /**
      * Sets the user that owns this session. All methods called after this method are called with
      * the privileges of the user specified by <var>userCode</code>.
      * <p>

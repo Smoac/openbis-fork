@@ -2086,13 +2086,6 @@ public final class CommonClientService extends AbstractClientService implements
                 personsCodes);
     }
 
-    @Override
-    public void deactivatePersons(List<String> personsCodes) throws UserFailureException
-    {
-        final String sessionToken = getSessionToken();
-        commonServer.deactivatePersons(sessionToken, personsCodes);
-    }
-
     private <T extends IIdHolder> List<TechId> extractTechIds(
             DisplayedOrSelectedIdHolderCriteria<T> displayedOrSelectedEntitiesCriteria)
     {
