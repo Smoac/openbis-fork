@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -230,15 +231,22 @@ public class JsonTypeAndClassDeserializer extends AsPropertyTypeDeserializer
         final JsonParser actualJp;
         final JsonDeserializer<Object> deserializer;
 
-        if (t == JsonToken.START_ARRAY && _baseType.getRawClass().equals(Object.class))
+        JavaType type = _baseType;
+
+        if (type.getRawClass().equals(Object.class))
         {
-            JavaType collectionType =
-                    ctxt.getConfig().getTypeFactory().constructRawCollectionType(Collection.class);
-            deserializer = ctxt.findContextualValueDeserializer(collectionType, _property);
-        } else
-        {
-            deserializer = ctxt.findContextualValueDeserializer(_baseType, _property);
+            if (t == JsonToken.START_ARRAY)
+            {
+                type =
+                        ctxt.getConfig().getTypeFactory()
+                                .constructRawCollectionType(Collection.class);
+            } else if (t == JsonToken.START_OBJECT)
+            {
+                type = ctxt.getConfig().getTypeFactory().constructRawMapType(Map.class);
+            }
         }
+
+        deserializer = ctxt.findContextualValueDeserializer(type, _property);
 
         if (tb != null)
         {
