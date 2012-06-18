@@ -16,40 +16,15 @@
 
 package ch.systemsx.cisd.common.api.server.json.object;
 
-import ch.systemsx.cisd.common.api.server.json.common.ObjectCounter;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectType;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectMap;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
+@JsonObject(ObjectWithUnknownTypeFactory.TYPE)
 public class ObjectWithUnknownType
 {
 
-    public static final String TYPE = "ObjectWithUnknownType";
-
-    public static final String CLASS = ".LegacyObjectWithUnknownType";
-
-    public static final String PROPERTY = "property";
-
-    public static final String PROPERTY_VALUE = "propertyValue";
-
     public String property;
-
-    public static ObjectWithUnknownType createObject()
-    {
-        ObjectWithUnknownType object = new ObjectWithUnknownType();
-        object.property = PROPERTY_VALUE;
-        return object;
-    }
-
-    public static ObjectMap createMap(ObjectCounter objectCounter, ObjectType objectType)
-    {
-        ObjectMap map = new ObjectMap();
-        map.putId(objectCounter);
-        map.putType(TYPE, CLASS, objectType);
-        map.putField(PROPERTY, PROPERTY_VALUE);
-        return map;
-    }
 
 }

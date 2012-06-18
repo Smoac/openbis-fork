@@ -22,6 +22,6 @@ package ch.systemsx.cisd.common.api.server.json.common;
 public enum ObjectType
 {
 
-    NONE, TYPE, CLASS, TYPE_AND_CLASS
+    NONE, TYPE, CLASS
 
 }

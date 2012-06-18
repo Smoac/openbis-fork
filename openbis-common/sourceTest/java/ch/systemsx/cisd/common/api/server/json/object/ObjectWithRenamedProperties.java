@@ -21,39 +21,13 @@ import org.testng.Assert;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectCounter;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectMap;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectType;
 
 /**
  * @author pkupczyk
  */
-@JsonObject(ObjectWithRenamedProperties.TYPE)
+@JsonObject(ObjectWithRenamedPropertiesFactory.TYPE)
 public class ObjectWithRenamedProperties
 {
-
-    public static final String TYPE = "ObjectWithRenamedProperties";
-
-    public static final String CLASS = ".LegacyObjectWithRenamedProperties";
-
-    public static final String PROPERTY = "property";
-
-    public static final String PROPERTY_VALUE = "propertyValue";
-
-    public static final String PROPERTY_RENAMED = "propertyRenamed";
-
-    public static final String PROPERTY_RENAMED_VALUE = "propertyRenamedValue";
-
-    public static final String PROPERTY_WITH_GETTER_AND_SETTER = "propertyWithGetterAndSetter";
-
-    public static final String PROPERTY_WITH_GETTER_AND_SETTER_VALUE =
-            "propertyWithGetterAndSetterValue";
-
-    public static final String PROPERTY_WITH_GETTER_AND_SETTER_RENAMED =
-            "propertyWithGetterAndSetterRenamed";
-
-    public static final String PROPERTY_WITH_GETTER_AND_SETTER_RENAMED_VALUE =
-            "propertyWithGetterAndSetterRenamedValue";
 
     public String property;
 
@@ -85,40 +59,17 @@ public class ObjectWithRenamedProperties
         this.y = y;
     }
 
-    public static ObjectWithRenamedProperties createObject()
-    {
-        ObjectWithRenamedProperties object = new ObjectWithRenamedProperties();
-        object.property = PROPERTY_VALUE;
-        object.x = PROPERTY_RENAMED_VALUE;
-        object.propertyWithGetterAndSetter = PROPERTY_WITH_GETTER_AND_SETTER_VALUE;
-        object.y = PROPERTY_WITH_GETTER_AND_SETTER_RENAMED_VALUE;
-        return object;
-    }
-
-    public static ObjectMap createMap(ObjectCounter objectCounter, ObjectType objectType)
-    {
-        ObjectMap map = new ObjectMap();
-        map.putId(objectCounter);
-        map.putType(TYPE, CLASS, objectType);
-        map.putField(PROPERTY, PROPERTY_VALUE);
-        map.putField(PROPERTY_RENAMED, PROPERTY_RENAMED_VALUE);
-        map.putField(PROPERTY_WITH_GETTER_AND_SETTER, PROPERTY_WITH_GETTER_AND_SETTER_VALUE);
-        map.putField(PROPERTY_WITH_GETTER_AND_SETTER_RENAMED,
-                PROPERTY_WITH_GETTER_AND_SETTER_RENAMED_VALUE);
-        return map;
-    }
-
     @Override
     public boolean equals(Object obj)
     {
         Assert.assertNotNull(obj);
-        Assert.assertEquals(getClass(), obj.getClass());
+        Assert.assertEquals(obj.getClass(), getClass());
 
         ObjectWithRenamedProperties casted = (ObjectWithRenamedProperties) obj;
-        Assert.assertEquals(property, casted.property);
-        Assert.assertEquals(x, casted.x);
-        Assert.assertEquals(propertyWithGetterAndSetter, casted.propertyWithGetterAndSetter);
-        Assert.assertEquals(y, casted.y);
+        Assert.assertEquals(casted.property, property);
+        Assert.assertEquals(casted.x, x);
+        Assert.assertEquals(casted.propertyWithGetterAndSetter, propertyWithGetterAndSetter);
+        Assert.assertEquals(casted.y, y);
         return true;
     }
 

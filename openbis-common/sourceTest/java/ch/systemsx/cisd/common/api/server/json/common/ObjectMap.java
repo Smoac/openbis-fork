@@ -61,11 +61,11 @@ public class ObjectMap
     {
         Map<String, Object> map = new LinkedHashMap<String, Object>();
 
-        if (ObjectType.TYPE.equals(objectType) || ObjectType.TYPE_AND_CLASS.equals(objectType))
+        if (ObjectType.TYPE.equals(objectType))
         {
             map.put("@type", type);
         }
-        if (ObjectType.CLASS.equals(objectType) || ObjectType.TYPE_AND_CLASS.equals(objectType))
+        if (ObjectType.CLASS.equals(objectType))
         {
             map.put("@class", clazz);
         }

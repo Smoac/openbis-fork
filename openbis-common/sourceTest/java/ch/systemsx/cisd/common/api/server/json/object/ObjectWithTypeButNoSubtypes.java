@@ -19,60 +19,27 @@ package ch.systemsx.cisd.common.api.server.json.object;
 import org.testng.Assert;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectCounter;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectMap;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectType;
 
 /**
  * @author pkupczyk
  */
-@JsonObject(ObjectWithTypeButNoSubtypes.TYPE)
+@JsonObject(ObjectWithTypeButNoSubtypesFactory.TYPE)
 public class ObjectWithTypeButNoSubtypes
 {
-
-    public static final String TYPE = "ObjectWithTypeButNoSubtypes";
-
-    public static final String CLASS = ".LegacyObjectWithTypeButNoSubtypes";
-
-    public static final String A = "a";
-
-    public static final String A_VALUE = "aValue";
-
-    public static final String B = "b";
-
-    public static final String B_VALUE = "bValue";
 
     public String a;
 
     public String b;
 
-    public static ObjectWithTypeButNoSubtypes createObject()
-    {
-        ObjectWithTypeButNoSubtypes object = new ObjectWithTypeButNoSubtypes();
-        object.a = A_VALUE;
-        object.b = B_VALUE;
-        return object;
-    }
-
-    public static ObjectMap createMap(ObjectCounter objectCounter, ObjectType objectType)
-    {
-        ObjectMap map = new ObjectMap();
-        map.putId(objectCounter);
-        map.putType(TYPE, CLASS, objectType);
-        map.putField("a", "aValue");
-        map.putField("b", "bValue");
-        return map;
-    }
-
     @Override
     public boolean equals(Object obj)
     {
         Assert.assertNotNull(obj);
-        Assert.assertEquals(getClass(), obj.getClass());
+        Assert.assertEquals(obj.getClass(), getClass());
 
         ObjectWithTypeButNoSubtypes casted = (ObjectWithTypeButNoSubtypes) obj;
-        Assert.assertEquals(a, casted.a);
-        Assert.assertEquals(b, casted.b);
+        Assert.assertEquals(casted.a, a);
+        Assert.assertEquals(casted.b, b);
         return true;
     }
 

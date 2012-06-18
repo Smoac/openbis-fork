@@ -19,56 +19,24 @@ package ch.systemsx.cisd.common.api.server.json.object;
 import org.testng.Assert;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectCounter;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectMap;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectType;
 
 /**
  * @author pkupczyk
  */
-@JsonObject(ObjectWithSelfReference.TYPE)
+@JsonObject(ObjectWithSelfReferenceFactory.TYPE)
 public class ObjectWithSelfReference
 {
 
-    public static final String TYPE = "ObjectWithSelfReference";
-
-    public static final String CLASS = ".LegacyObjectWithSelfReference";
-
-    public static final String SELF_REFERENCE = "selfReference";
-
     public ObjectWithSelfReference selfReference;
-
-    public static ObjectWithSelfReference createObject()
-    {
-        ObjectWithSelfReference object = new ObjectWithSelfReference();
-        object.selfReference = new ObjectWithSelfReference();
-        return object;
-    }
-
-    public static ObjectMap createMap(ObjectCounter objectCounter, ObjectType objectType)
-    {
-        ObjectMap map = new ObjectMap();
-        map.putId(objectCounter);
-        map.putType(TYPE, CLASS, objectType);
-
-        ObjectMap selfReference = new ObjectMap();
-        selfReference.putId(objectCounter);
-        selfReference.putType(TYPE, CLASS, objectType);
-        selfReference.putField(SELF_REFERENCE, null);
-
-        map.putField(SELF_REFERENCE, selfReference.toMap());
-
-        return map;
-    }
 
     @Override
     public boolean equals(Object obj)
     {
         Assert.assertNotNull(obj);
-        Assert.assertEquals(getClass(), obj.getClass());
+        Assert.assertEquals(obj.getClass(), getClass());
 
         ObjectWithSelfReference casted = (ObjectWithSelfReference) obj;
-        Assert.assertEquals(selfReference, casted.selfReference);
+        Assert.assertTrue(casted == casted.selfReference);
         return true;
     }
 

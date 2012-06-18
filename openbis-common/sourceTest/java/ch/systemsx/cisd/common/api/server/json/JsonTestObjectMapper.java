@@ -26,24 +26,42 @@ import ch.systemsx.cisd.common.api.server.json.mapping.IJsonBaseTypeToSubTypesMa
 import ch.systemsx.cisd.common.api.server.json.mapping.IJsonClassValueToClassObjectsMapping;
 import ch.systemsx.cisd.common.api.server.json.mapping.JsonReflectionsBaseTypeToSubTypesMapping;
 import ch.systemsx.cisd.common.api.server.json.mapping.JsonStaticClassValueToClassObjectsMapping;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectNestedChildFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectNestedFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithContainerTypes;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithContainerTypesFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithDateTypes;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithDateTypesFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithEnumTypes;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithEnumTypesFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithIgnoredProperties;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithIgnoredPropertiesFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes.ObjectNested;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes.ObjectNestedChild;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypesFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrimitiveTypes;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrimitiveTypesFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrivateAccess;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrivateAccessFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithRenamedProperties;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithRenamedPropertiesFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithReusedReferences;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithReusedReferencesFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithSelfReference;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithSelfReferenceFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithType;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeA;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeAA;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeAAFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeAFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeALegalDuplicate;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeB;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeBFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeBIllegalDuplicate;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeButNoSubtypes;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeButNoSubtypesFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeFactory;
 import ch.systemsx.cisd.common.api.server.json.resolver.JsonReflectionsSubTypeResolver;
 import ch.systemsx.cisd.common.api.server.json.serializer.JsonSerializerFactory;
 
@@ -67,24 +85,31 @@ public class JsonTestObjectMapper extends ObjectMapper
     {
         JsonStaticClassValueToClassObjectsMapping classMapping =
                 new JsonStaticClassValueToClassObjectsMapping();
-        classMapping.addClass(ObjectWithType.CLASS, ObjectWithType.class);
-        classMapping.addClass(ObjectWithTypeA.CLASS, ObjectWithTypeA.class);
-        classMapping.addClass(ObjectWithTypeA.CLASS, ObjectWithTypeALegalDuplicate.class);
-        classMapping.addClass(ObjectWithTypeAA.CLASS, ObjectWithTypeAA.class);
-        classMapping.addClass(ObjectWithTypeB.CLASS, ObjectWithTypeB.class);
-        classMapping.addClass(ObjectWithTypeB.CLASS, ObjectWithTypeBIllegalDuplicate.class);
-        classMapping.addClass(ObjectWithTypeButNoSubtypes.CLASS, ObjectWithTypeButNoSubtypes.class);
-        classMapping.addClass(ObjectNested.CLASS, ObjectNested.class);
-        classMapping.addClass(ObjectNestedChild.CLASS, ObjectNestedChild.class);
-        classMapping.addClass(ObjectWithPrimitiveTypes.CLASS, ObjectWithPrimitiveTypes.class);
-        classMapping.addClass(ObjectWithNestedTypes.CLASS, ObjectWithNestedTypes.class);
-        classMapping.addClass(ObjectWithEnumTypes.CLASS, ObjectWithEnumTypes.class);
-        classMapping.addClass(ObjectWithContainerTypes.CLASS, ObjectWithContainerTypes.class);
-        classMapping.addClass(ObjectWithDateTypes.CLASS, ObjectWithDateTypes.class);
-        classMapping.addClass(ObjectWithIgnoredProperties.CLASS, ObjectWithIgnoredProperties.class);
-        classMapping.addClass(ObjectWithRenamedProperties.CLASS, ObjectWithRenamedProperties.class);
-        classMapping.addClass(ObjectWithPrivateAccess.CLASS, ObjectWithPrivateAccess.class);
-        classMapping.addClass(ObjectWithSelfReference.CLASS, ObjectWithSelfReference.class);
+        classMapping.addClass(ObjectWithTypeFactory.CLASS, ObjectWithType.class);
+        classMapping.addClass(ObjectWithTypeAFactory.CLASS, ObjectWithTypeA.class);
+        classMapping.addClass(ObjectWithTypeAFactory.CLASS, ObjectWithTypeALegalDuplicate.class);
+        classMapping.addClass(ObjectWithTypeAAFactory.CLASS, ObjectWithTypeAA.class);
+        classMapping.addClass(ObjectWithTypeBFactory.CLASS, ObjectWithTypeB.class);
+        classMapping.addClass(ObjectWithTypeBFactory.CLASS, ObjectWithTypeBIllegalDuplicate.class);
+        classMapping.addClass(ObjectWithTypeButNoSubtypesFactory.CLASS,
+                ObjectWithTypeButNoSubtypes.class);
+        classMapping.addClass(ObjectNestedFactory.CLASS, ObjectNested.class);
+        classMapping.addClass(ObjectNestedChildFactory.CLASS, ObjectNestedChild.class);
+        classMapping
+                .addClass(ObjectWithPrimitiveTypesFactory.CLASS, ObjectWithPrimitiveTypes.class);
+        classMapping.addClass(ObjectWithNestedTypesFactory.CLASS, ObjectWithNestedTypes.class);
+        classMapping.addClass(ObjectWithEnumTypesFactory.CLASS, ObjectWithEnumTypes.class);
+        classMapping
+                .addClass(ObjectWithContainerTypesFactory.CLASS, ObjectWithContainerTypes.class);
+        classMapping.addClass(ObjectWithDateTypesFactory.CLASS, ObjectWithDateTypes.class);
+        classMapping.addClass(ObjectWithIgnoredPropertiesFactory.CLASS,
+                ObjectWithIgnoredProperties.class);
+        classMapping.addClass(ObjectWithRenamedPropertiesFactory.CLASS,
+                ObjectWithRenamedProperties.class);
+        classMapping.addClass(ObjectWithPrivateAccessFactory.CLASS, ObjectWithPrivateAccess.class);
+        classMapping.addClass(ObjectWithSelfReferenceFactory.CLASS, ObjectWithSelfReference.class);
+        classMapping.addClass(ObjectWithReusedReferencesFactory.CLASS,
+                ObjectWithReusedReferences.class);
         return classMapping;
     }
 

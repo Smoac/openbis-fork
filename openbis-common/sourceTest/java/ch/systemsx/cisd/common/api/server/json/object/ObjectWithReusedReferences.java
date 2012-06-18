@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.common.api.server.json.object;
 
-import java.util.EnumMap;
-import java.util.EnumSet;
-
 import org.testng.Assert;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -26,22 +23,13 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-
-@JsonObject(ObjectWithEnumTypesFactory.TYPE)
-public class ObjectWithEnumTypes
+@JsonObject(ObjectWithReusedReferencesFactory.TYPE)
+public class ObjectWithReusedReferences
 {
 
-    public NestedEnum enumField;
+    public ObjectWithType reference1;
 
-    public EnumSet<NestedEnum> enumSet;
-
-    public EnumMap<NestedEnum, Object> enumMap;
-
-    @JsonObject("NestedEnum")
-    public enum NestedEnum
-    {
-        VALUE1, VALUE2, VALUE3
-    }
+    public ObjectWithType reference2;
 
     @Override
     public boolean equals(Object obj)
@@ -49,10 +37,10 @@ public class ObjectWithEnumTypes
         Assert.assertNotNull(obj);
         Assert.assertEquals(obj.getClass(), getClass());
 
-        ObjectWithEnumTypes casted = (ObjectWithEnumTypes) obj;
-        Assert.assertEquals(casted.enumField, enumField);
-        Assert.assertEquals(casted.enumSet, enumSet);
-        Assert.assertEquals(casted.enumMap, enumMap);
+        ObjectWithReusedReferences casted = (ObjectWithReusedReferences) obj;
+        Assert.assertEquals(casted.reference1, reference1);
+        Assert.assertEquals(casted.reference2, reference2);
+        Assert.assertTrue(casted.reference1 == casted.reference2);
         return true;
     }
 

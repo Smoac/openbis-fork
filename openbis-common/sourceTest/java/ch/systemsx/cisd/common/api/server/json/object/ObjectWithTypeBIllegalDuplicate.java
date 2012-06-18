@@ -22,7 +22,7 @@ import ch.systemsx.cisd.common.api.server.json.JsonUniqueCheckIgnore;
 /**
  * @author pkupczyk
  */
-@JsonObject(ObjectWithTypeB.TYPE)
+@JsonObject(ObjectWithTypeBFactory.TYPE)
 @JsonUniqueCheckIgnore
 public class ObjectWithTypeBIllegalDuplicate extends ObjectWithType
 {

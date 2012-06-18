@@ -70,24 +70,20 @@ public class JsonTypeAndClassAnnotationIntrospector extends JacksonAnnotationInt
             JavaType baseType)
     {
 
-        JsonObject typeAnnotation = ac.getRawType().getAnnotation(JsonObject.class);
-
-        if (typeAnnotation == null)
+        if (useCustomResolver(baseType))
         {
-            // for standard classes use a default implementation
-            return super.findTypeResolver(config, ac, baseType);
+            return new JsonTypeAndClassResolverBuilder(classValueToClassObjectsMapping);
         } else
         {
-            if (ac.getRawType().isEnum())
-            {
-                // for enumerations also use a default implementation
-                return super.findTypeResolver(config, ac, baseType);
-            } else
-            {
-                // for our classes (ones with @JsonObject annotation) use the custom deserializer
-                return new JsonTypeAndClassResolverBuilder(classValueToClassObjectsMapping);
-            }
+            return super.findTypeResolver(config, ac, baseType);
         }
+    }
+
+    private boolean useCustomResolver(JavaType type)
+    {
+        return type.getRawClass().equals(Object.class)
+                || (type.getRawClass().isAnnotationPresent(JsonObject.class) && !type.getRawClass()
+                        .isEnum());
     }
 
 }

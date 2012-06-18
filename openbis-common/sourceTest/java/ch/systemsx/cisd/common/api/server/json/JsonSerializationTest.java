@@ -16,26 +16,31 @@
 
 package ch.systemsx.cisd.common.api.server.json;
 
-import java.util.Map;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.systemsx.cisd.common.api.server.json.common.ObjectCounter;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectMap;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectType;
-import ch.systemsx.cisd.common.api.server.json.object.ObjectWithEnumTypes;
-import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes;
-import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes.ObjectNested;
-import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes.ObjectNestedChild;
-import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrimitiveTypes;
-import ch.systemsx.cisd.common.api.server.json.object.ObjectWithSelfReference;
-import ch.systemsx.cisd.common.api.server.json.object.ObjectWithType;
-import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeA;
-import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeAA;
-import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeButNoSubtypes;
+import ch.systemsx.cisd.common.api.server.json.common.ObjectFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectNestedChildFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectNestedFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithContainerTypesFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithDateTypesFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithEnumTypesFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithIgnoredPropertiesFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedMapsInCollectionFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedMapsInListFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypesFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrimitiveTypesFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrivateAccessFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithRenamedPropertiesFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithReusedReferencesFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithSelfReferenceFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeAAFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeAFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeButNoSubtypesFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithTypeFactory;
 
 /**
  * @author pkupczyk
@@ -46,96 +51,132 @@ public class JsonSerializationTest
     @Test
     public void testSerializeRootType() throws Exception
     {
-        ObjectWithType object = ObjectWithType.createObject();
-        ObjectMap map = ObjectWithType.createMap(new ObjectCounter(), ObjectType.TYPE);
-        serializeObjectAndMapAndCompare(object, map.toMap());
+        testSerialize(new ObjectWithTypeFactory());
     }
 
     @Test
     public void testSerializeFirstLevelSubType() throws Exception
     {
-        ObjectWithTypeA object = ObjectWithTypeA.createObject();
-        ObjectMap map = ObjectWithTypeA.createMap(new ObjectCounter(), ObjectType.TYPE);
-        serializeObjectAndMapAndCompare(object, map.toMap());
+        testSerialize(new ObjectWithTypeAFactory());
     }
 
     @Test
     public void testSerializeSecondLevelSubType() throws Exception
     {
-        ObjectWithTypeAA object = ObjectWithTypeAA.createObject();
-        ObjectMap map = ObjectWithTypeAA.createMap(new ObjectCounter(), ObjectType.TYPE);
-        serializeObjectAndMapAndCompare(object, map.toMap());
+        testSerialize(new ObjectWithTypeAAFactory());
     }
 
     @Test
     public void testSerializeNestedRootType() throws Exception
     {
-        ObjectNested object = ObjectNested.createObject();
-        ObjectMap map = ObjectNested.createMap(new ObjectCounter(), ObjectType.TYPE);
-        serializeObjectAndMapAndCompare(object, map.toMap());
+        testSerialize(new ObjectNestedFactory());
     }
 
     @Test
     public void testSerializeNestedSubType() throws Exception
     {
-        ObjectNestedChild object = ObjectNestedChild.createObject();
-        ObjectMap map = ObjectNestedChild.createMap(new ObjectCounter(), ObjectType.TYPE);
-        serializeObjectAndMapAndCompare(object, map.toMap());
+        testSerialize(new ObjectNestedChildFactory());
     }
 
     @Test
     public void testSerializePolymorphicType() throws Exception
     {
-        ObjectWithType object = ObjectWithType.createObject();
-        ObjectMap map = ObjectWithType.createMap(new ObjectCounter(), ObjectType.TYPE);
-        serializeObjectAndMapAndCompare(object, map.toMap());
+        testSerialize(new ObjectWithTypeFactory());
     }
 
     @Test
     public void testSerializeNotPolymorphicType() throws Exception
     {
-        ObjectWithTypeButNoSubtypes object = ObjectWithTypeButNoSubtypes.createObject();
-        ObjectMap map = ObjectWithTypeButNoSubtypes.createMap(new ObjectCounter(), ObjectType.TYPE);
-        serializeObjectAndMapAndCompare(object, map.toMap());
+        testSerialize(new ObjectWithTypeButNoSubtypesFactory());
     }
 
     @Test
     public void testSerializeObjectWithPrimitiveTypes() throws Exception
     {
-        ObjectWithPrimitiveTypes object = ObjectWithPrimitiveTypes.createObject();
-        ObjectMap map = ObjectWithPrimitiveTypes.createMap(new ObjectCounter(), ObjectType.TYPE);
-        serializeObjectAndMapAndCompare(object, map.toMap());
+        testSerialize(new ObjectWithPrimitiveTypesFactory());
     }
 
     @Test
     public void testSerializeObjectWithNestedTypes() throws Exception
     {
-        ObjectWithNestedTypes object = ObjectWithNestedTypes.createObject();
-        ObjectMap map = ObjectWithNestedTypes.createMap(new ObjectCounter(), ObjectType.TYPE);
-        serializeObjectAndMapAndCompare(object, map.toMap());
+        testSerialize(new ObjectWithNestedTypesFactory());
     }
 
     @Test
     public void testSerializeObjectWithEnumTypes() throws Exception
     {
-        ObjectWithEnumTypes object = ObjectWithEnumTypes.createObject();
-        ObjectMap map = ObjectWithEnumTypes.createMap(new ObjectCounter(), ObjectType.TYPE);
-        serializeObjectAndMapAndCompare(object, map.toMap());
+        testSerialize(new ObjectWithEnumTypesFactory());
+    }
+
+    @Test
+    public void testSerializeObjectWithDateTypes() throws Exception
+    {
+        testSerialize(new ObjectWithDateTypesFactory());
+    }
+
+    @Test
+    public void testSerializeObjectWithIgnoredProperties() throws Exception
+    {
+        testSerialize(new ObjectWithIgnoredPropertiesFactory());
+    }
+
+    @Test
+    public void testSerializeObjectWithRenamedProperties() throws Exception
+    {
+        testSerialize(new ObjectWithRenamedPropertiesFactory());
+    }
+
+    @Test
+    public void testSerializeObjectWithPrivateAccess() throws Exception
+    {
+        testSerialize(new ObjectWithPrivateAccessFactory());
+    }
+
+    @Test
+    public void testSerializeObjectWithContainerTypes() throws Exception
+    {
+        testSerialize(new ObjectWithContainerTypesFactory());
+    }
+
+    @Test
+    public void testSerializeObjectWithNestedMapsInCollection() throws Exception
+    {
+        testSerialize(new ObjectWithNestedMapsInCollectionFactory());
+    }
+
+    @Test
+    public void testSerializeObjectWithNestedMapsInMap() throws Exception
+    {
+        testSerialize(new ObjectWithNestedMapsInMapFactory());
+    }
+
+    @Test
+    public void testSerializeObjectWithNestedMapsInList() throws Exception
+    {
+        testSerialize(new ObjectWithNestedMapsInListFactory());
     }
 
     @Test
     public void testSerializeObjectWithSelfReference() throws Exception
     {
-        ObjectWithSelfReference object = ObjectWithSelfReference.createObject();
-        ObjectMap map = ObjectWithSelfReference.createMap(new ObjectCounter(), ObjectType.TYPE);
-        serializeObjectAndMapAndCompare(object, map.toMap());
+        testSerialize(new ObjectWithSelfReferenceFactory());
     }
 
-    private void serializeObjectAndMapAndCompare(Object object, Map<String, Object> expectedMap)
-            throws Exception
+    @Test
+    public void testSerializeObjectWithReusedReferences() throws Exception
     {
+        testSerialize(new ObjectWithReusedReferencesFactory());
+    }
+
+    private void testSerialize(ObjectFactory<?> factory) throws Exception
+    {
+        Object object = factory.createObjectToSerialize();
         String jsonFromObject = new JsonTestObjectMapper().writeValueAsString(object);
-        String jsonFromExpectedMap = new ObjectMapper().writeValueAsString(expectedMap);
+
+        Object expectedObject = factory.createExpectedMapAfterSerialization(new ObjectCounter());
+        String jsonFromExpectedMap = new ObjectMapper().writeValueAsString(expectedObject);
+
         Assert.assertEquals(jsonFromObject, jsonFromExpectedMap);
     }
+
 }

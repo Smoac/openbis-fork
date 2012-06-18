@@ -3,9 +3,6 @@ package ch.systemsx.cisd.common.api.server.json.object;
 import org.testng.Assert;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectCounter;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectMap;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectType;
 
 /*
  * Copyright 2012 ETH Zuerich, CISD
@@ -26,44 +23,20 @@ import ch.systemsx.cisd.common.api.server.json.common.ObjectType;
 /**
  * @author pkupczyk
  */
-@JsonObject(ObjectWithType.TYPE)
+@JsonObject(ObjectWithTypeFactory.TYPE)
 public class ObjectWithType implements ObjectWithTypeInterface1, ObjectWithTypeInterface2
 {
 
-    public static final String TYPE = "ObjectWithType";
-
-    public static final String CLASS = ".LegacyObjectWithType";
-
-    public static final String BASE = "base";
-
-    public static final String BASE_VALUE = "baseValue";
-
     public String base;
-
-    public static ObjectWithType createObject()
-    {
-        ObjectWithType object = new ObjectWithType();
-        object.base = BASE_VALUE;
-        return object;
-    }
-
-    public static ObjectMap createMap(ObjectCounter objectCounter, ObjectType objectType)
-    {
-        ObjectMap map = new ObjectMap();
-        map.putId(objectCounter);
-        map.putType(TYPE, CLASS, objectType);
-        map.putField(BASE, BASE_VALUE);
-        return map;
-    }
 
     @Override
     public boolean equals(Object obj)
     {
         Assert.assertNotNull(obj);
-        Assert.assertEquals(getClass(), obj.getClass());
+        Assert.assertEquals(obj.getClass(), getClass());
 
         ObjectWithType casted = (ObjectWithType) obj;
-        Assert.assertEquals(base, casted.base);
+        Assert.assertEquals(casted.base, base);
         return true;
     }
 

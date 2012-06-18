@@ -19,55 +19,25 @@ package ch.systemsx.cisd.common.api.server.json.object;
 import org.testng.Assert;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectCounter;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectMap;
-import ch.systemsx.cisd.common.api.server.json.common.ObjectType;
 
 /**
  * @author pkupczyk
  */
-@SuppressWarnings("hiding")
-@JsonObject(ObjectWithTypeC.TYPE)
+@JsonObject(ObjectWithTypeCFactory.TYPE)
 public class ObjectWithTypeC extends ObjectWithType
 {
 
-    public static final String TYPE = "ObjectWithTypeC";
-
-    public static final String CLASS = ".LegacyObjectWithTypeC";
-
-    public static final String C = "c";
-
-    public static final String C_VALUE = "cValue";
-
     public String c;
-
-    public static ObjectWithTypeC createObject()
-    {
-        ObjectWithTypeC object = new ObjectWithTypeC();
-        object.base = BASE_VALUE;
-        object.c = C_VALUE;
-        return object;
-    }
-
-    public static ObjectMap createMap(ObjectCounter objectCounter, ObjectType objectType)
-    {
-        ObjectMap map = new ObjectMap();
-        map.putId(objectCounter);
-        map.putType(TYPE, CLASS, objectType);
-        map.putField(BASE, BASE_VALUE);
-        map.putField(C, C_VALUE);
-        return map;
-    }
 
     @Override
     public boolean equals(Object obj)
     {
         Assert.assertNotNull(obj);
-        Assert.assertEquals(getClass(), obj.getClass());
+        Assert.assertEquals(obj.getClass(), getClass());
 
         ObjectWithTypeC casted = (ObjectWithTypeC) obj;
-        Assert.assertEquals(base, casted.base);
-        Assert.assertEquals(c, casted.c);
+        Assert.assertEquals(casted.base, base);
+        Assert.assertEquals(casted.c, c);
         return true;
     }
 
