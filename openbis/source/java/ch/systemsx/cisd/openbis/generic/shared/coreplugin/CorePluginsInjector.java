@@ -219,6 +219,8 @@ public class CorePluginsInjector
             String technology = corePlugin.getName();
             if (isTechnologyEnabled(enabledTechnologies, technology) == false)
             {
+                DEFAULT_LOGGER.log(LogLevel.INFO, "Core plugins for technology '" + technology
+                        + "' are not enabled.");
                 continue;
             }
             File dssFolder =
