@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,7 +104,7 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         final IExperimentTypeImmutable experimentType = getExperimentType(code);
         if (experimentType != null)
         {
-            return createAdapter(IExperimentType.class, experimentType);
+            return new ExperimentTypeWrapper((ExperimentTypeImmutable) experimentType);
         }
         return createNewExperimentType(code);
     }
@@ -138,7 +135,7 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         ISampleTypeImmutable sampleType = getSampleType(code);
         if (sampleType != null)
         {
-            return createAdapter(ISampleType.class, sampleType);
+            return new SampleTypeWrapper((SampleTypeImmutable) sampleType);
         }
         return createNewSampleType(code);
     }
@@ -169,7 +166,7 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         IDataSetTypeImmutable dataSetType = getDataSetType(code);
         if (dataSetType != null)
         {
-            return createAdapter(IDataSetType.class, dataSetType);
+            return new DataSetTypeWrapper((DataSetTypeImmutable) dataSetType);
         }
         return createNewDataSetType(code);
     }
@@ -200,7 +197,7 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         IMaterialTypeImmutable materialType = getMaterialType(code);
         if (materialType != null)
         {
-            return createAdapter(IMaterialType.class, materialType);
+            return new MaterialTypeWrapper((MaterialTypeImmutable) materialType);
         }
         return createNewMaterialType(code);
     }
@@ -231,7 +228,7 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         IFileFormatTypeImmutable fileFormatType = getFileFormatType(code);
         if (fileFormatType != null)
         {
-            return createAdapter(IFileFormatType.class, fileFormatType);
+            return new FileFormatTypeWrapper((FileFormatTypeImmutable) fileFormatType);
         }
         return createNewFileFormatType(code);
     }
@@ -276,7 +273,7 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         IPropertyTypeImmutable propertyType = getPropertyType(code);
         if (propertyType != null)
         {
-            return createAdapter(IPropertyType.class, propertyType);
+            return new PropertyTypeWrapper((PropertyTypeImmutable) propertyType);
         }
         return createNewPropertyType(code, dataType);
     }
@@ -295,7 +292,7 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         IPropertyAssignmentImmutable assigment = findAssignment(entityType, propertyType);
         if (assigment != null)
         {
-            return createAdapter(IPropertyAssignment.class, assigment);
+            return new PropertyAssignmentWrapper((PropertyAssignmentImmutable) assigment);
         }
         return createAssignment(entityKind, entityType, propertyType);
     }
@@ -389,7 +386,7 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         IVocabularyImmutable vocabulary = getVocabulary(code);
         if (vocabulary != null)
         {
-            return createAdapter(IVocabulary.class, vocabulary);
+            return new VocabularyWrapper((VocabularyImmutable) vocabulary);
         }
         return createNewVocabulary(code);
     }
@@ -522,29 +519,5 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
                 transactionErrors.addVocabularyRegistrationError(ex, vocabulary);
             }
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> T createAdapter(final Class<T> interfaze, final Object object)
-    {
-        return (T) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]
-            { interfaze }, new InvocationHandler()
-            {
-
-                @Override
-                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
-                {
-                    try
-                    {
-                        String name = method.getName();
-                        Class<?>[] parameterTypes = method.getParameterTypes();
-                        Method objectMethod = object.getClass().getMethod(name, parameterTypes);
-                        return objectMethod.invoke(object, args);
-                    } catch (NoSuchMethodException ex)
-                    {
-                        return null;
-                    }
-                }
-            });
     }
 }

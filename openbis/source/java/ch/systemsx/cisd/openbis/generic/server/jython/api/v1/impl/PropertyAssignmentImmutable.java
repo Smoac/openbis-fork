@@ -33,6 +33,11 @@ public class PropertyAssignmentImmutable implements IPropertyAssignmentImmutable
         this.entityTypePropType = entityTypePropType;
     }
 
+    EntityTypePropertyType<?> getEntityTypePropType()
+    {
+        return entityTypePropType;
+    }
+
     @Override
     public boolean isMandatory()
     {
