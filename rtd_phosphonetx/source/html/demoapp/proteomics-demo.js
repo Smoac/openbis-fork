@@ -14,7 +14,7 @@ var vis;
 var tree = null;
 
 function getAppHeight(){
-    return Math.max($(window).height() - 50, model.getVisibleLeafsCountForNode() * 30);
+    return Math.max($(window).height() - 50, model.getVisibleLeafsCount() * 30);
 }
 
 function getAppWidth(){
@@ -31,7 +31,7 @@ function DataTableModel(data) {
     this.rows = data.result.rows;
     this.getRows = function() { return this.rows; }
     this.getHeaders = function() { return this.headers; }
-    this.getVisibleLeafsCountForNode = function() { return 6; }
+    this.getVisibleLeafsCount = function() { return this.rows.length; }
 }
 
 /**
@@ -77,7 +77,7 @@ function DataTreeModel(data) {
     this.headers = data.result.columns;
     this.rows = data.result.rows;
     this.initializeTreeModel();
-    this.getVisibleLeafsCountForNode = function() { return 6; }
+    this.getVisibleLeafsCount = function() { return this.rows.length; }
 }
 
 /**
@@ -86,7 +86,7 @@ function DataTreeModel(data) {
 DataTreeModel.prototype.initializeTreeModel = function() {
     // The rows are expected to be structured thusly:
     // BIO Experiment, BIO Sample, MS Inj Sample, Search Experiment, ACC#, Desc
-    this.root = new TreeElement('PROT', 'PROT', 'ROOT');
+    this.root = new TreeElement('PROT', '', 'ROOT');
     var root = this.root;
 
     // Construct the tree
@@ -140,7 +140,7 @@ function translateDst(d)
 {
     d.x0 = d.x;
     d.y0 = d.y;
-    var translate =     "translate(" + d.y + "," + d.x + ")";
+    var translate = "translate(" + d.y + "," + d.x + ")";
     
     return translate;
 }
@@ -225,7 +225,30 @@ function getTextAnchorType(d){
 }
 
 // Toggle children on click.
-function toggle_open(d) { }
+function clickedNode(treeNode) { 
+    var url;
+    switch(treeNode.type) {
+        case 'BIO-EXP':
+            url = openbisUrl + "#entity=EXPERIMENT&permId=0";
+            break;
+        case 'BIO-SAMP':
+            url = openbisUrl + "#entity=SAMPLE&permId=0";
+            break;
+        case 'MS-INJ':
+            url = openbisUrl + "#entity=SAMPLE&permId=0";
+            break;
+        case 'MS-SEARCH':
+            url = openbisUrl + "#entity=EXPERIMENT&permId=0";
+            break;
+        case 'PROTEIN':
+            url = openbisUrl + "#entity=SAMPLE&permId=0";
+            break;
+        default:
+            url = null;
+    }
+
+    window.open(url, '_blank');
+}
 
 function hasChildren(d)
 {
@@ -238,17 +261,17 @@ function hasChildren(d)
 function displayResultsInTree()
 {
     var duration = 500;
-    // Adjust a size of the vis 
-    // vis
-    //     .attr("width", getAppWidth() - inspectorsWidth - 50)
-    //     .attr("height", getAppHeight());
-
     var treeVis = vis.selectAll("svg").data([model.root]);
     treeVis.enter()
         .append("svg:svg");
+
+    // Adjust a size of the vis 
+    treeVis
+        .attr("width", getAppWidth() - 50)
+        .attr("height", getAppHeight());
     
     // Adjust a size of the tree 
-    tree = d3.layout.tree().size([getAppHeight(), getAppWidth() - inspectorsWidth - 500]) 
+    tree = d3.layout.tree().size([getAppHeight(), getAppWidth() - 200]) 
     
     // Update the root and compute the new layout 
     var nodes = tree.nodes(model.root);
@@ -289,15 +312,12 @@ function displayResultsInTree()
         node.enter().append("svg:g")
             .attr("class", classForNode)
             .attr("transform", translateSrc)
-            .on("click", toggle_open);
+            .on("click", clickedNode);
 
     nodeEnter.append("svg:circle")
         .attr("r", 5.5);
 
     nodeEnter.append("svg:text")
-        .attr("dx", function(d) { return hasChildren(d) ? -8 : 8 })
-        .attr("dy", 3)
-        .attr("text-anchor", function(d) { return getTextAnchorType(d) })
         .text(function(d) { return d.label });
 
     nodeEnter
@@ -315,7 +335,8 @@ function displayResultsInTree()
     // Move the text elements to the appropriate position
     node.selectAll("text").transition()
         .duration(duration)
-        .attr("dx", function(d) { return hasChildren(d) ? -8 : 8 })
+        .attr("dx", function(d) { return hasChildren(d) ? 0 : 8 })
+        .attr("dy", function(d) { return hasChildren(d) ? -10 : 3 })
         .attr("text-anchor", function(d) { return getTextAnchorType(d) });
         
     node.exit().transition()
