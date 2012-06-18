@@ -106,6 +106,25 @@ public class RelationshipService implements IRelationshipService
         }
     }
 
+    @Override
+    public void assignSampleToSpace(IAuthSession session, SampleIdentifier sampleId,
+            SpaceIdentifier spaceId)
+    {
+        SamplePE sample = findSample(sampleId);
+        SpacePE space = findSpace(spaceId);
+        sample.setDatabaseInstance(null);
+        sample.setSpace(space);
+    }
+
+    @Override
+    public void unassignSampleFromSpace(IAuthSession session, SampleIdentifier sampleId)
+    {
+        SamplePE sample = findSample(sampleId);
+        SpacePE space = sample.getSpace();
+        sample.setSpace(null);
+        sample.setDatabaseInstance(space.getDatabaseInstance());
+    }
+
     private SamplePE findSample(SampleIdentifier sampleId)
     {
         SamplePE sample;

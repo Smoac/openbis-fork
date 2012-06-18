@@ -25,16 +25,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 public class SampleUpdateBuilder extends Builder<SampleUpdatesDTO>
 {
-    private SampleUpdatesDTO updates;
-
     private TechId sampleId;
+
+    private String sampleCode;
 
     private ExperimentIdentifier experimentId;
 
@@ -47,6 +50,7 @@ public class SampleUpdateBuilder extends Builder<SampleUpdatesDTO>
     {
         super(commonServer, genericServer);
         this.sampleId = new TechId(sample.getId());
+        this.sampleCode = sample.getCode();
         if (sample.getExperiment() != null)
         {
             this.experimentId = new ExperimentIdentifier(sample.getExperiment());
@@ -57,6 +61,7 @@ public class SampleUpdateBuilder extends Builder<SampleUpdatesDTO>
 
     public SampleUpdateBuilder inExperiment(Experiment experiment)
     {
+        inSpace(experiment.getProject().getSpace());
         this.experimentId = new ExperimentIdentifier(experiment);
         return this;
     }
@@ -64,6 +69,23 @@ public class SampleUpdateBuilder extends Builder<SampleUpdatesDTO>
     public SampleUpdateBuilder withoutExperiment()
     {
         this.experimentId = null;
+        return this;
+    }
+
+    public SampleUpdateBuilder withoutSpace()
+    {
+        this.experimentId = null;
+        this.sampleIdentifier =
+                new SampleIdentifier(new DatabaseInstanceIdentifier("CISD"), this.sampleCode);
+        return this;
+    }
+
+    public SampleUpdateBuilder inSpace(Space space)
+    {
+        this.experimentId = null;
+        this.sampleIdentifier =
+                new SampleIdentifier(new SpaceIdentifier(new DatabaseInstanceIdentifier("CISD"),
+                        space.getCode()), this.sampleCode);
         return this;
     }
 

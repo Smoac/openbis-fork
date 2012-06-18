@@ -66,4 +66,17 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             SampleIdentifier sample);
 
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @Capability("ASSIGN_SAMPLE_TO_SPACE")
+    public void assignSampleToSpace(IAuthSession session,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
+            SampleIdentifier sample,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            SpaceIdentifier space);
+
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("UNASSIGN_SAMPLE_FROM_SPACE")
+    public void unassignSampleFromSpace(IAuthSession session,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
+            SampleIdentifier sample);
 }

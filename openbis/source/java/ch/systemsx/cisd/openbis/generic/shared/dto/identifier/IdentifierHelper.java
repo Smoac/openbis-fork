@@ -112,6 +112,12 @@ public final class IdentifierHelper
         return sampleId;
     }
 
+    public static final SpaceIdentifier space(final SpacePE space)
+    {
+        return new SpaceIdentifier(new DatabaseInstanceIdentifier(space.getDatabaseInstance()
+                .getCode()), space.getCode());
+    }
+
     /**
      * Creates a {@link SampleIdentifier} from given <var>samplePE</var>.
      */

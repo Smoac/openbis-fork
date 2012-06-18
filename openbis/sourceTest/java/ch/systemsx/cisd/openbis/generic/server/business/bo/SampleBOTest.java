@@ -62,7 +62,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * Test cases for corresponding {@link SampleBO} class.
@@ -326,44 +325,6 @@ public final class SampleBOTest extends AbstractBOTest
     }
 
     @Test
-    public final void testEditSampleChangeGroupToShared()
-    {
-        final SamplePE sample = createSample("sampleCode", EXAMPLE_GROUP);
-
-        Date now = new Date();
-        sample.setModificationDate(now);
-
-        prepareTryToLoadOfSampleWithId(sample);
-        prepareNoPropertiesToUpdate(sample);
-        context.checking(new Expectations()
-            {
-                {
-
-                    allowing(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(EXAMPLE_DATABASE_INSTANCE));
-
-                    allowing(dataDAO).hasDataSet(with(sample));
-                    will(returnValue(false));
-
-                    allowing(relationshipService).unassignSampleFromExperiment(
-                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)));
-                }
-            });
-        String newSampleIdentifierWithoutDb = "/" + sample.getCode();
-        assertNotNull(sample.getSpace());
-        createSampleBO().update(
-                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                        .<NewAttachment> emptyList(), now, SampleIdentifierFactory
-                        .parse(newSampleIdentifierWithoutDb), null, null));
-        String newSampleIdentWithDb =
-                EXAMPLE_DATABASE_INSTANCE.getCode() + ":" + newSampleIdentifierWithoutDb;
-        assertEquals(newSampleIdentWithDb, sample.getSampleIdentifier().toString());
-        assertNull(sample.getSpace());
-        context.assertIsSatisfied();
-
-    }
-
-    @Test
     public final void testEditSampleParent()
     {
         final SamplePE parent = createSample("sampleParent", EXAMPLE_GROUP);
@@ -590,42 +551,6 @@ public final class SampleBOTest extends AbstractBOTest
                 .<NewAttachment> emptyList(), now, null,
                 container.getSampleIdentifier().toString(), null));
         bo.save();
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public final void testEditSampleNoExperimentForSampleWithDatasets()
-    {
-        final SamplePE sample = createSample("sampleCode", EXAMPLE_GROUP);
-
-        Date now = new Date();
-        sample.setModificationDate(now);
-
-        prepareTryToLoadOfSampleWithId(sample);
-        prepareNoPropertiesToUpdate(sample);
-        context.checking(new Expectations()
-            {
-                {
-
-                    allowing(dataDAO).hasDataSet(with(sample));
-                    will(returnValue(true));
-                }
-            });
-        boolean exceptionThrown = false;
-        try
-        {
-            createSampleBO().update(
-                    new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                            .<NewAttachment> emptyList(), now, null, null, null));
-        } catch (UserFailureException ex)
-        {
-            exceptionThrown = true;
-            assertTrue(ex
-                    .getMessage()
-                    .contains(
-                            "from the experiment because there are already datasets attached to the sample"));
-        }
-        assertTrue(exceptionThrown);
         context.assertIsSatisfied();
     }
 

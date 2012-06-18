@@ -443,8 +443,16 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                 // not a real update
                 return false;
             }
-            sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
-            sample.setSpace(space);
+
+            if (space == null)
+            {
+                relationshipService.unassignSampleFromSpace(session, IdentifierHelper
+                        .sample(sample));
+            } else
+            {
+                relationshipService.assignSampleToSpace(session, IdentifierHelper.sample(sample),
+                        IdentifierHelper.space(space));
+            }
             return true;
         }
 
@@ -454,6 +462,11 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     protected void updateExperiment(SamplePE sample, ExperimentIdentifier expIdentifierOrNull,
             Map<String, ExperimentPE> experimentCacheOrNull)
     {
+        if (sample.getExperiment() == null && expIdentifierOrNull == null)
+        {
+            return;
+        }
+
         if (expIdentifierOrNull != null)
         {
             changeExperiment(sample, expIdentifierOrNull, experimentCacheOrNull);
