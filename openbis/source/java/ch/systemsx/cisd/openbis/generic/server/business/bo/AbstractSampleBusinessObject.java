@@ -389,7 +389,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     protected void checkExperimentBusinessRules(IDataDAO dataDAO, SamplePE sample)
     {
         final boolean hasDatasets = hasDatasets(dataDAO, sample);
-        if (hasDatasets && sample.getExperiment() == null)
+        ExperimentPE experiment = sample.getExperiment();
+        if (hasDatasets && experiment == null)
         {
             throw UserFailureException.fromTemplate(
                     "Cannot detach the sample '%s' from the experiment "
@@ -402,12 +403,13 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                     + "because there are already datasets attached to the sample.",
                     sample.getIdentifier());
         }
-        if (sample.getExperiment() != null
-                && (sample.getSpace() == null || sample.getExperiment().getProject().getSpace()
+        if (experiment != null
+                && (sample.getSpace() == null || experiment.getProject().getSpace()
                         .equals(sample.getSpace()) == false))
         {
-            throw new UserFailureException(
-                    "Sample space must be the same as experiment space. Shared samples cannot be attached to experiments.");
+            throw new UserFailureException("Sample space must be the same as experiment space. "
+                    + "Shared samples cannot be attached to experiments. Sample: "
+                    + sample.getIdentifier() + ", Experiment: " + experiment.getIdentifier());
         }
     }
 
@@ -446,8 +448,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
             if (space == null)
             {
-                relationshipService.unassignSampleFromSpace(session, IdentifierHelper
-                        .sample(sample));
+                relationshipService.unassignSampleFromSpace(session,
+                        IdentifierHelper.sample(sample));
             } else
             {
                 relationshipService.assignSampleToSpace(session, IdentifierHelper.sample(sample),
