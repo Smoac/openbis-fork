@@ -100,8 +100,8 @@ DataTreeModel.prototype.initializeTreeModel = function() {
 
         var bioExp = root.getOrCreateChild(bioExpCode, bioExpCode, 'BIO-EXP');
         var bioSamp = bioExp.getOrCreateChild(bioSampCode, bioSampCode, 'BIO-SAMP');
-        var msInjSamp = bioSamp.getOrCreateChild(bioSampCode, bioSampCode, 'MS-INJ');
-        var searchExp = msInjSamp.getOrCreateChild(bioSampCode, bioSampCode, 'MS-SEARCH');
+        var msInjSamp = bioSamp.getOrCreateChild(msInjSampCode, msInjSampCode, 'MS-INJ');
+        var searchExp = msInjSamp.getOrCreateChild(searchExpCode, searchExpCode, 'MS-SEARCH');
         var proteinLabel = acc + " : " + desc;
         var protein = searchExp.getOrCreateChild(acc, proteinLabel, 'PROTEIN');
     });
@@ -334,8 +334,8 @@ function clearVis()
  */
 function queryForResults(parameters)
 {
-//    openbisServer.createReportFromAggregationService("DSS1", "demo-proteomics-aggregation", parameters, displayReturnedResults);
-    openbisServer.createReportFromAggregationService("STANDARD", "demo-proteomics-aggregation", parameters, displayReturnedResults);
+    openbisServer.createReportFromAggregationService("DSS1", "demo-proteomics-aggregation", parameters, displayReturnedResults);
+//    openbisServer.createReportFromAggregationService("STANDARD", "demo-proteomics-aggregation", parameters, displayReturnedResults);
 }
 
 
