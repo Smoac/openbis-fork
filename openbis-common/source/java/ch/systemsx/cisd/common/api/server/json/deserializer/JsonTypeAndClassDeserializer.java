@@ -81,6 +81,20 @@ public class JsonTypeAndClassDeserializer extends AsPropertyTypeDeserializer
     }
 
     @Override
+    public Object deserializeTypedFromAny(JsonParser jp, DeserializationContext ctxt)
+            throws IOException, JsonProcessingException
+    {
+        return deserializeTypedFromObject(jp, ctxt);
+    }
+
+    @Override
+    public Object deserializeTypedFromArray(JsonParser jp, DeserializationContext ctxt)
+            throws IOException, JsonProcessingException
+    {
+        return deserializeTypedFromObject(jp, ctxt);
+    }
+
+    @Override
     public Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
     {
@@ -211,9 +225,20 @@ public class JsonTypeAndClassDeserializer extends AsPropertyTypeDeserializer
     public Object deserializeWithoutType(JsonParser jp, DeserializationContext ctxt, TokenBuffer tb)
             throws IOException, JsonProcessingException
     {
+        JsonToken t = jp.getCurrentToken();
+
         final JsonParser actualJp;
-        final JsonDeserializer<Object> deserializer =
-                ctxt.findContextualValueDeserializer(_baseType, _property);
+        final JsonDeserializer<Object> deserializer;
+
+        if (t == JsonToken.START_ARRAY && _baseType.getRawClass().equals(Object.class))
+        {
+            JavaType collectionType =
+                    ctxt.getConfig().getTypeFactory().constructRawCollectionType(Collection.class);
+            deserializer = ctxt.findContextualValueDeserializer(collectionType, _property);
+        } else
+        {
+            deserializer = ctxt.findContextualValueDeserializer(_baseType, _property);
+        }
 
         if (tb != null)
         {
