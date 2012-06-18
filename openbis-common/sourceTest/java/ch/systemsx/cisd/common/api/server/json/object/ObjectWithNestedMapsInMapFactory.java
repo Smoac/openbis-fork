@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.api.server.json;
+package ch.systemsx.cisd.common.api.server.json.object;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +22,6 @@ import java.util.Map;
 import ch.systemsx.cisd.common.api.server.json.common.ObjectCounter;
 import ch.systemsx.cisd.common.api.server.json.common.ObjectFactory;
 import ch.systemsx.cisd.common.api.server.json.common.ObjectType;
-import ch.systemsx.cisd.common.api.server.json.object.ObjectWithContainerTypesFactory;
 
 /**
  * @author pkupczyk

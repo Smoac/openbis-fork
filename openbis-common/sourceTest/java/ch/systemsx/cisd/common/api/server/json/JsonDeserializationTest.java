@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedMapsInList
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes.ObjectNested;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypes.ObjectNestedChild;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedMapsInMapFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypesFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrimitiveTypes;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrimitiveTypesFactory;

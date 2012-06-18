@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.api.server.json.object.ObjectWithEnumTypesFactory
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithIgnoredPropertiesFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedMapsInCollectionFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedMapsInListFactory;
+import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedMapsInMapFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithNestedTypesFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrimitiveTypesFactory;
 import ch.systemsx.cisd.common.api.server.json.object.ObjectWithPrivateAccessFactory;
