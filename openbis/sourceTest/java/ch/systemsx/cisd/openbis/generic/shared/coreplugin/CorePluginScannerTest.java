@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -103,14 +102,7 @@ public class CorePluginScannerTest extends AbstractFileSystemTestCase
     private File preparePluginsDirectory(String originalPath) throws IOException
     {
         File originalDir = new File(originalPath);
-        FileUtils.copyDirectory(originalDir, workingDirectory, new FileFilter()
-            {
-                @Override
-                public boolean accept(File pathname)
-                {
-                    return false == pathname.getName().equals(".svn");
-                }
-            });
+        FileUtils.copyDirectory(originalDir, workingDirectory);
         return workingDirectory;
     }
 

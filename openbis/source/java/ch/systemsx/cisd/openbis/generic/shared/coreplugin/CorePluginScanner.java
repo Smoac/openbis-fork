@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -109,7 +110,7 @@ public class CorePluginScanner implements ICorePluginResourceLoader
         List<CorePlugin> result = new ArrayList<CorePlugin>();
         if (pluginsFolder.isDirectory())
         {
-            List<File> pluginDirectories = FileUtilities.listDirectories(pluginsFolder, false);
+            List<File> pluginDirectories = listFiles(pluginsFolder);
             Collections.sort(pluginDirectories);
             for (File pluginDir : pluginDirectories)
             {
@@ -126,7 +127,7 @@ public class CorePluginScanner implements ICorePluginResourceLoader
     private CorePlugin tryLoadLatestVersion(File pluginRootDir)
     {
         List<CorePlugin> allVersionsForPlugin = new ArrayList<CorePlugin>();
-        for (File versionDir : FileUtilities.listDirectories(pluginRootDir, false))
+        for (File versionDir : listFiles(pluginRootDir))
         {
             if (isValidVersionDir(versionDir))
             {
@@ -153,6 +154,20 @@ public class CorePluginScanner implements ICorePluginResourceLoader
         {
             return Collections.max(allVersionsForPlugin);
         }
+    }
+
+    private List<File> listFiles(File folder)
+    {
+        List<File> files = FileUtilities.listDirectories(folder, false);
+        for (Iterator<File> iterator = files.iterator(); iterator.hasNext();)
+        {
+            File file = iterator.next();
+            if (file.getName().startsWith("."))
+            {
+                iterator.remove();
+            }
+        }
+        return files;
     }
 
     private CorePlugin createPlugin(File pluginDir, File versionDir)

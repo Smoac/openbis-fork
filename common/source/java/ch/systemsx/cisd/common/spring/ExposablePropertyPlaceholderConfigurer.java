@@ -30,7 +30,7 @@ import org.springframework.util.StringUtils;
  * 
  * @author Christian Ribeaud
  */
-public final class ExposablePropertyPlaceholderConfigurer extends PropertyPlaceholderConfigurer
+public class ExposablePropertyPlaceholderConfigurer extends PropertyPlaceholderConfigurer
 {
     /** Standard bean name in an application context file. */
     public static final String PROPERTY_CONFIGURER_BEAN_NAME = "propertyConfigurer";
