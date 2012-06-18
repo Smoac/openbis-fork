@@ -8,6 +8,7 @@ BIO_EXPERIMENT = "Biological Experiment"
 BIO_SAMPLE = "Biological Sample"
 MS_SAMPLE = "MS Injection Sample"
 SEARCH_EXPERIMENT = "Search Experiment"
+SEARCH_EXPERIMENT_PERM_ID = "Search Experiment Perm ID"
 ACCESION_NUMBER = "Accession Number"
 DESCRIPTION = "Protein Description"
 
@@ -84,6 +85,7 @@ def aggregate(parameters, tableBuilder):
     tableBuilder.addHeader(BIO_SAMPLE)
     tableBuilder.addHeader(MS_SAMPLE)
     tableBuilder.addHeader(SEARCH_EXPERIMENT)
+    tableBuilder.addHeader(SEARCH_EXPERIMENT_PERM_ID)
     tableBuilder.addHeader(ACCESION_NUMBER)
     tableBuilder.addHeader(DESCRIPTION)
     for resultRow in result:
@@ -101,5 +103,6 @@ def aggregate(parameters, tableBuilder):
                     row.setCell(BIO_SAMPLE, bioSample)
                     row.setCell(MS_SAMPLE, msInjectionSample)
                     row.setCell(SEARCH_EXPERIMENT, expId)
+                    row.setCell(SEARCH_EXPERIMENT_PERM_ID, permId)
                     row.setCell(ACCESION_NUMBER, resultRow.get('accession_number'))
                     row.setCell(DESCRIPTION, resultRow.get('description'))

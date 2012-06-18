@@ -42,9 +42,10 @@ function DataTableModel(data) {
  *
  * A tree element keeps track of its children.
  */
-function TreeElement(code, label, type) {
+function TreeElement(code, label, permId, type) {
     this.code = code;
     this.label = label;
+    this.permId = permId;
     this.type = type;
     this.children = [];
     this.childMap = {};
@@ -59,10 +60,10 @@ TreeElement.prototype.getChild = function(code) {
     return this.childMap[code];
 }
 
-TreeElement.prototype.getOrCreateChild = function(code, label, type) {
+TreeElement.prototype.getOrCreateChild = function(code, label, permId, type) {
     var child = this.childMap[code];
     if (null == child) {
-        child = new TreeElement(code, label, type);
+        child = new TreeElement(code, label, permId, type);
         this.addChild(child);
     }
 
@@ -95,15 +96,16 @@ DataTreeModel.prototype.initializeTreeModel = function() {
         var bioSampCode = each[1].value;
         var msInjSampCode = each[2].value;
         var searchExpCode = each[3].value;
-        var acc = each[4].value;
-        var desc = each[5].value;
+        var searchPermId = each[4].value;
+        var acc = each[5].value;
+        var desc = each[6].value;
 
-        var bioExp = root.getOrCreateChild(bioExpCode, bioExpCode, 'BIO-EXP');
-        var bioSamp = bioExp.getOrCreateChild(bioSampCode, bioSampCode, 'BIO-SAMP');
-        var msInjSamp = bioSamp.getOrCreateChild(msInjSampCode, msInjSampCode, 'MS-INJ');
-        var searchExp = msInjSamp.getOrCreateChild(searchExpCode, searchExpCode, 'MS-SEARCH');
+        var bioExp = root.getOrCreateChild(bioExpCode, bioExpCode, null, 'BIO-EXP');
+        var bioSamp = bioExp.getOrCreateChild(bioSampCode, bioSampCode, null, 'BIO-SAMP');
+        var msInjSamp = bioSamp.getOrCreateChild(msInjSampCode, msInjSampCode, null, 'MS-INJ');
+        var searchExp = msInjSamp.getOrCreateChild(searchExpCode, searchExpCode, searchPermId, 'MS-SEARCH');
         var proteinLabel = acc + " : " + desc;
-        var protein = searchExp.getOrCreateChild(acc, proteinLabel, 'PROTEIN');
+        var protein = searchExp.getOrCreateChild(acc, proteinLabel, null, 'PROTEIN');
     });
 }
 
@@ -228,26 +230,13 @@ function getTextAnchorType(d){
 function clickedNode(treeNode) { 
     var url;
     switch(treeNode.type) {
-        case 'BIO-EXP':
-            url = openbisUrl + "#entity=EXPERIMENT&permId=0";
-            break;
-        case 'BIO-SAMP':
-            url = openbisUrl + "#entity=SAMPLE&permId=0";
-            break;
-        case 'MS-INJ':
-            url = openbisUrl + "#entity=SAMPLE&permId=0";
-            break;
         case 'MS-SEARCH':
-            url = openbisUrl + "#entity=EXPERIMENT&permId=0";
-            break;
-        case 'PROTEIN':
-            url = openbisUrl + "#entity=SAMPLE&permId=0";
+            url = openbisUrl + "/?#entity=EXPERIMENT&permId=" + treeNode.permId;
             break;
         default:
             url = null;
     }
-
-    window.open(url, '_blank');
+    if (null != url) window.open(url, '_blank');
 }
 
 function hasChildren(d)
