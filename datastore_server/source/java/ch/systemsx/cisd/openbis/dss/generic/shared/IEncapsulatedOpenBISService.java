@@ -521,4 +521,12 @@ public interface IEncapsulatedOpenBISService
     @ManagedAuthentication
     public void heartbeat();
 
+    /**
+     * {@link IETLLIMSService#doesUserHaveRole(String, String, String, String)}
+     */
+    @ManagedAuthentication
+    public boolean doesUserHaveRole(String user, String roleCode, String spaceOrNull);
+
+    
+    
 }

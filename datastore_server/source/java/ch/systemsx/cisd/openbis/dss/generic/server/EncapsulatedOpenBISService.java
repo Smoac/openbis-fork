@@ -725,4 +725,10 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         service.heartbeat(session.getToken());
     }
 
+    @Override
+    public boolean doesUserHaveRole(String user, String roleCode, String spaceOrNull)
+    {
+        return service.doesUserHaveRole(session.getToken(), user, roleCode, spaceOrNull);
+    }
+
 }
