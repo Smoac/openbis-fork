@@ -53,160 +53,165 @@ class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistrationTr
     @Override
     public IDataSet createNewDataSet()
     {
-return         transaction.createNewDataSet();
+        return transaction.createNewDataSet();
     }
 
     @Override
     public IDataSet createNewDataSet(String dataSetType)
     {
-        return  transaction.createNewDataSet( dataSetType);
+        return transaction.createNewDataSet(dataSetType);
     }
 
     @Override
     public IDataSet createNewDataSet(String dataSetType, String dataSetCode)
     {
-        return  transaction.createNewDataSet( dataSetType,  dataSetCode);
+        return transaction.createNewDataSet(dataSetType, dataSetCode);
     }
 
     @Override
     public IDataSetImmutable getDataSet(String dataSetCode)
     {
-        return  transaction.getDataSet( dataSetCode);
+        return transaction.getDataSet(dataSetCode);
     }
 
     @Override
     public IDataSetUpdatable getDataSetForUpdate(String dataSetCode)
-    {return  transaction.getDataSetForUpdate( dataSetCode);
+    {
+        return transaction.getDataSetForUpdate(dataSetCode);
     }
 
     @Override
     public IDataSetUpdatable makeDataSetMutable(IDataSetImmutable dataSet)
-    {return  transaction. makeDataSetMutable( dataSet);
+    {
+        return transaction.makeDataSetMutable(dataSet);
     }
 
     @Override
     public ISampleImmutable getSample(String sampleIdentifierString)
-    {return  transaction.getSample( sampleIdentifierString);
+    {
+        return transaction.getSample(sampleIdentifierString);
     }
 
     @Override
     public ISample getSampleForUpdate(String sampleIdentifierString)
-    {return  transaction.getSampleForUpdate( sampleIdentifierString);
+    {
+        return transaction.getSampleForUpdate(sampleIdentifierString);
     }
 
     @Override
     public ISample makeSampleMutable(ISampleImmutable sample)
-    {return  transaction.makeSampleMutable( sample);
+    {
+        return transaction.makeSampleMutable(sample);
     }
 
     @Override
     public ISample createNewSample(String sampleIdentifierString, String sampleTypeCode)
-    {return  transaction.createNewSample( sampleIdentifierString,  sampleTypeCode);
+    {
+        return transaction.createNewSample(sampleIdentifierString, sampleTypeCode);
     }
 
     @Override
     public IExperimentImmutable getExperiment(String experimentIdentifierString)
     {
-        return  transaction. getExperiment( experimentIdentifierString);
+        return transaction.getExperiment(experimentIdentifierString);
     }
 
     @Override
     public IExperiment getExperimentForUpdate(String experimentIdentifierString)
     {
-        return  transaction.getExperimentForUpdate( experimentIdentifierString);
+        return transaction.getExperimentForUpdate(experimentIdentifierString);
     }
 
     @Override
     public IExperiment createNewExperiment(String experimentIdentifierString,
             String experimentTypeCode)
     {
-        return  transaction.createNewExperiment( experimentIdentifierString,
-                 experimentTypeCode);
+        return transaction.createNewExperiment(experimentIdentifierString, experimentTypeCode);
     }
 
     @Override
     public IProject createNewProject(String projectIdentifier)
     {
-        return  transaction.createNewProject( projectIdentifier);
+        return transaction.createNewProject(projectIdentifier);
     }
 
     @Override
     public IProjectImmutable getProject(String projectIdentifier)
     {
-        return  transaction. getProject( projectIdentifier);
+        return transaction.getProject(projectIdentifier);
     }
 
     @Override
     public ISpace createNewSpace(String spaceCode, String spaceAdminUserIdOrNull)
     {
-        return  transaction.createNewSpace( spaceCode,  spaceAdminUserIdOrNull);
+        return transaction.createNewSpace(spaceCode, spaceAdminUserIdOrNull);
     }
 
     @Override
     public ISpaceImmutable getSpace(String spaceCode)
     {
-        return  transaction. getSpace( spaceCode);
+        return transaction.getSpace(spaceCode);
     }
 
     @Override
     public IMaterialImmutable getMaterial(String materialCode, String materialType)
     {
-        return  transaction.getMaterial( materialCode,  materialType);
+        return transaction.getMaterial(materialCode, materialType);
     }
 
     @Override
     public IMaterial createNewMaterial(String materialCode, String materialType)
     {
-        return  transaction. createNewMaterial( materialCode,  materialType);
+        return transaction.createNewMaterial(materialCode, materialType);
     }
 
     @Override
     public String moveFile(String src, IDataSet dst)
     {
-        return  transaction. moveFile( src,  dst);
+        return transaction.moveFile(src, dst);
     }
 
     @Override
     public String moveFile(String src, IDataSet dst, String dstInDataset)
     {
-        return  transaction.moveFile( src,  dst,  dstInDataset);
+        return transaction.moveFile(src, dst, dstInDataset);
     }
 
     @Override
     public String createNewDirectory(IDataSet dst, String dirName)
     {
-        return  transaction. createNewDirectory( dst,  dirName);
+        return transaction.createNewDirectory(dst, dirName);
     }
 
     @Override
     public String createNewFile(IDataSet dst, String fileName)
     {
-        return  transaction.createNewFile( dst,  fileName);
+        return transaction.createNewFile(dst, fileName);
     }
 
     @Override
     public String createNewFile(IDataSet dst, String dstInDataset, String fileName)
     {
-        return  transaction.createNewFile( dst,  dstInDataset,  fileName);
+        return transaction.createNewFile(dst, dstInDataset, fileName);
     }
 
     @Override
     public ISearchService getSearchService()
     {
-        return  transaction. getSearchService();
+        return transaction.getSearchService();
     }
 
     @Override
     public DynamicTransactionQuery getDatabaseQuery(String dataSourceName)
             throws IllegalArgumentException
     {
-        return  transaction. getDatabaseQuery( dataSourceName);
+        return transaction.getDatabaseQuery(dataSourceName);
     }
 
     @Override
     public DataSetRegistrationPersistentMap getRegistrationContext()
     {
-        return  transaction.getRegistrationContext();
+        return transaction.getRegistrationContext();
     }
 
     @Override
@@ -218,7 +223,7 @@ return         transaction.createNewDataSet();
     @Override
     public File getIncoming()
     {
-        return transaction.getIncoming(); 
+        return transaction.getIncoming();
     }
 
 }
