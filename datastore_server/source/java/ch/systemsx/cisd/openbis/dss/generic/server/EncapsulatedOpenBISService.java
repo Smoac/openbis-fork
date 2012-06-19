@@ -731,4 +731,22 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.doesUserHaveRole(session.getToken(), user, roleCode, spaceOrNull);
     }
 
+    @Override
+    public List<String> filterToVisibleDataSets(String user, List<String> dataSetCodes)
+    {
+        return service.filterToVisibleDataSets(session.getToken(), user, dataSetCodes);
+    }
+
+    @Override
+    public List<String> filterToVisibleExperiments(String user, List<String> experimentIds)
+    {
+        return service.filterToVisibleExperiments(session.getToken(), user, experimentIds);
+    }
+
+    @Override
+    public List<String> filterToVisibleSamples(String user, List<String> samplePermIds)
+    {
+        return service.filterToVisibleSamples(session.getToken(), user, samplePermIds);
+    }
+
 }

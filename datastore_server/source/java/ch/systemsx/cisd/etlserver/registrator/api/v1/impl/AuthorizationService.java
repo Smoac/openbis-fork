@@ -104,7 +104,27 @@ public class AuthorizationService implements IAuthorizationService
     @Override
     public List<ISampleImmutable> filterToVisibleSamples(String user, List<ISampleImmutable> samples)
     {
-        // TODO Auto-generated method stub
-        return null;
+        // create a list of codes
+        List<String> sampleIds = new LinkedList<String>();
+        for (ISampleImmutable sample : samples)
+        {
+            sampleIds.add(sample.getPermId());
+        }
+
+        // call service - to filter the codes
+        List<String> filteredCodes = openBisService.filterToVisibleSamples(user, sampleIds);
+        // put filtered codes to the set
+        Set<String> filteredSet = new HashSet<String>(filteredCodes);
+
+        // filter original values to those returned by the service call
+        List<ISampleImmutable> resultList = new LinkedList<ISampleImmutable>();
+        for (ISampleImmutable sample : samples)
+        {
+            if (filteredSet.contains(sample))
+            {
+                resultList.add(sample);
+            }
+        }
+        return resultList;
     }
 }

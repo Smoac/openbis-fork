@@ -539,4 +539,10 @@ public interface IEncapsulatedOpenBISService
      */
     @ManagedAuthentication
     public List<String> filterToVisibleExperiments(String user, List<String> experimentIds);
+
+    /**
+     * {@link IETLLIMSService#filterToVisibleSamples(String, String, List)}
+     */
+    @ManagedAuthentication
+    public List<String> filterToVisibleSamples(String user, List<String> samplePermIds);
 }
