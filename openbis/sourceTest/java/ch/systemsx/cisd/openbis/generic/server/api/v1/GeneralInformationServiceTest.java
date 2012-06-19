@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -291,6 +292,9 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
             {
                 {
                     one(sampleLister).getChildToParentsIdsMap(Arrays.asList(42L));
+                    Map<Long, Set<Long>> result = new HashMap<Long, Set<Long>>();
+                    result.put(42L, new HashSet<Long>(Arrays.asList(42L)));
+                    will(returnValue(result));
                 }
             });
 
@@ -320,6 +324,9 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
             {
                 {
                     one(sampleLister).getParentToChildrenIdsMap(Arrays.asList(42L));
+                    Map<Long, Set<Long>> result = new HashMap<Long, Set<Long>>();
+                    result.put(42L, new HashSet<Long>(Arrays.asList(42L)));
+                    will(returnValue(result));
                 }
             });
 
@@ -395,7 +402,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                     exactly(numberOfSearches).of(hibernateSearchDAO).searchForEntityIds(
                             with(criteriaMatcher), with(EntityKind.SAMPLE),
                             with(Collections.<DetailedSearchAssociationCriteria> emptyList()));
-                    will(returnValue(Arrays.asList(42L)));
+                    will(returnValue(new ArrayList<Long>(Arrays.asList(42L))));
 
                     one(hibernateSearchDAO).getResultSetSizeLimit();
                     will(returnValue(10));
