@@ -194,6 +194,8 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
         cleanUpDirectoryBeforeTheTest(recoveryStateDir);
         DssRegistrationHealthMonitor.setOpenBisServiceForTest(openBisService);
+        
+        JythonHookTestTool.createInTest().clear();
     }
 
     @AfterMethod

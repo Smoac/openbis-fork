@@ -1,6 +1,6 @@
 from ch.systemsx.cisd.etlserver.registrator import JythonHookTestTool
 
-jythonHookTestTool = JythonHookTestTool.createFromIncoming(incoming)
+jythonHookTestTool = JythonHookTestTool.createInTest()
 
 def rollback_transaction(service, transaction, algorithmRunner, throwable):
     jythonHookTestTool.log("rollback_transaction")

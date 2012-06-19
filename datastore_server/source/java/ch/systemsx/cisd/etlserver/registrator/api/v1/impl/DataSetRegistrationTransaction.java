@@ -631,4 +631,9 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         return registrationService.getIncomingDataSetFile();
     }
+    
+    public File getIncoming()
+    {
+        return getIncomingDataSetFile().getLogicalIncomingFile();
+    }
 }

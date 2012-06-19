@@ -136,7 +136,6 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
         // Configure the evaluator
         PythonInterpreter interpreter = service.getInterpreter();
-        configureEvaluator(dataSetFile.getLogicalIncomingFile(), service, interpreter);
 
         // Invoke the evaluator
         interpreter.exec(scriptString);
@@ -244,15 +243,14 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     {
         interpreter.set(TRANSACTION_VARIABLE_NAME, transaction);
 
-        String PROCESS_FUNCTION_NAME = "process";
         try
         {
-            PyFunction function = interpreter.get(PROCESS_FUNCTION_NAME, PyFunction.class);
+            PyFunction function = tryJythonFunction(interpreter, JythonHookFunction.PROCESS_FUNCTION);
             if (function == null)
             {
                 throw new IllegalStateException("Undefined process() function");
             }
-            function.__call__();
+            invokeFunction(function, transaction);
         } catch (Exception e)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(e);

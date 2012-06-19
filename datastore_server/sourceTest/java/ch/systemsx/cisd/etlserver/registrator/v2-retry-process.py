@@ -1,14 +1,15 @@
 execfile("sourceTest/java/ch/systemsx/cisd/etlserver/registrator/all-hooks.py")
 
 def should_retry_processing(map, error):
-  lastResult = transaction.getPersistentMap().get("RETRY_COUNT")
+  lastResult = map.get("RETRY_COUNT")
   if (lastResult == None):
     lastResult = 0
-  transaction.getPersistentMap().put("RETRY_COUNT", lastResult + 1)
+  map.put("RETRY_COUNT", lastResult + 1)
   print "RETRY TRANSACTION PUTS THE SCORE %d" % (lastResult + 1)
   return True
 
-def process():
+def process(transaction):
+  incoming = transaction.getIncoming()
   key = transaction.getPersistentMap().get("RETRY_COUNT");
   if (key == None):
     key = 1

@@ -1,6 +1,6 @@
 from ch.systemsx.cisd.etlserver.registrator import JythonHookTestTool
 
-jythonHookTestTool = JythonHookTestTool.createFromIncoming(incoming)
+jythonHookTestTool = JythonHookTestTool.createInTest()
 
 execfile("sourceTest/java/ch/systemsx/cisd/etlserver/registrator/simple-transaction.py")
 

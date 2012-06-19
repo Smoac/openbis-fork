@@ -50,6 +50,12 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     protected enum JythonHookFunction
     {
         /**
+         * The name of the v2 process function, that is executed during the registration. A
+         * replacement for a top-level file body code in v1.
+         */
+        PROCESS_FUNCTION("process", 1),
+
+        /**
          * The name of the function to define to hook into the service rollback mechanism.
          */
         ROLLBACK_SERVICE_FUNCTION_NAME("rollback_service", 2),

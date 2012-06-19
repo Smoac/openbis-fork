@@ -262,6 +262,9 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         if (testCase.canRecoverFromError)
         {
+            JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
+                    "pre_metadata_registration");
+
             setTheRecoveryInfo(testCase.recoveryRertyCount, testCase.recoveryLastTry);
 
             assertRecoveryFile(testCase.recoveryRertyCount, RecoveryInfoDateConstraint.ORIGINAL,
@@ -277,8 +280,6 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                         RecoveryInfoDateConstraint.ORIGINAL, testCase.recoveryLastTry);
                 assertOriginalMarkerFileExists();
                 assertDirNotEmpty(precommitDirectory, "Precommit directory should not be empty");
-                JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory,
-                        "pre_metadata_registration");
                 // nothing happened
             } else
             {
@@ -382,8 +383,6 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
     {
         JythonHookTestTool jythonHookTestTool =
                 JythonHookTestTool.createFromWorkingDirectory(workingDirectory);
-        // the check from the original registration
-        jythonHookTestTool.assertLogged("pre_metadata_registration");
 
         if (testCase.registrationCheckResult == RegistrationCheckResult.REGISTRATION_SUCCEEDED)
         {

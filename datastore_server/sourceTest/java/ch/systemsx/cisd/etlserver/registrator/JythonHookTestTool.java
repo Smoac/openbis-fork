@@ -70,6 +70,11 @@ public class JythonHookTestTool
         }
     }
 
+    public void clear()
+    {
+        logFile.delete();
+    }
+
     /**
      * Assert that the provided messages has been logged and nothign else. Clears the log file
      * afterwards.
@@ -85,6 +90,12 @@ public class JythonHookTestTool
         instance.logFile.delete();
     }
 
+    public static JythonHookTestTool createInTest()
+    {
+        File file = new File("targets/unit-test-wd").getAbsoluteFile();
+        return new JythonHookTestTool(file);
+    }
+
     /**
      * The factory method to create util
      * 
@@ -96,11 +107,12 @@ public class JythonHookTestTool
         if (incoming.getParentFile().getParentFile().getName().equals("pre-staging"))
         {
             // prestaging
-            workingDirectory = incoming.getParentFile().getParentFile().getParentFile();
+            workingDirectory =
+                    incoming.getParentFile().getParentFile().getParentFile().getParentFile();
         } else
         {
             // incoming
-            workingDirectory = incoming.getParentFile();
+            workingDirectory = incoming.getParentFile().getParentFile();
         }
         return new JythonHookTestTool(workingDirectory);
     }
@@ -110,7 +122,7 @@ public class JythonHookTestTool
      */
     public static JythonHookTestTool createFromWorkingDirectory(File workingDirectory)
     {
-        return new JythonHookTestTool(workingDirectory);
+        return new JythonHookTestTool(workingDirectory.getParentFile());
     }
 
     /**

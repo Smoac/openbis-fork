@@ -92,11 +92,12 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     public void setUp() throws IOException
     {
         super.setUp();
-        context.checking(new Expectations(){
+        context.checking(new Expectations()
             {
-                ignoring(openBisService).heartbeat();
-            }
-        });
+                {
+                    ignoring(openBisService).heartbeat();
+                }
+            });
     }
 
     public ArrayList<TestCaseParameters> multipleVersionsOfTestCase(TestCaseParameters params)
@@ -127,6 +128,23 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
     @DataProvider(name = "simpleTransactionTestCaseProvider")
     public Object[][] simpleTransactionCases()
+    {
+        List<TestCaseParameters> testCases = simpleTransactionCasesList();
+        // here is crappy code for
+        // return parameters.map( (x) => new Object[]{x} )
+        Object[][] resultsList = new Object[testCases.size()][];
+
+        int index = 0;
+        for (TestCaseParameters t : testCases)
+        {
+            resultsList[index++] = new Object[]
+                { t };
+        }
+
+        return resultsList;
+    }
+
+    public List<TestCaseParameters> simpleTransactionCasesList()
     {
         // creates data with more than only one dataset
         IDelegatedAction createTwoDataSetsDelegate = new IDelegatedAction()
@@ -223,12 +241,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         testCase =
+                
                 new TestCaseParameters(
                         "The simple validation without post_storage function defined.");
         testCase.dropboxScriptPath = "testcase-without-post-storage.py";
         testCase.postStorageFunctionNotDefinedInADropbox = true;
         testCases.addAll(multipleVersionsOfTestCase(testCase));
-
+        
         testCase = new TestCaseParameters("Dataset file not found.");
         testCase.dropboxScriptPath = "file-not-found.py";
         testCase.shouldThrowExceptionDuringRegistration = true;
@@ -292,7 +311,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.failurePoint = TestCaseParameters.FailurePoint.AT_THE_BEGINNING;
         testCases.add(versionV2(testCase));
 
-        
         testCase = new TestCaseParameters("Simple transaction explicit rollback");
         testCase.dropboxScriptPath = "testcase-rollback.py";
         testCase.failurePoint = TestCaseParameters.FailurePoint.AFTER_GET_EXPERIMENT;
@@ -320,13 +338,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.createDataSetDelegate = createTwoDataSetsDelegate;
         testCases.add(testCase);
 
-        testCase = new TestCaseParameters("Two transactions fail in V2.");
-        testCase.dropboxScriptPath = "testcase-double-transaction.py";
-        testCase = versionV2(testCase);
-        testCase.shouldThrowExceptionDuringRegistration = true;
-        testCase.failurePoint = TestCaseParameters.FailurePoint.AT_THE_BEGINNING;
-        testCases.add(testCase);
-
         testCase =
                 new TestCaseParameters(
                         "Script dying because of non-serialized argument put to the map");
@@ -336,18 +347,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCase.failurePoint = TestCaseParameters.FailurePoint.AT_THE_BEGINNING;
         testCases.add(testCase);
 
-        // here is crappy code for
-        // return parameters.map( (x) => new Object[]{x} )
-        Object[][] resultsList = new Object[testCases.size()][];
-
-        int index = 0;
-        for (TestCaseParameters t : testCases)
-        {
-            resultsList[index++] = new Object[]
-                { t };
-        }
-
-        return resultsList;
+        return testCases;
     }
 
     // INFO: testCase parameters
@@ -1403,7 +1403,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testImportWithoutDataSet()
+    public void testV2ImportWithoutDataSet()
     {
         initializeStorageRecoveryManagerMock();
 
