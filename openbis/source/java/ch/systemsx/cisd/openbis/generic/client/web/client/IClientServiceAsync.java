@@ -66,4 +66,7 @@ public interface IClientServiceAsync
 
     /** @see IClientService#deactivatePersons(List) */
     public void deactivatePersons(List<String> personsCodes, AsyncCallback<Void> callback);
+
+    /** @see IClientService#countActiveUsers() */
+    public void countActiveUsers(AsyncCallback<Integer> callback);
 }

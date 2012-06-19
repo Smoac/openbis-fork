@@ -253,6 +253,13 @@ public abstract class AbstractServerLogger implements IServer
     }
 
     @Override
+    public int countActivePersons(String sessionToken)
+    {
+        // do not log that
+        return 0;
+    }
+
+    @Override
     public boolean isArchivingConfigured(String sessionToken)
     {
         // Do not log that

@@ -489,6 +489,13 @@ public abstract class AbstractClientService implements IClientService,
         getServer().deactivatePersons(sessionToken, personsCodes);
     }
 
+    @Override
+    public int countActiveUsers() throws UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        return getServer().countActivePersons(sessionToken);
+    }
+
     protected WebClientConfiguration getWebClientConfiguration()
     {
         return webClientConfigurationProvider.getWebClientConfiguration();

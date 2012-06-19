@@ -1028,4 +1028,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void performCustomImport(String sessionKey, String customImportCode,
             AsyncCallback<String> callback)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+
+    /**
+     * @see ICommonClientService#sendCountActiveUsersEmail()
+     */
+    public void sendCountActiveUsersEmail(AsyncCallback<Void> callback);
 }

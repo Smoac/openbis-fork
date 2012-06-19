@@ -456,6 +456,8 @@ var common = {
   
   SCRIPT_MENU_BROWSE: "Scripts",
 
+  ACTIVE_USERS_COUNT: "Active Users Report",
+  
   VOCABULARY_MENU_BROWSE: "Vocabularies",
   VOCABULARY_MENU_NEW: "New",
   
@@ -597,6 +599,10 @@ var common = {
     
   // About Box
   about_box_dialog_title: "About",
+  
+  // Active Users Dialog
+  active_users_email_sent_confirmation: "E-mail sent. You should get a copy of the e-mail in you mailbox.",
+  active_users_dialog: "Number of active users ({0}) will be send to {1}.",
   
   //
   // Role View

@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.administration;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
@@ -23,11 +28,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.Actio
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.widget.menu.Menu;
 
 /**
  * Administration top menu.
@@ -51,6 +51,8 @@ public class AdministrationMenu extends TopMenuItem
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.SCRIPT_MENU_BROWSE, messageProvider,
                 componentProvider.getScriptBrowser()));
         submenu.add(new AuthorizationMenu(messageProvider, componentProvider));
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.ACTIVE_USERS_COUNT, messageProvider,
+                new ActiveUsersCountAction(viewContext)));
         if (viewContext.isLoggingEnabled())
         {
             submenu.add(new ActionMenu(TopMenu.ActionMenuKind.LOGGING_CONSOLE, messageProvider,

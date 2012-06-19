@@ -1260,5 +1260,12 @@ public abstract class Dict
 
     public static final String CLEAR = "clear";
 
+    // Active users
+
+    public static final String ACTIVE_USERS_EMAIL_SENT_CONFIRMATION =
+            "active_users_email_sent_confirmation";
+
+    public static final String ACTIVE_USERS_DIALOG = "active_users_dialog";
+
     // ----- end generic ------------------
 }

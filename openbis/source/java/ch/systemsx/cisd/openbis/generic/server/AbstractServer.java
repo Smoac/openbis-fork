@@ -151,6 +151,8 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     private String userForAnonymousLogin;
 
+    protected String CISDHelpdeskEmail;
+
     protected AbstractServer()
     {
         operationLog.info(String.format("Creating new '%s' implementation: '%s'.",
@@ -189,6 +191,11 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     public final void setUserForAnonymousLogin(String userID)
     {
         userForAnonymousLogin = userID != null && userID.startsWith("$") == false ? userID : null;
+    }
+
+    public final void setCISDHelpdeskEmail(String cisdHelpdeskEmail)
+    {
+        this.CISDHelpdeskEmail = cisdHelpdeskEmail;
     }
 
     public final void setSampleTypeSlaveServerPlugin(
@@ -409,6 +416,13 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                 getDAOFactory().getPersonDAO().updatePerson(person);
             }
         }
+    }
+
+    @Override
+    public int countActivePersons(String sessionToken)
+    {
+        checkSession(sessionToken);
+        return getDAOFactory().getPersonDAO().countActivePersons();
     }
 
     @Override
@@ -845,7 +859,8 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         executor.submit(task);
     }
 
-    private void sendEmail(IMailClient mailClient, String content, String subject, String recipient)
+    protected void sendEmail(IMailClient mailClient, String content, String subject,
+            String... recipient)
     {
         mailClient.sendMessage(subject, content, null, null, recipient);
     }

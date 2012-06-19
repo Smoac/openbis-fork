@@ -96,4 +96,9 @@ public interface IClientService extends RemoteService
      * Deactivates persons with specified codes.
      */
     public void deactivatePersons(List<String> personsCodes) throws UserFailureException;
+
+    /**
+     * Returns the number of active users.
+     */
+    public int countActiveUsers();
 }

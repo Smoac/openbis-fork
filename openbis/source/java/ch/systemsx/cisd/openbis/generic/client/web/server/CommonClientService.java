@@ -2476,6 +2476,12 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    @Override
+    public void sendCountActiveUsersEmail()
+    {
+        commonServer.sendCountActiveUsersEmail(getSessionToken());
+    }
+
     private String extractStackTraces(String message)
     {
         String[] lines = message.split("\n");

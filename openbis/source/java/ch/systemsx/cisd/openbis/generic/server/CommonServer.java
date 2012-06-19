@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,9 +38,12 @@ import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypeBO;
@@ -71,6 +75,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.DynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.IDynamicPropertyEvaluator;
@@ -2833,5 +2838,32 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         throw new UserFailureException(String.format("Cannot upload file '%s' to the dss.",
                 customImportFile.getFileName()));
+    }
+
+    @Override
+    public void sendCountActiveUsersEmail(String sessionToken)
+    {
+        Session session = getSession(sessionToken);
+        String email = session.getUserEmail();
+        String hostName = null;
+        DatabaseConfigurationContext ctx = DatabaseContextUtils.getDatabaseContext(getDAOFactory());
+        try
+        {
+            hostName = java.net.InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException ex)
+        {
+            // impossible
+            operationLog.warn("Couldn't get the hostname.");
+        }
+
+        StringBuilder emailBody = new StringBuilder();
+        emailBody.append("Number of active users: ").append(countActivePersons(sessionToken))
+                .append("\n").append("Hostname: ").append(hostName).append("\n")
+                .append("Database instance: ").append(ctx.getDatabaseInstance()).append(" [name=")
+                .append(ctx.getDatabaseName()).append("]").append("\n");
+
+        final IMailClient mailClient = new MailClient(mailClientParameters);
+        sendEmail(mailClient, emailBody.toString(), "Number of active users", CISDHelpdeskEmail,
+                email);
     }
 }

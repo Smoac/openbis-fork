@@ -98,6 +98,7 @@
         <constructor-arg ref="common-business-object-factory" />
         <constructor-arg ref="last-modification-state" />
         <property name="userForAnonymousLogin" value="${user-for-anonymous-login}"/>
+        <property name="CISDHelpdeskEmail" value="cisd.helpdesk@bsse.ethz.ch" />
     </bean>
 
 		<bean id="web-client-configuration-provider"

@@ -1614,4 +1614,11 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public String performCustomImport(String sessionToken, String customImportCode,
             CustomImportFile customImportFile) throws UserFailureException;
+
+    /**
+     * Sends the e-mail containing number of active users to CISD Help desk and user, who triggered
+     * the action
+     */
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    public void sendCountActiveUsersEmail(String sessionToken);
 }

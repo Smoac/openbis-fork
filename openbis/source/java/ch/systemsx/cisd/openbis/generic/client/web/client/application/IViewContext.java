@@ -67,5 +67,4 @@ public interface IViewContext<T extends IClientServiceAsync> extends IMessagePro
      * @return true if the debug panel should be added to UI.
      */
     public boolean isDebuggingEnabled();
-
 }

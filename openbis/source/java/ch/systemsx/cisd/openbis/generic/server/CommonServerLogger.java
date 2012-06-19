@@ -1391,4 +1391,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 customImportFile);
         return null;
     }
+
+    @Override
+    public void sendCountActiveUsersEmail(String sessionToken)
+    {
+        logAccess(sessionToken, "sendCountActiveUsersEmail", "");
+    }
 }

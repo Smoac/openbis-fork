@@ -109,6 +109,12 @@ public interface IServer extends ISessionProvider
     public void deactivatePersons(String sessionToken, List<String> personsCodes);
 
     /**
+     * @return number of active users
+     */
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    public int countActivePersons(String sessionToken);
+
+    /**
      * Sets the user that owns this session. All methods called after this method are called with
      * the privileges of the user specified by <var>userCode</code>.
      * <p>

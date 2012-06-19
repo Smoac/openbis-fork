@@ -1124,4 +1124,10 @@ public interface ICommonClientService extends IClientService
      */
     public String performCustomImport(String sessionKey, String customImportCode)
             throws UserFailureException;
+
+    /**
+     * Sends the e-mail containing number of active users to CISD Help desk and user, who triggered
+     * the action
+     */
+    public void sendCountActiveUsersEmail() throws UserFailureException;
 }
