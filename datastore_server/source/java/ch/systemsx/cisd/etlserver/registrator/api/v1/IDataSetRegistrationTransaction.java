@@ -23,6 +23,7 @@ import net.lemnik.eodsql.DynamicTransactionQuery;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
@@ -236,6 +237,11 @@ public interface IDataSetRegistrationTransaction
      */
     ISearchService getSearchService();
 
+    /**
+     * @return the authorization service
+     */
+    IAuthorizationService getAuthorizationService();
+    
     /**
      * Gets a database query object for the data source with the specified name.
      * <p>

@@ -57,6 +57,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionSta
 import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
@@ -589,6 +590,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     public ISearchService getSearchService()
     {
         return new SearchService(openBisService);
+    }
+
+    @Override
+    public IAuthorizationService getAuthorizationService()
+    {
+        return new AuthorizationService(openBisService);
     }
 
     @Override
