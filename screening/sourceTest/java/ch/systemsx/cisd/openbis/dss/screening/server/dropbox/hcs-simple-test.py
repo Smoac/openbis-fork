@@ -57,15 +57,15 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
     def getTileGeometry(self, imageTokens, maxTileNumber):
         return Geometry.createFromRowColDimensions(maxTileNumber / 3, 3)    
 
-def process():
+def process(transaction):
+  incoming = transaction.getIncoming()
   if incoming.isDirectory():
     imageDataset = MyImageDataSetConfig()
     imageDataset.setRawImageDatasetType()
     imageDataset.setGenerateThumbnails(True)
     imageDataset.setUseImageMagicToGenerateThumbnails(False)
     imageDataset.setPlate(SPACE_CODE, PLATE_CODE)
-    registrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)  
     plate = create_plate_if_needed(transaction)
-    dataset = transaction.createNewDataSet(registrationDetails);
+    dataset = transaction.createNewImageDataSet(imageDataset, incoming);
     dataset.setSample(plate)
     transaction.moveFile(incoming.getPath(), dataset);

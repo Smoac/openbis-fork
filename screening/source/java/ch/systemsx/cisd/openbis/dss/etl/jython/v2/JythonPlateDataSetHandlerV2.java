@@ -27,7 +27,9 @@ import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.JythonDataSetRegistrationServiceV2;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.JythonTopLevelDataSetHandlerV2;
 import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
@@ -91,5 +93,13 @@ public class JythonPlateDataSetHandlerV2 extends JythonTopLevelDataSetHandlerV2<
                             originalDirName, AutoRecoverySettings.USE_AUTO_RECOVERY);
                 }
             };
+    }
+
+    @Override
+    protected IDataSetRegistrationTransactionV2 wrapTransaction(
+            IDataSetRegistrationTransaction transaction)
+    {
+        return new ImagingDataSetRegistrationTransactionV2Delegate(
+                (ImagingDataSetRegistrationTransaction) transaction);
     }
 }
