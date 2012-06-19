@@ -1,3 +1,4 @@
+from java.util import ArrayList
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import MatchClause
@@ -63,24 +64,21 @@ def gatherExperimentsAndSamples(space):
                         searchExperiment2msInjectionSamplesDict[expId] = [msInjectionSample]
     return bioSample2ExperimentDict, msInjectionSample2bioSamplesDict, \
            searchExperiment2msInjectionSamplesDict, searchExperimentsByPermIdDict
+           
+def createPermIdList(searchExperimentsByPermIdDict):
+    permIds = ""
+    for exp in searchExperimentsByPermIdDict.values():
+        if len(permIds) > 0:
+            permIds = permIds + ", "
+        permIds = permIds + "'" + exp.permId + "'"
+    return permIds
 
 def aggregate(parameters, tableBuilder):
     space = parameters.get('space').upper()
     bioSample2ExperimentDict, msInjectionSample2bioSamplesDict, \
             searchExperiment2msInjectionSamplesDict, searchExperimentsByPermIdDict \
             = gatherExperimentsAndSamples(space)
-        
-    protein = parameters.get('protein')
-    result = queryService.select("proteomics-db", 
-                                 """select e.perm_id, accession_number, description 
-                                    from experiments as e join data_sets as d on d.expe_id = e.id 
-                                    join proteins as p on p.dase_id = d.id 
-                                    join identified_proteins as ip on ip.prot_id = p.id
-                                    join sequences as s on ip.sequ_id = s.id
-                                    join protein_references as pr on s.prre_id = pr.id 
-                                    where accession_number like ?{1} or description like ?{1} 
-                                    order by perm_id""", 
-                                ['%' + protein + '%'])
+    
     tableBuilder.addHeader(BIO_EXPERIMENT)
     tableBuilder.addHeader(BIO_SAMPLE)
     tableBuilder.addHeader(MS_SAMPLE)
@@ -88,6 +86,20 @@ def aggregate(parameters, tableBuilder):
     tableBuilder.addHeader(SEARCH_EXPERIMENT_PERM_ID)
     tableBuilder.addHeader(ACCESION_NUMBER)
     tableBuilder.addHeader(DESCRIPTION)
+    protein = '%' + parameters.get('protein') + '%'
+    permIds = createPermIdList(searchExperimentsByPermIdDict)
+    result = queryService.select("proteomics-db", 
+                                 """select e.perm_id, accession_number, description 
+                                    from experiments as e join data_sets as d on d.expe_id = e.id 
+                                    join proteins as p on p.dase_id = d.id 
+                                    join identified_proteins as ip on ip.prot_id = p.id
+                                    join sequences as s on ip.sequ_id = s.id
+                                    join protein_references as pr on s.prre_id = pr.id 
+                                    where e.perm_id in (""" 
+                                    + permIds + 
+                                    """) and (accession_number like ?{1} or description like ?{1}) 
+                                    order by perm_id""", 
+                                [protein])
     for resultRow in result:
         permId = resultRow.get('perm_id')
         if (permId in searchExperimentsByPermIdDict):
@@ -106,3 +118,4 @@ def aggregate(parameters, tableBuilder):
                     row.setCell(SEARCH_EXPERIMENT_PERM_ID, permId)
                     row.setCell(ACCESION_NUMBER, resultRow.get('accession_number'))
                     row.setCell(DESCRIPTION, resultRow.get('description'))
+    result.close()
