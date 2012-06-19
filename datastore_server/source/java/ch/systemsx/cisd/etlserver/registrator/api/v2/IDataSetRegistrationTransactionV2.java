@@ -29,6 +29,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
@@ -231,6 +232,11 @@ public interface IDataSetRegistrationTransactionV2
      * @return The search service for this transaction.
      */
     ISearchService getSearchService();
+
+    /**
+     * @return the authorization service
+     */
+    IAuthorizationService getAuthorizationService();
 
     /**
      * Gets a database query object for the data source with the specified name.

@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IMailServi
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
@@ -167,6 +168,11 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     protected ISearchService createSearchService()
     {
         return ServiceProvider.getSearchService();
+    }
+
+    protected IAuthorizationService createAuthorizationService()
+    {
+        return ServiceProvider.getAuthorizationService();
     }
 
     protected IDataSourceQueryService createDataSourceQueryService()
