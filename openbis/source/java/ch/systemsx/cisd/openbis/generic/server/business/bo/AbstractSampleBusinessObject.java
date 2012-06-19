@@ -448,8 +448,11 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
             if (space == null)
             {
-                relationshipService.unassignSampleFromSpace(session,
-                        IdentifierHelper.sample(sample));
+                relationshipService.shareSample(session, IdentifierHelper.sample(sample));
+            } else if (sample.getSpace() == null)
+            {
+                relationshipService.unshareSample(session, IdentifierHelper.sample(sample),
+                        IdentifierHelper.space(space));
             } else
             {
                 relationshipService.assignSampleToSpace(session, IdentifierHelper.sample(sample),

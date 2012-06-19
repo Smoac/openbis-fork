@@ -120,7 +120,14 @@ public class RelationshipService implements IRelationshipService
     }
 
     @Override
-    public void unassignSampleFromSpace(IAuthSession session, SampleIdentifier sampleId)
+    public void unshareSample(IAuthSession session, SampleIdentifier sampleId,
+            SpaceIdentifier spaceId)
+    {
+        assignSampleToSpace(session, sampleId, spaceId);
+    }
+
+    @Override
+    public void shareSample(IAuthSession session, SampleIdentifier sampleId)
     {
         SamplePE sample = findSample(sampleId);
         SpacePE space = sample.getSpace();
@@ -135,6 +142,17 @@ public class RelationshipService implements IRelationshipService
         DataPE data = findDataSet(dataSetCode);
         ExperimentPE experiment = findExperiment(experimentId);
         data.setExperiment(experiment);
+        data.setSample(null);
+    }
+
+    @Override
+    public void assignDataSetToSample(IAuthSession session, String dataSetCode,
+            SampleIdentifier sampleId)
+    {
+        DataPE data = findDataSet(dataSetCode);
+        SamplePE sample = findSample(sampleId);
+        data.setExperiment(sample.getExperiment());
+        data.setSample(sample);
     }
 
     private DataPE findDataSet(String dataSetCode)

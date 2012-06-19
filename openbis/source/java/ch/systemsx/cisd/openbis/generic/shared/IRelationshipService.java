@@ -37,7 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  */
 public interface IRelationshipService
 {
-    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_EXPERIMENT_TO_PROJECT")
     public void assignExperimentToProject(IAuthSession session,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
@@ -45,7 +46,8 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             ProjectIdentifier project);
 
-    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_PROJECT_TO_SPACE")
     public void assignProjectToSpace(IAuthSession session,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
@@ -53,7 +55,8 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             SpaceIdentifier space);
 
-    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_SAMPLE_TO_EXPERIMENT")
     public void assignSampleToExperiment(IAuthSession session,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
@@ -61,13 +64,24 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             ExperimentIdentifier experiment);
 
-    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_ADMIN })
     @Capability("UNASSIGN_SAMPLE_FROM_EXPERIMENT")
     public void unassignSampleFromExperiment(IAuthSession session,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             SampleIdentifier sample);
 
-    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @RolesAllowed(value =
+        { RoleWithHierarchy.INSTANCE_ETL_SERVER, RoleWithHierarchy.INSTANCE_ADMIN })
+    @Capability("UNSHARE_SAMPLE")
+    public void unshareSample(IAuthSession session,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
+            SampleIdentifier sample,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            SpaceIdentifier space);
+
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_SAMPLE_TO_SPACE")
     public void assignSampleToSpace(IAuthSession session,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
@@ -75,17 +89,28 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             SpaceIdentifier space);
 
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
-    @Capability("UNASSIGN_SAMPLE_FROM_SPACE")
-    public void unassignSampleFromSpace(IAuthSession session,
+    @RolesAllowed(value =
+        { RoleWithHierarchy.INSTANCE_ETL_SERVER, RoleWithHierarchy.INSTANCE_ADMIN })
+    @Capability("SHARE_SAMPLE")
+    public void shareSample(IAuthSession session,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             SampleIdentifier sample);
 
-    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("ASSIGN_DATASET_TO_EXPERIMENT")
     public void assignDataSetToExperiment(IAuthSession session,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
             String dataSetCode,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             ExperimentIdentifier experiment);
+
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
+    @Capability("ASSIGN_DATASET_TO_SAMPLE")
+    public void assignDataSetToSample(IAuthSession session,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            String dataSetCode,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
+            SampleIdentifier sample);
+
 }

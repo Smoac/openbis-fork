@@ -510,8 +510,6 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         } else
         {
             updateExperiment(data, updates.getExperimentIdentifierOrNull());
-            // remove connection with sample
-            data.setSample(null);
         }
         if (data.getContainer() != null)
         {

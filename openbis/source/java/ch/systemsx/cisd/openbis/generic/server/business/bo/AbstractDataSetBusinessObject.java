@@ -126,10 +126,8 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
                     "the new sample is not connected to any experiment");
         }
 
-        // move dataset to the experiment if needed
-        updateExperiment(data, experiment);
-
-        data.setSample(newSample);
+        relationshipService.assignDataSetToSample(session, data.getCode(), IdentifierHelper
+                .sample(newSample));
     }
 
     protected void updateExperiment(DataPE data, ExperimentIdentifier experimentIdentifier)
