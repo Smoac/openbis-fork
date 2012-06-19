@@ -77,8 +77,28 @@ public class AuthorizationService implements IAuthorizationService
     public List<IExperimentImmutable> filterToVisibleExperiments(String user,
             List<IExperimentImmutable> experiments)
     {
-        // TODO Auto-generated method stub
-        return null;
+        // create a list of codes
+        List<String> experimentIds = new LinkedList<String>();
+        for (IExperimentImmutable exp : experiments)
+        {
+            experimentIds.add(exp.getExperimentIdentifier());
+        }
+
+        // call service - to filter the codes
+        List<String> filteredCodes = openBisService.filterToVisibleExperiments(user, experimentIds);
+        // put filtered codes to the set
+        Set<String> filteredSet = new HashSet<String>(filteredCodes);
+
+        // filter original values to those returned by the service call
+        List<IExperimentImmutable> resultList = new LinkedList<IExperimentImmutable>();
+        for (IExperimentImmutable exp : experiments)
+        {
+            if (filteredSet.contains(exp))
+            {
+                resultList.add(exp);
+            }
+        }
+        return resultList;
     }
 
     @Override

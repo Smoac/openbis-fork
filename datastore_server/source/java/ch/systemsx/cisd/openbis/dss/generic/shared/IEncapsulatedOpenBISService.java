@@ -533,4 +533,10 @@ public interface IEncapsulatedOpenBISService
      */
     @ManagedAuthentication
     public List<String> filterToVisibleDataSets(String user, List<String> dataSetCodes);
+
+    /**
+     * {@link IETLLIMSService#filterToVisibleExperiments(String, String, List)}
+     */
+    @ManagedAuthentication
+    public List<String> filterToVisibleExperiments(String user, List<String> experimentIds);
 }
