@@ -391,19 +391,23 @@ public class EntityOperationTest extends SystemTestCase
     public void testCreateExperimentAsSpaceETLServerSuccessfully()
     {
         String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
+        String experimentIdentifier = "/CISD/NEMO/E1";
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().experiment(
-                        new ExperimentBuilder().identifier("/CISD/NEMO/E1").type("SIRNA_HCS")
+                        new ExperimentBuilder().identifier(experimentIdentifier).type("SIRNA_HCS")
                                 .property("DESCRIPTION", "hello").getExperiment()).create();
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(1, result.getExperimentsCreatedCount());
 
-        assertEquals("/CISD/NEMO/E1", result.getExperimentsCreated().get(0).getIdentifier());
-        assertEquals("SIRNA_HCS", result.getExperimentsCreated().get(0).getExperimentType()
-                .getCode());
-        assertEquals("[DESCRIPTION: hello]", result.getExperimentsCreated().get(0).getProperties()
-                .toString());
-        assertEquals(1, result.getExperimentsCreated().size());
+        // Need to make an additional call to get the experiment from the DB
+        Experiment experiment =
+                etlService.tryToGetExperiment(sessionToken,
+                        ExperimentIdentifierFactory.parse(experimentIdentifier));
+
+        assertEquals("/CISD/NEMO/E1", experiment.getIdentifier());
+        assertEquals("SIRNA_HCS", experiment.getExperimentType().getCode());
+        assertEquals("[DESCRIPTION: hello]", experiment.getProperties().toString());
     }
 
     @Test

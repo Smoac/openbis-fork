@@ -57,18 +57,16 @@ public class AtomicEntityOperationResult implements Serializable
 
     public AtomicEntityOperationResult()
     {
-        this(Collections.<Space> emptyList(), Collections.<Project> emptyList(),
-                Collections.<Experiment> emptyList(), Collections.<Sample> emptyList(), Collections
+        this(Collections.<Space> emptyList(), Collections.<Project> emptyList(), Collections
+                .<Experiment> emptyList(), Collections.<Sample> emptyList(), Collections
                 .<Sample> emptyList(), Collections.<Material> emptyList(), Collections
-                .<ExternalData> emptyList(), Collections
-                .<ExternalData> emptyList());
+                .<ExternalData> emptyList(), Collections.<ExternalData> emptyList());
     }
 
     public AtomicEntityOperationResult(List<Space> spacesCreated, List<Project> projectsCreated,
             List<Experiment> experimentsCreated, List<Sample> samplesUpdated,
             List<Sample> samplesCreated, List<Material> materialsCreated,
-            List<ExternalData> dataSetsCreated,
-            List<ExternalData> dataSetsUpdated)
+            List<ExternalData> dataSetsCreated, List<ExternalData> dataSetsUpdated)
     {
         this.spacesCreated = new ArrayList<Space>(spacesCreated);
         this.projectsCreated = new ArrayList<Project>(projectsCreated);
@@ -81,14 +79,14 @@ public class AtomicEntityOperationResult implements Serializable
         this.dataSetsUpdated = new ArrayList<ExternalData>(dataSetsUpdated);
     }
 
-    public ArrayList<Experiment> getExperimentsUpdated()
+    public int getExperimentsUpdatedCount()
     {
-        return experimentsUpdated;
+        return experimentsUpdated.size();
     }
 
-    public ArrayList<Experiment> getExperimentsCreated()
+    public int getExperimentsCreatedCount()
     {
-        return experimentsCreated;
+        return experimentsCreated.size();
     }
 
     public ArrayList<Sample> getSamplesUpdated()
