@@ -248,12 +248,22 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             {
                 throw new IllegalStateException("Undefined process() function");
             }
-            IDataSetRegistrationTransactionV2 v2transaction = new DataSetRegistrationTransactionV2Delegate(transaction);
+            IDataSetRegistrationTransactionV2 v2transaction = wrapTransaction(transaction);
             invokeFunction(function, v2transaction);
         } catch (Exception e)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(e);
         }
+    }
+
+    /**
+     * Wraps the transaction - to hide methods which we don't want to expose in the api.
+     */
+    protected IDataSetRegistrationTransactionV2 wrapTransaction(
+            IDataSetRegistrationTransaction transaction)
+    {
+        IDataSetRegistrationTransactionV2 v2transaction = new DataSetRegistrationTransactionV2Delegate(transaction);
+        return v2transaction;
     }
 
     @Override
