@@ -528,5 +528,9 @@ public interface IEncapsulatedOpenBISService
     public boolean doesUserHaveRole(String user, String roleCode, String spaceOrNull);
 
     
-    
+    /**
+     * {@link IETLLIMSService#filterToVisibleDataSets(String, String, List)}
+     */
+    @ManagedAuthentication
+    public List<String> filterToVisibleDataSets(String user, List<String> dataSetCodes);
 }

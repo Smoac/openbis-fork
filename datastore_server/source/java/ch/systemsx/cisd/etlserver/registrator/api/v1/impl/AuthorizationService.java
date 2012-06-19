@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
@@ -46,8 +49,28 @@ public class AuthorizationService implements IAuthorizationService
     public List<IDataSetImmutable> filterToVisibleDatasets(String user,
             List<IDataSetImmutable> datasets)
     {
-        // TODO Auto-generated method stub
-        return null;
+        // create a list of codes
+        List<String> dataSetCodes = new LinkedList<String>();
+        for (IDataSetImmutable dataSet : datasets)
+        {
+            dataSetCodes.add(dataSet.getDataSetCode());
+        }
+
+        // call service - to filter the codes
+        List<String> filteredCodes = openBisService.filterToVisibleDataSets(user, dataSetCodes);
+        // put filtered codes to the set
+        Set<String> filteredSet = new HashSet<String>(filteredCodes);
+
+        // filter original values to those returned by the service call
+        List<IDataSetImmutable> resultList = new LinkedList<IDataSetImmutable>();
+        for (IDataSetImmutable dataSet : datasets)
+        {
+            if (filteredSet.contains(dataSet))
+            {
+                resultList.add(dataSet);
+            }
+        }
+        return resultList;
     }
 
     @Override
