@@ -1042,15 +1042,9 @@ public class ETLServiceTest extends AbstractServerTestCase
         AtomicEntityOperationResult result =
                 createService().performEntityOperations(SESSION_TOKEN, details);
         assertNotNull(result);
-        assertEquals(sampleUpdate.getSampleIdentifier().toString(),
-                result.getSamplesUpdated().get(0).getIdentifier());
-        assertEquals(experiment.getIdentifier(), result.getSamplesUpdated().get(0).getExperiment()
-                .getIdentifier());
-
-        assertEquals(newSample.getIdentifier(), result.getSamplesCreated().get(0).getIdentifier());
-        assertEquals(experiment.getIdentifier(), result.getSamplesCreated().get(0).getExperiment()
-                .getIdentifier());
-        assertEquals(updatedDataSetCode, result.getDataSetsUpdated().get(0).getCode());
+        assertEquals(1, result.getSamplesUpdatedCount());
+        assertEquals(1, result.getSamplesCreatedCount());
+        assertEquals(1, result.getDataSetsUpdatedCount());
 
         context.assertIsSatisfied();
     }
@@ -1235,15 +1229,9 @@ public class ETLServiceTest extends AbstractServerTestCase
         AtomicEntityOperationResult result =
                 createService().performEntityOperations(SESSION_TOKEN, details);
         assertNotNull(result);
-        assertEquals(sampleUpdate.getSampleIdentifier().toString(),
-                result.getSamplesUpdated().get(0).getIdentifier());
-        assertEquals(experiment.getIdentifier(), result.getSamplesUpdated().get(0).getExperiment()
-                .getIdentifier());
-
-        assertEquals(newSample.getIdentifier(), result.getSamplesCreated().get(0).getIdentifier());
-        assertEquals(experiment.getIdentifier(), result.getSamplesCreated().get(0).getExperiment()
-                .getIdentifier());
-        assertEquals(updatedDataSetCode, result.getDataSetsUpdated().get(0).getCode());
+        assertEquals(1, result.getSamplesUpdatedCount());
+        assertEquals(1, result.getSamplesCreatedCount());
+        assertEquals(1, result.getDataSetsUpdatedCount());
 
         context.assertIsSatisfied();
     }
