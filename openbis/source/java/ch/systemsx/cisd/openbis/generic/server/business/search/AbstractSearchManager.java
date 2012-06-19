@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
@@ -139,11 +139,13 @@ public class AbstractSearchManager<T>
     protected Collection<Long> filteIdsByRelationship(Collection<Long> idsToFilter,
             Collection<Long> relatedIds, Map<Long, Set<Long>> relationshipMap)
     {
-        for (Entry<Long, Set<Long>> entry : relationshipMap.entrySet())
+        for (Iterator<Long> iterator = idsToFilter.iterator(); iterator.hasNext();)
         {
-            if (Collections.disjoint(relatedIds, entry.getValue()))
+            Long id = iterator.next();
+            Set<Long> relatedIdSet = relationshipMap.get(id);
+            if (relatedIdSet == null || Collections.disjoint(relatedIds, relatedIdSet))
             {
-                idsToFilter.remove(entry.getKey());
+                iterator.remove();
             }
         }
         return idsToFilter;
