@@ -7,7 +7,7 @@ def process(transaction):
   transaction.moveFile(transaction.getIncoming().getPath() + '/sub_data_set_1', dataSet)
   dataSet.setDataSetType('O1')
   dataSet.setExperiment(transaction.getExperiment('/SPACE/PROJECT/EXP'))
-  transaction.getPersistentMap().put("body","1")
+  transaction.getRegistrationContext().put("body","1")
 
 def rollback_transaction(service, transaction, algorithmRunner, throwable):
     jythonHookTestTool.log("rollback_transaction")

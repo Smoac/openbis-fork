@@ -206,7 +206,7 @@ return         transaction.createNewDataSet();
     @Override
     public DataSetRegistrationPersistentMap getRegistrationContext()
     {
-        return  transaction.getPersistentMap();
+        return  transaction.getRegistrationContext();
     }
 
     @Override

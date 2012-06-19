@@ -519,11 +519,11 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     {
         if (additionalArgs.length > 0)
         {
-            invokeFunction(function,  persistentMapHolder.getPersistentMap(),
+            invokeFunction(function,  persistentMapHolder.getRegistrationContext(),
                     additionalArgs);
         } else
         {
-            invokeFunction(function, persistentMapHolder.getPersistentMap());
+            invokeFunction(function, persistentMapHolder.getRegistrationContext());
         }
     }
 

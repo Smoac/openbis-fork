@@ -4,7 +4,7 @@ jythonHookTestTool = JythonHookTestTool.createInTest()
 
 execfile("sourceTest/java/ch/systemsx/cisd/etlserver/registrator/simple-transaction.py")
 
-transaction.getPersistentMap().put("body","1")
+transaction.getRegistrationContext().put("body","1")
 
 def rollback_transaction(service, transaction, algorithmRunner, throwable):
     jythonHookTestTool.log("rollback_transaction")

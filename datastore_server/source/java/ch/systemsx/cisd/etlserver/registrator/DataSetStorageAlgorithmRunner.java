@@ -817,6 +817,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     public DataSetRegistrationPersistentMap getPersistentMap()
     {
-        return persistentMapHolder.getPersistentMap();
+        return persistentMapHolder.getRegistrationContext();
     }
 }

@@ -193,7 +193,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             }
 
             DataSetRegistrationPersistentMap persistentMap =
-                    service.getTransaction().getPersistentMap();
+                    service.getTransaction().getRegistrationContext();
 
             PyObject retryFunctionResult = null;
             try
@@ -232,7 +232,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             // should we catch some exceptions here? can we recover if whatever went wrong in here
 
             // creates the new transaction and propagates the values in the persistent map
-            service.transaction().getPersistentMap().putAll(persistentMap);
+            service.transaction().getRegistrationContext().putAll(persistentMap);
 
             waitTheRetryPeriod(processRetryPauseInSec);
         }
@@ -450,7 +450,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                     {
 
                         @Override
-                        public DataSetRegistrationPersistentMap getPersistentMap()
+                        public DataSetRegistrationPersistentMap getRegistrationContext()
                         {
                             return recoveryState.getPersistentMap();
                         }
@@ -651,7 +651,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                             JythonHookFunction.POST_REGISTRATION_FUNCTION_NAME);
             if (function != null)
             {
-                invokeFunction(function, persistentMapHolder.getPersistentMap());
+                invokeFunction(function, persistentMapHolder.getRegistrationContext());
             }
         }
 
@@ -666,7 +666,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                             JythonHookFunction.POST_STORAGE_FUNCTION_NAME);
             if (function != null)
             {
-                invokeFunction(function, persistentMapHolder.getPersistentMap());
+                invokeFunction(function, persistentMapHolder.getRegistrationContext());
             }
         }
 
@@ -678,7 +678,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                             JythonHookFunction.ROLLBACK_PRE_REGISTRATION_FUNCTION_NAME);
             if (function != null)
             {
-                invokeFunction(function, persistentMapHolder.getPersistentMap(), t);
+                invokeFunction(function, persistentMapHolder.getRegistrationContext(), t);
             }
         }
 

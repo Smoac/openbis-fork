@@ -414,7 +414,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
-    public DataSetRegistrationPersistentMap getPersistentMap()
+    public DataSetRegistrationPersistentMap getRegistrationContext()
     {
         return registrationContext;
     }

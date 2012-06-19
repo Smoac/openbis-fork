@@ -261,7 +261,7 @@ public interface IDataSetRegistrationTransaction
      * 
      * @return The context, a hash-map-like object.
      */
-    DataSetRegistrationPersistentMap getPersistentMap();
+    DataSetRegistrationPersistentMap getRegistrationContext();
 
     /**
      * Returns the service registrator context.

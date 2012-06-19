@@ -17,7 +17,7 @@ public class DataSetRegistrationPersistentMap implements Serializable
 {
     public static interface IHolder
     {
-        DataSetRegistrationPersistentMap getPersistentMap();
+        DataSetRegistrationPersistentMap getRegistrationContext();
     }
 
     private static final long serialVersionUID = 1L;
