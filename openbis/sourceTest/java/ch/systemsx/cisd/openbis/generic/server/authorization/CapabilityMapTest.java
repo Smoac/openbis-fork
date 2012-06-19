@@ -67,14 +67,17 @@ public class CapabilityMapTest
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList("A: SPACE_POWER_USER\t", "# Some comment", "",
                         " B  INSTANCE_ETL_SERVER"), "<memory>");
-        assertEquals(RoleWithHierarchy.SPACE_POWER_USER,
-                capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyA1")));
-        assertEquals(RoleWithHierarchy.SPACE_POWER_USER,
-                capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyA2")));
+        assertEquals(
+                RoleWithHierarchy.SPACE_POWER_USER,
+                capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1")).toArray()[0]);
+        assertEquals(
+                RoleWithHierarchy.SPACE_POWER_USER,
+                capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA2")).toArray()[0]);
         assertEquals(
                 RoleWithHierarchy.INSTANCE_ETL_SERVER,
-                capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyB", String.class)));
-        assertNull(capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyC")));
+                capMap.tryGetRoles(CapabilityMapTest.class
+                        .getDeclaredMethod("dummyB", String.class)).toArray()[0]);
+        assertNull(capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyC")));
     }
 
     @Test
@@ -84,10 +87,10 @@ public class CapabilityMapTest
                 new CapabilityMap(Arrays.asList(
                         "CapabilityMapTest.dummyA: SPACE_POWER_USER #wrong",
                         "CapabilityMapTest.dummyB  NO_ROLE"), "<memory>");
-        assertNull(capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyA1")));
-        assertNull(capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyB",
+        assertNull(capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1")));
+        assertNull(capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyB",
                 String.class)));
-        assertNull(capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyC")));
+        assertNull(capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyC")));
     }
 
     @Test
@@ -95,9 +98,11 @@ public class CapabilityMapTest
     {
         CapabilityMap capMap =
                 new CapabilityMap(Arrays.asList("A: INSTANCE_DISABLED\t"), "<memory>");
-        assertEquals(RoleWithHierarchy.INSTANCE_DISABLED,
-                capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyA1")));
-        assertTrue(capMap.tryGetRole(CapabilityMapTest.class.getDeclaredMethod("dummyA1"))
+        assertEquals(
+                RoleWithHierarchy.INSTANCE_DISABLED,
+                capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1")).toArray()[0]);
+        assertTrue(capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1"))
+                .toArray(new RoleWithHierarchy[0])[0]
                 .getRoles().isEmpty());
     }
 

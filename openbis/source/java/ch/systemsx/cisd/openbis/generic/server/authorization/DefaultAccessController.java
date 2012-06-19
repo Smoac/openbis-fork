@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -119,10 +120,13 @@ public final class DefaultAccessController implements IAccessController
             if (roles == null)
             {
                 roles = new LinkedHashSet<RoleWithHierarchy>();
-                final RoleWithHierarchy rootRole = capabilities.tryGetRole(method);
-                if (rootRole != null)
+                final Collection<RoleWithHierarchy> rootRoles = capabilities.tryGetRoles(method);
+                if (rootRoles != null)
                 {
-                    roles.addAll(rootRole.getRoles());
+                    for (RoleWithHierarchy role : rootRoles)
+                    {
+                        roles.addAll(role.getRoles());
+                    }
                 } else
                 {
                     final RolesAllowed rolesAllowed = method.getAnnotation(RolesAllowed.class);

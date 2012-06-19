@@ -19,8 +19,10 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +46,8 @@ class CapabilityMap
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             CapabilityMap.class);
 
-    private final Map<String, RoleWithHierarchy> capMap = new HashMap<String, RoleWithHierarchy>();
+    private final Map<String, Collection<RoleWithHierarchy>> capMap =
+            new HashMap<String, Collection<RoleWithHierarchy>>();
 
     @SuppressWarnings("unchecked")
     private final static List<String> readLines(File file)
@@ -94,7 +97,14 @@ class CapabilityMap
             try
             {
                 final RoleWithHierarchy role = RoleWithHierarchy.valueOf(roleName);
-                capMap.put(methodName, role);
+                Collection<RoleWithHierarchy> roles = new HashSet<RoleWithHierarchy>();
+                roles.add(role);
+                roles = capMap.put(methodName, roles);
+                if (roles != null)
+                {
+                    capMap.get(methodName).addAll(roles);
+                }
+
                 if (operationLog.isDebugEnabled())
                 {
                     operationLog.debug(String.format("Add to map: '%s' -> %s", methodName, role));
@@ -108,7 +118,7 @@ class CapabilityMap
         }
     }
 
-    RoleWithHierarchy tryGetRole(Method m)
+    Collection<RoleWithHierarchy> tryGetRoles(Method m)
     {
         final Capability cap = m.getAnnotation(Capability.class);
         if (cap == null)
@@ -116,11 +126,11 @@ class CapabilityMap
             return null;
         }
         final String capabilityName = cap.value().toUpperCase();
-        final RoleWithHierarchy roleOrNull = capMap.get(capabilityName);
+        final Collection<RoleWithHierarchy> rolesOrNull = capMap.get(capabilityName);
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("Request: '%s' -> %s", capabilityName, roleOrNull));
+            operationLog.debug(String.format("Request: '%s' -> %s", capabilityName, rolesOrNull));
         }
-        return roleOrNull;
+        return rolesOrNull;
     }
 }
