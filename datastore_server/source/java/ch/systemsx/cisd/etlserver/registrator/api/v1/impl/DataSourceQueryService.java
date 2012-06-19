@@ -55,7 +55,8 @@ public class DataSourceQueryService implements IDataSourceQueryService
             return QueryTool.select(dataSource, query, parameters);
         } catch (InvalidQueryException ex)
         {
-            operationLog.error(ex.getCause().getMessage());
+            Throwable cause = ex.getCause();
+            operationLog.error(cause == null ? ex.getMessage() : cause.getMessage());
             throw ex;
         }
     }
