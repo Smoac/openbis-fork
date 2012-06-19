@@ -32,6 +32,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImageDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
 import ch.systemsx.cisd.openbis.dss.etl.jython.ImagingDataSetRegistrationTransaction;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
@@ -210,6 +211,12 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     public ISearchService getSearchService()
     {
         return transaction.getSearchService();
+    }
+
+    @Override
+    public IAuthorizationService getAuthorizationService()
+    {
+        return transaction.getAuthorizationService();
     }
 
     @Override

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.JythonBasedAggregationServiceReportingPluginTest.ParametersBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -40,18 +41,25 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIde
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class ScreeningJythonBasedAggregationServiceReportingPluginTest extends AbstractFileSystemTestCase
+public class ScreeningJythonBasedAggregationServiceReportingPluginTest extends
+        AbstractFileSystemTestCase
 {
     private Mockery context;
+
     private ISearchService searchService;
+
+    private IAuthorizationService authorizationService;
+
     private IDataSourceQueryService queryService;
+
     private File store;
+
     private File scriptFolder;
+
     private DataSetProcessingContext processingContext;
+
     private IScreeningOpenbisServiceFacade screeningFacade;
 
     @BeforeMethod
@@ -62,8 +70,8 @@ public class ScreeningJythonBasedAggregationServiceReportingPluginTest extends A
         queryService = context.mock(IDataSourceQueryService.class);
         screeningFacade = context.mock(IScreeningOpenbisServiceFacade.class);
         processingContext =
-                new DataSetProcessingContext(null, null, new HashMap<String, String>(),
-                        null, "test-user");
+                new DataSetProcessingContext(null, null, new HashMap<String, String>(), null,
+                        "test-user");
         store = new File(workingDirectory, "store");
         store.mkdirs();
         scriptFolder = new File("resource/test-data/" + getClass().getSimpleName());
@@ -81,19 +89,20 @@ public class ScreeningJythonBasedAggregationServiceReportingPluginTest extends A
         context.checking(new Expectations()
             {
                 {
-                    ExperimentIdentifier expId = ExperimentIdentifier.createFromAugmentedCode("/A/B/C");
+                    ExperimentIdentifier expId =
+                            ExperimentIdentifier.createFromAugmentedCode("/A/B/C");
                     one(screeningFacade).listPlates(expId);
                     will(returnValue(Arrays.asList(new Plate("P1", "A", "1", expId))));
                 }
             });
         Map<String, Object> parameters =
-                new ParametersBuilder().parameter("experiment-identifier", "/A/B/C").getParameters();
+                new ParametersBuilder().parameter("experiment-identifier", "/A/B/C")
+                        .getParameters();
 
         IReportingPluginTask plugin = createPlugin("script.py");
         TableModel tableModel = plugin.createAggregationReport(parameters, processingContext);
 
-        assertEquals("[Plate]", tableModel
-                .getHeader().toString());
+        assertEquals("[Plate]", tableModel.getHeader().toString());
         assertEquals("[P1]", tableModel.getRows().get(0).getValues().toString());
         assertEquals(1, tableModel.getRows().size());
         context.assertIsSatisfied();
@@ -102,7 +111,9 @@ public class ScreeningJythonBasedAggregationServiceReportingPluginTest extends A
 
     private IReportingPluginTask createPlugin(String scriptFile)
     {
-        return new ScreeningJythonBasedAggregationServiceReportingPlugin(new Properties(), store,
+        return new ScreeningJythonBasedAggregationServiceReportingPlugin(
+                new Properties(),
+                store,
                 new ScreeningPluginScriptRunnerFactory(new File(scriptFolder, scriptFile).getPath())
                     {
                         private static final long serialVersionUID = 1L;
@@ -111,6 +122,12 @@ public class ScreeningJythonBasedAggregationServiceReportingPluginTest extends A
                         protected ISearchService createSearchService()
                         {
                             return searchService;
+                        }
+
+                        @Override
+                        protected IAuthorizationService createAuthorizationService()
+                        {
+                            return authorizationService;
                         }
 
                         @Override
@@ -125,7 +142,7 @@ public class ScreeningJythonBasedAggregationServiceReportingPluginTest extends A
                         {
                             return screeningFacade;
                         }
-                        
+
                     });
     }
 }
