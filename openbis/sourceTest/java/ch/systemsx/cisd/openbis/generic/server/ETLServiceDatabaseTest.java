@@ -44,6 +44,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -171,6 +173,51 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
                 .getModificationDate().compareTo(sampleToUpdate.getModificationDate()) > 0);
         assertEquals(newComment, EntityHelper.tryFindPropertyValue(updatedSample, "COMMENT"));
         assertEquals(2, updatedSample.getParents().size());
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    public void testPerformEntityOperationsCreateSample()
+    {
+        // Get the parents
+        SearchCriteria parentSearchCriteria = new SearchCriteria();
+        parentSearchCriteria.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(
+                MatchClauseAttribute.CODE, "3VCP7"));
+        List<Sample> parentsToAdd = service.searchForSamples(sessionToken, parentSearchCriteria);
+        assertEquals(1, parentsToAdd.size());
+        Sample parent = parentsToAdd.get(0);
+
+        NewSample sampleToCreate = new NewSample();
+        String newSampleIdentifier = "/" + parent.getSpace().getCode() + "/" + "NEW-SAMPLE";
+        sampleToCreate.setIdentifier(newSampleIdentifier);
+        sampleToCreate.setSampleType(parent.getSampleType());
+
+        // Set the properties
+        String comment = "This is a comment.";
+        IEntityProperty commentProperty = EntityHelper.createNewProperty("COMMENT", comment);
+        sampleToCreate.setProperties(new IEntityProperty[]
+            { commentProperty });
+
+        sampleToCreate.setParentsOrNull(new String[]
+            { parent.getIdentifier() });
+
+        performSampleCreation(sampleToCreate);
+
+        // Now retrieve the sample again and check it was created
+        ListSampleCriteria listCriteria = ListSampleCriteria.createForParent(TechId.create(parent));
+        List<Sample> childSamples = service.listSamples(sessionToken, listCriteria);
+        Sample createdSample = null;
+        for (Sample child : childSamples)
+        {
+            if (child.getIdentifier().equals(sampleToCreate.getIdentifier()))
+            {
+                createdSample = child;
+                break;
+            }
+        }
+        assertTrue(createdSample != null);
+        assertEquals(comment, EntityHelper.tryFindPropertyValue(createdSample, "COMMENT"));
+        assertTrue(createdSample.getParents().contains(parent));
     }
 
     @Test
@@ -326,5 +373,25 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         propertiesToUpdate.add(propertyCode);
         updateDetails.setPropertiesToUpdate(propertiesToUpdate);
         return updates;
+    }
+
+    private void performSampleCreation(NewSample sampleToCreate)
+    {
+        TechId registrationid = new TechId(service.drawANewUniqueID(sessionToken));
+        List<NewSpace> spaceRegistrations = Collections.emptyList();
+        List<NewProject> projectRegistrations = Collections.emptyList();
+        List<NewExperiment> experimentRegistrations = Collections.emptyList();
+
+        List<SampleUpdatesDTO> sampleUpdates = Collections.emptyList();
+        List<NewSample> sampleRegistrations = Arrays.asList(sampleToCreate);
+        Map<String, List<NewMaterial>> materialRegistrations = Collections.emptyMap();
+        List<? extends NewExternalData> dataSetRegistrations = Collections.emptyList();
+        List<DataSetBatchUpdatesDTO> dataSetUpdates = Collections.emptyList();
+        AtomicEntityOperationDetails details =
+                new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
+                        projectRegistrations, experimentRegistrations, sampleUpdates,
+                        sampleRegistrations, materialRegistrations, dataSetRegistrations,
+                        dataSetUpdates);
+        service.performEntityOperations(sessionToken, details);
     }
 }
