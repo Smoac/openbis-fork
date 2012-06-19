@@ -237,6 +237,15 @@ public interface ICommonServer extends IServer
     public List<Person> listPersons(String sessionToken);
 
     /**
+     * Returns all active persons from current instance.
+     * 
+     * @return a sorted list of {@link Person}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    public List<Person> listActivePersons(String sessionToken);
+
+    /**
      * Returns all projects.
      * 
      * @return a sorted list of {@link Project}.
@@ -1619,6 +1628,7 @@ public interface ICommonServer extends IServer
      * Sends the e-mail containing number of active users to CISD Help desk and user, who triggered
      * the action
      */
+    @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void sendCountActiveUsersEmail(String sessionToken);
 }

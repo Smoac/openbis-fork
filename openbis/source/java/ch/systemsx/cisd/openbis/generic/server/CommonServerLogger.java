@@ -190,6 +190,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
+    public List<Person> listActivePersons(final String sessionToken)
+    {
+        logAccess(sessionToken, "list_active_persons");
+        return null;
+    }
+
+    @Override
     public void registerPerson(final String sessionToken, final String userID)
     {
         logTracking(sessionToken, "register_person", "CODE(%s)", userID);

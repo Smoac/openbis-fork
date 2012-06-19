@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PersonModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * {@link ComboBox} containing list of persons loaded from the server.
@@ -74,7 +74,7 @@ public final class PersonSelectionWidget extends DropDownList<PersonModel, Perso
     @Override
     protected void loadData(AbstractAsyncCallback<List<Person>> callback)
     {
-        viewContext.getCommonService().listPersons(callback);
+        viewContext.getCommonService().listActivePersons(callback);
     }
 
     @Override

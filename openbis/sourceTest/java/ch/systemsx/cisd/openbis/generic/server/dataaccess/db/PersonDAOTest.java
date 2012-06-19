@@ -190,6 +190,7 @@ public final class PersonDAOTest extends AbstractDAOTest
         assertNotNull(id);
     }
 
+    @Test
     public final void testListPersons()
     {
         testCreatePersonWithAnotherDatabaseInstance();
@@ -202,6 +203,15 @@ public final class PersonDAOTest extends AbstractDAOTest
         changeDatabaseInstanceId(personDAO);
         assertEquals(1, personDAO.listPersons().size());
         resetDatabaseInstanceId(personDAO);
+    }
+
+    @Test
+    public final void testListActivePersons()
+    {
+        final IPersonDAO personDAO = daoFactory.getPersonDAO();
+        final List<PersonPE> listAll = personDAO.listPersons();
+        final List<PersonPE> listActive = personDAO.listActivePersons();
+        assertEquals(listAll.size() - 1, listActive.size());
     }
 
     @Test
@@ -225,7 +235,7 @@ public final class PersonDAOTest extends AbstractDAOTest
     public void testCountActivePersons()
     {
         IPersonDAO personDAO = daoFactory.getPersonDAO();
-        assertEquals(4, personDAO.countActivePersons());
+        assertEquals(7, personDAO.countActivePersons());
     }
 
     @SuppressWarnings("deprecation")

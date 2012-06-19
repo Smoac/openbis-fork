@@ -863,6 +863,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listPersons(AsyncCallback<List<Person>> callback);
 
     /**
+     * @see ICommonClientService#listPersons()
+     */
+    public void listActivePersons(AsyncCallback<List<Person>> callback);
+
+    /**
      * @see ICommonClientService#listAuthorizationGroups()
      */
     public void listAuthorizationGroups(AsyncCallback<List<AuthorizationGroup>> callback);

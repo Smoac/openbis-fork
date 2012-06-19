@@ -504,6 +504,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
+    public final List<Person> listActivePersons(final String sessionToken)
+    {
+        checkSession(sessionToken);
+        final List<PersonPE> persons = getDAOFactory().getPersonDAO().listActivePersons();
+        Collections.sort(persons);
+        return PersonTranslator.translate(persons);
+    }
+
+    @Override
     public final List<Project> listProjects(final String sessionToken)
     {
         checkSession(sessionToken);

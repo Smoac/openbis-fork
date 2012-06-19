@@ -186,6 +186,11 @@ public interface ICommonClientService extends IClientService
     public List<Person> listPersons() throws UserFailureException;
 
     /**
+     * Returns a list of active persons registered in given database instance.
+     */
+    public List<Person> listActivePersons() throws UserFailureException;
+
+    /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for persons.
      */
     public String prepareExportPersons(

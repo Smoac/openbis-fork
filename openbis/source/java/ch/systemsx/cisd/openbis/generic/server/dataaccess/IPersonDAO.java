@@ -73,6 +73,11 @@ public interface IPersonDAO extends IGenericDAO<PersonPE>
     public List<PersonPE> listPersons() throws DataAccessException;
 
     /**
+     * @returns The list of all active persons currently present in the database.
+     */
+    public List<PersonPE> listActivePersons() throws DataAccessException;
+
+    /**
      * @returns The list of all persons with specified user ids.
      */
     public List<PersonPE> listByCodes(Collection<String> userIds) throws DataAccessException;

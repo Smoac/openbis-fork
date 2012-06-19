@@ -91,6 +91,7 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
             person.setDatabaseInstance(getDatabaseInstance());
         }
         person.setEmail(StringUtils.trim(person.getEmail()));
+        person.setActive(true);
         validatePE(person);
 
         final HibernateTemplate template = getHibernateTemplate();
@@ -216,6 +217,21 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
                 cast(getHibernateTemplate().find(
                         String.format("from %s p where p.databaseInstance = ?", TABLE_NAME),
                         toArray(getDatabaseInstance())));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(): %d person(s) have been found.", MethodUtils
+                    .getCurrentMethod().getName(), list.size()));
+        }
+        return list;
+    }
+
+    @Override
+    public final List<PersonPE> listActivePersons() throws DataAccessException
+    {
+        final List<PersonPE> list =
+                cast(getHibernateTemplate().find(
+                        String.format("from %s p where p.databaseInstance = ? and p.active = true",
+                                TABLE_NAME), toArray(getDatabaseInstance())));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(): %d person(s) have been found.", MethodUtils

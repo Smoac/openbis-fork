@@ -111,6 +111,7 @@ public interface IServer extends ISessionProvider
     /**
      * @return number of active users
      */
+    @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public int countActivePersons(String sessionToken);
 

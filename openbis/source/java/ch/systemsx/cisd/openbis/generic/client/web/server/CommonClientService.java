@@ -684,6 +684,15 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
+    public final List<Person> listActivePersons()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        final List<Person> persons = commonServer.listActivePersons(sessionToken);
+        return persons;
+    }
+
+    @Override
     public TypedTableResultSet<RoleAssignment> listRoleAssignments(
             DefaultResultSetConfig<String, TableModelRowWithObject<RoleAssignment>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
