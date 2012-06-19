@@ -20,6 +20,7 @@ import java.io.File;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
 
+import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
@@ -265,8 +266,15 @@ public interface IDataSetRegistrationTransaction
 
     /**
      * Returns the service registrator context.
+     * @deprecated Should not be used. To get to the global state use getGlobalState instead
      */
+    @Deprecated
     OmniscientTopLevelDataSetRegistratorState getRegistratorContext();
+
+    /**
+     * @return the global state
+     */
+    TopLevelDataSetRegistratorGlobalState getGlobalState();
     
     /**
      * @return the logical incoming file.

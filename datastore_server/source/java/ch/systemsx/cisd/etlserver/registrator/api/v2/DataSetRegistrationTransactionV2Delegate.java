@@ -212,7 +212,7 @@ return         transaction.createNewDataSet();
     @Override
     public TopLevelDataSetRegistratorGlobalState getGlobalState()
     {
-        return transaction.getRegistratorContext().getGlobalState();
+        return transaction.getGlobalState();
     }
 
     @Override

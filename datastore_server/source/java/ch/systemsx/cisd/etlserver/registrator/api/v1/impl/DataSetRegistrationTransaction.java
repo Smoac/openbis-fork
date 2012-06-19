@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
+import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
@@ -632,8 +633,15 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return registrationService.getIncomingDataSetFile();
     }
     
+    @Override
     public File getIncoming()
     {
         return getIncomingDataSetFile().getLogicalIncomingFile();
+    }
+
+    @Override
+    public TopLevelDataSetRegistratorGlobalState getGlobalState()
+    {
+        return getRegistratorContext().getGlobalState();
     }
 }
