@@ -99,11 +99,6 @@ public class AtomicEntityOperationResult implements Serializable
         return samplesCreated.size();
     }
 
-    public ArrayList<Sample> getSamplesCreated()
-    {
-        return samplesCreated;
-    }
-
     public int getDataSetsCreatedCount()
     {
         return dataSetsCreated.size();
@@ -112,11 +107,6 @@ public class AtomicEntityOperationResult implements Serializable
     public int getDataSetsUpdatedCount()
     {
         return dataSetsUpdated.size();
-    }
-
-    public ArrayList<ExternalData> getDataSetsUpdated()
-    {
-        return dataSetsUpdated;
     }
 
     public int getSpacesCreatedCount()
@@ -134,9 +124,8 @@ public class AtomicEntityOperationResult implements Serializable
         return projectsCreated.size();
     }
 
-    public ArrayList<Material> getMaterialsCreated()
+    public int getMaterialsCreatedCount()
     {
-        return materialsCreated;
+        return materialsCreated.size();
     }
-
 }

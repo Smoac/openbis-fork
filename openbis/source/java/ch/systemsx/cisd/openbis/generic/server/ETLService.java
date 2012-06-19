@@ -1330,6 +1330,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         try
         {
             bo.loadByMaterialIdentifier(materialIdentifier);
+            bo.enrichWithProperties();
             return MaterialTranslator.translate(bo.getMaterial());
         } catch (UserFailureException ufe)
         {

@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataStoreBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
@@ -288,8 +290,10 @@ public class EntityOperationTest extends SystemTestCase
         AtomicEntityOperationDetails eo = new EntityOperationBuilder().space("TEST_SPACE").create();
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(1, result.getSpacesCreatedCount());
 
-        assertEquals("[CISD/TEST_SPACE]", result.getSpacesCreated().toString());
+        Space space = etlService.tryGetSpace(sessionToken, new SpaceIdentifier("TEST_SPACE"));
+        assertEquals("CISD/TEST_SPACE", space.toString());
     }
 
     @Test
@@ -300,8 +304,10 @@ public class EntityOperationTest extends SystemTestCase
                 new EntityOperationBuilder().user(INSTANCE_ADMIN).space("TEST_SPACE").create();
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(1, result.getSpacesCreatedCount());
 
-        assertEquals("[CISD/TEST_SPACE]", result.getSpacesCreated().toString());
+        Space space = result.getSpacesCreated().get(0);
+        assertEquals("CISD/TEST_SPACE", space.toString());
     }
 
     @Test
@@ -327,10 +333,12 @@ public class EntityOperationTest extends SystemTestCase
                                 .getMaterial()).create();
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(1, result.getMaterialsCreatedCount());
 
-        assertEquals("[ALPHA (GENE)]", result.getMaterialsCreated().toString());
-        assertEquals("[GENE_SYMBOL: 42]", result.getMaterialsCreated().get(0).getProperties()
-                .toString());
+        Material material =
+                etlService.tryGetMaterial(sessionToken, new MaterialIdentifier("ALPHA", "GENE"));
+        assertEquals("ALPHA (GENE)", material.toString());
+        assertEquals("[GENE_SYMBOL: 42]", material.getProperties().toString());
     }
 
     @Test
@@ -346,10 +354,12 @@ public class EntityOperationTest extends SystemTestCase
                                         .getMaterial()).create();
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(1, result.getMaterialsCreatedCount());
 
-        assertEquals("[ALPHA (GENE)]", result.getMaterialsCreated().toString());
-        assertEquals("[GENE_SYMBOL: 42]", result.getMaterialsCreated().get(0).getProperties()
-                .toString());
+        Material material =
+                etlService.tryGetMaterial(sessionToken, new MaterialIdentifier("ALPHA", "GENE"));
+        assertEquals("ALPHA (GENE)", material.toString());
+        assertEquals("[GENE_SYMBOL: 42]", material.getProperties().toString());
     }
 
     @Test
@@ -431,18 +441,21 @@ public class EntityOperationTest extends SystemTestCase
     public void testCreateInstanceSampleAsInstanceETLServerSuccessfully()
     {
         String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
+        String sampleIdentifier = "/S1";
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().sample(
-                        new SampleBuilder().identifier("/S1").type("MASTER_PLATE")
+                        new SampleBuilder().identifier(sampleIdentifier).type("MASTER_PLATE")
                                 .property("$PLATE_GEOMETRY", "96_WELLS_8X12").getSample()).create();
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(1, result.getSamplesCreatedCount());
 
-        assertEquals("/S1", result.getSamplesCreated().get(0).getIdentifier());
-        assertEquals("MASTER_PLATE", result.getSamplesCreated().get(0).getSampleType().getCode());
-        assertEquals("[$PLATE_GEOMETRY: 96_WELLS_8X12]", result.getSamplesCreated().get(0)
-                .getProperties().toString());
-        assertEquals(1, result.getSamplesCreated().size());
+        Sample sample =
+                etlService.tryGetSampleWithExperiment(sessionToken,
+                        SampleIdentifierFactory.parse(sampleIdentifier));
+        assertEquals(sampleIdentifier, sample.getIdentifier());
+        assertEquals("MASTER_PLATE", sample.getSampleType().getCode());
+        assertEquals("[$PLATE_GEOMETRY: 96_WELLS_8X12]", sample.getProperties().toString());
     }
 
     @Test
@@ -463,10 +476,11 @@ public class EntityOperationTest extends SystemTestCase
     public void testCreateSpaceSampleAsSpaceETLServerSuccessfully()
     {
         String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
+        String sampleIdentifier = "/CISD/S1";
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().sample(
                         new SampleBuilder()
-                                .identifier("/CISD/S1")
+                                .identifier(sampleIdentifier)
                                 .type("CELL_PLATE")
                                 .property("COMMENT", "hello")
                                 .experiment(
@@ -474,14 +488,15 @@ public class EntityOperationTest extends SystemTestCase
                                                 .getExperiment()).getSample()).create();
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(1, result.getSamplesCreatedCount());
 
-        assertEquals("/CISD/S1", result.getSamplesCreated().get(0).getIdentifier());
-        assertEquals("CELL_PLATE", result.getSamplesCreated().get(0).getSampleType().getCode());
-        assertEquals("[COMMENT: hello]", result.getSamplesCreated().get(0).getProperties()
-                .toString());
-        assertEquals("/CISD/NEMO/EXP1", result.getSamplesCreated().get(0).getExperiment()
-                .getIdentifier());
-        assertEquals(1, result.getSamplesCreated().size());
+        Sample sample =
+                etlService.tryGetSampleWithExperiment(sessionToken,
+                        SampleIdentifierFactory.parse(sampleIdentifier));
+        assertEquals(sampleIdentifier, sample.getIdentifier());
+        assertEquals("CELL_PLATE", sample.getSampleType().getCode());
+        assertEquals("[COMMENT: hello]", sample.getProperties().toString());
+        assertEquals("/CISD/NEMO/EXP1", sample.getExperiment().getIdentifier());
     }
 
     @Test
@@ -629,10 +644,9 @@ public class EntityOperationTest extends SystemTestCase
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
         assertEquals(1, result.getDataSetsUpdatedCount());
 
-        ExternalData updatedDataSet = result.getDataSetsUpdated().get(0);
+        ExternalData updatedDataSet = etlService.tryGetDataSet(sessionToken, dataSet.getCode());
         assertEquals(new Long(4), updatedDataSet.getId());
-        assertEquals("[COMMENT: hello]", updatedDataSet.getProperties()
-                .toString());
+        assertEquals("[COMMENT: hello]", updatedDataSet.getProperties().toString());
     }
 
     @Test
