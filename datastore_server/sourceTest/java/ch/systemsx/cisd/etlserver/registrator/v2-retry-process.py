@@ -10,7 +10,7 @@ def should_retry_processing(map, error):
 
 def process(transaction):
   incoming = transaction.getIncoming()
-  key = transaction.getPersistentMap().get("RETRY_COUNT");
+  key = transaction.getRegistrationContext().get("RETRY_COUNT");
   if (key == None):
     key = 1
   dataSet = transaction.createNewDataSet()

@@ -241,8 +241,6 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     protected void executeJythonProcessFunction(PythonInterpreter interpreter,
             IDataSetRegistrationTransaction transaction)
     {
-        interpreter.set(TRANSACTION_VARIABLE_NAME, transaction);
-
         try
         {
             PyFunction function = tryJythonFunction(interpreter, JythonHookFunction.PROCESS_FUNCTION);
@@ -250,7 +248,8 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             {
                 throw new IllegalStateException("Undefined process() function");
             }
-            invokeFunction(function, transaction);
+            IDataSetRegistrationTransactionV2 v2transaction = new DataSetRegistrationTransactionV2Delegate(transaction);
+            invokeFunction(function, v2transaction);
         } catch (Exception e)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(e);

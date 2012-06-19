@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api.v1;
+package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import java.io.File;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
 
-import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
+import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
@@ -31,19 +38,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchServic
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISpaceImmutable;
 
 /**
- * Interface for a data set registration transaction. All actions that go through the transaction
- * are committed atomically or rolledback.
- * <p>
- * The working directory for a file operations is the incoming data set folder (or incoming
- * directory if the data set is a simple file). Non-absolute paths are resolved relative to the
- * working directory.
- * <p>
- * New data sets are expected to have exactly one file or folder at the top level. When registered,
- * it is this file or folder that is put into the store.
- * 
- * @author Chandrasekhar Ramakrishnan
+ * @author Jakub Straszewski
  */
-public interface IDataSetRegistrationTransaction
+public interface IDataSetRegistrationTransactionV2
 {
     // Entity Retrieval/Creation
 
@@ -76,7 +73,7 @@ public interface IDataSetRegistrationTransaction
      * @return A data set or null
      */
     IDataSetUpdatable getDataSetForUpdate(String dataSetCode);
-    
+
     /**
      * Given an immutable data set, make it mutable.
      * 
@@ -255,21 +252,21 @@ public interface IDataSetRegistrationTransaction
      * Return a registration context object which can be used to store information that needs to be
      * accessed through the registration process.
      * <p>
-     * It is important to use the registration context, and not global variables, for communication
+     * It is important to use this registration context, and not global variables, for communication
      * between code in different parts of the registration process. This is because the registration
      * process is not guaranteed to run in a single process.
      * 
      * @return The context, a hash-map-like object.
      */
-    DataSetRegistrationPersistentMap getPersistentMap();
+    DataSetRegistrationPersistentMap getRegistrationContext();
 
     /**
-     * Returns the service registrator context.
+     * @return the global state
      */
-    OmniscientTopLevelDataSetRegistratorState getRegistratorContext();
-    
+    TopLevelDataSetRegistratorGlobalState getGlobalState();
+
     /**
-     * @return the logical incoming file.
+     * Returns the file representing the logical incoming file.
      */
     File getIncoming();
 }
