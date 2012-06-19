@@ -86,6 +86,19 @@ public class ConversionUtils
         {
             newSample.setContainerIdentifier(sample.getContainer().getIdentifier());
         }
+
+        Set<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> parentsSet =
+                sample.getParents();
+        if (parentsSet != null && parentsSet.size() > 0)
+        {
+            String[] parentIdentifiers = new String[parentsSet.size()];
+            int i = 0;
+            for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample parent : parentsSet)
+            {
+                parentIdentifiers[i++] = parent.getIdentifier();
+            }
+            newSample.setParentsOrNull(parentIdentifiers);
+        }
         newSample.setSampleType(sample.getSampleType());
 
         IEntityProperty[] properties = sample.getProperties().toArray(new IEntityProperty[0]);

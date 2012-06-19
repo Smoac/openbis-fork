@@ -11,6 +11,7 @@ sample = transaction.createNewSample('db:/PROJECT/SAMPLE', 'SAMP_TYPE')
 sample.setSampleType('sample_type')
 sample.setPropertyValue('samplePropCode', 'samplePropValue')
 sample.setExperiment(experiment)
+sample.setParentSampleIdentifiers(["/SPACE/PARENT1", "/SPACE/PARENT2"])
 
 dataSet.setSample(sample)
 
