@@ -40,8 +40,6 @@ import ch.systemsx.cisd.common.conversation.ConversationalRmiClient;
 import ch.systemsx.cisd.common.conversation.IProgressListener;
 import ch.systemsx.cisd.common.conversation.RmiServiceFactory;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
@@ -51,8 +49,7 @@ import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSearchCriteriaTranslator;
-import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationDataProvider;
-import ch.systemsx.cisd.openbis.generic.server.authorization.DefaultAccessController;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
 import ch.systemsx.cisd.openbis.generic.server.batch.AbstractBatchOperationDelegate;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.DataSetBatchUpdate;
@@ -88,8 +85,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.LogMessagePrefixGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
@@ -124,9 +119,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
@@ -2036,65 +2029,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     @Override
     public boolean doesUserHaveRole(String token, String user, String roleCode, String spaceOrNull)
     {
-        // get the user by name
-        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(user);
-        if (person == null)
-        {
-            throw new IllegalArgumentException("The user with id " + user + " doesn't exist");
-        }
-
-        RoleWithHierarchy methodRole;
-        try
-        {
-            // get the role
-            RoleLevel roleLevel = (spaceOrNull == null) ? RoleLevel.INSTANCE : RoleLevel.SPACE;
-            methodRole =
-                    RoleWithHierarchy.valueOf(roleLevel,
-                            RoleWithHierarchy.RoleCode.valueOf(roleCode));
-        } catch (Exception e)
-        {
-            // the only possible reason for this exception is incorrect role
-
-            // ETL_SERVICE role is intentionally omitted in the error messages
-            if (spaceOrNull == null)
-            {
-                throw new IllegalArgumentException(
-                        "Incorrect role "
-                                + roleCode
-                                + " specified. The correct roles for space are ADMIN, USER, POWER_USER, OBSERVER");
-            } else
-            {
-                throw new IllegalArgumentException("Incorrect role " + roleCode
-                        + " specified. The correct instance roles are ADMIN, OBSERVER");
-            }
-        }
-
-        if (person.getAllPersonRoles().size() == 0)
-        {
-            return false;
-        }
-
-        final List<RoleWithIdentifier> userRoles = DefaultAccessController.getUserRoles(person);
-        // getRoles() takes all the roles stronger/equal than the role
-        DefaultAccessController.retainMatchingRoleWithIdentifiers(userRoles, methodRole.getRoles());
-
-        if (userRoles.size() == 0)
-        {
-            return false;
-        }
-
-        if (spaceOrNull != null)
-        {
-            SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
-
-            predicate.init(new AuthorizationDataProvider(daoFactory));
-
-            final Status status =
-                    predicate.evaluate(person, userRoles, new SpaceIdentifier(spaceOrNull));
-
-            return (status.getFlag().equals(StatusFlag.OK));
-        }
-        return true;
-
+        return new AuthorizationServiceUtils(daoFactory).doesUserHaveRole(user, roleCode,
+                spaceOrNull);
     }
+
 }
