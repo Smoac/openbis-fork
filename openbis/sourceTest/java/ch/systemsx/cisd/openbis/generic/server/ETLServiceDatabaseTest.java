@@ -435,8 +435,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         dataSetCodesAll.add("20120619092259000-21");
 
         List<String> result =
-                service.filterToVisibleDataSets(sessionToken, "test_role", new LinkedList<String>(
-                        dataSetCodesAll));
+                service.filterToVisibleDataSets(sessionToken, "test_role", dataSetCodesAll);
 
         assertEquals(2, result.size());
 
@@ -444,6 +443,24 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         assertTrue(result.contains("20081105092259000-21"));
 
         assertFalse(result.contains("20120619092259000-21"));
+    }
+
+    public void testFilterExperiments()
+    {
+        LinkedList<String> experimentsAll = new LinkedList<String>();
+        experimentsAll.add("/TESTGROUP/TESTPROJ/EXP-SPACE-TEST");
+        experimentsAll.add("/CISD/NEMO/EXP1");
+        experimentsAll.add("/CISD/NEMO/EXP10");
+
+        List<String> result =
+                service.filterToVisibleExperiments(sessionToken, "test_role", experimentsAll);
+
+        assertEquals(2, result.size());
+
+        assertTrue(result.contains("/CISD/NEMO/EXP1"));
+        assertTrue(result.contains("/CISD/NEMO/EXP10"));
+
+        assertFalse(result.contains("/TESTGROUP/TESTPROJ/EXP-SPACE-TEST"));
     }
 
 }

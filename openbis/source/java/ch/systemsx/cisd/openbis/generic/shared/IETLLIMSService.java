@@ -825,4 +825,12 @@ public interface IETLLIMSService extends IServer, ISessionProvider, Conversation
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<String> filterToVisibleDataSets(String token, String user, List<String> dataSetCodes);
 
+    /**
+     * Filter list of experiments to only those visible by the given user
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<String> filterToVisibleExperiments(String token, String user,
+            List<String> experimentIds);
+
 }

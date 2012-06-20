@@ -2039,4 +2039,11 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return new AuthorizationServiceUtils(daoFactory).filterDataSetCodes(user, dataSetCodes);
     }
 
+    @Override
+    public List<String> filterToVisibleExperiments(String token, String user,
+            List<String> experimentIds)
+    {
+        return new AuthorizationServiceUtils(daoFactory).filterExperimentIds(user, experimentIds);
+    }
+
 }

@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
@@ -141,4 +142,33 @@ public class AuthorizationServiceUtils
 
         return (status.getFlag().equals(StatusFlag.OK));
     }
+
+    public List<String> filterExperimentIds(String user, List<String> experimentIds)
+    {
+        PersonPE person = getUserByName(user);
+        List<RoleWithIdentifier> userRoles = DefaultAccessController.getUserRoles(person);
+
+        LinkedList<String> resultList = new LinkedList<String>();
+        for (String experimentId : experimentIds)
+        {
+            if (canAccessExperiment(person, userRoles, experimentId))
+            {
+                resultList.add(experimentId);
+            }
+        }
+        return resultList;
+    }
+
+    private boolean canAccessExperiment(PersonPE person, List<RoleWithIdentifier> allowedRoles,
+            String experimentId)
+    {
+        ExperimentIdentifierPredicate predicate = new ExperimentIdentifierPredicate();
+
+        predicate.init(new AuthorizationDataProvider(daoFactory));
+
+        final Status status = predicate.evaluate(person, allowedRoles, experimentId);
+
+        return (status.getFlag().equals(StatusFlag.OK));
+    }
+
 }

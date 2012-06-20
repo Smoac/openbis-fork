@@ -677,4 +677,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
+    public List<String> filterToVisibleExperiments(String token, String user,
+            List<String> experimentIds)
+    {
+        logAccess(Level.DEBUG, token, "filterToVisibleExperiments", "USER(%s), EXPERIMENT_IDS(%s)",
+                user, experimentIds);
+        return null;
+    }
+
 }
