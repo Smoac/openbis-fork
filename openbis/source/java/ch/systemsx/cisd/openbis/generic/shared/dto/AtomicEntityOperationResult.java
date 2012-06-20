@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,25 +34,21 @@ public class AtomicEntityOperationResult implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    // This is currently always an empty list since there is no way to update experiments from the
-    // DSS.
-    private final ArrayList<Experiment> experimentsUpdated;
+    private final long spacesCreatedCount;
 
-    private final ArrayList<Space> spacesCreated;
+    private final long projectsCreatedCount;
 
-    private final ArrayList<Project> projectsCreated;
+    private final long materialsCreatedCount;
 
-    private final ArrayList<Experiment> experimentsCreated;
+    private final long experimentsCreatedCount;
 
-    private final ArrayList<Sample> samplesUpdated;
+    private final long samplesCreatedCount;
 
-    private final ArrayList<Sample> samplesCreated;
+    private final long samplesUpdatedCount;
 
-    private final ArrayList<Material> materialsCreated;
+    private final long dataSetsCreatedCount;
 
-    private final ArrayList<ExternalData> dataSetsCreated;
-
-    private final ArrayList<ExternalData> dataSetsUpdated;
+    private final long dataSetsUpdatedCount;
 
     public AtomicEntityOperationResult()
     {
@@ -68,64 +63,69 @@ public class AtomicEntityOperationResult implements Serializable
             List<Sample> samplesCreated, List<Material> materialsCreated,
             List<ExternalData> dataSetsCreated, List<ExternalData> dataSetsUpdated)
     {
-        this.spacesCreated = new ArrayList<Space>(spacesCreated);
-        this.projectsCreated = new ArrayList<Project>(projectsCreated);
-        this.experimentsUpdated = new ArrayList<Experiment>();
-        this.experimentsCreated = new ArrayList<Experiment>(experimentsCreated);
-        this.samplesUpdated = new ArrayList<Sample>(samplesUpdated);
-        this.samplesCreated = new ArrayList<Sample>(samplesCreated);
-        this.materialsCreated = new ArrayList<Material>(materialsCreated);
-        this.dataSetsCreated = new ArrayList<ExternalData>(dataSetsCreated);
-        this.dataSetsUpdated = new ArrayList<ExternalData>(dataSetsUpdated);
+        this(spacesCreated.size(), projectsCreated.size(), materialsCreated.size(),
+                experimentsCreated.size(), samplesCreated.size(), samplesUpdated.size(),
+                dataSetsCreated.size(), dataSetsUpdated.size());
     }
 
-    public int getExperimentsUpdatedCount()
+    public AtomicEntityOperationResult(long spacesCreated, long projectsCreated,
+            long materialsCreated, long experimentsCreated, long samplesCreated,
+            long samplesUpdated, long dataSetsCreated, long dataSetsUpdated)
     {
-        return experimentsUpdated.size();
+        this.spacesCreatedCount = spacesCreated;
+        this.projectsCreatedCount = projectsCreated;
+        this.materialsCreatedCount = materialsCreated;
+        this.experimentsCreatedCount = experimentsCreated;
+        this.samplesCreatedCount = samplesCreated;
+        this.samplesUpdatedCount = samplesUpdated;
+        this.dataSetsCreatedCount = dataSetsCreated;
+        this.dataSetsUpdatedCount = dataSetsUpdated;
     }
 
-    public int getExperimentsCreatedCount()
+    public long getExperimentsUpdatedCount()
     {
-        return experimentsCreated.size();
+        // There is no way to update experiments from performEntityOperations at the moment, so this
+        // is always 0
+        return 0;
     }
 
-    public int getSamplesUpdatedCount()
+    public long getExperimentsCreatedCount()
     {
-        return samplesUpdated.size();
+        return experimentsCreatedCount;
     }
 
-    public int getSamplesCreatedCount()
+    public long getSamplesUpdatedCount()
     {
-        return samplesCreated.size();
+        return samplesUpdatedCount;
     }
 
-    public int getDataSetsCreatedCount()
+    public long getSamplesCreatedCount()
     {
-        return dataSetsCreated.size();
+        return samplesCreatedCount;
     }
 
-    public int getDataSetsUpdatedCount()
+    public long getDataSetsCreatedCount()
     {
-        return dataSetsUpdated.size();
+        return dataSetsCreatedCount;
     }
 
-    public int getSpacesCreatedCount()
+    public long getDataSetsUpdatedCount()
     {
-        return spacesCreated.size();
+        return dataSetsUpdatedCount;
     }
 
-    public ArrayList<Space> getSpacesCreated()
+    public long getSpacesCreatedCount()
     {
-        return spacesCreated;
+        return spacesCreatedCount;
     }
 
-    public int getProjectsCreatedCount()
+    public long getProjectsCreatedCount()
     {
-        return projectsCreated.size();
+        return projectsCreatedCount;
     }
 
-    public int getMaterialsCreatedCount()
+    public long getMaterialsCreatedCount()
     {
-        return materialsCreated.size();
+        return materialsCreatedCount;
     }
 }

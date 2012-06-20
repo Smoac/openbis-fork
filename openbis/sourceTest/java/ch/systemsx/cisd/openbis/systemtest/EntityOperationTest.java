@@ -305,9 +305,6 @@ public class EntityOperationTest extends SystemTestCase
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
         assertEquals(1, result.getSpacesCreatedCount());
-
-        Space space = result.getSpacesCreated().get(0);
-        assertEquals("CISD/TEST_SPACE", space.toString());
     }
 
     @Test

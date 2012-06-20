@@ -75,7 +75,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuil
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -1105,8 +1104,6 @@ public class ETLServiceTest extends AbstractServerTestCase
                             sampleUpdateList);
                     one(sampleTable).prepareForUpdateWithSampleUpdates(sampleUpdateList);
                     one(sampleTable).save();
-                    one(sampleTable).getSamples();
-                    will(returnValue(Arrays.asList(samplePE)));
 
                     one(entityOperationChecker).assertDataSetCreationAllowed(SESSION,
                             Arrays.asList(externalData));
@@ -1154,10 +1151,6 @@ public class ETLServiceTest extends AbstractServerTestCase
                             Arrays.asList(dataSetUpdate));
                     one(dataSetTable).update(Arrays.asList(dataSetUpdate));
                     one(dataSetTable).save();
-
-                    one(dataSetTable).getDataSets();
-                    final DataPE updatedDataSet = createDataSet(updatedDataSetCode, "type");
-                    will(returnValue(Arrays.asList(updatedDataSet)));
                 }
             });
     }
