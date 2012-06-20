@@ -25,9 +25,11 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SamplePermIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -167,6 +169,35 @@ public class AuthorizationServiceUtils
         predicate.init(new AuthorizationDataProvider(daoFactory));
 
         final Status status = predicate.evaluate(person, allowedRoles, experimentId);
+
+        return (status.getFlag().equals(StatusFlag.OK));
+    }
+
+    public List<String> filterSampleIds(String user, List<String> sampleIds)
+    {
+        PersonPE person = getUserByName(user);
+        List<RoleWithIdentifier> userRoles = DefaultAccessController.getUserRoles(person);
+
+        LinkedList<String> resultList = new LinkedList<String>();
+        for (String samplePermId : sampleIds)
+        {
+            if (canAccessSample(person, userRoles, samplePermId))
+            {
+                resultList.add(samplePermId);
+            }
+        }
+        return resultList;
+    }
+
+    private boolean canAccessSample(PersonPE person, List<RoleWithIdentifier> allowedRoles,
+            String samplePermId)
+    {
+
+        SamplePermIdPredicate predicate = new SamplePermIdPredicate();
+
+        predicate.init(new AuthorizationDataProvider(daoFactory));
+
+        final Status status = predicate.evaluate(person, allowedRoles, new PermId(samplePermId));
 
         return (status.getFlag().equals(StatusFlag.OK));
     }

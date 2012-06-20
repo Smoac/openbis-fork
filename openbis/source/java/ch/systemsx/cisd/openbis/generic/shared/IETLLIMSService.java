@@ -833,4 +833,12 @@ public interface IETLLIMSService extends IServer, ISessionProvider, Conversation
     public List<String> filterToVisibleExperiments(String token, String user,
             List<String> experimentIds);
 
+    /**
+     * Filter list of samples to only those visible by the given user
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<String> filterToVisibleSamples(String token, String user,
+            List<String> samplesPermIds);
+
 }

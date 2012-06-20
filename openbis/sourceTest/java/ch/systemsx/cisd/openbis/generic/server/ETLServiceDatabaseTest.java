@@ -463,4 +463,20 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         assertFalse(result.contains("/TESTGROUP/TESTPROJ/EXP-SPACE-TEST"));
     }
 
+    public void testFilterSamples()
+    {
+        LinkedList<String> samplesAll = new LinkedList<String>();
+        samplesAll.add("201206191219327-1025");
+        samplesAll.add("200902091250077-1051");
+        samplesAll.add("200902091250077-1052");
+
+        List<String> result = service.filterToVisibleSamples(sessionToken, "test_role", samplesAll);
+
+        assertEquals(2, result.size());
+
+        assertTrue(result.contains("200902091250077-1051"));
+        assertTrue(result.contains("200902091250077-1052"));
+
+        assertFalse(result.contains("201206191219327-1025"));
+    }
 }
