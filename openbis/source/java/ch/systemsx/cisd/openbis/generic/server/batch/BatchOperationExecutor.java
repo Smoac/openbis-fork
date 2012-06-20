@@ -64,15 +64,15 @@ public class BatchOperationExecutor
         int maxIndex = allEntities.size();
 
         operationLog.debug(getMemoryUsageMessage());
+
+        notifyProgressListener(progressListenerOrNull, progressPhaseOrNull, maxIndex, 0);
+        operationLog.info(String.format("%s %s progress: %d/%d", strategy.getEntityName(),
+                strategy.getOperationName(), 0, maxIndex));
         // Loop over the list, one block at a time
         for (int startIndex = 0, endIndex = Math.min(startIndex + batchSize, maxIndex); startIndex < maxIndex; startIndex =
                 endIndex, endIndex = Math.min(startIndex + batchSize, maxIndex))
         {
             final List<S> batch = allEntities.subList(startIndex, endIndex);
-            operationLog.info(String.format("%s %s progress: %d/%d", strategy.getEntityName(),
-                    strategy.getOperationName(), startIndex, maxIndex));
-            notifyProgressListener(progressListenerOrNull, progressPhaseOrNull, maxIndex,
-                    startIndex);
             strategy.execute(batch);
             notifyProgressListener(progressListenerOrNull, progressPhaseOrNull, maxIndex, endIndex);
             operationLog.info(String.format("%s %s progress: %d/%d", strategy.getEntityName(),

@@ -1645,7 +1645,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         assertSampleUpdatesAllowed(session, sampleUpdates);
         progress.update("authorizingSampleUpdates", sampleUpdateCount, sampleUpdateCount);
         final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
-        BatchOperationExecutor.executeInBatches(new SampleUpdate(sampleTable, sampleUpdates), 100,
+        BatchOperationExecutor.executeInBatches(new SampleUpdate(sampleTable, sampleUpdates),
                 progress, "updateSamples");
         return sampleUpdateCount;
     }
