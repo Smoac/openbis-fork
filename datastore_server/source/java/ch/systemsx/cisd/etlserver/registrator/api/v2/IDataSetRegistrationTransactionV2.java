@@ -275,4 +275,19 @@ public interface IDataSetRegistrationTransactionV2
      * Returns the file representing the logical incoming file.
      */
     File getIncoming();
+
+    /**
+     * Get the id of the user on whose behalf this registration transaction is performed.
+     * 
+     * @return A userId or null, if there is none.
+     */
+    String getUserId();
+
+    /**
+     * Set the id of the user on whose behalf this registration transaction is performed.
+     * 
+     * @param userIdOrNull The id of a user or null if this transaction should be performed as the
+     *            system (etlserver).
+     */
+    void setUserId(String userIdOrNull);
 }

@@ -28,7 +28,18 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public interface IDataSetRegistrationDetailsFactory<T extends DataSetInformation>
 {
+    /**
+     * Create an object that contains information about the data set to be registered.
+     */
     DataSetRegistrationDetails<T> createDataSetRegistrationDetails();
 
+    /**
+     * Create a representation of the data set using the registration details.
+     */
     DataSet<T> createDataSet(DataSetRegistrationDetails<T> registrationDetails, File stagingFile);
+
+    /**
+     * Get the user associated with this registration if there is one.
+     */
+    String getUserIdOrNull();
 }

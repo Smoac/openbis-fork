@@ -420,6 +420,8 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         return registrationContext;
     }
+    
+    
 
     /**
      * Commit the transaction. Does not throw exceptions if the commit fails on some datasets!

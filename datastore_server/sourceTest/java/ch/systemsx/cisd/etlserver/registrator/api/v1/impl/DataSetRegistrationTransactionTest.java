@@ -745,6 +745,12 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         {
             return false;
         }
+
+        @Override
+        public String getUserIdOrNull()
+        {
+            return null;
+        }
     }
 
     private void checkContentsOfFile(File dst)

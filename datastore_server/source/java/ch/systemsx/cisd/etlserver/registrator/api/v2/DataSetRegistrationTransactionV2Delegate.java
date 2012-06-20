@@ -233,4 +233,16 @@ class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistrationTr
         return transaction.getIncoming();
     }
 
+    @Override
+    public String getUserId()
+    {
+        return transaction.getUserId();
+    }
+
+    @Override
+    public void setUserId(String userIdOrNull)
+    {
+        transaction.setUserId(userIdOrNull);
+    }
+
 }

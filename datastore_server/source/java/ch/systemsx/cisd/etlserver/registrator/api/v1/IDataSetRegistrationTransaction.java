@@ -78,7 +78,7 @@ public interface IDataSetRegistrationTransaction
      * @return A data set or null
      */
     IDataSetUpdatable getDataSetForUpdate(String dataSetCode);
-    
+
     /**
      * Given an immutable data set, make it mutable.
      * 
@@ -272,6 +272,7 @@ public interface IDataSetRegistrationTransaction
 
     /**
      * Returns the service registrator context.
+     * 
      * @deprecated Should not be used. To get to the global state use getGlobalState instead
      */
     @Deprecated
@@ -281,9 +282,25 @@ public interface IDataSetRegistrationTransaction
      * @return the global state
      */
     TopLevelDataSetRegistratorGlobalState getGlobalState();
-    
+
     /**
      * @return the logical incoming file.
      */
     File getIncoming();
+
+    /**
+     * Get the id of the user on whose behalf this registration transaction is performed.
+     * 
+     * @return A userId or null, if there is none.
+     */
+    String getUserId();
+
+    /**
+     * Set the id of the user on whose behalf this registration transaction is performed.
+     * 
+     * @param userIdOrNull The id of a user or null if this transaction should be performed as the
+     *            system (etlserver).
+     */
+    void setUserId(String userIdOrNull);
+
 }

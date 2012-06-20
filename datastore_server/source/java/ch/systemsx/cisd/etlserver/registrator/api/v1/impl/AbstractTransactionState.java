@@ -181,6 +181,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                     this.registrationService.getRegistratorContext().getGlobalState()
                             .getOpenBisService();
             this.registrationDetailsFactory = registrationDetailsFactory;
+            this.userIdOrNull = registrationDetailsFactory.getUserIdOrNull();
         }
 
         public String getUserId()

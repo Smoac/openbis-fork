@@ -47,6 +47,13 @@ public abstract class AbstractDataSetRegistrationDetailsFactory<T extends DataSe
         this.userProvidedDataSetInformationOrNull = userProvidedDataSetInformationOrNull;
     }
 
+    @Override
+    public String getUserIdOrNull()
+    {
+        return (null == this.userProvidedDataSetInformationOrNull) ? null
+                : this.userProvidedDataSetInformationOrNull.getUploadingUserIdOrNull();
+    }
+
     /**
      * Factory method that creates a new registration details object.
      */
