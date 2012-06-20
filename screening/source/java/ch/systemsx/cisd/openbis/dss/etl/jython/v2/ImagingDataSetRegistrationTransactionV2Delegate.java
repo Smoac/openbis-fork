@@ -244,4 +244,15 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
         return transaction.getIncoming();
     }
 
+    @Override
+    public String getUserId()
+    {
+        return transaction.getUserId();
+    }
+
+    @Override
+    public void setUserId(String userIdOrNull)
+    {
+        transaction.setUserId(userIdOrNull);
+    }
 }
