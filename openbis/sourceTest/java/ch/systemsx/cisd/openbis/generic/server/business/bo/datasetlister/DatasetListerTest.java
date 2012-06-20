@@ -349,7 +349,7 @@ public class DatasetListerTest extends AbstractDAOTest
         DataSetShareId dataSet2 = list.get(1);
         assertEquals("20081105092159111-1", dataSet2.getDataSetCode());
         assertEquals("42", dataSet2.getShareId());
-        assertEquals(18, list.size());
+        assertEquals(19, list.size());
     }
 
     private void assertSameDataSetsForSameCode(Map<String, ExternalData> dataSetsByCode,
