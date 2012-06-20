@@ -95,15 +95,15 @@ public interface IEntityOperationChecker
 
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("CREATE_DATA_SET_VIA_DSS")
+    @Capability("CREATE_DATA_SETS_VIA_DSS")
     public void assertDataSetCreationAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = NewExternalDataPredicate.class)
             List<? extends NewExternalData> dataSets);
 
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @Capability("UPDATE_DATA_SET_VIA_DSS")
-    public void assertDataSetUpdateAllowed(
-            IAuthSession session,
-            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class) List<DataSetBatchUpdatesDTO> dataSets);
+    @Capability("UPDATE_DATA_SETS_VIA_DSS")
+    public void assertDataSetUpdateAllowed(IAuthSession session,
+            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class)
+            List<DataSetBatchUpdatesDTO> dataSets);
 }
