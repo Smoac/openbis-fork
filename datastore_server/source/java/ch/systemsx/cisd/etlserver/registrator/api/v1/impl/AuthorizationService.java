@@ -65,7 +65,7 @@ public class AuthorizationService implements IAuthorizationService
         List<IDataSetImmutable> resultList = new LinkedList<IDataSetImmutable>();
         for (IDataSetImmutable dataSet : datasets)
         {
-            if (filteredSet.contains(dataSet))
+            if (filteredSet.contains(dataSet.getDataSetCode()))
             {
                 resultList.add(dataSet);
             }
@@ -93,7 +93,7 @@ public class AuthorizationService implements IAuthorizationService
         List<IExperimentImmutable> resultList = new LinkedList<IExperimentImmutable>();
         for (IExperimentImmutable exp : experiments)
         {
-            if (filteredSet.contains(exp))
+            if (filteredSet.contains(exp.getExperimentIdentifier()))
             {
                 resultList.add(exp);
             }
@@ -120,7 +120,7 @@ public class AuthorizationService implements IAuthorizationService
         List<ISampleImmutable> resultList = new LinkedList<ISampleImmutable>();
         for (ISampleImmutable sample : samples)
         {
-            if (filteredSet.contains(sample))
+            if (filteredSet.contains(sample.getPermId()))
             {
                 resultList.add(sample);
             }
