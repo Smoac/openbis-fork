@@ -50,7 +50,6 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSearchCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
-import ch.systemsx.cisd.openbis.generic.server.batch.AbstractBatchOperationDelegate;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.DataSetBatchUpdate;
 import ch.systemsx.cisd.openbis.generic.server.batch.SampleUpdate;
