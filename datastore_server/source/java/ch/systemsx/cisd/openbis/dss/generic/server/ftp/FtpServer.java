@@ -468,6 +468,12 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             }
             inputStreams.clear();
         }
+
+        @Override
+        public String getOwner()
+        {
+            return "openBIS";
+        }
     }
     
     private static final class KeystoreBasedKeyPairProvider extends AbstractKeyPairProvider
