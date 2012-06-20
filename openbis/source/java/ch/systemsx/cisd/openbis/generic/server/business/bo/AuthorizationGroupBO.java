@@ -95,8 +95,7 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         assert newAuthorizationGroup != null : "Undefined new authorization group";
         assert authorizationGroup == null : "Authorization group already defined";
         authorizationGroup =
-                groupFactory.create(newAuthorizationGroup, findPerson(),
-                        getHomeDatabaseInstance());
+                groupFactory.create(newAuthorizationGroup, findPerson(), getHomeDatabaseInstance());
         dataChanged = true;
     }
 
@@ -111,8 +110,8 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
                 getAuthorizationGroupDAO().create(authorizationGroup);
             } catch (final DataAccessException ex)
             {
-                throwException(ex, String.format("Authorization group '%s'", authorizationGroup
-                        .getCode()));
+                throwException(ex,
+                        String.format("Authorization group '%s'", authorizationGroup.getCode()));
             }
             dataChanged = false;
         }
@@ -184,7 +183,10 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         for (PersonPE person : users)
         {
             inexistent.remove(person.getUserId());
-            authorizationGroup.addPerson(person);
+            if (person.isActive())
+            {
+                authorizationGroup.addPerson(person);
+            }
         }
         return inexistent;
     }

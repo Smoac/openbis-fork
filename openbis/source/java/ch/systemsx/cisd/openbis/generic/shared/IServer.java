@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -105,6 +106,8 @@ public interface IServer extends ISessionProvider
      * Deactivates specified persons.
      */
     @Transactional
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.PERSON, ObjectKind.AUTHORIZATION_GROUP, ObjectKind.ROLE_ASSIGNMENT })
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void deactivatePersons(String sessionToken, List<String> personsCodes);
 
