@@ -665,6 +665,11 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
                         rollbackDelegate.markReadyForRecovery(this, problem);
                         return false;
+                    } else
+                    {
+                        operationLog.debug("The same error happened for the " + errorCount
+                                + " time. Will continue retrying after "
+                                + registrationRetryPauseInSec + " seconds");
                     }
                     waitTheRetryPeriod();
                     break;

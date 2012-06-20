@@ -190,6 +190,10 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 operationLog
                         .error("The jython script processing has failed too many times. Rolling back.");
                 throw CheckedExceptionTunnel.wrapIfNecessary(problem);
+            } else
+            {
+                operationLog.debug("The same error happened for the " + errorCount
+                        + " time (max allowed is " + processMaxRetryCount + ")");
             }
 
             DataSetRegistrationPersistentMap persistentMap =
