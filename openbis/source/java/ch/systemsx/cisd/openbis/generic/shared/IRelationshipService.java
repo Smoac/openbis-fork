@@ -96,11 +96,13 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             SampleIdentifier sample);
 
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_DATASET_TO_EXPERIMENT")
     public void assignDataSetToExperiment(IAuthSession session,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            String dataSetCode, @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            String dataSetCode,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             ExperimentIdentifier experiment);
 
     @RolesAllowed(value =
