@@ -58,6 +58,11 @@ public class SpaceSelectionWidget extends DropDownList<SpaceModel, Space>
         return SHARED_SPACE_CODE.equals(g.getCode());
     }
 
+    public static final boolean isAllSpaces(Space g)
+    {
+        return ALL_SPACES_CODE.equals(g.getCode());
+    }
+
     public static final String tryToGetSpaceCode(Space space)
     {
         String code = space.getCode();
@@ -73,7 +78,7 @@ public class SpaceSelectionWidget extends DropDownList<SpaceModel, Space>
     public boolean dataLoaded = false;
 
     private final boolean addAll;
-    
+
     public SpaceSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
             boolean addShared, boolean addAll)
     {
@@ -138,7 +143,8 @@ public class SpaceSelectionWidget extends DropDownList<SpaceModel, Space>
             {
                 spaceStore.add(new SpaceModel(createAllSpaces()));
             }
-            List<TableModelRowWithObject<Space>> tableRows = result.getResultSet().getList().extractOriginalObjects();
+            List<TableModelRowWithObject<Space>> tableRows =
+                    result.getResultSet().getList().extractOriginalObjects();
             List<Space> spaces = new ArrayList<Space>();
             for (TableModelRowWithObject<Space> tableModelRowWithObject : tableRows)
             {
@@ -148,8 +154,8 @@ public class SpaceSelectionWidget extends DropDownList<SpaceModel, Space>
             dataLoaded = true;
             if (spaceStore.getCount() > 0)
             {
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, viewContext
-                        .getMessage(Dict.GROUP)));
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE,
+                        viewContext.getMessage(Dict.GROUP)));
                 setReadOnly(false);
                 if (initialSpaceOrNull != null)
                 {
@@ -165,8 +171,8 @@ public class SpaceSelectionWidget extends DropDownList<SpaceModel, Space>
                 }
             } else
             {
-                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY, viewContext
-                        .getMessage(Dict.GROUPS)));
+                setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_EMPTY,
+                        viewContext.getMessage(Dict.GROUPS)));
                 setReadOnly(true);
             }
         }
@@ -216,7 +222,8 @@ public class SpaceSelectionWidget extends DropDownList<SpaceModel, Space>
     @Override
     protected void loadData(AbstractAsyncCallback<List<Space>> callback)
     {
-        DefaultResultSetConfig<String, TableModelRowWithObject<Space>> config = DefaultResultSetConfig.createFetchAll();
+        DefaultResultSetConfig<String, TableModelRowWithObject<Space>> config =
+                DefaultResultSetConfig.createFetchAll();
         viewContext.getCommonService().listGroups(config, new ListSpaceCallback(viewContext));
         callback.ignore();
     }

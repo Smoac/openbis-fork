@@ -34,8 +34,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SpaceModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SpaceModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
@@ -43,11 +43,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * The toolbar of sample browser.
@@ -55,14 +55,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * @author Izabela Adamczyk
  * @author Christian Ribeaud
  */
-final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvider, IDisposableComponent
+final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvider,
+        IDisposableComponent
 {
     public static final String ID = "sample-browser-toolbar";
 
     private static final String PREFIX = ID + "_";
 
-    public static final String INCLUDE_GROUP_CHECKBOX_ID =
-            GenericConstants.ID_PREFIX + PREFIX + "include-group-checkbox";
+    public static final String INCLUDE_GROUP_CHECKBOX_ID = GenericConstants.ID_PREFIX + PREFIX
+            + "include-group-checkbox";
 
     private final SampleTypeSelectionWidget selectSampleTypeCombo;
 
@@ -93,7 +94,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         this(viewContext, addShared, addAll, excludeWithoutExperiment, null, null,
                 sampleTypeDisplayID);
     }
-    
+
     @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
@@ -127,8 +128,10 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         {
             return null;
         }
-        final boolean includeInstance = SpaceSelectionWidget.isSharedSpace(selectedSpace);
-        final boolean includeSpace = includeInstance == false;
+        boolean sharedSpace = SpaceSelectionWidget.isSharedSpace(selectedSpace);
+        boolean allSpaces = SpaceSelectionWidget.isAllSpaces(selectedSpace);
+        final boolean includeInstance = sharedSpace || allSpaces;
+        final boolean includeSpace = sharedSpace == false;
 
         ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setSampleType(selectedType);
