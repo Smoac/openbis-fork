@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.PropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.DataSetServerPluginRegistry;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
@@ -410,9 +411,13 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(personCode);
             if (person != null)
             {
+                IRoleAssignmentDAO roleAssignmenDAO = getDAOFactory().getRoleAssignmentDAO();
                 person.setActive(false);
                 person.clearAuthorizationGroups();
-                person.setRoleAssignments(new HashSet<RoleAssignmentPE>());
+                for (RoleAssignmentPE roleAssignment : person.getRoleAssignments())
+                {
+                    roleAssignmenDAO.deleteRoleAssignment(roleAssignment);
+                }
                 getDAOFactory().getPersonDAO().updatePerson(person);
             }
         }
