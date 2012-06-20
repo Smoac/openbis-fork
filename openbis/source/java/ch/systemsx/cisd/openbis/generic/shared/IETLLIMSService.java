@@ -810,4 +810,12 @@ public interface IETLLIMSService extends IServer, ISessionProvider, Conversation
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public void heartbeat(String token);
+
+    /**
+     * Check whether the specified user has the given role
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public boolean doesUserHaveRole(String token, String user, String roleCode, String spaceOrNull);
+
 }

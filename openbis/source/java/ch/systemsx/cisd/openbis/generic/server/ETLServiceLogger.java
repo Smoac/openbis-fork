@@ -661,4 +661,12 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         // do / log nothing
     }
 
+    @Override
+    public boolean doesUserHaveRole(String token, String user, String roleCode, String spaceOrNull)
+    {
+        logAccess(Level.DEBUG, token, "doesUserHaveRole", "USER(%s) ROLE(%s) SPACE(%s)", user,
+                roleCode, spaceOrNull);
+        return false;
+    }
+
 }

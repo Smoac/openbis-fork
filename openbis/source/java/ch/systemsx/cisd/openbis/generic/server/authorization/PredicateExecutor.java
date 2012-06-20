@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 
 import java.util.List;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
@@ -107,10 +106,10 @@ public final class PredicateExecutor
                 shouldFlattenCollections);
     }
 
-    @Private
-    final <T> Status evaluate(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
-            final T argumentValue, final Class<? extends IPredicate<?>> predicateClass,
-            final Class<T> argumentType, final boolean shouldFlattenCollections)
+    public final <T> Status evaluate(final PersonPE person,
+            final List<RoleWithIdentifier> allowedRoles, final T argumentValue,
+            final Class<? extends IPredicate<?>> predicateClass, final Class<T> argumentType,
+            final boolean shouldFlattenCollections)
     {
         assert authorizationDataProvider != null : "Authorization data provider not set";
         final IPredicate<T> predicate = createPredicate(predicateClass);

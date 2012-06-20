@@ -394,4 +394,27 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
                         dataSetUpdates);
         service.performEntityOperations(sessionToken, details);
     }
+
+    @Test
+    public void testDoesUserHaveRole()
+    {
+        assertTrue(service.doesUserHaveRole(sessionToken, "observer", "OBSERVER", "TESTGROUP"));
+
+        assertTrue(service.doesUserHaveRole(sessionToken, "test", "OBSERVER", null));
+        assertTrue(service.doesUserHaveRole(sessionToken, "test", "ADMIN", null));
+
+        assertFalse(service.doesUserHaveRole(sessionToken, "test_role", "OBSERVER", "TESTGROUP"));
+        assertFalse(service.doesUserHaveRole(sessionToken, "test_role", "USER", "TESTGROUP"));
+        assertFalse(service.doesUserHaveRole(sessionToken, "test_role", "POWER_USER", "TESTGROUP"));
+        assertFalse(service.doesUserHaveRole(sessionToken, "test_role", "ADMIN", "TESTGROUP"));
+
+        assertTrue(service.doesUserHaveRole(sessionToken, "test_role", "OBSERVER", "CISD"));
+        assertTrue(service.doesUserHaveRole(sessionToken, "test_role", "USER", "CISD"));
+        assertTrue(service.doesUserHaveRole(sessionToken, "test_role", "POWER_USER", "CISD"));
+        assertFalse(service.doesUserHaveRole(sessionToken, "test_role", "ADMIN", "CISD"));
+
+        assertFalse(service.doesUserHaveRole(sessionToken, "test_role", "OBSERVER", null));
+        assertFalse(service.doesUserHaveRole(sessionToken, "test_role", "ADMIN", null));
+
+    }
 }

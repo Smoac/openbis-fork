@@ -44,7 +44,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
 
     private final DatabaseInstancePE homeDatabaseInstance;
 
-    AuthorizationDataProvider(IAuthorizationDAOFactory daoFactory)
+    public AuthorizationDataProvider(IAuthorizationDAOFactory daoFactory)
     {
         this.daoFactory = daoFactory;
         if (daoFactory != null) // Make unit tests work
