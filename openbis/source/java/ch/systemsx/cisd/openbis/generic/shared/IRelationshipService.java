@@ -65,7 +65,7 @@ public interface IRelationshipService
             ExperimentIdentifier experiment);
 
     @RolesAllowed(value =
-        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_ADMIN })
+        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("UNASSIGN_SAMPLE_FROM_EXPERIMENT")
     public void unassignSampleFromExperiment(IAuthSession session,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
@@ -100,8 +100,7 @@ public interface IRelationshipService
     @Capability("ASSIGN_DATASET_TO_EXPERIMENT")
     public void assignDataSetToExperiment(IAuthSession session,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            String dataSetCode,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            String dataSetCode, @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             ExperimentIdentifier experiment);
 
     @RolesAllowed(value =
