@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -402,6 +403,15 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
 
         assertTrue(service.doesUserHaveRole(sessionToken, "test", "OBSERVER", null));
         assertTrue(service.doesUserHaveRole(sessionToken, "test", "ADMIN", null));
+        assertTrue(service.doesUserHaveRole(sessionToken, "test", "OBSERVER", "TESTGROUP"));
+        assertTrue(service.doesUserHaveRole(sessionToken, "test", "USER", "TESTGROUP"));
+        assertTrue(service.doesUserHaveRole(sessionToken, "test", "POWER_USER", "TESTGROUP"));
+        assertTrue(service.doesUserHaveRole(sessionToken, "test", "ADMIN", "TESTGROUP"));
+
+        assertTrue(service.doesUserHaveRole(sessionToken, "test", "OBSERVER", "CISD"));
+        assertTrue(service.doesUserHaveRole(sessionToken, "test", "USER", "CISD"));
+        assertTrue(service.doesUserHaveRole(sessionToken, "test", "POWER_USER", "CISD"));
+        assertTrue(service.doesUserHaveRole(sessionToken, "test", "ADMIN", "CISD"));
 
         assertFalse(service.doesUserHaveRole(sessionToken, "test_role", "OBSERVER", "TESTGROUP"));
         assertFalse(service.doesUserHaveRole(sessionToken, "test_role", "USER", "TESTGROUP"));
@@ -415,6 +425,25 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
 
         assertFalse(service.doesUserHaveRole(sessionToken, "test_role", "OBSERVER", null));
         assertFalse(service.doesUserHaveRole(sessionToken, "test_role", "ADMIN", null));
-
     }
+
+    public void testFilterDataSets()
+    {
+        LinkedList<String> dataSetCodesAll = new LinkedList<String>();
+        dataSetCodesAll.add("20081105092259000-20");
+        dataSetCodesAll.add("20081105092259000-21");
+        dataSetCodesAll.add("20120619092259000-21");
+
+        List<String> result =
+                service.filterToVisibleDataSets(sessionToken, "test_role", new LinkedList<String>(
+                        dataSetCodesAll));
+
+        assertEquals(2, result.size());
+
+        assertTrue(result.contains("20081105092259000-20"));
+        assertTrue(result.contains("20081105092259000-21"));
+
+        assertFalse(result.contains("20120619092259000-21"));
+    }
+
 }

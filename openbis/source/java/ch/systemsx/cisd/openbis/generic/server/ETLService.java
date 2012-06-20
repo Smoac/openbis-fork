@@ -2033,4 +2033,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                 spaceOrNull);
     }
 
+    @Override
+    public List<String> filterToVisibleDataSets(String token, String user, List<String> dataSetCodes)
+    {
+        return new AuthorizationServiceUtils(daoFactory).filterDataSetCodes(user, dataSetCodes);
+    }
+
 }

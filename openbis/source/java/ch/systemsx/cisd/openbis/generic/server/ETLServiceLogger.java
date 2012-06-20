@@ -669,4 +669,12 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return false;
     }
 
+    @Override
+    public List<String> filterToVisibleDataSets(String token, String user, List<String> dataSetCodes)
+    {
+        logAccess(Level.DEBUG, token, "filterToVisibleDataSets", "USER(%s), DATA_SET_CODES(%s)",
+                user, dataSetCodes);
+        return null;
+    }
+
 }

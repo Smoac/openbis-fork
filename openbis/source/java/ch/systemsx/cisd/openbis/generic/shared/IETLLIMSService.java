@@ -818,4 +818,11 @@ public interface IETLLIMSService extends IServer, ISessionProvider, Conversation
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public boolean doesUserHaveRole(String token, String user, String roleCode, String spaceOrNull);
 
+    /**
+     * Filter list of datasets to only those visible by the given user
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<String> filterToVisibleDataSets(String token, String user, List<String> dataSetCodes);
+
 }
