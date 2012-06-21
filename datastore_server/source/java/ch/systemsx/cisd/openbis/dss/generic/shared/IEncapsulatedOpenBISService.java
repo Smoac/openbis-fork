@@ -544,5 +544,5 @@ public interface IEncapsulatedOpenBISService
      * {@link IETLLIMSService#filterToVisibleSamples(String, String, List)}
      */
     @ManagedAuthentication
-    public List<String> filterToVisibleSamples(String user, List<String> samplePermIds);
+    public List<String> filterToVisibleSamples(String user, List<String> sampleIdentifiers);
 }

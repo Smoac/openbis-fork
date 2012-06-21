@@ -108,7 +108,7 @@ public class AuthorizationService implements IAuthorizationService
         List<String> sampleIds = new LinkedList<String>();
         for (ISampleImmutable sample : samples)
         {
-            sampleIds.add(sample.getPermId());
+            sampleIds.add(sample.getSampleIdentifier());
         }
 
         // call service - to filter the codes
@@ -120,7 +120,7 @@ public class AuthorizationService implements IAuthorizationService
         List<ISampleImmutable> resultList = new LinkedList<ISampleImmutable>();
         for (ISampleImmutable sample : samples)
         {
-            if (filteredSet.contains(sample.getPermId()))
+            if (filteredSet.contains(sample.getSampleIdentifier()))
             {
                 resultList.add(sample);
             }

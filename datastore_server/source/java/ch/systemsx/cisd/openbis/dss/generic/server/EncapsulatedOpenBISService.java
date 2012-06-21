@@ -744,9 +744,9 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public List<String> filterToVisibleSamples(String user, List<String> samplePermIds)
+    public List<String> filterToVisibleSamples(String user, List<String> sampleIdentifiers)
     {
-        return service.filterToVisibleSamples(session.getToken(), user, samplePermIds);
+        return service.filterToVisibleSamples(session.getToken(), user, sampleIdentifiers);
     }
 
 }
