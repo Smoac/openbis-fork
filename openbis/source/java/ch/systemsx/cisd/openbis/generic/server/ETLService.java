@@ -812,6 +812,11 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         assert experiment != null : "Unspecified new example.";
 
         final Session session = getSession(sessionToken);
+        return registerExperiment(session, experiment);
+    }
+
+    private long registerExperiment(final Session session, NewExperiment experiment)
+    {
         IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.define(experiment);
         experimentBO.save();
@@ -1769,7 +1774,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         int index = 0;
         for (NewExperiment experiment : experimentRegistrations)
         {
-            registerExperiment(session.getSessionToken(), experiment);
+            registerExperiment(session, experiment);
             progress.update("createExperiments", experimentRegistrations.size(), ++index);
         }
         return index;

@@ -388,6 +388,21 @@ public class EntityOperationTest extends SystemTestCase
     }
 
     @Test
+    public void testCreateProjectAsInstanceAdminButLoginAsSpaceETLServerSuccessfully()
+    {
+        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().user(INSTANCE_ADMIN).project(SPACE_A, "P1").create();
+
+        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(1, result.getProjectsCreatedCount());
+
+        Project project =
+                etlService.tryGetProject(sessionToken, new ProjectIdentifier(SPACE_A, "P1"));
+        assertEquals("/" + SPACE_A.getSpaceCode() + "/P1", project.toString());
+    }
+
+    @Test
     public void testCreateProjectAsSpaceETLServerThrowsAuthorizationFailure()
     {
         String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
@@ -407,6 +422,32 @@ public class EntityOperationTest extends SystemTestCase
                 new EntityOperationBuilder().experiment(
                         new ExperimentBuilder().identifier(experimentIdentifier).type("SIRNA_HCS")
                                 .property("DESCRIPTION", "hello").getExperiment()).create();
+
+        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(1, result.getExperimentsCreatedCount());
+
+        // Need to make an additional call to get the experiment from the DB
+        Experiment experiment =
+                etlService.tryToGetExperiment(sessionToken,
+                        ExperimentIdentifierFactory.parse(experimentIdentifier));
+
+        assertEquals("/CISD/NEMO/E1", experiment.getIdentifier());
+        assertEquals("SIRNA_HCS", experiment.getExperimentType().getCode());
+        assertEquals("[DESCRIPTION: hello]", experiment.getProperties().toString());
+    }
+
+    @Test
+    public void testCreateExperimentAsInstanceAdminButLoginAsSpaceETLServerSuccessfully()
+    {
+        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
+        String experimentIdentifier = "/CISD/NEMO/E1";
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder()
+                        .user(INSTANCE_ADMIN)
+                        .experiment(
+                                new ExperimentBuilder().identifier(experimentIdentifier)
+                                        .type("SIRNA_HCS").property("DESCRIPTION", "hello")
+                                        .getExperiment()).create();
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
         assertEquals(1, result.getExperimentsCreatedCount());
@@ -456,6 +497,29 @@ public class EntityOperationTest extends SystemTestCase
     }
 
     @Test
+    public void testCreateInstanceSampleAsInstanceAdminButLoginAsInstanceETLServerSuccessfully()
+    {
+        String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
+        String sampleIdentifier = "/S1";
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder()
+                        .user(INSTANCE_ADMIN)
+                        .sample(new SampleBuilder().identifier(sampleIdentifier)
+                                .type("MASTER_PLATE").property("$PLATE_GEOMETRY", "96_WELLS_8X12")
+                                .getSample()).create();
+
+        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(1, result.getSamplesCreatedCount());
+
+        Sample sample =
+                etlService.tryGetSampleWithExperiment(sessionToken,
+                        SampleIdentifierFactory.parse(sampleIdentifier));
+        assertEquals(sampleIdentifier, sample.getIdentifier());
+        assertEquals("MASTER_PLATE", sample.getSampleType().getCode());
+        assertEquals("[$PLATE_GEOMETRY: 96_WELLS_8X12]", sample.getProperties().toString());
+    }
+
+    @Test
     public void testCreateInstanceSampleAsSpaceETLServerThrowsAuthorizationFailure()
     {
         String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
@@ -477,6 +541,34 @@ public class EntityOperationTest extends SystemTestCase
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().sample(
                         new SampleBuilder()
+                                .identifier(sampleIdentifier)
+                                .type("CELL_PLATE")
+                                .property("COMMENT", "hello")
+                                .experiment(
+                                        new ExperimentBuilder().identifier("/CISD/NEMO/EXP1")
+                                                .getExperiment()).getSample()).create();
+
+        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(1, result.getSamplesCreatedCount());
+
+        Sample sample =
+                etlService.tryGetSampleWithExperiment(sessionToken,
+                        SampleIdentifierFactory.parse(sampleIdentifier));
+        assertEquals(sampleIdentifier, sample.getIdentifier());
+        assertEquals("CELL_PLATE", sample.getSampleType().getCode());
+        assertEquals("[COMMENT: hello]", sample.getProperties().toString());
+        assertEquals("/CISD/NEMO/EXP1", sample.getExperiment().getIdentifier());
+    }
+
+    @Test
+    public void testCreateSpaceSampleAsSpaceETLServerButLoginAsInstanceAdminSuccessfully()
+    {
+        String sessionToken = authenticateAs(INSTANCE_ADMIN);
+        String sampleIdentifier = "/CISD/S1";
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder()
+                        .user(SPACE_ETL_SERVER_FOR_A)
+                        .sample(new SampleBuilder()
                                 .identifier(sampleIdentifier)
                                 .type("CELL_PLATE")
                                 .property("COMMENT", "hello")
@@ -535,6 +627,31 @@ public class EntityOperationTest extends SystemTestCase
     }
 
     @Test
+    public void testUpdateInstanceSampleAsInstanceAdminButLoginAsInstanceETLServerSuccessfully()
+    {
+        String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
+        Sample sample = commonServer.getSampleInfo(systemSessionToken, new TechId(646)).getParent();
+        List<IEntityProperty> properties = sample.getProperties();
+        assertEquals("[$PLATE_GEOMETRY: 384_WELLS_16X24]", properties.toString());
+        sample.setProperties(new SampleBuilder().property("$PLATE_GEOMETRY", "96_WELLS_8X12")
+                .getSample().getProperties());
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().user(INSTANCE_ADMIN).sampleUpdate(sample).create();
+
+        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(1, result.getSamplesUpdatedCount());
+
+        Sample updatedSample =
+                etlService.tryGetSampleWithExperiment(sessionToken,
+                        SampleIdentifierFactory.parse(sample.getIdentifier()));
+
+        assertEquals(new Long(646), updatedSample.getId());
+        assertEquals("/MP", updatedSample.getIdentifier());
+        assertEquals("MASTER_PLATE", updatedSample.getSampleType().getCode());
+        assertEquals("[$PLATE_GEOMETRY: 96_WELLS_8X12]", updatedSample.getProperties().toString());
+    }
+
+    @Test
     public void testUpdateInstanceSampleAsSpaceETLServerThrowsAuthorizationFailure()
     {
         String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
@@ -545,6 +662,31 @@ public class EntityOperationTest extends SystemTestCase
         performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: "
                 + "\"None of method roles '[INSTANCE_ETL_SERVER, INSTANCE_ADMIN]' "
                 + "could be found in roles of user '" + SPACE_ETL_SERVER_FOR_A + "'.\".");
+    }
+
+    @Test
+    public void testUpdateSpaceSampleAsSpaceETLServerButLoginAsInstanceAdminSuccessfully()
+    {
+        String sessionToken = authenticateAs(INSTANCE_ADMIN);
+        Sample sample = commonServer.getSampleInfo(systemSessionToken, new TechId(986)).getParent();
+        List<IEntityProperty> properties = sample.getProperties();
+        assertEquals("[]", properties.toString());
+        sample.setProperties(new SampleBuilder().property("COMMENT", "hello").getSample()
+                .getProperties());
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().user(SPACE_ETL_SERVER_FOR_A).sampleUpdate(sample)
+                        .create();
+
+        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(1, result.getSamplesUpdatedCount());
+
+        Sample updatedSample =
+                etlService.tryGetSampleWithExperiment(sessionToken,
+                        SampleIdentifierFactory.parse(sample.getIdentifier()));
+        assertEquals(new Long(986), updatedSample.getId());
+        assertEquals("/CISD/3VCP5", updatedSample.getIdentifier());
+        assertEquals("CELL_PLATE", updatedSample.getSampleType().getCode());
+        assertEquals("[COMMENT: hello]", updatedSample.getProperties().toString());
     }
 
     @Test
@@ -606,6 +748,34 @@ public class EntityOperationTest extends SystemTestCase
     }
 
     @Test
+    public void testCreateDataSetAsInstanceAdminButLoginAsSpaceETLServerSucessfully()
+    {
+        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
+        String dataSetCode = "DS-1";
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder()
+                        .user(INSTANCE_ADMIN)
+                        .dataSet(
+                                new DataSetBuilder()
+                                        .code(dataSetCode)
+                                        .type("HCS_IMAGE")
+                                        .store(new DataStoreBuilder("STANDARD").getStore())
+                                        .fileFormat("XML")
+                                        .location("a/b/c")
+                                        .property("COMMENT", "my data")
+                                        .sample(new SampleBuilder().identifier("/CISD/CP1-A1")
+                                                .getSample()).getDataSet()).create();
+
+        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(1, result.getDataSetsCreatedCount());
+        ExternalData dataSet = etlService.tryGetDataSet(sessionToken, dataSetCode);
+
+        assertEquals(dataSetCode, dataSet.getCode());
+        assertEquals("HCS_IMAGE", dataSet.getDataSetType().getCode());
+        assertEquals("[COMMENT: my data]", dataSet.getProperties().toString());
+    }
+
+    @Test
     public void testCreateDataSetAsSpaceETLServerThrowsAuthorizationFailure()
     {
         String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
@@ -637,6 +807,24 @@ public class EntityOperationTest extends SystemTestCase
                 .getProperties());
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().dataSetUpdate(dataSet).create();
+
+        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(1, result.getDataSetsUpdatedCount());
+
+        ExternalData updatedDataSet = etlService.tryGetDataSet(sessionToken, dataSet.getCode());
+        assertEquals(new Long(4), updatedDataSet.getId());
+        assertEquals("[COMMENT: hello]", updatedDataSet.getProperties().toString());
+    }
+
+    @Test
+    public void testUpdateDataSetAsInstanceAdminButLoginAsSpaceETLServerSucessfully()
+    {
+        String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
+        ExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(4));
+        dataSet.setDataSetProperties(new DataSetBuilder().property("COMMENT", "hello").getDataSet()
+                .getProperties());
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().user(INSTANCE_ADMIN).dataSetUpdate(dataSet).create();
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
         assertEquals(1, result.getDataSetsUpdatedCount());
