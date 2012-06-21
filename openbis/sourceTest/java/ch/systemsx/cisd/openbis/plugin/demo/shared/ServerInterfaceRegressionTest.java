@@ -29,6 +29,5 @@ public class ServerInterfaceRegressionTest extends RegressionTestCase
     public void testIGenericServer()
     {
         assertMandatoryMethodAnnotations(IDemoServer.class);
-        assertNormalizedSourceFilesAreEqual(IDemoServer.class);
     }
 }

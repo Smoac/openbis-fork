@@ -29,6 +29,5 @@ public class ServerInterfaceRegressionTest extends RegressionTestCase
     public void testIQueryServer()
     {
         assertMandatoryMethodAnnotations(IQueryServer.class);
-        assertNormalizedSourceFilesAreEqual(IQueryServer.class);
     }
 }
