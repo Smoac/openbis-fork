@@ -839,6 +839,6 @@ public interface IETLLIMSService extends IServer, ISessionProvider, Conversation
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<String> filterToVisibleSamples(String token, String user,
-            List<String> samplesPermIds);
+            List<String> samplesIndentifiers);
 
 }

@@ -466,17 +466,17 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
     public void testFilterSamples()
     {
         LinkedList<String> samplesAll = new LinkedList<String>();
-        samplesAll.add("201206191219327-1025");
-        samplesAll.add("200902091250077-1051");
-        samplesAll.add("200902091250077-1052");
+        samplesAll.add("/CISD/SAMPLE_EXAMPLE-1");
+        samplesAll.add("/CISD/SAMPLE_EXAMPLE-2");
+        samplesAll.add("/TESTGROUP/SAMPLE_EXAMPLE");
 
         List<String> result = service.filterToVisibleSamples(sessionToken, "test_role", samplesAll);
 
         assertEquals(2, result.size());
 
-        assertTrue(result.contains("200902091250077-1051"));
-        assertTrue(result.contains("200902091250077-1052"));
+        assertTrue(result.contains("/CISD/SAMPLE_EXAMPLE-1"));
+        assertTrue(result.contains("/CISD/SAMPLE_EXAMPLE-2"));
 
-        assertFalse(result.contains("201206191219327-1025"));
+        assertFalse(result.contains("/TESTGROUP/SAMPLE_EXAMPLE"));
     }
 }

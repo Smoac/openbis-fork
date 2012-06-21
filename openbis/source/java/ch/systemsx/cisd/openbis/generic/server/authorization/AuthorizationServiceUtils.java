@@ -25,11 +25,11 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentIdentifierPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SamplePermIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -179,25 +179,32 @@ public class AuthorizationServiceUtils
         List<RoleWithIdentifier> userRoles = DefaultAccessController.getUserRoles(person);
 
         LinkedList<String> resultList = new LinkedList<String>();
-        for (String samplePermId : sampleIds)
+        for (String sampleIdentifier : sampleIds)
         {
-            if (canAccessSample(person, userRoles, samplePermId))
+            if (canAccessSample(person, userRoles, sampleIdentifier))
             {
-                resultList.add(samplePermId);
+                resultList.add(sampleIdentifier);
             }
         }
         return resultList;
     }
 
     private boolean canAccessSample(PersonPE person, List<RoleWithIdentifier> allowedRoles,
-            String samplePermId)
+            final String sampleIdentifier)
     {
 
-        SamplePermIdPredicate predicate = new SamplePermIdPredicate();
+        SamplePredicate predicate = new SamplePredicate();
 
         predicate.init(new AuthorizationDataProvider(daoFactory));
 
-        final Status status = predicate.evaluate(person, allowedRoles, new PermId(samplePermId));
+        final Status status = predicate.evaluate(person, allowedRoles, new IIdentifierHolder()
+            {
+                @Override
+                public String getIdentifier()
+                {
+                    return sampleIdentifier;
+                }
+            });
 
         return (status.getFlag().equals(StatusFlag.OK));
     }
