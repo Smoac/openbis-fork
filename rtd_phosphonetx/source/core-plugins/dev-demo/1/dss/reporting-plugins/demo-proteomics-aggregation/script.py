@@ -86,6 +86,8 @@ def aggregate(parameters, tableBuilder):
     tableBuilder.addHeader(SEARCH_EXPERIMENT_PERM_ID)
     tableBuilder.addHeader(ACCESION_NUMBER)
     tableBuilder.addHeader(DESCRIPTION)
+    if len(searchExperimentsByPermIdDict) == 0:
+        return
     protein = '%' + parameters.get('protein') + '%'
     permIds = createPermIdList(searchExperimentsByPermIdDict)
     result = queryService.select("proteomics-db", 
