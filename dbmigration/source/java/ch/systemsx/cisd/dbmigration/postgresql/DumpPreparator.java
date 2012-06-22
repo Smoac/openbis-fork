@@ -59,16 +59,18 @@ import ch.systemsx.cisd.dbmigration.SimpleTableMetaData;
 public class DumpPreparator
 {
     private static final String MAC_POSTGRESQL_91PATH = "/opt/local/lib/postgresql91/bin/";
+
     private static final String MAC_POSTGRESQL_90_PATH = "/opt/local/lib/postgresql90/bin/";
 
     private static final String DUMP_EXEC = "pg_dump";
-    
+
     private static final String PSQL_EXEC = "psql";
 
-    private static final Set<String> FILTERED_SCHEMA_LINES =
-            new LinkedHashSet<String>(Arrays.asList("SET client_encoding = 'UTF8';",
+    private static final Set<String> FILTERED_SCHEMA_LINES = new LinkedHashSet<String>(
+            Arrays.asList("SET client_encoding = 'UTF8';",
                     "COMMENT ON SCHEMA public IS 'Standard public schema';",
-                    "CREATE PROCEDURAL LANGUAGE plpgsql;"));
+                    "CREATE PROCEDURAL LANGUAGE plpgsql;",
+                    "CREATE OR REPLACE PROCEDURAL LANGUAGE plpgsql;"));
 
     public static void main(String[] args) throws IOException
     {
@@ -149,7 +151,7 @@ public class DumpPreparator
     {
         return getExecutable(PSQL_EXEC);
     }
-    
+
     private static String getExecutable(String executable)
     {
         final Set<String> paths = OSUtilities.getSafeOSPath();
@@ -359,8 +361,8 @@ public class DumpPreparator
         {
             String databaseVersion = getDatabaseVersion();
             File folder = createDestinationFolder();
-            writeTo(folder, "schema-" + databaseVersion + ".sql", Arrays.asList(schemaScript
-                    .toString()));
+            writeTo(folder, "schema-" + databaseVersion + ".sql",
+                    Arrays.asList(schemaScript.toString()));
             ArrayList<SimpleTableMetaData> metaData = new ArrayList<SimpleTableMetaData>();
             for (Table table : tables.values())
             {
@@ -372,8 +374,8 @@ public class DumpPreparator
                     writeTo(folder, tableMetaData.getTableFileName(), rows);
                 }
             }
-            writeTo(folder, "finish-" + databaseVersion + ".sql", Arrays.asList(finishScript
-                    .toString()));
+            writeTo(folder, "finish-" + databaseVersion + ".sql",
+                    Arrays.asList(finishScript.toString()));
             return new SimpleDatabaseMetaData(databaseVersion, metaData);
         }
 
