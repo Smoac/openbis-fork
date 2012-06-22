@@ -15,7 +15,10 @@
 <script>
 
 /// The openbisServer we use for our data
-openbisServer = new openbis('https://openbis-csb.ethz.ch/openbis/openbis', 'https://openbis-csb.ethz.ch:443/datastore_server');
+//openbisServer = new openbis('https://openbis-csb.ethz.ch/openbis/openbis', 'https://openbis-csb.ethz.ch:443/datastore_server');
+
+openbisServer = new openbis('https://localhost:8443/openbis/openbis', 'https://bs-mbp156.ethz.ch:8443/datastore_server');
+
 
 // Some global variables we refer to
 
@@ -146,6 +149,47 @@ function props_to_pairs2(data)
 	return new_list2;
 }
 
+function get_parents(data)
+{
+
+	d = data.properties;
+
+	new_list3=[]	
+	
+	if (data.parents != null) {
+		var i = 1;
+	  data.parents.forEach(function(parent) {
+      parentLabel = "PARENT "+ i  ;
+      console.log(data.parents)
+      new_list3.push([parentLabel, parent ]);
+			i++;	  
+		});
+	  
+	}
+	
+	return new_list3;
+}
+
+function get_children(data)
+{
+
+	d = data.properties;
+
+	new_list4=[]	
+	
+	if (data.children != null) {
+		var i = 1;
+		console.log(data.children)
+	  data.children.forEach(function(child) {
+      childLabel = "CHILD "+ i  ;
+      new_list4.push([childLabel, child ]);
+			i++;	  
+		});
+	  
+	}
+	
+	return new_list4;
+}
 
 
 /** Initialize the plasmids variable */
@@ -184,7 +228,7 @@ function resizePlasmidTable()
 {
 	var cellWidth;
 	var areInspectorsVisible;
-	var padding = 20;
+	var padding = 10;
 	if (inspectedPlasmids.length > 0) {
 		cellWidth = ((getAppWidth() - inspectorsWidth) / 9) - padding + "px";
 		areInspectorsVisible = true;
@@ -294,6 +338,49 @@ function updateInspectors(duration)
 			.transition()
 				.duration(duration)
 				.style("opacity", "1");
+				
+	var propsTableParents = box.append("table").attr("class", "properties");
+	propsTableParents.selectAll("tr").data(function(d) { return get_parents(d) })
+		.enter()
+			.append("tr")
+			.on("click", function(trData) { inspectPlasmid(trData[1]) } )
+     	.style("cursor", "pointer")
+			.selectAll("td").data(function(d) { return d }).enter()
+				.append("td")
+				.attr("class", "property")
+				.style("opacity", "0")
+				.text(function(d) { 
+					if (null == d.identifier) {
+						return d;
+					} else { 
+					 	return d.identifier;
+					} 
+				})
+			.transition()
+				.duration(duration)
+				.style("opacity", "1");			
+
+
+	var propsTableChildren = box.append("table").attr("class", "properties");
+	propsTableChildren.selectAll("tr").data(function(d) { return get_children(d) })
+		.enter()
+			.append("tr")
+			.on("click", function(trData) { inspectPlasmid(trData[1]) } )
+     	.style("cursor", "pointer")
+			.selectAll("td").data(function(d) { return d }).enter()
+				.append("td")
+				.attr("class", "property")
+				.style("opacity", "0")
+				.text(function(d) { 
+					if (null == d.identifier) {
+						return d;
+					} else { 
+					 	return d.identifier;
+					} 
+				})
+			.transition()
+				.duration(duration)
+				.style("opacity", "1");			
 						
 		
 		var propsTable2 = box.append("table").attr("class", "properties");
@@ -326,7 +413,8 @@ function updateInspectors(duration)
 	dataSetRow
 				.append("td")
 					.attr("class", "data_sets");
-			
+	
+	
 
 }
 
@@ -351,14 +439,30 @@ function displayReturnedSamples(data)
 		return;
 	}
 
-	visualize();
+	var selection = d3.select("#vis").select("#plasmid-table").selectAll("tr.plasmid-table-data").data(plasmids);
+		// Code under enter is run if there is no HTML element for a data element
+	
+	selection
+		.enter()
+		.append("tr")
+		.attr("class", "plasmid-table-data")
+		.style("cursor", "pointer")
+		.on("click", inspectPlasmid)
+		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.OWNER, sample.properties.OWNER_NUMBER, sample.properties.PLASMID_NAME, sample.properties.BACKBONE, sample.properties.BACTERIAL_ANTIBIOTIC_RESISTANCE,sample.properties.YEAST_MARKER]; })
+			.enter()
+			.append("td")
+			.append("div")
+			.attr("class", "plasmid-table-data-cell")
+			.text(String)
+
 }
 
 function plasmidFilter(filter, property, element, index, array) {
 
 	
 	filter = filter.toLowerCase();
-
+  if (filter.length < 1) return true;
+  
 	if (property == "CODE") {
 		if (element.code.toLowerCase().indexOf(filter) != -1) {
 			return true;
@@ -418,29 +522,12 @@ function visualize(ownerFilterText, ownerNumFilterText, plasmidNameFilterText, b
 	
 
 
-	var selection = d3.select("#vis").select("#plasmid-table").selectAll("tr.plasmid-table-data").data(plasmids);
+	var selection2 = d3.select("#vis").select("#plasmid-table").selectAll("tr.plasmid-table-data").data(plasmids);
 		// Code under enter is run if there is no HTML element for a data element
 	
-	selection
-		.enter()
-		.append("tr")
-		.attr("class", "plasmid-table-data")
-		.style("cursor", "pointer")
-		.on("click", inspectPlasmid)
-		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.OWNER, sample.properties.OWNER_NUMBER, sample.properties.PLASMID_NAME, sample.properties.BACKBONE, sample.properties.BACTERIAL_ANTIBIOTIC_RESISTANCE,sample.properties.YEAST_MARKER]; })
-			.enter()
-			.append("td")
-			.append("div")
-			.attr("class", "plasmid-table-data-cell")
-			.text(String)
 
-		selection.style("display", 
-			function(data) {
-				return "table-row"
-				});
 
-/*
-		selection.style("display", 
+		selection2.style("display", 
 			function(data) {
 				if ($.inArray(data, displayedPlasmids) != -1) {
 					return "table-row"
@@ -448,7 +535,7 @@ function visualize(ownerFilterText, ownerNumFilterText, plasmidNameFilterText, b
 					return  "none"
 				}
 			});
-*/	
+
 	
 }
 
@@ -468,7 +555,7 @@ function showMatchingSamples()
 		operator : "MATCH_ALL_CLAUSES"
 	};
 
-	openbisServer.searchForSamples(sampleCriteria, displayReturnedSamples);
+	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS"], displayReturnedSamples);
 }
 
 
@@ -477,6 +564,7 @@ function enterApp(data)
 	if(data.result == null){
 		alert("Login or password incorrect");
 		$("#username").focus();
+		console.log(data);
 		return;
 	}
 	
@@ -610,10 +698,13 @@ function ShowHide(divId)
 	
     
 		<div id="vis">
+		<div style="float:left; width: 1000px;height: 700px; overflow: auto">
 		  <table cellspacing="10" cellpadding="20">
 			<table id="plasmid-table" style="float: left">
-			  <tr class="plasmid-table-header"><th>Plasmid Code</th><th>Owner</th><th>Owner Number</th><th>Plasmid Name</th><th>Backbone</th><th>Bacterial Antibiotic Resistance</th><th>(Yeast) Marker</th></tr>
+			  <tr class="plasmid-table-header" style="position: relative; top: expression(this.offsetParent.scrollTop-2);"><th>Plasmid Code</th><th>Owner</th><th>Owner Number</th><th>Plasmid Name</th><th>Backbone</th><th>Bacterial Antibiotic Resistance</th><th>(Yeast) Marker</th></tr>
+			  <tbody><tr style="overflow:scroll"></tr></tbody>
 			</table>
+			</div>
 			<span id="inspectorsContainer"></span>
 		</div>
 	</div>
