@@ -49,32 +49,17 @@ public class ImportMenu extends TopMenuItem
         super(viewContext.getMessage(Dict.MENU_IMPORT));
 
         IMessageProvider messageProvider = viewContext;
+        ApplicationInfo applicationInfo = viewContext.getModel().getApplicationInfo();
 
         Menu submenu = new Menu();
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_IMPORT, messageProvider,
                 componentProvider.getExperimentBatchRegistration()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_MASS_UPDATE,
                 messageProvider, componentProvider.getExperimentBatchUpdate()));
-        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.GENERAL_IMPORT_MENU, messageProvider,
-                componentProvider.createGeneralImport()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_IMPORT, messageProvider,
                 componentProvider.getSampleBatchRegistration()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_MASS_UPDATE, messageProvider,
                 componentProvider.getSampleBatchUpdate()));
-        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_IMPORT, messageProvider,
-                componentProvider.getMaterialBatchRegistration()));
-        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_MASS_UPDATE,
-                messageProvider, componentProvider.getMaterialBatchUpdate()));
-        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_MASS_UPDATE,
-                messageProvider, componentProvider.getDataSetBatchUpdate()));
-
-        ApplicationInfo applicationInfo = viewContext.getModel().getApplicationInfo();
-        if (applicationInfo.getCustomImports() != null
-                && applicationInfo.getCustomImports().size() > 0)
-        {
-            submenu.add(new ActionMenu(TopMenu.ActionMenuKind.CUSTOM_IMPORT_MENU, messageProvider,
-                    componentProvider.getCustomImport()));
-        }
 
         SelectionListener<? extends MenuEvent> listener = new SelectionListener<MenuEvent>()
             {
@@ -102,6 +87,22 @@ public class ImportMenu extends TopMenuItem
         {
             submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_UPLOAD,
                     messageProvider, componentProvider.getDataSetUploadTab(null)));
+        }
+
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_MASS_UPDATE,
+                messageProvider, componentProvider.getDataSetBatchUpdate()));
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_IMPORT, messageProvider,
+                componentProvider.getMaterialBatchRegistration()));
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_MASS_UPDATE,
+                messageProvider, componentProvider.getMaterialBatchUpdate()));
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.GENERAL_IMPORT_MENU, messageProvider,
+                componentProvider.createGeneralImport()));
+
+        if (applicationInfo.getCustomImports() != null
+                && applicationInfo.getCustomImports().size() > 0)
+        {
+            submenu.add(new ActionMenu(TopMenu.ActionMenuKind.CUSTOM_IMPORT_MENU, messageProvider,
+                    componentProvider.getCustomImport()));
         }
 
         setMenu(submenu);

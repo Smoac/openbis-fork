@@ -419,26 +419,26 @@ var common = {
   DATA_SET_MENU_SEARCH: "Data Set Search",
   DATA_SET_MENU_TYPES: "Data Set Types",
   DATA_SET_MENU_FILE_FORMATS: "File Types",
-  DATA_SET_MENU_UPLOAD: "Data Sets (via CIFEX)",
-  DATA_SET_MENU_UPLOAD_CLIENT: "Data Sets",
+  DATA_SET_MENU_UPLOAD: "Data Set Registration (via CIFEX)",
+  DATA_SET_MENU_UPLOAD_CLIENT: "Data Set Registration",
   DATA_SET_MENU_MASS_UPDATE: "Data Set Metadata Update",
-  data_set_batch_update: "Data Set Metadata",
+  data_set_batch_update: "Data Set Metadata Batch Update",
   
   EXPERIMENT_MENU_BROWSE: "Experiments",
   EXPERIMENT_MENU_NEW: "Experiment",
-  EXPERIMENT_MENU_IMPORT: "Experiments",
+  EXPERIMENT_MENU_IMPORT: "Experiment Registration",
   EXPERIMENT_MENU_MASS_UPDATE: "Experiment Updates",
   EXPERIMENT_MENU_TYPES: "Experiment Types",
   
   MATERIAL_MENU_BROWSE: "Materials",
-  MATERIAL_MENU_IMPORT: "Materials",
+  MATERIAL_MENU_IMPORT: "Material Registration",
   MATERIAL_MENU_MASS_UPDATE: "Material Updates",
   MATERIAL_MENU_TYPES: "Material Types",
    
   SAMPLE_MENU_SEARCH: "Sample Search",
   SAMPLE_MENU_BROWSE: "Samples",
   SAMPLE_MENU_NEW: "Sample",
-  SAMPLE_MENU_IMPORT: "Samples",
+  SAMPLE_MENU_IMPORT: "Sample Registration",
   SAMPLE_MENU_MASS_UPDATE: "Sample Updates",
   SAMPLE_MENU_TYPES: "Sample Types",
   
@@ -489,7 +489,7 @@ var common = {
   // Tab Titles
   //
 
-  data_set_upload: "Data Set Upload",
+  data_set_upload: "Data Set Batch Registration (via CIFEX)",
   assign_data_set_property_type: "Assign Data Set Property Type",
   assign_material_property_type: "Assign Material Property Type",  
   assign_experiment_property_type: "Assign Experiment Property Type",
@@ -498,7 +498,7 @@ var common = {
   property_type_registration: "Property Type Registration",
   property_types: "Property Types",
   experiment_browser: "Experiment Browser",
-  experiment_import: "Import Experiments",
+  experiment_import: "Experiment Batch Registration",
   vocabulary_registration: "Vocabulary Registration",
   sample_batch_registration: "Sample Batch Registration",
   sample_batch_update: "Sample Batch Update",
@@ -509,7 +509,7 @@ var common = {
   list_groups: "Spaces Browser",
   confirm_title: "Confirmation",
   confirm_close_msg: "All unsaved changes will be lost. Are you sure?",
-  general_import: "General Import",
+  general_import: "General Batch Import",
   custom_import: "Custom Import",
   //
   // Help Page Titles
@@ -616,7 +616,7 @@ var common = {
   // Experiment Registration
   //
   experiment_registration: "Experiment Registration",
-  experiment_import: "Import Experiments",
+  experiment_import: "Experiment Batch Registration",
   samples: "Samples",
   samples_list: "List of samples (codes or identifiers) separated by commas (\",\") or one sample per line.",
   
@@ -753,7 +753,7 @@ var common = {
  //
  // Import Materials
  //
- material_import: "Import Materials",
+ material_import: "Material Batch Registration",
 ignore_unregistered_materials: "Ignore unregistered materials", 
  
  // 

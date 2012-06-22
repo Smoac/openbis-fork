@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.top;
 
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-
-import com.extjs.gxt.ui.client.widget.menu.Menu;
 
 /**
  * The New menu of the top menu bar.
@@ -37,12 +37,12 @@ public class NewMenu extends TopMenuItem
         super(messageProvider.getMessage(Dict.MENU_NEW));
 
         Menu submenu = new Menu();
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.PROJECT_MENU_NEW, messageProvider,
+                componentProvider.getProjectRegistration()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_NEW, messageProvider,
                 componentProvider.getExperimentRegistration()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_NEW, messageProvider,
                 componentProvider.getSampleRegistration()));
-        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.PROJECT_MENU_NEW, messageProvider,
-                componentProvider.getProjectRegistration()));
         setMenu(submenu);
     }
 

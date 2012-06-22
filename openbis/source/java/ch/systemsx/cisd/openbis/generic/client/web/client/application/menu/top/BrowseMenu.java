@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.top;
 
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-
-import com.extjs.gxt.ui.client.widget.menu.Menu;
 
 /**
  * The Browse menu of the top menu bar.
@@ -37,6 +37,8 @@ public class BrowseMenu extends TopMenuItem
         super(messageProvider.getMessage(Dict.MENU_BROWSE));
 
         Menu submenu = new Menu();
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.PROJECT_MENU_BROWSE, messageProvider,
+                componentProvider.getProjectBrowser()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_BROWSE, messageProvider,
                 componentProvider.getExperimentBrowser()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE, messageProvider,
@@ -45,8 +47,6 @@ public class BrowseMenu extends TopMenuItem
                 componentProvider.getSampleSearch()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_SEARCH, messageProvider,
                 componentProvider.getDataSetSearch()));
-        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.PROJECT_MENU_BROWSE, messageProvider,
-                componentProvider.getProjectBrowser()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_BROWSE, messageProvider,
                 componentProvider.getMaterialBrowser()));
         setMenu(submenu);
