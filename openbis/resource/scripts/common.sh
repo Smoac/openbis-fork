@@ -3,7 +3,7 @@
 # Scripts to create new database version, common to all projects.
 # Requires setting SQL_DIR variable before being inlined!
 
-PREV_NUM=`ls -1 $SQL_DIR/postgresql | grep 0 | sort | tail -n 1 | sed s/^0*//g`
+PREV_NUM=`ls -1 $SQL_DIR/postgresql | grep ^[0-9] | sort | tail -n 1 | sed s/^0*//g`
 PREV_VER=`printf "%03d" $PREV_NUM`
 CUR_VER=`printf "%03d" $(( $PREV_NUM+1 ))`
 
