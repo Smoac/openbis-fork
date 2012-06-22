@@ -308,12 +308,27 @@ function displayReturnedSamples(data)
 		return;
 	}
 
-	visualize();
+		var selection = d3.select("#vis").select("#chemical-table").selectAll("tr.chemical-table-data").data(chemicals);
+		// Code under enter is run if there is no HTML element for a data element
+	
+	selection
+		.enter()
+		.append("tr")
+		.attr("class", "chemical-table-data")
+		.style("cursor", "pointer")
+		.on("click", inspectChemical)
+		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.NAME, sample.properties.SUPPLIER, sample.properties.ARTICLE_NUMBER, sample.properties.LOCAL_ID, sample.properties.STORAGE]; })
+			.enter()
+			.append("td")
+			.append("div")
+			.attr("class", "chemical-table-data-cell")
+			.text(String)
 }
 
 function chemicalFilter(filter, property, element, index, array) {
 
 	filter = filter.toLowerCase();
+	if (filter.length < 1) return true;
 
 	if (property == "CODE") {
 		if (element.code.toLowerCase().indexOf(filter) != -1) {
@@ -371,30 +386,11 @@ function visualize(nameFilterText, supplierFilterText, artnumFilterText, locidFi
 	
 	
 
-	var selection = d3.select("#vis").select("#chemical-table").selectAll("tr.chemical-table-data").data(chemicals);
+	var selection2 = d3.select("#vis").select("#chemical-table").selectAll("tr.chemical-table-data").data(chemicals);
 		// Code under enter is run if there is no HTML element for a data element
 	
-	selection
-		.enter()
-		.append("tr")
-		.attr("class", "chemical-table-data")
-		.style("cursor", "pointer")
-		.on("click", inspectChemical)
-		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.NAME, sample.properties.SUPPLIER, sample.properties.ARTICLE_NUMBER, sample.properties.LOCAL_ID, sample.properties.STORAGE]; })
-			.enter()
-			.append("td")
-			.append("div")
-			.attr("class", "chemical-table-data-cell")
-			.text(String)
-
-		selection.style("display", 
-			function(data) {
-				return "table-row"
-				});
-
-
-/*
-		selection.style("display", 
+	
+		selection2.style("display", 
 			function(data) {
 				if ($.inArray(data, displayedChemicals) != -1) {
 					return "table-row"
@@ -402,7 +398,7 @@ function visualize(nameFilterText, supplierFilterText, artnumFilterText, locidFi
 					return  "none"
 				}
 			});
-*/			
+			
 		
 }
 

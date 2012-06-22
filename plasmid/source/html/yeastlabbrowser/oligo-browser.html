@@ -340,12 +340,28 @@ function displayReturnedSamples(data)
 		return;
 	}
 
-	visualize();
+	var selection = d3.select("#vis").select("#oligo-table").selectAll("tr.oligo-table-data").data(oligos);
+		// Code under enter is run if there is no HTML element for a data element
+	
+	selection
+		.enter()
+		.append("tr")
+		.attr("class", "oligo-table-data")
+		.style("cursor", "pointer")
+		.on("click", inspectOligo)
+		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.TARGET, sample.properties.DIRECTION,sample.properties.RESTRICTION_ENZYME, sample.properties.PROJECT]; })
+			.enter()
+			.append("td")
+			.append("div")
+			.attr("class", "oligo-table-data-cell")
+			.text(String)
+
 }
 
 function oligoFilter(filter, property, element, index, array) {
 
 	filter = filter.toLowerCase();
+	if (filter.length < 1) return true;
 
 	if (property == "CODE") {
 		if (element.code.toLowerCase().indexOf(filter) != -1) {
@@ -399,31 +415,11 @@ function visualize(codeFilterText, targetFilterText, directionFilterText, enzyme
 	displayedOligos = displayedOligos.filter(oligoFilter.curry(projectFilterText, "PROJECT"));	
 
 
-	var selection = d3.select("#vis").select("#oligo-table").selectAll("tr.oligo-table-data").data(oligos);
+	var selection2 = d3.select("#vis").select("#oligo-table").selectAll("tr.oligo-table-data").data(oligos);
 		// Code under enter is run if there is no HTML element for a data element
 	
-	selection
-		.enter()
-		.append("tr")
-		.attr("class", "oligo-table-data")
-		.style("cursor", "pointer")
-		.on("click", inspectOligo)
-		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.TARGET, sample.properties.DIRECTION,sample.properties.RESTRICTION_ENZYME, sample.properties.PROJECT]; })
-			.enter()
-			.append("td")
-			.append("div")
-			.attr("class", "oligo-table-data-cell")
-			.text(String)
-
-
-		selection.style("display", 
-			function(data) {
-				return "table-row"
-				});
-
-
-/*
-		selection.style("display", 
+	
+		selection2.style("display", 
 			function(data) {
 				if ($.inArray(data, displayedOligos) != -1) {
 					return "table-row"
@@ -431,7 +427,6 @@ function visualize(codeFilterText, targetFilterText, directionFilterText, enzyme
 					return  "none"
 				}
 			});
-*/
 		
 }
 
