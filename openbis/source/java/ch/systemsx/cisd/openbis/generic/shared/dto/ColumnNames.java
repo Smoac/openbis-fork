@@ -314,6 +314,10 @@ public final class ColumnNames
 
     public static final String REGISTRATION_ID = "registration_id";
 
+    public static final String IS_OPENBIS_COLUMN = "is_openbis";
+
+    public static final String URL_TEMPLATE_COLUMN = "url_template";
+
     private ColumnNames()
     {
         // Can not be instantiated.

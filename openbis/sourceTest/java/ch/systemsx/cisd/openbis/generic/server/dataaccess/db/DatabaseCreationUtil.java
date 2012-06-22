@@ -79,8 +79,8 @@ public final class DatabaseCreationUtil
         context.setScriptFolder("source/sql");
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context,
                 DatabaseVersionHolder.getDatabaseVersion());
-        createDumpForJava(databaseKind, scriptProvider.getDumpFolder(DatabaseVersionHolder
-                .getDatabaseVersion()));
+        createDumpForJava(databaseKind,
+                scriptProvider.getDumpFolder(DatabaseVersionHolder.getDatabaseVersion()));
         scriptProvider.markAsDumpRestorable(DatabaseVersionHolder.getDatabaseVersion());
     }
 

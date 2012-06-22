@@ -113,4 +113,6 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
     /** Returns an implementation of {@link IEntityOperationsLogDAO}. */
     public IEntityOperationsLogDAO getEntityOperationsLogDAO();
 
+    /** Returns an implementation of {@link IExternalDataManagementSystemDAO}. */
+    public IExternalDataManagementSystemDAO getExternalDataManagementSystemDAO();
 }

@@ -30,11 +30,12 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityHistoryDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataManagementSystemDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
@@ -113,6 +114,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private EntityHistoryDAO entityPropertyHistoryDAO;
 
+    private final IExternalDataManagementSystemDAO externalDataManagementSystemDAO;
+
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory, HibernateSearchContext hibernateSearchContext,
             final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler,
@@ -153,6 +156,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         }
         entityPropertyHistoryDAO =
                 new EntityHistoryDAO(getPersistencyResources(), databaseInstance);
+        externalDataManagementSystemDAO =
+                new ExternalDataManagementSystemDAO(sessionFactory, databaseInstance);
     }
 
     //
@@ -299,5 +304,11 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IEntityOperationsLogDAO getEntityOperationsLogDAO()
     {
         return entityOperationsLogDAO;
+    }
+
+    @Override
+    public IExternalDataManagementSystemDAO getExternalDataManagementSystemDAO()
+    {
+        return externalDataManagementSystemDAO;
     }
 }

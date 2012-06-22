@@ -33,12 +33,13 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityHistoryDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataManagementSystemDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomColumnDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
@@ -434,5 +435,11 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public IEntityOperationsLogDAO getEntityOperationsLogDAO()
     {
         return daoFactory.getEntityOperationsLogDAO();
+    }
+
+    @Override
+    public IExternalDataManagementSystemDAO getExternalDataManagementSystemDAO()
+    {
+        return daoFactory.getExternalDataManagementSystemDAO();
     }
 }

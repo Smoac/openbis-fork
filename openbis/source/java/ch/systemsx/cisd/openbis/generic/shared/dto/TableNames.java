@@ -38,6 +38,9 @@ public final class TableNames
 
     public static final String DATA_STORES_TABLE = "data_stores";
 
+    public static final String EXTERNAL_DATA_MANAGEMENT_SYSTEMS_TABLE =
+            "external_data_management_systems";
+
     public static final String DATA_STORE_SERVICES_TABLE = "data_store_services";
 
     public static final String DATA_STORE_SERVICES_DATASET_TYPES_TABLE =
