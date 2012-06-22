@@ -19,15 +19,15 @@ div.inspector {
 	font-weight: bold;
 }
 
-.property {
+.properties {
   font-size: 10px;
   font-weight: normal;
+  padding-top:10px;
+	width: 100%;
+
 }
 
-.properties {
-  padding-top:10px;
-	width: 100%;	
-}
+
 
 .properties td:nth-child(odd) {
   background-color:#A6A64D;
@@ -95,10 +95,8 @@ yeast.table { counter-reset: line-number; }
 
 .yeast-table-data-cell {
 	overflow: hidden;
-	
-	
+		
 }
-
 
 #yeast-table tr:nth-of-type(odd) {
    background-color:#A6A64D;
@@ -107,7 +105,6 @@ yeast.table { counter-reset: line-number; }
 #yeast-table tr:nth-of-type(even) {
    background-color:#ECEFEF;
 }
-
 
 
 #yeast-table tr.yeast-table-data:hover {
@@ -129,6 +126,7 @@ padding:5px;
 }
 
 #yeast-table tr.yeast-table-header {
+ 
   font-size:18px;
   font-weight: bold;
   color:#fff;
@@ -136,6 +134,7 @@ padding:5px;
 }
 
 #yeast-table th {
+ 
   padding-left:5px;
   padding-right:5px;
 }
