@@ -4,6 +4,11 @@
 	 stroke-width: 1.5px;
 }
 
+.line {
+	fill: none;
+	stroke: steelblue;
+	stroke-width: 1px;
+
 .node {
 	font: 12px "Verdana", sans-serif;
 	z-index: 1;
@@ -11,6 +16,13 @@
 	position: relative; 
 	left: -15px;
 }
+
+.nt {
+  fill: none;
+  stroke: #56e;
+  stroke-width: 1px;
+}
+
 
 .node:hover{
   font-weight: bold;  

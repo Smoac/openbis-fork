@@ -167,6 +167,8 @@ function props_to_pairs(d)
 
 function displayReturnedResults(data)
 {
+	  $("#waiting").hide();
+
     if (data.error) {
         console.log(data.error);
         vis.append("p").text("Could not retrieve data.");
@@ -178,8 +180,9 @@ function displayReturnedResults(data)
         model = new DataTableModel(data);
         displayResultsInTable();
     } else {
-        model = new DataTreeModel(data);
-        displayResultsInTree();
+        displayResultsAsGraph(createDataModel(data));
+//        model = new DataTreeModel(data);
+//        displayResultsInTree();
     }
 }
 
@@ -244,6 +247,119 @@ function hasChildren(d)
     return d.children.length > 0;
 }
 
+function displayResultsAsGraph(data) 
+{
+    clearVis();
+    if (data.length == 0)
+    {
+    	vis.append("p").text("Nothing found.");
+    	return;
+    }
+    
+    var xOffset = 30,
+        yOffset = 10,
+        xStep = 200,
+        yStep = 30;
+        
+    var graph = vis.selectAll("svg").data([data]).enter().append("svg:svg")
+        .attr("width", $(window).width() - 50)
+        .attr("height", $(window).height() - 50);
+
+    var g = graph.selectAll("g").data(function(d) { return d; })
+        .enter().append("svg:g")
+        .attr("transform", function(d,i) { return "translate(" + (xOffset + i * xStep) + ", "
+                                                               + yOffset + ")"; });
+    g.selectAll("path").data(function(d) { return d[1]; })
+        .enter().append("svg:path")
+        .attr("class", "line")
+        .attr("d", function(d,i) { 
+            var y0 = d[0] * yStep;
+            var y1 = d[1] * yStep;
+            return "M0," + y0 
+                 + "Q" + xStep/4 + "," + y0 + "," + xStep/2 + "," + (y0+y1)/2 
+                 + "L" + xStep/2 + "," + (y0+y1)/2 
+                 + "Q" + 3*xStep/4 + "," + y1 + "," + xStep + "," + y1
+                 + "L" + xStep + "," + y1; 
+            })
+        
+    g.selectAll("circle").data(function(d) { return d[0]; })
+        .enter().append("svg:circle")
+        .attr("class", "circle")
+        .attr("cx", 0)
+        .attr("cy", function(d, i) { return i * yStep; })
+        .attr("r", 5);
+        
+    g.selectAll("text").data(function(d) { return d[0]; })
+        .enter().append("svg:text")
+        .text(function(d) { return d; })
+        .attr("text-anchor", "left")
+        .attr("class", "nt")
+        .attr("x", -10)
+        .attr("y", function(d, i) { return 18 + i * yStep; });
+}
+
+function createDataModel(tableModel)
+{
+    var rows = tableModel.result.rows
+    var maps = [];
+    
+    for (n = 0; n < rows.length; n++) {
+        row = rows[n];
+        row[5].value = row[5].value + ": " + row[6].value; // concatenate accession number with description
+        row.splice(6, 1);
+        row.splice(4, 1); // remove search experiment perm id
+        for (i = 0; i < row.length; i++) {
+            map = maps[i];
+            if (map == null) {
+                map = {};
+                maps[i] = map;
+            }
+            cell = row[i].value;
+            links = map[cell];
+            if (links == null) {
+                links = {};
+                map[cell] = links;
+            }
+            if (i < row.length - 1) {
+                links[row[i + 1].value] = 0;
+            }
+        }
+    }
+    var data = [];
+    var maxNumber = 0;
+    for (i = 0; i < maps.length; i++) {
+        var map = maps[i];
+        var elements = [];
+        for (element in map) {
+            elements.push(element);
+        }
+        maxNumber = Math.max(maxNumber, elements.length);
+        elements.sort();
+        var indexMap = {};
+        for (j = 0; j < elements.length; j++) {
+            indexMap[elements[j]] = j;
+        }
+        data.push([elements, [], indexMap]);
+    }
+    
+    for (i = 0; i < maps.length - 1; i++) {
+        var map = maps[i];
+        var from = data[i][0];
+        var links = data[i][1];
+        var indexMap = data[i + 1][2];
+        for (j = 0; j < from.length; j++) {
+            element = from[j];
+            linkedElements = map[element];
+            for (linkedElement in linkedElements) {
+                links.push([j, indexMap[linkedElement]]);
+            }
+        }
+    }
+    
+    return data;
+}
+
+
 /**
  * Display the samples returned by the server in a tree.
  */
@@ -260,7 +376,7 @@ function displayResultsInTree()
         .attr("height", getAppHeight());
     
     // Adjust a size of the tree 
-    tree = d3.layout.tree().size([getAppHeight(), getAppWidth() - 200]) 
+    tree = d3.layout.tree().size([getAppHeight(), getAppWidth() - 300]) 
     
     // Update the root and compute the new layout 
     var nodes = tree.nodes(model.root);
@@ -344,6 +460,7 @@ function clearVis()
  */
 function queryForResults(parameters)
 {
+	  $("#waiting").show();
     openbisServer.createReportFromAggregationService("DSS1", "demo-proteomics-aggregation", parameters, displayReturnedResults);
 //    openbisServer.createReportFromAggregationService("STANDARD", "demo-proteomics-aggregation", parameters, displayReturnedResults);
 }

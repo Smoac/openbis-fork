@@ -16,9 +16,10 @@
 <script>
 
 /// The openbisServer we use for our data
-//openbisServer = new openbis('https://sprint-openbis.ethz.ch/openbis/openbis', 'https://sprint-openbis.ethz.ch:443/datastore_server');
-var openbisUrl = 'http://localhost:8888/openbis-test-proteomics';
-openbisServer = new openbis('http://localhost:8888/openbis/openbis', 'http://localhost:8889/datastore_server');
+//var baseURL = 'https://openbis-phosphonetx.ethz.ch'
+var baseURL = 'http://localhost:8888'
+var openbisUrl = baseURL + '/openbis-test-proteomics';
+openbisServer = new openbis(baseURL + '/openbis/openbis', baseURL + '/datastore_server');
 
 
 
@@ -87,6 +88,7 @@ $(document).ready(function() {
               <tr><td></td><td style="text-align: right"><button class="query-button" id="query-button" type="submit">Search</button></td></tr>
             </table>
         </form>
+        <div id="waiting" style="display: none;">Please, wait while loading data.</div>
     </div>
 </body>
 </html>
