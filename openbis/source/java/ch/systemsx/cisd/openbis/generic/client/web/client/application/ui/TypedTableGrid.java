@@ -2472,7 +2472,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /** Toolbar for handling table modifications */
-    private static class TableModificationsToolbar extends ToolBar
+    private class TableModificationsToolbar extends ToolBar
     {
 
         public TableModificationsToolbar(final IMessageProvider messageProvider,
@@ -2489,7 +2489,15 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                     @Override
                     public void componentSelected(ButtonEvent be)
                     {
-                        manager.saveModifications();
+                        manager.saveModifications(new IDelegatedAction()
+                            {
+
+                                @Override
+                                public void execute()
+                                {
+                                    refresh();
+                                }
+                            });
                     }
                 }));
             add(new Button("Cancel", cancelIcon, new SelectionListener<ButtonEvent>()
