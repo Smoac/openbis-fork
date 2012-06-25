@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
@@ -79,6 +80,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSServiceConversational;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.LogMessagePrefixGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -189,7 +191,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * @author Franz-Josef Elmer
  */
-public class ETLService extends AbstractCommonServer<IETLLIMSService> implements IETLLIMSService
+public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
+        IETLLIMSServiceConversational
 {
     private static final int PROGRESS_TIMEOUT = 60000;
 
@@ -199,11 +202,13 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     private final TrustedCrossOriginDomainsProvider trustedOriginDomainProvider;
 
-    private final ServiceConversationServer server;
+    private ServiceConversationServer server;
 
     private final IEntityOperationChecker entityOperationChecker;
 
     private final DefaultSessionManager<Session> sessionManagerForEntityOperation;
+
+    private IETLLIMSServiceConversational etlService;
 
     public ETLService(IAuthenticationService authenticationService,
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
@@ -228,12 +233,6 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         this.trustedOriginDomainProvider = trustedOriginDomainProvider;
         this.entityOperationChecker = entityOperationChecker;
 
-        org.hibernate.SessionFactory sessionFactory =
-                daoFactory.getPersistencyResources().getSessionFactoryOrNull();
-
-        server = new ServiceConversationServer();
-        server.addServiceType(new RmiServiceFactory<IETLLIMSService>(server, this,
-                IETLLIMSService.class, PROGRESS_TIMEOUT, sessionFactory));
         sessionManagerForEntityOperation =
                 new DefaultSessionManager<Session>(new SessionFactory(),
                         new LogMessagePrefixGenerator(), new DummyAuthenticationService(),
@@ -246,6 +245,21 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                                 }
                             }), 30);
 
+    }
+
+    public void setEtlService(IETLLIMSServiceConversational etlService)
+    {
+        this.etlService = etlService;
+    }
+
+    @PostConstruct
+    public void initServiceConversationServer()
+    {
+        server = new ServiceConversationServer();
+        RmiServiceFactory<IETLLIMSServiceConversational> rmiServiceFactory =
+                new RmiServiceFactory<IETLLIMSServiceConversational>(server, this.etlService,
+                        IETLLIMSService.class, PROGRESS_TIMEOUT);
+        server.addServiceType(rmiServiceFactory);
     }
 
     @Override
@@ -1348,14 +1362,14 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         return this.performEntityOperations(sessionToken, operationDetails, new IProgressListener()
             {
-
                 @Override
-                public void update(String label, int totalItemsToProcess, int numItemsProcessed)
+                public void update(String phaseName, int totalItemsToProcess, int numItemsProcessed)
                 {
                 }
             });
     }
 
+    @Override
     public AtomicEntityOperationResult performEntityOperations(String sessionToken,
             AtomicEntityOperationDetails operationDetails, IProgressListener progressListener)
     {

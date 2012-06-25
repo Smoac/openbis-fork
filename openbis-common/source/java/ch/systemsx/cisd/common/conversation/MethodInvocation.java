@@ -26,10 +26,10 @@ import java.util.List;
 import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
 
 /**
- * MethodInvocation represents a remote method invocation. It contains the name and the arguments of a 
- * method to be executed on a remote server. It is Serializable to be transferable through the service 
- * conversation framework.
- *
+ * MethodInvocation represents a remote method invocation. It contains the name and the arguments of
+ * a method to be executed on a remote server. It is Serializable to be transferable through the
+ * service conversation framework.
+ * 
  * @author anttil
  */
 public class MethodInvocation implements Serializable
@@ -37,85 +37,110 @@ public class MethodInvocation implements Serializable
     private static final long serialVersionUID = 8679256131459236150L;
 
     private String methodName;
+
     private Object[] arguments;
-    
-    public MethodInvocation(String methodName, Object[] arguments) {
+
+    public MethodInvocation(String methodName, Object[] arguments)
+    {
         this.methodName = methodName;
         this.arguments = arguments;
     }
 
     /**
-     * Executes the method on given target object. Adds a ProgressListener instance as a last argument
-     * of the call.
+     * Executes the method on given target object. Adds a ProgressListener instance as a last
+     * argument of the call.
      * 
      * @param target The target object on which the method call will be executed
      * @param server ServiceConversationServer that will receive the progress reports
-     * @param conversationId Id of the conversation 
-     * @param clientTimeOut The remote client making this method call will abort if it has not 
-     * received any messages from the server within the timeout (represented in milliseconds)
+     * @param conversationId Id of the conversation
+     * @param clientTimeOut The remote client making this method call will abort if it has not
+     *            received any messages from the server within the timeout (represented in
+     *            milliseconds)
      * @returns The return value of the method call
      */
-    public Serializable executeOn(Object target, ServiceConversationServer server, String conversationId, int clientTimeOut) {
+    public Serializable executeOn(Object target, ServiceConversationServer server,
+            String conversationId, int clientTimeOut)
+    {
 
-        RateLimitedProgressListener progressListener = new RateLimitedProgressListener(server, conversationId, clientTimeOut / 10);        
-        Object[] argumentsWithProgressListener = createArgumentsWithProgressListener(progressListener);
-        
+        RateLimitedProgressListener progressListener =
+                new RateLimitedProgressListener(server, conversationId, clientTimeOut / 10);
+        Object[] argumentsWithProgressListener =
+                createArgumentsWithProgressListener(progressListener);
+
         try
         {
-            Method m = findMethodOn(target, this.methodName, argumentsWithProgressListener); 
-            return (Serializable)m.invoke(target, argumentsWithProgressListener);
+            Method m = findMethodOn(target, this.methodName, argumentsWithProgressListener);
+            return (Serializable) m.invoke(target, argumentsWithProgressListener);
         } catch (InvocationTargetException e)
         {
-            throw (RuntimeException)e.getCause();
-        } catch (Exception e) {
-            throw new RuntimeException("Method call failed", e);            
-        } finally { 
+            throw (RuntimeException) e.getCause();
+        } catch (Exception e)
+        {
+            throw new RuntimeException("Method call failed", e);
+        } finally
+        {
             progressListener.close();
         }
     }
-    
-    private Object[] createArgumentsWithProgressListener(IProgressListener progressListener) {
+
+    private Object[] createArgumentsWithProgressListener(IProgressListener progressListener)
+    {
         List<Object> argumentsWithProgressListener = new ArrayList<Object>();
         argumentsWithProgressListener.addAll(Arrays.asList(this.arguments));
         argumentsWithProgressListener.add(progressListener);
         return argumentsWithProgressListener.toArray(new Object[0]);
     }
-    
-    private Method findMethodOn(Object o, String name, Object[] args) throws SecurityException, NoSuchMethodException {
 
-        for (Method method : o.getClass().getMethods()) {
-            if (!method.getName().equals(name)) {
-                continue;
-            }
-            Class<?>[] parameterTypes = method.getParameterTypes();
-            if (parameterTypes.length != args.length) {
-                continue;
-            }
+    private Method findMethodOn(Object o, String name, Object[] args) throws SecurityException,
+            NoSuchMethodException
+    {
+        for (Class<?> inter : o.getClass().getInterfaces())
+        {
 
-            boolean matches = true;
-            for (int i = 0; i < parameterTypes.length; i++) {
-                if (!parameterTypes[i].isAssignableFrom(args[i].getClass())) {
-                    matches = false;
-                    break;
+            for (Method method : inter.getMethods())
+            {
+                if (!method.getName().equals(name))
+                {
+                    continue;
                 }
-            }
-            if (matches) {
-                return method;
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                if (parameterTypes.length != args.length)
+                {
+                    continue;
+                }
+
+                boolean matches = true;
+                for (int i = 0; i < parameterTypes.length; i++)
+                {
+                    if (!parameterTypes[i].isAssignableFrom(args[i].getClass()))
+                    {
+                        matches = false;
+                        break;
+                    }
+                }
+                if (matches)
+                {
+                    return method;
+                }
             }
         }
         throw new NoSuchMethodException();
+
     }
-    
+
     @Override
-    public String toString() {
-        return "MethodCall "+this.methodName+"("+Arrays.asList(this.arguments)+")";
+    public String toString()
+    {
+        return "MethodCall " + this.methodName + "(" + Arrays.asList(this.arguments) + ")";
     }
-    
-    public String getMethodName() {
+
+    public String getMethodName()
+    {
         return this.methodName;
-    } 
-    
-    public Object[] getArguments() {
+    }
+
+    public Object[] getArguments()
+    {
         return this.arguments;
     }
 }

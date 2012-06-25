@@ -24,12 +24,13 @@ import org.apache.log4j.Level;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.conversation.IProgressListener;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSServiceConversational;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -80,7 +81,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 /**
  * @author Franz-Josef Elmer
  */
-public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSService
+public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSServiceConversational
 {
 
     public ETLServiceLogger(final ISessionManager<Session> sessionManager,
@@ -520,6 +521,14 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     @Override
     public AtomicEntityOperationResult performEntityOperations(String sessionToken,
             AtomicEntityOperationDetails operationDetails)
+    {
+        logAccess(sessionToken, "performEntityOperations", "%s", operationDetails);
+        return null;
+    }
+
+    @Override
+    public AtomicEntityOperationResult performEntityOperations(String sessionToken,
+            AtomicEntityOperationDetails operationDetails, IProgressListener progressListener)
     {
         logAccess(sessionToken, "performEntityOperations", "%s", operationDetails);
         return null;

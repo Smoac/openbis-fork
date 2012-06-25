@@ -29,6 +29,7 @@ import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.MutablePropertyValues;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -73,7 +74,7 @@ public abstract class SystemTestCase extends AssertJUnit
     private static final String DATA_SET_IMPORTED_LOG_MARKER = "Successfully registered data set";
 
     protected static GenericWebApplicationContext applicationContext;
-    
+
     protected File workingDirectory;
 
     protected File rootDir;
@@ -106,7 +107,7 @@ public abstract class SystemTestCase extends AssertJUnit
         workingDirectory.mkdirs();
         workingDirectory.deleteOnExit();
     }
-    
+
     @BeforeMethod
     public void beforeTest(Method method)
     {
@@ -118,17 +119,17 @@ public abstract class SystemTestCase extends AssertJUnit
     {
         System.out.println("AFTER  " + render(method));
     }
-    
+
     private String render(Method method)
     {
         return method.getDeclaringClass().getName() + "." + method.getName();
     }
-    
-//    @BeforeTest
-//    public void setUpLogAppender()
-//    {
-//        logAppender = new BufferedAppender();
-//    }
+
+    // @BeforeTest
+    // public void setUpLogAppender()
+    // {
+    // logAppender = new BufferedAppender();
+    // }
 
     @BeforeSuite
     public void beforeSuite() throws Exception
@@ -151,20 +152,23 @@ public abstract class SystemTestCase extends AssertJUnit
                     applicationContext = new GenericWebApplicationContext(f);
                     applicationContext.setParent(new ClassPathXmlApplicationContext(
                             getApplicationContextLocation()));
-                    
+
                     /* Needed for RmiConversationTest */
                     GenericBeanDefinition definition = new GenericBeanDefinition();
-                    definition.setBeanClass(EchoServiceBean.class);
                     MutablePropertyValues values = new MutablePropertyValues();
-                    values.addPropertyValue("sessionFactory", applicationContext.getBean("hibernate-session-factory"));
+                    values.addPropertyValue("sessionFactory", new RuntimeBeanReference(
+                            "hibernate-session-factory"));
+                    values.addPropertyValue("echoService", new RuntimeBeanReference(
+                            "echoService"));
                     definition.setPropertyValues(values);
+                    definition.setBeanClass(EchoServiceBean.class);
                     applicationContext.registerBeanDefinition("echoService", definition);
 
                     /* Needed for RmiConversationTest */
                     GenericBeanDefinition exporter = new GenericBeanDefinition();
                     exporter.setBeanClass(EchoServiceExporter.class);
                     applicationContext.registerBeanDefinition("echoServiceExporter", exporter);
-                    
+
                     applicationContext.refresh();
                     return applicationContext;
                 }
@@ -238,7 +242,7 @@ public abstract class SystemTestCase extends AssertJUnit
         final int maxLoops = dataSetImportWaitDurationInSeconds();
         if (logAppender == null)
         {
-            logAppender = new BufferedAppender(); 
+            logAppender = new BufferedAppender();
         }
         for (int loops = 0; loops < maxLoops && dataSetImported == false; loops++)
         {
