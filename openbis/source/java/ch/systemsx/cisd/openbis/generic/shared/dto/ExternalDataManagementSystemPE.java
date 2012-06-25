@@ -59,12 +59,12 @@ public class ExternalDataManagementSystemPE extends
     @Id
     @SequenceGenerator(name = SequenceNames.EXTERNAL_DATA_MANAGEMENT_SYSTEM_SEQUENCE, sequenceName = SequenceNames.EXTERNAL_DATA_MANAGEMENT_SYSTEM_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.EXTERNAL_DATA_MANAGEMENT_SYSTEM_SEQUENCE)
-    public final Long getId()
+    public Long getId()
     {
         return id;
     }
 
-    public final void setId(final Long id)
+    public void setId(final Long id)
     {
         this.id = id;
     }
@@ -87,12 +87,12 @@ public class ExternalDataManagementSystemPE extends
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
-    public final String getCode()
+    public String getCode()
     {
         return code;
     }
 
-    public final void setCode(final String code)
+    public void setCode(final String code)
     {
         this.code = code;
     }
