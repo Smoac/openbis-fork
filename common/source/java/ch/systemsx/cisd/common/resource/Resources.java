@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.resource;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -29,7 +29,7 @@ public class Resources
 
     private Logger logger;
 
-    public Set<Resource> resources = new HashSet<Resource>();
+    public Set<Resource> resources = new LinkedHashSet<Resource>();
 
     public Resources(Logger logger)
     {
