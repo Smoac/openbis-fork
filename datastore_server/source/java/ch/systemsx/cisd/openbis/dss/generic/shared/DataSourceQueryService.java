@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
+package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.util.Map;
 
@@ -30,8 +30,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.resource.Resource;
 import ch.systemsx.cisd.common.resource.Resources;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSourceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
 
 /**
