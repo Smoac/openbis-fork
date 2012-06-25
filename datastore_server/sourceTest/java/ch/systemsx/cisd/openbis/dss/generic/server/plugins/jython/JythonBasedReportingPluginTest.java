@@ -109,6 +109,8 @@ public class JythonBasedReportingPluginTest extends AbstractFileSystemTestCase
                             with(any(ISimpleTableModelBuilderAdaptor.class)));
                     one(scriptRunnerFactory).getScriptPath();
                     will(returnValue("script.py"));
+                    
+                    one(reportingPluginScriptRunner).releaseResources();
                 }
             });
         plugin.createReport(Arrays.asList(datasetDescription1, datasetDescription2),
@@ -137,6 +139,8 @@ public class JythonBasedReportingPluginTest extends AbstractFileSystemTestCase
                     will(throwException(new EvaluatorException("blabla")));
                     one(scriptRunnerFactory).getScriptPath();
                     will(returnValue("/path/to/script"));
+                    
+                    one(reportingPluginScriptRunner).releaseResources();
                 }
             });
         try

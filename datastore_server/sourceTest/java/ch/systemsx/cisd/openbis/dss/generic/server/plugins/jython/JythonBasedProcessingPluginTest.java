@@ -103,6 +103,8 @@ public class JythonBasedProcessingPluginTest extends AbstractFileSystemTestCase
                 {
                     exactly(2).of(processingPluginScriptRunner).process(with(iDataSetMatcher));
                     will(returnValue(Status.OK));
+                    
+                    one(processingPluginScriptRunner).releaseResources();
                 }
             });
         ProcessingStatus status =
@@ -129,6 +131,8 @@ public class JythonBasedProcessingPluginTest extends AbstractFileSystemTestCase
                 {
                     one(processingPluginScriptRunner).process(with(iDataSetMatcher));
                     will(throwException(new EvaluatorException("blabla")));
+                    
+                    one(processingPluginScriptRunner).releaseResources();
                 }
             });
         try
