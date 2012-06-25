@@ -23,13 +23,13 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTable
 
 /**
  * Interface to be implemented for a script runner of aggregation service reporting.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IAggregationServiceReportingPluginScriptRunner
 {
     public void aggregate(Map<String, Object> parameters,
             ISimpleTableModelBuilderAdaptor tableBuilder) throws EvaluatorException;
-    
-    public void closeContentResources();
+
+    public void releaseResources();
 }

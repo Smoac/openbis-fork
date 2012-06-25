@@ -19,12 +19,10 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 import java.io.File;
 import java.util.List;
 
-import org.python.util.PythonInterpreter;
-
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
 import ch.systemsx.cisd.common.jython.JythonScriptSplitter;
-import ch.systemsx.cisd.common.utilities.PythonUtils;
 
 /**
  * A class for running python scripts that register master data.
@@ -56,7 +54,7 @@ public class MasterDataRegistrationScriptRunner implements IMasterDataScriptRegi
         MasterDataRegistrationService service = new MasterDataRegistrationService(commonServer);
 
         // Configure the evaluator
-        PythonInterpreter interpreter = PythonUtils.createIsolatedPythonInterpreter();
+        PythonInterpreter interpreter = PythonInterpreter.createIsolatedPythonInterpreter();
         interpreter.set(SERVICE_VARIABLE_NAME, service);
 
         // Split the script to overcome 64KB limit (see LMS-2749)

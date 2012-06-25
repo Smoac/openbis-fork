@@ -24,13 +24,12 @@ import java.util.Date;
 import org.python.core.PyFunction;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
-import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
-import ch.systemsx.cisd.common.utilities.PythonUtils;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
@@ -95,7 +94,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     {
         return createJythonDataSetRegistrationServiceV2(incomingDataSetFile,
                 callerDataSetInformationOrNull, cleanAfterwardsAction, delegate,
-                PythonUtils.createIsolatedPythonInterpreter(), getGlobalState());
+                PythonInterpreter.createIsolatedPythonInterpreter(), getGlobalState());
     }
 
     /**
@@ -156,9 +155,10 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                     (JythonDataSetRegistrationServiceV2<T>) service, retryFunction, dataSetFile);
         }
     }
-    
+
     private void executeJythonProcessFunctionWithRetries(PythonInterpreter interpreter,
-            JythonDataSetRegistrationServiceV2<T> service, PyFunction retryFunction, DataSetFile incomingDataSetFile)
+            JythonDataSetRegistrationServiceV2<T> service, PyFunction retryFunction,
+            DataSetFile incomingDataSetFile)
     {
         DistinctExceptionsCollection errors = new DistinctExceptionsCollection();
 
@@ -168,7 +168,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         while (true)
         {
             waitUntilApplicationIsReady(incomingDataSetFile);
-            
+
             Exception problem;
             try
             {
@@ -247,7 +247,8 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     {
         try
         {
-            PyFunction function = tryJythonFunction(interpreter, JythonHookFunction.PROCESS_FUNCTION);
+            PyFunction function =
+                    tryJythonFunction(interpreter, JythonHookFunction.PROCESS_FUNCTION);
             if (function == null)
             {
                 throw new IllegalStateException("Undefined process() function");
@@ -266,7 +267,8 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     protected IDataSetRegistrationTransactionV2 wrapTransaction(
             IDataSetRegistrationTransaction transaction)
     {
-        IDataSetRegistrationTransactionV2 v2transaction = new DataSetRegistrationTransactionV2Delegate(transaction);
+        IDataSetRegistrationTransactionV2 v2transaction =
+                new DataSetRegistrationTransactionV2Delegate(transaction);
         return v2transaction;
     }
 
@@ -633,7 +635,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         {
             if (internalInterpreter == null)
             {
-                internalInterpreter = PythonUtils.createIsolatedPythonInterpreter();
+                internalInterpreter = PythonInterpreter.createIsolatedPythonInterpreter();
                 // interpreter.execute script
 
                 configureEvaluator(incoming, null, internalInterpreter);

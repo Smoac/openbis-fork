@@ -24,14 +24,13 @@ import org.python.core.PyBaseCode;
 import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
-import org.python.util.PythonInterpreter;
 
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.common.utilities.PythonUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
@@ -97,7 +96,6 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
          */
         SHOULD_RETRY_PROCESS_FUNCTION_NAME("should_retry_processing", 2),
 
-        
         /**
          * The name of the function called when secondary transactions, DynamicTransactionQuery
          * objects, fail.
@@ -164,8 +162,9 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
                     path);
         }
 
-        DssRegistrationHealthMonitor.getInstance(globalState.getOpenBisService(), globalState.getRecoveryStateDir());
-        
+        DssRegistrationHealthMonitor.getInstance(globalState.getOpenBisService(),
+                globalState.getRecoveryStateDir());
+
     }
 
     @Override
@@ -177,9 +176,9 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
 
         JythonDataSetRegistrationService<T> service =
                 (JythonDataSetRegistrationService<T>) genericService;
-        
+
         waitUntilApplicationIsReady(dataSetFile);
-        
+
         executeJythonScript(dataSetFile, scriptString, service);
     }
 
@@ -196,12 +195,11 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         verifyEvaluatorHookFunctions(interpreter);
     }
 
-
     protected void waitTheRetryPeriod(int retryPeriod)
     {
-        ConcurrencyUtilities.sleep(retryPeriod * 1000); //in seconds
+        ConcurrencyUtilities.sleep(retryPeriod * 1000); // in seconds
     }
-    
+
     protected void waitUntilApplicationIsReady(DataSetFile incomingDataSetFile)
     {
         while (false == DssRegistrationHealthMonitor.getInstance().isApplicationReady(
@@ -211,7 +209,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
             // do nothing. just repeat until the application is ready
         }
     }
-    
+
     protected void verifyEvaluatorHookFunctions(PythonInterpreter interpreter)
     {
         for (JythonHookFunction function : JythonHookFunction.values())
@@ -239,8 +237,8 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         }
     }
 
-    private void configureEvaluator(File dataSetFile,
-            JythonDataSetRegistrationService<T> service, PythonInterpreter interpreter)
+    private void configureEvaluator(File dataSetFile, JythonDataSetRegistrationService<T> service,
+            PythonInterpreter interpreter)
     {
         interpreter.set(SERVICE_VARIABLE_NAME, service);
         interpreter.set(INCOMING_DATA_SET_VARIABLE_NAME, dataSetFile);
@@ -261,7 +259,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     {
         return createJythonDataSetRegistrationService(incomingDataSetFile,
                 callerDataSetInformationOrNull, cleanAfterwardsAction, delegate,
-                PythonUtils.createIsolatedPythonInterpreter(), getGlobalState());
+                PythonInterpreter.createIsolatedPythonInterpreter(), getGlobalState());
     }
 
     /**
@@ -364,7 +362,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         return function;
     }
 
-    public PyFunction getShouldRetryProcessFunction (DataSetRegistrationService<T> service)
+    public PyFunction getShouldRetryProcessFunction(DataSetRegistrationService<T> service)
     {
         PythonInterpreter interpreter = getInterpreterFromService(service);
         PyFunction function =
@@ -372,7 +370,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
                         JythonHookFunction.SHOULD_RETRY_PROCESS_FUNCTION_NAME);
         return function;
     }
-    
+
     /**
      * If true than the old methods of jython hook functions will also be used (as a fallbacks in
      * case of the new methods or missing, or normally)
@@ -514,13 +512,12 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         invokeFunction(function, service, transaction);
     }
 
-    private void invokeTransactionFunctionWithContext(PyFunction function, DataSetRegistrationPersistentMap.IHolder persistentMapHolder,
-            Object... additionalArgs)
+    private void invokeTransactionFunctionWithContext(PyFunction function,
+            DataSetRegistrationPersistentMap.IHolder persistentMapHolder, Object... additionalArgs)
     {
         if (additionalArgs.length > 0)
         {
-            invokeFunction(function,  persistentMapHolder.getRegistrationContext(),
-                    additionalArgs);
+            invokeFunction(function, persistentMapHolder.getRegistrationContext(), additionalArgs);
         } else
         {
             invokeFunction(function, persistentMapHolder.getRegistrationContext());
@@ -535,8 +532,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     /**
-     * Turn all arguments into a python objects, and calls the specified
-     * function.
+     * Turn all arguments into a python objects, and calls the specified function.
      */
     protected PyObject invokeFunction(PyFunction function, Object... args)
     {
@@ -619,6 +615,17 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         public PythonInterpreter getInterpreter()
         {
             return interpreter;
+        }
+
+        @Override
+        public void cleanAfterRegistrationIfNecessary()
+        {
+            super.cleanAfterRegistrationIfNecessary();
+
+            if (interpreter != null)
+            {
+                interpreter.releaseResources();
+            }
         }
     }
 

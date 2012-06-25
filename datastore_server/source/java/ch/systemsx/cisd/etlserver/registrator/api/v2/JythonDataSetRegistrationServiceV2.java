@@ -18,8 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import java.io.File;
 
-import org.python.util.PythonInterpreter;
-
+import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;

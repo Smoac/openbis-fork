@@ -101,6 +101,7 @@ public class JythonBasedProcessingPlugin implements IProcessingPluginTask
         } finally
         {
             JythonBasedPluginUtils.closeContent(iDataSets);
+            scriptRunner.releaseResources();
         }
     }
 

@@ -2,10 +2,8 @@ package ch.systemsx.cisd.openbis.dss.etl.jython;
 
 import java.io.File;
 
-import org.python.util.PythonInterpreter;
-
+import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
-import ch.systemsx.cisd.common.utilities.PythonUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
@@ -53,7 +51,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
     {
         return new JythonDataSetRegistrationService<DataSetInformation>(this, incomingDataSetFile,
                 callerDataSetInformationOrNull, cleanAfterwardsAction, delegate,
-                PythonUtils.createIsolatedPythonInterpreter(), getGlobalState())
+                PythonInterpreter.createIsolatedPythonInterpreter(), getGlobalState())
             {
                 @SuppressWarnings("unchecked")
                 @Override
@@ -69,5 +67,4 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
                 }
             };
     }
-
 }

@@ -43,8 +43,8 @@ import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
-import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler.IFaultyPathDirectoryScanningHandlerDelegate;
 import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler;
+import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler.IFaultyPathDirectoryScanningHandlerDelegate;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler;
 import ch.systemsx.cisd.common.filesystem.IStoreItemFilter;
@@ -71,6 +71,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.etlserver.plugins.DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask;
 import ch.systemsx.cisd.etlserver.postregistration.PostRegistrationMaintenanceTask;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSourceQueryService;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
@@ -237,20 +238,19 @@ public final class ETLDaemon
         IDataSetValidator dataSetValidator = new DataSetValidator(properties);
         final Properties mailProperties = Parameters.createMailProperties(properties);
         final IMailClient mailClient = new MailClient(mailProperties);
-        final IDataSourceQueryService dataSourceQueryService =
-                ServiceProvider.getDataSourceQueryService();
+
         for (final ThreadParameters threadParameters : threads)
         {
             File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
             ITopLevelDataSetRegistrator topLevelRegistrator =
                     createProcessingThread(parameters, threadParameters, openBISService,
                             highwaterMarkWatcher, mailClient, dataSetValidator,
-                            dataSourceQueryService, notifySuccessfulRegistration);
+                            notifySuccessfulRegistration);
             operationLog.info("[" + threadParameters.getThreadName() + "]: Data sets drop into '"
                     + incomingDataDirectory + "' will be stored in share "
                     + topLevelRegistrator.getGlobalState().getShareId() + ".");
         }
-        
+
         File storeRootDir = DssPropertyParametersUtil.getStoreRootDir(parameters.getProperties());
         initializeIncomingShares(threads, storeRootDir);
 
@@ -316,20 +316,20 @@ public final class ETLDaemon
             final IEncapsulatedOpenBISService authorizedLimsService,
             final HighwaterMarkWatcher highwaterMarkWatcher, final IMailClient mailClient,
             final IDataSetValidator dataSetValidator,
-            IDataSourceQueryService dataSourceQueryService,
             final boolean notifySuccessfulRegistration)
     {
         final File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
-        final File recoveryStateDirectory = DssPropertyParametersUtil.getDssRecoveryStateDir(parameters.getProperties());
-        
+        final File recoveryStateDirectory =
+                DssPropertyParametersUtil.getDssRecoveryStateDir(parameters.getProperties());
+
         final ITopLevelDataSetRegistrator pathHandler =
                 createTopLevelDataSetRegistrator(parameters.getProperties(), threadParameters,
                         authorizedLimsService, mailClient, dataSetValidator,
-                        dataSourceQueryService, notifySuccessfulRegistration);
+                        new DataSourceQueryService(), notifySuccessfulRegistration);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 createDirectoryScanningHandler(pathHandler, highwaterMarkWatcher,
-                        incomingDataDirectory, recoveryStateDirectory,  threadParameters.reprocessFaultyDatasets(),
-                        pathHandler);
+                        incomingDataDirectory, recoveryStateDirectory,
+                        threadParameters.reprocessFaultyDatasets(), pathHandler);
         FileFilter fileFilter =
                 createFileFilter(incomingDataDirectory, threadParameters.useIsFinishedMarkerFile(),
                         parameters);

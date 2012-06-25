@@ -18,10 +18,8 @@ package ch.systemsx.cisd.openbis.dss.etl.jython.v2;
 
 import java.io.File;
 
-import org.python.util.PythonInterpreter;
-
+import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
-import ch.systemsx.cisd.common.utilities.PythonUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
@@ -39,8 +37,6 @@ import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDatasetFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * 
- *
  * @author jakubs
  */
 public class JythonPlateDataSetHandlerV2 extends JythonTopLevelDataSetHandlerV2<DataSetInformation>
@@ -48,16 +44,15 @@ public class JythonPlateDataSetHandlerV2 extends JythonTopLevelDataSetHandlerV2<
     private final String originalDirName;
 
     /**
-     *
-     *
      * @param globalState
      */
     public JythonPlateDataSetHandlerV2(TopLevelDataSetRegistratorGlobalState globalState)
     {
         super(globalState);
-        originalDirName = JythonPlateDataSetHandlerUtils.parseOriginalDir(globalState.getThreadParameters().getThreadProperties());
+        originalDirName =
+                JythonPlateDataSetHandlerUtils.parseOriginalDir(globalState.getThreadParameters()
+                        .getThreadProperties());
     }
-    
 
     /**
      * Create a screening specific factory available to the python script.
@@ -69,16 +64,16 @@ public class JythonPlateDataSetHandlerV2 extends JythonTopLevelDataSetHandlerV2<
         return new JythonPlateDatasetFactory(getRegistratorState(),
                 userProvidedDataSetInformationOrNull);
     }
-    
+
     @Override
     protected DataSetRegistrationService<DataSetInformation> createDataSetRegistrationService(
             DataSetFile incomingDataSetFile, DataSetInformation callerDataSetInformationOrNull,
             IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             ITopLevelDataSetRegistratorDelegate delegate)
     {
-        return new JythonDataSetRegistrationServiceV2<DataSetInformation>(this, incomingDataSetFile,
-                callerDataSetInformationOrNull, cleanAfterwardsAction, delegate,
-                PythonUtils.createIsolatedPythonInterpreter(), getGlobalState())
+        return new JythonDataSetRegistrationServiceV2<DataSetInformation>(this,
+                incomingDataSetFile, callerDataSetInformationOrNull, cleanAfterwardsAction,
+                delegate, PythonInterpreter.createIsolatedPythonInterpreter(), getGlobalState())
             {
                 @SuppressWarnings("unchecked")
                 @Override

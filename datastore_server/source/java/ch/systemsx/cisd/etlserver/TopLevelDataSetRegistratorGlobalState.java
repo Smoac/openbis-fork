@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.resource.Resource;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryManager;
@@ -39,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class TopLevelDataSetRegistratorGlobalState
+public class TopLevelDataSetRegistratorGlobalState implements Resource
 {
     // can be used from dropboxes
     public static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -62,7 +63,7 @@ public class TopLevelDataSetRegistratorGlobalState
     private final File preCommitDir;
 
     private final File recoveryStateDir;
-    
+
     private final IEncapsulatedOpenBISService openBisService;
 
     private final IMailClient mailClient;
@@ -144,20 +145,22 @@ public class TopLevelDataSetRegistratorGlobalState
         this.postRegistrationScriptOrNull = postRegistrationScriptOrNull;
         this.validationScriptsOrNull = validationScriptsOrNull;
 
-        this.recoveryStateDir =
-                new File(dssRecoveryStateDir, threadParameters.getThreadName());
+        this.recoveryStateDir = new File(dssRecoveryStateDir, threadParameters.getThreadName());
         File recoveryMarkerFilesDirectory =
                 new File(getRecoveryMarkerDir(storeRootDir, shareId,
                         threadParameters.getThreadProperties()), threadParameters.getThreadName());
 
         this.recoveryStateDir.mkdirs();
         recoveryMarkerFilesDirectory.mkdirs();
-        
+
         this.storageRecoveryManager = storageRecoveryManager;
         this.storageRecoveryManager.setDropboxRecoveryStateDir(this.recoveryStateDir);
         this.storageRecoveryManager.setRecoveryMarkerFilesDir(recoveryMarkerFilesDirectory);
-        this.storageRecoveryManager.setMaximumRertyCount(getMaximumRecoveryCount(threadParameters.getThreadProperties()));
-        this.storageRecoveryManager.setRetryPeriodInSeconds(getMinimumRecoveryPeriod(threadParameters.getThreadProperties()));
+        this.storageRecoveryManager.setMaximumRertyCount(getMaximumRecoveryCount(threadParameters
+                .getThreadProperties()));
+        this.storageRecoveryManager
+                .setRetryPeriodInSeconds(getMinimumRecoveryPeriod(threadParameters
+                        .getThreadProperties()));
 
         // Initialize the DSS Registration Log Directory
         new DssRegistrationLogDirectoryHelper(dssRegistrationLogDir).initializeSubdirectories();
@@ -314,11 +317,11 @@ public class TopLevelDataSetRegistratorGlobalState
     public static final String PRE_COMMIT_DIR = "pre-commit-dir";
 
     public static final String RECOVERY_MARKER_DIR = "recovery-marker-dir";
-    
+
     public static final String RECOVERY_MAX_RETRY_COUNT = "recovery-max-retry-count";
 
     public static final String RECOVERY_MIN_RETRY_PERIOD = "recovery-min-retry-period";
-    
+
     private static File getStagingDir(File storeRoot, String shareId, Properties threadProperties)
     {
         return getShareLocalDir(storeRoot, shareId, threadProperties, STAGING_DIR, "staging");
@@ -346,11 +349,12 @@ public class TopLevelDataSetRegistratorGlobalState
     {
         return PropertyUtils.getInt(threadProperties, RECOVERY_MAX_RETRY_COUNT, 50);
     }
-    
+
     private static int getMinimumRecoveryPeriod(Properties threadProperties)
     {
         return PropertyUtils.getInt(threadProperties, RECOVERY_MIN_RETRY_PERIOD, 60);
     }
+
     /**
      * Get a directory local to the share, respecting the user override, if one is specified, and
      * defaulting to the defaultDirName.
@@ -409,4 +413,14 @@ public class TopLevelDataSetRegistratorGlobalState
 
         return storeRoot;
     }
+
+    @Override
+    public void release()
+    {
+        if (getDataSourceQueryService() instanceof Resource)
+        {
+            ((Resource) getDataSourceQueryService()).release();
+        }
+    }
+
 }

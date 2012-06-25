@@ -26,4 +26,6 @@ public interface IReportingPluginScriptRunner
 {
     void describe(List<IDataSet> dataSets, ISimpleTableModelBuilderAdaptor tableBuilder)
             throws EvaluatorException;
+
+    void releaseResources();
 }

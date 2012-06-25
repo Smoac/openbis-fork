@@ -29,10 +29,9 @@ import org.python.core.Py;
 import org.python.core.PyDictionary;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
-import org.python.util.PythonInterpreter;
 
+import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
 import ch.systemsx.cisd.common.utilities.JythonUtils;
-import ch.systemsx.cisd.common.utilities.PythonUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -87,6 +86,7 @@ public class ValidationScriptRunner
 
     /**
      * Factory method for creating a ValidationScriptRunner given the script as a string.
+     * 
      * @param isolateJythonSystemState If <code>true</code>, create a jython interpreter with an
      *            isolated system state. Use this on the server side where multiple Jython
      *            interpreters may run in different threads. Note, however, that the re module has
@@ -109,8 +109,8 @@ public class ValidationScriptRunner
     private ValidationScriptRunner(String scriptString, boolean isolateJythonSystemState)
     {
         this.interpreter =
-                isolateJythonSystemState ? PythonUtils.createIsolatedPythonInterpreter()
-                        : PythonUtils.createNonIsolatedPythonInterpreter();
+                isolateJythonSystemState ? PythonInterpreter.createIsolatedPythonInterpreter()
+                        : PythonInterpreter.createNonIsolatedPythonInterpreter();
         // Load the script
         this.scriptString = scriptString;
 

@@ -82,7 +82,7 @@ public class JythonBasedAggregationServiceReportingPlugin extends
                     } finally
                     {
                         operationLog.info("Aggregation reporting done.");
-                        runner.closeContentResources();
+                        runner.releaseResources();
                     }
                 }
             };

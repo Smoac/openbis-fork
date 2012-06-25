@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSourceQueryService;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IMailService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTable
 
 /**
  * Implementation of {@link IPluginScriptRunnerFactory} based on Jython scripts.
+ * 
  * @author Piotr Buczek
  */
 public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
@@ -59,7 +61,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     private final static String DATA_SOURCE_QUERY_SERVICE_VARIABLE_NAME = "queryService";
 
     private final static String MAIL_SERVICE_VARIABLE_NAME = "mailService";
-    
+
     private static final String CONTENT_PROVIDER_VARIABLE_NAME = "contentProvider";
 
     private final String scriptPath;
@@ -177,7 +179,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 
     protected IDataSourceQueryService createDataSourceQueryService()
     {
-        return ServiceProvider.getDataSourceQueryService();
+        return new DataSourceQueryService();
     }
 
     private static IMailService createMailService(DataSetProcessingContext context)
@@ -188,7 +190,9 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     private static final class DataSetContentProvider implements IDataSetContentProvider
     {
         private final IHierarchicalContentProvider contentProvider;
-        private final Map<String, IHierarchicalContent> contents = new HashMap<String, IHierarchicalContent>();
+
+        private final Map<String, IHierarchicalContent> contents =
+                new HashMap<String, IHierarchicalContent>();
 
         public DataSetContentProvider(IHierarchicalContentProvider contentProvider)
         {
@@ -216,7 +220,8 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         }
     }
 
-    private static class AggregationServiceReportingPluginScriptRunner implements IAggregationServiceReportingPluginScriptRunner
+    private static class AggregationServiceReportingPluginScriptRunner implements
+            IAggregationServiceReportingPluginScriptRunner
     {
         private final static String FUNCTION_NAME = "aggregate";
 
@@ -224,7 +229,8 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 
         private final DataSetContentProvider contentProvider;
 
-        AggregationServiceReportingPluginScriptRunner(Evaluator evaluator, DataSetContentProvider contentProvider)
+        AggregationServiceReportingPluginScriptRunner(Evaluator evaluator,
+                DataSetContentProvider contentProvider)
         {
             this.evaluator = evaluator;
             this.contentProvider = contentProvider;
@@ -243,18 +249,19 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         }
 
         @Override
-        public void closeContentResources()
+        public void releaseResources()
         {
             contentProvider.closeContents();
+            evaluator.releaseResources();
         }
     }
-    
+
     private static class ReportingPluginScriptRunner implements IReportingPluginScriptRunner
     {
         private final static String DESCRIBE_FUNCTION_NAME = "describe";
-        
+
         private final Evaluator evaluator;
-        
+
         ReportingPluginScriptRunner(Evaluator evaluator)
         {
             this.evaluator = evaluator;
@@ -264,11 +271,17 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
                         + "' was not defined in the reporting plugin script");
             }
         }
-        
+
         @Override
         public void describe(List<IDataSet> dataSets, ISimpleTableModelBuilderAdaptor tableBuilder)
         {
             evaluator.evalFunction(DESCRIBE_FUNCTION_NAME, dataSets, tableBuilder);
+        }
+
+        @Override
+        public void releaseResources()
+        {
+            evaluator.releaseResources();
         }
     }
 
@@ -300,6 +313,12 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
                 return Status.createError(ex.getMessage());
             }
             return Status.OK;
+        }
+
+        @Override
+        public void releaseResources()
+        {
+            evaluator.releaseResources();
         }
 
     }

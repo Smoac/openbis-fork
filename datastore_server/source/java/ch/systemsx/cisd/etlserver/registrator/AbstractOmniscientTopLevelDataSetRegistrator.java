@@ -521,9 +521,10 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             rollbacker.doRollback(service.getDssRegistrationLog());
 
             service.getDssRegistrationLog().registerFailure();
+        } finally
+        {
+            service.cleanAfterRegistrationIfNecessary();
         }
-
-        service.cleanAfterRegistrationIfNecessary();
 
         return service;
     }
@@ -661,7 +662,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
             ITopLevelDataSetRegistratorDelegate delegate)
     {
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings(
+            { "unchecked", "rawtypes" })
         DataSetRegistrationService<T> service =
                 new DataSetRegistrationService(this, incomingDataSetFile,
                         new DefaultDataSetRegistrationDetailsFactory(getRegistratorState(),
@@ -693,6 +695,6 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * 
      * @throws Throwable
      */
-    protected abstract void handleDataSet(DataSetFile dataSetFile, DataSetRegistrationService<T> service)
-            throws Throwable;
+    protected abstract void handleDataSet(DataSetFile dataSetFile,
+            DataSetRegistrationService<T> service) throws Throwable;
 }

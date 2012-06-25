@@ -104,9 +104,10 @@ public class ServiceProvider
 
     public static IGeneralInformationService getGeneralInformationService()
     {
-        return ((IGeneralInformationService) getApplicationContext().getBean("general-information-service"));
+        return ((IGeneralInformationService) getApplicationContext().getBean(
+                "general-information-service"));
     }
-    
+
     public static ISearchService getSearchService()
     {
         return ((ISearchService) getApplicationContext().getBean("search-service"));
@@ -117,20 +118,15 @@ public class ServiceProvider
         return (IAuthorizationService) getApplicationContext().getBean("authorization-service");
     }
 
-    public static IDataSourceQueryService getDataSourceQueryService()
-    {
-        return ((IDataSourceQueryService) getApplicationContext().getBean("query-service"));
-    }
-
     public static IDataSetPathInfoProvider getDataSetPathInfoProvider()
     {
         return ((IDataSetPathInfoProvider) getApplicationContext().getBean(
                 "data-set-path-infos-provider"));
     }
-    
-    public static  HttpInvokerServiceExporter getConversationalClient()
+
+    public static HttpInvokerServiceExporter getConversationalClient()
     {
-        return ( HttpInvokerServiceExporter) getApplicationContext().getBean(
+        return (HttpInvokerServiceExporter) getApplicationContext().getBean(
                 "data-store-rpc-conversational-client");
     }
 

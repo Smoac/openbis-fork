@@ -38,10 +38,9 @@ import org.python.core.PyString;
 import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
 import org.python.core.PyTraceback;
-import org.python.util.PythonInterpreter;
 
+import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
 import ch.systemsx.cisd.common.shared.basic.utils.CommaSeparatedListBuilder;
-import ch.systemsx.cisd.common.utilities.PythonUtils;
 
 /**
  * A class for evaluating expressions, based on Jython.
@@ -126,7 +125,7 @@ public final class Evaluator
         {
             throw new EvaluatorException("Expression '" + expression + "' contains line breaks");
         }
-        this.interpreter = PythonUtils.createIsolatedPythonInterpreter();
+        this.interpreter = PythonInterpreter.createIsolatedPythonInterpreter();
         // Security: do not allow file access.
 
         try
@@ -500,4 +499,10 @@ public final class Evaluator
     {
         return expression.indexOf('\n') >= 0;
     }
+
+    public void releaseResources()
+    {
+        interpreter.releaseResources();
+    }
+
 }

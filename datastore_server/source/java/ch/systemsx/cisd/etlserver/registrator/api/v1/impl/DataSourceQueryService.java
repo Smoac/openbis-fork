@@ -28,6 +28,8 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.resource.Resource;
+import ch.systemsx.cisd.common.resource.Resources;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
@@ -35,10 +37,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQu
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class DataSourceQueryService implements IDataSourceQueryService
+public class DataSourceQueryService implements IDataSourceQueryService, Resource
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSourceQueryService.class);
+
+    private Resources resources = new Resources(operationLog);
 
     private IDataSourceProvider getDataSourceProvider()
     {
@@ -52,7 +56,12 @@ public class DataSourceQueryService implements IDataSourceQueryService
         final DataSource dataSource = getDataSourceProvider().getDataSource(dataSourceName);
         try
         {
-            return QueryTool.select(dataSource, query, parameters);
+            DataSet<Map<String, Object>> dataSet = QueryTool.select(dataSource, query, parameters);
+            if (dataSet != null)
+            {
+                resources.add(new DataSetResource(dataSet));
+            }
+            return dataSet;
         } catch (InvalidQueryException ex)
         {
             Throwable cause = ex.getCause();
@@ -66,6 +75,30 @@ public class DataSourceQueryService implements IDataSourceQueryService
             throws IllegalArgumentException
     {
         return select(dataSourceName, query, new Object[0]);
+    }
+
+    @Override
+    public void release()
+    {
+        resources.release();
+        resources.clear();
+    }
+
+    private static class DataSetResource implements Resource
+    {
+
+        private DataSet<?> dataSet;
+
+        public DataSetResource(DataSet<?> dataSet)
+        {
+            this.dataSet = dataSet;
+        }
+
+        @Override
+        public void release()
+        {
+            dataSet.close();
+        }
     }
 
 }

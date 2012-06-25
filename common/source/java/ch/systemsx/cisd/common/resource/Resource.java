@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
+package ch.systemsx.cisd.common.resource;
 
-import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
-
-public interface IProcessingPluginScriptRunner
+/**
+ * @author pkupczyk
+ */
+public interface Resource
 {
-    Status process(IDataSet dataSet);
 
-    void releaseResources();
+    public void release();
+
 }

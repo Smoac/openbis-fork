@@ -21,11 +21,11 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.python.util.PythonInterpreter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
 
 /**
  * @author pkupczyk
@@ -106,7 +106,7 @@ public class JythonScriptSplitterTest
         String originalScriptOutput = getTestScriptOutput(scriptSize);
 
         ByteArrayOutputStream scriptFromBatchesOutput = new ByteArrayOutputStream();
-        PythonInterpreter interpreter = new PythonInterpreter();
+        PythonInterpreter interpreter = PythonInterpreter.createNonIsolatedPythonInterpreter();
         interpreter.setOut(scriptFromBatchesOutput);
 
         for (String batch : batches)

@@ -86,9 +86,10 @@ public class JythonBasedReportingPlugin extends AbstractTableModelReportingPlugi
         }
         return hierarchicalContentProvider;
     }
-    
+
     public static TableModel createReport(final List<DatasetDescription> dataSets,
-            final DataSetProcessingContext context, final IPluginScriptRunnerFactory scriptRunnerFactory,
+            final DataSetProcessingContext context,
+            final IPluginScriptRunnerFactory scriptRunnerFactory,
             final IHierarchicalContentProvider contentProvider)
     {
         ITableModelCreator generator = new ITableModelCreator()
@@ -109,6 +110,7 @@ public class JythonBasedReportingPlugin extends AbstractTableModelReportingPlugi
                     {
                         operationLog.info("Reporting done");
                         JythonBasedPluginUtils.closeContent(iDataSets);
+                        scriptRunner.releaseResources();
                     }
                 }
             };
