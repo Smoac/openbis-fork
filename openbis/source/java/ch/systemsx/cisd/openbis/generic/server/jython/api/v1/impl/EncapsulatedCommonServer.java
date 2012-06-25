@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IDataSetTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExperimentTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IFileFormatTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMaterialTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyAssignmentImmutable;
@@ -242,6 +243,36 @@ public class EncapsulatedCommonServer
         result.setRegistrator(vocabulary.getRegistrator());
         result.setTerms(vocabulary.getTerms());
         return result;
+    }
+
+    public List<IExternalDataManagementSystemImmutable> listExternalDataManagementSystems()
+    {
+        List<IExternalDataManagementSystemImmutable> result =
+                new ArrayList<IExternalDataManagementSystemImmutable>();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem edms : commonServer
+                .listExternalDataManagementSystems(sessionToken))
+        {
+            result.add(new ExternalDataManagementSystemImmutable(edms));
+        }
+        return result;
+    }
+
+    public void createOrUpdateExternalDataManagementSystem(ExternalDataManagementSystem edms)
+    {
+        commonServer.createOrUpdateExternalDataManagementSystem(sessionToken,
+                edms.getExternalDataManagementSystem());
+    }
+
+    public IExternalDataManagementSystemImmutable getExternalDataManagementSystem(String code)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem edms =
+                commonServer.getExternalDataManagementSystem(sessionToken, code);
+        if (edms != null)
+        {
+            return new ExternalDataManagementSystemImmutable(edms);
+        }
+
+        return null;
     }
 
 }

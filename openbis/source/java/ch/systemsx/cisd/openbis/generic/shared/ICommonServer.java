@@ -86,6 +86,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
@@ -1631,4 +1632,28 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void sendCountActiveUsersEmail(String sessionToken);
+
+    /**
+     * Lists all external data management systems registered within openBIS.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public List<ExternalDataManagementSystem> listExternalDataManagementSystems(String sessionToken);
+
+    /**
+     * Gets external data management system specified by given code or <code>null</code> if one
+     * couldn't be found.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public ExternalDataManagementSystem getExternalDataManagementSystem(String sessionToken,
+            String code);
+
+    /**
+     * Registers new or updates existing external data management system.
+     */
+    @Transactional()
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    public void createOrUpdateExternalDataManagementSystem(String sessionToken,
+            ExternalDataManagementSystem edms);
 }

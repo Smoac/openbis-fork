@@ -26,6 +26,8 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IDataSetTypeImmutab
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IEntityType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExperimentType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExperimentTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IFileFormatType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IFileFormatTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMasterDataRegistrationTransaction;
@@ -66,6 +68,9 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     private final List<Vocabulary> createdVocabularies = new ArrayList<Vocabulary>();
 
     private final List<PropertyAssignment> createdAssignments = new ArrayList<PropertyAssignment>();
+
+    private final List<ExternalDataManagementSystem> createdExternalDataManagementSystems =
+            new ArrayList<ExternalDataManagementSystem>();
 
     private final MasterDataTransactionErrors transactionErrors = new MasterDataTransactionErrors();
 
@@ -397,6 +402,38 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         return commonServer.listVocabularies();
     }
 
+    @Override
+    public IExternalDataManagementSystem createNewExternalDataManagementSystem(String code)
+    {
+        ExternalDataManagementSystem edms = new ExternalDataManagementSystem(code);
+        createdExternalDataManagementSystems.add(edms);
+        return edms;
+    }
+
+    @Override
+    public IExternalDataManagementSystemImmutable getExternalDataManagementSystem(String code)
+    {
+        return commonServer.getExternalDataManagementSystem(code);
+    }
+
+    @Override
+    public IExternalDataManagementSystem getOrCreateNewExternalDataManagementSystem(String code)
+    {
+        final IExternalDataManagementSystemImmutable edms = getExternalDataManagementSystem(code);
+        if (edms != null)
+        {
+            return new ExternalDataManagementSystemWrapper(
+                    (ExternalDataManagementSystemImmutable) edms);
+        }
+        return createNewExternalDataManagementSystem(code);
+    }
+
+    @Override
+    public List<IExternalDataManagementSystemImmutable> listExternalDataManagementSystems()
+    {
+        return commonServer.listExternalDataManagementSystems();
+    }
+
     void commit()
     {
         registerFileFormatTypes(createdFileTypes);
@@ -407,6 +444,7 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         registerMaterialTypes(createdMaterialTypes);
         registerPropertyTypes(createdPropertyTypes);
         registerPropertyAssignments(createdAssignments);
+        registerExternalDataManagementSystems(createdExternalDataManagementSystems);
     }
 
     private void registerFileFormatTypes(List<FileFormatType> fileFormatTypes)
@@ -518,6 +556,14 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
             {
                 transactionErrors.addVocabularyRegistrationError(ex, vocabulary);
             }
+        }
+    }
+
+    private void registerExternalDataManagementSystems(List<ExternalDataManagementSystem> edmss)
+    {
+        for (ExternalDataManagementSystem edms : edmss)
+        {
+            commonServer.createOrUpdateExternalDataManagementSystem(edms);
         }
     }
 }

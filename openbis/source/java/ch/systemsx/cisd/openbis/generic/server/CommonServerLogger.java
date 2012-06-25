@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
@@ -1403,5 +1404,31 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public void sendCountActiveUsersEmail(String sessionToken)
     {
         logAccess(sessionToken, "sendCountActiveUsersEmail", "");
+    }
+
+    @Override
+    public List<ExternalDataManagementSystem> listExternalDataManagementSystems(String sessionToken)
+    {
+        logAccess(sessionToken, "listExternalDataManagementSystems", "");
+
+        return null;
+    }
+
+    @Override
+    public ExternalDataManagementSystem getExternalDataManagementSystem(String sessionToken,
+            String code)
+    {
+        logAccess(sessionToken, "getExternalDataManagementSystem", "");
+
+        return null;
+    }
+
+    @Override
+    public void createOrUpdateExternalDataManagementSystem(String sessionToken,
+            ExternalDataManagementSystem edms)
+    {
+        logAccess(sessionToken, "createOrUpdateExternalDataManagementSystem CODE(%s)",
+                edms.getCode());
+
     }
 }

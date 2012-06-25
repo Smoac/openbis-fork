@@ -245,4 +245,31 @@ public interface IMasterDataRegistrationTransaction
      */
     IVocabularyTerm createNewVocabularyTerm(String code);
 
+    /**
+     * Create a new external data management system to register with the openBIS AS.
+     * 
+     * @param code the external data management system's code.
+     */
+    IExternalDataManagementSystem createNewExternalDataManagementSystem(String code);
+
+    /**
+     * Get an external data management system from the openBIS AS. Returns null if the external data
+     * management system does not exist.
+     * 
+     * @return An external data management system or null
+     */
+    IExternalDataManagementSystemImmutable getExternalDataManagementSystem(String code);
+
+    /**
+     * Gets or creates external data management system from the openBIS AS.
+     * 
+     * @return the already existing system or a freshly created one if it doesn't exist. Setter
+     *         methods on the returned type are ignored if the type already exists.
+     */
+    IExternalDataManagementSystem getOrCreateNewExternalDataManagementSystem(String code);
+
+    /**
+     * Return all external data management systems existing in the openBIS AS.
+     */
+    List<IExternalDataManagementSystemImmutable> listExternalDataManagementSystems();
 }

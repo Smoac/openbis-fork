@@ -136,6 +136,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
@@ -209,6 +210,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
@@ -250,6 +252,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityHistoryTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataManagementSystemTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
@@ -2874,5 +2877,40 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final IMailClient mailClient = new MailClient(mailClientParameters);
         sendEmail(mailClient, emailBody.toString(), "Number of active users", CISDHelpdeskEmail,
                 email);
+    }
+
+    public List<ExternalDataManagementSystem> listExternalDataManagementSystems(String sessionToken)
+    {
+        checkSession(sessionToken);
+
+        ArrayList<ExternalDataManagementSystem> results =
+                new ArrayList<ExternalDataManagementSystem>();
+        for (ExternalDataManagementSystemPE edms : getDAOFactory()
+                .getExternalDataManagementSystemDAO().listExternalDataManagementSystems())
+        {
+            results.add(ExternalDataManagementSystemTranslator.translate(edms));
+        }
+
+        return results;
+    }
+
+    public ExternalDataManagementSystem getExternalDataManagementSystem(String sessionToken,
+            String code)
+    {
+        checkSession(sessionToken);
+
+        return ExternalDataManagementSystemTranslator.translate(getDAOFactory()
+                .getExternalDataManagementSystemDAO().tryToFindExternalDataManagementSystemByCode(
+                        code));
+    }
+
+    public void createOrUpdateExternalDataManagementSystem(String sessionToken,
+            ExternalDataManagementSystem edms)
+    {
+        checkSession(sessionToken);
+
+        getDAOFactory().getExternalDataManagementSystemDAO()
+                .createOrUpdateExternalDataManagementSystem(
+                        ExternalDataManagementSystemTranslator.translate(edms));
     }
 }

@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.EntityKind;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IDataSetType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExperimentType;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IFileFormatType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMaterialType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyAssignment;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -58,7 +60,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
 {
     private static final String KNOWN_PROPERTY = "DESCRIPTION";
 
-    private static final String SEESION_TOKEN = "seesion-token";
+    private static final String SESSION_TOKEN = "seesion-token";
 
     private static final String KNOWN = "KNOWN";
 
@@ -77,7 +79,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
         server = context.mock(ICommonServer.class);
         transaction =
                 new MasterDataRegistrationTransaction(EncapsulatedCommonServer.create(server,
-                        SEESION_TOKEN));
+                        SESSION_TOKEN));
     }
 
     @AfterMethod
@@ -119,7 +121,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
                 {
                     ExperimentType type =
                             new ExperimentTypeBuilder().code(KNOWN).getExperimentType();
-                    one(server).listExperimentTypes(SEESION_TOKEN);
+                    one(server).listExperimentTypes(SESSION_TOKEN);
                     will(returnValue(Arrays.asList(type)));
                 }
             });
@@ -157,7 +159,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
             {
                 {
                     SampleType type = new SampleTypeBuilder().code(KNOWN).getSampleType();
-                    one(server).listSampleTypes(SEESION_TOKEN);
+                    one(server).listSampleTypes(SESSION_TOKEN);
                     will(returnValue(Arrays.asList(type)));
                 }
             });
@@ -196,7 +198,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
                 {
 
                     DataSetType type = new DataSetTypeBuilder().code(KNOWN).getDataSetType();
-                    one(server).listDataSetTypes(SEESION_TOKEN);
+                    one(server).listDataSetTypes(SESSION_TOKEN);
                     will(returnValue(Arrays.asList(type)));
                 }
             });
@@ -235,7 +237,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
                 {
 
                     MaterialType type = new MaterialTypeBuilder().code(KNOWN).getMaterialType();
-                    one(server).listMaterialTypes(SEESION_TOKEN);
+                    one(server).listMaterialTypes(SESSION_TOKEN);
                     will(returnValue(Arrays.asList(type)));
                 }
             });
@@ -273,7 +275,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
             {
                 {
                     FileFormatType type = new FileFormatType(KNOWN);
-                    one(server).listFileFormatTypes(SEESION_TOKEN);
+                    one(server).listFileFormatTypes(SESSION_TOKEN);
                     will(returnValue(Arrays.asList(type)));
                 }
             });
@@ -316,7 +318,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
                     type.setCode(KNOWN);
                     type.setDataType(new ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType(
                             DataTypeCode.VARCHAR));
-                    one(server).listPropertyTypes(SEESION_TOKEN, false);
+                    one(server).listPropertyTypes(SESSION_TOKEN, false);
                     will(returnValue(Arrays.asList(type)));
                 }
             });
@@ -355,7 +357,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
                 {
                     Vocabulary vocabulary = new Vocabulary();
                     vocabulary.setCode(KNOWN);
-                    one(server).listVocabularies(SEESION_TOKEN, true, false);
+                    one(server).listVocabularies(SESSION_TOKEN, true, false);
                     will(returnValue(Arrays.asList(vocabulary)));
                 }
             });
@@ -406,10 +408,63 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
                                     .propertyType(KNOWN_PROPERTY, "Description",
                                             DataTypeCode.VARCHAR).getSampleType()
                                     .getAssignedPropertyTypes();
-                    one(server).listEntityTypePropertyTypes(SEESION_TOKEN);
+                    one(server).listEntityTypePropertyTypes(SESSION_TOKEN);
                     will(returnValue(assigments));
                 }
             });
     }
 
+    @Test
+    public void testGetOrCreateExistingExternalDataManagementSystem()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    ExternalDataManagementSystem edms = new ExternalDataManagementSystem();
+                    edms.setCode(KNOWN);
+                    edms.setLabel("old label");
+                    edms.setUrlTemplate("old url template");
+                    edms.setOpenBIS(false);
+
+                    one(server).getExternalDataManagementSystem(SESSION_TOKEN, KNOWN);
+                    will(returnValue(edms));
+                }
+            });
+
+        IExternalDataManagementSystem edms =
+                transaction.getOrCreateNewExternalDataManagementSystem(KNOWN);
+        edms.setLabel("new label");
+        edms.setUrlTemplate("new url template");
+        edms.setOpenBIS(true);
+
+        assertEquals(KNOWN, edms.getCode());
+        assertEquals("old label", edms.getLabel());
+        assertEquals("old url template", edms.getUrlTemplate());
+        assertFalse(edms.isOpenBIS());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetOrCreateNonExistingExistingExternalDataManagementSystem()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(server).getExternalDataManagementSystem(SESSION_TOKEN, UNKNOWN);
+                    will(returnValue(null));
+                }
+            });
+
+        IExternalDataManagementSystem edms =
+                transaction.getOrCreateNewExternalDataManagementSystem(UNKNOWN);
+        edms.setLabel("new label");
+        edms.setUrlTemplate("new url template");
+        edms.setOpenBIS(true);
+
+        assertEquals(UNKNOWN, edms.getCode());
+        assertEquals("new label", edms.getLabel());
+        assertEquals("new url template", edms.getUrlTemplate());
+        assertTrue(edms.isOpenBIS());
+        context.assertIsSatisfied();
+    }
 }
