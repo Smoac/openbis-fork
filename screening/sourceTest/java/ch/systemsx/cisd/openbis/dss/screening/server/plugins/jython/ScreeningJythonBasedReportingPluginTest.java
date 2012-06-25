@@ -108,6 +108,8 @@ public class ScreeningJythonBasedReportingPluginTest extends AbstractFileSystemT
                 {
                     one(reportingPluginScriptRunner).describe(with(iDataSetsMatcher),
                             with(any(ISimpleTableModelBuilderAdaptor.class)));
+                    
+                    one(reportingPluginScriptRunner).releaseResources();
                 }
             });
         plugin.createReport(Arrays.asList(datasetDescription1, datasetDescription2),
