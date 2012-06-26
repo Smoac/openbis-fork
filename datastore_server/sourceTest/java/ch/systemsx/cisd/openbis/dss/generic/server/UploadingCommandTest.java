@@ -55,6 +55,7 @@ import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -272,6 +273,7 @@ public class UploadingCommandTest extends AssertJUnit
         externalData.setDerived(true); // measured == (derived == false)
         DataSetTypePE dataSetTypePE = new DataSetTypePE();
         dataSetTypePE.setCode("D");
+        dataSetTypePE.setDataSetKind(DataSetKind.EXTERNAL.name());
         externalData.setDataSetType(dataSetTypePE);
         externalData.setExperiment(createExperiment());
         // TODO 2009-09-15, Piotr Buczek: write a test with no parents but with sample connection
