@@ -404,6 +404,11 @@ public class DataSetInformation implements Serializable
         return this.externalDataManagementSystem != null;
     }
 
+    public boolean isNoFileDataSet()
+    {
+        return isLinkDataSet() || isContainerDataSet();
+    }
+
     public String getExternalCode()
     {
         return externalCode;

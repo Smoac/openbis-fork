@@ -81,12 +81,12 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
     {
         // How the contents are handled depends on whether this is a container data set or not.
         File[] contents = dataSetFolder.listFiles();
-        if (isContainerDataSet())
+        if (isNoFileDataSet())
         {
             if (contents.length > 0)
             {
                 throw new IllegalArgumentException(
-                        "A data set can contain files or other data sets, but not both. The data set specification is invalid: "
+                        "A data set of no-file-content type cannot contain files. The data set specification is invalid: "
                                 + registrationDetails.getDataSetInformation());
             }
             return null;
@@ -333,7 +333,7 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
     @Override
     public boolean isLinkDataSet()
     {
-        return this.externalDataManagementSystemOrNull != null;
+        return registrationDetails.getDataSetInformation().isLinkDataSet();
     }
 
     @Override
@@ -354,4 +354,9 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
         return this.registrationDetails.getDataSetInformation().getExternalCode();
     }
 
+    @Override
+    public boolean isNoFileDataSet()
+    {
+        return isContainerDataSet() || isLinkDataSet();
+    }
 }

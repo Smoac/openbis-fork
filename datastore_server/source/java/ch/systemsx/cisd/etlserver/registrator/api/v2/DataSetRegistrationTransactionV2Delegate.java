@@ -33,6 +33,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
@@ -245,4 +246,10 @@ class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistrationTr
         transaction.setUserId(userIdOrNull);
     }
 
+    @Override
+    public IExternalDataManagementSystemImmutable getExternalDataManagementSystem(
+            String externalDataManagementSystemCode)
+    {
+        return transaction.getExternalDataManagementSystem(externalDataManagementSystemCode);
+    }
 }

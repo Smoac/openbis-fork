@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -155,6 +156,10 @@ public class ConversionUtils
                         "A data set can contain files or other data sets, but not both. The data set specification is invalid: "
                                 + dataSetInformation);
             }
+        } else if (dataSetInformation.isLinkDataSet())
+        {
+            // TODO: ?
+            throw new NotImplementedException();
         } else
         {
             data = new NewDataSet();

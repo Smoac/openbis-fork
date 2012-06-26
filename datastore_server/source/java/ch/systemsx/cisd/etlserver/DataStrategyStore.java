@@ -120,9 +120,9 @@ public final class DataStrategyStore implements IDataStrategyStore
             return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
         }
 
-        if (dataSetInfo.isContainerDataSet())
+        if (dataSetInfo.isNoFileDataSet())
         {
-            assert incomingDataSetPath == null : "Incoming data set path for a container data set must be null";
+            assert incomingDataSetPath == null : "Incoming data set path for a no-file data set must be null";
         } else
         {
             assert incomingDataSetPath != null : "Incoming data set path for a normal data set can not be null.";

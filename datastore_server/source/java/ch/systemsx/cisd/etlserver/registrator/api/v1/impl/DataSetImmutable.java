@@ -216,4 +216,10 @@ public class DataSetImmutable extends AbstractDataSetImmutable
     {
         return dataSet.tryGetAsLinkDataSet().getExternalCode();
     }
+
+    @Override
+    public boolean isNoFileDataSet()
+    {
+        return isContainerDataSet() || isLinkDataSet();
+    }
 }

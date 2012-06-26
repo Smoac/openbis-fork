@@ -326,7 +326,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         dataSetInformation.setShareId(globalContext.getShareId());
 
         DataSetStorageAlgorithm<T> algorithm;
-        if (dataSetInformation.isContainerDataSet() || dataSetInformation.isLinkDataSet())
+        if (dataSetInformation.isNoFileDataSet())
         {
             // Return a different storage algorithm for non-regular data sets
             if (null != dataSetFile)

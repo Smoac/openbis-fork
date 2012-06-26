@@ -32,6 +32,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
@@ -290,4 +291,13 @@ public interface IDataSetRegistrationTransactionV2
      *            system (etlserver).
      */
     void setUserId(String userIdOrNull);
+
+    /**
+     * Get an external data management system from the openBIS AS. Returns null if the object does
+     * not exist.
+     * 
+     * @return external data management system or null
+     */
+    IExternalDataManagementSystemImmutable getExternalDataManagementSystem(
+            String externalDataManagementSystemCode);
 }

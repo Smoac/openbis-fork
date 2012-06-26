@@ -131,6 +131,12 @@ public interface IDataSetImmutable
     /** @return true if this is a data set, that links to external data management system */
     public boolean isLinkDataSet();
 
+    /**
+     * @return true if this dataset doesn't contain any files. It can be for example container or
+     *         link data set.
+     */
+    public boolean isNoFileDataSet();
+
     /** Get the external data management system */
     public IExternalDataManagementSystemImmutable getExternalDataManagementSystem();
 
