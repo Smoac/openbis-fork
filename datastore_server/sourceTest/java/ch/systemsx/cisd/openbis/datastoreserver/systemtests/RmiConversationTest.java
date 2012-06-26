@@ -57,8 +57,8 @@ import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
 @Test(groups = "system test")
 public class RmiConversationTest extends SystemTestCase

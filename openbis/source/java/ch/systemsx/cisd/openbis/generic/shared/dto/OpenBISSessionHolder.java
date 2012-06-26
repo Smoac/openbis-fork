@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.openbisauth;
+package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 
