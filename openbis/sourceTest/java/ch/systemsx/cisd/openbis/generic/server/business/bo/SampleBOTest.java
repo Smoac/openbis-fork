@@ -35,6 +35,7 @@ import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
@@ -322,6 +323,50 @@ public final class SampleBOTest extends AbstractBOTest
         assertEquals(generatedFrom, sample.getGeneratedFrom());
 
         context.assertIsSatisfied();
+    }
+
+    @Test(expectedExceptions = AuthorizationFailureException.class)
+    @SuppressWarnings("unchecked")
+    public final void testEditSharedSampleWithAuthorizationFailure()
+    {
+        final DatabaseInstancePE database = new DatabaseInstancePE();
+        database.setCode(DB);
+
+        final SamplePE sample = createSample("sampleCode", (SpacePE) null);
+        sample.setDatabaseInstance(database);
+
+        prepareTryToLoadOfSampleWithId(sample);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(entityOperationChecker).assertInstanceSampleUpdateAllowed(
+                            with(any(IAuthSession.class)), with(any(List.class)));
+                    will(throwException(new AuthorizationFailureException("Update not allowed")));
+                }
+            });
+
+        createSampleBO().update(
+                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
+                        .<NewAttachment> emptyList(), null, null, null, new String[] {}));
+    }
+
+    @Test(expectedExceptions = AuthorizationFailureException.class)
+    @SuppressWarnings("unchecked")
+    public final void testDefineSharedSampleWithAuthorizationFailure()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(entityOperationChecker).assertInstanceSampleCreationAllowed(
+                            with(any(IAuthSession.class)), with(any(List.class)));
+                    will(throwException(new AuthorizationFailureException("Creation not allowed")));
+                }
+            });
+
+        NewSample newSample = new NewSample();
+        newSample.setIdentifier(getSharedSampleIdentifier("sampleCode").toString());
+        createSampleBO().define(newSample);
     }
 
     @Test

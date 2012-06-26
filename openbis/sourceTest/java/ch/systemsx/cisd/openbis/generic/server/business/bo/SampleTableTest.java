@@ -19,13 +19,19 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * Test cases for corresponding {@link SampleTable} class.
@@ -34,6 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public final class SampleTableTest extends AbstractBOTest
 {
+
+    private static final String DB = "DB";
 
     @Test
     public void testDelete()
@@ -55,9 +63,35 @@ public final class SampleTableTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
+    @Test(expectedExceptions = AuthorizationFailureException.class)
+    @SuppressWarnings("unchecked")
+    public void testPrepareForRegistrationWithAuthorizationFailure()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(entityOperationChecker).assertInstanceSampleCreationAllowed(
+                            with(any(IAuthSession.class)), with(any(List.class)));
+                    will(throwException(new AuthorizationFailureException("Creation not allowed")));
+                }
+            });
+
+        NewSample newSample = new NewSample();
+        newSample.setIdentifier(getSharedSampleIdentifier("sampleCode").toString());
+
+        final SampleTable sampleTableBO = createSampleTableBO();
+        sampleTableBO.prepareForRegistration(Collections.singletonList(newSample), null);
+        context.assertIsSatisfied();
+    }
+
     private final SampleTable createSampleTableBO()
     {
         return new SampleTable(daoFactory, EXAMPLE_SESSION, null, entityOperationChecker);
+    }
+
+    private final static SampleIdentifier getSharedSampleIdentifier(final String code)
+    {
+        return new SampleIdentifier(new DatabaseInstanceIdentifier(DB), code);
     }
 
 }
