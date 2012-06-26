@@ -155,8 +155,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
         // Clone this service for the transaction to keep them independent
         DataSetRegistrationTransaction<T> transaction =
-                createTransaction(registrator.getRollBackStackParentFolder(),
-                        workingDirectory, stagingDirectory, detailsFactory);
+                createTransaction(registrator.getRollBackStackParentFolder(), workingDirectory,
+                        stagingDirectory, detailsFactory);
 
         transactions.add(transaction);
         return transaction;
@@ -326,13 +326,13 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         dataSetInformation.setShareId(globalContext.getShareId());
 
         DataSetStorageAlgorithm<T> algorithm;
-        if (dataSetInformation.isContainerDataSet())
+        if (dataSetInformation.isContainerDataSet() || dataSetInformation.isLinkDataSet())
         {
-            // Return a different storage algorithm for container data sets
+            // Return a different storage algorithm for non-regular data sets
             if (null != dataSetFile)
             {
                 throw new IllegalArgumentException(
-                        "A data set can contain files or other data sets, but not both. The data set specification is invalid: "
+                        "A data set can contain either files or other data sets or link to an external system dataset. The data set specification is invalid: "
                                 + dataSetInformation);
             }
             algorithm =
@@ -380,7 +380,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     {
         encounteredErrors.add(t);
     }
-    
+
     public IDataSetRegistrationDetailsFactory<T> getDataSetRegistrationDetailsFactory()
     {
         return dataSetRegistrationDetailsFactory;

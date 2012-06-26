@@ -33,9 +33,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
 /**
- * An implementation of the storage algorithm that registers container data sets. Container data
- * sets are a little different since they have no files; this requires a different registration
- * process.
+ * An implementation of the storage algorithm that registers data sets without file contents. This
+ * requires a different registration process. In particular there is no storage part.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
