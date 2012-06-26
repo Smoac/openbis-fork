@@ -26,6 +26,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -73,19 +74,23 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
     protected IRelationshipService relationshipService;
 
+    protected IEntityOperationChecker entityOperationChecker;
+
     AbstractSampleBusinessObject(final IDAOFactory daoFactory, final Session session,
-            IRelationshipService relationshipService)
+            IRelationshipService relationshipService, IEntityOperationChecker entityOperationChecker)
     {
         super(daoFactory, session, EntityKind.SAMPLE);
         this.relationshipService = relationshipService;
+        this.entityOperationChecker = entityOperationChecker;
     }
 
     AbstractSampleBusinessObject(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter,
-            IRelationshipService relationshipService)
+            IRelationshipService relationshipService, IEntityOperationChecker entityOperationChecker)
     {
         super(daoFactory, session, entityPropertiesConverter);
         this.relationshipService = relationshipService;
+        this.entityOperationChecker = entityOperationChecker;
     }
 
     private final void defineSampleProperties(final SamplePE sample,
@@ -742,5 +747,45 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                     + ", containerCodeOrNull=" + containerCodeOrNull + "]";
         }
 
+    }
+
+    protected void assertInstanceSampleCreationAllowed(List<? extends NewSample> samples)
+    {
+        List<NewSample> instanceSamples = new ArrayList<NewSample>();
+
+        for (NewSample sample : samples)
+        {
+            SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sample);
+
+            if (sampleIdentifier.isDatabaseInstanceLevel())
+            {
+                instanceSamples.add(sample);
+            }
+        }
+
+        if (instanceSamples.isEmpty() == false)
+        {
+            entityOperationChecker.assertInstanceSampleCreationAllowed(session, instanceSamples);
+        }
+    }
+
+    protected void assertInstanceSampleUpdateAllowed(List<? extends SamplePE> samples)
+    {
+        List<SampleOwnerIdentifier> instanceSamples = new ArrayList<SampleOwnerIdentifier>();
+
+        for (SamplePE sample : samples)
+        {
+            SampleIdentifier sampleIdentifier = sample.getSampleIdentifier();
+
+            if (sampleIdentifier.isDatabaseInstanceLevel())
+            {
+                instanceSamples.add(sampleIdentifier.createSampleOwnerIdentifier());
+            }
+        }
+
+        if (instanceSamples.isEmpty() == false)
+        {
+            entityOperationChecker.assertInstanceSampleUpdateAllowed(session, instanceSamples);
+        }
     }
 }

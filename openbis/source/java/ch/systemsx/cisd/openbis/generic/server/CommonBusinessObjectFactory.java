@@ -94,9 +94,9 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
 {
 
     public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
-            IRelationshipService relationshipService)
+            IRelationshipService relationshipService, IEntityOperationChecker entityOperationChecker)
     {
-        super(daoFactory, dssFactory, relationshipService);
+        super(daoFactory, dssFactory, relationshipService, entityOperationChecker);
     }
 
     @Override
@@ -126,7 +126,8 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public final ISampleTable createSampleTable(final Session session)
     {
-        return new SampleTable(getDaoFactory(), session, relationshipService);
+        return new SampleTable(getDaoFactory(), session, getRelationshipService(),
+                getEntityOperationChecker());
     }
 
     @Override
@@ -150,7 +151,8 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public final ISampleBO createSampleBO(final Session session)
     {
-        return new SampleBO(getDaoFactory(), session, getRelationshipService());
+        return new SampleBO(getDaoFactory(), session, getRelationshipService(),
+                getEntityOperationChecker());
     }
 
     @Override

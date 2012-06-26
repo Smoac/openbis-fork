@@ -25,6 +25,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.server.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ScriptBO.IScriptFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ICorePluginDAO;
@@ -126,6 +127,8 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     protected IRelationshipService relationshipService;
 
+    protected IEntityOperationChecker entityOperationChecker;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -160,6 +163,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         deletionDAO = context.mock(IDeletionDAO.class);
         corePluginDAO = context.mock(ICorePluginDAO.class);
         relationshipService = context.mock(IRelationshipService.class);
+        entityOperationChecker = context.mock(IEntityOperationChecker.class);
         context.checking(new Expectations()
             {
                 {

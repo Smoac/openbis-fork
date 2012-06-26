@@ -17,81 +17,26 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.List;
-import java.util.Map;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
- * Implementation of {@link IEntityOperationChecker} which does nothing because checking is done by
- * aspects.
- * 
- * @author Franz-Josef Elmer
+ * @author pkupczyk
  */
 public class EntityOperationChecker implements IEntityOperationChecker
 {
 
     @Override
-    public void assertSpaceCreationAllowed(IAuthSession session, List<NewSpace> newSpaces)
-    {
-    }
-
-    @Override
-    public void assertMaterialCreationAllowed(IAuthSession session,
-            Map<String, List<NewMaterial>> materials)
-    {
-    }
-
-    @Override
-    public void assertProjectCreationAllowed(IAuthSession session, List<NewProject> newProjects)
-    {
-    }
-
-    @Override
-    public void assertExperimentCreationAllowed(IAuthSession session,
-            List<NewExperiment> newExperiments)
-    {
-    }
-
-    @Override
     public void assertInstanceSampleCreationAllowed(IAuthSession session,
-            List<NewSample> instanceSamples)
-    {
-    }
-
-    @Override
-    public void assertSpaceSampleCreationAllowed(IAuthSession session, List<NewSample> spaceSamples)
+            List<? extends NewSample> instanceSamples)
     {
     }
 
     @Override
     public void assertInstanceSampleUpdateAllowed(IAuthSession session,
-            List<SampleUpdatesDTO> instanceSamples)
-    {
-    }
-
-    @Override
-    public void assertSpaceSampleUpdateAllowed(IAuthSession session,
-            List<SampleUpdatesDTO> spaceSamples)
-    {
-    }
-
-    @Override
-    public void assertDataSetCreationAllowed(IAuthSession session,
-            List<? extends NewExternalData> dataSets)
-    {
-    }
-
-    @Override
-    public void assertDataSetUpdateAllowed(IAuthSession session,
-            List<DataSetBatchUpdatesDTO> dataSets)
+            List<? extends SampleOwnerIdentifier> instanceSamples)
     {
     }
 

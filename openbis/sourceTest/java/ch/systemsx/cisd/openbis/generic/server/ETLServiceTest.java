@@ -133,7 +133,7 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private IDataStoreService dataStoreService;
 
-    private IEntityOperationChecker entityOperationChecker;
+    private IETLEntityOperationChecker entityOperationChecker;
 
     @Override
     @BeforeMethod
@@ -143,7 +143,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         boFactory = context.mock(ICommonBusinessObjectFactory.class);
         dssfactory = context.mock(IDataStoreServiceFactory.class);
         dataStoreService = context.mock(IDataStoreService.class);
-        entityOperationChecker = context.mock(IEntityOperationChecker.class);
+        entityOperationChecker = context.mock(IETLEntityOperationChecker.class);
         MaterialConfigurationProvider.initializeForTesting(false);
     }
 

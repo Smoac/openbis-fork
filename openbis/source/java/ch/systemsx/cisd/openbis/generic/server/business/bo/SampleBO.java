@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -24,6 +25,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -64,16 +66,19 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     private boolean spaceUpdated;
 
     public SampleBO(final IDAOFactory daoFactory, final Session session,
-            final IRelationshipService relationshipService)
+            final IRelationshipService relationshipService,
+            final IEntityOperationChecker entityOperationChecker)
     {
-        super(daoFactory, session, relationshipService);
+        super(daoFactory, session, relationshipService, entityOperationChecker);
     }
 
     SampleBO(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter,
-            IRelationshipService relationshipService)
+            IRelationshipService relationshipService,
+            final IEntityOperationChecker entityOperationChecker)
     {
-        super(daoFactory, session, entityPropertiesConverter, relationshipService);
+        super(daoFactory, session, entityPropertiesConverter, relationshipService,
+                entityOperationChecker);
     }
 
     //
@@ -157,7 +162,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     public final void define(final NewSample newSample)
     {
         assert newSample != null : "Unspecified new sample.";
-
+        assertInstanceSampleCreationAllowed(Collections.singletonList(newSample));
         sample = createSample(newSample, null, null, null, null);
         dataChanged = spaceUpdated = true;
         onlyNewSamples = true;
@@ -221,8 +226,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
         SampleIdentifier sampleId = IdentifierHelper.sample(sample);
 
-        this.relationshipService.assignSampleToExperiment(session,
-                sampleId,
+        this.relationshipService.assignSampleToExperiment(session, sampleId,
                 IdentifierHelper.createExperimentIdentifier(experiment));
         try
         {
@@ -276,6 +280,9 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     public void update(SampleUpdatesDTO updates)
     {
         loadDataByTechId(updates.getSampleIdOrNull());
+
+        assertInstanceSampleUpdateAllowed(Collections.singletonList(sample));
+
         if (updates.getVersion().equals(sample.getModificationDate()) == false)
         {
             throwModifiedEntityException("Sample");
@@ -328,6 +335,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     public void addAttachment(AttachmentPE sampleAttachment)
     {
         assert sample != null : "no sample has been loaded";
+        assertInstanceSampleUpdateAllowed(Collections.singletonList(sample));
         sampleAttachment.setRegistrator(findPerson());
         escapeFileName(sampleAttachment);
         attachments.add(sampleAttachment);
@@ -435,6 +443,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     @Override
     public void updateManagedProperty(IManagedProperty managedProperty)
     {
+        assertInstanceSampleUpdateAllowed(Collections.singletonList(sample));
         final Set<SamplePropertyPE> existingProperties = sample.getProperties();
         final SampleTypePE type = sample.getSampleType();
         final PersonPE registrator = findPerson();

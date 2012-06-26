@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
+import java.util.Set;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * A {@link IValidator} implementation suitable for {@link Sample}.
@@ -28,13 +32,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  */
 public final class SampleValidator extends AbstractValidator<Sample>
 {
-    private final IValidator<Space> groupValidator;
+    private final IValidator<Space> spaceValidator;
 
     private final IValidator<DatabaseInstance> databaseInstanceValidator;
 
     public SampleValidator()
     {
-        groupValidator = new SpaceValidator();
+        spaceValidator = new SpaceValidator();
         databaseInstanceValidator = new DatabaseInstanceValidator();
     }
 
@@ -46,12 +50,46 @@ public final class SampleValidator extends AbstractValidator<Sample>
     public final boolean doValidation(final PersonPE person, final Sample value)
     {
         final Space space = value.getSpace();
+
         if (space != null)
         {
-            return groupValidator.isValid(person, space);
+            return matchesSpace(person, space);
         } else
         {
-            return databaseInstanceValidator.isValid(person, value.getDatabaseInstance());
+            DatabaseInstance databaseInstance = value.getDatabaseInstance();
+
+            return matchesDatabaseInstanceOfRoleAssignment(person, databaseInstance)
+                    || matchesDatabaseInstanceOfRoleAssignmentSpace(person, databaseInstance);
         }
+    }
+
+    private boolean matchesSpace(PersonPE person, Space space)
+    {
+        return spaceValidator.isValid(person, space);
+    }
+
+    private boolean matchesDatabaseInstanceOfRoleAssignment(PersonPE person,
+            DatabaseInstance databaseInstance)
+    {
+        return databaseInstanceValidator.isValid(person, databaseInstance);
+    }
+
+    private boolean matchesDatabaseInstanceOfRoleAssignmentSpace(PersonPE person,
+            DatabaseInstance databaseInstance)
+    {
+        final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
+
+        for (final RoleAssignmentPE roleAssignment : roleAssignments)
+        {
+            final SpacePE space = roleAssignment.getSpace();
+
+            if (space != null && databaseInstance != null
+                    && space.getDatabaseInstance().getUuid().equals(databaseInstance.getUuid()))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

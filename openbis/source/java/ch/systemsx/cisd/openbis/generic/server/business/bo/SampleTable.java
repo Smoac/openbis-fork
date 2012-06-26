@@ -28,6 +28,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
@@ -70,9 +71,9 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     private boolean businessRulesChecked;
 
     public SampleTable(final IDAOFactory daoFactory, final Session session,
-            IRelationshipService relationshipService)
+            IRelationshipService relationshipService, IEntityOperationChecker entityOperationChecker)
     {
-        super(daoFactory, session, relationshipService);
+        super(daoFactory, session, relationshipService, entityOperationChecker);
     }
 
     @Override
@@ -175,6 +176,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     public void prepareForRegistration(List<NewSample> newSamples, PersonPE registratorOrNull)
             throws UserFailureException
     {
+        assertInstanceSampleCreationAllowed(newSamples);
+
         onlyNewSamples = true;
         samples = new ArrayList<SamplePE>();
 
@@ -411,6 +414,9 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         final Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache =
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         samples = loadSamples(updates, sampleOwnerCache);
+
+        assertInstanceSampleUpdateAllowed(samples);
+
         Map<SampleIdentifier, SamplePE> samplesByIdentifiers =
                 new HashMap<SampleIdentifier, SamplePE>();
         for (SamplePE sample : samples)
@@ -443,6 +449,9 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         final Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache =
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         samples = loadSamplesByTechId(updates);
+
+        assertInstanceSampleUpdateAllowed(samples);
+
         Map<Long, SamplePE> samplesById = new HashMap<Long, SamplePE>();
         for (SamplePE sample : samples)
         {

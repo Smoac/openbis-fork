@@ -205,7 +205,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     private ServiceConversationServer server;
 
-    private final IEntityOperationChecker entityOperationChecker;
+    private final IETLEntityOperationChecker entityOperationChecker;
 
     private final DefaultSessionManager<Session> sessionManagerForEntityOperation;
 
@@ -215,7 +215,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory,
             TrustedCrossOriginDomainsProvider trustedOriginDomainProvider,
-            IEntityOperationChecker entityOperationChecker)
+            IETLEntityOperationChecker entityOperationChecker)
     {
         this(authenticationService, sessionManager, daoFactory, null, boFactory, dssFactory,
                 trustedOriginDomainProvider, entityOperationChecker);
@@ -226,7 +226,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             IPropertiesBatchManager propertiesBatchManager, ICommonBusinessObjectFactory boFactory,
             IDataStoreServiceFactory dssFactory,
             TrustedCrossOriginDomainsProvider trustedOriginDomainProvider,
-            IEntityOperationChecker entityOperationChecker)
+            IETLEntityOperationChecker entityOperationChecker)
     {
         super(authenticationService, sessionManager, daoFactory, propertiesBatchManager, boFactory);
         this.daoFactory = daoFactory;

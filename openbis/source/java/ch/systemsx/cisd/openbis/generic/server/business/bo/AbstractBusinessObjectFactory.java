@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import javax.annotation.Resource;
 
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
@@ -38,16 +39,20 @@ public abstract class AbstractBusinessObjectFactory
 
     protected IRelationshipService relationshipService;
 
+    protected IEntityOperationChecker entityOperationChecker;
+
     protected AbstractBusinessObjectFactory()
     {
     }
 
     protected AbstractBusinessObjectFactory(final IDAOFactory daoFactory,
-            IDataStoreServiceFactory dssFactory, IRelationshipService relationshipService)
+            IDataStoreServiceFactory dssFactory, IRelationshipService relationshipService,
+            IEntityOperationChecker entityOperationChecker)
     {
         this.daoFactory = daoFactory;
         this.dssFactory = dssFactory;
         this.relationshipService = relationshipService;
+        this.entityOperationChecker = entityOperationChecker;
     }
 
     protected final IDAOFactory getDaoFactory()
@@ -63,5 +68,10 @@ public abstract class AbstractBusinessObjectFactory
     protected final IRelationshipService getRelationshipService()
     {
         return this.relationshipService;
+    }
+
+    protected IEntityOperationChecker getEntityOperationChecker()
+    {
+        return entityOperationChecker;
     }
 }
