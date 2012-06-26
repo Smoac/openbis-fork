@@ -296,15 +296,15 @@ public class EntityOperationTest extends SystemTestCase
         assertEquals("CISD/TEST_SPACE", space.toString());
     }
 
-    @Test
-    public void testCreateSpaceAsInstanceAdminButLoginAsSpaceETLServer()
+    @Test(expectedExceptions =
+        { AuthorizationFailureException.class })
+    public void testCreateSpaceAsInstanceAdminButLoginAsSpaceETLServerFails()
     {
         String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().user(INSTANCE_ADMIN).space("TEST_SPACE").create();
 
-        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
-        assertEquals(1, result.getSpacesCreatedCount());
+        etlService.performEntityOperations(sessionToken, eo);
     }
 
     @Test
@@ -338,8 +338,9 @@ public class EntityOperationTest extends SystemTestCase
         assertEquals("[GENE_SYMBOL: 42]", material.getProperties().toString());
     }
 
-    @Test
-    public void testCreateMaterialAsInstanceAdminButLoginAsSpaceETLServer()
+    @Test(expectedExceptions =
+        { AuthorizationFailureException.class })
+    public void testCreateMaterialAsInstanceAdminButLoginAsSpaceETLServerFails()
     {
         String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
         AtomicEntityOperationDetails eo =
@@ -350,13 +351,7 @@ public class EntityOperationTest extends SystemTestCase
                                 new MaterialBuilder().code("ALPHA").property("GENE_SYMBOL", "42")
                                         .getMaterial()).create();
 
-        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
-        assertEquals(1, result.getMaterialsCreatedCount());
-
-        Material material =
-                etlService.tryGetMaterial(sessionToken, new MaterialIdentifier("ALPHA", "GENE"));
-        assertEquals("ALPHA (GENE)", material.toString());
-        assertEquals("[GENE_SYMBOL: 42]", material.getProperties().toString());
+        etlService.performEntityOperations(sessionToken, eo);
     }
 
     @Test

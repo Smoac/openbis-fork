@@ -23,11 +23,13 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataP
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -142,8 +144,59 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
             {
                 result = evaluateDataSetUpdatesPredicate();
             }
+            if (result.equals(Status.OK))
+            {
+                result = evaluateSpaceRegistrations();
+            }
+            if (result.equals(Status.OK))
+            {
+                result = evaluateMaterialRegistrations();
+            }
 
             return result;
+        }
+
+        private Status evaluateSpaceRegistrations()
+        {
+            if (value.getSpaceRegistrations() != null && value.getSpaceRegistrations().size() > 0)
+            {
+                return isInstanceEtlServer(person);
+            } else
+            {
+                return Status.OK;
+            }
+        }
+
+        private Status evaluateMaterialRegistrations()
+        {
+            if (value.getMaterialRegistrations() != null
+                    && value.getMaterialRegistrations().size() > 0)
+            {
+                return isInstanceEtlServer(person);
+            } else
+            {
+                return Status.OK;
+            }
+        }
+
+        private Status isInstanceEtlServer(PersonPE person)
+        {
+            for (RoleAssignmentPE role : person.getRoleAssignments())
+            {
+                if (role.getSpace() == null)
+                {
+                    RoleCode roleCode = role.getRole();
+                    if (RoleCode.ADMIN.equals(roleCode) || RoleCode.ETL_SERVER.equals(roleCode))
+                    {
+                        return Status.OK;
+                    }
+                }
+            }
+            return Status
+                    .createError(
+                            false,
+                            "None of method roles '[INSTANCE_ETL_SERVER, INSTANCE_ADMIN]' could be found in roles of user '"
+                                    + person.getUserId() + "'.");
         }
 
         private Status evaluateExperimentUpdatePredicate()
