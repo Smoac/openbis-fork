@@ -120,4 +120,3 @@ def aggregate(parameters, tableBuilder):
                     row.setCell(SEARCH_EXPERIMENT_PERM_ID, permId)
                     row.setCell(ACCESION_NUMBER, resultRow.get('accession_number'))
                     row.setCell(DESCRIPTION, resultRow.get('description'))
-    result.close()
