@@ -1,3 +1,5 @@
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+
 /*
  * Copyright 2012 ETH Zuerich, CISD
  *
@@ -14,22 +16,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
-
 import java.io.Serializable;
-
-import ch.systemsx.cisd.openbis.generic.shared.dto.IIdAndCodeHolder;
 
 /**
  * @author Pawel Glyzewski
  */
-public class ExternalDataManagementSystem implements IIdAndCodeHolder, Serializable
+public class ExternalDataManagementSystem extends Code<ExternalDataManagementSystem> implements
+        Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private Long id;
-
-    private String code;
 
     private DatabaseInstance databaseInstance;
 
@@ -39,7 +36,6 @@ public class ExternalDataManagementSystem implements IIdAndCodeHolder, Serializa
 
     private boolean openBIS;
 
-    @Override
     public Long getId()
     {
         return id;
@@ -48,17 +44,6 @@ public class ExternalDataManagementSystem implements IIdAndCodeHolder, Serializa
     public void setId(Long id)
     {
         this.id = id;
-    }
-
-    @Override
-    public String getCode()
-    {
-        return code;
-    }
-
-    public void setCode(String code)
-    {
-        this.code = code;
     }
 
     public DatabaseInstance getDatabaseInstance()
