@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetTypeGridColumnIDs.CONTAINER_TYPE;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetTypeGridColumnIDs.DATA_SET_KIND;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetTypeGridColumnIDs.DELETION_DISALLOW;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetTypeGridColumnIDs.MAIN_DATA_SET_PATH;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetTypeGridColumnIDs.MAIN_DATA_SET_PATTERN;
@@ -49,7 +49,7 @@ public class DataSetTypeProvider extends EntityTypeProvider<DataSetType>
     @Override
     protected void addMoreColumns(TypedTableModelBuilder<DataSetType> builder)
     {
-        builder.addColumn(CONTAINER_TYPE);
+        builder.addColumn(DATA_SET_KIND);
         builder.addColumn(DELETION_DISALLOW).hideByDefault();
         builder.addColumn(MAIN_DATA_SET_PATH).hideByDefault();
         builder.addColumn(MAIN_DATA_SET_PATTERN).hideByDefault();
@@ -58,8 +58,7 @@ public class DataSetTypeProvider extends EntityTypeProvider<DataSetType>
     @Override
     protected void addMoreCells(TypedTableModelBuilder<DataSetType> builder, DataSetType type)
     {
-        builder.column(CONTAINER_TYPE)
-                .addString(SimpleYesNoRenderer.render(type.isContainerType()));
+        builder.column(DATA_SET_KIND).addString(type.getDataSetKind().name());
         builder.column(DELETION_DISALLOW).addString(
                 SimpleYesNoRenderer.render(type.isDeletionDisallow()));
         builder.column(MAIN_DATA_SET_PATH).addString(type.getMainDataSetPath());

@@ -7,5 +7,5 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
  */
 public class DataSetTypeRecord extends CodeRecord
 {
-    public boolean is_container;
+    public String data_set_kind;
 }

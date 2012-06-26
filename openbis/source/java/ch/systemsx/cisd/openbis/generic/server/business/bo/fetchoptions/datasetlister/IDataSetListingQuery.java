@@ -35,7 +35,7 @@ public interface IDataSetListingQuery extends BaseQuery
     @Select(sql = "select"
             + " ds.id as ds_id, ds.code as ds_code, ds.registration_timestamp as ds_registration_timestamp,"
             + " ds.modification_timestamp as ds_modification_timestamp,"
-            + " dt.code as dt_code, dt.is_container as dt_is_container,"
+            + " dt.code as dt_code, dt.data_set_kind as dt_data_set_kind,"
             + " ex.code as ex_code, "
             + " sa.code as sa_code, sa.dbin_id as sa_dbin_id, sac.code as sac_code,"
             + " pe.first_name as pe_first_name, pe.last_name as pe_last_name, pe.email as pe_email, pe.user_id as pe_user_id,"

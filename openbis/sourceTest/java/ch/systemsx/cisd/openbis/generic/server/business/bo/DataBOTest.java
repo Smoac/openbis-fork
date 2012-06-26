@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -712,9 +713,9 @@ public class DataBOTest extends AbstractBOTest
                 createExperiment(EXPERIMENT_IDENTIFIER.getExperimentCode(), "spaceCode");
 
         final DataPE container1 = createDataSet("container-1", null, experiment);
-        container1.getDataSetType().setContainerType(true);
+        container1.getDataSetType().setDataSetKind(DataSetKind.CONTAINER.name());
         final DataPE container2 = createDataSet("container-2", null, experiment);
-        container2.getDataSetType().setContainerType(true);
+        container2.getDataSetType().setDataSetKind(DataSetKind.CONTAINER.name());
         container2.addComponent(container1, EXAMPLE_PERSON);
 
         DataSetUpdatesDTO dataSetUpdatesDTO =

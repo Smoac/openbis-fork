@@ -67,7 +67,7 @@ public final class DataSet implements Serializable
 
         private String dataSetTypeCode;
 
-        private boolean containerDataSet;
+        private String dataSetKind;
 
         private EnumSet<Connections> retrievedConnections = EnumSet.noneOf(Connections.class);
 
@@ -173,14 +173,14 @@ public final class DataSet implements Serializable
             return registrationDetails;
         }
 
-        public boolean isContainerDataSet()
+        public String getDataSetKind()
         {
-            return containerDataSet;
+            return dataSetKind;
         }
 
-        public void setContainerDataSet(boolean containerDataSet)
+        public void setDataSetKind(String dataSetKind)
         {
-            this.containerDataSet = containerDataSet;
+            this.dataSetKind = dataSetKind;
         }
 
         public List<DataSet> getContainedDataSets()
@@ -204,7 +204,7 @@ public final class DataSet implements Serializable
 
     private String dataSetTypeCode;
 
-    private boolean containerDataSet;
+    private String dataSetKind;
 
     private HashMap<String, String> properties;
 
@@ -248,7 +248,7 @@ public final class DataSet implements Serializable
         InitializingChecks.checkValidRegistrationDetails(initializer.getRegistrationDetails(),
                 "Unspecified entity registration details.");
         this.registrationDetails = initializer.getRegistrationDetails();
-        this.containerDataSet = initializer.isContainerDataSet();
+        this.dataSetKind = initializer.getDataSetKind();
         this.containedDataSets = initializer.getContainedDataSets();
 
     }
@@ -353,9 +353,9 @@ public final class DataSet implements Serializable
         return registrationDetails;
     }
 
-    public boolean isContainerDataSet()
+    public String getDataSetKind()
     {
-        return containerDataSet;
+        return dataSetKind;
     }
 
     public List<DataSet> getContainedDataSets()
@@ -456,9 +456,9 @@ public final class DataSet implements Serializable
         this.registrationDetails = registrationDetails;
     }
 
-    public void setContainerDataSet(boolean containerDataSet)
+    public void setDataSetKind(String dataSetKind)
     {
-        this.containerDataSet = containerDataSet;
+        this.dataSetKind = dataSetKind;
     }
 
     public void setContainedDataSets(List<DataSet> containedDataSets)

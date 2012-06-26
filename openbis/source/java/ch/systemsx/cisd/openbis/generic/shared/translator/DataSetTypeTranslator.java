@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -57,7 +58,7 @@ public class DataSetTypeTranslator
 
         result.setMainDataSetPath(entityTypeOrNull.getMainDataSetPath());
         result.setMainDataSetPattern(entityTypeOrNull.getMainDataSetPattern());
-        result.setContainerType(entityTypeOrNull.isContainerType());
+        result.setDataSetKind(DataSetKind.valueOf(entityTypeOrNull.getDataSetKind()));
         result.setDeletionDisallow(entityTypeOrNull.isDeletionDisallow());
         return result;
     }

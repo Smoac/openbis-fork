@@ -56,4 +56,10 @@ public class LinkDataSet extends ExternalData
     {
         return this;
     }
+
+    @Override
+    public DataSetKind getDataSetKind()
+    {
+        return DataSetKind.LINK;
+    }
 }

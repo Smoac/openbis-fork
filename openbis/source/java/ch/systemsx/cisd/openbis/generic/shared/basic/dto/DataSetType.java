@@ -33,7 +33,7 @@ public class DataSetType extends EntityType
 
     private String mainDataSetPath;
 
-    private boolean isContainerType;
+    private DataSetKind dataSetKind;
 
     private boolean deletionDisallow;
 
@@ -77,14 +77,14 @@ public class DataSetType extends EntityType
         return mainDataSetPattern;
     }
 
-    public boolean isContainerType()
+    public DataSetKind getDataSetKind()
     {
-        return isContainerType;
+        return dataSetKind;
     }
 
-    public void setContainerType(boolean isContainerType)
+    public void setDataSetKind(DataSetKind dataSetKind)
     {
-        this.isContainerType = isContainerType;
+        this.dataSetKind = dataSetKind;
     }
 
     public boolean isDeletionDisallow()

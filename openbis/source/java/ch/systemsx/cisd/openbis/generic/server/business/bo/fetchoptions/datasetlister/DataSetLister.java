@@ -166,7 +166,7 @@ public class DataSetLister implements IDataSetLister
         DataSetInitializer initializer = new DataSetInitializer();
         initializer.setCode(dataSet.ds_code);
         initializer.setDataSetTypeCode(dataSet.dt_code);
-        initializer.setContainerDataSet(dataSet.dt_is_container);
+        initializer.setDataSetKind(dataSet.dt_data_set_kind);
         initializer.setRegistrationDetails(createDataSetRegistrationDetails(dataSet));
         initializer.setExperimentIdentifier(experimentIdentifier.toString());
 

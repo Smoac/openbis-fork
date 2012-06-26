@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.api.retry.RetryProxyFactory;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 
 /**
  * A class that provides uniform access to data set metadata (from the openBIS AS) and data (from
@@ -160,16 +161,16 @@ public class DataSet
     }
 
     /**
-     * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#isContainerDataSet()
+     * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#getDataSetKind()
      */
     @Retry
     public boolean isContainerDataSet()
     {
-        return getMetadata().isContainerDataSet();
+        return DataSetKind.CONTAINER.name().equals(getMetadata().getDataSetKind());
     }
 
     /**
-     * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#isContainerDataSet()
+     * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#getContainedDataSets()
      */
     @Retry
     public List<DataSet> getContainedDataSets()

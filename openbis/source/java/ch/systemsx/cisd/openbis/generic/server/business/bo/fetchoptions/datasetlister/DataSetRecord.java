@@ -34,7 +34,7 @@ public class DataSetRecord
 
     public String dt_code;
 
-    public Boolean dt_is_container;
+    public String dt_data_set_kind;
 
     public String ex_code;
 

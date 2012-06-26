@@ -43,6 +43,12 @@ public class ContainerDataSet extends ExternalData
         return this;
     }
 
+    @Override
+    public DataSetKind getDataSetKind()
+    {
+        return DataSetKind.CONTAINER;
+    }
+
     public List<ExternalData> getContainedDataSets()
     {
         return containedDataSets;

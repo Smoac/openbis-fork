@@ -67,4 +67,10 @@ public class DatasetRecord extends CodeRecord
     public Integer speed_hint;
 
     public Boolean storage_confirmation;
+
+    // link data set
+
+    public Long edms_id;
+
+    public String external_code;
 }

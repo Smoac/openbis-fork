@@ -369,6 +369,11 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
         this.storageConfirmation = storageConfirmation;
     }
 
+    public DataSetKind getDataSetKind()
+    {
+        return DataSetKind.EXTERNAL;
+    }
+
     // 'transient'
 
     public String getSourceType()

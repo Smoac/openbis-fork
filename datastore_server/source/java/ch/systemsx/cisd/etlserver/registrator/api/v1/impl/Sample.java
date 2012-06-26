@@ -71,7 +71,6 @@ public class Sample extends SampleImmutable implements ISample
                     .getDatabaseInstanceCode());
             sample.setDatabaseInstance(databaseInstance);
         }
-
         return sample;
     }
 

@@ -194,7 +194,7 @@ public class DataSetListerTest extends AbstractDAOTest
         assertEquals(expected.getExperimentIdentifier(), actual.getExperimentIdentifier());
         assertEquals(expected.getSampleIdentifierOrNull(), actual.getSampleIdentifierOrNull());
         assertEquals(expected.getDataSetTypeCode(), actual.getDataSetTypeCode());
-        assertEquals(expected.isContainerDataSet(), actual.isContainerDataSet());
+        assertEquals(expected.getDataSetKind(), actual.getDataSetKind());
         assertEqualsToRegistrationDetails(expected.getRegistrationDetails(),
                 expected.getRegistrationDetails());
 

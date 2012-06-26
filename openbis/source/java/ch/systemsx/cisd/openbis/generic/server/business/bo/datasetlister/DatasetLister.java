@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -66,8 +67,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
@@ -114,6 +117,9 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     private final Map<Long, FileFormatType> fileFormatTypes = new HashMap<Long, FileFormatType>();
 
     private final Map<Long, LocatorType> locatorTypes = new HashMap<Long, LocatorType>();
+
+    private final Long2ObjectMap<ExternalDataManagementSystem> externalDataManagementSystems =
+            new Long2ObjectOpenHashMap<ExternalDataManagementSystem>();
 
     public static IDatasetLister create(IDAOFactory daoFactory, String baseIndexURL)
     {
@@ -717,9 +723,12 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             if (record.is_placeholder)
             {
                 // placeholder data sets are filtered out
-            } else if (dsType.isContainerType())
+            } else if (dsType.getDataSetKind() == DataSetKind.CONTAINER)
             {
                 dataSetOrNull = convertToContainerDataSet(record);
+            } else if (dsType.getDataSetKind() == DataSetKind.LINK)
+            {
+                dataSetOrNull = convertToLinkDataSet(record);
             } else if (record.location != null)
             {
                 dataSetOrNull = convertToDataSet(record);
@@ -772,6 +781,18 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         ContainerDataSet containerDataSet = new ContainerDataSet();
         convertStandardProperties(containerDataSet, record);
         return containerDataSet;
+    }
+
+    private LinkDataSet convertToLinkDataSet(DatasetRecord record)
+    {
+        LinkDataSet linkDataSet = new LinkDataSet();
+
+        convertStandardProperties(linkDataSet, record);
+        linkDataSet.setExternalDataManagementSystem(externalDataManagementSystems
+                .get(record.edms_id));
+        linkDataSet.setExternalCode(record.external_code);
+
+        return linkDataSet;
     }
 
     private void convertStandardProperties(ExternalData dataSet, DatasetRecord record)
@@ -846,6 +867,13 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         {
             dataStores.put(code.id, createDataStore(code));
         }
+
+        externalDataManagementSystems.clear();
+        for (ExternalDataManagementSystemRecord edms : query
+                .getExternalDataManagementSystems(databaseInstanceId))
+        {
+            externalDataManagementSystems.put(edms.id, createExternalDataManagementSystem(edms));
+        }
     }
 
     private static void setCode(Code<?> codeHolder, CodeRecord codeRecord)
@@ -860,6 +888,20 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         result.setHostUrl(codeRecord.download_url);
         String downloadUrl = DataStoreTranslator.translateDownloadUrl(codeRecord.download_url);
         result.setDownloadUrl(downloadUrl);
+        return result;
+    }
+
+    private static ExternalDataManagementSystem createExternalDataManagementSystem(
+            ExternalDataManagementSystemRecord edmsRecord)
+    {
+        ExternalDataManagementSystem result = new ExternalDataManagementSystem();
+
+        result.setId(edmsRecord.id);
+        result.setCode(edmsRecord.code);
+        result.setLabel(edmsRecord.label);
+        result.setUrlTemplate(edmsRecord.url_template);
+        result.setOpenBIS(edmsRecord.is_openbis);
+
         return result;
     }
 
@@ -882,7 +924,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         DataSetType result = new DataSetType();
         setCode(result, record);
         result.setDatabaseInstance(databaseInstance);
-        result.setContainerType(record.is_container);
+        result.setDataSetKind(DataSetKind.valueOf(record.data_set_kind));
         return result;
     }
 

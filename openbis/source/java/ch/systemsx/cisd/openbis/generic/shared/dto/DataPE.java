@@ -752,7 +752,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
      */
     public boolean isContainer()
     {
-        return tryAsExternalData() == null;
+        return tryAsExternalData() == null && isLinkData() == false;
     }
 
     @Transient
@@ -761,13 +761,25 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
      */
     public boolean isExternalData()
     {
-        return isPlaceholder() == false && isContainer() == false;
+        return isPlaceholder() == false && isContainer() == false && isLinkData() == false;
     }
 
     @Transient
     public ExternalDataPE tryAsExternalData()
     {
         return (this instanceof ExternalDataPE) ? (ExternalDataPE) this : null;
+    }
+
+    @Transient
+    public boolean isLinkData()
+    {
+        return false;
+    }
+
+    @Transient
+    public LinkDataPE tryAsLinkData()
+    {
+        return null;
     }
 
     /**

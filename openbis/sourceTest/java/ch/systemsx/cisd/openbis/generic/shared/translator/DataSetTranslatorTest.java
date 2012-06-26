@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
@@ -82,6 +83,7 @@ public class DataSetTranslatorTest extends AssertJUnit
         DataSetTypePE dataSetTypePE = new DataSetTypePE();
         dataSetTypePE.setCode("dataSetTypeCode");
         dataSetTypePE.setDescription("dataSetTypeDescription");
+        dataSetTypePE.setDataSetKind(DataSetKind.EXTERNAL.name());
         externalDataPE.setDataSetType(dataSetTypePE);
         FileFormatTypePE fileFormatTypePE = new FileFormatTypePE();
         fileFormatTypePE.setCode("fileFormatTypeCode");

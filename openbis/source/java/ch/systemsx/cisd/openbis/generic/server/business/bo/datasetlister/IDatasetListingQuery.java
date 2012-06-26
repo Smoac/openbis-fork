@@ -52,7 +52,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     public static final int FETCH_SIZE = 1000;
 
     public final static String SELECT_ALL =
-            "select * from data left outer join external_data on data.id = external_data.data_id ";
+            "select * from data left outer join external_data on data.id = external_data.data_id left outer join link_data on data.id = link_data.data_id ";
 
     public final static String SELECT_ALL_EXTERNAL_DATAS =
             "select * from data join external_data on data.id = external_data.data_id ";
@@ -64,7 +64,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     public DataIterator<DatasetRecord> getDatasetsForExperiment(long experimentId);
 
     @Select(sql = "with recursive connected_data as ( "
-            + "select * from data as d left outer join external_data as ed on d.id = ed.data_id "
+            + "select * from data as d left outer join external_data as ed on d.id = ed.data_id left outer join link_data as ld on d.id = ld.data_id "
             + "where expe_id = ?{1} "
             + "   or samp_id in (with recursive connected_samples as "
             + "                    (select id from samples where expe_id = ?{1} "
@@ -72,10 +72,11 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
             + "                                       inner join sample_relationships as sr on sr.sample_id_parent = cs.id "
             + "                                       left join samples as s on s.id = sr.sample_id_child) "
             + "                  select * from connected_samples) "
-            + "union select d.*, ed.* from connected_data as cd "
+            + "union select d.*, ed.*, ld.* from connected_data as cd "
             + "                       inner join data_set_relationships as dr on dr.data_id_parent = cd.id "
             + "                       left join data as d on d.id = dr.data_id_child "
-            + "                       left outer join external_data as ed on d.id = ed.data_id) "
+            + "                       left outer join external_data as ed on d.id = ed.data_id"
+            + "                       left outer join link_data as ld on d.id = ld.data_id) "
             + "select * from connected_data")
     public DataIterator<DatasetRecord> getDataSetsForExperimentAndDescendents(long experimentId);
 
@@ -184,7 +185,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
             + " where (select dbin_id from data_set_types t where t.id = data.dsty_id) = ?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasets(long dbInstanceId);
 
-    @Select(sql = "select id, code, is_container from data_set_types where dbin_id=?{1}")
+    @Select(sql = "select id, code, data_set_kind from data_set_types where dbin_id=?{1}")
     public DataSetTypeRecord[] getDatasetTypes(long databaseInstanceId);
 
     @Select(sql = "select id, code, download_url from data_stores where dbin_id=?{1}")
@@ -195,6 +196,10 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
 
     @Select(sql = "select id, code from locator_types")
     public CodeRecord[] getLocatorTypes();
+
+    @Select(sql = "select id, code, label, url_template, is_openbis from external_data_management_systems where dbin_id=?{1}")
+    public ExternalDataManagementSystemRecord[] getExternalDataManagementSystems(
+            long databaseInstanceId);
 
     //
     // Datasets

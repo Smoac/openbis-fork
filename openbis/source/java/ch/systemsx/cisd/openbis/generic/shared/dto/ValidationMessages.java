@@ -135,6 +135,11 @@ public final class ValidationMessages
     public static final String FILE_FORMAT_TYPE_NOT_NULL_MESSAGE = "File format type"
             + CAN_NOT_BE_NULL;
 
+    public static final String EXTERNAL_DATA_MANAGEMENT_SYSTEM_NOT_NULL_MESSAGE =
+            "External data management system" + CAN_NOT_BE_NULL;
+
+    public static final String EXTERNAL_CODE_NOT_NULL_MESSAGE = "External code" + CAN_NOT_BE_NULL;
+
     public static final String FILE_NAME_LENGTH_MESSAGE = LENGTH_PREFIX + "file name"
             + LENGTH_SUFFIX;
 

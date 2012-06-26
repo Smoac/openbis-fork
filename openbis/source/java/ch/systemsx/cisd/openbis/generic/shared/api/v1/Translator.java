@@ -128,7 +128,8 @@ public class Translator
         {
             initializer.putProperty(prop.getPropertyType().getCode(), prop.tryGetAsString());
         }
-        initializer.setRetrievedFetchOptions(EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.PROPERTIES));
+        initializer.setRetrievedFetchOptions(EnumSet.of(SampleFetchOption.BASIC,
+                SampleFetchOption.PROPERTIES));
 
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experimentOrNull =
                 privateSample.getExperiment();
@@ -344,7 +345,7 @@ public class Translator
             initializer.putProperty(prop.getPropertyType().getCode(), prop.tryGetAsString());
         }
 
-        initializer.setContainerDataSet(externalDatum.isContainer());
+        initializer.setDataSetKind(externalDatum.getDataSetKind().name());
         if (externalDatum.isContainer())
         {
             // Recursively translate any contained data sets

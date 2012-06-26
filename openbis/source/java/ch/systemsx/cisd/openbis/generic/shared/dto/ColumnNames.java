@@ -108,6 +108,10 @@ public final class ColumnNames
 
     public static final String DATA_SET_TYPE_PROPERTY_TYPE_COLUMN = "dstpt_id";
 
+    public static final String EXTERNAL_DATA_MANAGEMENT_SYSTEM_ID_COLUMN = "edms_id";
+
+    public static final String EXTERNAL_CODE_COLUMN = "external_code";
+
     public static final String FILE_FORMAT_TYPE = "ffty_id";
 
     public static final String FILE_NAME_COLUMN = "file_name";
@@ -132,7 +136,7 @@ public final class ColumnNames
 
     public static final String IS_DERIVED = "is_derived";
 
-    public static final String IS_CONTAINER = "is_container";
+    public static final String DATA_SET_KIND_COLUMN = "data_set_kind";
 
     public static final String IS_PUBLIC = "is_public";
 

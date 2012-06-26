@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DataSetKindSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEntityTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddTypeDialog;
@@ -174,13 +175,13 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
 
                 private TextField<String> mainDataSetPathField;
 
-                private CheckBoxField containerTypeField;
+                private DataSetKindSelectionWidget dataSetKindSelectionWidget;
 
                 private CheckBoxField deletionDisallow;
 
                 {
-                    containerTypeField = createContainerField();
-                    addField(containerTypeField);
+                    dataSetKindSelectionWidget = createContainerField();
+                    addField(dataSetKindSelectionWidget);
 
                     deletionDisallow = createDeletionDisallowField();
                     addField(deletionDisallow);
@@ -201,7 +202,8 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
                 {
                     dataSetType.setMainDataSetPath(mainDataSetPathField.getValue());
                     dataSetType.setMainDataSetPattern(mainDataSetPatternField.getValue());
-                    dataSetType.setContainerType(containerTypeField.getValue());
+                    dataSetType.setDataSetKind(dataSetKindSelectionWidget.getValue()
+                            .getBaseObject());
                     dataSetType.setDeletionDisallow(deletionDisallow.getValue());
                     DataSetTypeGrid.this.register(dataSetType, registrationCallback);
                 }
@@ -235,12 +237,11 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
         return mainDataSetPathField;
     }
 
-    private CheckBoxField createContainerField()
+    private DataSetKindSelectionWidget createContainerField()
     {
-        String label = viewContext.getMessage(Dict.CONTAINER_TYPE);
-        CheckBoxField containerTypeField = new CheckBoxField(label, false);
-        GWTUtils.setToolTip(containerTypeField, viewContext.getMessage(Dict.CONTAINER_TYPE_TOOLTIP));
-        return containerTypeField;
+        DataSetKindSelectionWidget dataSetKindSelectionWidget =
+                new DataSetKindSelectionWidget(viewContext, GRID_ID);
+        return dataSetKindSelectionWidget;
     }
 
     private CheckBoxField createDeletionDisallowField()

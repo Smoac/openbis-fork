@@ -23,6 +23,7 @@ import java.util.UUID;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -73,6 +74,7 @@ public class DataSetBuilder extends Builder<DataSet>
     {
         DataSetType dataSetType = new DataSetType();
         dataSetType.setCode(UUID.randomUUID().toString());
+        dataSetType.setDataSetKind(DataSetKind.EXTERNAL);
         commonServer.registerDataSetType(systemSession, dataSetType);
 
         NewExternalData data = new NewExternalData();

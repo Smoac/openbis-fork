@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
@@ -506,6 +507,7 @@ public final class DataSetTableTest extends AbstractBOTest
         experiment.setProject(project);
         data.setExperiment(experiment);
         DataSetTypePE type = new DataSetTypePE();
+        type.setDataSetKind(DataSetKind.EXTERNAL.name());
         data.setDataSetType(type);
         FileFormatTypePE fileFormatType = new FileFormatTypePE();
         fileFormatType.setCode("fileFormat");
@@ -544,8 +546,8 @@ public final class DataSetTableTest extends AbstractBOTest
         final ExternalDataPE d3Available = createDataSet("d3a", dss3, AVAILABLE);
         final ExternalDataPE d3NonAvailable = createDataSet("d3n", dss3, ARCHIVED);
         final ExternalDataPE[] allDataSets =
-            { d2Available1, d2Available2, d2NonAvailable1, d2NonAvailable2, d3Available,
-                    d3NonAvailable, d2NonAvailable3 };
+                    { d2Available1, d2Available2, d2NonAvailable1, d2NonAvailable2, d3Available,
+                            d3NonAvailable, d2NonAvailable3 };
         context.checking(new Expectations()
             {
                 {
@@ -579,8 +581,8 @@ public final class DataSetTableTest extends AbstractBOTest
         final ExternalDataPE d3Archived = createDataSet("d3a", dss3, ARCHIVED);
         final ExternalDataPE d3NonArchived = createDataSet("d3n", dss3, AVAILABLE);
         final ExternalDataPE[] allDataSets =
-            { d2Archived1, d2Archived2, d2NonArchived1, d2NonArchived2, d3Archived,
-                    d3NonArchived, d2NonAvailable3 };
+                    { d2Archived1, d2Archived2, d2NonArchived1, d2NonArchived2, d3Archived,
+                            d3NonArchived, d2NonAvailable3 };
         context.checking(new Expectations()
             {
                 {

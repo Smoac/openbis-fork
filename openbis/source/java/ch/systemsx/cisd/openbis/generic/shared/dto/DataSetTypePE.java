@@ -58,7 +58,7 @@ public class DataSetTypePE extends EntityTypePE
 
     private String mainDataSetPattern;
 
-    private boolean isContainerType;
+    private String dataSetKind;
 
     private boolean deletionDisallow;
 
@@ -144,20 +144,20 @@ public class DataSetTypePE extends EntityTypePE
     }
 
     /**
-     * Returns <code>true</code> if this data set is data set is a container data set.
+     * Returns kind of the data set.
      */
-    @Column(name = ColumnNames.IS_CONTAINER)
-    public boolean isContainerType()
+    @Column(name = ColumnNames.DATA_SET_KIND_COLUMN)
+    public String getDataSetKind()
     {
-        return isContainerType;
+        return dataSetKind;
     }
 
     /**
      * Set to <code>true</code> if this data set is a container data set.
      */
-    public void setContainerType(boolean isContainerType)
+    public void setDataSetKind(String dataSetKind)
     {
-        this.isContainerType = isContainerType;
+        this.dataSetKind = dataSetKind;
     }
 
     /**

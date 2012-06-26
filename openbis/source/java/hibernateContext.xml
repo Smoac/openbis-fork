@@ -99,6 +99,7 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.PostRegistrationPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.EntityOperationsLogEntryPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE</value>
 
             </list>
         </property>

@@ -1195,10 +1195,6 @@ public abstract class Dict
 
     public static final String DATA_VIEW = "data_view";
 
-    public static final String CONTAINER_TYPE = "container_type";
-
-    public static final String CONTAINER_TYPE_TOOLTIP = "container_type_tooltip";
-
     public static final String DELETION_DISALLOW = "deletion_disallow";
 
     public static final String DELETION_DISALLOW_TOOLTIP = "deletion_disallow_tooltip";
@@ -1222,6 +1218,8 @@ public abstract class Dict
     public static final String BUTTON_TOP = "button_top";
 
     public static final String EXPLORE_LABEL = "explore_label";
+
+    public static final String DATA_SET_KIND = "data_set_kind";
 
     public static final String DEFAULT_GROUP = "default_group";
 

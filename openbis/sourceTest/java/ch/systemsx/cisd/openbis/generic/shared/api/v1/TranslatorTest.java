@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -134,7 +135,7 @@ public class TranslatorTest extends AssertJUnit
         DataSet translated =
                 Translator.translate(dsContainer.getContainerDataSet(),
                         EnumSet.noneOf(DataSet.Connections.class));
-        assertTrue(translated.isContainerDataSet());
+        assertEquals(DataSetKind.CONTAINER.name(), translated.getDataSetKind());
         assertBasicAttributes(ds1.getDataSet(), translated.getContainedDataSets().get(0));
         assertBasicAttributes(ds2.getDataSet(), translated.getContainedDataSets().get(1));
         assertChildrenNotRetrieved(translated);
@@ -231,7 +232,7 @@ public class TranslatorTest extends AssertJUnit
                     translatedProperties.get(property.getPropertyType().getCode()));
         }
         assertEquals(originalProperties.size(), translatedProperties.size());
-        assertEquals(originalDataSet.isContainer(), translatedDataSet.isContainerDataSet());
+        assertEquals(originalDataSet.getDataSetKind().name(), translatedDataSet.getDataSetKind());
     }
 
     private void assertChildrenNotRetrieved(DataSet dataSet)

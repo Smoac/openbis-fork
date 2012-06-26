@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.builders;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
@@ -68,6 +69,7 @@ public class ExternalDataPEBuilder
     {
         DataSetTypePE dataSetType = new DataSetTypePE();
         dataSetType.setCode(typeCode);
+        dataSetType.setDataSetKind(DataSetKind.EXTERNAL.name());
         dataSet.setDataSetType(dataSetType);
         return this;
     }

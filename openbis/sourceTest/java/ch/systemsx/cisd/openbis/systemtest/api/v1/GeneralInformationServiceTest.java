@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -620,7 +621,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         Collections.sort(childrenCodes);
         assertEquals("[20081105092259900-0, 20081105092259900-1]", childrenCodes.toString());
         DataSet dataSet = dataSets.get(9);
-        assertEquals(true, dataSet.isContainerDataSet());
+        assertEquals(DataSetKind.CONTAINER.name(), dataSet.getDataSetKind());
         assertEquals("[DataSet[20110509092359990-11,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,"
                 + "{COMMENT=non-virtual comment},[]], "
                 + "DataSet[20110509092359990-12,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,"
