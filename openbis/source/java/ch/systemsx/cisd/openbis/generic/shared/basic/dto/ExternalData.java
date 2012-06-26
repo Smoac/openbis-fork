@@ -101,6 +101,14 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
     }
 
     /**
+     * @return true if this is a link data set.
+     */
+    public boolean isLinkData()
+    {
+        return false; // overriden in subclasses
+    }
+
+    /**
      * @return true if this is a place holder data set.
      */
     public boolean isPlaceHolderDataSet()

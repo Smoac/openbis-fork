@@ -52,6 +52,12 @@ public class LinkDataSet extends ExternalData
     }
 
     @Override
+    public boolean isLinkData()
+    {
+        return true; // overriden in subclasses
+    }
+
+    @Override
     public LinkDataSet tryGetAsLinkDataSet()
     {
         return this;

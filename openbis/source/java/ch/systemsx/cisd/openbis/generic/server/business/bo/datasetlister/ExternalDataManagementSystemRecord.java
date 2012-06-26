@@ -16,13 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 
 /**
  * @author Pawel Glyzewski
  */
-@Private
 public class ExternalDataManagementSystemRecord extends CodeRecord
 {
     public String label;
