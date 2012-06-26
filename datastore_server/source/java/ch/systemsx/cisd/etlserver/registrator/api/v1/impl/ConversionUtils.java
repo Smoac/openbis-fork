@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -251,8 +252,13 @@ public class ConversionUtils
             dataSetUpdate.setModifiedContainedDatasetCodesOrNull(containedCodes);
         }
 
-        String[] parentCodes = Code.extractCodesToArray(externalData.getParents());
-        dataSetUpdate.setModifiedParentDatasetCodesOrNull(parentCodes);
+        if (externalData.isLinkData())
+        {
+            LinkDataSet link = externalData.tryGetAsLinkDataSet();
+            dataSetUpdate.setExternalCode(link.getExternalCode());
+            dataSetUpdate.setExternalDataManagementSystemCode(link
+                    .getExternalDataManagementSystem().getCode());
+        }
 
         return dataSetUpdate;
     }
@@ -292,6 +298,13 @@ public class ConversionUtils
             ContainerDataSet container = externalData.tryGetAsContainerDataSet();
             String[] containedCodes = Code.extractCodesToArray(container.getContainedDataSets());
             dataSetUpdate.setModifiedContainedDatasetCodesOrNull(containedCodes);
+        }
+
+        if (externalData.isLinkData())
+        {
+            dataSetUpdate.setExternalCode(dataSet.getExternalCode());
+            dataSetUpdate.setExternalDataManagementSystemCode(dataSet
+                    .getExternalDataManagementSystem().getCode());
         }
 
         String[] parentCodes = Code.extractCodesToArray(externalData.getParents());

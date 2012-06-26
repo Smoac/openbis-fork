@@ -208,18 +208,29 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
     public void setExternalDataManagementSystem(
             IExternalDataManagementSystemImmutable externalDataManagementSystem)
     {
+        if (isLinkDataSet())
+        {
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem dummy =
+                    new ExternalDataManagementSystem();
+            dummy.setCode(externalDataManagementSystem.getCode());
 
-        ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem dummy =
-                new ExternalDataManagementSystem();
-        dummy.setCode(externalDataManagementSystem.getCode());
-
-        dataSet.tryGetAsLinkDataSet().setExternalDataManagementSystem(dummy);
+            dataSet.tryGetAsLinkDataSet().setExternalDataManagementSystem(dummy);
+        } else
+        {
+            // ignore
+        }
     }
 
     @Override
     public void setExternalCode(String externalCode)
     {
-        dataSet.tryGetAsLinkDataSet().setExternalCode(externalCode);
+        if (isLinkDataSet())
+        {
+            dataSet.tryGetAsLinkDataSet().setExternalCode(externalCode);
+        } else
+        {
+            // ignore
+        }
     }
 
 }
