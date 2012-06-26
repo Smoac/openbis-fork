@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -747,6 +748,14 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public List<String> filterToVisibleSamples(String user, List<String> sampleIdentifiers)
     {
         return service.filterToVisibleSamples(session.getSessionToken(), user, sampleIdentifiers);
+    }
+
+    @Override
+    public ExternalDataManagementSystem tryGetExternalDataManagementSystem(
+            String externalDataManagementSystemCode)
+    {
+        return service.tryGetExternalDataManagementSystem(session.getToken(),
+                externalDataManagementSystemCode);
     }
 
 }

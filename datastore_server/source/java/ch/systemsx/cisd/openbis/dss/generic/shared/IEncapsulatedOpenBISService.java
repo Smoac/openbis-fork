@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -545,4 +546,12 @@ public interface IEncapsulatedOpenBISService
      */
     @ManagedAuthentication
     public List<String> filterToVisibleSamples(String user, List<String> sampleIdentifiers);
+
+    /**
+     * For given code returns the corresponding {@link ExternalDataManagementSystem}.
+     */
+    @ManagedAuthentication
+    public ExternalDataManagementSystem tryGetExternalDataManagementSystem(
+            String externalDataManagementSystemCode);
+
 }

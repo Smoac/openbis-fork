@@ -34,8 +34,8 @@ import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
-import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
@@ -225,11 +226,13 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         this.autoRecoverySettings = autoRecoverySettings;
     }
 
+    @Override
     public String getUserId()
     {
         return getStateAsLiveState().getUserId();
     }
 
+    @Override
     public void setUserId(String userIdOrNull)
     {
         getStateAsLiveState().setUserId(userIdOrNull);
@@ -381,6 +384,15 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
+    public IExternalDataManagementSystemImmutable getExternalDataManagementSystem(
+            String externalDataManagementSystemCode)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem result =
+                openBisService.tryGetExternalDataManagementSystem(externalDataManagementSystemCode);
+        return (null == result) ? null : new ExternalDataManagementSystemImmutable(result);
+    }
+
+    @Override
     public String moveFile(String src, IDataSet dst)
     {
         return getStateAsLiveState().moveFile(src, dst);
@@ -420,8 +432,6 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         return registrationContext;
     }
-    
-    
 
     /**
      * Commit the transaction. Does not throw exceptions if the commit fails on some datasets!
@@ -641,7 +651,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         return registrationService.getIncomingDataSetFile();
     }
-    
+
     @Override
     public File getIncoming()
     {

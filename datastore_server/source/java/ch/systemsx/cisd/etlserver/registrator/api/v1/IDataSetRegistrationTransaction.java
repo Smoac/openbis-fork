@@ -26,6 +26,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
@@ -178,6 +179,15 @@ public interface IDataSetRegistrationTransaction
      * @param materialType the type of the material
      */
     IMaterial createNewMaterial(String materialCode, String materialType);
+
+    /**
+     * Get an external data management system from the openBIS AS. Returns null if the object does
+     * not exist.
+     * 
+     * @return external data management system or null
+     */
+    IExternalDataManagementSystemImmutable getExternalDataManagementSystem(
+            String externalDataManagementSystemCode);
 
     // File operations -- The source and destination paths are local to the incoming data set folder
     // or incoming directory if the data set is just one file
