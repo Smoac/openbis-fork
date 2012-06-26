@@ -146,6 +146,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityOperationsLogEntryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
@@ -2049,8 +2050,17 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         checkSession(token);
 
-        return ExternalDataManagementSystemTranslator.translate(getDAOFactory()
-                .getExternalDataManagementSystemDAO().tryToFindExternalDataManagementSystemByCode(
-                        externalDataManagementSystemCode));
+        ExternalDataManagementSystemPE externalSystem =
+                getDAOFactory().getExternalDataManagementSystemDAO()
+                        .tryToFindExternalDataManagementSystemByCode(
+                                externalDataManagementSystemCode);
+
+        if (externalSystem != null)
+        {
+            return ExternalDataManagementSystemTranslator.translate(externalSystem);
+        } else
+        {
+            return null;
+        }
     }
 }
