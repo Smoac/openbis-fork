@@ -17,11 +17,15 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1;
 
 /**
- * 
- *
  * @author Jakub Straszewski
  */
 public interface IExternalDataManagementSystemImmutable
 {
     String getCode();
+
+    String getLabel();
+
+    String getUrlTemplate();
+
+    boolean isOpenBIS();
 }

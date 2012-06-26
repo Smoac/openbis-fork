@@ -32,6 +32,21 @@ public class ExternalDataManagementSystemImmutable implements
         this.externalDMS = externalDMS;
     }
 
+    public String getLabel()
+    {
+        return externalDMS.getLabel();
+    }
+
+    public String getUrlTemplate()
+    {
+        return externalDMS.getUrlTemplate();
+    }
+
+    public boolean isOpenBIS()
+    {
+        return externalDMS.isOpenBIS();
+    }
+
     @Override
     public String getCode()
     {
