@@ -102,6 +102,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -179,6 +180,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslat
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataManagementSystemTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
@@ -2039,5 +2041,16 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     public List<String> filterToVisibleSamples(String token, String user, List<String> sampleIds)
     {
         return new AuthorizationServiceUtils(daoFactory).filterSampleIds(user, sampleIds);
+    }
+
+    @Override
+    public ExternalDataManagementSystem tryGetExternalDataManagementSystem(String token,
+            String externalDataManagementSystemCode)
+    {
+        checkSession(token);
+
+        return ExternalDataManagementSystemTranslator.translate(getDAOFactory()
+                .getExternalDataManagementSystemDAO().tryToFindExternalDataManagementSystemByCode(
+                        externalDataManagementSystemCode));
     }
 }

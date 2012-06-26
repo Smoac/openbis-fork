@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -701,6 +702,15 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     {
         logAccess(Level.DEBUG, token, "filterToVisibleSamples", "USER(%s), SAMPLE_PERMIDS(%s)",
                 user, samplesAll);
+        return null;
+    }
+
+    @Override
+    public ExternalDataManagementSystem tryGetExternalDataManagementSystem(String token,
+            String externalDataManagementSystemCode)
+    {
+        logAccess(Level.DEBUG, token, "tryGetExternalDataManagementSystem", "CODE(%s)",
+                externalDataManagementSystemCode);
         return null;
     }
 

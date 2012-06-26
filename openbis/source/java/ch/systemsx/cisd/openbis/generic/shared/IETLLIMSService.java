@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -840,5 +841,13 @@ public interface IETLLIMSService extends IServer, ISessionProvider, IConversatio
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<String> filterToVisibleSamples(String token, String user,
             List<String> samplesIndentifiers);
+
+    /**
+     * For given code returns the corresponding {@link ExternalDataManagementSystem}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public ExternalDataManagementSystem tryGetExternalDataManagementSystem(String token,
+            String externalDataManagementSystemCode);
 
 }
