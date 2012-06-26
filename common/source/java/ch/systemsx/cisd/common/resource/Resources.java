@@ -29,14 +29,14 @@ public class Resources
 
     private Logger logger;
 
-    public Set<Resource> resources = new LinkedHashSet<Resource>();
+    public Set<IResource> resources = new LinkedHashSet<IResource>();
 
     public Resources(Logger logger)
     {
         this.logger = logger;
     }
 
-    public void add(Resource resource)
+    public void add(IResource resource)
     {
         resources.add(resource);
     }
@@ -45,7 +45,7 @@ public class Resources
     {
         if (resources.size() > 0)
         {
-            for (Resource resource : resources)
+            for (IResource resource : resources)
             {
                 try
                 {
