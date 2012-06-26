@@ -70,4 +70,7 @@ public interface IDataSetUpdatable extends IDataSetImmutable
     /** Set the external data management system */
     public void setExternalDataManagementSystem(
             IExternalDataManagementSystemImmutable externalDataManagementSystem);
+    
+    /** Set the code from the external data management system */
+    public void setExternalCode(String externalCode);
 }

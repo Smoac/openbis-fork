@@ -89,6 +89,8 @@ public class DataSetInformation implements Serializable
 
     private String externalDataManagementSystem;
 
+    private String externalCode;
+
     /**
      * A subset of {@link NewExternalData} which gets set by the code extractor.
      * <p>
@@ -400,6 +402,16 @@ public class DataSetInformation implements Serializable
     public boolean isLinkDataSet()
     {
         return this.externalDataManagementSystem != null;
+    }
+
+    public String getExternalCode()
+    {
+        return externalCode;
+    }
+
+    public void setExternalCode(String externalCode)
+    {
+        this.externalCode = externalCode;
     }
 
     public final String describe()

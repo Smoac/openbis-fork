@@ -216,4 +216,10 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
         dataSet.tryGetAsLinkDataSet().setExternalDataManagementSystem(dummy);
     }
 
+    @Override
+    public void setExternalCode(String externalCode)
+    {
+        dataSet.tryGetAsLinkDataSet().setExternalCode(externalCode);
+    }
+
 }

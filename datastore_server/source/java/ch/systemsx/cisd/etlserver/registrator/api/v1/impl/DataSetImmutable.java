@@ -210,4 +210,10 @@ public class DataSetImmutable extends AbstractDataSetImmutable
             return null;
         }
     }
+
+    @Override
+    public String getExternalCode()
+    {
+        return dataSet.tryGetAsLinkDataSet().getExternalCode();
+    }
 }

@@ -133,4 +133,7 @@ public interface IDataSetImmutable
 
     /** Get the external data management system */
     public IExternalDataManagementSystemImmutable getExternalDataManagementSystem();
+
+    /** @return the code of this link data set in the external data management system */
+    public String getExternalCode();
 }

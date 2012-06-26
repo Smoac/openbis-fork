@@ -342,4 +342,16 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
         return externalDataManagementSystemOrNull;
     }
 
+    @Override
+    public void setExternalCode(String externalCode)
+    {
+        this.registrationDetails.getDataSetInformation().setExternalCode(externalCode);
+    }
+
+    @Override
+    public String getExternalCode()
+    {
+        return this.registrationDetails.getDataSetInformation().getExternalCode();
+    }
+
 }
