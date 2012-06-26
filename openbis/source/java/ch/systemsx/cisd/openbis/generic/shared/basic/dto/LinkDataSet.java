@@ -50,4 +50,10 @@ public class LinkDataSet extends ExternalData
     {
         this.externalCode = externalCode;
     }
+
+    @Override
+    public LinkDataSet tryGetAsLinkDataSet()
+    {
+        return this;
+    }
 }

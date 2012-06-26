@@ -124,6 +124,11 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
         return null; // overriden in subclasses
     }
 
+    public LinkDataSet tryGetAsLinkDataSet()
+    {
+        return null; // overriden in a subclasses
+    }
+
     public String getPermlink()
     {
         return permlink;
