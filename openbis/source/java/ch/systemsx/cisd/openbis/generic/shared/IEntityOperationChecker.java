@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server;
+package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.util.List;
 
@@ -33,12 +33,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
 public interface IEntityOperationChecker
 {
 
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed(
+        { RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     public void assertInstanceSampleCreationAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = NewSamplePredicate.class)
             List<? extends NewSample> instanceSamples);
 
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed(
+        { RoleWithHierarchy.INSTANCE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
     public void assertInstanceSampleUpdateAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             List<? extends SampleOwnerIdentifier> instanceSamples);
