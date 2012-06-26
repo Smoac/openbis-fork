@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 
@@ -65,4 +66,8 @@ public interface IDataSetUpdatable extends IDataSetImmutable
 
     /** Set the codes for contained data sets. */
     public void setContainedDataSetCodes(List<String> containedDataSetCodes);
+
+    /** Set the external data management system */
+    public void setExternalDataManagementSystem(
+            IExternalDataManagementSystemImmutable externalDataManagementSystem);
 }

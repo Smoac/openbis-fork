@@ -78,7 +78,7 @@ public class DataSetInformation implements Serializable
 
     /** sample with properties, enriched with connected experiment with properties. */
     private transient Sample sample;
-    
+
     private transient boolean linkSample = true;
 
     private transient Experiment experiment;
@@ -86,6 +86,8 @@ public class DataSetInformation implements Serializable
     private BooleanOrUnknown isCompleteFlag = BooleanOrUnknown.U;
 
     private List<String> containedDataSetCodes = new ArrayList<String>();
+
+    private String externalDataManagementSystem;
 
     /**
      * A subset of {@link NewExternalData} which gets set by the code extractor.
@@ -383,6 +385,21 @@ public class DataSetInformation implements Serializable
         // return (dataSetType == null) ? (false == containedDataSetCodes.isEmpty()) : dataSetType
         // .isContainerType();
         return false == containedDataSetCodes.isEmpty();
+    }
+
+    public void setExternalDataManagementSystem(final String code)
+    {
+        this.externalDataManagementSystem = code;
+    }
+
+    public String getExternalDataManagementSystem()
+    {
+        return this.externalDataManagementSystem;
+    }
+
+    public boolean isLinkDataSet()
+    {
+        return this.externalDataManagementSystem != null;
     }
 
     public final String describe()

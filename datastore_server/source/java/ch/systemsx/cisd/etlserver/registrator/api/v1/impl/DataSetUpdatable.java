@@ -25,10 +25,12 @@ import java.util.Set;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PlaceholderDataSet;
@@ -200,6 +202,18 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
     public DataSetBatchUpdatesDTO getUpdates()
     {
         return updates;
+    }
+
+    @Override
+    public void setExternalDataManagementSystem(
+            IExternalDataManagementSystemImmutable externalDataManagementSystem)
+    {
+
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem dummy =
+                new ExternalDataManagementSystem();
+        dummy.setCode(externalDataManagementSystem.getCode());
+
+        dataSet.tryGetAsLinkDataSet().setExternalDataManagementSystem(dummy);
     }
 
 }

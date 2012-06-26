@@ -23,11 +23,13 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
@@ -187,5 +189,25 @@ public class DataSetImmutable extends AbstractDataSetImmutable
             }
         }
         return result;
+    }
+
+    @Override
+    public boolean isLinkDataSet()
+    {
+        return dataSet.tryGetAsLinkDataSet() != null;
+    }
+
+    @Override
+    public IExternalDataManagementSystemImmutable getExternalDataManagementSystem()
+    {
+        ExternalDataManagementSystem externalDMS =
+                dataSet.tryGetAsLinkDataSet().getExternalDataManagementSystem();
+        if (externalDMS != null)
+        {
+            return new ExternalDataManagementSystemImmutable(externalDMS);
+        } else
+        {
+            return null;
+        }
     }
 }

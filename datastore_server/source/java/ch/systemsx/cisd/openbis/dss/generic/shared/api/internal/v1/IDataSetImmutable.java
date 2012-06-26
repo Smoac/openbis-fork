@@ -73,7 +73,7 @@ public interface IDataSetImmutable
      * data set.
      */
     public String getDataSetType();
-    
+
     /**
      * Returns data set type with property types and vocabulary terms for all property types with
      * vocabulary data type.
@@ -127,5 +127,10 @@ public interface IDataSetImmutable
      * Return the code of the container in which this data set is contained
      */
     public String getContainerDataSet();
-    
+
+    /** @return true if this is a data set, that links to external data management system */
+    public boolean isLinkDataSet();
+
+    /** Get the external data management system */
+    public IExternalDataManagementSystemImmutable getExternalDataManagementSystem();
 }

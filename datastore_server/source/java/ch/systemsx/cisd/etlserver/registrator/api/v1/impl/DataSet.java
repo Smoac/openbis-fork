@@ -28,6 +28,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
@@ -44,7 +45,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmutable implements IDataSet
+public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmutable implements
+        IDataSet
 {
     private final DataSetRegistrationDetails<? extends T> registrationDetails;
 
@@ -54,6 +56,8 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
     private IExperimentImmutable experiment;
 
     private ISampleImmutable sampleOrNull;
+
+    private IExternalDataManagementSystemImmutable externalDataManagementSystemOrNull;
 
     public DataSet(DataSetRegistrationDetails<? extends T> registrationDetails, File dataSetFolder,
             IEncapsulatedOpenBISService service)
@@ -301,7 +305,7 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
                 + "sets not existing prior the transaction start.");
     }
 
-    //the dataset cannot be contained before it is created
+    // the dataset cannot be contained before it is created
     @Override
     public boolean isContainedDataSet()
     {
@@ -313,4 +317,29 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
     {
         return null;
     }
+
+    @Override
+    public void setExternalDataManagementSystem(
+            IExternalDataManagementSystemImmutable externalDataManagementSystem)
+    {
+        this.externalDataManagementSystemOrNull = externalDataManagementSystem;
+        String codeToSet =
+                (externalDataManagementSystem != null) ? externalDataManagementSystem.getCode()
+                        : null;
+
+        this.registrationDetails.getDataSetInformation().setExternalDataManagementSystem(codeToSet);
+    }
+
+    @Override
+    public boolean isLinkDataSet()
+    {
+        return this.externalDataManagementSystemOrNull != null;
+    }
+
+    @Override
+    public IExternalDataManagementSystemImmutable getExternalDataManagementSystem()
+    {
+        return externalDataManagementSystemOrNull;
+    }
+
 }
