@@ -37,6 +37,11 @@ class DataSetTypeWrapper extends DataSetTypeImmutable implements IDataSetType
     }
 
     @Override
+    public void setDataSetKind(String dataSetKid)
+    {
+    }
+
+    @Override
     public void setDescription(String description)
     {
     }

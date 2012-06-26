@@ -63,6 +63,13 @@ public class DataSetTypeImmutable implements IDataSetTypeImmutable
     }
 
     @Override
+    public String getDataSetKind()
+    {
+        DataSetKind kind = getDataSetType().getDataSetKind();
+        return kind == null ? null : kind.name();
+    }
+
+    @Override
     public boolean isDeletionDisallowed()
     {
         return getDataSetType().isDeletionDisallow();

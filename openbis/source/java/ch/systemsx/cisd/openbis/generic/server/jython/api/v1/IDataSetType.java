@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 
+
 /**
  * @author Kaloyan Enimanev
  */
@@ -23,9 +24,16 @@ public interface IDataSetType extends IDataSetTypeImmutable
 {
 
     /**
-     * Set to <code>true</code> if the type is a container type.
+     * @deprecated use {@link #setDataSetKind(String)} instead Set to <code>true</code> if the type
+     *             is a container type.
      */
+    @Deprecated
     public void setContainerType(boolean isContainerType);
+
+    /**
+     * Sets the data set kind (EXTERNAL, CONTAINER or LINK)
+     */
+    public void setDataSetKind(String kind);
 
     /**
      * Set the description for this data set type.
