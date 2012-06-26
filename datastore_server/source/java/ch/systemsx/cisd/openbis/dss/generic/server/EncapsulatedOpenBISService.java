@@ -754,7 +754,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public ExternalDataManagementSystem tryGetExternalDataManagementSystem(
             String externalDataManagementSystemCode)
     {
-        return service.tryGetExternalDataManagementSystem(session.getToken(),
+        return service.tryGetExternalDataManagementSystem(session.getSessionToken(),
                 externalDataManagementSystemCode);
     }
 
