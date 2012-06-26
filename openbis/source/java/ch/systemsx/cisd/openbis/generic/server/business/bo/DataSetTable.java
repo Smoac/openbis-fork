@@ -66,7 +66,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -963,6 +965,20 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             // space could be changed by change of experiment
             checkSameSpace(dataSet.getContainer(), dataSet);
         }
+
+        if (dataSet.isLinkData())
+        {
+            LinkDataPE linkData = dataSet.tryAsLinkData();
+            linkData.setExternalCode(dataSetUpdates.getExternalCode());
+
+            String externalSystemCode = dataSetUpdates.getExternalDataManagementSystemCode();
+            ExternalDataManagementSystemPE externalSystem =
+                    getExternalDataManagementSystemDAO()
+                            .tryToFindExternalDataManagementSystemByCode(externalSystemCode);
+
+            linkData.setExternalDataManagementSystem(externalSystem);
+        }
+
         checkSameSpace(dataSet, dataSet.getContainedDataSets()); // even if components were not
                                                                  // changed
 

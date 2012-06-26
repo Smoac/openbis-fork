@@ -51,6 +51,10 @@ public class BasicDataSetUpdates implements Serializable
     // 2. container (virtual)
     private String[] modifiedContainedDatasetCodesOrNull;
 
+    private String externalDataManagementSystemCode;
+
+    private String externalCode;
+
     public BasicDataSetUpdates()
     {
     }
@@ -130,6 +134,26 @@ public class BasicDataSetUpdates implements Serializable
     public void setModifiedContainerDatasetCodeOrNull(String modifiedContainerDatasetCodeOrNull)
     {
         this.modifiedContainerDatasetCodeOrNull = modifiedContainerDatasetCodeOrNull;
+    }
+
+    public String getExternalDataManagementSystemCode()
+    {
+        return externalDataManagementSystemCode;
+    }
+
+    public void setExternalDataManagementSystemCode(String externalDataManagementSystemCode)
+    {
+        this.externalDataManagementSystemCode = externalDataManagementSystemCode;
+    }
+
+    public String getExternalCode()
+    {
+        return externalCode;
+    }
+
+    public void setExternalCode(String externalCode)
+    {
+        this.externalCode = externalCode;
     }
 
 }

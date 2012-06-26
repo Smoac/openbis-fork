@@ -480,6 +480,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                     .getParentsIdentifiersOrNull());
             dataSet.setFileFormatTypeCode(updatedDataSet.getFileFormatOrNull());
             dataSet.setDetails(createBatchUpdateDetails(updatedDataSet));
+            // it looks like this goes through GUI only, so for now no need to set the external
+            // system information
 
             dataSets.add(dataSet);
         }

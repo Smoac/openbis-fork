@@ -50,8 +50,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -515,6 +517,19 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         {
             // space could be changed by change of experiment
             checkSameSpace(data.getContainer(), data);
+        }
+
+        if (data.isLinkData())
+        {
+            LinkDataPE linkData = data.tryAsLinkData();
+            linkData.setExternalCode(updates.getExternalCode());
+
+            ExternalDataManagementSystemPE pe =
+                    getExternalDataManagementSystemDAO()
+                            .tryToFindExternalDataManagementSystemByCode(
+                                    updates.getExternalDataManagementSystemCode());
+
+            linkData.setExternalDataManagementSystem(pe);
         }
 
         setParents(data, asList(updates.getModifiedParentDatasetCodesOrNull()));
