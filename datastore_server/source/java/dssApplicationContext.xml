@@ -44,7 +44,7 @@
       <constructor-arg value="${server-timeout-in-minutes}"/>
   </bean>
   
-  <bean id="sessionHolder" class="ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder">
+  <bean id="sessionHolder" class="ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder">
       <property name="dataStoreCode" value="${data-store-server-code}"/>
   </bean>
   
