@@ -94,7 +94,7 @@ public class OpenBISAuthenticationInterceptorTest
     @Test
     public final void testSessionTokenExpired() throws Throwable
     {
-        sessionHolder.setToken("expiredSessionToken");
+        sessionHolder.setSessionToken("expiredSessionToken");
         context.checking(new Expectations()
             {
                 {
@@ -108,13 +108,13 @@ public class OpenBISAuthenticationInterceptorTest
         interceptor.invoke(methodInvocation);
 
         // the interceptor will reauthenticate and set the new session token
-        assertEquals(VALiD_SESSION_TOKEN, sessionHolder.getToken());
+        assertEquals(VALiD_SESSION_TOKEN, sessionHolder.getSessionToken());
     }
     
     @Test
     public final void testInitializeSessionToken() throws Throwable
     {
-        sessionHolder.setToken(null);
+        sessionHolder.setSessionToken(null);
         context.checking(new Expectations()
             {
                 {
@@ -126,13 +126,13 @@ public class OpenBISAuthenticationInterceptorTest
         interceptor.invoke(methodInvocation);
 
         // the interceptor will reauthenticate and set the new session token
-        assertEquals(VALiD_SESSION_TOKEN, sessionHolder.getToken());
+        assertEquals(VALiD_SESSION_TOKEN, sessionHolder.getSessionToken());
     }
 
     @Test
     public final void testNoReauthenticationNeeded() throws Throwable
     {
-        sessionHolder.setToken(VALiD_SESSION_TOKEN);
+        sessionHolder.setSessionToken(VALiD_SESSION_TOKEN);
         context.checking(new Expectations()
             {
                 {
@@ -143,7 +143,7 @@ public class OpenBISAuthenticationInterceptorTest
         interceptor.invoke(methodInvocation);
 
         // the interceptor will reauthenticate and set the new session token
-        assertEquals(VALiD_SESSION_TOKEN, sessionHolder.getToken());
+        assertEquals(VALiD_SESSION_TOKEN, sessionHolder.getSessionToken());
     }
 
     private SessionContextDTO createSession()

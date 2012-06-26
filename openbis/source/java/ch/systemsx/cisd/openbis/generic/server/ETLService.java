@@ -37,11 +37,12 @@ import ch.systemsx.cisd.authentication.DummyAuthenticationService;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.conversation.ConversationalRmiClient;
+import ch.systemsx.cisd.common.conversation.IConversationalRmiClient;
 import ch.systemsx.cisd.common.conversation.IProgressListener;
 import ch.systemsx.cisd.common.conversation.RmiServiceFactory;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
@@ -275,13 +276,14 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     @Override
-    public ServiceConversationDTO startConversation(String sessionToken, String clientUrl,
-            String typeId)
+    public ServiceConversationDTO startConversation(ISessionTokenProvider sessionTokenProvider,
+            String clientUrl, String typeId)
     {
+        String sessionToken = sessionTokenProvider.getSessionToken();
         getSession(sessionToken);
 
-        ConversationalRmiClient client =
-                HttpInvokerUtils.createServiceStub(ConversationalRmiClient.class, clientUrl, 5000);
+        IConversationalRmiClient client =
+                HttpInvokerUtils.createServiceStub(IConversationalRmiClient.class, clientUrl, 5000);
         String clientId = sessionToken;
         server.addClientResponseTransport(clientId, client);
         return server.startConversation(typeId, clientId);

@@ -147,7 +147,7 @@
     <bean id="data-store-rpc-conversational-client"
         class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
         <property name="service" ref="openBIS-service" />
-        <property name="serviceInterface" value="ch.systemsx.cisd.common.conversation.ConversationalRmiClient" />
+        <property name="serviceInterface" value="ch.systemsx.cisd.common.conversation.IConversationalRmiClient" />
     </bean>
     
     <bean id="session-token-manager" class="ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager"/>

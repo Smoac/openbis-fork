@@ -16,15 +16,21 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.openbisauth;
 
+import java.io.Serializable;
+
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
+
 /**
  * A class that holds information about the openBIS session. It has the information necessary to
  * connect to any of the openBIS APIs.
  * 
  * @author Kaloyan Enimanev
  */
-public class OpenBISSessionHolder
+public class OpenBISSessionHolder implements Serializable, ISessionTokenProvider
 {
-    private String token;
+    private static final long serialVersionUID = 1L;
+
+    private String sessionToken;
 
     private String dataStoreCode;
 
@@ -38,14 +44,15 @@ public class OpenBISSessionHolder
         this.dataStoreCode = dataStoreCode.toUpperCase();
     }
 
-    public String getToken()
+    @Override
+    public String getSessionToken()
     {
-        return token;
+        return sessionToken;
     }
 
-    public void setToken(String sessionToken)
+    public void setSessionToken(String sessionToken)
     {
-        this.token = sessionToken;
+        this.sessionToken = sessionToken;
     }
 
 }

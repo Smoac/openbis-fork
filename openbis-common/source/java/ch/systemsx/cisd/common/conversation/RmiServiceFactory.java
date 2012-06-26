@@ -28,7 +28,7 @@ import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationSer
  * 
  * @author anttil
  */
-public final class RmiServiceFactory<T extends ConversationalRmiServer> implements IServiceFactory
+public final class RmiServiceFactory<T extends IConversationalRmiServer> implements IServiceFactory 
 {
 
     private ServiceConversationServer server;

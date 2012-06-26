@@ -23,6 +23,6 @@ import ch.systemsx.cisd.common.serviceconversation.IServiceMessageTransport;
  * 
  * @author anttil
  */
-public interface ConversationalRmiClient extends IServiceMessageTransport
+public interface IConversationalRmiClient extends IServiceMessageTransport
 {
 }

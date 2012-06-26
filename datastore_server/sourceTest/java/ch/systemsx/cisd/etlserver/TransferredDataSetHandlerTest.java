@@ -276,7 +276,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                         typeExtractor, storageProcessor);
 
         OpenBISSessionHolder sessionHolder = new OpenBISSessionHolder();
-        sessionHolder.setToken(SESSION_TOKEN);
+        sessionHolder.setSessionToken(SESSION_TOKEN);
         authorizedLimsService =
                 new EncapsulatedOpenBISService(limsService, sessionHolder, "", shareIdManager);
         dataSetValidator = context.mock(IDataSetValidator.class);

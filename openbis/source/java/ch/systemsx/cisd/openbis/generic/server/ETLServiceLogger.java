@@ -26,6 +26,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.conversation.IProgressListener;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
@@ -91,8 +92,8 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public ServiceConversationDTO startConversation(String sessionToken, String clientUrl,
-            String typeId)
+    public ServiceConversationDTO startConversation(ISessionTokenProvider sessionTokenProvider,
+            String clientUrl, String typeId)
     {
         logTracking(typeId, "startConversation", "");
         return null;

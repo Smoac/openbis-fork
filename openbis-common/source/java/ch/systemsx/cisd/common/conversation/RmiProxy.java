@@ -37,7 +37,7 @@ public class RmiProxy implements InvocationHandler
     private String typeId;
     
     @SuppressWarnings("unchecked")
-    static <T extends ConversationalRmiServer> T newInstance(Class<T> clazz, ServiceConversationClient client) {
+    static <T extends IConversationalRmiServer> T newInstance(Class<T> clazz, ServiceConversationClient client) {
 
         Collection<Class<?>> interfaces = new HashSet<Class<?>>();
         interfaces.add(clazz);

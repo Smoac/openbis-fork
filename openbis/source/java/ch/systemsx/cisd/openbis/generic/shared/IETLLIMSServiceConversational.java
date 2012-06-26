@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.systemsx.cisd.common.conversation.ConversationalRmiServer;
+import ch.systemsx.cisd.common.conversation.IConversationalRmiServer;
 import ch.systemsx.cisd.common.conversation.IProgressListener;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 /**
  * @author anttil
  */
-public interface IETLLIMSServiceConversational extends IETLLIMSService, ConversationalRmiServer
+public interface IETLLIMSServiceConversational extends IETLLIMSService, IConversationalRmiServer
 {
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)

@@ -132,7 +132,7 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
                     "Authentication failure to openBIS server. Most probable cause: user or password are invalid.";
             throw new ConfigurationFailureException(msg);
         }
-        sessionHolder.setToken(sessionToken);
+        sessionHolder.setSessionToken(sessionToken);
         DataStoreServerInfo dataStoreServerInfo = new DataStoreServerInfo();
         dataStoreServerInfo.setPort(port);
         dataStoreServerInfo.setUseSSL(useSSL);
@@ -152,7 +152,7 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
 
     private final void checkSessionToken()
     {
-        if (sessionHolder.getToken() == null)
+        if (sessionHolder.getSessionToken() == null)
         {
             authenticate();
         }

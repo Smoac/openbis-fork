@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.systemsx.cisd.common.conversation.ConversationalRmiServer;
+import ch.systemsx.cisd.common.conversation.IConversationalRmiServer;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
@@ -97,7 +97,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  * 
  * @author Christian Ribeaud
  */
-public interface IETLLIMSService extends IServer, ISessionProvider, ConversationalRmiServer
+public interface IETLLIMSService extends IServer, ISessionProvider, IConversationalRmiServer
 {
     /**
      * Returns the home database instance.

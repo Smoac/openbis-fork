@@ -46,16 +46,18 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
-import ch.systemsx.cisd.common.conversation.ConversationalRmiClient;
-import ch.systemsx.cisd.common.conversation.ConversationalRmiServer;
+import ch.systemsx.cisd.common.conversation.IConversationalRmiClient;
+import ch.systemsx.cisd.common.conversation.IConversationalRmiServer;
 import ch.systemsx.cisd.common.conversation.IProgressListener;
 import ch.systemsx.cisd.common.conversation.RmiConversationController;
 import ch.systemsx.cisd.common.conversation.RmiServiceFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 @Test(groups = "system test")
@@ -112,7 +114,9 @@ public class RmiConversationTest extends SystemTestCase
                 HttpInvokerUtils.createServiceStub(EchoService.class,
                         "http://localhost:8888/openbis/rmi-echoservice", 5000);
         cont = new RmiConversationController("http://localhost:8882");
-        echo = cont.getConversationalReference("", httpEcho, EchoService.class);
+        OpenBISSessionHolder sessionHolder = new OpenBISSessionHolder();
+        sessionHolder.setSessionToken("");
+        echo = cont.getConversationalReference(sessionHolder, httpEcho, EchoService.class);
     }
 
     @AfterClass
@@ -167,7 +171,7 @@ public class RmiConversationTest extends SystemTestCase
         assertThat(echo.exists("stored"), is(true));
     }
 
-    public interface EchoService extends ConversationalRmiServer
+    public interface EchoService extends IConversationalRmiServer
     {
         @Transactional
         public String echo(String input, Integer delayInMillis);
@@ -215,11 +219,11 @@ public class RmiConversationTest extends SystemTestCase
         }
 
         @Override
-        public ServiceConversationDTO startConversation(String sessionToken, String clientUrl,
-                String typeId)
+        public ServiceConversationDTO startConversation(ISessionTokenProvider sessionTokenProvider,
+                String clientUrl, String typeId)
         {
-            ConversationalRmiClient client =
-                    HttpInvokerUtils.createServiceStub(ConversationalRmiClient.class,
+            IConversationalRmiClient client =
+                    HttpInvokerUtils.createServiceStub(IConversationalRmiClient.class,
                             "http://localhost:8882/client", 5000);
             server.addClientResponseTransport("test-client-id", client);
             return this.server.startConversation(typeId, "test-client-id");
@@ -365,7 +369,7 @@ public class RmiConversationTest extends SystemTestCase
         }
     }
 
-    public static class ClientBean implements ConversationalRmiClient
+    public static class ClientBean implements IConversationalRmiClient
     {
 
         @Override
@@ -382,7 +386,7 @@ public class RmiConversationTest extends SystemTestCase
         @Override
         public void afterPropertiesSet()
         {
-            setServiceInterface(ConversationalRmiClient.class);
+            setServiceInterface(IConversationalRmiClient.class);
             setService(new ClientBean());
             super.afterPropertiesSet();
         }

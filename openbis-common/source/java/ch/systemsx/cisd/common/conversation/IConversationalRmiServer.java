@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.conversation;
 
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.common.serviceconversation.IServiceMessageTransport;
 import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
 
@@ -24,8 +25,9 @@ import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
  * 
  * @author anttil
  */
-public interface ConversationalRmiServer extends IServiceMessageTransport
+public interface IConversationalRmiServer extends IServiceMessageTransport
 {
-    public ServiceConversationDTO startConversation(String sessionToken, String clientUrl, String typeId);
+    public ServiceConversationDTO startConversation(ISessionTokenProvider sessionTokenProvider,
+            String clientUrl, String typeId);
 
 }

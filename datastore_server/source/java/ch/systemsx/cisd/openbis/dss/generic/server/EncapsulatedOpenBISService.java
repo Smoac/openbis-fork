@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.FactoryBean;
 
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
-import ch.systemsx.cisd.common.conversation.ConversationalRmiClient;
+import ch.systemsx.cisd.common.conversation.IConversationalRmiClient;
 import ch.systemsx.cisd.common.conversation.RmiConversationController;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -87,7 +87,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  * @author Bernd Rinn
  */
 public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISService, FactoryBean,
-        ConversationalRmiClient
+        IConversationalRmiClient
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -193,67 +193,67 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public Experiment tryToGetExperiment(ExperimentIdentifier experimentIdentifier)
     {
         assert experimentIdentifier != null : " Unspecified experiment identifier.";
-        return service.tryToGetExperiment(session.getToken(), experimentIdentifier);
+        return service.tryToGetExperiment(session.getSessionToken(), experimentIdentifier);
     }
 
     @Override
     public Space tryGetSpace(SpaceIdentifier spaceIdentifier) throws UserFailureException
     {
         assert spaceIdentifier != null : "Unspecified space identifier";
-        return service.tryGetSpace(session.getToken(), spaceIdentifier);
+        return service.tryGetSpace(session.getSessionToken(), spaceIdentifier);
     }
 
     @Override
     public Project tryGetProject(ProjectIdentifier projectIdentifier) throws UserFailureException
     {
         assert projectIdentifier != null : "Unspecified project identifier";
-        return service.tryGetProject(session.getToken(), projectIdentifier);
+        return service.tryGetProject(session.getSessionToken(), projectIdentifier);
     }
 
     @Override
     public List<Sample> listSamples(ListSampleCriteria criteria)
     {
         assert criteria != null : "Unspecifed criteria.";
-        return service.listSamples(session.getToken(), criteria);
+        return service.listSamples(session.getSessionToken(), criteria);
     }
 
     @Override
     public final Sample tryGetSampleWithExperiment(final SampleIdentifier sampleIdentifier)
     {
         assert sampleIdentifier != null : "Given sample identifier can not be null.";
-        return service.tryGetSampleWithExperiment(session.getToken(), sampleIdentifier);
+        return service.tryGetSampleWithExperiment(session.getSessionToken(), sampleIdentifier);
     }
 
     @Override
     public SampleIdentifier tryToGetSampleIdentifier(String samplePermID)
             throws UserFailureException
     {
-        return service.tryToGetSampleIdentifier(session.getToken(), samplePermID);
+        return service.tryToGetSampleIdentifier(session.getSessionToken(), samplePermID);
     }
 
     @Override
     public ExperimentType getExperimentType(String experimentTypeCode) throws UserFailureException
     {
-        return service.getExperimentType(session.getToken(), experimentTypeCode);
+        return service.getExperimentType(session.getSessionToken(), experimentTypeCode);
     }
 
     @Override
     public Collection<VocabularyTerm> listVocabularyTerms(String vocabularyCode)
             throws UserFailureException
     {
-        return service.listVocabularyTerms(session.getToken(), vocabularyCode);
+        return service.listVocabularyTerms(session.getSessionToken(), vocabularyCode);
     }
 
     @Override
     public SampleType getSampleType(String sampleTypeCode) throws UserFailureException
     {
-        return service.getSampleType(session.getToken(), sampleTypeCode);
+        return service.getSampleType(session.getSessionToken(), sampleTypeCode);
     }
 
     @Override
     public DataSetTypeWithVocabularyTerms getDataSetType(String dataSetTypeCode)
     {
-        return service.getDataSetType(session.getToken(), dataSetTypeCode);
+        return service.getDataSetType(session.getSessionToken(), dataSetTypeCode);
     }
 
     @Override
@@ -261,7 +261,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             throws UserFailureException
     {
         TechId id = new TechId(experimentID);
-        return service.listDataSetsByExperimentID(session.getToken(), id);
+        return service.listDataSetsByExperimentID(session.getSessionToken(), id);
     }
 
     @Override
@@ -269,21 +269,21 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             boolean showOnlyDirectlyConnected)
     {
         TechId id = new TechId(sampleID);
-        return service.listDataSetsBySampleID(session.getToken(), id, showOnlyDirectlyConnected);
+        return service.listDataSetsBySampleID(session.getSessionToken(), id, showOnlyDirectlyConnected);
     }
 
     @Override
     public List<ExternalData> listDataSetsByCode(List<String> dataSetCodes)
             throws UserFailureException
     {
-        return service.listDataSetsByCode(session.getToken(), dataSetCodes);
+        return service.listDataSetsByCode(session.getSessionToken(), dataSetCodes);
     }
 
     @Override
     public long registerExperiment(NewExperiment experiment) throws UserFailureException
     {
         assert experiment != null : "Unspecified experiment.";
-        return service.registerExperiment(session.getToken(), experiment);
+        return service.registerExperiment(session.getSessionToken(), experiment);
     }
 
     @Override
@@ -292,7 +292,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         assert newSamples != null : "Unspecified samples.";
 
-        service.registerSamples(session.getToken(), newSamples, userIDOrNull);
+        service.registerSamples(session.getSessionToken(), newSamples, userIDOrNull);
     }
 
     @Override
@@ -301,7 +301,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         assert newSample != null : "Unspecified sample.";
 
-        return service.registerSample(session.getToken(), newSample, userIDOrNull);
+        return service.registerSample(session.getSessionToken(), newSample, userIDOrNull);
     }
 
     @Override
@@ -309,7 +309,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         assert sampleUpdate != null : "Unspecified sample.";
 
-        service.updateSample(session.getToken(), sampleUpdate);
+        service.updateSample(session.getSessionToken(), sampleUpdate);
     }
 
     @Override
@@ -324,10 +324,10 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         {
             ExperimentIdentifier experimentIdentifier =
                     dataSetInformation.getExperimentIdentifier();
-            service.registerDataSet(session.getToken(), experimentIdentifier, data);
+            service.registerDataSet(session.getSessionToken(), experimentIdentifier, data);
         } else
         {
-            service.registerDataSet(session.getToken(), sampleIdentifier, data);
+            service.registerDataSet(session.getSessionToken(), sampleIdentifier, data);
         }
         setShareId(data);
 
@@ -347,7 +347,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         assert properties != null : "missing data";
         assert space != null : "space missing";
 
-        service.addPropertiesToDataSet(session.getToken(), properties, code, space);
+        service.addPropertiesToDataSet(session.getSessionToken(), properties, code, space);
 
         if (operationLog.isInfoEnabled())
         {
@@ -359,7 +359,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public void updateShareIdAndSize(String dataSetCode, String shareId, long size)
             throws UserFailureException
     {
-        service.updateShareIdAndSize(session.getToken(), dataSetCode, shareId, size);
+        service.updateShareIdAndSize(session.getSessionToken(), dataSetCode, shareId, size);
 
         if (operationLog.isInfoEnabled())
         {
@@ -376,7 +376,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         assert codes != null : "missing data set codes";
         assert newStatus != null : "missing status";
 
-        service.updateDataSetStatuses(session.getToken(), codes, newStatus, presentInArchive);
+        service.updateDataSetStatuses(session.getSessionToken(), codes, newStatus, presentInArchive);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("Updated in openBIS: data sets " + codes + ", status=" + newStatus);
@@ -391,7 +391,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         assert dataSetCode != null : "missing data set codes";
         assert oldStatus != null : "missing old status";
         assert newStatus != null : "missing new status";
-        return service.compareAndSetDataSetStatus(session.getToken(), dataSetCode, oldStatus,
+        return service.compareAndSetDataSetStatus(session.getSessionToken(), dataSetCode, oldStatus,
                 newStatus, newPresentInArchive);
     }
 
@@ -400,7 +400,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             final SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         assert sampleIdentifier != null : "Given sample identifier can not be null.";
-        return service.tryToGetPropertiesOfTopSampleRegisteredFor(session.getToken(),
+        return service.tryToGetPropertiesOfTopSampleRegisteredFor(session.getSessionToken(),
                 sampleIdentifier);
     }
 
@@ -408,7 +408,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public final List<Sample> listSamplesByCriteria(final ListSamplesByPropertyCriteria criteria)
             throws UserFailureException
     {
-        return service.listSamplesByCriteria(session.getToken(), criteria);
+        return service.listSamplesByCriteria(session.getSessionToken(), criteria);
     }
 
     @Override
@@ -426,7 +426,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         if (homeDatabaseInstance == null)
         {
-            homeDatabaseInstance = service.getHomeDatabaseInstance(session.getToken());
+            homeDatabaseInstance = service.getHomeDatabaseInstance(session.getSessionToken());
         }
         return homeDatabaseInstance;
     }
@@ -434,25 +434,25 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     @Override
     public final String createDataSetCode()
     {
-        return service.createDataSetCode(session.getToken());
+        return service.createDataSetCode(session.getSessionToken());
     }
 
     @Override
     public final String createPermId()
     {
-        return service.createPermId(session.getToken());
+        return service.createPermId(session.getSessionToken());
     }
 
     @Override
     public long drawANewUniqueID()
     {
-        return service.drawANewUniqueID(session.getToken());
+        return service.drawANewUniqueID(session.getSessionToken());
     }
 
     @Override
     public ExternalData tryGetDataSet(String dataSetCode) throws UserFailureException
     {
-        return service.tryGetDataSet(session.getToken(), dataSetCode);
+        return service.tryGetDataSet(session.getSessionToken(), dataSetCode);
     }
 
     @Override
@@ -497,7 +497,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public List<DataSetShareId> listDataSetShareIds() throws UserFailureException
     {
         List<DataSetShareId> shareIds =
-                service.listShareIds(session.getToken(), session.getDataStoreCode());
+                service.listShareIds(session.getSessionToken(), session.getDataStoreCode());
         for (DataSetShareId dataSetShareId : shareIds)
         {
             if (dataSetShareId.getShareId() == null)
@@ -513,7 +513,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public List<SimpleDataSetInformationDTO> listDataSets() throws UserFailureException
     {
         List<SimpleDataSetInformationDTO> dataSets =
-                service.listDataSets(session.getToken(), session.getDataStoreCode());
+                service.listDataSets(session.getSessionToken(), session.getDataStoreCode());
         for (SimpleDataSetInformationDTO dataSet : dataSets)
         {
             if (dataSet.getDataSetShareId() == null)
@@ -528,14 +528,14 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public List<ExternalData> listNewerDataSets(TrackingDataSetCriteria criteria)
             throws UserFailureException
     {
-        return service.listDataSets(session.getToken(), session.getDataStoreCode(), criteria);
+        return service.listDataSets(session.getSessionToken(), session.getDataStoreCode(), criteria);
     }
 
     @Override
     public List<ExternalData> listAvailableDataSets(ArchiverDataSetCriteria criteria)
             throws UserFailureException
     {
-        return service.listAvailableDataSets(session.getToken(), session.getDataStoreCode(),
+        return service.listAvailableDataSets(session.getSessionToken(), session.getDataStoreCode(),
                 criteria);
     }
 
@@ -543,7 +543,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull,
             Date maxDeletionDataOrNull)
     {
-        return service.listDeletedDataSets(session.getToken(), lastSeenDeletionEventIdOrNull,
+        return service.listDeletedDataSets(session.getSessionToken(), lastSeenDeletionEventIdOrNull,
                 maxDeletionDataOrNull);
     }
 
@@ -551,13 +551,13 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public void archiveDataSets(List<String> dataSetCodes, boolean removeFromDataStore)
             throws UserFailureException
     {
-        service.archiveDatasets(session.getToken(), dataSetCodes, removeFromDataStore);
+        service.archiveDatasets(session.getSessionToken(), dataSetCodes, removeFromDataStore);
     }
 
     @Override
     public void unarchiveDataSets(List<String> dataSetCodes) throws UserFailureException
     {
-        service.unarchiveDatasets(session.getToken(), dataSetCodes);
+        service.unarchiveDatasets(session.getSessionToken(), dataSetCodes);
     }
 
     @Override
@@ -569,25 +569,25 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     @Override
     public ExternalData tryGetDataSetForServer(String dataSetCode) throws UserFailureException
     {
-        return service.tryGetDataSetForServer(session.getToken(), dataSetCode);
+        return service.tryGetDataSetForServer(session.getSessionToken(), dataSetCode);
     }
 
     @Override
     public List<String> generateCodes(String prefix, int size)
     {
-        return service.generateCodes(session.getToken(), prefix, size);
+        return service.generateCodes(session.getSessionToken(), prefix, size);
     }
 
     @Override
     public List<Person> listAdministrators()
     {
-        return service.listAdministrators(session.getToken());
+        return service.listAdministrators(session.getSessionToken());
     }
 
     @Override
     public Person tryPersonWithUserIdOrEmail(String useridOrEmail)
     {
-        return service.tryPersonWithUserIdOrEmail(session.getToken(), useridOrEmail);
+        return service.tryPersonWithUserIdOrEmail(session.getSessionToken(), useridOrEmail);
     }
 
     @Override
@@ -595,7 +595,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             String userIdOrNull) throws UserFailureException
     {
         Sample sample =
-                service.registerSampleAndDataSet(session.getToken(), newSample, externalData,
+                service.registerSampleAndDataSet(session.getSessionToken(), newSample, externalData,
                         userIdOrNull);
         setShareId(externalData);
         return sample;
@@ -606,7 +606,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             NewExternalData externalData)
     {
         Sample sample =
-                service.updateSampleAndRegisterDataSet(session.getToken(), newSample, externalData);
+                service.updateSampleAndRegisterDataSet(session.getSessionToken(), newSample, externalData);
         setShareId(externalData);
         return sample;
     }
@@ -616,11 +616,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             AtomicEntityOperationDetails operationDetails)
     {
         IETLLIMSService conversationalService =
-                conversationController.getConversationalReference(session.getToken(), service,
+                conversationController.getConversationalReference(session, service,
                         IETLLIMSService.class);
 
         AtomicEntityOperationResult operations =
-                conversationalService.performEntityOperations(session.getToken(), operationDetails);
+                conversationalService.performEntityOperations(session.getSessionToken(), operationDetails);
         List<? extends NewExternalData> dataSets = operationDetails.getDataSetRegistrations();
         for (NewExternalData dataSet : dataSets)
         {
@@ -643,110 +643,110 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     @Override
     public List<Sample> searchForSamples(SearchCriteria searchCriteria)
     {
-        return service.searchForSamples(session.getToken(), searchCriteria);
+        return service.searchForSamples(session.getSessionToken(), searchCriteria);
     }
 
     @Override
     public List<ExternalData> searchForDataSets(SearchCriteria searchCriteria)
     {
-        return service.searchForDataSets(session.getToken(), searchCriteria);
+        return service.searchForDataSets(session.getSessionToken(), searchCriteria);
     }
 
     @Override
     public List<Project> listProjects()
     {
-        return service.listProjects(session.getToken());
+        return service.listProjects(session.getSessionToken());
     }
 
     @Override
     public List<Experiment> listExperiments(ProjectIdentifier projectIdentifier)
     {
-        return service.listExperiments(session.getToken(), projectIdentifier);
+        return service.listExperiments(session.getSessionToken(), projectIdentifier);
     }
 
     @Override
     public Material tryGetMaterial(MaterialIdentifier materialIdentifier)
     {
-        return service.tryGetMaterial(session.getToken(), materialIdentifier);
+        return service.tryGetMaterial(session.getSessionToken(), materialIdentifier);
     }
 
     @Override
     public List<Material> listMaterials(ListMaterialCriteria criteria, boolean withProperties)
     {
-        return service.listMaterials(session.getToken(), criteria, withProperties);
+        return service.listMaterials(session.getSessionToken(), criteria, withProperties);
     }
 
     @Override
     public void removeDataSetsPermanently(List<String> dataSetCodes, String reason)
     {
-        service.removeDataSetsPermanently(session.getToken(), dataSetCodes, reason);
+        service.removeDataSetsPermanently(session.getSessionToken(), dataSetCodes, reason);
     }
 
     @Override
     public void updateDataSet(DataSetUpdatesDTO dataSetUpdates)
     {
-        service.updateDataSet(session.getToken(), dataSetUpdates);
+        service.updateDataSet(session.getSessionToken(), dataSetUpdates);
     }
 
     @Override
     public List<String> getTrustedCrossOriginDomains()
     {
-        return service.getTrustedCrossOriginDomains(session.getToken());
+        return service.getTrustedCrossOriginDomains(session.getSessionToken());
     }
 
     @Override
     public void setStorageConfirmed(String dataSetCode)
     {
-        service.setStorageConfirmed(session.getToken(), dataSetCode);
+        service.setStorageConfirmed(session.getSessionToken(), dataSetCode);
     }
 
     @Override
     public void markSuccessfulPostRegistration(String dataSetCode)
     {
-        service.markSuccessfulPostRegistration(session.getToken(), dataSetCode);
+        service.markSuccessfulPostRegistration(session.getSessionToken(), dataSetCode);
     }
 
     @Override
     public List<ExternalData> listDataSetsForPostRegistration()
     {
-        return service.listDataSetsForPostRegistration(session.getToken(),
+        return service.listDataSetsForPostRegistration(session.getSessionToken(),
                 session.getDataStoreCode());
     }
 
     @Override
     public EntityOperationsState didEntityOperationsSucceed(TechId registrationId)
     {
-        return service.didEntityOperationsSucceed(session.getToken(), registrationId);
+        return service.didEntityOperationsSucceed(session.getSessionToken(), registrationId);
     }
 
     @Override
     public void heartbeat()
     {
-        service.heartbeat(session.getToken());
+        service.heartbeat(session.getSessionToken());
     }
 
     @Override
     public boolean doesUserHaveRole(String user, String roleCode, String spaceOrNull)
     {
-        return service.doesUserHaveRole(session.getToken(), user, roleCode, spaceOrNull);
+        return service.doesUserHaveRole(session.getSessionToken(), user, roleCode, spaceOrNull);
     }
 
     @Override
     public List<String> filterToVisibleDataSets(String user, List<String> dataSetCodes)
     {
-        return service.filterToVisibleDataSets(session.getToken(), user, dataSetCodes);
+        return service.filterToVisibleDataSets(session.getSessionToken(), user, dataSetCodes);
     }
 
     @Override
     public List<String> filterToVisibleExperiments(String user, List<String> experimentIds)
     {
-        return service.filterToVisibleExperiments(session.getToken(), user, experimentIds);
+        return service.filterToVisibleExperiments(session.getSessionToken(), user, experimentIds);
     }
 
     @Override
     public List<String> filterToVisibleSamples(String user, List<String> sampleIdentifiers)
     {
-        return service.filterToVisibleSamples(session.getToken(), user, sampleIdentifiers);
+        return service.filterToVisibleSamples(session.getSessionToken(), user, sampleIdentifiers);
     }
 
 }
