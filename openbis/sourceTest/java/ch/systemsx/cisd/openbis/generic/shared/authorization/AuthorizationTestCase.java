@@ -379,38 +379,38 @@ public class AuthorizationTestCase extends AssertJUnit
 
     /**
      * Prepares {@link #provider} to expect a query for the specified database instance code and to
-     * return the specified database instance and to list groups which will return the specified
-     * list of groups.
+     * return the specified database instance and to list spaces which will return the specified
+     * list of spaces.
      */
     protected final void prepareProvider(final String databaseInstanceCode,
-            final DatabaseInstancePE databaseInstance, final List<SpacePE> groups)
+            final DatabaseInstancePE databaseInstance, final List<SpacePE> spaces)
     {
         prepareProvider(databaseInstanceCode, databaseInstance);
         context.checking(new Expectations()
             {
                 {
                     allowing(provider).listSpaces();
-                    will(returnValue(groups));
+                    will(returnValue(spaces));
                 }
             });
     }
 
     /**
-     * Prepares {@link #provider} to expect a query to list groups which will return the specified
-     * list of groups and a query for the specified entity kind and technical id which will return
-     * the specifier group.
+     * Prepares {@link #provider} to expect a query to list spaces which will return the specified
+     * list of spaces and a query for the specified entity kind and technical id which will return
+     * the specifier space.
      */
-    protected final void prepareProvider(final List<SpacePE> groups, final SpacePE groupPE,
+    protected final void prepareProvider(final List<SpacePE> spaces, final SpacePE spacePE,
             final SpaceOwnerKind entityKind, final TechId techId)
     {
         context.checking(new Expectations()
             {
                 {
                     one(provider).listSpaces();
-                    will(returnValue(groups));
+                    will(returnValue(spaces));
 
                     one(provider).tryGetSpace(entityKind, techId);
-                    will(returnValue(groupPE));
+                    will(returnValue(spacePE));
                 }
             });
     }

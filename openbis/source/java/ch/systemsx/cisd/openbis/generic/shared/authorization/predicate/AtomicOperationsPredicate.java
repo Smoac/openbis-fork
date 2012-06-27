@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -48,7 +47,7 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
 
     private final NewSamplePredicate newSamplePredicate;
 
-    private final SampleUpdatesPredicate sampleUpdatesPredicate;
+    private final SampleUpdatesCollectionPredicate sampleUpdatesPredicate;
 
     private final SampleOwnerIdentifierPredicate sampleOwnerIdentifierPredicate;
 
@@ -59,7 +58,7 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
         newExperimentPredicate = new NewExperimentPredicate();
         experimentUpdatesPredicate = new ExperimentUpdatesPredicate();
         newSamplePredicate = new NewSamplePredicate();
-        sampleUpdatesPredicate = new SampleUpdatesPredicate();
+        sampleUpdatesPredicate = new SampleUpdatesCollectionPredicate();
         sampleOwnerIdentifierPredicate = new SampleOwnerIdentifierPredicate(true, true);
         experimentOwnerIdentifierPredicate = new ExistingSpaceIdentifierPredicate();
     }
@@ -192,11 +191,9 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
                     }
                 }
             }
-            return Status
-                    .createError(
-                            false,
-                            "None of method roles '[INSTANCE_ETL_SERVER, INSTANCE_ADMIN]' could be found in roles of user '"
-                                    + person.getUserId() + "'.");
+            return Status.createError(false,
+                    "None of method roles '[INSTANCE_ETL_SERVER, INSTANCE_ADMIN]' could be found in roles of user '"
+                            + person.getUserId() + "'.");
         }
 
         private Status evaluateExperimentUpdatePredicate()
@@ -235,17 +232,8 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
 
         private Status evaluateSampleUpdatePredicate()
         {
-            for (SampleUpdatesDTO sampleUpdates : value.getSampleUpdates())
-            {
-                Status status =
-                        predicate.sampleUpdatesPredicate.doEvaluation(person, allowedRoles,
-                                sampleUpdates);
-                if (status.equals(Status.OK) == false)
-                {
-                    return status;
-                }
-            }
-            return Status.OK;
+            return predicate.sampleUpdatesPredicate.doEvaluation(person, allowedRoles,
+                    value.getSampleUpdates());
         }
 
         private Status evaluateNewSamplePredicate()
@@ -299,8 +287,8 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
             if (null != sampleIdentifier)
             {
                 status =
-                        predicate.sampleOwnerIdentifierPredicate.doEvaluation(person,
-                                allowedRoles, sampleIdentifier);
+                        predicate.sampleOwnerIdentifierPredicate.doEvaluation(person, allowedRoles,
+                                sampleIdentifier);
             } else
             {
                 status =

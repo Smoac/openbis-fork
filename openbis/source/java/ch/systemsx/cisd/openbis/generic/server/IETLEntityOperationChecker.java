@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperi
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExternalDataPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewProjectPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleUpdatesCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
@@ -83,14 +83,14 @@ public interface IETLEntityOperationChecker
 
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ETL_SERVER)
     public void assertInstanceSampleUpdateAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class)
+            @AuthorizationGuard(guardClass = SampleUpdatesCollectionPredicate.class)
             List<SampleUpdatesDTO> instanceSamples);
 
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_SPACE_SAMPLES_VIA_DSS")
     public void assertSpaceSampleUpdateAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class)
+            @AuthorizationGuard(guardClass = SampleUpdatesCollectionPredicate.class)
             List<SampleUpdatesDTO> spaceSamples);
 
     @RolesAllowed(
