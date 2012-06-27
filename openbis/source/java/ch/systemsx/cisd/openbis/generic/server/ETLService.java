@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSe
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.DataSetBatchUpdate;
+import ch.systemsx.cisd.openbis.generic.server.batch.SampleBatchRegistration;
 import ch.systemsx.cisd.openbis.generic.server.batch.SampleUpdate;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -1278,20 +1279,6 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         assert dataSetCode != null : "Data set code not specified.";
     }
 
-    private List<SamplePE> registerSamplesInternal(Session session, List<NewSample> newSamples,
-            String userIdOrNull)
-    {
-        if (newSamples.isEmpty())
-        {
-            return Collections.emptyList();
-        }
-        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
-        PersonPE registratorOrNull = tryFindPersonForUserIdOrEmail(userIdOrNull);
-        sampleTable.prepareForRegistration(newSamples, registratorOrNull);
-        sampleTable.save();
-        return sampleTable.getSamples();
-    }
-
     private SamplePE registerSampleInternal(Session session, NewSample newSample,
             String userIdOrNull)
     {
@@ -1604,7 +1591,6 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         List<NewSample> containedSamples = new ArrayList<NewSample>();
         List<NewSample> instanceSamples = new ArrayList<NewSample>();
         List<NewSample> spaceSamples = new ArrayList<NewSample>();
-        int index = 0;
         for (NewSample newSample : newSamples)
         {
             if (StringUtils.isEmpty(newSample.getContainerIdentifierForNewSample()))
@@ -1622,20 +1608,27 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             {
                 spaceSamples.add(newSample);
             }
-            progress.update("createSamples", newSamples.size(), ++index);
         }
 
         assertInstanceSampleCreationAllowed(session, instanceSamples);
         assertSpaceSampleCreationAllowed(session, spaceSamples);
+
         String userIdOrNull = operationDetails.tryUserIdOrNull();
-        ArrayList<SamplePE> samplePEsCreated = new ArrayList<SamplePE>();
+        PersonPE registratorOrNull = tryFindPersonForUserIdOrEmail(userIdOrNull);
+
+        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
+
         // in the first pass register samples without container to avoid dependency inversion
-        samplePEsCreated.addAll(registerSamplesInternal(session, containerSamples, userIdOrNull));
+        BatchOperationExecutor
+                .executeInBatches(new SampleBatchRegistration(sampleTable, containerSamples,
+                        registratorOrNull), progress, "createContainerSamples");
+
         // register samples with a container identifier
         // (container should have been created in the first pass)
-        samplePEsCreated.addAll(registerSamplesInternal(session, containedSamples, userIdOrNull));
+        BatchOperationExecutor.executeInBatches(new SampleBatchRegistration(sampleTable,
+                containedSamples, registratorOrNull), progress, "createContainedSamples");
 
-        return index;
+        return newSamples.size();
     }
 
     private void assertInstanceSampleCreationAllowed(Session session,
