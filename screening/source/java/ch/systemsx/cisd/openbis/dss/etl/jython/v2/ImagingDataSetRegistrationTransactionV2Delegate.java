@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.dss.etl.jython.ImagingDataSetRegistrationTransac
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
@@ -254,5 +255,12 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     public void setUserId(String userIdOrNull)
     {
         transaction.setUserId(userIdOrNull);
+    }
+
+    @Override
+    public IExternalDataManagementSystemImmutable getExternalDataManagementSystem(
+            String externalDataManagementSystemCode)
+    {
+        return transaction.getExternalDataManagementSystem(externalDataManagementSystemCode);
     }
 }
