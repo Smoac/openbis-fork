@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewLinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
@@ -182,6 +183,33 @@ public class ConversionUtils
         data.setParentDataSetCodes(dataSetInformation.getParentDataSetCodes());
 
         data.setStorageFormat(storageFormat);
+
+        List<NewProperty> newProperties =
+                dataSetInformation.getExtractableData().getDataSetProperties();
+        data.getExtractableData().setDataSetProperties(newProperties);
+
+        return data;
+    }
+
+    public static NewLinkDataSet convertToNewLinkDataSet(
+            DataSetRegistrationDetails<?> registrationDetails, String dataStoreCode)
+    {
+        DataSetInformation dataSetInformation = registrationDetails.getDataSetInformation();
+
+        NewLinkDataSet data = new NewLinkDataSet();
+        data.setExternalDataManagementSystemCode(dataSetInformation
+                .getExternalDataManagementSystem());
+        data.setExternalCode(dataSetInformation.getExternalCode());
+
+        data.setUserId(dataSetInformation.getUploadingUserIdOrNull());
+        data.setUserEMail(dataSetInformation.tryGetUploadingUserEmail());
+        data.setExtractableData(dataSetInformation.getExtractableData());
+        data.setDataSetType(registrationDetails.getDataSetType());
+        data.setMeasured(registrationDetails.isMeasuredData());
+        data.setDataStoreCode(dataStoreCode);
+        data.setExperimentIdentifierOrNull(dataSetInformation.getExperimentIdentifier());
+        data.setSampleIdentifierOrNull(dataSetInformation.getSampleIdentifier());
+        data.setParentDataSetCodes(dataSetInformation.getParentDataSetCodes());
 
         List<NewProperty> newProperties =
                 dataSetInformation.getExtractableData().getDataSetProperties();
