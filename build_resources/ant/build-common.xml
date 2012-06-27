@@ -153,7 +153,7 @@
      2. Checks restrictions (@Friend-@Private annotations)
      3. Checks dependencies (defined in /dependency-structure.ddf)
   -->
-  <target name="compile-and-check" depends="check-restrictions, check-dependencies"/>
+  <target name="compile-and-check" depends="check-dependencies, check-restrictions"/>
 
 	<target name="check-restrictions" depends="compile, compile-tests">
 		<exec executable="sh" failonerror="true">
