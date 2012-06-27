@@ -26,7 +26,7 @@ import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
-import ch.systemsx.cisd.etlserver.registrator.ContainerDataSetStorageAlgorithm;
+import ch.systemsx.cisd.etlserver.registrator.AbstractNoFileDataSetStorageAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm.DataSetStoragePaths;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -100,7 +100,7 @@ public class DataSetStoragePrecommitRecoveryAlgorithm<T extends DataSetInformati
 
         if (isContainer)
         {
-            return new ContainerDataSetStorageAlgorithm<T>(dataStoreStrategy, storageProcessor,
+            return new AbstractNoFileDataSetStorageAlgorithm<T>(dataStoreStrategy, storageProcessor,
                     fileOperations, mailClient, recoveryAlgorithm);
         } else
         {

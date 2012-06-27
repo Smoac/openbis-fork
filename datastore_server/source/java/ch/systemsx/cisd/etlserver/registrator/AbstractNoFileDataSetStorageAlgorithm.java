@@ -24,13 +24,11 @@ import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.NullStorageProcessorTransaction;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStoragePrecommitRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageStoredRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
 /**
  * An implementation of the storage algorithm that registers data sets without file contents. This
@@ -38,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> extends
+public abstract class AbstractNoFileDataSetStorageAlgorithm<T extends DataSetInformation> extends
         DataSetStorageAlgorithm<T>
 {
 
@@ -53,7 +51,7 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
      * @param mailClient
      * @param stagingDirectory
      */
-    public ContainerDataSetStorageAlgorithm(File incomingDataSetFile,
+    public AbstractNoFileDataSetStorageAlgorithm(File incomingDataSetFile,
             DataSetRegistrationDetails<? extends T> registrationDetails,
             IDataStoreStrategy dataStoreStrategy, IStorageProcessorTransactional storageProcessor,
             IDataSetValidator dataSetValidator, String dataStoreCode,
@@ -68,7 +66,7 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
     /**
      * Creates algorithm from a recovery algorithm.
      */
-    public ContainerDataSetStorageAlgorithm(IDataStoreStrategy dataStoreStrategy,
+    public AbstractNoFileDataSetStorageAlgorithm(IDataStoreStrategy dataStoreStrategy,
             IStorageProcessorTransactional storageProcessor, IFileOperations fileOperations,
             IMailClient mailClient, DataSetStorageRecoveryAlgorithm<T> recoveryAlgorithm)
     {
@@ -119,13 +117,6 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
     }
 
     @Override
-    public NewExternalData createExternalData()
-    {
-        return ConversionUtils.convertToNewContainerDataSet(getRegistrationDetails(),
-                getDataStoreCode());
-    }
-
-    @Override
     public String getSuccessRegistrationMessage()
     {
         // The success registration message is the same as the superclass, but for clarity, make
@@ -136,7 +127,8 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
     @Override
     public String getFailureRegistrationMessage()
     {
-        return "Error trying to register container data set '" + getDataSetInformation().toString()
+        return "Error trying to register no-file-contents data set '"
+                + getDataSetInformation().toString()
                 + "'.";
     }
 

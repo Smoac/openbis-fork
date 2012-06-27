@@ -336,7 +336,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                                 + dataSetInformation);
             }
             algorithm =
-                    new ContainerDataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails, strategy,
+                    new AbstractNoFileDataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails, strategy,
                             registratorContext.getStorageProcessor(),
                             globalContext.getDataSetValidator(), globalContext.getDssCode(),
                             registratorContext.getFileOperations(), globalContext.getMailClient(),
