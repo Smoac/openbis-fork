@@ -56,5 +56,9 @@ public enum SampleFetchOption implements FetchOption
     /**
      * Ask for all descendants.
      */
-    DESCENDANTS
+    DESCENDANTS,
+    /**
+     * Ask for contained samples. This is not supported in search operations
+     */
+    CONTAINED
 }
