@@ -101,18 +101,17 @@ public final class ThreadParameters
      * The properties that control the process of retrying registration by jython dropboxes
      */
     public static final String DATASET_REGISTRATION_MAX_RETRY_COUNT =
-            "dataset-registration-max-retry-count";
+            "metadata-registration-max-retry-count";
 
     public static final String DATASET_REGISTRATION_RETRY_PAUSE_IN_SEC =
-            "dataset-registration-retry-pause-in-sec";
+            "metadata-registration-retry-pause-in-sec";
 
     /*
      * The properties that control the process of retrying registration by jython dropboxes
      */
     public static final String PROCESS_MAX_RETRY_COUNT = "process-max-retry-count";
 
-    public static final String PROCESS_RETRY_PAUSE_IN_SEC =
-            "process-registration-retry-pause-in-sec";
+    public static final String PROCESS_RETRY_PAUSE_IN_SEC = "process-retry-pause-in-sec";
 
     /**
      * The (local) directory to monitor for new files and directories to move to the remote side.

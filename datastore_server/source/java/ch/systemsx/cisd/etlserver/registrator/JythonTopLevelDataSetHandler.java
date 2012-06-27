@@ -55,17 +55,17 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         PROCESS_FUNCTION("process", 1),
 
         /**
-         * The name of the function to define to hook into the service rollback mechanism.
+         * The name of the function to define to hook into the service rollback mechanism. V1 only.
          */
         ROLLBACK_SERVICE_FUNCTION_NAME("rollback_service", 2),
 
         /**
-         * The name of the function to define to hook into the transaction rollback mechanism.
+         * The name of the function to define to hook into the transaction rollback mechanism. V1 only.
          */
         ROLLBACK_TRANSACTION_FUNCTION_NAME("rollback_transaction", 4),
 
         /**
-         * The name of the function called after successful transaction commit.
+         * The name of the function called after successful transaction commit. V1 only.
          */
         COMMIT_TRANSACTION_FUNCTION_NAME("commit_transaction", 2),
 

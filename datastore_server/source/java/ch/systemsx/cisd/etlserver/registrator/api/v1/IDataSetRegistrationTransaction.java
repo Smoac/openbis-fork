@@ -248,10 +248,10 @@ public interface IDataSetRegistrationTransaction
     ISearchService getSearchService();
 
     /**
-     * @return the authorization service
+     * @return A service which can be used to get authorization information about a user.
      */
     IAuthorizationService getAuthorizationService();
-    
+
     /**
      * Gets a database query object for the data source with the specified name.
      * <p>
@@ -289,12 +289,13 @@ public interface IDataSetRegistrationTransaction
     OmniscientTopLevelDataSetRegistratorState getRegistratorContext();
 
     /**
-     * @return the global state
+     * @return Global state for this dropbox, including configuration properties specified by the
+     *         user.
      */
     TopLevelDataSetRegistratorGlobalState getGlobalState();
 
     /**
-     * @return the logical incoming file.
+     * @return The logical incoming file.
      */
     File getIncoming();
 

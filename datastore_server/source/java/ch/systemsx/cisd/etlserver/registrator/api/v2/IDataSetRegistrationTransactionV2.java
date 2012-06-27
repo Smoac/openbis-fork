@@ -235,7 +235,7 @@ public interface IDataSetRegistrationTransactionV2
     ISearchService getSearchService();
 
     /**
-     * @return the authorization service
+     * @return A service which can be used to get authorization information about a user.
      */
     IAuthorizationService getAuthorizationService();
 
@@ -268,7 +268,8 @@ public interface IDataSetRegistrationTransactionV2
     DataSetRegistrationPersistentMap getRegistrationContext();
 
     /**
-     * @return the global state
+     * @return Global state for this dropbox, including configuration properties specified by the
+     *         user.
      */
     TopLevelDataSetRegistratorGlobalState getGlobalState();
 
