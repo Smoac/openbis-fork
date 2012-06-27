@@ -418,12 +418,109 @@ public class WellContentLoader extends AbstractContentLoader
             Map<Long/* plate id */, List<ExternalData>> plateToFeatureVectoreDatasetMap,
             Map<String, ImageDatasetParameters> imageParams)
     {
+        final Map<ExternalData, DatasetImagesReference> childlessImageDatasetsToImageReference =
+                new HashMap<ExternalData, DatasetImagesReference>();
+        final Map<ExternalData, DatasetImagesReference> featureVectorDatasetsToImageReference =
+                new HashMap<ExternalData, DatasetImagesReference>();
+        final Map<Long, DatasetImagesReference> plateToSingleImageDatasetReference =
+                new HashMap<Long, DatasetImagesReference>();
+        final Map<ExternalData, DatasetReference> featureVectorDatasetsToReference =
+                new HashMap<ExternalData, DatasetReference>();
+        for (WellContent wellContent : wellContents)
+        {
+            Long plateId = wellContent.getPlate().getId();
+            if (plateToSingleImageDatasetReference.containsKey(plateId))
+            {
+                continue;
+            }
+            final List<ExternalData> featureVectoreDatasets =
+                    plateToFeatureVectoreDatasetMap.get(plateId);
+            final List<ExternalData> childlessImageDatasets =
+                    plateToChildlessImageDatasetMap.get(plateId);
+            final DatasetImagesReference singleImageDatasetOrNull =
+                    tryGetSingleImageDataset(childlessImageDatasets, imageParams);
+            plateToSingleImageDatasetReference.put(plateId, singleImageDatasetOrNull);
+
+            boolean onlySingleImageExists = false;
+            if (featureVectoreDatasets != null)
+            {
+                for (ExternalData featureVectoreDataset : featureVectoreDatasets)
+                {
+                    DatasetReference featureVectoreDatasetReference =
+                            ScreeningUtils.createDatasetReference(featureVectoreDataset);
+                    featureVectorDatasetsToReference.put(featureVectoreDataset,
+                            featureVectoreDatasetReference);
+                    DatasetImagesReference imagesDatasetReference =
+                            tryGetImageDatasetReference(featureVectoreDataset, imageParams);
+                    featureVectorDatasetsToImageReference.put(featureVectoreDataset,
+                            imagesDatasetReference);
+                    if (imagesDatasetReference == null && singleImageDatasetOrNull != null)
+                    {
+                        onlySingleImageExists = true;
+                    }
+                }
+            }
+            if (childlessImageDatasets != null && onlySingleImageExists == false)
+            {
+                for (ExternalData childlessImageDataset : childlessImageDatasets)
+                {
+                    final DatasetImagesReference imagesDatasetReference =
+                            createDatasetImagesReference(childlessImageDataset, imageParams);
+                    childlessImageDatasetsToImageReference.put(childlessImageDataset,
+                            imagesDatasetReference);
+                }
+            }
+        }
+
         List<WellContent> wellsWithDatasets = new ArrayList<WellContent>();
         for (WellContent wellContent : wellContents)
         {
-            List<WellContent> clonedWellContents =
-                    enrichWithDatasetReferences(wellContent, plateToChildlessImageDatasetMap,
-                            plateToFeatureVectoreDatasetMap, imageParams);
+            Long plateId = wellContent.getPlate().getId();
+            List<WellContent> clonedWellContents = new ArrayList<WellContent>();
+
+            List<ExternalData> featureVectoreDatasets =
+                    plateToFeatureVectoreDatasetMap.get(plateId);
+            List<ExternalData> childlessImageDatasets =
+                    plateToChildlessImageDatasetMap.get(plateId);
+            DatasetImagesReference singleImageDatasetOrNull =
+                    plateToSingleImageDatasetReference.get(plateId);
+            boolean singleImageAlreadyUsed = false;
+
+            if (featureVectoreDatasets != null)
+            {
+                for (ExternalData featureVectorDataset : featureVectoreDatasets)
+                {
+                    DatasetReference featureVectorDatasetReference =
+                            featureVectorDatasetsToReference.get(featureVectorDataset);
+                    DatasetImagesReference imagesDatasetReference =
+                            featureVectorDatasetsToImageReference.get(featureVectorDataset);
+                    if (imagesDatasetReference == null && singleImageDatasetOrNull != null)
+                    {
+                        // If the plate has only one childless image dataset, then we assume that it
+                        // must have been the one which has been analysed. We need such a heuristic
+                        // because some analysis dataset may have no parent dataset assigned.
+                        imagesDatasetReference = singleImageDatasetOrNull;
+                        singleImageAlreadyUsed = true;
+                    }
+                    clonedWellContents.add(wellContent.cloneWithImageDatasets(
+                            imagesDatasetReference,
+                            featureVectorDatasetReference));
+                }
+            }
+
+            // there can be more than one dataset with images for each well - in such a case we will
+            // have one well content duplicated for each dataset
+            if (childlessImageDatasets != null && singleImageAlreadyUsed == false)
+            {
+                for (ExternalData childlessImageDataset : childlessImageDatasets)
+                {
+                    DatasetImagesReference imagesDatasetReference =
+                            childlessImageDatasetsToImageReference.get(childlessImageDataset);
+                    clonedWellContents.add(wellContent.cloneWithImageDatasets(
+                            imagesDatasetReference,
+                            null));
+                }
+            }
             // if there are no datasets for the well content, we add it without images
             if (clonedWellContents.isEmpty())
             {
@@ -588,63 +685,6 @@ public class WellContentLoader extends AbstractContentLoader
 
         }
         return ref;
-    }
-
-    /**
-     * Connects one WellContent with dataset references.<br>
-     * We want to present all the data to the user, so if a well has several feature vector
-     * datasets, it will be cloned several times. By connecting to feature vector datasets we are
-     * possibly connecting to image datasets as well.<br>
-     * Additionally a join with childless image datasets has to be performed.
-     */
-    private static List<WellContent> enrichWithDatasetReferences(WellContent wellContent,
-            Map<Long, List<ExternalData>> plateToChildlessImageDatasetMap,
-            Map<Long, List<ExternalData>> plateToFeatureVectoreDatasetMap,
-            Map<String, ImageDatasetParameters> imageParams)
-    {
-        Long plateId = wellContent.getPlate().getId();
-        List<WellContent> clonedWellContents = new ArrayList<WellContent>();
-
-        List<ExternalData> featureVectoreDatasets = plateToFeatureVectoreDatasetMap.get(plateId);
-        List<ExternalData> childlessImageDatasets = plateToChildlessImageDatasetMap.get(plateId);
-        DatasetImagesReference singleImageDatasetOrNull =
-                tryGetSingleImageDataset(childlessImageDatasets, imageParams);
-        boolean singleImageAlreadyUsed = false;
-
-        if (featureVectoreDatasets != null)
-        {
-            for (ExternalData featureVectoreDataset : featureVectoreDatasets)
-            {
-                DatasetReference featureVectoreDatasetReference =
-                        ScreeningUtils.createDatasetReference(featureVectoreDataset);
-                DatasetImagesReference imagesDatasetReference =
-                        tryGetImageDatasetReference(featureVectoreDataset, imageParams);
-                if (imagesDatasetReference == null && singleImageDatasetOrNull != null)
-                {
-                    // If the plate has only one childless image dataset, then we assume that it
-                    // must have been the one which has been analysed. We need such a heuristic
-                    // because some analysis dataset may have no parent dataset assigned.
-                    imagesDatasetReference = singleImageDatasetOrNull;
-                    singleImageAlreadyUsed = true;
-                }
-                clonedWellContents.add(wellContent.cloneWithImageDatasets(imagesDatasetReference,
-                        featureVectoreDatasetReference));
-            }
-        }
-
-        // there can be more than one dataset with images for each well - in such a case we will
-        // have one well content duplicated for each dataset
-        if (childlessImageDatasets != null && singleImageAlreadyUsed == false)
-        {
-            for (ExternalData childlessImageDataset : childlessImageDatasets)
-            {
-                DatasetImagesReference imagesDatasetReference =
-                        createDatasetImagesReference(childlessImageDataset, imageParams);
-                clonedWellContents.add(wellContent.cloneWithImageDatasets(imagesDatasetReference,
-                        null));
-            }
-        }
-        return clonedWellContents;
     }
 
     private static DatasetImagesReference tryGetSingleImageDataset(
