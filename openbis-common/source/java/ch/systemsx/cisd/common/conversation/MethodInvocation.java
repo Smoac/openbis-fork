@@ -73,7 +73,14 @@ public class MethodInvocation implements Serializable
             return (Serializable) m.invoke(target, argumentsWithProgressListener);
         } catch (InvocationTargetException e)
         {
-            throw (RuntimeException) e.getCause();
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException)
+            {
+                throw (RuntimeException) e.getCause();
+            } else
+            {
+                throw new RuntimeException(cause);
+            }
         } catch (Exception e)
         {
             throw new RuntimeException("Method call failed", e);
