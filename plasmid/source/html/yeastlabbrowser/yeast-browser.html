@@ -10,7 +10,6 @@
 	<script type="text/javascript" src="d3.tsv.js"></script>
 	<script type="text/javascript" src="jquery.js"></script>
 	<script type="text/javascript" src="jquery-1.3.2.min.js"></script>
-	<script type="text/javascript" src="jquery.chromatable.js"></script>
 	<script type="text/javascript" src="openbis-utils.js"></script>
 	<script type="text/javascript" src="openbis.js"></script>
 	<script type="text/javascript" src="infra.js"></script>
@@ -201,6 +200,17 @@ function props_to_pairs4(data)
 	return new_list4;
 }
 
+
+function resolveObjectReference(objectOrId) {
+  if (isNaN(objectOrId)) {
+    plasmid = objectOrId;
+  } else {
+  	plasmid = yeastsById[objectOrId];
+  }
+  
+  return plasmid;
+}
+
 function get_parents(data)
 {
 
@@ -210,9 +220,10 @@ function get_parents(data)
 	
 	if (data.parents != null) {
 		var i = 1;
-		//parentLabel = "PARENT ";
-	  data.parents.forEach(function(parent) {
-      parentLabel = "PARENT "+ i  ;
+	  data.parents.forEach(function(parentOrId) {
+      parentLabel = "PARENT "+ i;
+      parent = resolveObjectReference(parentOrId);
+      console.log(parent);
       new_list5.push([parentLabel, parent ]);
 			i++;	  
 		});
@@ -222,19 +233,20 @@ function get_parents(data)
 	return new_list5;
 }
 
+
 function get_children(data)
 {
-
 	d = data.properties;
 
 	new_list6=[]	
 	
 	if (data.children != null) {
 		var i = 1;
-		//childLabel = "CHILD ";
-	  data.children.forEach(function(child) {
-      childLabel = "CHILD " +i;
-      new_list6.push([ childLabel, child ]);
+		console.log(data.children)
+	  data.children.forEach(function(childOrId) {
+      childLabel = "CHILD "+ i;
+      child = resolveObjectReference(childOrId);
+      new_list6.push([childLabel, child ]);
 			i++;	  
 		});
 	  
@@ -248,16 +260,33 @@ function get_children(data)
 function initializeYeasts(result)
 {
 	// Split the yeasts into two groups, the ones that start with FRY in their sample name and the other ones.
+	      // Construct a map of all yeasts by id
+  yeastsById = {};
+
+	// Split the yeasts into two groups, the ones that start with FRP in their sample name and the other ones.
 	var fryYeasts = [], otherYeasts = [];
 	var fryRegex = /^FRY[0-9]+/;
 	fryRegex.compile(fryRegex);
-	result.forEach(function(sample) { 
-		if (fryRegex.test(sample.code)) {
-			fryYeasts.push(sample);
+	result.forEach(function(sampleOrId) {
+		var theSample = sampleOrId;
+		function storeSamplesById(referredSample) {
+      if (isNaN(referredSample)) {
+        yeastsById[referredSample["@id"]] = referredSample;
+        if (referredSample.parents) referredSample.parents.forEach(storeSamplesById);
+        if (referredSample.children) referredSample.children.forEach(storeSamplesById);
+      }
+    } 
+	  if (isNaN(theSample)) {
+	  	storeSamplesById(theSample);
+    } else {
+	    // This is referring to an object in the yeastsById map
+	    theSample = yeastsById[sampleOrId];
+		}       
+ 		if (fryRegex.test(theSample.code)) {
+			fryYeasts.push(theSample);
 		} else {
-			otherYeasts.push(sample);
+			otherYeasts.push(theSample);
 		}
-
 	});
 	
 	// Sort each of the groups
@@ -629,8 +658,8 @@ function showMatchingSamples()
 		operator : "MATCH_ALL_CLAUSES"
 	};
 
-	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "CHILDREN"], displayReturnedSamples);
-//openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS"], displayReturnedSamples);
+	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS", "CHILDREN"], displayReturnedSamples);
+
 }
 
 
