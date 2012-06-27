@@ -17,12 +17,14 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -32,17 +34,51 @@ public class SampleImmutable implements ISampleImmutable
 {
     private final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample;
 
+    private final EnumSet<SampleFetchOption> retrievedFetchOptions;
+
     private final boolean existingSample;
 
+    /**
+     * Creates a new object that wraps the sample, which is assumed be an existing sample with all
+     * fetch options retrieved.
+     * 
+     * @param sample The sample to wrap.
+     */
     public SampleImmutable(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample)
     {
         this(sample, true);
     }
 
+    /**
+     * Creates a new object that wraps the sample, which is assumed be an existing sample.
+     * 
+     * @param sample The sample to wrap.
+     * @param retrievedFetchOptions The fetch options the sample includes.
+     */
+    public SampleImmutable(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample,
+            EnumSet<SampleFetchOption> retrievedFetchOptions)
+    {
+        this(sample, retrievedFetchOptions, true);
+    }
+
+    /**
+     * Creates a new object that wraps the sample, which is assumed to have all fetch options
+     * retrieved.
+     * 
+     * @param sample The sample to wrap.
+     * @param existingSample True if the sample exists in the DB.
+     */
     public SampleImmutable(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample,
             boolean existingSample)
     {
+        this(sample, EnumSet.allOf(SampleFetchOption.class), existingSample);
+    }
+
+    public SampleImmutable(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample,
+            EnumSet<SampleFetchOption> retrievedFetchOptions, boolean existingSample)
+    {
         this.sample = sample;
+        this.retrievedFetchOptions = retrievedFetchOptions;
         this.existingSample = existingSample;
     }
 
@@ -120,6 +156,10 @@ public class SampleImmutable implements ISampleImmutable
     @Override
     public List<ISampleImmutable> getContainedSamples()
     {
+        if (false == canGetContainedSamples())
+        {
+            throw new IllegalStateException("Contained samples were not returned by the server.");
+        }
         List<ISampleImmutable> result = new ArrayList<ISampleImmutable>();
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> containedSamples =
                 sample.tryGetContainedSamples();
@@ -145,6 +185,12 @@ public class SampleImmutable implements ISampleImmutable
         }
 
         return parentIdentifiers;
+    }
+
+    @Override
+    public boolean canGetContainedSamples()
+    {
+        return retrievedFetchOptions.contains(SampleFetchOption.CONTAINED);
     }
 
     @Override

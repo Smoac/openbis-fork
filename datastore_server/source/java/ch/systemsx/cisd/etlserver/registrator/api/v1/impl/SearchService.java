@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +31,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmu
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.MaterialIdentifierCollection;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
@@ -46,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-class SearchService implements ISearchService
+public class SearchService implements ISearchService
 {
     private final IEncapsulatedOpenBISService openBisService;
 
@@ -134,7 +136,9 @@ class SearchService implements ISearchService
         ArrayList<ISampleImmutable> samples = new ArrayList<ISampleImmutable>(serverSamples.size());
         for (Sample sample : serverSamples)
         {
-            samples.add(new SampleImmutable(sample));
+            // Search for samples only returns the basic object with with properties.
+            samples.add(new SampleImmutable(sample, EnumSet.of(SampleFetchOption.BASIC,
+                    SampleFetchOption.PROPERTIES)));
         }
         return samples;
     }
@@ -185,7 +189,8 @@ class SearchService implements ISearchService
             MaterialType materialType = new MaterialType();
             materialType.setCode(typeCode);
             List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material> materialsOfType =
-                    openBisService.listMaterials(ListMaterialCriteria.createFromMaterialType(materialType), true);
+                    openBisService.listMaterials(
+                            ListMaterialCriteria.createFromMaterialType(materialType), true);
             accumulatedResults.addAll(materialsOfType);
         }
         return accumulatedResults;
