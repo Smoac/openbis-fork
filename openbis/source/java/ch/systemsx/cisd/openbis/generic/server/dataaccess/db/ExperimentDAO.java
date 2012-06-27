@@ -34,6 +34,8 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
+import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
+import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
@@ -278,6 +280,49 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
                     permId));
         }
         return experimentOrNull;
+    }
+
+    @Override
+    public List<SpacePE> listSpacesByExperimentIds(Collection<Long> experimentIds)
+    {
+        final List<Long> allIds = new ArrayList<Long>(experimentIds);
+        final String query =
+                "from " + SpacePE.class.getSimpleName()
+                        + " as s where s.id in (select p.space.id from "
+                        + ProjectPE.class.getSimpleName()
+                        + " as p where p.id in (select e.projectInternal.id from "
+                        + ExperimentPE.class.getSimpleName() + " as e where e.id in (:ids))))";
+        final List<SpacePE> result = new ArrayList<SpacePE>();
+        BatchOperationExecutor.executeInBatches(new IBatchOperation<Long>()
+            {
+                @Override
+                public void execute(List<Long> ids)
+                {
+                    List<SpacePE> spaces =
+                            cast(getHibernateTemplate().findByNamedParam(query, "ids", ids));
+                    result.addAll(spaces);
+                }
+
+                @Override
+                public List<Long> getAllEntities()
+                {
+                    return allIds;
+                }
+
+                @Override
+                public String getEntityName()
+                {
+                    return "space";
+                }
+
+                @Override
+                public String getOperationName()
+                {
+                    return "listSpacesByDataSetIds";
+                }
+            });
+
+        return result;
     }
 
     @Override

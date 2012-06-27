@@ -114,6 +114,12 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
     public SpacePE tryGetSpace(SpaceOwnerKind entityKind, TechId techId);
 
     /**
+     * Returns a set of distinct spaces owned by the entities of specified type and with specified
+     * ids.
+     */
+    public Set<SpacePE> getDistinctSpacesByEntityIds(SpaceOwnerKind entityKind, List<TechId> techIds);
+
+    /**
      * Returns the sample with given <var>techId</var>.
      */
     public SamplePE getSample(TechId techId);

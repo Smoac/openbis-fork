@@ -22,10 +22,8 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * An <code>IPredicate</code> abstract implementation based on {@link TechId} and
@@ -35,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
  */
 public abstract class AbstractTechIdPredicate extends AbstractSpacePredicate<TechId>
 {
-    private final SpaceOwnerKind entityKind;
+    protected final SpaceOwnerKind entityKind;
 
     public AbstractTechIdPredicate(SpaceOwnerKind entityKind)
     {
@@ -107,15 +105,7 @@ public abstract class AbstractTechIdPredicate extends AbstractSpacePredicate<Tec
         assert initialized : "Predicate has not been initialized";
 
         final SpacePE spaceOrNull = authorizationDataProvider.tryGetSpace(entityKind, techId);
-        if (spaceOrNull == null)
-        {
-            return Status.createError(String.format("User '%s' does not have enough privileges.",
-                    person.getUserId()));
-        }
-
-        final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceOrNull);
-        final DatabaseInstancePE databaseInstance = spaceOrNull.getDatabaseInstance();
-        return evaluate(person, allowedRoles, databaseInstance, spaceCode);
+        return evaluateSpace(person, allowedRoles, spaceOrNull);
     }
 
 }

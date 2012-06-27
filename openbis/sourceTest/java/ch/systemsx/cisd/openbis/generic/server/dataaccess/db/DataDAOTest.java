@@ -23,6 +23,8 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -103,6 +106,18 @@ public final class DataDAOTest extends AbstractDAOTest
         ExternalDataPE externalData = dataSet2.tryAsExternalData();
         assertEquals("abcd", externalData.getLocation());
         assertEquals(ExternalDataPE.class, dataSet2.getClass());
+    }
+
+    @Test
+    public void testListSpacesByDataSetIds()
+    {
+        List<SpacePE> spaces =
+                daoFactory.getDataDAO().listSpacesByDataSetIds(Arrays.asList(20L, 21L, 22L));
+
+        Collections.sort(spaces);
+        assertEquals("CISD", spaces.get(0).getCode());
+        assertEquals("TEST-SPACE", spaces.get(1).getCode());
+        assertEquals(2, spaces.size());
     }
 
     @Test

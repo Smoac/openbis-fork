@@ -71,7 +71,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -1061,6 +1063,51 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             operationLog.debug(String.format("%d data set(s) have been found.", list.size()));
         }
         return list;
+    }
+
+    @Override
+    public List<SpacePE> listSpacesByDataSetIds(Collection<Long> values)
+    {
+        final List<Long> allIds = new ArrayList<Long>(values);
+        final String query =
+                "from " + SpacePE.class.getSimpleName()
+                        + " as s where s.id in (select p.space.id from "
+                        + ProjectPE.class.getSimpleName()
+                        + " as p where p.id in (select e.projectInternal.id from "
+                        + ExperimentPE.class.getSimpleName()
+                        + " as e where e.id in (select d.experimentInternal.id from "
+                        + DataPE.class.getSimpleName() + " as d where d.id in (:ids))))";
+        final List<SpacePE> result = new ArrayList<SpacePE>();
+        BatchOperationExecutor.executeInBatches(new IBatchOperation<Long>()
+            {
+                @Override
+                public void execute(List<Long> ids)
+                {
+                    List<SpacePE> spaces =
+                            cast(getHibernateTemplate().findByNamedParam(query, "ids", ids));
+                    result.addAll(spaces);
+                }
+
+                @Override
+                public List<Long> getAllEntities()
+                {
+                    return allIds;
+                }
+
+                @Override
+                public String getEntityName()
+                {
+                    return "space";
+                }
+
+                @Override
+                public String getOperationName()
+                {
+                    return "listSpacesByDataSetIds";
+                }
+            });
+
+        return result;
     }
 
     @Override

@@ -22,6 +22,7 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -78,6 +79,19 @@ public class ExperimentDAOTest extends AbstractDAOTest
     private static final String CISD_CISD_NEMO_EXP10 = "/CISD/NEMO/EXP10";
 
     private static final String CISD_CISD_NEMO_EXP11 = "/CISD/NEMO/EXP11";
+
+    @Test
+    public void testListSpacesByExperimentIds()
+    {
+        List<SpacePE> spaces =
+                daoFactory.getExperimentDAO().listSpacesByExperimentIds(
+                        Arrays.asList(21L, 22L, 23L));
+
+        Collections.sort(spaces);
+        assertEquals("CISD", spaces.get(0).getCode());
+        assertEquals("TEST-SPACE", spaces.get(1).getCode());
+        assertEquals(2, spaces.size());
+    }
 
     @Test
     public void testListExperiments() throws Exception

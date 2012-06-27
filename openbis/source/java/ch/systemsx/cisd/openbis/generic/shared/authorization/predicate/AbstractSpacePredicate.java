@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleL
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 
 /**
  * Abstract super class of predicates based on data spaces.
@@ -132,6 +133,19 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
     {
         return (spaceCodeOrNull == null || space.getCode().equals(spaceCodeOrNull))
                 && space.getDatabaseInstance().getUuid().equals(databaseInstanceUUID);
+    }
+
+    protected Status evaluateSpace(final PersonPE person, final List<RoleWithIdentifier> allowedRoles, final SpacePE spaceOrNull)
+    {
+        if (spaceOrNull == null)
+        {
+            return Status.createError(String.format("User '%s' does not have enough privileges.",
+                    person.getUserId()));
+        }
+    
+        final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceOrNull);
+        final DatabaseInstancePE databaseInstance = spaceOrNull.getDatabaseInstance();
+        return evaluate(person, allowedRoles, databaseInstance, spaceCode);
     }
 
 }

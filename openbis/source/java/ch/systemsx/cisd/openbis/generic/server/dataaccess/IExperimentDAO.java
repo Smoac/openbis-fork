@@ -105,6 +105,11 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
     public List<ExperimentPE> listByIDs(Collection<Long> ids);
 
     /**
+     * Returns a list of distinct spaces owning the experiments specified by their technical ids.
+     */
+    public List<SpacePE> listSpacesByExperimentIds(Collection<Long> ids);
+
+    /**
      * Saves or updates given given experiments in the database.
      */
     public void createOrUpdateExperiments(List<ExperimentPE> experiments, PersonPE modifier);

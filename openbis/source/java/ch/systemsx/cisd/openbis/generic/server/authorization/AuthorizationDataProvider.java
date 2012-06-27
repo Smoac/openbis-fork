@@ -391,6 +391,45 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     }
 
     @Override
+    public Set<SpacePE> getDistinctSpacesByEntityIds(SpaceOwnerKind kind, List<TechId> techIds)
+    {
+        Set<SpacePE> spaces = new HashSet<SpacePE>();
+        List<Long> ids = TechId.asLongs(techIds);
+        switch (kind)
+        {
+            case DATASET:
+                spaces.addAll(daoFactory.getDataDAO().listSpacesByDataSetIds(ids));
+                break;
+            case EXPERIMENT:
+                spaces.addAll(daoFactory.getExperimentDAO().listSpacesByExperimentIds(ids));
+                break;
+            case SPACE:
+                List<SpacePE> allSpaces = daoFactory.getSpaceDAO().listSpaces();
+                Set<Long> idSet = new HashSet<Long>(ids);
+                for (SpacePE space : allSpaces)
+                {
+                    if (idSet.contains(space.getId()))
+                    {
+                        spaces.add(space);
+                    }
+                }
+                break;
+            case PROJECT:
+                List<ProjectPE> projects = daoFactory.getProjectDAO().listProjects();
+                Set<Long> idSet2 = new HashSet<Long>(ids);
+                for (ProjectPE project : projects)
+                {
+                    if (idSet2.contains(project.getId()))
+                    {
+                        spaces.add(project.getSpace());
+                    }
+                }
+                break;
+        }
+        return spaces;
+    }
+
+    @Override
     public SamplePE getSample(TechId techId)
     {
         return daoFactory.getSampleDAO().getByTechId(techId);

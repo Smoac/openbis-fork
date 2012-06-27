@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -53,6 +52,8 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
 
     private final ExistingSpaceIdentifierPredicate experimentOwnerIdentifierPredicate;
 
+    private final DataSetUpdatesCollectionPredicate dataSetUpdatesCollectionPredicate;
+
     public AtomicOperationsPredicate()
     {
         newExperimentPredicate = new NewExperimentPredicate();
@@ -61,6 +62,7 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
         sampleUpdatesPredicate = new SampleUpdatesCollectionPredicate();
         sampleOwnerIdentifierPredicate = new SampleOwnerIdentifierPredicate(true, true);
         experimentOwnerIdentifierPredicate = new ExistingSpaceIdentifierPredicate();
+        dataSetUpdatesCollectionPredicate = new DataSetUpdatesCollectionPredicate();
     }
 
     @Override
@@ -72,6 +74,7 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
         sampleUpdatesPredicate.init(provider);
         sampleOwnerIdentifierPredicate.init(provider);
         experimentOwnerIdentifierPredicate.init(provider);
+        dataSetUpdatesCollectionPredicate.init(provider);
     }
 
     @Override
@@ -267,17 +270,8 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
 
         private Status evaluateDataSetUpdatesPredicate()
         {
-            for (DataSetUpdatesDTO dataSetUpdate : value.getDataSetUpdates())
-            {
-                Status status =
-                        evaluateDataSetPredicate(dataSetUpdate.getSampleIdentifierOrNull(),
-                                dataSetUpdate.getExperimentIdentifierOrNull());
-                if (status.equals(Status.OK) == false)
-                {
-                    return status;
-                }
-            }
-            return Status.OK;
+            return predicate.dataSetUpdatesCollectionPredicate.doEvaluation(person, allowedRoles,
+                    value.getDataSetUpdates());
         }
 
         private Status evaluateDataSetPredicate(SampleIdentifier sampleIdentifier,

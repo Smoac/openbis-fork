@@ -22,7 +22,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetUpdatesCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExternalDataPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewProjectPredicate;
@@ -104,6 +104,6 @@ public interface IETLEntityOperationChecker
         { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_DATA_SETS_VIA_DSS")
     public void assertDataSetUpdateAllowed(IAuthSession session,
-            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class)
+            @AuthorizationGuard(guardClass = DataSetUpdatesCollectionPredicate.class)
             List<DataSetBatchUpdatesDTO> dataSets);
 }

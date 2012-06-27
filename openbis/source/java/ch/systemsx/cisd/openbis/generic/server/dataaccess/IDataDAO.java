@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * An interface that contains all data access operations on {@link ExternalDataPE}s.
@@ -131,6 +132,11 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     public Set<TechId> findParentIds(Collection<TechId> dataSetIds);
 
     public List<DataPE> listByCode(Set<String> values);
+
+    /**
+     * Returns a list of distinct spaces owning the data sets specified by their technical ids.
+     */
+    public List<SpacePE> listSpacesByDataSetIds(Collection<Long> values);
 
     public void updateDataSets(List<DataPE> externalData, PersonPE modifier);
 
