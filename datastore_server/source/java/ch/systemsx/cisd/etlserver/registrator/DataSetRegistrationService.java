@@ -335,12 +335,28 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                         "A data set can contain either files or other data sets or link to an external system dataset. The data set specification is invalid: "
                                 + dataSetInformation);
             }
-            algorithm =
-                    new AbstractNoFileDataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails, strategy,
-                            registratorContext.getStorageProcessor(),
-                            globalContext.getDataSetValidator(), globalContext.getDssCode(),
-                            registratorContext.getFileOperations(), globalContext.getMailClient(),
-                            stagingDirectory, precommitDirectory);
+
+            if (dataSetInformation.isContainerDataSet())
+            {
+                algorithm =
+                        new ContainerDataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails,
+                                strategy, registratorContext.getStorageProcessor(),
+                                globalContext.getDataSetValidator(), globalContext.getDssCode(),
+                                registratorContext.getFileOperations(),
+                                globalContext.getMailClient(), stagingDirectory, precommitDirectory);
+            } else if (dataSetInformation.isLinkDataSet())
+            {
+                algorithm =
+                        new LinkDataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails,
+                                strategy, registratorContext.getStorageProcessor(),
+                                globalContext.getDataSetValidator(), globalContext.getDssCode(),
+                                registratorContext.getFileOperations(),
+                                globalContext.getMailClient(), stagingDirectory, precommitDirectory);
+            } else
+            {
+                throw new IllegalStateException(
+                        "No-file dataset has to be either a container dataset or a link dataset");
+            }
         } else
         {
 

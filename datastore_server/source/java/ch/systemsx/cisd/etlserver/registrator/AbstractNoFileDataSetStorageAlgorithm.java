@@ -29,6 +29,7 @@ import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryAlg
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageStoredRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 
 /**
  * An implementation of the storage algorithm that registers data sets without file contents. This
@@ -137,7 +138,7 @@ public abstract class AbstractNoFileDataSetStorageAlgorithm<T extends DataSetInf
     {
         return new DataSetStoragePrecommitRecoveryAlgorithm<T>(getDataSetInformation(),
                 getDataStoreStrategy().getKey(), getIncomingDataSetFile(), getStagingDirectory(),
-                getPreCommitDirectory(), getDataStoreCode());
+                getPreCommitDirectory(), getDataStoreCode(), getDataSetKind());
     }
 
     @Override
@@ -145,7 +146,9 @@ public abstract class AbstractNoFileDataSetStorageAlgorithm<T extends DataSetInf
     {
         return new DataSetStorageStoredRecoveryAlgorithm<T>(getDataSetInformation(),
                 getDataStoreStrategy().getKey(), getIncomingDataSetFile(), getStagingDirectory(),
-                getPreCommitDirectory(), getDataStoreCode());
+                getPreCommitDirectory(), getDataStoreCode(), getDataSetKind());
     }
 
+    @Override
+    public abstract DataSetKind getDataSetKind();
 }

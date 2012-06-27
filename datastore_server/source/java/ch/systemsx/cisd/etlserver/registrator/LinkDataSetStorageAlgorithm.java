@@ -26,6 +26,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
 /**
@@ -61,5 +62,11 @@ public class LinkDataSetStorageAlgorithm<T extends DataSetInformation> extends
         return ConversionUtils
                 .convertToNewLinkDataSet(getRegistrationDetails(),
                 getDataStoreCode());
+    }
+
+    @Override
+    public DataSetKind getDataSetKind()
+    {
+        return DataSetKind.LINK;
     }
 }
