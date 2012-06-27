@@ -26,16 +26,16 @@ import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
-import ch.systemsx.cisd.etlserver.registrator.AbstractNoFileDataSetStorageAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm.DataSetStoragePaths;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 
 /**
  * @author jakubs
  */
 public class DataSetStoragePrecommitRecoveryAlgorithm<T extends DataSetInformation> implements
-        Serializable
+        Serializable, IDataSetStorageRecoveryAlgorithmWithState<T>
 {
 
     private static final long serialVersionUID = 1L;
@@ -46,29 +46,17 @@ public class DataSetStoragePrecommitRecoveryAlgorithm<T extends DataSetInformati
 
     private final File markerFile;
 
-    private boolean isContainer;
-
-    /**
-     * simplified constructor for container algorithm
-     * 
-     * @param dataSetInformation
-     * @param dataStoreStrategyKey
-     * @param incomingDataSetFile
-     * @param stagingDirectory
-     * @param preCommitDirectory
-     * @param dataStoreCode
-     */
     public DataSetStoragePrecommitRecoveryAlgorithm(T dataSetInformation,
             DataStoreStrategyKey dataStoreStrategyKey, File incomingDataSetFile,
-            File stagingDirectory, File preCommitDirectory, String dataStoreCode)
+            File stagingDirectory, File preCommitDirectory, String dataStoreCode,
+            DataSetKind dataSetKind)
     {
         this.recoveryAlgorithm =
                 new DataSetStorageRecoveryAlgorithm<T>(dataSetInformation, dataStoreStrategyKey,
                         incomingDataSetFile, stagingDirectory, preCommitDirectory, dataStoreCode,
-                        null);
+                        null, dataSetKind);
         this.markerFile = null;
         this.transaction = null;
-        this.isContainer = true;
     }
 
     public DataSetStoragePrecommitRecoveryAlgorithm(T dataSetInformation,
@@ -80,33 +68,15 @@ public class DataSetStoragePrecommitRecoveryAlgorithm<T extends DataSetInformati
         this.recoveryAlgorithm =
                 new DataSetStorageRecoveryAlgorithm<T>(dataSetInformation, dataStoreStrategyKey,
                         incomingDataSetFile, stagingDirectory, preCommitDirectory, dataStoreCode,
-                        dataSetStoragePaths);
+                        dataSetStoragePaths, DataSetKind.EXTERNAL);
         this.transaction = transaction;
         this.markerFile = markerFile;
-        this.isContainer = false;
     }
 
     public DataSetStorageAlgorithm<T> recoverDataSetStorageAlgorithm(
             OmniscientTopLevelDataSetRegistratorState state)
     {
-        IDataStoreStrategy dataStoreStrategy =
-                state.getDataStrategyStore().getDataStoreStrategy(
-                        recoveryAlgorithm.getDataStoreStrategyKey());
-
-        IMailClient mailClient = state.getGlobalState().getMailClient();
-        IFileOperations fileOperations = state.getFileOperations();
-
-        IStorageProcessorTransactional storageProcessor = state.getStorageProcessor();
-
-        if (isContainer)
-        {
-            return new AbstractNoFileDataSetStorageAlgorithm<T>(dataStoreStrategy, storageProcessor,
-                    fileOperations, mailClient, recoveryAlgorithm);
-        } else
-        {
-            return new DataSetStorageAlgorithm<T>(dataStoreStrategy, storageProcessor,
-                    fileOperations, mailClient, this);
-        }
+        return recoveryAlgorithm.recoverDataSetStorageAlgorithm(state, this);
     }
 
     public IStorageProcessorTransaction getTransaction()
@@ -186,6 +156,15 @@ public class DataSetStoragePrecommitRecoveryAlgorithm<T extends DataSetInformati
     public DataSetStorageRecoveryAlgorithm<T> getRecoveryAlgorithm()
     {
         return recoveryAlgorithm;
+    }
+
+    @Override
+    public DataSetStorageAlgorithm<T> createExternalDataSetStorageAlgorithm(
+            IDataStoreStrategy dataStoreStrategy, IStorageProcessorTransactional storageProcessor,
+            IFileOperations fileOperations, IMailClient mailClient)
+    {
+        return DataSetStorageAlgorithm.createFromPrecommittedRecoveryAlgorithm(dataStoreStrategy,
+                storageProcessor, fileOperations, mailClient, this);
     }
 
 }

@@ -19,13 +19,19 @@ package ch.systemsx.cisd.etlserver.registrator.recovery;
 import java.io.File;
 import java.io.Serializable;
 
+import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.DataStoreStrategyKey;
+import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
+import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
+import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
+import ch.systemsx.cisd.etlserver.registrator.ContainerDataSetStorageAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm;
+import ch.systemsx.cisd.etlserver.registrator.LinkDataSetStorageAlgorithm;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 
 /**
- * 
- *
  * @author jakubs
  */
 public class DataSetStorageRecoveryAlgorithm<T extends DataSetInformation> implements Serializable
@@ -45,11 +51,13 @@ public class DataSetStorageRecoveryAlgorithm<T extends DataSetInformation> imple
     private final T dataSetInformation;
 
     private final DataSetStorageAlgorithm.DataSetStoragePaths dataSetStoragePaths;
-    
+
+    private final DataSetKind dataSetKind;
+
     public DataSetStorageRecoveryAlgorithm(T dataSetInformation,
             DataStoreStrategyKey dataStoreStrategyKey, File incomingDataSetFile,
             File stagingDirectory, File preCommitDirectory, String dataStoreCode,
-            DataSetStorageAlgorithm.DataSetStoragePaths dataSetStoragePaths)
+            DataSetStorageAlgorithm.DataSetStoragePaths dataSetStoragePaths, DataSetKind dataSetKind)
     {
         this.dataSetInformation = dataSetInformation;
 
@@ -61,6 +69,8 @@ public class DataSetStorageRecoveryAlgorithm<T extends DataSetInformation> imple
         this.dataStoreCode = dataStoreCode;
 
         this.dataSetStoragePaths = dataSetStoragePaths;
+
+        this.dataSetKind = dataSetKind;
     }
 
     public String getDataSetCode()
@@ -97,9 +107,42 @@ public class DataSetStorageRecoveryAlgorithm<T extends DataSetInformation> imple
     {
         return dataStoreCode;
     }
-    
+
     public DataSetStorageAlgorithm.DataSetStoragePaths getDataSetStoragePaths()
     {
         return dataSetStoragePaths;
+    }
+
+    public DataSetKind getDataSetKind()
+    {
+        return dataSetKind;
+    }
+
+    public DataSetStorageAlgorithm<T> recoverDataSetStorageAlgorithm(
+            OmniscientTopLevelDataSetRegistratorState state,
+            IDataSetStorageRecoveryAlgorithmWithState<T> algorithm)
+    {
+        IDataStoreStrategy dataStoreStrategy =
+                state.getDataStrategyStore().getDataStoreStrategy(getDataStoreStrategyKey());
+
+        IMailClient mailClient = state.getGlobalState().getMailClient();
+        IFileOperations fileOperations = state.getFileOperations();
+
+        IStorageProcessorTransactional storageProcessor = state.getStorageProcessor();
+
+        switch (getDataSetKind())
+        {
+            case CONTAINER:
+                return new ContainerDataSetStorageAlgorithm<T>(dataStoreStrategy, storageProcessor,
+                        fileOperations, mailClient, this);
+            case LINK:
+                return new LinkDataSetStorageAlgorithm<T>(dataStoreStrategy, storageProcessor,
+                        fileOperations, mailClient, this);
+            case EXTERNAL:
+                return algorithm.createExternalDataSetStorageAlgorithm(dataStoreStrategy,
+                        storageProcessor, fileOperations, mailClient);
+            default:
+                throw new IllegalStateException("Unknown data set kind " + getDataSetKind());
+        }
     }
 }

@@ -25,27 +25,20 @@ import ch.systemsx.cisd.etlserver.DataStoreStrategyKey;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
-import ch.systemsx.cisd.etlserver.registrator.AbstractNoFileDataSetStorageAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm.DataSetStoragePaths;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 
 /**
  * @author jakubs
  */
 public class DataSetStorageStoredRecoveryAlgorithm<T extends DataSetInformation> implements
-        Serializable
+        Serializable, IDataSetStorageRecoveryAlgorithmWithState<T>
 {
     private static final long serialVersionUID = 1L;
 
     private DataSetStorageRecoveryAlgorithm<T> recoveryAlgorithm;
-
-    private boolean isContainer;
-
-    public boolean isContainer()
-    {
-        return isContainer;
-    }
 
     public DataSetStorageStoredRecoveryAlgorithm(T dataSetInformation,
             DataStoreStrategyKey dataStoreStrategyKey, File incomingDataSetFile,
@@ -55,41 +48,24 @@ public class DataSetStorageStoredRecoveryAlgorithm<T extends DataSetInformation>
         recoveryAlgorithm =
                 new DataSetStorageRecoveryAlgorithm<T>(dataSetInformation, dataStoreStrategyKey,
                         incomingDataSetFile, stagingDirectory, preCommitDirectory, dataStoreCode,
-                        dataSetStoragePaths);
-        isContainer = false;
+                        dataSetStoragePaths, DataSetKind.EXTERNAL);
     }
 
     public DataSetStorageStoredRecoveryAlgorithm(T dataSetInformation,
             DataStoreStrategyKey dataStoreStrategyKey, File incomingDataSetFile,
-            File stagingDirectory, File preCommitDirectory, String dataStoreCode)
+            File stagingDirectory, File preCommitDirectory, String dataStoreCode,
+            DataSetKind dataSetKind)
     {
         recoveryAlgorithm =
                 new DataSetStorageRecoveryAlgorithm<T>(dataSetInformation, dataStoreStrategyKey,
                         incomingDataSetFile, stagingDirectory, preCommitDirectory, dataStoreCode,
-                        null);
-        isContainer = true;
+                        null, dataSetKind);
     }
 
     public DataSetStorageAlgorithm<T> recoverDataSetStorageAlgorithm(
             OmniscientTopLevelDataSetRegistratorState state)
     {
-        IDataStoreStrategy dataStoreStrategy =
-                state.getDataStrategyStore().getDataStoreStrategy(getDataStoreStrategyKey());
-
-        IMailClient mailClient = state.getGlobalState().getMailClient();
-        IFileOperations fileOperations = state.getFileOperations();
-
-        IStorageProcessorTransactional storageProcessor = state.getStorageProcessor();
-
-        if (isContainer)
-        {
-            return new AbstractNoFileDataSetStorageAlgorithm<T>(dataStoreStrategy, storageProcessor,
-                    fileOperations, mailClient, recoveryAlgorithm);
-        } else
-        {
-            return new DataSetStorageAlgorithm<T>(dataStoreStrategy, storageProcessor,
-                    fileOperations, mailClient, this);
-        }
+        return recoveryAlgorithm.recoverDataSetStorageAlgorithm(state, this);
     }
 
     public DataSetStorageRecoveryAlgorithm<T> getRecoveryAlgorithm()
@@ -161,4 +137,12 @@ public class DataSetStorageStoredRecoveryAlgorithm<T extends DataSetInformation>
         return recoveryAlgorithm.getDataSetStoragePaths();
     }
 
+    @Override
+    public DataSetStorageAlgorithm<T> createExternalDataSetStorageAlgorithm(
+            IDataStoreStrategy dataStoreStrategy, IStorageProcessorTransactional storageProcessor,
+            IFileOperations fileOperations, IMailClient mailClient)
+    {
+        return DataSetStorageAlgorithm.createFromStoredRecoveryAlgorithm(dataStoreStrategy,
+                storageProcessor, fileOperations, mailClient, this);
+    }
 }
