@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewLinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -175,9 +176,13 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         assert sample != null : "Undefined sample.";
 
         boolean isContainer = newData instanceof NewContainerDataSet;
+        boolean isLink = newData instanceof NewLinkDataSet;
         if (isContainer)
         {
             define((NewContainerDataSet) newData, sourceType);
+        } else if (isLink)
+        {
+            define((NewLinkDataSet) newData, sourceType);
         } else
         {
             define(newData, sourceType);
@@ -197,9 +202,13 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         assert experiment != null : "Undefined experiment.";
 
         boolean isContainer = newData instanceof NewContainerDataSet;
+        boolean isLink = newData instanceof NewLinkDataSet;
         if (isContainer)
         {
             define((NewContainerDataSet) newData, sourceType);
+        } else if (isLink)
+        {
+            define((NewLinkDataSet) newData, sourceType);
         } else
         {
             define(newData, sourceType);
@@ -303,6 +312,36 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         assert sourceType != null : "Undefined source type.";
 
         final DataPE dataPE = new DataPE();
+
+        dataPE.setDataProducerCode(newData.getDataProducerCode());
+        dataPE.setProductionDate(newData.getProductionDate());
+        dataPE.setCode(newData.getCode());
+        dataPE.setDataSetType(getDataSetType(dataSetType));
+        dataPE.setRegistrator(tryToGetRegistrator(newData));
+        dataStore = getDataStoreDAO().tryToFindDataStoreByCode(newData.getDataStoreCode());
+        dataPE.setDataStore(dataStore);
+        defineDataSetProperties(dataPE, convertToDataSetProperties(newData.getDataSetProperties()));
+        dataPE.setDerived(sourceType == SourceType.DERIVED);
+
+        data = dataPE;
+    }
+
+    private void define(NewLinkDataSet newData, SourceType sourceType)
+    {
+        assert newData != null : "Undefined data.";
+        final DataSetType dataSetType = newData.getDataSetType();
+        assert dataSetType != null : "Undefined data set type.";
+        assert sourceType != null : "Undefined source type.";
+
+        final LinkDataPE dataPE = new LinkDataPE();
+
+        dataPE.setExternalCode(newData.getExternalCode());
+
+        String code = newData.getExternalDataManagementSystemCode();
+        ExternalDataManagementSystemPE externalDMS =
+                getExternalDataManagementSystemDAO().tryToFindExternalDataManagementSystemByCode(
+                        code);
+        dataPE.setExternalDataManagementSystem(externalDMS);
 
         dataPE.setDataProducerCode(newData.getDataProducerCode());
         dataPE.setProductionDate(newData.getProductionDate());
