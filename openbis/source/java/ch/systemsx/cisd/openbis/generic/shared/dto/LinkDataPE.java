@@ -77,7 +77,7 @@ public class LinkDataPE extends DataPE
     @Transient
     public LinkDataPE tryAsLinkData()
     {
-        return null;
+        return this;
     }
 
     @Override

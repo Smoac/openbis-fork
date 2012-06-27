@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PlaceholderDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -146,6 +148,9 @@ public class DataSetTranslator
         if (dataPE.isContainer())
         {
             externalData = translateContainerDataSetProperties(dataPE, baseIndexURL, withDetails);
+        } else if (dataPE.isLinkData())
+        {
+            externalData = translateLinkDataSetProperties(dataPE, baseIndexURL);
         } else if (dataPE instanceof ExternalDataPE)
         {
             externalData = translateDataSetProperties((ExternalDataPE) dataPE);
@@ -204,6 +209,18 @@ public class DataSetTranslator
             setContainedDataSets(dataPE, containerDataSet, baseIndexURL);
         }
         return containerDataSet;
+    }
+
+    private static LinkDataSet translateLinkDataSetProperties(DataPE dataPE, String baseIndexURL)
+    {
+        LinkDataSet linkDataSet = new LinkDataSet();
+        LinkDataPE linkDataPE = dataPE.tryAsLinkData();
+
+        linkDataSet.setExternalDataManagementSystem(ExternalDataManagementSystemTranslator
+                .translate(linkDataPE.getExternalDataManagementSystem()));
+        linkDataSet.setExternalCode(linkDataPE.getExternalCode());
+
+        return linkDataSet;
     }
 
     private static ExternalData translateDataSetProperties(ExternalDataPE externalDataPE)
