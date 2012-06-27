@@ -105,9 +105,9 @@ public final class DefaultAccessController implements IAccessController
     private final static void logTimeTaken(final StopWatch stopWatch, final Method method)
     {
         stopWatch.stop();
-        if (operationLog.isInfoEnabled())
+        if (operationLog.isDebugEnabled())
         {
-            operationLog.info(String.format("Controlling access to method '%s' took %s",
+            operationLog.debug(String.format("Controlling access to method '%s' took %s",
                     MethodUtils.describeMethod(method), stopWatch));
         }
     }
