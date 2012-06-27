@@ -15,9 +15,9 @@
 <script>
 
 /// The openbisServer we use for our data
-//openbisServer = new openbis('https://openbis-csb.ethz.ch/openbis/openbis', 'https://openbis-csb.ethz.ch:443/datastore_server');
+openbisServer = new openbis('https://openbis-csb.ethz.ch/openbis/openbis', 'https://openbis-csb.ethz.ch:443/datastore_server');
 
-openbisServer = new openbis('https://localhost:8443/openbis/openbis', 'https://bs-mbp156.ethz.ch:8443/datastore_server');
+//openbisServer = new openbis('https://localhost:8443/openbis/openbis', 'https://bs-mbp156.ethz.ch:8443/datastore_server');
 
 
 // Some global variables we refer to
@@ -149,6 +149,16 @@ function props_to_pairs2(data)
 	return new_list2;
 }
 
+function resolveObjectReference(objectOrId) {
+  if (isNaN(objectOrId)) {
+    plasmid = objectOrId;
+  } else {
+  	plasmid = plasmidsById[objectOrId];
+  }
+  
+  return plasmid;
+}
+
 function get_parents(data)
 {
 
@@ -158,9 +168,9 @@ function get_parents(data)
 	
 	if (data.parents != null) {
 		var i = 1;
-	  data.parents.forEach(function(parent) {
-      parentLabel = "PARENT "+ i  ;
-      console.log(data.parents)
+	  data.parents.forEach(function(parentOrId) {
+      parentLabel = "PARENT "+ i;
+      parent = resolveObjectReference(parentOrId);
       new_list3.push([parentLabel, parent ]);
 			i++;	  
 		});
@@ -170,18 +180,18 @@ function get_parents(data)
 	return new_list3;
 }
 
+
 function get_children(data)
 {
-
 	d = data.properties;
 
 	new_list4=[]	
 	
 	if (data.children != null) {
 		var i = 1;
-		console.log(data.children)
-	  data.children.forEach(function(child) {
-      childLabel = "CHILD "+ i  ;
+	  data.children.forEach(function(childOrId) {
+      childLabel = "CHILD "+ i;
+      child = resolveObjectReference(childOrId);
       new_list4.push([childLabel, child ]);
 			i++;	  
 		});
@@ -195,15 +205,32 @@ function get_children(data)
 /** Initialize the plasmids variable */
 function initializePlasmids(result)
 {
+      // Construct a map of all plasmids by id
+  plasmidsById = {};
+
 	// Split the plasmids into two groups, the ones that start with FRP in their sample name and the other ones.
 	var frpPlasmids = [], otherPlasmids = [];
 	var frpRegex = /^FRP[0-9]+/;
 	frpRegex.compile(frpRegex);
-	result.forEach(function(sample) { 
-		if (frpRegex.test(sample.code)) {
-			frpPlasmids.push(sample);
+	result.forEach(function(sampleOrId) {
+		var theSample = sampleOrId;
+		function storeSamplesById(referredSample) {
+      if (isNaN(referredSample)) {
+        plasmidsById[referredSample["@id"]] = referredSample;
+        if (referredSample.parents) referredSample.parents.forEach(storeSamplesById);
+        if (referredSample.children) referredSample.children.forEach(storeSamplesById);
+      }
+    } 
+	  if (isNaN(theSample)) {
+	  	storeSamplesById(theSample);
+    } else {
+	    // This is referring to an object in the plasmidsById map
+	    theSample = plasmidsById[sampleOrId];
+		}       
+ 		if (frpRegex.test(theSample.code)) {
+			frpPlasmids.push(theSample);
 		} else {
-			otherPlasmids.push(sample);
+			otherPlasmids.push(theSample);
 		}
 	});
 	
@@ -249,7 +276,13 @@ function inspectPlasmid(plasmid)
 {
 	if (inspectedPlasmids.indexOf(plasmid) < 0) {
 		inspectedPlasmids.push(plasmid);
-		openbisServer.listDataSetsForSample(plasmid, true, dataset.curry(plasmid));
+		
+		// When requesting information about the sample, we don't need parents
+		// and children, so send a copy of the saple without that information.
+		var plasmidToSend = $.extend({}, plasmid);
+		delete plasmidToSend.parents;
+		delete plasmidToSend.children;
+		openbisServer.listDataSetsForSample(plasmidToSend, true, dataset.curry(plasmid));
 	}
 	resizePlasmidTable();
 	updateInspectors(1000);
@@ -269,6 +302,7 @@ function closeInspector(plasmid)
 
 function dataset(plasmid, data) {
 	for (var i in data.result) {
+	  console.log(data.result)
 		openbisServer.listFilesForDataSet(data.result[i].code, "/", true, filelist.curry(plasmid, data.result[i]));
 	}
 }
@@ -555,7 +589,7 @@ function showMatchingSamples()
 		operator : "MATCH_ALL_CLAUSES"
 	};
 
-	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS"], displayReturnedSamples);
+	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS", "CHILDREN"], displayReturnedSamples);
 }
 
 
