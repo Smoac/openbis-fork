@@ -324,7 +324,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         assertEntities("[/CISD/3VCP5, /CISD/3VCP6, /CISD/3VCP7, /CISD/3VCP8, /CISD/CP-TEST-1, "
                 + "/CISD/CP-TEST-2, /CISD/CP-TEST-3, /CISD/CP1-A1, /CISD/CP1-A2, /CISD/CP1-B1, "
-                + "/CISD/CP2-A1, /CISD/PLATE_WELLSEARCH]", samples);
+                + "/CISD/CP2-A1, /CISD/PLATE_WELLSEARCH, /TEST-SPACE/FV-TEST]", samples);
 
         Sample sample0 = samples.get(0);
         assertEquals("3VCP5", sample0.getCode());
