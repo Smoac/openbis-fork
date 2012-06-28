@@ -153,7 +153,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.EXPERIMENT, query,
                         createDataProvider(), useWildcardMode, 0, Integer.MAX_VALUE);
-        assertEquals(6, hits.size());
+        assertEquals(7, hits.size());
         for (MatchingEntity matchingEntity : hits)
         {
             AssertionUtil.assertContainsInsensitive(querySubstring, matchingEntity.getCode());
