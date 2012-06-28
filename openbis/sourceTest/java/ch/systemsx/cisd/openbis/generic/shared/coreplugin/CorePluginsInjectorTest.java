@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -92,6 +93,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
                     return "prefix.";
                 }
             };
+        PluginType type6 = new PluginType("webapps", "webapps");
         injector = new CorePluginsInjector(ScannerType.DSS, new IPluginType[]
             { type1, type2, type3, type4, type5, type6 }, logger);
         corePluginsFolder = new File(workingDirectory, "core-plugins");
@@ -329,6 +331,29 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
                 + "maintenance-plugins = t1, t2\n" + "my-report.script = " + misc + "/r.py\n"
                 + "reporting-plugins = k1, k2, my-report\n" + "t1.class = blabla\n"
                 + "t2.script = " + misc + "/task.py\n", properties);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testWebappsPlugin() throws IOException
+    {
+        File webapps = new File(corePluginsFolder, "screening/1/dss/webapps");
+        webapps.mkdirs();
+
+        File exampleWebapp =
+                new File(
+                        "sourceTest/java/ch/systemsx/cisd/openbis/generic/shared/coreplugin/webapps/example-webapp");
+        FileUtils.copyDirectoryToDirectory(exampleWebapp, webapps);
+
+        Properties properties = createProperties();
+        preparePluginNameLog("screening:webapps:example-webapp [" + webapps + "/example-webapp]");
+
+        injector.injectCorePlugins(properties);
+
+        assertEquals("example-webapp", properties.getProperty("webapps"));
+        String webappFolder = properties.getProperty("example-webapp.webapp-folder");
+        assertEquals(webapps.toString() + "/example-webapp/html", webappFolder);
 
         context.assertIsSatisfied();
     }

@@ -50,9 +50,11 @@ public class CorePluginsInjectingPropertyPlaceholderConfigurer extends
                         CustomImport.PropertyNames.CUSTOM_IMPORTS.getName());
         PluginType queryDatabases = new PluginType("query-databases", "query-databases");
         PluginType miscellaneous = new PluginType("miscellaneous", null);
+        PluginType webapps = new PluginType("webapps", "webapps");
 
         new CorePluginsInjector(ScannerType.AS, new IPluginType[]
             { dssDataSources, maintenanceTasks, customImports, queryDatabases, miscellaneous })
+            { maintenanceTasks, customImports, queryDatabases, miscellaneous, webapps })
                 .injectCorePlugins(properties);
     }
 
