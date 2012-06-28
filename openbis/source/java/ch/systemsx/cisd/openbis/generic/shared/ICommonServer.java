@@ -33,10 +33,12 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractE
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractExpressionPredicate.DeleteGridCustomFilterPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractExpressionPredicate.UpdateGridCustomColumnPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractExpressionPredicate.UpdateGridCustomFilterPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdCollectionPredicate.ExperimentTechIdCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdCollectionPredicate.ProjectTechIdCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdCollectionPredicate.SpaceTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.SpaceTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetUpdatesPredicate;
@@ -590,7 +592,7 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
     @Capability("DELETE_PROJECT")
     public void deleteProjects(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class)
+            @AuthorizationGuard(guardClass = ProjectTechIdCollectionPredicate.class)
             List<TechId> projectIds, String reason);
 
     /**
@@ -600,7 +602,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SPACE)
     public void deleteSpaces(String sessionToken,
-            @AuthorizationGuard(guardClass = SpaceTechIdPredicate.class)
+            @AuthorizationGuard(guardClass = SpaceTechIdCollectionPredicate.class)
             List<TechId> spaceIds, String reason);
 
     /**
@@ -828,7 +830,7 @@ public interface ICommonServer extends IServer
         { ObjectKind.DATA_SET, ObjectKind.DELETION })
     @Capability("DELETE_DATASET")
     public void deleteDataSets(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
             List<String> dataSetCodes, String reason, DeletionType type,
             boolean forceNotExistingLocations, boolean isTrashEnabled);
 
@@ -843,7 +845,7 @@ public interface ICommonServer extends IServer
         { ObjectKind.DATA_SET, ObjectKind.DELETION })
     @Capability("FORCE_DELETE_DATASET")
     public void deleteDataSetsForced(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
             List<String> dataSetCodes, String reason, DeletionType type,
             boolean forceNotExistingLocations, boolean isTrashEnabled);
 
@@ -868,7 +870,7 @@ public interface ICommonServer extends IServer
         { ObjectKind.EXPERIMENT, ObjectKind.DELETION })
     @Capability("DELETE_EXPERIMENT")
     public void deleteExperiments(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
+            @AuthorizationGuard(guardClass = ExperimentTechIdCollectionPredicate.class)
             List<TechId> experimentIds, String reason, DeletionType deletionType);
 
     /**
