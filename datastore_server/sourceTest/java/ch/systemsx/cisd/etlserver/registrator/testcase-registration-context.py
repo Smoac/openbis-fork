@@ -4,7 +4,7 @@ jythonHookTestTool = JythonHookTestTool.createInTest()
 
 execfile("sourceTest/java/ch/systemsx/cisd/etlserver/registrator/simple-transaction.py")
 
-transaction.getRegistrationContext().put("body","1")
+transaction.getRegistrationContext().getPersistentMap().put("body","1")
 
 def rollback_transaction(service, transaction, algorithmRunner, throwable):
     jythonHookTestTool.log("rollback_transaction")
@@ -15,7 +15,7 @@ def pre_metadata_registration(context):
     assert_context_content(context, "pre_metadata_registration", "pre_metadata_registration", None);
     assert_context_content(context, "pre_metadata_registration", "post_storage", None);
 
-    context.put("pre_metadata_registration", "2")
+    context.getPersistentMap().put("pre_metadata_registration", "2")
     jythonHookTestTool.log("pre_metadata_registration")
 
 def post_metadata_registration(context):
@@ -24,7 +24,7 @@ def post_metadata_registration(context):
     assert_context_content(context, "post_metadata_registration", "pre_metadata_registration", "2");
     assert_context_content(context, "post_metadata_registration", "post_storage", None);
 
-    context.put("post_metadata_registration", "3")
+    context.getPersistentMap().put("post_metadata_registration", "3")
     jythonHookTestTool.log("post_metadata_registration")
 
 def post_storage(context):
@@ -33,11 +33,11 @@ def post_storage(context):
     assert_context_content(context, "post_storage", "pre_metadata_registration", "2");
     assert_context_content(context, "post_storage", "post_metadata_registration", "3");
 
-    context.put("post_storage", "4")
+    context.getPersistentMap().put("post_storage", "4")
     jythonHookTestTool.log("post_storage")
     
 def assert_context_content(context, caller, name, expected):
-    value = context.get(name)
+    value = context.getPersistentMap().get(name)
     if (value != expected):
         if (value != None and expected != None and type(value) != type(expected)):
             value = "%s:%s" % (type(value), value)
