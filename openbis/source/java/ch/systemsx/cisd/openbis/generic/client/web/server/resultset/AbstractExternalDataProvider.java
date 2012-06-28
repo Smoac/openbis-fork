@@ -24,8 +24,11 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDat
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.DATA_STORE_CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.EXPERIMENT;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.EXPERIMENT_TYPE;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.EXTERNAL_CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.EXTERNAL_DATA_EXPERIMENT_IDENTIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.EXTERNAL_DATA_SAMPLE_IDENTIFIER;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.EXTERNAL_DMS_CODE;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.EXTERNAL_DMS_LABEL;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.FILE_FORMAT_TYPE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.IS_COMPLETE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.IS_DELETED;
@@ -57,7 +60,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetUrl;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -81,6 +88,7 @@ public abstract class AbstractExternalDataProvider extends
         List<ExternalData> dataSets = getDataSets();
         TypedTableModelBuilder<ExternalData> builder = new TypedTableModelBuilder<ExternalData>();
         builder.addColumn(CODE).withDefaultWidth(150);
+        builder.addColumn(EXTERNAL_CODE).withDefaultWidth(150).hideByDefault();
         builder.addColumn(DATA_SET_TYPE).withDefaultWidth(200);
         builder.addColumn(CONTAINER_DATASET).withDefaultWidth(150).hideByDefault();
         builder.addColumn(ORDER_IN_CONTAINER).withDefaultWidth(100).hideByDefault();
@@ -106,12 +114,33 @@ public abstract class AbstractExternalDataProvider extends
         builder.addColumn(PRODUCTION_DATE).withDefaultWidth(200).hideByDefault();
         builder.addColumn(DATA_PRODUCER_CODE).hideByDefault();
         builder.addColumn(DATA_STORE_CODE).hideByDefault();
+        builder.addColumn(EXTERNAL_DMS_CODE).withDefaultWidth(150).hideByDefault();
+        builder.addColumn(EXTERNAL_DMS_LABEL).withDefaultWidth(150).hideByDefault();
         builder.addColumn(PERM_ID).hideByDefault();
         builder.addColumn(SHOW_DETAILS_LINK).hideByDefault();
         for (ExternalData dataSet : dataSets)
         {
             builder.addRow(dataSet);
             builder.column(CODE).addEntityLink(dataSet, dataSet.getCode());
+
+            LinkDataSet linkDataSet = dataSet.tryGetAsLinkDataSet();
+            if (linkDataSet != null)
+            {
+                LinkTableCell externalCodeCell = new LinkTableCell();
+                externalCodeCell.setText(linkDataSet.getExternalCode());
+                externalCodeCell.setUrl(new LinkDataSetUrl(linkDataSet).toString());
+                externalCodeCell.setOpenInNewWindow(true);
+                builder.column(EXTERNAL_CODE).addValue(externalCodeCell);
+
+                ExternalDataManagementSystem externalDms =
+                        linkDataSet.getExternalDataManagementSystem();
+                if (externalDms != null)
+                {
+                    builder.column(EXTERNAL_DMS_CODE).addString(externalDms.getCode());
+                    builder.column(EXTERNAL_DMS_LABEL).addString(externalDms.getLabel());
+                }
+            }
+
             builder.column(DATA_SET_TYPE).addString(dataSet.getDataSetType().getCode());
             ContainerDataSet container = dataSet.tryGetContainer();
             if (container != null)

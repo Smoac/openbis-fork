@@ -558,19 +558,6 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             checkSameSpace(data.getContainer(), data);
         }
 
-        if (data.isLinkData())
-        {
-            LinkDataPE linkData = data.tryAsLinkData();
-            linkData.setExternalCode(updates.getExternalCode());
-
-            ExternalDataManagementSystemPE pe =
-                    getExternalDataManagementSystemDAO()
-                            .tryToFindExternalDataManagementSystemByCode(
-                                    updates.getExternalDataManagementSystemCode());
-
-            linkData.setExternalDataManagementSystem(pe);
-        }
-
         setParents(data, asList(updates.getModifiedParentDatasetCodesOrNull()));
         updateComponents(updates.getModifiedContainedDatasetCodesOrNull());
         checkSameSpace(data, data.getContainedDataSets()); // even if components were not changed

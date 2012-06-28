@@ -89,7 +89,7 @@ public class DssLinkTableCell implements ISerializableComparable
     public String getHtmlString(String sessionId)
     {
         return URLMethodWithParameters.createEmbededLinkHtml(linkText,
-                getLinkUrl(linkModel, sessionId));
+                getLinkUrl(linkModel, sessionId), "center");
     }
 
     /**

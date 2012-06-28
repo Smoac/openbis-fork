@@ -33,7 +33,8 @@ public class DssLinkTableCellTest extends AssertJUnit
         urlMethod.addParameter(LinkModel.SESSION_ID_PARAMETER_NAME, "sessionToken");
 
         String basicHtml =
-                URLMethodWithParameters.createEmbededLinkHtml("linkText", urlMethod.toString());
+                URLMethodWithParameters.createEmbededLinkHtml("linkText", urlMethod.toString(),
+                        "center");
         assertEquals(basicHtml, cellHtml);
     }
 }

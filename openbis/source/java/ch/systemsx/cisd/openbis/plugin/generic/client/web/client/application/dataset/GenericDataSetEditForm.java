@@ -40,11 +40,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Da
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeSelectionWidget.FileFormatTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
@@ -58,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
@@ -212,10 +215,7 @@ public final class GenericDataSetEditForm extends
         fields.add(wrapUnaware(sampleChooser.getField()));
         fields.add(wrapUnaware(experimentChooser.getField()));
         fields.add(wrapUnaware(parentsArea));
-        for (DatabaseModificationAwareField<?> field : builder.getEntitySpecificFormFields())
-        {
-            fields.add(field);
-        }
+        builder.addEntitySpecificFormFields(fields);
         return fields;
     }
 
@@ -318,10 +318,17 @@ public final class GenericDataSetEditForm extends
     private void setOriginalData(ExternalData data)
     {
         this.originalDataSet = data;
-        this.builder =
-                data.isContainer() ? new ContainerDataSetEditFormBuilder(
-                        data.tryGetAsContainerDataSet()) : new ExternalDataEditFormBuilder(
-                        data.tryGetAsDataSet());
+
+        if (data.isContainer())
+        {
+            this.builder = new ContainerDataSetEditFormBuilder(data.tryGetAsContainerDataSet());
+        } else if (data.isLinkData())
+        {
+            this.builder = new LinkDataSetEditFormBuilder(data.tryGetAsLinkDataSet());
+        } else
+        {
+            this.builder = new ExternalDataEditFormBuilder(data.tryGetAsDataSet());
+        }
     }
 
     @Override
@@ -389,7 +396,7 @@ public final class GenericDataSetEditForm extends
 
         void fillUpdates(DataSetUpdates result);
 
-        List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields();
+        void addEntitySpecificFormFields(List<DatabaseModificationAwareField<?>> fields);
 
         void createEntitySpecificFormFields();
 
@@ -434,12 +441,9 @@ public final class GenericDataSetEditForm extends
         }
 
         @Override
-        public List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields()
+        public void addEntitySpecificFormFields(List<DatabaseModificationAwareField<?>> fields)
         {
-            ArrayList<DatabaseModificationAwareField<?>> fields =
-                    new ArrayList<DatabaseModificationAwareField<?>>();
             fields.add(wrapUnaware(fileFormatTypeSelectionWidget));
-            return fields;
         }
 
         @Override
@@ -496,12 +500,9 @@ public final class GenericDataSetEditForm extends
         }
 
         @Override
-        public List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields()
+        public void addEntitySpecificFormFields(List<DatabaseModificationAwareField<?>> fields)
         {
-            ArrayList<DatabaseModificationAwareField<?>> fields =
-                    new ArrayList<DatabaseModificationAwareField<?>>();
             fields.add(wrapUnaware(containedArea));
-            return fields;
         }
 
         @Override
@@ -543,6 +544,61 @@ public final class GenericDataSetEditForm extends
                     containedArea.setEnabled(true);
                 }
             }
+        }
+
+    }
+
+    /** {@link IDataSetEditorBuilder} implementation for {@link LinkDataSet}-s */
+    private class LinkDataSetEditFormBuilder implements IDataSetEditorBuilder
+    {
+        private LinkDataSet dataSet;
+
+        private CodeField externalCodeField;
+
+        public LinkDataSetEditFormBuilder(LinkDataSet dataSet)
+        {
+            this.dataSet = dataSet;
+        }
+
+        @Override
+        public void createEntitySpecificFormFields()
+        {
+            externalCodeField =
+                    new CodeField(viewContext, viewContext.getMessage(Dict.EXTERNAL_CODE));
+            externalCodeField.setId(getId() + "_externalCode");
+            externalCodeField.setReadOnly(true);
+            externalCodeField.setHideTrigger(true);
+            externalCodeField.disable();
+        }
+
+        @Override
+        public void updateOriginalValues(DataSetUpdateResult result)
+        {
+            // nothing to do
+        }
+
+        @Override
+        public void fillUpdates(DataSetUpdates result)
+        {
+            // nothing to do
+        }
+
+        @Override
+        public void addEntitySpecificFormFields(List<DatabaseModificationAwareField<?>> fields)
+        {
+            fields.add(0, wrapUnaware(externalCodeField));
+        }
+
+        @Override
+        public void initializeFormFields()
+        {
+            externalCodeField.setValue(StringEscapeUtils.unescapeHtml(dataSet.getExternalCode()));
+        }
+
+        @Override
+        public void loadDataInBackground()
+        {
+            // nothing to do
         }
 
     }

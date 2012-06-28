@@ -91,6 +91,10 @@ public class TypedTableGridColumnDefinition<T extends Serializable> implements
         {
             return ((DssLinkTableCell) cell).getHtmlString(sessionID);
         }
+        if (cell instanceof LinkTableCell)
+        {
+            return ((LinkTableCell) cell).getHtmlString();
+        }
         return cell.toString();
     }
 

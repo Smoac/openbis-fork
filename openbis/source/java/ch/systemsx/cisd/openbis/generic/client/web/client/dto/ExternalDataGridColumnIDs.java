@@ -23,6 +23,12 @@ public class ExternalDataGridColumnIDs
 {
     public static final String CODE = "CODE";
 
+    public static final String EXTERNAL_CODE = "EXTERNAL_CODE";
+
+    public static final String EXTERNAL_DMS_CODE = "EXTERNAL_DMS_CODE";
+
+    public static final String EXTERNAL_DMS_LABEL = "EXTERNAL_DMS_LABEL";
+
     public static final String DATA_SET_TYPE = "DATA_SET_TYPE";
 
     public static final String CONTAINER_DATASET = "CONTAINER_DATASET";

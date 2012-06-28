@@ -667,6 +667,11 @@ public abstract class Dict
 
     public static final String DATASET_NOT_AVAILABLE_MSG = "dataset_not_available_msg";
 
+    public static final String LINKED_DATA_SET = "linked_data_set";
+
+    public static final String LINKED_DATA_SET_URL_NOT_AVAILABLE_MSG =
+            "linked_data_set_url_not_available";
+
     //
     // Sample Registration
     //
@@ -781,6 +786,8 @@ public abstract class Dict
     //
     // Data Set Edition
     //
+
+    public static final String EXTERNAL_CODE = "external_code";
 
     public static final String PARENTS = "parents";
 

@@ -83,8 +83,23 @@ public class DataSetPropertiesPanel extends ContentPanel
 
         properties.put(messageProvider.getMessage(Dict.DATA_SET),
                 new ExternalHyperlink(dataset.getPermId(), dataset.getPermlink()));
-        properties.put(messageProvider.getMessage(Dict.DATA_SET_TYPE), datasetType);
 
+        if (dataset.isLinkData())
+        {
+            LinkDataSetAnchor anchor =
+                    LinkDataSetAnchor.tryCreateWithExternalCodeAsText(dataset.tryGetAsLinkDataSet());
+
+            if (anchor != null)
+            {
+                properties.put(messageProvider.getMessage(Dict.LINKED_DATA_SET), anchor);
+            } else
+            {
+                properties.put(messageProvider.getMessage(Dict.LINKED_DATA_SET), dataset
+                        .tryGetAsLinkDataSet().getExternalCode());
+            }
+        }
+
+        properties.put(messageProvider.getMessage(Dict.DATA_SET_TYPE), datasetType);
         properties.put(messageProvider.getMessage(Dict.SOURCE_TYPE), dataset.getSourceType());
 
         properties.put(messageProvider.getMessage(Dict.DATA_PRODUCER_CODE),

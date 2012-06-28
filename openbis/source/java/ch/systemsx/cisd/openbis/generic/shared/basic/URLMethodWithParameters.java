@@ -132,7 +132,7 @@ public class URLMethodWithParameters implements IsSerializable
     }
 
     /** Creates HTML which displays a link. */
-    public static String createEmbededLinkHtml(String linkText, String linkUrl)
+    public static String createEmbededLinkHtml(String linkText, String linkUrl, String linkAlign)
     {
         String linkStart = "", linkEnd = "";
         if (linkUrl != null)
@@ -141,6 +141,7 @@ public class URLMethodWithParameters implements IsSerializable
             linkEnd = "</a>";
         }
 
-        return "<div align='center'>" + linkStart + linkText + linkEnd + "</div>";
+        String align = linkAlign != null ? "align='" + linkAlign + "'" : "";
+        return "<div " + align + ">" + linkStart + linkText + linkEnd + "</div>";
     }
 }

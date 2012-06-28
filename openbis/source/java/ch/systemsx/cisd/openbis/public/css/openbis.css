@@ -297,3 +297,11 @@ body,div,td,.default-text {
 	margin: 10px;
 	margin-bottom: 0px;
 }
+
+/********************
+ * Link data set
+ ********************/
+ 
+.linkDataViewContent {
+	margin: 10px;	
+}

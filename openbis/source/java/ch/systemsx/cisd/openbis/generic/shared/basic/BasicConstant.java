@@ -59,6 +59,18 @@ public class BasicConstant
             VOCABULARY_URL_TEMPLATE_TERM_PART.replaceAll("\\$", "\\\\\\$");
 
     /**
+     * Template part of an external DMS URL that is replaced with an external data set code.
+     */
+    public static final String EXTERNAL_DMS_URL_TEMPLATE_CODE_PART = "$code$";
+
+    /**
+     * Pattern for template part of an external DMS URL that is replaced with an external data set
+     * code.
+     */
+    public static final String EXTERNAL_DMS_URL_TEMPLATE_CODE_PATTERN =
+            EXTERNAL_DMS_URL_TEMPLATE_CODE_PART.replaceAll("\\$", "\\\\\\$");
+
+    /**
      * Canonical date format pattern used to save dates in DB. Holds date, time and time zone
      * information. It is less readable then the one used in GUI (
      * {@link BasicConstant#RENDERED_CANONICAL_DATE_FORMAT_PATTERN}), but both layers cannot share

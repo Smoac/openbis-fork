@@ -310,6 +310,9 @@ public class DataSetTranslator
         } else if (dataPE.isExternalData())
         {
             result = new DataSet();
+        } else if (dataPE.isLinkData())
+        {
+            result = new LinkDataSet();
         } else
         {
             assert dataPE.isPlaceholder() == true;

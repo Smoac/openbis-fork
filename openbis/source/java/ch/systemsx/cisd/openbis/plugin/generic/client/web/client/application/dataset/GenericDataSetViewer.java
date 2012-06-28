@@ -84,6 +84,8 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
 
     protected final TechId datasetId;
 
+    private boolean toolbarInitialized;
+
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> localViewContext,
             final IIdAndCodeHolder identifiable)
@@ -108,7 +110,6 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         setLayout(new BorderLayout());
         this.datasetId = TechId.create(identifiable);
         this.processButtonHolder = new ProcessButtonHolder();
-        extendToolBar();
     }
 
     private IViewContext<?> getViewContext()
@@ -148,33 +149,45 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         super.fillBreadcrumbWidgets(widgets);
     }
 
-    private void extendToolBar()
+    private void extendToolBar(final ExternalData result)
     {
-        Button exportButton = new Button(viewContext.getMessage(Dict.BUTTON_UPLOAD_DATASETS));
-        exportButton.addListener(Events.Select, new Listener<BaseEvent>()
-            {
-                @Override
-                public void handleEvent(BaseEvent be)
+        if (toolbarInitialized)
+        {
+            return;
+        } else
+        {
+            toolbarInitialized = true;
+        }
+
+        if (result.isLinkData() == false)
+        {
+            Button exportButton = new Button(viewContext.getMessage(Dict.BUTTON_UPLOAD_DATASETS));
+            exportButton.addListener(Events.Select, new Listener<BaseEvent>()
                 {
-                    TableModelRowWithObject<ExternalData> row =
-                            new TableModelRowWithObject<ExternalData>(originalData, Arrays
-                                    .<ISerializableComparable> asList());
-                    @SuppressWarnings("unchecked")
-                    final List<TableModelRowWithObject<ExternalData>> dataSets =
-                            Arrays.<TableModelRowWithObject<ExternalData>> asList(row);
-                    IDelegatedActionWithResult<SelectedAndDisplayedItems> action =
-                            new IDelegatedActionWithResult<SelectedAndDisplayedItems>()
-                                {
-                                    @Override
-                                    public SelectedAndDisplayedItems execute()
+                    @Override
+                    public void handleEvent(BaseEvent be)
+                    {
+                        TableModelRowWithObject<ExternalData> row =
+                                new TableModelRowWithObject<ExternalData>(originalData, Arrays
+                                        .<ISerializableComparable> asList());
+                        @SuppressWarnings("unchecked")
+                        final List<TableModelRowWithObject<ExternalData>> dataSets =
+                                Arrays.<TableModelRowWithObject<ExternalData>> asList(row);
+                        IDelegatedActionWithResult<SelectedAndDisplayedItems> action =
+                                new IDelegatedActionWithResult<SelectedAndDisplayedItems>()
                                     {
-                                        return new SelectedAndDisplayedItems(dataSets, null, 1);
-                                    }
-                                };
-                    new DataSetUploadConfirmationDialog(dataSets, action, 1, viewContext).show();
-                }
-            });
-        addToolBarButton(exportButton);
+                                        @Override
+                                        public SelectedAndDisplayedItems execute()
+                                        {
+                                            return new SelectedAndDisplayedItems(dataSets, null, 1);
+                                        }
+                                    };
+                        new DataSetUploadConfirmationDialog(dataSets, action, 1, viewContext)
+                                .show();
+                    }
+                });
+            addToolBarButton(exportButton);
+        }
         if (getViewContext().isSimpleOrEmbeddedMode())
         {
             return;
@@ -253,8 +266,13 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
             container.addSection(panel);
         }
         // data
-        final TabContent dataSection = new DataViewSection(context, dataset);
-        container.addSection(dataSection);
+        if (dataset.isLinkData())
+        {
+            container.addSection(new LinkDataViewSection(context, dataset.tryGetAsLinkDataSet()));
+        } else
+        {
+            container.addSection(new DataViewSection(context, dataset));
+        }
 
         if (dataset.isContainer())
         {
@@ -306,6 +324,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         @Override
         protected final void process(final ExternalData result)
         {
+            genericDataSetViewer.extendToolBar(result);
             genericDataSetViewer.updateOriginalData(result);
             DataSet dataSet = result.tryGetAsDataSet();
             if (dataSet != null && dataSet.getStatus().isAvailable() == false)
@@ -322,7 +341,6 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
             genericDataSetViewer.add(rightPanel, createRightBorderLayoutData());
 
             genericDataSetViewer.layout();
-
         }
 
         @Override

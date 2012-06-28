@@ -732,6 +732,9 @@ var common = {
  confirm_dataset_upload_comment_field: "Comment",
  confirm_dataset_upload_user_field: "CIFEX user",
  confirm_dataset_upload_password_field: "CIFEX password",
+ external_code: "External Code",
+ external_dms_code: "External DMS Code",
+ external_dms_label: "External DMS Label",
  
  //
  // Data Set Viewer
@@ -740,6 +743,8 @@ var common = {
  processing_info_title: "Processing",
  processing_info_msg: "'{0}' has been scheduled successfully. Email will be send to you when it is finished.",
  dataset_not_available_msg: "Data Set {0} is {1}. You can not perform any operation using its data.",
+ linked_data_set: "Linked Data Set",
+ linked_data_set_url_not_available: "A link to an external DMS is not available.",
  
  //
  // Material Browser
