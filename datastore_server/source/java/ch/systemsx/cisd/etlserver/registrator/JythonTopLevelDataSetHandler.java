@@ -312,7 +312,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
 
     @Override
     public void didPreRegistration(DataSetRegistrationService<T> service,
-            DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
+            DataSetRegistrationContext.IHolder persistentMapHolder)
     {
         super.didPreRegistration(service, persistentMapHolder);
         invokePreRegistrationFunction(service, persistentMapHolder);
@@ -320,7 +320,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
 
     @Override
     public void didPostRegistration(DataSetRegistrationService<T> service,
-            DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
+            DataSetRegistrationContext.IHolder persistentMapHolder)
     {
         super.didPostRegistration(service, persistentMapHolder);
         invokePostRegistrationFunction(service, persistentMapHolder);
@@ -439,7 +439,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     private void invokePreRegistrationFunction(DataSetRegistrationService<T> service,
-            DataSetRegistrationPersistentMap.IHolder persistentMapholder)
+            DataSetRegistrationContext.IHolder persistentMapholder)
     {
         PythonInterpreter interpreter = getInterpreterFromService(service);
         PyFunction function =
@@ -452,7 +452,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     private void invokePostRegistrationFunction(DataSetRegistrationService<T> service,
-            DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
+            DataSetRegistrationContext.IHolder persistentMapHolder)
     {
         PyFunction function = tryGetPostRegistrationFunction(service);
         if (null != function)
@@ -513,7 +513,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     private void invokeTransactionFunctionWithContext(PyFunction function,
-            DataSetRegistrationPersistentMap.IHolder persistentMapHolder, Object... additionalArgs)
+            DataSetRegistrationContext.IHolder persistentMapHolder, Object... additionalArgs)
     {
         if (additionalArgs.length > 0)
         {

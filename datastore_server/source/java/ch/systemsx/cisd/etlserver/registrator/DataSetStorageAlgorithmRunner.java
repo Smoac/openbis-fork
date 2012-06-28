@@ -27,8 +27,8 @@ import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
-import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
+import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
@@ -78,10 +78,10 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     public static interface IPrePostRegistrationHook<T extends DataSetInformation>
     {
         public void executePreRegistration(
-                DataSetRegistrationPersistentMap.IHolder persistentMapHolder);
+DataSetRegistrationContext.IHolder persistentMapHolder);
 
         public void executePostRegistration(
-                DataSetRegistrationPersistentMap.IHolder persistentMapHolder);
+DataSetRegistrationContext.IHolder persistentMapHolder);
     }
 
     static private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -102,7 +102,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private final IRollbackStack rollbackStack;
 
-    private final DataSetRegistrationPersistentMap.IHolder persistentMapHolder;
+    private final DataSetRegistrationContext.IHolder persistentMapHolder;
 
     private final IPrePostRegistrationHook<T> postPreRegistrationHooks;
 
@@ -155,7 +155,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             DssRegistrationLogger dssRegistrationLog, IEncapsulatedOpenBISService openBISService,
             IPrePostRegistrationHook<T> postPreRegistrationHooks,
             IDataSetStorageRecoveryManager storageRecoveryManager,
-            DataSetRegistrationPersistentMap.IHolder persistentMapHolder,
+            DataSetRegistrationContext.IHolder persistentMapHolder,
             TopLevelDataSetRegistratorGlobalState globalState)
     {
         this.dataSetStorageAlgorithms =
@@ -820,7 +820,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         return incomingDataSetFile;
     }
 
-    public DataSetRegistrationPersistentMap getPersistentMap()
+    public DataSetRegistrationContext getRegistrationContext()
     {
         return persistentMapHolder.getRegistrationContext();
     }

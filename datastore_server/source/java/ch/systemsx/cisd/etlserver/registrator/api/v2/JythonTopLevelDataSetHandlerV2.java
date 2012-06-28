@@ -35,7 +35,7 @@ import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataActi
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
-import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
@@ -196,7 +196,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                         + " time (max allowed is " + processMaxRetryCount + ")");
             }
 
-            DataSetRegistrationPersistentMap persistentMap =
+            DataSetRegistrationContext persistentMap =
                     service.getTransaction().getRegistrationContext();
 
             PyObject retryFunctionResult = null;
@@ -236,7 +236,8 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
             // should we catch some exceptions here? can we recover if whatever went wrong in here
 
             // creates the new transaction and propagates the values in the persistent map
-            service.transaction().getRegistrationContext().putAll(persistentMap);
+            service.transaction().getRegistrationContext().getPersistentMap()
+                    .putAll(persistentMap.getPersistentMap());
 
             waitTheRetryPeriod(processRetryPauseInSec);
         }
@@ -461,14 +462,15 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 new RecoveryHookAdaptor(recoveryState.getIncomingDataSetFile()
                         .getLogicalIncomingFile());
 
-        DataSetRegistrationPersistentMap.IHolder persistentMapHolder =
-                new DataSetRegistrationPersistentMap.IHolder()
+        DataSetRegistrationContext.IHolder persistentMapHolder =
+                new DataSetRegistrationContext.IHolder()
                     {
 
                         @Override
-                        public DataSetRegistrationPersistentMap getRegistrationContext()
+                        public DataSetRegistrationContext getRegistrationContext()
                         {
-                            return recoveryState.getPersistentMap();
+                            return new DataSetRegistrationContext(recoveryState.getPersistentMap(),
+                                    state.getGlobalState());
                         }
                     };
 
@@ -653,14 +655,14 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
         @Override
         public void executePreRegistration(
-                DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
+DataSetRegistrationContext.IHolder persistentMapHolder)
         {
             throw new NotImplementedException("Recovery cannot execute pre-registration hook.");
         }
 
         @Override
         public void executePostRegistration(
-                DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
+DataSetRegistrationContext.IHolder persistentMapHolder)
         {
             PyFunction function =
                     tryJythonFunction(getInterpreter(),
@@ -675,7 +677,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
          * This method does not belong to the IPrePostRegistrationHook interface. Is called directly
          * by recovery.
          */
-        public void executePostStorage(DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
+        public void executePostStorage(DataSetRegistrationContext.IHolder persistentMapHolder)
         {
             PyFunction function =
                     tryJythonFunction(getInterpreter(),
@@ -687,7 +689,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         }
 
         public void executePreRegistrationRollback(
-                DataSetRegistrationPersistentMap.IHolder persistentMapHolder, Throwable t)
+                DataSetRegistrationContext.IHolder persistentMapHolder, Throwable t)
         {
             PyFunction function =
                     tryJythonFunction(getInterpreter(),

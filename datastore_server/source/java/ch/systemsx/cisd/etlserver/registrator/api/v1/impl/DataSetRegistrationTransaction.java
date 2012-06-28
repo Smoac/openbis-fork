@@ -34,6 +34,7 @@ import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
@@ -91,7 +92,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 public class DataSetRegistrationTransaction<T extends DataSetInformation> implements
         IDataSetRegistrationTransaction, DataSetStorageAlgorithmRunner.IRollbackDelegate<T>,
         DataSetStorageAlgorithmRunner.IDataSetInApplicationServerRegistrator<T>,
-        DataSetRegistrationPersistentMap.IHolder
+        DataSetRegistrationContext.IHolder
 {
     private static final String ROLLBACK_QUEUE1_FILE_NAME_SUFFIX = "rollBackQueue1";
 
@@ -193,7 +194,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     private AbstractTransactionState<T> state;
 
-    private DataSetRegistrationPersistentMap registrationContext;
+    private DataSetRegistrationContext registrationContext;
 
     // The registration service that owns this transaction
     private final DataSetRegistrationService<T> registrationService;
@@ -222,7 +223,9 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         this.openBisService =
                 this.registrationService.getRegistratorContext().getGlobalState()
                         .getOpenBisService();
-        this.registrationContext = new DataSetRegistrationPersistentMap();
+        this.registrationContext =
+                new DataSetRegistrationContext(new DataSetRegistrationPersistentMap(),
+                        this.registrationService.getRegistratorContext().getGlobalState());
         this.autoRecoverySettings = autoRecoverySettings;
     }
 
@@ -428,7 +431,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
-    public DataSetRegistrationPersistentMap getRegistrationContext()
+    public DataSetRegistrationContext getRegistrationContext()
     {
         return registrationContext;
     }

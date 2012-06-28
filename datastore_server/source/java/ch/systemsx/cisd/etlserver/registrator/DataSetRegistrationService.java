@@ -269,13 +269,13 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     }
 
     @Override
-    public void executePreRegistration(DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
+    public void executePreRegistration(DataSetRegistrationContext.IHolder persistentMapHolder)
     {
         registrator.didPreRegistration(this, persistentMapHolder);
     }
 
     @Override
-    public void executePostRegistration(DataSetRegistrationPersistentMap.IHolder persistentMapHolder)
+    public void executePostRegistration(DataSetRegistrationContext.IHolder persistentMapHolder)
     {
         registrator.didPostRegistration(this, persistentMapHolder);
     }

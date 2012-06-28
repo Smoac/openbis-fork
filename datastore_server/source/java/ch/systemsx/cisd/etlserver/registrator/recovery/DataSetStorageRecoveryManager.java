@@ -66,7 +66,8 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         DataSetStoragePrecommitRecoveryState<T> recoveryState =
                 new DataSetStoragePrecommitRecoveryState<T>(registrationId,
                         runner.getDataSetStorageAlgorithms(), runner.getDssRegistrationLogger(),
-                        runner.getRollbackStack(), incoming, runner.getPersistentMap());
+                        runner.getRollbackStack(), incoming, runner.getRegistrationContext()
+                                .getPersistentMap());
 
         checkpointState(runner, recoveryState, RecoveryStage.PRECOMMIT);
     }
@@ -80,7 +81,8 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         DataSetStoragePrecommitRecoveryState<T> recoveryState =
                 new DataSetStoragePrecommitRecoveryState<T>(null,
                         runner.getDataSetStorageAlgorithms(), runner.getDssRegistrationLogger(),
-                        runner.getRollbackStack(), incoming, runner.getPersistentMap());
+                        runner.getRollbackStack(), incoming, runner.getRegistrationContext()
+                                .getPersistentMap());
 
         checkpointState(runner, recoveryState, RecoveryStage.POST_REGISTRATION_HOOK_EXECUTED);
     }
@@ -94,7 +96,7 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
         DataSetStorageStorageRecoveryState<T> recoveryState =
                 new DataSetStorageStorageRecoveryState<T>(runner.getDataSetStorageAlgorithms(),
                         runner.getDssRegistrationLogger(), runner.getRollbackStack(), incoming,
-                        runner.getPersistentMap());
+                        runner.getRegistrationContext().getPersistentMap());
         checkpointState(runner, recoveryState, RecoveryStage.STORAGE_COMPLETED);
     }
 

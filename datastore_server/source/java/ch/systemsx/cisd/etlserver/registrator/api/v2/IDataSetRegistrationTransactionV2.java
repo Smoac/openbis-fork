@@ -21,7 +21,7 @@ import java.io.File;
 import net.lemnik.eodsql.DynamicTransactionQuery;
 
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
-import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
@@ -265,7 +265,7 @@ public interface IDataSetRegistrationTransactionV2
      * 
      * @return The context, a hash-map-like object.
      */
-    DataSetRegistrationPersistentMap getRegistrationContext();
+    DataSetRegistrationContext getRegistrationContext();
 
     /**
      * @return Global state for this dropbox, including configuration properties specified by the

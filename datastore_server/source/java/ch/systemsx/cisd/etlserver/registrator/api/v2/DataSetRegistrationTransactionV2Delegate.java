@@ -21,7 +21,7 @@ import java.io.File;
 import net.lemnik.eodsql.DynamicTransactionQuery;
 
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
-import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
@@ -217,7 +217,7 @@ class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistrationTr
     }
 
     @Override
-    public DataSetRegistrationPersistentMap getRegistrationContext()
+    public DataSetRegistrationContext getRegistrationContext()
     {
         return transaction.getRegistrationContext();
     }
