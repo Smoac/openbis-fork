@@ -612,7 +612,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * Subclasses can override and implement their own handling logic.
      */
     public void didPreRegistration(DataSetRegistrationService<T> service,
-            DataSetRegistrationContext.IHolder persistentMapHolder)
+            DataSetRegistrationContext.IHolder registrationContextHolder)
     {
     }
 
@@ -622,7 +622,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * Subclasses can override and implement their own handling logic.
      */
     public void didPostRegistration(DataSetRegistrationService<T> service,
-            DataSetRegistrationContext.IHolder persistentMapHolder)
+            DataSetRegistrationContext.IHolder registrationContextHolder)
     {
     }
 

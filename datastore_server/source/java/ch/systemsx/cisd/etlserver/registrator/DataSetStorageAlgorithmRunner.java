@@ -78,10 +78,10 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     public static interface IPrePostRegistrationHook<T extends DataSetInformation>
     {
         public void executePreRegistration(
-DataSetRegistrationContext.IHolder persistentMapHolder);
+                DataSetRegistrationContext.IHolder registrationContextHolder);
 
         public void executePostRegistration(
-DataSetRegistrationContext.IHolder persistentMapHolder);
+                DataSetRegistrationContext.IHolder registrationContextHolder);
     }
 
     static private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -102,7 +102,7 @@ DataSetRegistrationContext.IHolder persistentMapHolder);
 
     private final IRollbackStack rollbackStack;
 
-    private final DataSetRegistrationContext.IHolder persistentMapHolder;
+    private final DataSetRegistrationContext.IHolder registrationContextHolder;
 
     private final IPrePostRegistrationHook<T> postPreRegistrationHooks;
 
@@ -131,7 +131,7 @@ DataSetRegistrationContext.IHolder persistentMapHolder);
                 new ArrayList<DataSetStorageAlgorithm<T>>(dataSetStorageAlgorithms);
         this.rollbackDelegate = transaction;
         this.applicationServerRegistrator = transaction;
-        this.persistentMapHolder = transaction;
+        this.registrationContextHolder = transaction;
         this.rollbackStack = rollbackStack;
         this.dssRegistrationLog = dssRegistrationLog;
         this.openBISService = openBISService;
@@ -155,14 +155,14 @@ DataSetRegistrationContext.IHolder persistentMapHolder);
             DssRegistrationLogger dssRegistrationLog, IEncapsulatedOpenBISService openBISService,
             IPrePostRegistrationHook<T> postPreRegistrationHooks,
             IDataSetStorageRecoveryManager storageRecoveryManager,
-            DataSetRegistrationContext.IHolder persistentMapHolder,
+            DataSetRegistrationContext.IHolder registrationContextHolder,
             TopLevelDataSetRegistratorGlobalState globalState)
     {
         this.dataSetStorageAlgorithms =
                 new ArrayList<DataSetStorageAlgorithm<T>>(dataSetStorageAlgorithms);
         this.rollbackDelegate = rollbackDelegate;
         this.applicationServerRegistrator = null;
-        this.persistentMapHolder = persistentMapHolder;
+        this.registrationContextHolder = registrationContextHolder;
         this.rollbackStack = rollbackStack;
         this.dssRegistrationLog = dssRegistrationLog;
         this.openBISService = openBISService;
@@ -286,7 +286,7 @@ DataSetRegistrationContext.IHolder persistentMapHolder);
     {
         try
         {
-            postPreRegistrationHooks.executePreRegistration(persistentMapHolder);
+            postPreRegistrationHooks.executePreRegistration(registrationContextHolder);
         } catch (Throwable throwable)
         {
             operationLog.error("Error in execution of pre registration hooks", throwable);
@@ -741,7 +741,7 @@ DataSetRegistrationContext.IHolder persistentMapHolder);
     {
         try
         {
-            postPreRegistrationHooks.executePostRegistration(persistentMapHolder);
+            postPreRegistrationHooks.executePostRegistration(registrationContextHolder);
         } catch (final Throwable throwable)
         {
             dssRegistrationLog.log("Post-registration action failed:");
@@ -822,6 +822,6 @@ DataSetRegistrationContext.IHolder persistentMapHolder);
 
     public DataSetRegistrationContext getRegistrationContext()
     {
-        return persistentMapHolder.getRegistrationContext();
+        return registrationContextHolder.getRegistrationContext();
     }
 }

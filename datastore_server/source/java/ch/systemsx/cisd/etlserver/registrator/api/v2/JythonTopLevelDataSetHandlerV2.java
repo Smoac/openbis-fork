@@ -196,13 +196,13 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                         + " time (max allowed is " + processMaxRetryCount + ")");
             }
 
-            DataSetRegistrationContext persistentMap =
+            DataSetRegistrationContext registrationContext =
                     service.getTransaction().getRegistrationContext();
 
             PyObject retryFunctionResult = null;
             try
             {
-                retryFunctionResult = invokeFunction(retryFunction, persistentMap, problem);
+                retryFunctionResult = invokeFunction(retryFunction, registrationContext, problem);
             } catch (Exception ex)
             {
                 operationLog.error("The retry function has failed. Rolling back.", ex);
@@ -237,7 +237,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
             // creates the new transaction and propagates the values in the persistent map
             service.transaction().getRegistrationContext().getPersistentMap()
-                    .putAll(persistentMap.getPersistentMap());
+                    .putAll(registrationContext.getPersistentMap());
 
             waitTheRetryPeriod(processRetryPauseInSec);
         }
@@ -462,7 +462,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 new RecoveryHookAdaptor(recoveryState.getIncomingDataSetFile()
                         .getLogicalIncomingFile());
 
-        DataSetRegistrationContext.IHolder persistentMapHolder =
+        DataSetRegistrationContext.IHolder registrationContextHolder =
                 new DataSetRegistrationContext.IHolder()
                     {
 
@@ -488,7 +488,8 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                         logger, // registrationLogger
                         state.getGlobalState().getOpenBisService(), // openBisService
                         hookAdaptor, // the hooks
-                        state.getGlobalState().getStorageRecoveryManager(), persistentMapHolder,
+                        state.getGlobalState().getStorageRecoveryManager(),
+                        registrationContextHolder,
                         state.getGlobalState());
 
         boolean registrationSuccessful = false;
@@ -548,7 +549,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
                 shouldStopRecovery = true;
 
-                hookAdaptor.executePreRegistrationRollback(persistentMapHolder, null);
+                hookAdaptor.executePreRegistrationRollback(registrationContextHolder, null);
 
                 finishRegistration(dataSetStorageAlgorithms, rollbackStack);
             } else
@@ -574,7 +575,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 }
                 if (success)
                 {
-                    hookAdaptor.executePostStorage(persistentMapHolder);
+                    hookAdaptor.executePostStorage(registrationContextHolder);
 
                     registrationSuccessful = true;
                     shouldStopRecovery = true;
@@ -655,21 +656,21 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
         @Override
         public void executePreRegistration(
-DataSetRegistrationContext.IHolder persistentMapHolder)
+                DataSetRegistrationContext.IHolder registrationContextHolder)
         {
             throw new NotImplementedException("Recovery cannot execute pre-registration hook.");
         }
 
         @Override
         public void executePostRegistration(
-DataSetRegistrationContext.IHolder persistentMapHolder)
+                DataSetRegistrationContext.IHolder registrationContextHolder)
         {
             PyFunction function =
                     tryJythonFunction(getInterpreter(),
                             JythonHookFunction.POST_REGISTRATION_FUNCTION_NAME);
             if (function != null)
             {
-                invokeFunction(function, persistentMapHolder.getRegistrationContext());
+                invokeFunction(function, registrationContextHolder.getRegistrationContext());
             }
         }
 
@@ -677,26 +678,26 @@ DataSetRegistrationContext.IHolder persistentMapHolder)
          * This method does not belong to the IPrePostRegistrationHook interface. Is called directly
          * by recovery.
          */
-        public void executePostStorage(DataSetRegistrationContext.IHolder persistentMapHolder)
+        public void executePostStorage(DataSetRegistrationContext.IHolder registrationContextHolder)
         {
             PyFunction function =
                     tryJythonFunction(getInterpreter(),
                             JythonHookFunction.POST_STORAGE_FUNCTION_NAME);
             if (function != null)
             {
-                invokeFunction(function, persistentMapHolder.getRegistrationContext());
+                invokeFunction(function, registrationContextHolder.getRegistrationContext());
             }
         }
 
         public void executePreRegistrationRollback(
-                DataSetRegistrationContext.IHolder persistentMapHolder, Throwable t)
+                DataSetRegistrationContext.IHolder registrationContextHolder, Throwable t)
         {
             PyFunction function =
                     tryJythonFunction(getInterpreter(),
                             JythonHookFunction.ROLLBACK_PRE_REGISTRATION_FUNCTION_NAME);
             if (function != null)
             {
-                invokeFunction(function, persistentMapHolder.getRegistrationContext(), t);
+                invokeFunction(function, registrationContextHolder.getRegistrationContext(), t);
             }
         }
 

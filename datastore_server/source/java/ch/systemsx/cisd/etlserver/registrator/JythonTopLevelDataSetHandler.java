@@ -312,18 +312,18 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
 
     @Override
     public void didPreRegistration(DataSetRegistrationService<T> service,
-            DataSetRegistrationContext.IHolder persistentMapHolder)
+            DataSetRegistrationContext.IHolder registrationContextHolder)
     {
-        super.didPreRegistration(service, persistentMapHolder);
-        invokePreRegistrationFunction(service, persistentMapHolder);
+        super.didPreRegistration(service, registrationContextHolder);
+        invokePreRegistrationFunction(service, registrationContextHolder);
     }
 
     @Override
     public void didPostRegistration(DataSetRegistrationService<T> service,
-            DataSetRegistrationContext.IHolder persistentMapHolder)
+            DataSetRegistrationContext.IHolder registrationContextHolder)
     {
-        super.didPostRegistration(service, persistentMapHolder);
-        invokePostRegistrationFunction(service, persistentMapHolder);
+        super.didPostRegistration(service, registrationContextHolder);
+        invokePostRegistrationFunction(service, registrationContextHolder);
     }
 
     @Override
@@ -439,7 +439,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     private void invokePreRegistrationFunction(DataSetRegistrationService<T> service,
-            DataSetRegistrationContext.IHolder persistentMapholder)
+            DataSetRegistrationContext.IHolder registrationContextHolder)
     {
         PythonInterpreter interpreter = getInterpreterFromService(service);
         PyFunction function =
@@ -447,17 +447,17 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
 
         if (null != function)
         {
-            invokeTransactionFunctionWithContext(function, persistentMapholder);
+            invokeTransactionFunctionWithContext(function, registrationContextHolder);
         }
     }
 
     private void invokePostRegistrationFunction(DataSetRegistrationService<T> service,
-            DataSetRegistrationContext.IHolder persistentMapHolder)
+            DataSetRegistrationContext.IHolder registrationContextHolder)
     {
         PyFunction function = tryGetPostRegistrationFunction(service);
         if (null != function)
         {
-            invokeTransactionFunctionWithContext(function, persistentMapHolder);
+            invokeTransactionFunctionWithContext(function, registrationContextHolder);
         }
     }
 
@@ -513,14 +513,15 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     private void invokeTransactionFunctionWithContext(PyFunction function,
-            DataSetRegistrationContext.IHolder persistentMapHolder, Object... additionalArgs)
+            DataSetRegistrationContext.IHolder registrationContextHolder, Object... additionalArgs)
     {
         if (additionalArgs.length > 0)
         {
-            invokeFunction(function, persistentMapHolder.getRegistrationContext(), additionalArgs);
+            invokeFunction(function, registrationContextHolder.getRegistrationContext(),
+                    additionalArgs);
         } else
         {
-            invokeFunction(function, persistentMapHolder.getRegistrationContext());
+            invokeFunction(function, registrationContextHolder.getRegistrationContext());
         }
     }
 
