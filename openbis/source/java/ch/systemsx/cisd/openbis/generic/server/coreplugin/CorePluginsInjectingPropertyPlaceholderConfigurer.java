@@ -53,8 +53,8 @@ public class CorePluginsInjectingPropertyPlaceholderConfigurer extends
         PluginType webapps = new PluginType("webapps", "webapps");
 
         new CorePluginsInjector(ScannerType.AS, new IPluginType[]
-            { maintenanceTasks, customImports, queryDatabases, miscellaneous, webapps })
-                .injectCorePlugins(properties);
+            { maintenanceTasks, customImports, queryDatabases, miscellaneous, dssDataSources,
+                    webapps }).injectCorePlugins(properties);
     }
 
     private PluginType createPluginTypeDssDataSources()
