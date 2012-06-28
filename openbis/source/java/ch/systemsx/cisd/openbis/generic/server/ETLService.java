@@ -1054,7 +1054,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             throws UserFailureException
     {
         List<ExternalData> dataSets = loadDataSets(sessionToken, dataStoreCode);
-        return SimpleDataSetHelper.translate(dataSets);
+        return SimpleDataSetHelper.filterAndTranslate(dataSets);
     }
 
     @Override

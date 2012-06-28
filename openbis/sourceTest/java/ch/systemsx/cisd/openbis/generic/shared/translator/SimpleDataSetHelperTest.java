@@ -51,7 +51,7 @@ public class SimpleDataSetHelperTest extends AssertJUnit
         ExternalData ds3 = new ContainerDataSet();
 
         List<SimpleDataSetInformationDTO> list =
-                SimpleDataSetHelper.translate(Arrays.asList(ds1, ds2, ds3));
+                SimpleDataSetHelper.filterAndTranslate(Arrays.asList(ds1, ds2, ds3));
 
         check(1, list.get(0));
         check(2, list.get(1));

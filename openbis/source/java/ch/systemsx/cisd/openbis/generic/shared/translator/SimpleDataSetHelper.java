@@ -31,7 +31,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  */
 public class SimpleDataSetHelper
 {
-    public static final List<SimpleDataSetInformationDTO> translate(List<ExternalData> externalData)
+    /**
+     * filters out all non-file datasets and applies translation on the remaining datasets
+     */
+    public static final List<SimpleDataSetInformationDTO> filterAndTranslate(
+            List<ExternalData> externalData)
     {
         if (externalData == null)
         {
@@ -58,8 +62,8 @@ public class SimpleDataSetHelper
         result.setDataSetShareId(data.getShareId());
         result.setDataSetLocation(data.getLocation());
         result.setDataSetSize(data.getSize());
-        result.setDatabaseInstanceCode(data.getExperiment().getProject().getSpace()
-                .getInstance().getCode());
+        result.setDatabaseInstanceCode(data.getExperiment().getProject().getSpace().getInstance()
+                .getCode());
         result.setExperimentCode(data.getExperiment().getCode());
         result.setProjectCode(data.getExperiment().getProject().getCode());
         result.setGroupCode(data.getExperiment().getProject().getSpace().getCode());
