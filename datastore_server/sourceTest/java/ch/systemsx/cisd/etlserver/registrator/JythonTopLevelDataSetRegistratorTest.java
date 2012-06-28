@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -241,13 +242,12 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         testCase =
-                
-                new TestCaseParameters(
-                        "The simple validation without post_storage function defined.");
+
+        new TestCaseParameters("The simple validation without post_storage function defined.");
         testCase.dropboxScriptPath = "testcase-without-post-storage.py";
         testCase.postStorageFunctionNotDefinedInADropbox = true;
         testCases.addAll(multipleVersionsOfTestCase(testCase));
-        
+
         testCase = new TestCaseParameters("Dataset file not found.");
         testCase.dropboxScriptPath = "file-not-found.py";
         testCase.shouldThrowExceptionDuringRegistration = true;
@@ -1443,6 +1443,84 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                     oneOf(storageRecoveryManager).registrationCompleted(
                             with(any(DataSetStorageAlgorithmRunner.class)));
+                }
+            });
+
+        handler.handle(markerFile);
+
+        JythonHookTestTool hookTool =
+                JythonHookTestTool.createFromWorkingDirectory(workingDirectory);
+
+        hookTool.assertLogged("pre_metadata_registration");
+        hookTool.assertLogged("post_metadata_registration");
+        hookTool.assertLogged("post_storage");
+
+        hookTool.assertNoMoreMessages();
+
+        context.assertIsSatisfied();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testV2ImportLinkDataSet()
+    {
+        initializeStorageRecoveryManagerMock();
+
+        setUpHomeDataBaseExpectations();
+        Properties threadProperties =
+                createThreadPropertiesRelativeToScriptsFolder("v2-link-testcase.py");
+        threadProperties.put("TEST_V2_API", "");
+        createHandler(threadProperties, false, true);
+
+        ExperimentBuilder builder = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER);
+        final Experiment experiment = builder.getExperiment();
+
+        final ExternalDataManagementSystem edms = new ExternalDataManagementSystem();
+        edms.setCode("DMS_1");
+
+        createData();
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(storageRecoveryManager).getProcessingMarkerFile(incomingDataSetFile);
+                    will(returnValue(new File(incomingDataSetFile.getParent(), "a_marker_file")));
+
+                    one(openBisService).createDataSetCode();
+                    will(returnValue(DATA_SET_CODE));
+
+                    exactly(2).of(openBisService).tryToGetExperiment(
+                            new ExperimentIdentifierFactory(experiment.getIdentifier())
+                                    .createIdentifier());
+                    will(returnValue(experiment));
+
+                    one(openBisService).tryGetExternalDataManagementSystem("DMS_1");
+                    will(returnValue(edms));
+
+                    one(dataSetValidator).assertValidDataSet(LINK_DATA_SET_TYPE, null);
+
+                    one(storageRecoveryManager)
+                            .checkpointPrecommittedState(with(any(TechId.class)),
+                                    with(any(DataSetStorageAlgorithmRunner.class)));
+
+                    oneOf(openBisService).drawANewUniqueID();
+                    will(returnValue(new Long(1)));
+
+                    oneOf(openBisService)
+                            .performEntityOperations(
+                                    with(any(ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails.class)));
+
+                    one(storageRecoveryManager)
+                            .checkpointPrecommittedStateAfterPostRegistrationHook(
+                                    with(any(DataSetStorageAlgorithmRunner.class)));
+
+                    one(storageRecoveryManager).checkpointStoredStateBeforeStorageConfirmation(
+                            with(any(DataSetStorageAlgorithmRunner.class)));
+
+                    oneOf(storageRecoveryManager).registrationCompleted(
+                            with(any(DataSetStorageAlgorithmRunner.class)));
+
+                    one(openBisService).setStorageConfirmed(DATA_SET_CODE);
                 }
             });
 

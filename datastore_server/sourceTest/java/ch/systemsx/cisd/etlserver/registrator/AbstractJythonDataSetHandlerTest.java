@@ -154,6 +154,8 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
     protected static final DataSetType CONTAINER_DATA_SET_TYPE = new DataSetType("CONTAINER_TYPE");
 
+    protected static final DataSetType LINK_DATA_SET_TYPE = new DataSetType("LINK_TYPE");
+
     protected static final String EXPERIMENT_PERM_ID = "experiment-perm-id";
 
     protected static final String EXPERIMENT_IDENTIFIER = "/SPACE/PROJECT/EXP";
