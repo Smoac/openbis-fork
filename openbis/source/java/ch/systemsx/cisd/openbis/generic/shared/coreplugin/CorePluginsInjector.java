@@ -42,6 +42,7 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.shared.basic.utils.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
@@ -129,21 +130,24 @@ public class CorePluginsInjector
             Map<String, NamedCorePluginFolder> map = entry.getValue();
             for (Entry<String, NamedCorePluginFolder> entry2 : map.entrySet())
             {
-                String pluginName = entry2.getKey();
+                String fullPluginName = entry2.getKey();
                 NamedCorePluginFolder plugin = entry2.getValue();
                 File definingFolder = plugin.getDefiningFolder();
                 if (new File(definingFolder, DISABLED_MARKER_FILE_NAME).exists())
                 {
                     continue;
                 }
+                String technology = plugin.getTechnology();
                 Properties pluginProperties = getPluginProperties(definingFolder);
                 if (pluginType.isUniquePluginNameRequired())
                 {
-                    pluginKeyBundles.addPluginNameFor(pluginType, pluginName);
+                    String pluginKey = pluginType.getPluginKey(technology, plugin.getName());
+                    pluginKeyBundles.addPluginNameFor(pluginType, pluginKey);
+                    String prefix = pluginType.getPrefix() + pluginKey + ".";
                     for (Entry<Object, Object> keyValuePair : pluginProperties.entrySet())
                     {
                         String value = keyValuePair.getValue().toString();
-                        injectProperty(properties, pluginName + "." + keyValuePair.getKey(), value);
+                        injectProperty(properties, prefix + keyValuePair.getKey(), value);
                     }
                 } else
                 {
@@ -219,7 +223,7 @@ public class CorePluginsInjector
             String technology = corePlugin.getName();
             if (isTechnologyEnabled(enabledTechnologies, technology) == false)
             {
-                DEFAULT_LOGGER.log(LogLevel.INFO, "Core plugins for technology '" + technology
+                logger.log(LogLevel.INFO, "Core plugins for technology '" + technology
                         + "' are not enabled.");
                 continue;
             }
@@ -244,10 +248,13 @@ public class CorePluginsInjector
                         String pluginName = pluginFolder.getName();
                         NamedCorePluginFolder plugin =
                                 new NamedCorePluginFolder(technology, pluginType, pluginFolder);
-                        String fullPluginName = plugin.getName();
+                        String fullPluginName = plugin.getFullPluginName();
                         if (isDisabled(disabledPlugins, fullPluginName) == false)
                         {
-                            assertAndAddPluginName(pluginName, pluginNames, pluginType);
+                            String fullPluginKey =
+                                    pluginType.getPrefix()
+                                            + pluginType.getPluginKey(technology, pluginName);
+                            assertAndAddPluginName(fullPluginKey, pluginNames, pluginType);
                             Map<String, NamedCorePluginFolder> map =
                                     typeToPluginsMap.get(pluginType);
                             if (map == null)
@@ -256,7 +263,7 @@ public class CorePluginsInjector
                                         new LinkedHashMap<String, CorePluginsInjector.NamedCorePluginFolder>();
                                 typeToPluginsMap.put(pluginType, map);
                             }
-                            map.put(pluginName, plugin);
+                            map.put(fullPluginKey, plugin);
                         }
                     }
                 }
@@ -364,7 +371,8 @@ public class CorePluginsInjector
                 String key = pluginType.getKeyOfKeyListPropertyOrNull();
                 if (key != null)
                 {
-                    keyBundles.put(pluginType, new KeyBundle(properties, key));
+                    keyBundles.put(pluginType, new KeyBundle(properties, pluginType.getPrefix(),
+                            key));
                 }
             }
         }
@@ -391,12 +399,12 @@ public class CorePluginsInjector
             }
         }
 
-        void addPluginNameFor(IPluginType pluginType, String pluginName)
+        void addPluginNameFor(IPluginType pluginType, String pluginKey)
         {
             KeyBundle keyBundle = keyBundles.get(pluginType);
             if (keyBundle != null)
             {
-                keyBundle.addKey(pluginName);
+                keyBundle.addKey(pluginKey);
             }
         }
 
@@ -415,8 +423,11 @@ public class CorePluginsInjector
 
         private final Set<String> keys;
 
-        KeyBundle(Properties properties, String key)
+        private final String prefix;
+
+        KeyBundle(Properties properties, String prefix, String key)
         {
+            this.prefix = prefix;
             this.key = key;
             keys = new TreeSet<String>();
             String keysAsString = properties.getProperty(key);
@@ -436,13 +447,14 @@ public class CorePluginsInjector
         {
             for (String keyPrefix : keys)
             {
-                if (pluginNames.contains(keyPrefix))
+                String fullPrefix = prefix + keyPrefix;
+                if (pluginNames.contains(fullPrefix))
                 {
-                    throw new ConfigurationFailureException("Property key '" + keyPrefix
+                    throw new ConfigurationFailureException("Property key '" + fullPrefix
                             + "' for key list '" + key
                             + "' is already defined in some other key list.");
                 }
-                pluginNames.add(keyPrefix);
+                pluginNames.add(fullPrefix);
             }
         }
 
@@ -450,13 +462,9 @@ public class CorePluginsInjector
         {
             if (keys.isEmpty() == false)
             {
-                StringBuilder builder = new StringBuilder();
+                CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
                 for (String k : keys)
                 {
-                    if (builder.length() > 0)
-                    {
-                        builder.append(", ");
-                    }
                     builder.append(k);
                 }
                 properties.setProperty(key, builder.toString());
@@ -466,15 +474,19 @@ public class CorePluginsInjector
 
     private static final class NamedCorePluginFolder
     {
-        private final String name;
+        private final String fullPluginName;
 
         private final File definingFolder;
 
+        private final String technology;
+
+        private final String name;
+
         NamedCorePluginFolder(String technology, IPluginType pluginType, File definingFolder)
         {
-            name =
-                    technology + ":" + pluginType.getSubFolderName() + ":"
-                            + definingFolder.getName();
+            this.technology = technology;
+            name = definingFolder.getName();
+            fullPluginName = technology + ":" + pluginType.getSubFolderName() + ":" + name;
             this.definingFolder = definingFolder;
             if (definingFolder.isDirectory() == false)
             {
@@ -482,9 +494,19 @@ public class CorePluginsInjector
             }
         }
 
+        String getTechnology()
+        {
+            return technology;
+        }
+
         String getName()
         {
             return name;
+        }
+
+        String getFullPluginName()
+        {
+            return fullPluginName;
         }
 
         File getDefiningFolder()
@@ -495,7 +517,7 @@ public class CorePluginsInjector
         @Override
         public String toString()
         {
-            return name + " [" + definingFolder + "]";
+            return fullPluginName + " [" + definingFolder + "]";
         }
 
     }

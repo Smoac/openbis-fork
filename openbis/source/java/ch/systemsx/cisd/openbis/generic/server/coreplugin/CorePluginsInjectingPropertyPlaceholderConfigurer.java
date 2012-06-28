@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.DataStoreServerBasedDataSourceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector;
@@ -40,6 +41,7 @@ public class CorePluginsInjectingPropertyPlaceholderConfigurer extends
     protected void loadProperties(Properties properties) throws IOException
     {
         super.loadProperties(properties);
+        PluginType dssDataSources = createPluginTypeDssDataSources();
         PluginType maintenanceTasks =
                 new PluginType("maintenance-tasks",
                         MaintenanceTaskUtils.DEFAULT_MAINTENANCE_PLUGINS_PROPERTY_NAME);
@@ -50,8 +52,28 @@ public class CorePluginsInjectingPropertyPlaceholderConfigurer extends
         PluginType miscellaneous = new PluginType("miscellaneous", null);
 
         new CorePluginsInjector(ScannerType.AS, new IPluginType[]
-            { maintenanceTasks, customImports, queryDatabases, miscellaneous })
+            { dssDataSources, maintenanceTasks, customImports, queryDatabases, miscellaneous })
                 .injectCorePlugins(properties);
+    }
+
+    private PluginType createPluginTypeDssDataSources()
+    {
+        return new PluginType("dss-data-sources", DataStoreServerBasedDataSourceProvider.ROOT_KEY
+                + "." + DataStoreServerBasedDataSourceProvider.DATA_STORE_SERVERS_KEY)
+            {
+
+                @Override
+                public String getPluginKey(String technology, String pluginFolderName)
+                {
+                    return pluginFolderName + "[" + technology + "]";
+                }
+
+                @Override
+                public String getPrefix()
+                {
+                    return DataStoreServerBasedDataSourceProvider.ROOT_KEY + ".";
+                }
+            };
     }
 
 }

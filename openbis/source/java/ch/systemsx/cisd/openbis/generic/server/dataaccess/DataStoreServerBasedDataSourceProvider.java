@@ -42,9 +42,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvider,
         InitializingBean
 {
-    private static final String ROOT_KEY = "dss-based-data-source-provider";
+    public static final String ROOT_KEY = "dss-based-data-source-provider";
 
-    static final String DATA_STORE_SERVERS_KEY = "data-store-servers";
+    public static final String DATA_STORE_SERVERS_KEY = "data-store-servers";
 
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;

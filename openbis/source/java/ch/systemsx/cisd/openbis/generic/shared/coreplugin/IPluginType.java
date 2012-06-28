@@ -17,9 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 
 /**
- * A core plugin type is defined by a name which is used as a folder and an optional 
- * property which lists all keys of the plugins of this type.
- *
+ * A core plugin type is defined by a name which is used as a folder and an optional property which
+ * lists all keys of the plugins of this type.
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IPluginType
@@ -28,6 +28,10 @@ public interface IPluginType
     public String getSubFolderName();
 
     public String getKeyOfKeyListPropertyOrNull();
+
+    public String getPluginKey(String technology, String pluginFolderName);
+
+    public String getPrefix();
 
     public boolean isUniquePluginNameRequired();
 

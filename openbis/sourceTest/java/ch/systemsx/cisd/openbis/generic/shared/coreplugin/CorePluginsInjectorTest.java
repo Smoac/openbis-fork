@@ -78,8 +78,22 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         PluginType type3 = new PluginType("services", PLUGIN_SERVICES_LIST_KEY);
         PluginType type4 = new PluginType("miscellaneous", null);
         PluginType type5 = new PluginType("processing-plugins", "processing-plugins");
+        PluginType type6 = new PluginType("dss-data-sources", "prefix.dss")
+            {
+                @Override
+                public String getPluginKey(String technology, String pluginFolderName)
+                {
+                    return pluginFolderName + "[" + technology + "]";
+                }
+
+                @Override
+                public String getPrefix()
+                {
+                    return "prefix.";
+                }
+            };
         injector = new CorePluginsInjector(ScannerType.DSS, new IPluginType[]
-            { type1, type2, type3, type4, type5 }, logger);
+            { type1, type2, type3, type4, type5, type6 }, logger);
         corePluginsFolder = new File(workingDirectory, "core-plugins");
         corePluginsFolder.mkdirs();
         corePluginsFolderProperty =
@@ -334,6 +348,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         properties.setProperty(DISABLED_CORE_PLUGINS_KEY,
                 "screening:miscellaneous, screening:drop-boxes:dp1");
         preparePluginNameLog("screening:drop-boxes:dp2 [" + dp2 + "]");
+        prepareNotEnabledTechnology("proteomics");
 
         injector.injectCorePlugins(properties);
 
@@ -402,6 +417,82 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testDssDataSource()
+    {
+        File pluginFolder = new File(corePluginsFolder, "screening/1/dss/dss-data-sources/dss1");
+        pluginFolder.mkdirs();
+        FileUtilities.writeToFile(new File(pluginFolder, PLUGIN_PROPERTIES_FILE_NAME),
+                "driver = alpha\nurl = blabla");
+        Properties properties = createProperties();
+        properties.setProperty("prefix.dss", "dss1[proteomics]");
+        properties.setProperty("prefix.dss1[proteomics].driver", "gamma");
+        preparePluginNameLog("screening:dss-data-sources:dss1 [" + pluginFolder + "]");
+
+        injector.injectCorePlugins(properties);
+
+        assertProperties(corePluginsFolderProperty + enabledScreeningProperty
+                + "prefix.dss = dss1[proteomics], dss1[screening]\n"
+                + "prefix.dss1[proteomics].driver = gamma\n"
+                + "prefix.dss1[screening].driver = alpha\n"
+                + "prefix.dss1[screening].url = blabla\n", properties);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDssDataSourcesForDifferentTechnologiesButSameDSS()
+    {
+        File screeningPluginFolder =
+                new File(corePluginsFolder, "screening/1/dss/dss-data-sources/dss1");
+        screeningPluginFolder.mkdirs();
+        FileUtilities.writeToFile(new File(screeningPluginFolder, PLUGIN_PROPERTIES_FILE_NAME),
+                "driver = alpha\nurl = blabla");
+        File proteomicsPluginFolder =
+                new File(corePluginsFolder, "proteomics/1/dss/dss-data-sources/dss1");
+        proteomicsPluginFolder.mkdirs();
+        FileUtilities.writeToFile(new File(proteomicsPluginFolder, PLUGIN_PROPERTIES_FILE_NAME),
+                "driver = beta\nurl = blub");
+        Properties properties = createProperties("screening, proteomics");
+        preparePluginNameLog("screening:dss-data-sources:dss1 [" + screeningPluginFolder + "]");
+        preparePluginNameLog("proteomics:dss-data-sources:dss1 [" + proteomicsPluginFolder + "]");
+
+        injector.injectCorePlugins(properties);
+
+        assertProperties(corePluginsFolderProperty
+                + ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_TECHNOLOGIES_KEY
+                + " = screening, proteomics\n" + "prefix.dss = dss1[proteomics], dss1[screening]\n"
+                + "prefix.dss1[proteomics].driver = beta\n"
+                + "prefix.dss1[proteomics].url = blub\n"
+                + "prefix.dss1[screening].driver = alpha\n"
+                + "prefix.dss1[screening].url = blabla\n", properties);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDssDataSourceFailedBecauseOfDuplicatedPlugin()
+    {
+        File pluginFolder = new File(corePluginsFolder, "screening/1/dss/dss-data-sources/dss1");
+        pluginFolder.mkdirs();
+        FileUtilities.writeToFile(new File(pluginFolder, PLUGIN_PROPERTIES_FILE_NAME),
+                "driver = alpha\nurl = blabla");
+        Properties properties = createProperties();
+        properties.setProperty("prefix.dss", "dss1[screening]");
+        properties.setProperty("prefix.dss1[screening].driver", "gamma");
+
+        try
+        {
+            injector.injectCorePlugins(properties);
+            fail("ConfigurationFailureException expected.");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("There is already a plugin named 'prefix.dss1[screening]'.",
+                    ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+
     private void preparePluginNameLog(final String... fullPluginNames)
     {
         context.checking(new Expectations()
@@ -411,6 +502,17 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
                     {
                         one(logger).log(LogLevel.INFO, "Plugin " + fullPluginName + " added.");
                     }
+                }
+            });
+    }
+
+    private void prepareNotEnabledTechnology(final String technology)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(logger).log(LogLevel.INFO,
+                            "Core plugins for technology '" + technology + "' are not enabled.");
                 }
             });
     }

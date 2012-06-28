@@ -49,4 +49,16 @@ public class PluginType implements IPluginType
     {
         return keyOfKeyListPropertyOrNull != null;
     }
+
+    @Override
+    public String getPluginKey(String technology, String pluginFolderName)
+    {
+        return pluginFolderName;
+    }
+
+    @Override
+    public String getPrefix()
+    {
+        return "";
+    }
 }

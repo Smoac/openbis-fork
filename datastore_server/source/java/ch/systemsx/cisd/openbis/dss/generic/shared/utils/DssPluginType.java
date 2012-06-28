@@ -56,5 +56,17 @@ public enum DssPluginType implements IPluginType
     {
         return pluginType.isUniquePluginNameRequired();
     }
+
+    @Override
+    public String getPluginKey(String technology, String pluginFolderName)
+    {
+        return pluginFolderName;
+    }
+
+    @Override
+    public String getPrefix()
+    {
+        return "";
+    }
     
 }
