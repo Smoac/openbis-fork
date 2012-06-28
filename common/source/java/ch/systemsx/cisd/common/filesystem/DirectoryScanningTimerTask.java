@@ -127,6 +127,24 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
     /**
      * Creates a <var>DirectoryScanningTimerTask</var>.
      * 
+     * @param scannedStore The store which is scan for entries.
+     * @param directoryScanningHandler A directory scanning handler.
+     * @param storeHandler The handler that is used for treating the matching paths.
+     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need
+     *            to occur before the next error is logged (can be used to suppress error when the
+     *            directory is on a remote share and the server is flaky sometimes)
+     */
+    public DirectoryScanningTimerTask(final IScannedStore scannedStore,
+            final IDirectoryScanningHandler directoryScanningHandler,
+            final IStoreHandler storeHandler, final int ignoredErrorCount)
+    {
+        this(scannedStore, directoryScanningHandler, storeHandler, ignoredErrorCount, null, null);
+
+    }
+
+    /**
+     * Creates a <var>DirectoryScanningTimerTask</var>.
+     * 
      * @param sourceDirectory The directory to scan for entries.
      * @param storeHandler The handler that is used for treating the matching paths.
      * @param directoryScanningHandler A directory scanning handler.
@@ -448,8 +466,7 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
         if (activityLogDirectoryOrNull != null)
         {
             final File activityFile =
-                    new File(activityLogDirectoryOrNull, threadNameOrNull.replace(' ',
-                            '_'));
+                    new File(activityLogDirectoryOrNull, threadNameOrNull.replace(' ', '_'));
             try
             {
                 FileUtils.touch(activityFile);
