@@ -130,7 +130,6 @@ public class CorePluginsInjector
             Map<String, NamedCorePluginFolder> map = entry.getValue();
             for (Entry<String, NamedCorePluginFolder> entry2 : map.entrySet())
             {
-                String fullPluginName = entry2.getKey();
                 NamedCorePluginFolder plugin = entry2.getValue();
                 File definingFolder = plugin.getDefiningFolder();
                 if (new File(definingFolder, DISABLED_MARKER_FILE_NAME).exists())
@@ -138,10 +137,11 @@ public class CorePluginsInjector
                     continue;
                 }
                 String technology = plugin.getTechnology();
-                Properties pluginProperties = getPluginProperties(definingFolder);
+                Properties pluginProperties = plugin.getPluginProperties();
                 if (pluginType.isUniquePluginNameRequired())
                 {
-                    String pluginKey = pluginType.getPluginKey(technology, plugin.getName());
+                    String pluginKey =
+                            pluginType.getPluginKey(technology, plugin.getName(), pluginProperties);
                     pluginKeyBundles.addPluginNameFor(pluginType, pluginKey);
                     String prefix = pluginType.getPrefix() + pluginKey + ".";
                     for (Entry<Object, Object> keyValuePair : pluginProperties.entrySet())
@@ -253,7 +253,8 @@ public class CorePluginsInjector
                         {
                             String fullPluginKey =
                                     pluginType.getPrefix()
-                                            + pluginType.getPluginKey(technology, pluginName);
+                                            + pluginType.getPluginKey(technology, pluginName,
+                                                    plugin.getPluginProperties());
                             assertAndAddPluginName(fullPluginKey, pluginNames, pluginType);
                             Map<String, NamedCorePluginFolder> map =
                                     typeToPluginsMap.get(pluginType);
@@ -305,58 +306,6 @@ public class CorePluginsInjector
             }
             pluginNames.add(pluginName);
         }
-    }
-
-    /**
-     * Load plugin properties file where all references to script names are replaced by script
-     * paths.
-     */
-    private Properties getPluginProperties(File definingFolder)
-    {
-        File pluginPropertiesFile = new File(definingFolder, PLUGIN_PROPERTIES_FILE_NAME);
-        if (pluginPropertiesFile.exists() == false)
-        {
-            throw new EnvironmentFailureException("Missing plugin properties: "
-                    + pluginPropertiesFile);
-        }
-        File[] scripts = definingFolder.listFiles(new FilenameFilter()
-            {
-                @Override
-                public boolean accept(File dir, String name)
-                {
-                    return name.equals(PLUGIN_PROPERTIES_FILE_NAME) == false;
-                }
-            });
-        Properties pluginProperties = loadProperties(pluginPropertiesFile);
-        for (Entry<Object, Object> keyValuePair : pluginProperties.entrySet())
-        {
-            String value = keyValuePair.getValue().toString();
-            for (File script : scripts)
-            {
-                value = value.replace(script.getName(), script.getPath());
-            }
-            keyValuePair.setValue(value);
-        }
-        return pluginProperties;
-    }
-
-    private Properties loadProperties(File pluginPropertiesFile)
-    {
-        Properties pluginProperties = new Properties();
-        FileInputStream inStream = null;
-        try
-        {
-            inStream = new FileInputStream(pluginPropertiesFile);
-            pluginProperties.load(inStream);
-        } catch (IOException ex)
-        {
-            throw new EnvironmentFailureException("Couldn't load plugin properties '"
-                    + pluginPropertiesFile + "'.", ex);
-        } finally
-        {
-            IOUtils.closeQuietly(inStream);
-        }
-        return pluginProperties;
     }
 
     private static final class PluginKeyBundles
@@ -482,6 +431,8 @@ public class CorePluginsInjector
 
         private final String name;
 
+        private Properties pluginProperties;
+
         NamedCorePluginFolder(String technology, IPluginType pluginType, File definingFolder)
         {
             this.technology = technology;
@@ -492,6 +443,7 @@ public class CorePluginsInjector
             {
                 throw new EnvironmentFailureException("Is not a directory: " + definingFolder);
             }
+            pluginProperties = getPluginProperties(definingFolder);
         }
 
         String getTechnology()
@@ -514,10 +466,67 @@ public class CorePluginsInjector
             return definingFolder;
         }
 
+        Properties getPluginProperties()
+        {
+            return pluginProperties;
+        }
+
         @Override
         public String toString()
         {
             return fullPluginName + " [" + definingFolder + "]";
+        }
+
+        /**
+         * Load plugin properties file where all references to script names are replaced by script
+         * paths.
+         */
+        private Properties getPluginProperties(File folder)
+        {
+            File pluginPropertiesFile = new File(folder, PLUGIN_PROPERTIES_FILE_NAME);
+            if (pluginPropertiesFile.exists() == false)
+            {
+                throw new EnvironmentFailureException("Missing plugin properties: "
+                        + pluginPropertiesFile);
+            }
+            File[] scripts = folder.listFiles(new FilenameFilter()
+                {
+                    @Override
+                    public boolean accept(File dir, String fileName)
+                    {
+                        return fileName.equals(PLUGIN_PROPERTIES_FILE_NAME) == false;
+                    }
+                });
+            Properties properties = loadProperties(pluginPropertiesFile);
+            for (Entry<Object, Object> keyValuePair : properties.entrySet())
+            {
+                String value = keyValuePair.getValue().toString();
+                for (File script : scripts)
+                {
+                    value = value.replace(script.getName(), script.getPath());
+                }
+                keyValuePair.setValue(value);
+            }
+            return properties;
+        }
+
+        private Properties loadProperties(File pluginPropertiesFile)
+        {
+            Properties properties = new Properties();
+            FileInputStream inStream = null;
+            try
+            {
+                inStream = new FileInputStream(pluginPropertiesFile);
+                properties.load(inStream);
+            } catch (IOException ex)
+            {
+                throw new EnvironmentFailureException("Couldn't load plugin properties '"
+                        + pluginPropertiesFile + "'.", ex);
+            } finally
+            {
+                IOUtils.closeQuietly(inStream);
+            }
+            return properties;
         }
 
     }

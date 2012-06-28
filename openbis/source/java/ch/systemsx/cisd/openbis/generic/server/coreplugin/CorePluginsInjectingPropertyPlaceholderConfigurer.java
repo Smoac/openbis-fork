@@ -64,9 +64,11 @@ public class CorePluginsInjectingPropertyPlaceholderConfigurer extends
             {
 
                 @Override
-                public String getPluginKey(String technology, String pluginFolderName)
+                public String getPluginKey(String technology, String pluginFolderName,
+                        Properties properties)
                 {
-                    return pluginFolderName + "[" + technology + "]";
+                    String actualTechnology = properties.getProperty("technology", technology);
+                    return pluginFolderName + "[" + actualTechnology + "]";
                 }
 
                 @Override

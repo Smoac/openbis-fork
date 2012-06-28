@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 
+import java.util.Properties;
+
 /**
  * A core plugin type is defined by a name which is used as a folder and an optional property which
  * lists all keys of the plugins of this type.
@@ -29,7 +31,8 @@ public interface IPluginType
 
     public String getKeyOfKeyListPropertyOrNull();
 
-    public String getPluginKey(String technology, String pluginFolderName);
+    public String getPluginKey(String technology, String pluginFolderName,
+            Properties pluginProperties);
 
     public String getPrefix();
 

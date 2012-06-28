@@ -82,9 +82,11 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         PluginType type6 = new PluginType("dss-data-sources", "prefix.dss")
             {
                 @Override
-                public String getPluginKey(String technology, String pluginFolderName)
+                public String getPluginKey(String technology, String pluginFolderName,
+                        Properties properties)
                 {
-                    return pluginFolderName + "[" + technology + "]";
+                    String actualTechnology = properties.getProperty("technology", technology);
+                    return pluginFolderName + "[" + actualTechnology + "]";
                 }
 
                 @Override
@@ -157,6 +159,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
     {
         File alpha = new File(corePluginsFolder, "screening/1/dss/drop-boxes/a b");
         alpha.mkdirs();
+        FileUtilities.writeToFile(new File(alpha, PLUGIN_PROPERTIES_FILE_NAME), "");
         new File(alpha.getParentFile(), ".svn").mkdirs();
         new File(alpha.getParentFile(), ".blabla").createNewFile();
         Properties properties = createProperties();
@@ -361,9 +364,15 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
     @Test
     public void testDisabledPluginsByPropertiesAndNotEnabledTechnology()
     {
-        new File(corePluginsFolder, "screening/1/dss/miscellaneous/a").mkdirs();
-        new File(corePluginsFolder, "screening/1/dss/miscellaneous/b").mkdirs();
-        new File(corePluginsFolder, "screening/1/dss/drop-boxes/dp1").mkdirs();
+        File dpa = new File(corePluginsFolder, "screening/1/dss/miscellaneous/a");
+        dpa.mkdirs();
+        FileUtilities.writeToFile(new File(dpa, PLUGIN_PROPERTIES_FILE_NAME), "");
+        File dpb = new File(corePluginsFolder, "screening/1/dss/miscellaneous/b");
+        dpb.mkdirs();
+        FileUtilities.writeToFile(new File(dpb, PLUGIN_PROPERTIES_FILE_NAME), "");
+        File dp1 = new File(corePluginsFolder, "screening/1/dss/drop-boxes/dp1");
+        dp1.mkdirs();
+        FileUtilities.writeToFile(new File(dp1, PLUGIN_PROPERTIES_FILE_NAME), "");
         File dp2 = new File(corePluginsFolder, "screening/1/dss/drop-boxes/dp2");
         dp2.mkdirs();
         FileUtilities.writeToFile(new File(dp2, PLUGIN_PROPERTIES_FILE_NAME), "");
@@ -389,6 +398,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
     {
         File dp1 = new File(corePluginsFolder, "screening/1/dss/drop-boxes/dp1");
         dp1.mkdirs();
+        FileUtilities.writeToFile(new File(dp1, PLUGIN_PROPERTIES_FILE_NAME), "");
         new File(dp1, CorePluginsInjector.DISABLED_MARKER_FILE_NAME).createNewFile();
         File dp2 = new File(corePluginsFolder, "screening/1/dss/drop-boxes/dp2");
         dp2.mkdirs();
@@ -491,6 +501,36 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
                 + "prefix.dss1[proteomics].url = blub\n"
                 + "prefix.dss1[screening].driver = alpha\n"
                 + "prefix.dss1[screening].url = blabla\n", properties);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDssDataSourcesForSameTechnologyButDifferentDSSInDifferentTechFolders()
+    {
+        File screeningPluginFolder =
+                new File(corePluginsFolder, "screening/1/dss/dss-data-sources/dss1");
+        screeningPluginFolder.mkdirs();
+        FileUtilities.writeToFile(new File(screeningPluginFolder, PLUGIN_PROPERTIES_FILE_NAME),
+                "driver = alpha\nurl = blabla");
+        File devPluginFolder = new File(corePluginsFolder, "dev/1/dss/dss-data-sources/dss2");
+        devPluginFolder.mkdirs();
+        FileUtilities.writeToFile(new File(devPluginFolder, PLUGIN_PROPERTIES_FILE_NAME),
+                "technology = screening\ndriver = beta\nurl = blub");
+        Properties properties = createProperties("screening, dev");
+        preparePluginNameLog("screening:dss-data-sources:dss1 [" + screeningPluginFolder + "]");
+        preparePluginNameLog("dev:dss-data-sources:dss2 [" + devPluginFolder + "]");
+
+        injector.injectCorePlugins(properties);
+
+        assertProperties(corePluginsFolderProperty
+                + ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_TECHNOLOGIES_KEY
+                + " = screening, dev\n" + "prefix.dss = dss1[screening], dss2[screening]\n"
+                + "prefix.dss1[screening].driver = alpha\n"
+                + "prefix.dss1[screening].url = blabla\n"
+                + "prefix.dss2[screening].driver = beta\n"
+                + "prefix.dss2[screening].technology = screening\n"
+                + "prefix.dss2[screening].url = blub\n", properties);
 
         context.assertIsSatisfied();
     }

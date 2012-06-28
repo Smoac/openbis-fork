@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
+import java.util.Properties;
+
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.IPluginType;
@@ -58,7 +60,7 @@ public enum DssPluginType implements IPluginType
     }
 
     @Override
-    public String getPluginKey(String technology, String pluginFolderName)
+    public String getPluginKey(String technology, String pluginFolderName, Properties properties)
     {
         return pluginFolderName;
     }

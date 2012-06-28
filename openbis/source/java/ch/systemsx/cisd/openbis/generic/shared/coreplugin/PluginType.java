@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 
+import java.util.Properties;
+
 /**
  * @author Franz-Josef Elmer
  */
@@ -51,7 +53,7 @@ public class PluginType implements IPluginType
     }
 
     @Override
-    public String getPluginKey(String technology, String pluginFolderName)
+    public String getPluginKey(String technology, String pluginFolderName, Properties properties)
     {
         return pluginFolderName;
     }
