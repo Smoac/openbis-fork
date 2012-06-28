@@ -98,6 +98,8 @@ public final class ETLDaemon
 
     public static final File updaterQueueFile = new File(".updater");
 
+    public static final File dropboxActivityDir = new File(".activity");
+
     public static final int INJECTED_POST_REGISTRATION_TASK_INTERVAL = 1;
 
     static final String NOTIFY_SUCCESSFUL_REGISTRATION = "notify-successful-registration";
@@ -335,7 +337,8 @@ public final class ETLDaemon
                         parameters);
         final DirectoryScanningTimerTask dataMonitorTask =
                 new DirectoryScanningTimerTask(incomingDataDirectory, fileFilter, pathHandler,
-                        directoryScanningHandler);
+                        directoryScanningHandler, threadParameters.getThreadName(),
+                        dropboxActivityDir);
         selfTest(incomingDataDirectory, authorizedLimsService, pathHandler);
         final String timerThreadName =
                 threadParameters.getThreadName() + " - Incoming Data Monitor";
