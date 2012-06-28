@@ -11,20 +11,6 @@
     </classes>
   </test>
 
-  <!--  test name="system-cleandb-basic" annotations="JDK">
-     <method-selectors>
-       <method-selector>
-         <script language="beanshell"><![CDATA[
-           groups.containsKey("system-cleandb") && groups.containsKey("basic")
-          ]]></script>
-        </method-selector>
-      </method-selectors>
-  
-    <packages>
-      <package name="ch.systemsx.cisd.openbis.*" />
-    </packages>
-  </test -->
-
   <test name="system-cleandb-stub-relationship-service" annotations="JDK">
     <classes>
       <class name="ch.systemsx.cisd.openbis.systemtest.RelationshipServiceAuthorizationTest" />

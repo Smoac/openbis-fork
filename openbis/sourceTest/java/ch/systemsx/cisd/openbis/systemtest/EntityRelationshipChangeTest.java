@@ -42,8 +42,6 @@ import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
  * 
  * @author anttil
  */
-@Test(groups =
-    { "system-cleandb", "basic" })
 public class EntityRelationshipChangeTest extends BaseTest
 {
 
@@ -363,5 +361,4 @@ public class EntityRelationshipChangeTest extends BaseTest
 
         commonServer.updateSample(session, updates);
     }
-
 }

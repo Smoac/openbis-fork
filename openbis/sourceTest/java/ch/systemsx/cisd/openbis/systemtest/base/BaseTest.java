@@ -28,6 +28,7 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -62,6 +63,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
  */
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 @TransactionConfiguration(transactionManager = "transaction-manager")
+@Test(groups =
+    { "system-cleandb" })
 public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextTests
 {
 
@@ -133,7 +136,6 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         { "system-cleandb" })
     public void testingThis()
     {
-        System.out.println("!!!!!!!! AFTER TEST RUN - DESTROYING!!!");
         ((GenericApplicationContext) applicationContext).destroy();
     }
 
@@ -144,6 +146,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     }
 
     @Autowired
+    @Test(enabled = false)
     public final void setRequestContextProvider(final SpringRequestContextProvider contextProvider)
     {
         request = new MockHttpServletRequest();
@@ -151,49 +154,56 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     }
 
     @Autowired
+    @Test(enabled = false)
     public void setDaoFactory(IDAOFactory daoFactory)
     {
         this.daoFactory = daoFactory;
     }
 
     @Autowired
+    @Test(enabled = false)
     public final void setCommonServer(final ICommonServerForInternalUse commonServer)
     {
         this.commonServer = commonServer;
     }
 
     @Autowired
+    @Test(enabled = false)
     public final void setGenericServer(final IGenericServer genericServer)
     {
         this.genericServer = genericServer;
     }
 
     @Autowired
+    @Test(enabled = false)
     public final void setCommonClientService(final ICommonClientService commonClientService)
     {
         this.commonClientService = commonClientService;
     }
 
     @Autowired
+    @Test(enabled = false)
     public final void setGenericClientService(final IGenericClientService genericClientService)
     {
         this.genericClientService = genericClientService;
     }
 
     @Autowired
+    @Test(enabled = false)
     public void setETLService(IETLLIMSService etlService)
     {
         this.etlService = etlService;
-
     }
 
     @Autowired
+    @Test(enabled = false)
     public void setRelationshipService(final IRelationshipService relationshipService)
     {
         this.relationshipService = relationshipService;
     }
 
     @Autowired
+    @Test(enabled = false)
     public void setSessionManager(final ISessionManager<Session> sessionManager)
     {
         this.sessionManager = sessionManager;

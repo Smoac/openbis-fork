@@ -38,8 +38,6 @@ import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 /**
  * @author anttil
  */
-@Test(groups =
-    { "system-cleandb", "stub-relationship-service" })
 @ContextConfiguration(locations =
     { "classpath:stub_relationship_service.xml" }, inheritLocations = true)
 public class RelationshipServiceAuthorizationTest extends BaseTest
