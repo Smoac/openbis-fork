@@ -315,4 +315,53 @@ public class EntityRelationshipChangeTest extends BaseTest
         assertThat(serverSays(child).getParents(), containsExactly(parent1, parent2));
     }
 
+    @Test
+    public void addSampleToContainer()
+    {
+        Sample container = create(aSample().inSpace(space));
+        Sample componentCandidate = create(aSample().inSpace(space));
+        SampleUpdatesDTO updates = create(anUpdateOf(componentCandidate).withContainer(container));
+
+        commonServer.updateSample(session, updates);
+
+        assertThat(serverSays(componentCandidate).getContainer(), is(container));
+    }
+
+    @Test
+    public void removeSampleFromContainer()
+    {
+        Sample container = create(aSample().inSpace(space));
+        Sample component = create(aSample().inSpace(space).inContainer(container));
+        SampleUpdatesDTO updates = create(anUpdateOf(component));
+
+        commonServer.updateSample(session, updates);
+
+        assertThat(serverSays(component).getContainer(), is(nullValue()));
+    }
+
+    @Test
+    public void sampleUpdateWithNewContainerWillChangeContanerOfSample()
+    {
+        Sample container = create(aSample().inSpace(space));
+        Sample component = create(aSample().inSpace(space).inContainer(container));
+        Sample newContainer = create(aSample().inSpace(space));
+        SampleUpdatesDTO updates = create(anUpdateOf(component).withContainer(newContainer));
+
+        commonServer.updateSample(session, updates);
+
+        assertThat(serverSays(component).getContainer(), is(newContainer));
+    }
+
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void sampleCannotBeUpdatedToBeChildOfComponentSample()
+    {
+        Sample container = create(aSample().inSpace(space));
+        Sample component = create(aSample().inSpace(space).inContainer(container));
+        Sample subComponent = create(aSample().inSpace(space));
+        SampleUpdatesDTO updates = create(anUpdateOf(subComponent).withContainer(component));
+
+        commonServer.updateSample(session, updates);
+    }
+
 }

@@ -50,6 +50,8 @@ public class SampleUpdateBuilder extends Builder<SampleUpdatesDTO>
 
     private List<Sample> parents;
 
+    private Sample container;
+
     public SampleUpdateBuilder(ICommonServerForInternalUse commonServer,
             IGenericServer genericServer, Sample sample)
     {
@@ -63,6 +65,7 @@ public class SampleUpdateBuilder extends Builder<SampleUpdatesDTO>
         this.version = sample.getModificationDate();
         this.sampleIdentifier = id(sample);
         this.parents = new ArrayList<Sample>();
+        this.container = null;
     }
 
     public SampleUpdateBuilder inExperiment(Experiment experiment)
@@ -109,6 +112,12 @@ public class SampleUpdateBuilder extends Builder<SampleUpdatesDTO>
         return this;
     }
 
+    public SampleUpdateBuilder withContainer(Sample sample)
+    {
+        this.container = sample;
+        return this;
+    }
+
     /*
      *     public SampleUpdatesDTO(TechId sampleId, List<IEntityProperty> properties,
             ExperimentIdentifier experimentIdentifierOrNull, Collection<NewAttachment> attachments,
@@ -126,6 +135,7 @@ public class SampleUpdateBuilder extends Builder<SampleUpdatesDTO>
         }
         return new SampleUpdatesDTO(this.sampleId, new ArrayList<IEntityProperty>(),
                 this.experimentId, new ArrayList<NewAttachment>(), this.version,
-                this.sampleIdentifier, null, parentCodes);
+                this.sampleIdentifier, this.container != null ? this.container.getIdentifier()
+                        : null, parentCodes);
     }
 }

@@ -43,10 +43,13 @@ public class SampleBuilder extends Builder<Sample>
 
     private List<Sample> parents;
 
+    private Sample container;
+
     public SampleBuilder(ICommonServerForInternalUse commonServer, IGenericServer genericServer)
     {
         super(commonServer, genericServer);
         this.parents = new ArrayList<Sample>();
+        this.container = null;
     }
 
     @SuppressWarnings("hiding")
@@ -60,6 +63,12 @@ public class SampleBuilder extends Builder<Sample>
     public SampleBuilder inSpace(Space space)
     {
         this.space = space;
+        return this;
+    }
+
+    public SampleBuilder inContainer(Sample sample)
+    {
+        this.container = sample;
         return this;
     }
 
@@ -116,8 +125,8 @@ public class SampleBuilder extends Builder<Sample>
         NewSample data = new NewSample();
         data.setIdentifier(identifier);
         data.setAttachments(new ArrayList<NewAttachment>());
-        data.setContainerIdentifier(null);
-        data.setCurrentContainerIdentifier(null);
+        data.setContainerIdentifier(this.container != null ? this.container.getIdentifier() : null);
+        // data.setCurrentContainerIdentifier(null);
         if (this.experiment != null)
         {
             data.setExperimentIdentifier(this.experiment.getIdentifier());
