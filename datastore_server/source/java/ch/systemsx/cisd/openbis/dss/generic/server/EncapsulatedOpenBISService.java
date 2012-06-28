@@ -514,7 +514,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public List<SimpleDataSetInformationDTO> listDataSets() throws UserFailureException
     {
         List<SimpleDataSetInformationDTO> dataSets =
-                service.listDataSets(session.getSessionToken(), session.getDataStoreCode());
+                service.listFileDataSets(session.getSessionToken(), session.getDataStoreCode());
         for (SimpleDataSetInformationDTO dataSet : dataSets)
         {
             if (dataSet.getDataSetShareId() == null)

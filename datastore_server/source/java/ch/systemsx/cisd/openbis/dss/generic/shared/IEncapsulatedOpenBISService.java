@@ -287,10 +287,13 @@ public interface IEncapsulatedOpenBISService
     public List<DataSetShareId> listDataSetShareIds() throws UserFailureException;
 
     /**
-     * Returns informations about all data sets which belong to the calling data store server.
+     * Returns informations about all file-content data sets which belong to the calling data store
+     * server.
      */
     @ManagedAuthentication
     public List<SimpleDataSetInformationDTO> listDataSets() throws UserFailureException;
+
+
 
     /** @see IETLLIMSService#listDataSets(String, String, TrackingDataSetCriteria) */
     @ManagedAuthentication
