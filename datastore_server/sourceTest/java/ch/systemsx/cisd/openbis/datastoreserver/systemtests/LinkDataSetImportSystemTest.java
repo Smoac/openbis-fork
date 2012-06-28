@@ -53,20 +53,6 @@ public class LinkDataSetImportSystemTest extends SystemTestCase
 
     private HashSet<String> preexistingDataSetCodes;
 
-    /**
-     * The testcase that just imports the data. Other tests can depend on it, and assert stuff.
-     */
-    @Test
-    public void testImportLinkDataSet() throws Exception
-    {
-        preparePreexistingDataSetCodes();
-
-        File exampleDataSet = new File(workingDirectory, "my-data");
-        createExampleDataSet(exampleDataSet);
-        moveFileToIncoming(exampleDataSet);
-        waitUntilDataSetImported();
-    }
-
     private void preparePreexistingDataSetCodes()
     {
         preexistingDataSetCodes = new HashSet<String>();
@@ -103,9 +89,16 @@ public class LinkDataSetImportSystemTest extends SystemTestCase
         return dataSets;
     }
 
-    @Test(dependsOnMethods = "testImportLinkDataSet")
-    public void checkLinkDataSetIsImported()
+    @Test
+    public void checkLinkDataSetIsImported() throws Exception
     {
+        preparePreexistingDataSetCodes();
+
+        File exampleDataSet = new File(workingDirectory, "my-data");
+        createExampleDataSet(exampleDataSet);
+        moveFileToIncoming(exampleDataSet);
+        waitUntilDataSetImported();
+
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
 
         List<String> codes = newDataSetCodes();
