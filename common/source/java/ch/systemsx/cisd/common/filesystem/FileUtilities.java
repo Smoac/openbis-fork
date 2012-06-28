@@ -104,6 +104,18 @@ public final class FileUtilities
         };
 
     /**
+     * A file filter that accepts all entries but the hidden ones.
+     */
+    public static final FileFilter ACCEPT_ALL_BUT_HIDDEN_FILTER = new FileFilter()
+        {
+            @Override
+            public boolean accept(File pathname)
+            {
+                return pathname.isHidden() == false;
+            }
+        };
+
+    /**
      * Copies the content of the specified source file to the specified destination file.
      * 
      * @param sourceFile File to be copied.
