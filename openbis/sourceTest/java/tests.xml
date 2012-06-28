@@ -5,6 +5,7 @@
         <exclude name="abstract" />
         <exclude name="broken" />
         <exclude name="scalability"/>
+        <exclude name="system-cleandb"/>
       </run>
     </groups>
     <packages>

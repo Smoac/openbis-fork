@@ -297,6 +297,10 @@ public final class SampleBOTest extends AbstractBOTest
                             EXAMPLE_GROUP);
                     will(returnValue(container));
 
+                    allowing(sampleDAO).tryFindByCodeAndSpace(with(any(String.class)),
+                            with(any(SpacePE.class)));
+                    will(returnValue(null));
+
                     one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
                     will(returnValue(sampleType));
 
@@ -403,6 +407,10 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(sampleDAO).tryFindByCodeAndSpace(parent.getCode(), EXAMPLE_GROUP);
                     will(returnValue(parent));
 
+                    allowing(sampleDAO).tryFindByCodeAndSpace(with(any(String.class)),
+                            with(any(SpacePE.class)));
+                    will(returnValue(null));
+
                     allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(false));
 
@@ -473,6 +481,10 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(sampleDAO).tryFindByCodeAndSpace(parent3Group2.getCode(),
                             EXAMPLE_GROUP2);
                     will(returnValue(parent3Group2));
+
+                    allowing(sampleDAO).tryFindByCodeAndSpace(with(any(String.class)),
+                            with(any(SpacePE.class)));
+                    will(returnValue(null));
 
                     allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(false));

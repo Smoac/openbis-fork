@@ -83,7 +83,7 @@ public class DataSetBuilder extends Builder<DataSet>
         data.setFileFormatType(new FileFormatType(FileFormatType.DEFAULT_FILE_FORMAT_TYPE_CODE));
         data.setSampleIdentifierOrNull(this.sampleIdentifier);
         data.setLocatorType(new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE));
-        data.setLocation("location");
+        data.setLocation(UUID.randomUUID().toString());
         data.setStorageFormat(StorageFormat.PROPRIETARY);
         data.setDataStoreCode("STANDARD");
         data.setExperimentIdentifierOrNull(this.experimentIdentifier);

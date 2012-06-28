@@ -16,8 +16,28 @@
 
 package ch.systemsx.cisd.openbis.systemtest.base;
 
-import org.hamcrest.Matcher;
+import java.util.Collection;
 
+import org.hamcrest.Matcher;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeTest;
+
+import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
+import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
+import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -27,18 +47,157 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
-import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
  * @author anttil
  */
-public abstract class BaseTest extends SystemTestCase
+@ContextConfiguration(locations = "classpath:applicationContext.xml")
+@TransactionConfiguration(transactionManager = "transaction-manager")
+public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextTests
 {
+
+    protected ICommonServerForInternalUse commonServer;
+
+    protected IGenericServer genericServer;
+
+    protected ICommonClientService commonClientService;
+
+    protected IGenericClientService genericClientService;
+
+    protected IETLLIMSService etlService;
+
+    protected MockHttpServletRequest request;
+
+    protected IDAOFactory daoFactory;
+
+    protected IRelationshipService relationshipService;
+
+    protected ISessionManager<Session> sessionManager;
+
+    protected String systemSessionToken;
+
+    @BeforeTest(groups =
+        { "system-cleandb" })
+    public void initializeLog()
+    {
+        LogInitializer.init();
+    }
+
+    @BeforeTest(groups =
+        { "system-cleandb" }, dependsOnMethods =
+        { "initializeLog" })
+    public void initializeProperties()
+    {
+        System.setProperty("database.create-from-scratch", "true");
+        System.setProperty("database.kind", "test");
+        System.setProperty("script-folder", "../openbis/source");
+        System.setProperty("hibernate.search.index-mode", IndexMode.INDEX_FROM_SCRATCH.name());
+        System.setProperty("hibernate.search.index-base", "../openbis/targets/lucene/cleandb");
+        System.setProperty("hibernate.search.worker.execution", "sync");
+    }
+
+    @BeforeTest(groups =
+        { "system-cleandb" }, dependsOnMethods =
+        { "initializeProperties" })
+    public void setContext() throws Exception
+    {
+        super.springTestContextPrepareTestInstance();
+    }
+
+    @BeforeTest(groups =
+        { "system-cleandb" }, dependsOnMethods =
+        { "setContext" })
+    public void createDataStore()
+    {
+        DataStorePE dataStore = new DataStorePE();
+        dataStore.setCode("STANDARD");
+        dataStore.setDatabaseInstance(this.daoFactory.getDatabaseInstanceDAO()
+                .getDatabaseInstanceById(1));
+        dataStore.setDownloadUrl("http://localhost");
+        dataStore.setRemoteUrl("http://remotehost");
+        dataStore.setSessionToken("");
+
+        this.daoFactory.getDataStoreDAO().createOrUpdateDataStore(dataStore);
+    }
+
+    @AfterTest(groups =
+        { "system-cleandb" })
+    public void testingThis()
+    {
+        System.out.println("!!!!!!!! AFTER TEST RUN - DESTROYING!!!");
+        ((GenericApplicationContext) applicationContext).destroy();
+    }
+
+    @BeforeClass(alwaysRun = true)
+    public void loginAsSystem()
+    {
+        systemSessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
+    }
+
+    @Autowired
+    public final void setRequestContextProvider(final SpringRequestContextProvider contextProvider)
+    {
+        request = new MockHttpServletRequest();
+        contextProvider.setRequest(request);
+    }
+
+    @Autowired
+    public void setDaoFactory(IDAOFactory daoFactory)
+    {
+        this.daoFactory = daoFactory;
+    }
+
+    @Autowired
+    public final void setCommonServer(final ICommonServerForInternalUse commonServer)
+    {
+        this.commonServer = commonServer;
+    }
+
+    @Autowired
+    public final void setGenericServer(final IGenericServer genericServer)
+    {
+        this.genericServer = genericServer;
+    }
+
+    @Autowired
+    public final void setCommonClientService(final ICommonClientService commonClientService)
+    {
+        this.commonClientService = commonClientService;
+    }
+
+    @Autowired
+    public final void setGenericClientService(final IGenericClientService genericClientService)
+    {
+        this.genericClientService = genericClientService;
+    }
+
+    @Autowired
+    public void setETLService(IETLLIMSService etlService)
+    {
+        this.etlService = etlService;
+
+    }
+
+    @Autowired
+    public void setRelationshipService(final IRelationshipService relationshipService)
+    {
+        this.relationshipService = relationshipService;
+    }
+
+    @Autowired
+    public void setSessionManager(final ISessionManager<Session> sessionManager)
+    {
+        this.sessionManager = sessionManager;
+    }
 
     protected static <T> T create(Builder<T> builder)
     {
@@ -113,6 +272,11 @@ public abstract class BaseTest extends SystemTestCase
     protected Matcher<ExternalData> inSample(Sample sample)
     {
         return new InSampleMatcher(sample);
+    }
+
+    protected <T> Matcher<Collection<T>> containsExactly(T... elements)
+    {
+        return new CollectionContainsExactlyMatcher<T>(elements);
     }
 
     protected Experiment serverSays(Experiment experiment)

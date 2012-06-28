@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest.base;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
@@ -36,15 +37,17 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 public class SampleBuilder extends Builder<Sample>
 {
+    private Experiment experiment;
+
+    private Space space;
+
+    private List<Sample> parents;
 
     public SampleBuilder(ICommonServerForInternalUse commonServer, IGenericServer genericServer)
     {
         super(commonServer, genericServer);
+        this.parents = new ArrayList<Sample>();
     }
-
-    private Experiment experiment;
-
-    private Space space;
 
     @SuppressWarnings("hiding")
     public SampleBuilder inExperiment(Experiment experiment)
@@ -57,6 +60,20 @@ public class SampleBuilder extends Builder<Sample>
     public SampleBuilder inSpace(Space space)
     {
         this.space = space;
+        return this;
+    }
+
+    public SampleBuilder withParent(Sample parent)
+    {
+        return this.withParents(parent);
+    }
+
+    public SampleBuilder withParents(Sample... samples)
+    {
+        for (Sample parent : samples)
+        {
+            this.parents.add(parent);
+        }
         return this;
     }
 
@@ -106,7 +123,15 @@ public class SampleBuilder extends Builder<Sample>
             data.setExperimentIdentifier(this.experiment.getIdentifier());
         }
 
-        data.setParentsOrNull(null);
+        String[] parentIds = new String[this.parents.size()];
+        int i = 0;
+        for (Sample s : this.parents)
+        {
+            parentIds[i] = s.getIdentifier();
+            i++;
+        }
+
+        data.setParentsOrNull(parentIds);
         data.setProperties(new IEntityProperty[0]);
         data.setSampleType(sampleType);
 

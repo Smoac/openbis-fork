@@ -20,12 +20,16 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -57,6 +61,9 @@ public class RelationshipService implements IRelationshipService
 
     private static final String ERR_DATASET_NOT_FOUND =
             "Sample '%s' not found";
+
+    private static final String ERR_SAMPLE_PARENT_RELATIONSHIP_NOT_FOUND =
+            "Sample '%s' did not have parent '%s'";
 
     private DAOFactory daoFactory;
 
@@ -155,6 +162,40 @@ public class RelationshipService implements IRelationshipService
         data.setSample(sample);
     }
 
+    @Override
+    public void addParentToSample(IAuthSession session, SampleIdentifier sampleId,
+            SampleIdentifier parentId)
+    {
+        PersonPE actor = session.tryGetPerson();
+        RelationshipTypePE relationshipType =
+                daoFactory.getRelationshipTypeDAO().tryFindRelationshipTypeByCode(
+                        BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+
+        SamplePE sample = findSample(sampleId);
+        SamplePE parent = findSample(parentId);
+
+        sample.addParentRelationship(new SampleRelationshipPE(parent, sample, relationshipType,
+                actor));
+    }
+
+    @Override
+    public void removeParentFromSample(IAuthSession session, SampleIdentifier sampleId,
+            SampleIdentifier parentId)
+    {
+        SamplePE sample = findSample(sampleId);
+        SamplePE parent = findSample(parentId);
+        for (SampleRelationshipPE relationship : sample.getParentRelationships())
+        {
+            if (relationship.getParentSample().equals(parent))
+            {
+                sample.removeParentRelationship(relationship);
+                return;
+            }
+        }
+        throw UserFailureException.fromTemplate(ERR_SAMPLE_PARENT_RELATIONSHIP_NOT_FOUND, sampleId,
+                parentId);
+    }
+
     private DataPE findDataSet(String dataSetCode)
     {
         DataPE data = daoFactory.getDataDAO().tryToFindDataSetByCode(dataSetCode);
@@ -248,5 +289,4 @@ public class RelationshipService implements IRelationshipService
     {
         this.daoFactory = daoFactory;
     }
-
 }

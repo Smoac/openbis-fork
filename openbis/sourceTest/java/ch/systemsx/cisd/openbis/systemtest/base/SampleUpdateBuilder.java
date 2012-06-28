@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.systemtest.base.BaseTest.id;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -47,6 +48,8 @@ public class SampleUpdateBuilder extends Builder<SampleUpdatesDTO>
 
     private SampleIdentifier sampleIdentifier;
 
+    private List<Sample> parents;
+
     public SampleUpdateBuilder(ICommonServerForInternalUse commonServer,
             IGenericServer genericServer, Sample sample)
     {
@@ -59,6 +62,7 @@ public class SampleUpdateBuilder extends Builder<SampleUpdatesDTO>
         }
         this.version = sample.getModificationDate();
         this.sampleIdentifier = id(sample);
+        this.parents = new ArrayList<Sample>();
     }
 
     public SampleUpdateBuilder inExperiment(Experiment experiment)
@@ -91,6 +95,20 @@ public class SampleUpdateBuilder extends Builder<SampleUpdatesDTO>
         return this;
     }
 
+    public SampleUpdateBuilder withParent(Sample sample)
+    {
+        return this.withParents(sample);
+    }
+
+    public SampleUpdateBuilder withParents(Sample... samples)
+    {
+        for (Sample parent : samples)
+        {
+            this.parents.add(parent);
+        }
+        return this;
+    }
+
     /*
      *     public SampleUpdatesDTO(TechId sampleId, List<IEntityProperty> properties,
             ExperimentIdentifier experimentIdentifierOrNull, Collection<NewAttachment> attachments,
@@ -101,8 +119,13 @@ public class SampleUpdateBuilder extends Builder<SampleUpdatesDTO>
     @Override
     public SampleUpdatesDTO create()
     {
+        String[] parentCodes = new String[this.parents.size()];
+        for (int i = 0; i < this.parents.size(); i++)
+        {
+            parentCodes[i] = this.parents.get(i).getCode();
+        }
         return new SampleUpdatesDTO(this.sampleId, new ArrayList<IEntityProperty>(),
                 this.experimentId, new ArrayList<NewAttachment>(), this.version,
-                this.sampleIdentifier, null, null);
+                this.sampleIdentifier, null, parentCodes);
     }
 }

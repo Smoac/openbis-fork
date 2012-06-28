@@ -237,8 +237,6 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
     private void replaceParents(SamplePE child, Set<SamplePE> newParents)
     {
-        PersonPE actor = findPerson();
-
         for (SamplePE parent : newParents)
         {
             checkParentDeletion(parent, child.getSampleIdentifier());
@@ -259,14 +257,28 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                 newParents.remove(r.getParentSample());
             } else
             {
-                child.removeParentRelationship(r);
+                relationshipService.removeParentFromSample(session, IdentifierHelper.sample(child),
+                        IdentifierHelper.sample(r.getParentSample()));
             }
         }
-        RelationshipTypePE relationship = tryFindParentChildRelationshipType();
-        for (SamplePE newParent : newParents)
+
+        SampleIdentifier childId = IdentifierHelper.sample(child);
+        if (this.tryToGetSampleByIdentifier(childId) == null) // new sample
         {
-            child.addParentRelationship(new SampleRelationshipPE(newParent, child, relationship,
-                    actor));
+            PersonPE actor = findPerson();
+            RelationshipTypePE relationship = tryFindParentChildRelationshipType();
+            for (SamplePE newParent : newParents)
+            {
+                child.addParentRelationship(new SampleRelationshipPE(newParent, child,
+                        relationship, actor));
+            }
+        } else
+        {
+            for (SamplePE newParent : newParents)
+            {
+                relationshipService.addParentToSample(session, childId,
+                        IdentifierHelper.sample(newParent));
+            }
         }
     }
 
