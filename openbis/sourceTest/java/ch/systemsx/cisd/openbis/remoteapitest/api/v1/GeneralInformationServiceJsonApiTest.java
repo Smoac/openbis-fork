@@ -440,7 +440,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
     public void testListDataSetTypes()
     {
         List<DataSetType> dataSetTypes = generalInformationService.listDataSetTypes(sessionToken);
-        assertEquals(4, dataSetTypes.size());
+        assertEquals(5, dataSetTypes.size());
 
         Collections.sort(dataSetTypes, new ToStringComparator());
         DataSetType dataSetType = dataSetTypes.get(1);

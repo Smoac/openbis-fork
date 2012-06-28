@@ -90,6 +90,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityHistoryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataManagementSystemDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
@@ -2912,8 +2913,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         checkSession(sessionToken);
 
-        getDAOFactory().getExternalDataManagementSystemDAO()
-                .createOrUpdateExternalDataManagementSystem(
-                        ExternalDataManagementSystemTranslator.translate(edms));
+        IDAOFactory daoFactory = getDAOFactory();
+        IExternalDataManagementSystemDAO edmsDAO = daoFactory.getExternalDataManagementSystemDAO();
+        ExternalDataManagementSystemPE edmsPE =
+                edmsDAO.tryToFindExternalDataManagementSystemByCode(edms.getCode());
+        if (edmsPE == null)
+        {
+            edmsPE = new ExternalDataManagementSystemPE();
+            edmsPE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+        }
+
+        edmsDAO.createOrUpdateExternalDataManagementSystem(ExternalDataManagementSystemTranslator
+                .translate(edms, edmsPE));
     }
 }

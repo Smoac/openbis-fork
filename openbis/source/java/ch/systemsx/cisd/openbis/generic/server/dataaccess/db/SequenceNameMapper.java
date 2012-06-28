@@ -88,6 +88,7 @@ public final class SequenceNameMapper extends StandardSequenceNameMapper
         add(set, TableNames.DATA_SET_RELATIONSHIPS_VIEW);
         add(set, TableNames.DATA_SET_RELATIONSHIPS_ALL_TABLE);
         add(set, TableNames.DATA_STORE_SERVICES_DATASET_TYPES_TABLE);
+        add(set, TableNames.LINK_DATA_TABLE);
         return Collections.unmodifiableSet(set);
     }
 

@@ -150,7 +150,7 @@ public class DataSetTranslator
             externalData = translateContainerDataSetProperties(dataPE, baseIndexURL, withDetails);
         } else if (dataPE.isLinkData())
         {
-            externalData = translateLinkDataSetProperties(dataPE, baseIndexURL);
+            externalData = translateLinkDataSetProperties(dataPE);
         } else if (dataPE instanceof ExternalDataPE)
         {
             externalData = translateDataSetProperties((ExternalDataPE) dataPE);
@@ -211,7 +211,7 @@ public class DataSetTranslator
         return containerDataSet;
     }
 
-    private static LinkDataSet translateLinkDataSetProperties(DataPE dataPE, String baseIndexURL)
+    private static LinkDataSet translateLinkDataSetProperties(DataPE dataPE)
     {
         LinkDataSet linkDataSet = new LinkDataSet();
         LinkDataPE linkDataPE = dataPE.tryAsLinkData();

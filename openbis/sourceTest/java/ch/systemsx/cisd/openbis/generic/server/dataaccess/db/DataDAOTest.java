@@ -48,8 +48,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -82,6 +84,8 @@ public final class DataDAOTest extends AbstractDAOTest
     private final String COMPONENT_CODE = "20110509092359990-11";
 
     private final String VIRTUAL_DATA_SET_TYPE_CODE = "CONTAINER_TYPE";
+
+    private final String LINK_DATA_SET_TYPE_CODE = "LINK_TYPE";
 
     @Test
     public final void testListSampleDataSets()
@@ -178,6 +182,19 @@ public final class DataDAOTest extends AbstractDAOTest
     }
 
     @Test
+    public void testFindFullLinkDataSet()
+    {
+        IDataDAO dataDAO = daoFactory.getDataDAO();
+        String dataSetCode = daoFactory.getPermIdDAO().createPermId();
+        LinkDataPE linkData = createLinkDataSet(dataSetCode, "ext-1", pickASample());
+        dataDAO.createDataSet(linkData, getTestPerson());
+
+        DataPE dataSet = dataDAO.tryToFindFullDataSetByCode(dataSetCode, true, true);
+
+        assertDataEqual(linkData, dataSet);
+    }
+
+    @Test
     public void testCreateVirtualDataSetWithComponents()
     {
         IDataDAO dataDAO = daoFactory.getDataDAO();
@@ -262,6 +279,22 @@ public final class DataDAOTest extends AbstractDAOTest
         return data;
     }
 
+    private LinkDataPE createLinkDataSet(String dataSetCode, String externalDataSetCode,
+            SamplePE sample)
+    {
+        LinkDataPE data = new LinkDataPE();
+
+        data.setCode(dataSetCode);
+        data.setDataSetType(getDataSetType(LINK_DATA_SET_TYPE_CODE));
+        data.setExperiment(pickAnExperiment());
+        data.setSampleAcquiredFrom(sample);
+        data.setPlaceholder(false);
+        data.setDataStore(pickADataStore());
+        data.setExternalCode(externalDataSetCode);
+        data.setExternalDataManagementSystem(pickAnExternalDataManagementSystem());
+        return data;
+    }
+
     private void assertDataEqual(DataPE expectedDataSet, DataPE dataSet)
     {
         assertEquals(expectedDataSet.getCode(), dataSet.getCode());
@@ -271,7 +304,8 @@ public final class DataDAOTest extends AbstractDAOTest
         assertEquals(expectedDataSet.isMeasured(), dataSet.isMeasured());
         assertEquals(expectedDataSet.tryGetSample(), dataSet.tryGetSample());
         assertEquals(expectedDataSet.isContainer(), dataSet.isContainer());
-        if (expectedDataSet.isContainer() == false)
+        assertEquals(expectedDataSet.isLinkData(), dataSet.isLinkData());
+        if (expectedDataSet.isContainer() == false && expectedDataSet.isLinkData() == false)
         {
             ExternalDataPE expectedExternalData = expectedDataSet.tryAsExternalData();
             ExternalDataPE externalData = dataSet.tryAsExternalData();
@@ -280,6 +314,13 @@ public final class DataDAOTest extends AbstractDAOTest
             assertEquals(expectedExternalData.getLocation(), externalData.getLocation());
             assertEquals(expectedExternalData.getComplete(), externalData.getComplete());
             assertEquals(expectedExternalData.getStorageFormat(), externalData.getStorageFormat());
+        }
+        if (expectedDataSet.isLinkData())
+        {
+            assertEquals(expectedDataSet.tryAsLinkData().getExternalCode(), dataSet.tryAsLinkData()
+                    .getExternalCode());
+            assertEquals(expectedDataSet.tryAsLinkData().getExternalDataManagementSystem().getId(),
+                    dataSet.tryAsLinkData().getExternalDataManagementSystem().getId());
         }
     }
 
@@ -477,6 +518,12 @@ public final class DataDAOTest extends AbstractDAOTest
     protected DataStorePE pickADataStore()
     {
         return daoFactory.getDataStoreDAO().tryToFindDataStoreByCode("STANDARD");
+    }
+
+    protected ExternalDataManagementSystemPE pickAnExternalDataManagementSystem()
+    {
+        return daoFactory.getExternalDataManagementSystemDAO()
+                .tryToFindExternalDataManagementSystemByCode("DMS_2");
     }
 
     protected DataSetTypePE getDataSetType(DataSetTypeCode type)

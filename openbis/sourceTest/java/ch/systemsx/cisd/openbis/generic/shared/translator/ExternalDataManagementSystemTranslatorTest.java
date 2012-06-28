@@ -1,0 +1,86 @@
+/*
+ * Copyright 2012 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.generic.shared.translator;
+
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
+
+/**
+ * @author Pawel Glyzewski
+ */
+public class ExternalDataManagementSystemTranslatorTest extends AssertJUnit
+{
+
+    @Test
+    public void testTranslatePEtoDTO()
+    {
+        ExternalDataManagementSystemPE edmsPE = new ExternalDataManagementSystemPE();
+        DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
+        databaseInstancePE.setCode("my-instance");
+        edmsPE.setDatabaseInstance(databaseInstancePE);
+        edmsPE.setId(Math.round(10000.0d * Math.random()));
+        edmsPE.setCode("TEST_EDMS");
+        edmsPE.setLabel("This is only a test");
+        edmsPE.setUrlTemplate("http://www.facebook.com/${code}");
+        edmsPE.setOpenBIS(true);
+
+        ExternalDataManagementSystem edms =
+                ExternalDataManagementSystemTranslator.translate(edmsPE);
+
+        assertNotNull(edms.getDatabaseInstance());
+        assertEquals(edmsPE.getDatabaseInstance().getCode(), edms.getDatabaseInstance().getCode());
+        assertEquals(edmsPE.getId(), edms.getId());
+        assertEquals(edmsPE.getCode(), edms.getCode());
+        assertEquals(edmsPE.getLabel(), edms.getLabel());
+        assertEquals(edmsPE.getUrlTemplate(), edms.getUrlTemplate());
+        assertTrue(edms.isOpenBIS());
+    }
+
+    @Test
+    public void testTranslateDTOtoPE()
+    {
+        ExternalDataManagementSystemPE edmsPE = new ExternalDataManagementSystemPE();
+        DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
+        databaseInstancePE.setCode("my-instance");
+        edmsPE.setDatabaseInstance(databaseInstancePE);
+
+        ExternalDataManagementSystem edms = new ExternalDataManagementSystem();
+        DatabaseInstance dbin = new DatabaseInstance();
+        dbin.setCode("fake instance");
+        edms.setDatabaseInstance(dbin);
+        edms.setId(111L);
+        edms.setCode("TEST_EDMS");
+        edms.setLabel("This is only a test");
+        edms.setUrlTemplate("http://www.facebook.com/${code}");
+        edms.setOpenBIS(false);
+
+        ExternalDataManagementSystemTranslator.translate(edms, edmsPE);
+
+        assertNotNull(edmsPE.getDatabaseInstance());
+        assertEquals(databaseInstancePE.getCode(), edmsPE.getDatabaseInstance().getCode());
+        assertNull(edmsPE.getId());
+        assertEquals(edms.getCode(), edmsPE.getCode());
+        assertEquals(edms.getLabel(), edmsPE.getLabel());
+        assertEquals(edms.getUrlTemplate(), edmsPE.getUrlTemplate());
+        assertFalse(edmsPE.isOpenBIS());
+    }
+}

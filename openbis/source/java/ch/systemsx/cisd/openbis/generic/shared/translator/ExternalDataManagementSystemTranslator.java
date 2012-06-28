@@ -41,13 +41,10 @@ public class ExternalDataManagementSystemTranslator
         return result;
     }
 
-    public static ExternalDataManagementSystemPE translate(ExternalDataManagementSystem edms)
+    public static ExternalDataManagementSystemPE translate(ExternalDataManagementSystem edms,
+            ExternalDataManagementSystemPE result)
     {
-        ExternalDataManagementSystemPE result = new ExternalDataManagementSystemPE();
-
-        result.setId(edms.getId());
         result.setCode(edms.getCode());
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(edms.getDatabaseInstance()));
         result.setLabel(edms.getLabel());
         result.setUrlTemplate(edms.getUrlTemplate());
         result.setOpenBIS(edms.isOpenBIS());

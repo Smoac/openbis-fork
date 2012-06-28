@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -37,8 +38,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -191,6 +194,59 @@ public class DataSetTranslatorTest extends AssertJUnit
         assertEquals(true, parentCodes.contains("parent-2"));
         assertEquals(true, externalData.isDerived());
         assertEquals(null, externalData.getDeletion());
+    }
+
+    @Test
+    public void testTranslateLinkDataPE()
+    {
+        LinkDataPE linkDataPE = new LinkDataPE();
+        linkDataPE.setCode("TEST_CODE");
+        linkDataPE.setDataStore(createStore());
+        linkDataPE.setExternalCode("TEST EXTERNAL CODE");
+
+        ExperimentPE experimentPE = new ExperimentPE();
+        experimentPE.setCode("my-experiment");
+        experimentPE.setExperimentType(new ExperimentTypePE());
+        ProjectPE projectPE = new ProjectPE();
+        projectPE.setCode("my-project");
+        SpacePE groupPE = new SpacePE();
+        groupPE.setCode("my-group");
+        DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
+        databaseInstancePE.setCode("my-instance");
+        groupPE.setDatabaseInstance(databaseInstancePE);
+        projectPE.setSpace(groupPE);
+        experimentPE.setProject(projectPE);
+        linkDataPE.setExperiment(experimentPE);
+
+        ExternalDataManagementSystemPE edms = new ExternalDataManagementSystemPE();
+        edms.setDatabaseInstance(databaseInstancePE);
+        edms.setCode("EDMS");
+        edms.setLabel("Label");
+        linkDataPE.setExternalDataManagementSystem(edms);
+
+        linkDataPE.addParentRelationship(createParentRelationship(linkDataPE, "parent-1"));
+        linkDataPE.addParentRelationship(createParentRelationship(linkDataPE, "parent-2"));
+
+        ExternalData externalData = DataSetTranslator.translate(linkDataPE, BASE_INDEX_URL);
+
+        assertEquals("my-experiment", externalData.getExperiment().getCode());
+        assertEquals(2, externalData.getParents().size());
+        Set<String> parentCodes = extractParentCodes(externalData);
+        assertEquals(true, parentCodes.contains("parent-1"));
+        assertEquals(true, parentCodes.contains("parent-2"));
+        assertEquals(false, externalData.isDerived());
+        assertNull(externalData.getDeletion());
+
+        assertTrue(externalData.isLinkData());
+        assertNotNull(externalData.tryGetAsLinkDataSet());
+        LinkDataSet linkData = externalData.tryGetAsLinkDataSet();
+        assertEquals(linkDataPE.getCode(), linkData.getCode());
+        assertEquals(linkDataPE.getExternalCode(), linkData.getExternalCode());
+        assertNotNull(linkData.getExternalDataManagementSystem());
+        assertEquals(linkDataPE.getExternalDataManagementSystem().getCode(), linkData
+                .getExternalDataManagementSystem().getCode());
+        assertEquals(linkDataPE.getExternalDataManagementSystem().getLabel(), linkData
+                .getExternalDataManagementSystem().getLabel());
     }
 
     private Set<String> extractParentCodes(ExternalData externalData)

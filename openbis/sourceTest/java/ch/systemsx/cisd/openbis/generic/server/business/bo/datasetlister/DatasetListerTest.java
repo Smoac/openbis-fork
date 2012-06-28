@@ -221,7 +221,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("20081105092259900-0", dataSets.get(0).getCode());
         assertEquals("STANDARD", dataSets.get(0).getDataStore().getCode());
         assertEquals(0, dataSets.get(0).getProperties().size());
-        assertEquals(11, dataSets.size());
+        assertEquals(14, dataSets.size());
     }
 
     @Test
@@ -260,6 +260,63 @@ public class DatasetListerTest extends AbstractDAOTest
         assertNotNull(dataset1);
         assertEquals(2, (int) dataset1.getOrderInContainer());
         assertEquals(dataset1.tryGetContainer(), containerDataSet);
+    }
+
+    @Test
+    public void testListByDataSetIdsWithLinkDataSets()
+    {
+        final Long ds1Id = 23L;
+        final Long ds2Id = 24L;
+        final Long ds3Id = 25L;
+
+        List<ExternalData> datasets = lister.listByDatasetIds(Arrays.asList(ds1Id, ds2Id, ds3Id));
+
+        assertEquals(3, datasets.size());
+        assertTrue(datasets.get(0).isLinkData());
+        assertTrue(datasets.get(1).isLinkData());
+        assertTrue(datasets.get(2).isLinkData());
+        assertNotNull(datasets.get(0).tryGetAsLinkDataSet());
+        assertNotNull(datasets.get(1).tryGetAsLinkDataSet());
+        assertNotNull(datasets.get(2).tryGetAsLinkDataSet());
+        assertEquals("20120628092259000-23", datasets.get(0).getCode());
+        assertEquals("20120628092259000-24", datasets.get(1).getCode());
+        assertEquals("20120628092259000-25", datasets.get(2).getCode());
+        assertNotNull(datasets.get(0).tryGetAsLinkDataSet().getExternalDataManagementSystem());
+        assertNotNull(datasets.get(1).tryGetAsLinkDataSet().getExternalDataManagementSystem());
+        assertNotNull(datasets.get(2).tryGetAsLinkDataSet().getExternalDataManagementSystem());
+        assertEquals(1L, datasets.get(0).tryGetAsLinkDataSet().getExternalDataManagementSystem()
+                .getId().longValue());
+        assertEquals(1L, datasets.get(1).tryGetAsLinkDataSet().getExternalDataManagementSystem()
+                .getId().longValue());
+        assertEquals(2L, datasets.get(2).tryGetAsLinkDataSet().getExternalDataManagementSystem()
+                .getId().longValue());
+        assertEquals("DMS_1", datasets.get(0).tryGetAsLinkDataSet()
+                .getExternalDataManagementSystem().getCode());
+        assertEquals("DMS_1", datasets.get(1).tryGetAsLinkDataSet()
+                .getExternalDataManagementSystem().getCode());
+        assertEquals("DMS_2", datasets.get(2).tryGetAsLinkDataSet()
+                .getExternalDataManagementSystem().getCode());
+        assertEquals("Test EDMS", datasets.get(0).tryGetAsLinkDataSet()
+                .getExternalDataManagementSystem().getLabel());
+        assertEquals("Test EDMS", datasets.get(1).tryGetAsLinkDataSet()
+                .getExternalDataManagementSystem().getLabel());
+        assertEquals("Test External openBIS instance", datasets.get(2).tryGetAsLinkDataSet()
+                .getExternalDataManagementSystem().getLabel());
+        assertEquals("http://example.edms.pl/code=${code}", datasets.get(0).tryGetAsLinkDataSet()
+                .getExternalDataManagementSystem().getUrlTemplate());
+        assertEquals("http://example.edms.pl/code=${code}", datasets.get(1).tryGetAsLinkDataSet()
+                .getExternalDataManagementSystem().getUrlTemplate());
+        assertEquals("http://www.openbis.ch/perm_id=${code}", datasets.get(2).tryGetAsLinkDataSet()
+                .getExternalDataManagementSystem().getUrlTemplate());
+        assertFalse(datasets.get(0).tryGetAsLinkDataSet().getExternalDataManagementSystem()
+                .isOpenBIS());
+        assertFalse(datasets.get(1).tryGetAsLinkDataSet().getExternalDataManagementSystem()
+                .isOpenBIS());
+        assertTrue(datasets.get(2).tryGetAsLinkDataSet().getExternalDataManagementSystem()
+                .isOpenBIS());
+        assertEquals("CODE1", datasets.get(0).tryGetAsLinkDataSet().getExternalCode());
+        assertEquals("CODE2", datasets.get(1).tryGetAsLinkDataSet().getExternalCode());
+        assertEquals("CODE3", datasets.get(2).tryGetAsLinkDataSet().getExternalCode());
     }
 
     @Test
@@ -326,7 +383,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("42", ((DataSet) dataSet).getShareId());
         assertEquals(4711L, ((DataSet) dataSet).getSize().longValue());
         assertEquals(DataSetArchivingStatus.AVAILABLE, ((DataSet) dataSet).getStatus());
-        assertEquals(17, list.size());
+        assertEquals(20, list.size());
     }
 
     @Test
@@ -349,7 +406,7 @@ public class DatasetListerTest extends AbstractDAOTest
         DataSetShareId dataSet2 = list.get(1);
         assertEquals("20081105092159111-1", dataSet2.getDataSetCode());
         assertEquals("42", dataSet2.getShareId());
-        assertEquals(19, list.size());
+        assertEquals(22, list.size());
     }
 
     private void assertSameDataSetsForSameCode(Map<String, ExternalData> dataSetsByCode,
