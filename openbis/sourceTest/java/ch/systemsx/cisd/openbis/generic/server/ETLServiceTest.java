@@ -148,7 +148,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     }
 
     @Test
-    public void testListDataSets()
+    public void testListFileDataSets()
     {
         prepareGetSession();
         context.checking(new Expectations()
@@ -183,7 +183,7 @@ public class ETLServiceTest extends AbstractServerTestCase
             });
 
         List<SimpleDataSetInformationDTO> dataSets =
-                createService().listDataSets(SESSION_TOKEN, DSS_CODE);
+                createService().listFileDataSets(SESSION_TOKEN, DSS_CODE);
 
         assertEquals(DSS_CODE, dataSets.get(0).getDataStoreCode());
         assertEquals("my-type", dataSets.get(0).getDataSetType());

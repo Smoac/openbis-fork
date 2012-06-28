@@ -351,10 +351,10 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public List<SimpleDataSetInformationDTO> listDataSets(String sessionToken, String dataStore)
+    public List<SimpleDataSetInformationDTO> listFileDataSets(String sessionToken, String dataStore)
             throws UserFailureException
     {
-        logAccess(Level.DEBUG, sessionToken, "listDataSets", "DATA_STORE(%s)", dataStore);
+        logAccess(Level.DEBUG, sessionToken, "listFileDataSets", "DATA_STORE(%s)", dataStore);
         return null;
     }
 

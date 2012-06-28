@@ -437,11 +437,11 @@ public interface IETLLIMSService extends IServer, ISessionProvider, IConversatio
             throws UserFailureException;
 
     /**
-     * Lists data sets belonging to chosen data store.
+     * Lists file-content data sets belonging to chosen data store.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public List<SimpleDataSetInformationDTO> listDataSets(final String sessionToken,
+    public List<SimpleDataSetInformationDTO> listFileDataSets(final String sessionToken,
             String dataStore) throws UserFailureException;
 
     /**

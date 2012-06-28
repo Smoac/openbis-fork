@@ -1050,7 +1050,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     @Override
-    public List<SimpleDataSetInformationDTO> listDataSets(String sessionToken, String dataStoreCode)
+    public List<SimpleDataSetInformationDTO> listFileDataSets(String sessionToken, String dataStoreCode)
             throws UserFailureException
     {
         List<ExternalData> dataSets = loadDataSets(sessionToken, dataStoreCode);
