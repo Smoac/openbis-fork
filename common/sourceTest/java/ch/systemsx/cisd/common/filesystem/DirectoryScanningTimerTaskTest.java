@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.filesystem;
 
 import static ch.systemsx.cisd.common.filesystem.FileUtilities.ACCEPT_ALL_FILTER;
+import static ch.systemsx.cisd.common.filesystem.FileUtilities.ACCEPT_ALL_BUT_HIDDEN_FILTER;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -149,12 +150,19 @@ public class DirectoryScanningTimerTaskTest
     {
         final File someFile = new File(workingDirectory, "some_file");
         createNewFile(someFile);
+        final File activityLogDir = new File(workingDirectory, ".activity_log");
+        final String threadName = "abc_test";
         final DirectoryScanningTimerTask scanner =
-                new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_FILTER, mockPathHandler);
+                new DirectoryScanningTimerTask(workingDirectory, ACCEPT_ALL_BUT_HIDDEN_FILTER,
+                        mockPathHandler, threadName, activityLogDir);
         assertEquals(0, mockPathHandler.handledPaths.size());
         scanner.run();
         assertEquals(1, mockPathHandler.handledPaths.size());
         assertEquals(someFile, mockPathHandler.handledPaths.get(0));
+        final File activityLogFile = new File(activityLogDir, threadName);
+        assertTrue(activityLogFile.exists());
+        final long milliDiff = System.currentTimeMillis() - activityLogFile.lastModified(); 
+        assertTrue(milliDiff + "ms", milliDiff < 1000);
     }
 
     @Test

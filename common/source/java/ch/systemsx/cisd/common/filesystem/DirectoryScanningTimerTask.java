@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimerTask;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
@@ -79,6 +81,8 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
 
     private String threadNameOrNull;
 
+    private File activityLogDirectoryOrNull;
+
     /**
      * Indicates that we should try to exit the {@link #run()} method as soon as possible.
      * <p>
@@ -94,12 +98,30 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
      * @param filter The file filter that picks the entries to handle.
      * @param handler The handler that is used for treating the matching paths.
      * @param directoryScanningHandler A directory scanning handler.
+     * @param threadName The name of the thread
+     * @param activityLogDirectory The directory to log activity to.
+     */
+    public DirectoryScanningTimerTask(final File sourceDirectory, final FileFilter filter,
+            final IPathHandler handler, final IDirectoryScanningHandler directoryScanningHandler,
+            final String threadName, final File activityLogDirectory)
+    {
+        this(asScannedStore(sourceDirectory, filter), directoryScanningHandler, PathHandlerAdapter
+                .asScanningHandler(sourceDirectory, handler), 0, threadName, activityLogDirectory);
+    }
+
+    /**
+     * Creates a <var>DirectoryScanningTimerTask</var>.
+     * 
+     * @param sourceDirectory The directory to scan for entries.
+     * @param filter The file filter that picks the entries to handle.
+     * @param handler The handler that is used for treating the matching paths.
+     * @param directoryScanningHandler A directory scanning handler.
      */
     public DirectoryScanningTimerTask(final File sourceDirectory, final FileFilter filter,
             final IPathHandler handler, final IDirectoryScanningHandler directoryScanningHandler)
     {
         this(asScannedStore(sourceDirectory, filter), directoryScanningHandler, PathHandlerAdapter
-                .asScanningHandler(sourceDirectory, handler), 0);
+                .asScanningHandler(sourceDirectory, handler), 0, null, null);
     }
 
     /**
@@ -113,7 +135,8 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
             final IStoreHandler storeHandler,
             final IDirectoryScanningHandler directoryScanningHandler)
     {
-        this(asScannedStore(sourceDirectory, filter), directoryScanningHandler, storeHandler, 0);
+        this(asScannedStore(sourceDirectory, filter), directoryScanningHandler, storeHandler, 0,
+                null, null);
     }
 
     /**
@@ -132,16 +155,34 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
     /**
      * Creates a <var>DirectoryScanningTimerTask</var>.
      * 
+     * @param sourceDirectory The directory to scan for entries.
+     * @param filter The file filter that picks the entries to handle.
+     * @param pathHandler The handler that is used for treating the matching paths.
+     * @param threadName The name of the thread
+     * @param activityLogDirectory The directory to log activity to.
+     */
+    public DirectoryScanningTimerTask(final File sourceDirectory, final FileFilter filter,
+            final IPathHandler pathHandler, String threadName, File activityLogDirectory)
+    {
+        this(sourceDirectory, filter, pathHandler, 0, threadName, activityLogDirectory);
+    }
+
+    /**
+     * Creates a <var>DirectoryScanningTimerTask</var>.
+     * 
      * @param scannedStore The store which is scan for entries.
      * @param directoryScanningHandler A directory scanning handler.
      * @param storeHandler The handler that is used for treating the matching paths.
      * @param ignoredErrorCount The number of consecutive errors of reading the directory that need
      *            to occur before the next error is logged (can be used to suppress error when the
      *            directory is on a remote share and the server is flaky sometimes)
+     * @param threadName The name of the thread
+     * @param activityLogDirectory The directory to log activity to.
      */
     public DirectoryScanningTimerTask(final IScannedStore scannedStore,
             final IDirectoryScanningHandler directoryScanningHandler,
-            final IStoreHandler storeHandler, final int ignoredErrorCount)
+            final IStoreHandler storeHandler, final int ignoredErrorCount, final String threadName,
+            final File activityLogDirectory)
     {
         assert scannedStore != null;
         assert storeHandler != null;
@@ -155,6 +196,17 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
                 new ConditionalNotificationLogger(operationLog, Level.WARN, notificationLog,
                         ignoredErrorCount);
         this.errorLog = new LinkedHashMap<StoreItem, String>();
+        this.threadNameOrNull = threadName;
+        this.activityLogDirectoryOrNull = activityLogDirectory;
+        if (activityLogDirectory != null && activityLogDirectory.isDirectory() == false)
+        {
+            activityLogDirectory.mkdirs();
+            if (activityLogDirectory.isDirectory() == false)
+            {
+                operationLog.error("Cannot create activityLogDirectory " + activityLogDirectory
+                        + " - activity logging disabled.");
+            }
+        }
     }
 
     /**
@@ -172,7 +224,28 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
     {
         this(asScannedStore(sourceDirectory, fileFilter), new FaultyPathDirectoryScanningHandler(
                 sourceDirectory, pathHandler, null), PathHandlerAdapter.asScanningHandler(
-                sourceDirectory, pathHandler), ignoredErrorCount);
+                sourceDirectory, pathHandler), ignoredErrorCount, null, null);
+    }
+
+    /**
+     * Creates a <var>DirectoryScanningTimerTask</var>.
+     * 
+     * @param sourceDirectory The directory to scan for entries.
+     * @param fileFilter The file filter that picks the entries to handle.
+     * @param pathHandler The handler that is used for treating the matching paths.
+     * @param ignoredErrorCount The number of consecutive errors of reading the directory that need
+     *            to occur before the next error is logged (can be used to suppress error when the
+     *            directory is on a remote share and the server is flaky sometimes)
+     * @param threadName The name of the thread
+     * @param activityLogDirectory The directory to log activity to.
+     */
+    DirectoryScanningTimerTask(final File sourceDirectory, final FileFilter fileFilter,
+            final IPathHandler pathHandler, final int ignoredErrorCount, final String threadName,
+            final File activityLogDirectory)
+    {
+        this(asScannedStore(sourceDirectory, fileFilter), new FaultyPathDirectoryScanningHandler(
+                sourceDirectory, pathHandler, null), PathHandlerAdapter.asScanningHandler(
+                sourceDirectory, pathHandler), ignoredErrorCount, threadName, activityLogDirectory);
     }
 
     private final static IScannedStore asScannedStore(final File directory, final FileFilter filter)
@@ -225,7 +298,11 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
         {
             operationLog.trace(String.format("Start scanning directory '%s'.", sourceDirectory));
         }
-        threadNameOrNull = Thread.currentThread().getName();
+        if (threadNameOrNull == null)
+        {
+            threadNameOrNull = Thread.currentThread().getName();
+        }
+        logActivity();
         try
         {
             didSomeWork = false;
@@ -363,6 +440,23 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
         if (operationLog.isTraceEnabled())
         {
             operationLog.trace(String.format("Finished scanning directory '%s'.", sourceDirectory));
+        }
+    }
+
+    private void logActivity()
+    {
+        if (activityLogDirectoryOrNull != null)
+        {
+            final File activityFile =
+                    new File(activityLogDirectoryOrNull, threadNameOrNull.replace(' ',
+                            '_'));
+            try
+            {
+                FileUtils.touch(activityFile);
+            } catch (IOException ex)
+            {
+                operationLog.warn("Cannot touch activity file " + activityFile);
+            }
         }
     }
 
