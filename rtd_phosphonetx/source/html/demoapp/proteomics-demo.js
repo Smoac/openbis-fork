@@ -49,10 +49,13 @@ function displayResultsAsGraph(data)
         return;
     }
     
-    var xOffset = 30,
-        yOffset = 10,
+    var xOffset = 70,
+        yOffset = 40,
         xStep = 200,
-        yStep = 30;
+        yStep = 30,
+        xLabel = -30,
+        yLabel = 18,
+        columnNames = ['Biological Experiment', 'Biological Sample', 'MS Injection Sample', 'Search Experiment', 'Protein'];
         
     var graph = vis.selectAll("svg").data([data]).enter().append("svg:svg")
         .attr("width", $(window).width() - 50)
@@ -62,6 +65,14 @@ function displayResultsAsGraph(data)
         .enter().append("svg:g")
         .attr("transform", function(d,i) { return "translate(" + (xOffset + i * xStep) + ", "
                                                                + yOffset + ")"; });
+    
+    g.append("svg:text")
+        .text(function(d,i) { return columnNames[i]; })
+        .attr("class", "columnHeader")
+        .attr("text-anchor", "middle")
+        .attr("x", 0)
+        .attr("y", -10);
+        
     g.selectAll("path").data(function(d) { return d[1]; })
         .enter().append("svg:path")
         .attr("class", "line")
@@ -86,8 +97,8 @@ function displayResultsAsGraph(data)
         .text(function(d) { return d.label; })
         .attr("class", function(d) { return d.level == indexOfLinkedColumn ? "linked" : "notLinked";})
         .attr("text-anchor", "left")
-        .attr("x", -10)
-        .attr("y", 18)
+        .attr("x", xLabel)
+        .attr("y", yLabel)
         .on("click", function(d) { if (d.level == indexOfLinkedColumn) {
                                        window.open(openbisUrl + "/?#entity=EXPERIMENT&permId=" + d.permId, '_blank');
                                    }
@@ -108,10 +119,17 @@ function createDataModel(tableModel)
     var maps = [];
     var permIds = {};
     
-    for (n = 0; n < rows.length; n++) {
+    for (n = 0; n < rows.length; n++) 
+    {
         row = rows[n];
         permIds[row[indexOfLinkedColumn].value] = row[4].value;
-        row[5].value = row[5].value + ": " + row[6].value; // concatenate accession number with description
+        var accessionNumber = row[5].value;
+        var splitted = accessionNumber.split("|");
+        if (splitted.length > 1)
+        {
+            accessionNumber = splitted[1];
+        }
+        row[5].value = accessionNumber + ": " + row[6].value; // concatenate accession number with description
         row.splice(6, 1); // remove description
         row.splice(4, 1); // remove search experiment perm id
         for (i = 0; i < row.length; i++) {
