@@ -87,6 +87,8 @@ public class FileCopyUtils
      * This method copies the contents of the specified source file to the specified destination
      * file. The directory holding the destination file is created if it does not exist. If the
      * destination file exists, then this method will overwrite it.
+     * <p> 
+     * The last modification time of the source is preserved in the copy.
      * 
      * @param source an existing file to copy, must not be <code>null</code>
      * @param destination the new file, must not be <code>null</code>
@@ -113,6 +115,8 @@ public class FileCopyUtils
      * This method copies the contents of the specified source file to a file of the same name in
      * the specified destination directory. The destination directory is created if it does not
      * exist. If the destination file exists, then this method will overwrite it.
+     * <p> 
+     * The last modification time of the source is preserved in the copy.
      * 
      * @param source an existing file to copy, must not be <code>null</code>
      * @param destDir the directory to place the copy in, must not be <code>null</code>
@@ -137,6 +141,8 @@ public class FileCopyUtils
      * This method copies the contents of the specified source file to a file of the same name in
      * the specified destination directory. The destination directory is created if it does not
      * exist. If the destination file exists, then this method will overwrite it.
+     * <p> 
+     * The last modification time of the source is preserved in the copy.
      * 
      * @param source an existing file to copy, must not be <code>null</code>
      * @param destination the directory to place the copy in, must not be <code>null</code>
@@ -163,6 +169,8 @@ public class FileCopyUtils
      * This method copies the contents of the specified source file to a file of the same name in
      * the specified destination directory. The destination directory is created if it does not
      * exist. If the destination file exists, then this method will overwrite it.
+     * <p> 
+     * The last modification time of the source is preserved in the copy.
      * 
      * @param srcFile an existing file to copy, must not be <code>null</code>
      * @param destDir the directory to place the copy in, must not be <code>null</code>
@@ -190,6 +198,8 @@ public class FileCopyUtils
      * This method copies the contents of the specified source file to the specified destination
      * file. The directory holding the destination file is created if it does not exist. If the
      * destination file exists, then this method will overwrite it.
+     * <p> 
+     * The last modification time of the source is preserved in the copy.
      * 
      * @param srcFile an existing file to copy, must not be <code>null</code>
      * @param destFile the new file, must not be <code>null</code>
@@ -283,6 +293,8 @@ public class FileCopyUtils
      * The destination directory is created if it does not exist. If the destination directory did
      * exist, then this method merges the source with the destination, with the source taking
      * precedence.
+     * <p> 
+     * The last modification time of the source is preserved in the copy.
      * 
      * @param srcDir an existing directory to copy, must not be <code>null</code>
      * @param destDir the directory to place the copy in, must not be <code>null</code>
@@ -305,6 +317,8 @@ public class FileCopyUtils
      * The destination directory is created if it does not exist. If the destination directory did
      * exist, then this method merges the source with the destination, with the source taking
      * precedence.
+     * <p> 
+     * The last modification time of the source is preserved in the copy.
      * 
      * @param srcDir an existing directory to copy, must not be <code>null</code>
      * @param destDir the directory to place the copy in, must not be <code>null</code>
@@ -345,6 +359,8 @@ public class FileCopyUtils
      * The destination directory is created if it does not exist. If the destination directory did
      * exist, then this method merges the source with the destination, with the source taking
      * precedence.
+     * <p> 
+     * The last modification time of the source is preserved in the copy.
      * 
      * @param srcDir an existing directory to copy, must not be <code>null</code>
      * @param destDir the new directory, must not be <code>null</code>
@@ -369,6 +385,8 @@ public class FileCopyUtils
      * The destination directory is created if it does not exist. If the destination directory did
      * exist, then this method merges the source with the destination, with the source taking
      * precedence.
+     * <p> 
+     * The last modification time of the source is preserved in the copy.
      * 
      * @param srcDir an existing directory to copy, must not be <code>null</code>
      * @param destDir the new directory, must not be <code>null</code>
@@ -391,6 +409,8 @@ public class FileCopyUtils
      * The destination directory is created if it does not exist. If the destination directory did
      * exist, then this method merges the source with the destination, with the source taking
      * precedence.
+     * <p> 
+     * The last modification time of the source is preserved in the copy.
      * <h4>Example: Copy directories only</h4>
      * 
      * <pre>
@@ -433,6 +453,8 @@ public class FileCopyUtils
      * The destination directory is created if it does not exist. If the destination directory did
      * exist, then this method merges the source with the destination, with the source taking
      * precedence.
+     * <p> 
+     * The last modification time of the source is preserved in the copy.
      * <h4>Example: Copy directories only</h4>
      * 
      * <pre>
@@ -560,5 +582,6 @@ public class FileCopyUtils
                 }
             }
         }
+        destDir.setLastModified(srcDir.lastModified());
     }
 }
