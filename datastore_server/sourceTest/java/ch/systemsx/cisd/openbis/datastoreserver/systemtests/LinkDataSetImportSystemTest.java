@@ -37,6 +37,9 @@ public class LinkDataSetImportSystemTest extends SystemTestCase
 
     // for jython script go to sourceTest/core-plugins/generic-test/1/dss/drop-boxes/link-data-test
 
+    File emailDirectory = new File(new File(new File(workingDirectory, "SystemTests"), "dss-root"),
+            "email");
+
     @Override
     protected File getIncomingDirectory()
     {

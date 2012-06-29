@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  */
 public class FeatureRichDataSetImportSystemTest extends SystemTestCase
 {
-    // for jython script go to sourceTest/core-plugins/generic-test/1/dss/drop-boxes/link-data-test
+    // for jython script go to sourceTest/core-plugins/generic-test/1/dss/drop-boxes/rich-test
 
     @Override
     protected File getIncomingDirectory()
@@ -51,6 +51,7 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
     @Test
     public void testRichImport() throws Exception
     {
+
         File exampleDataSet = new File(workingDirectory, "my-data");
         createExampleDataSet(exampleDataSet);
         moveFileToIncoming(exampleDataSet);
@@ -65,6 +66,25 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         assertLinkedDataSetImported(openBISService);
 
         assert100MaterialsCreated(openBISService);
+
+        assertEmailHasBeenSentFromHook();
+    }
+
+    private void assertEmailHasBeenSentFromHook()
+    {
+        File emailDirectory = new File(new File(workingDirectory, "dss-root"), "email");
+
+        for (File f : FileUtilities.listFiles(emailDirectory))
+        {
+            String content = FileUtilities.loadExactToString(f);
+            if (content.contains("post_metadata_registration rich"))
+            {
+                assertTrue(content.contains("rich_email_text")); // check the content introduced
+                                                                 // with the persistent map
+                return; // assert ok
+            }
+        }
+        fail("No email found!");
     }
 
     private void assertSpaceProjectExperiment(IEncapsulatedOpenBISService openBISService)
@@ -99,8 +119,7 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
 
         for (int i = 0; i < 100; i++)
         {
-            MaterialIdentifier ident =
- MaterialIdentifier.tryParseIdentifier("RM_" + i + " (GENE)");
+            MaterialIdentifier ident = MaterialIdentifier.tryParseIdentifier("RM_" + i + " (GENE)");
             ids.add(ident);
         }
 

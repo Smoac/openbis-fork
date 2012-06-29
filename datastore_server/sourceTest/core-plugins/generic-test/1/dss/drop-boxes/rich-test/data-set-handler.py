@@ -1,6 +1,21 @@
+from ch.systemsx.cisd.common.mail import EMailAddress
+
 SPACE_CODE = "RICH_SPACE"
 PROJECT_ID = "/RICH_SPACE/RICH_PROJECT"
 EXPERIMENT_ID = "/RICH_SPACE/RICH_PROJECT/RICH_EXPERIMENT"
+
+# the hooks
+
+def sendMail(context, subject, message):
+    mailClient = context.getGlobalState().getMailClient();
+    addressFrom = EMailAddress("example@example.com")
+    addressTo = EMailAddress("rich_test_example@example.com", "example name")
+    mailClient.sendEmailMessage(subject, message, None,
+            addressFrom, addressTo) 
+
+def post_metadata_registration(context):
+    content = "post_metadata_registration rich %s " % context.getPersistentMap().get("email_text")
+    sendMail(context, "Subject", "post_metadata_registration rich")
 
 def create_space_if_needed(transaction):
     space = transaction.getSpace(SPACE_CODE)
@@ -19,17 +34,18 @@ def create_experiment_if_needed(transaction):
     exp = transaction.getExperiment(EXPERIMENT_ID)
     if None == exp:
         create_project_if_needed(transaction)
-        print 'Creating new experiment : ' + EXPERIMENT_ID
         exp = transaction.createNewExperiment(EXPERIMENT_ID, 'SIRNA_HCS')
         exp.setPropertyValue("DESCRIPTION", "A sample experiment")
 
     return exp
 
-
 def createMaterials(transaction):
     for x in range(0,100):
         mat = transaction.createNewMaterial("RM_%d" % x, "GENE")
         mat.setPropertyValue("GENE_SYMBOL", "RM_%d_S" %x)
+
+def createSamples(transaction):
+    sample = transaction.createNewSample('/RICH_SPACE/SAMPLE123', 'DYNAMIC_PLATE')
 
 def process(transaction):
     # create experiment
@@ -43,3 +59,8 @@ def process(transaction):
 
     # register many materials
     createMaterials(transaction)
+    
+    # register samples
+    createSamples(transaction)
+
+    transaction.getRegistrationContext.getPersistentMap().put("email_text", "rich_email_text")
