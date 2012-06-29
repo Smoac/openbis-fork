@@ -21,11 +21,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
-import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -37,14 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
  */
 public class LinkDataSetImportSystemTest extends SystemTestCase
 {
-    private static final String OPENBIS_URL = "http://localhost:8888";
-
-    private IDssComponent createDssComponent(String userName)
-    {
-        return DssComponentFactory.tryCreate(userName, "a", OPENBIS_URL,
-                5 * DateUtils.MILLIS_PER_MINUTE);
-    }
-
     @Override
     protected File getIncomingDirectory()
     {
