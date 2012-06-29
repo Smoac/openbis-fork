@@ -116,47 +116,6 @@ public final class FileUtilities
         };
 
     /**
-     * Copies the content of the specified source file to the specified destination file.
-     * 
-     * @param sourceFile File to be copied.
-     * @param destinationFile File to whom content of <code>sourceFile</code> is copied.
-     * @param preservesLastModifiedDate If <code>true</code> the last modified date of
-     *            <code>sourceFile</code> will be transfered to <code>destinationFile</code>.
-     * @throws EnvironmentFailureException if a {@link IOException} occurred.
-     */
-    public static void copyFileTo(final File sourceFile, final File destinationFile,
-            final boolean preservesLastModifiedDate) throws IOExceptionUnchecked
-    {
-        FileInputStream inputStream = null;
-        FileOutputStream outputStream = null;
-        try
-        {
-            inputStream = new FileInputStream(sourceFile);
-            outputStream = new FileOutputStream(destinationFile);
-            IOUtils.copy(inputStream, outputStream);
-            outputStream.close();
-        } catch (final IOException ex)
-        {
-            throw new EnvironmentFailureException("Couldn't copy file '" + sourceFile + "' to '"
-                    + destinationFile + "'.", ex);
-        } finally
-        {
-            IOUtils.closeQuietly(inputStream);
-            IOUtils.closeQuietly(outputStream);
-        }
-        // In Windows last modified date can only be changed of the output stream is closed
-        if (preservesLastModifiedDate)
-        {
-            final boolean successful = destinationFile.setLastModified(sourceFile.lastModified());
-            if (successful == false)
-            {
-                throw new EnvironmentFailureException("Couldn't copy last modified date of file '"
-                        + sourceFile + "' to '" + destinationFile + "' for some unknown reason.");
-            }
-        }
-    }
-
-    /**
      * Loads a text file to a {@link String}.
      * 
      * @param file the file that should be loaded. This method asserts that given <code>File</code>

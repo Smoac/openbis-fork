@@ -24,11 +24,11 @@ import java.util.concurrent.Callable;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.springframework.util.FileCopyUtils;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.TimingParameters;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -190,9 +190,9 @@ public class HardLinkMaker implements IFileImmutableCopier
             {
                 try
                 {
-                    FileUtilities.copyFileTo(source, destFile, true);
+                    FileCopyUtils.copy(source, destFile);
                     return Status.OK;
-                } catch (EnvironmentFailureException ex)
+                } catch (IOException ex)
                 {
                     return Status.createError(ex.getMessage());
                 }

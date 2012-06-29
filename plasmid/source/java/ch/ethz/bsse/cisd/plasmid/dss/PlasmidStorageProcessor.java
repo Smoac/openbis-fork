@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import ch.ethz.bsse.cisd.plasmid.plasmapper.PlasMapperUploader;
 import ch.ethz.bsse.cisd.plasmid.plasmapper.PlasMapperUploader.PlasMapperService;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -126,7 +127,7 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
         {
             operationLog.info("Renaming and copying file '" + outputFile.getName() + "' from '"
                     + outputFile + "' to " + destinationFile);
-            FileUtilities.copyFileTo(outputFile, destinationFile, false);
+            FileOperations.getInstance().copyFile(outputFile, destinationFile);
 
             if (destinationFile.getName().endsWith("svg"))
             {

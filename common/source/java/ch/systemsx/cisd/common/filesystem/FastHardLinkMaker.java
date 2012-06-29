@@ -17,12 +17,14 @@
 package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileCopyUtils;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
@@ -74,9 +76,9 @@ public class FastHardLinkMaker implements IFileImmutableCopier
                     {
                         try
                         {
-                            FileUtilities.copyFileTo(source, destination, true);
+                            FileCopyUtils.copyFile(source, destination);
                             return Status.OK;
-                        } catch (EnvironmentFailureException ex2)
+                        } catch (IOException ex2)
                         {
                             return Status.createError(ex2.getMessage());
                         }

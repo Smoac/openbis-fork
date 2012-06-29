@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.imagereaders.IImageReader;
@@ -145,7 +145,8 @@ public class SimpleImageDataSetRegistratorTest extends AbstractFileSystemTestCas
     private File copyExampleFile(String fileName)
     {
         File destinationFile = new File(imageFolder, fileName);
-        FileUtilities.copyFileTo(new File(TEST_DATA_FOLDER, fileName), destinationFile, false);
+        FileOperations.getInstance()
+                .copyFile(new File(TEST_DATA_FOLDER, fileName), destinationFile);
         return destinationFile;
     }
 
