@@ -34,6 +34,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicURLEncoder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -166,7 +169,17 @@ public class DataSetLister implements IDataSetLister
         DataSetInitializer initializer = new DataSetInitializer();
         initializer.setCode(dataSet.ds_code);
         initializer.setDataSetTypeCode(dataSet.dt_code);
-        initializer.setDataSetKind(dataSet.dt_data_set_kind);
+        initializer.setContainerDataSet(DataSetKind.CONTAINER.name().equals(
+                dataSet.dt_data_set_kind));
+        initializer.setLinkDataSet(DataSetKind.LINK.name().equals(dataSet.dt_data_set_kind));
+        if (initializer.isLinkDataSet())
+        {
+            initializer.setExternalDataSetCode(dataSet.ld_external_code);
+            initializer.setExternalDataSetLink(dataSet.edms_url_template == null ? null
+                    : dataSet.edms_url_template.replaceAll(
+                            BasicConstant.EXTERNAL_DMS_URL_TEMPLATE_CODE_PATTERN,
+                            BasicURLEncoder.encode(dataSet.ld_external_code)));
+        }
         initializer.setRegistrationDetails(createDataSetRegistrationDetails(dataSet));
         initializer.setExperimentIdentifier(experimentIdentifier.toString());
 

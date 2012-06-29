@@ -70,4 +70,8 @@ public class DataSetRecord
 
     public Boolean die_is_original_source;
 
+    public String ld_external_code;
+
+    public String edms_url_template;
+
 }

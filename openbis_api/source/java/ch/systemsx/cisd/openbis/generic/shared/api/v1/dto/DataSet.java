@@ -67,7 +67,13 @@ public final class DataSet implements Serializable
 
         private String dataSetTypeCode;
 
-        private String dataSetKind;
+        private boolean containerDataSet;
+
+        private boolean linkDataSet;
+
+        private String externalDataSetCode;
+
+        private String externalDataSetLink;
 
         private EnumSet<Connections> retrievedConnections = EnumSet.noneOf(Connections.class);
 
@@ -173,14 +179,14 @@ public final class DataSet implements Serializable
             return registrationDetails;
         }
 
-        public String getDataSetKind()
+        public boolean isContainerDataSet()
         {
-            return dataSetKind;
+            return containerDataSet;
         }
 
-        public void setDataSetKind(String dataSetKind)
+        public void setContainerDataSet(boolean containerDataSet)
         {
-            this.dataSetKind = dataSetKind;
+            this.containerDataSet = containerDataSet;
         }
 
         public List<DataSet> getContainedDataSets()
@@ -194,6 +200,35 @@ public final class DataSet implements Serializable
                     (null == containedDataSets) ? new ArrayList<DataSet>() : containedDataSets;
         }
 
+        public boolean isLinkDataSet()
+        {
+            return linkDataSet;
+        }
+
+        public void setLinkDataSet(boolean linkDataSet)
+        {
+            this.linkDataSet = linkDataSet;
+        }
+
+        public String getExternalDataSetCode()
+        {
+            return externalDataSetCode;
+        }
+
+        public void setExternalDataSetCode(String externalDataSetCode)
+        {
+            this.externalDataSetCode = externalDataSetCode;
+        }
+
+        public String getExternalDataSetLink()
+        {
+            return externalDataSetLink;
+        }
+
+        public void setExternalDataSetLink(String externalDataSetLink)
+        {
+            this.externalDataSetLink = externalDataSetLink;
+        }
     }
 
     private String code;
@@ -204,7 +239,13 @@ public final class DataSet implements Serializable
 
     private String dataSetTypeCode;
 
-    private String dataSetKind;
+    private boolean containerDataSet;
+
+    private boolean linkDataSet;
+
+    private String externalDataSetCode;
+
+    private String externalDataSetLink;
 
     private HashMap<String, String> properties;
 
@@ -248,8 +289,11 @@ public final class DataSet implements Serializable
         InitializingChecks.checkValidRegistrationDetails(initializer.getRegistrationDetails(),
                 "Unspecified entity registration details.");
         this.registrationDetails = initializer.getRegistrationDetails();
-        this.dataSetKind = initializer.getDataSetKind();
+        this.containerDataSet = initializer.isContainerDataSet();
         this.containedDataSets = initializer.getContainedDataSets();
+        this.linkDataSet = initializer.isLinkDataSet();
+        this.externalDataSetCode = initializer.getExternalDataSetCode();
+        this.externalDataSetLink = initializer.getExternalDataSetLink();
 
     }
 
@@ -353,9 +397,24 @@ public final class DataSet implements Serializable
         return registrationDetails;
     }
 
-    public String getDataSetKind()
+    public boolean isContainerDataSet()
     {
-        return dataSetKind;
+        return containerDataSet;
+    }
+
+    public boolean isLinkDataSet()
+    {
+        return linkDataSet;
+    }
+
+    public String getExternalDataSetCode()
+    {
+        return externalDataSetCode;
+    }
+
+    public String getExternalDataSetLink()
+    {
+        return externalDataSetLink;
     }
 
     public List<DataSet> getContainedDataSets()
@@ -456,12 +515,27 @@ public final class DataSet implements Serializable
         this.registrationDetails = registrationDetails;
     }
 
-    public void setDataSetKind(String dataSetKind)
+    private void setContainerDataSet(boolean containerDataSet)
     {
-        this.dataSetKind = dataSetKind;
+        this.containerDataSet = containerDataSet;
     }
 
-    public void setContainedDataSets(List<DataSet> containedDataSets)
+    private void setLinkDataSet(boolean linkDataSet)
+    {
+        this.linkDataSet = linkDataSet;
+    }
+
+    private void setExternalDataSetCode(String externalDataSetCode)
+    {
+        this.externalDataSetCode = externalDataSetCode;
+    }
+
+    private void setExternalDataSetLink(String externalDataSetLink)
+    {
+        this.externalDataSetLink = externalDataSetLink;
+    }
+
+    private void setContainedDataSets(List<DataSet> containedDataSets)
     {
         this.containedDataSets = containedDataSets;
     }

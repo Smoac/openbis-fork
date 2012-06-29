@@ -27,14 +27,15 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ContainerDataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.LinkDataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleTypeBuilder;
 
@@ -49,15 +50,23 @@ public class TranslatorTest extends AssertJUnit
 
     private ContainerDataSetBuilder dsContainer;
 
+    private LinkDataSetBuilder dsLink;
+
     private Experiment experiment;
 
     private Sample sample;
 
     private Project project;
 
+    private ExternalDataManagementSystem edms;
+
     @BeforeMethod
     public void setUp()
     {
+        edms = new ExternalDataManagementSystem();
+        edms.setCode("EDMS1");
+        edms.setUrlTemplate("http://www.$code$.ch");
+
         experiment =
                 new ExperimentBuilder().id(1).permID("e-1").identifier("/S/P/E1").type("my-type")
                         .property("a", "1").date(new Date(101)).modificationDate(new Date(102))
@@ -81,6 +90,10 @@ public class TranslatorTest extends AssertJUnit
                 new ContainerDataSetBuilder().code("ds-container").type("T3")
                         .experiment(experiment).sample(sample).contains(ds1.getDataSet())
                         .contains(ds2.getDataSet());
+        dsLink =
+                new LinkDataSetBuilder().code("lds").type("L1").experiment(experiment)
+                        .sample(sample).registrationDate(new Date(123456789L))
+                        .modificationDate(new Date(123459999L)).externalCode("EX_CODE").edms(edms);
     }
 
     @Test
@@ -135,7 +148,7 @@ public class TranslatorTest extends AssertJUnit
         DataSet translated =
                 Translator.translate(dsContainer.getContainerDataSet(),
                         EnumSet.noneOf(DataSet.Connections.class));
-        assertEquals(DataSetKind.CONTAINER.name(), translated.getDataSetKind());
+        assertTrue(translated.isContainerDataSet());
         assertBasicAttributes(ds1.getDataSet(), translated.getContainedDataSets().get(0));
         assertBasicAttributes(ds2.getDataSet(), translated.getContainedDataSets().get(1));
         assertChildrenNotRetrieved(translated);
@@ -209,8 +222,21 @@ public class TranslatorTest extends AssertJUnit
         assertEquals("[ds1]", translated.getParentCodes().toString());
     }
 
+    @Test
+    public void testTranslateLinkDataSet()
+    {
+        DataSet translated =
+                Translator.translate(dsLink.getLinkDataSet(),
+                        EnumSet.of(Connections.CHILDREN, Connections.PARENTS));
+
+        assertBasicAttributes(dsLink.getLinkDataSet(), translated);
+        assertTrue(translated.isLinkDataSet());
+        assertEquals(dsLink.getLinkDataSet().getExternalCode(), translated.getExternalDataSetCode());
+        assertEquals("http://www.EX_CODE.ch", translated.getExternalDataSetLink());
+    }
+
     private void assertBasicAttributes(
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet originalDataSet,
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData originalDataSet,
             DataSet translatedDataSet)
     {
         assertEquals(originalDataSet.getCode(), translatedDataSet.getCode());
@@ -232,7 +258,8 @@ public class TranslatorTest extends AssertJUnit
                     translatedProperties.get(property.getPropertyType().getCode()));
         }
         assertEquals(originalProperties.size(), translatedProperties.size());
-        assertEquals(originalDataSet.getDataSetKind().name(), translatedDataSet.getDataSetKind());
+        assertEquals(originalDataSet.isContainer(), translatedDataSet.isContainerDataSet());
+        assertEquals(originalDataSet.isLinkData(), translatedDataSet.isLinkDataSet());
     }
 
     private void assertChildrenNotRetrieved(DataSet dataSet)

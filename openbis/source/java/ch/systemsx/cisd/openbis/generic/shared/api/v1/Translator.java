@@ -53,12 +53,15 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary.VocabularyInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicURLEncoder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
@@ -345,7 +348,7 @@ public class Translator
             initializer.putProperty(prop.getPropertyType().getCode(), prop.tryGetAsString());
         }
 
-        initializer.setDataSetKind(externalDatum.getDataSetKind().name());
+        initializer.setContainerDataSet(externalDatum.isContainer());
         if (externalDatum.isContainer())
         {
             // Recursively translate any contained data sets
@@ -358,6 +361,18 @@ public class Translator
                 containedDataSetCodes.add(translate(containedDataSet, connectionsToGet));
             }
             initializer.setContainedDataSets(containedDataSetCodes);
+        }
+        initializer.setLinkDataSet(externalDatum.isLinkData());
+        if (externalDatum.isLinkData())
+        {
+            LinkDataSet linkDataSet = externalDatum.tryGetAsLinkDataSet();
+            initializer.setExternalDataSetCode(linkDataSet.getExternalCode());
+            initializer.setExternalDataSetLink(linkDataSet.getExternalDataManagementSystem()
+                    .getUrlTemplate() == null ? null : linkDataSet
+                    .getExternalDataManagementSystem()
+                    .getUrlTemplate()
+                    .replaceAll(BasicConstant.EXTERNAL_DMS_URL_TEMPLATE_CODE_PATTERN,
+                            BasicURLEncoder.encode(linkDataSet.getExternalCode())));
         }
 
         initializer.setRetrievedConnections(connectionsToGet);

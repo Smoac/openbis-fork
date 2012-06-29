@@ -302,11 +302,11 @@ public class DatasetListerTest extends AbstractDAOTest
                 .getExternalDataManagementSystem().getLabel());
         assertEquals("Test External openBIS instance", datasets.get(2).tryGetAsLinkDataSet()
                 .getExternalDataManagementSystem().getLabel());
-        assertEquals("http://example.edms.pl/code=${code}", datasets.get(0).tryGetAsLinkDataSet()
+        assertEquals("http://example.edms.pl/code=$code$", datasets.get(0).tryGetAsLinkDataSet()
                 .getExternalDataManagementSystem().getUrlTemplate());
-        assertEquals("http://example.edms.pl/code=${code}", datasets.get(1).tryGetAsLinkDataSet()
+        assertEquals("http://example.edms.pl/code=$code$", datasets.get(1).tryGetAsLinkDataSet()
                 .getExternalDataManagementSystem().getUrlTemplate());
-        assertEquals("http://www.openbis.ch/perm_id=${code}", datasets.get(2).tryGetAsLinkDataSet()
+        assertEquals("http://www.openbis.ch/perm_id=$code$", datasets.get(2).tryGetAsLinkDataSet()
                 .getExternalDataManagementSystem().getUrlTemplate());
         assertFalse(datasets.get(0).tryGetAsLinkDataSet().getExternalDataManagementSystem()
                 .isOpenBIS());

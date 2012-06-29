@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.dataset
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -150,6 +151,32 @@ public class DataSetListerTest extends AbstractDAOTest
         lister.getDataSetMetaData(codes, fetchOptions);
     }
 
+    @Test
+    public void testGetDataSetMetaDataForLinkDataSets()
+    {
+        List<String> codes = new ArrayList<String>();
+        codes.add("20120628092259000-23");
+        codes.add("20120628092259000-24");
+        codes.add("20120628092259000-25");
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+
+        List<DataSet> results = lister.getDataSetMetaData(codes, fetchOptions);
+
+        assertEquals(3, results.size());
+        assertTrue(results.get(0).isLinkDataSet());
+        assertTrue(results.get(1).isLinkDataSet());
+        assertTrue(results.get(2).isLinkDataSet());
+        assertFalse(results.get(0).isContainerDataSet());
+        assertFalse(results.get(1).isContainerDataSet());
+        assertFalse(results.get(2).isContainerDataSet());
+        assertEquals("CODE1", results.get(0).getExternalDataSetCode());
+        assertEquals("CODE2", results.get(1).getExternalDataSetCode());
+        assertEquals("CODE3", results.get(2).getExternalDataSetCode());
+        assertEquals("http://example.edms.pl/code=CODE1", results.get(0).getExternalDataSetLink());
+        assertEquals("http://example.edms.pl/code=CODE2", results.get(1).getExternalDataSetLink());
+        assertEquals("http://www.openbis.ch/perm_id=CODE3", results.get(2).getExternalDataSetLink());
+    }
+
     private static void sortDataSetsByCode(List<DataSet> dataSets)
     {
         Collections.sort(dataSets, new Comparator<DataSet>()
@@ -194,7 +221,8 @@ public class DataSetListerTest extends AbstractDAOTest
         assertEquals(expected.getExperimentIdentifier(), actual.getExperimentIdentifier());
         assertEquals(expected.getSampleIdentifierOrNull(), actual.getSampleIdentifierOrNull());
         assertEquals(expected.getDataSetTypeCode(), actual.getDataSetTypeCode());
-        assertEquals(expected.getDataSetKind(), actual.getDataSetKind());
+        assertEquals(expected.isContainerDataSet(), actual.isContainerDataSet());
+        assertEquals(expected.isLinkDataSet(), actual.isLinkDataSet());
         assertEqualsToRegistrationDetails(expected.getRegistrationDetails(),
                 expected.getRegistrationDetails());
 
