@@ -400,11 +400,20 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             // Use the hardlink maker if we got one
             Status status = hardlinkMaker.copyImmutably(incomingDataSetFile, preStagingDir, null);
             linkWasMade = status.isOK();
+            if (status.isError())
+            {
+                final String msg =
+                        status.tryGetErrorMessage() == null ? "inknown error" : status
+                                .tryGetErrorMessage();
+                operationLog.warn("Failed to make a hard link copy of " + incomingDirName + " to "
+                        + preStagingDir + ": " + msg);
+            }
         }
 
         if (false == linkWasMade)
         {
-            FileUtilities.copyFileTo(incomingDataSetFile, preStagingDir, true);
+            FileOperations.getMonitoredInstanceForCurrentThread().copyToDirectory(
+                    incomingDataSetFile, preStagingDir);
         }
 
         return new File(preStagingDir, incomingDataSetFile.getName());
