@@ -60,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchO
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 
@@ -592,7 +591,7 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         init.setExperimentIdentifier(exprimentId);
         init.setSampleIdentifierOrNull(sampleIdOrNull);
         init.setRegistrationDetails(registrationDetails);
-        init.setDataSetKind(DataSetKind.CONTAINER.name());
+        init.setContainerDataSet(true);
         init.setContainedDataSets(containedDataSets);
         return new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet(init);
     }
