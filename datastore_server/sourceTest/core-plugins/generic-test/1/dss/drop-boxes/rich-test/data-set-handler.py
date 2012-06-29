@@ -25,10 +25,21 @@ def create_experiment_if_needed(transaction):
 
     return exp
 
+
+def createMaterials(transaction):
+    for x in range(0,100):
+        mat = transaction.createNewMaterial("RM_%d" % x, "GENE")
+        mat.setPropertyValue("GENE_SYMBOL", "RM_%d_S" %x)
+
 def process(transaction):
+    # create experiment
     experiment = create_experiment_if_needed(transaction)
+    
+    # register link data set
     link = transaction.createNewDataSet("LINK_TYPE", "FR_LINK_CODE")
     link.setExperiment(experiment)
     link.setExternalCode("EX_CODE")
     link.setExternalDataManagementSystem(transaction.getExternalDataManagementSystem("DMS_1"))
 
+    # register many materials
+    createMaterials(transaction)

@@ -27,7 +27,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
@@ -59,6 +63,8 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         assertSpaceProjectExperiment(openBISService);
 
         assertLinkedDataSetImported(openBISService);
+
+        assert100MaterialsCreated(openBISService);
     }
 
     private void assertSpaceProjectExperiment(IEncapsulatedOpenBISService openBISService)
@@ -85,6 +91,33 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         Experiment experiment = experiments.get(0);
 
         assertEquals("RICH_EXPERIMENT", experiment.getCode());
+    }
+
+    private void assert100MaterialsCreated(IEncapsulatedOpenBISService openBISService)
+    {
+        LinkedList<MaterialIdentifier> ids = new LinkedList<MaterialIdentifier>();
+
+        for (int i = 0; i < 100; i++)
+        {
+            MaterialIdentifier ident =
+ MaterialIdentifier.tryParseIdentifier("RM_" + i + " (GENE)");
+            ids.add(ident);
+        }
+
+        ListMaterialCriteria criteria = ListMaterialCriteria.createFromMaterialIdentifiers(ids);
+        List<Material> materials = openBISService.listMaterials(criteria, true);
+
+        assertEquals(100, materials.size());
+
+        for (Material m : materials)
+        {
+            String code = m.getCode();
+            String expectedGeneSymbol = code + "_S";
+            IEntityProperty property = m.getProperties().get(0);
+            assertEquals("GENE_SYMBOL", property.getPropertyType().getCode());
+            assertEquals(expectedGeneSymbol, property.getValue());
+        }
+
     }
 
     private void assertLinkedDataSetImported(IEncapsulatedOpenBISService openBISService)
