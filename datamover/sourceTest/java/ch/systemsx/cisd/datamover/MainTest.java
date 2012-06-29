@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.datamover.testhelper.FileStructEngine;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
@@ -76,7 +76,7 @@ public final class MainTest extends AbstractFileSystemTestCase
     {
         super.setUp();
         scriptFile = new File(workingDirectory, ShellScriptTest.SCRIPT_FILE_NAME);
-        FileUtilities.copyFileTo(ORIGINAL_SCRIPT_FILE, scriptFile, true);
+        FileOperations.getInstance().copyFile(ORIGINAL_SCRIPT_FILE, scriptFile);
     }
 
     // ----------------- auxiliary data structures

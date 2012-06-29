@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -97,7 +98,7 @@ public class ShellScriptTest
     {
         FileUtilities.deleteRecursively(WORKING_DIRECTORY);
         assertEquals(true, WORKING_DIRECTORY.mkdirs());
-        FileUtilities.copyFileTo(ORIGINAL_SCRIPT_FILE, SCRIPT_FILE, true);
+        FileOperations.getInstance().copyFile(ORIGINAL_SCRIPT_FILE, SCRIPT_FILE);
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
     }
 
@@ -205,7 +206,7 @@ public class ShellScriptTest
     private ProcessResult executeShellScript(String... arguments)
     {
         List<String> command = new ArrayList<String>();
-        command.add("sh");
+        command.add("bash");
         command.add(SCRIPT_FILE.getAbsolutePath());
         command.addAll(Arrays.asList(arguments));
         @SuppressWarnings("deprecation")
