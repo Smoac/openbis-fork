@@ -28,6 +28,7 @@ import ch.systemsx.cisd.cifex.server.trigger.ITriggerRequest;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HardLinkMaker;
 import ch.systemsx.cisd.common.filesystem.IFileImmutableCopier;
@@ -161,7 +162,7 @@ public class DataStoreTrigger implements ITrigger
             }
         } else
         {
-            FileUtilities.copyFileTo(sourceFile, destinationDirectory, false);
+            FileOperations.getInstance().copyToDirectory(sourceFile, destinationDirectory);
         }
     }
 

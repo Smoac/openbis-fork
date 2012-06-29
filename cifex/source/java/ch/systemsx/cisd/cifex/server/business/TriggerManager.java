@@ -53,6 +53,7 @@ import ch.systemsx.cisd.cifex.server.trigger.SingletonTrigger;
 import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.From;
@@ -663,7 +664,7 @@ class TriggerManager implements ITriggerManager
         }
         if (linked == false)
         {
-            FileUtilities.copyFileTo(fileToUpload, uploadedFile, true);
+            FileOperations.getInstance().copy(fileToUpload, uploadedFile);
         }
         return uploadedFile;
     }
