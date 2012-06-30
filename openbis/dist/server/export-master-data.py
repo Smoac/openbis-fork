@@ -23,7 +23,8 @@ VARNAME_PREFIXES = {
   "ASSIGNMENT" : "assignment_",
   "FILE_FORMAT" : "file_type_",
   "VOCABULARY" : "vocabulary_",
-  "VOCABULARY_TERM" : "vocabulary_term_"               
+  "VOCABULARY_TERM" : "vocabulary_term_",
+  "EXTERNAL_DATA_MANAGEMENT_SYSTEM" : "external_data_management_system_"               
 }
 
 EXISTING_FILE_TYPES = ['HDF5', 'PROPRIETARY', 'SRF', 'TIFF', 'TSV', 'XML']
@@ -167,7 +168,7 @@ def exportDataSetType(dataSetType):
     var = getVarName("DATA_SET", dataSetType.getCode())
     code = codeLiteral(dataSetType.getCode())
     description = strLiteral(dataSetType.getDescription())
-    isContainerType = dataSetType.isContainerType()
+    dataSetKind = strLiteral(dataSetType.getDataSetKind())
     deletionDisallowed = dataSetType.isDeletionDisallowed()
     if (dataSetType.getCode() in EXISTING_DATASET_TYPES):
         return ""
@@ -175,7 +176,7 @@ def exportDataSetType(dataSetType):
         return """
 %(var)s = tr.getOrCreateNewDataSetType(%(code)s)
 %(var)s.setDescription(%(description)s)
-%(var)s.setContainerType(%(isContainerType)s)
+%(var)s.setDataSetKind(%(dataSetKind)s)
 %(var)s.setDeletionDisallowed(%(deletionDisallowed)s)
 """ % vars()
 
@@ -232,6 +233,18 @@ def exportAssignment(assignment):
 %(var)s.setPositionInForms(%(posInForms)s)
 """ % vars()
 
+def exportExternalDataManagementSystem(edms):
+    var = getVarName("EXTERNAL_DATA_MANAGEMENT_SYSTEM", edms.getCode())
+    code = codeLiteral(edms.getCode())
+    label = strLiteral(edms.getLabel())
+    urlTemplate = strLiteral(edms.getUrlTemplate())
+    isOpenBIS = edms.isOpenBIS()
+    return """
+%(var)s = tr.getOrCreateNewExternalDataManagementSystem(%(code)s)
+%(var)s.setLabel(%(label)s)
+%(var)s.setUrlTemplate(%(urlTemplate)s)
+%(var)s.setOpenBIS(%(isOpenBIS)s)
+""" % vars()
 
 def defaultOutDirName():
   now = datetime.now()
@@ -256,7 +269,8 @@ exportedContent = (
   [exportDataSetType(dataSetType) for dataSetType in tr.listDataSetTypes()] + 
   [exportMaterialType(materialType) for materialType in tr.listMaterialTypes()] + 
   [exportPropertyType(propertyType) for propertyType in tr.listPropertyTypes()] + 
-  [exportAssignment(assignment) for assignment in tr.listPropertyAssignments()] 
+  [exportAssignment(assignment) for assignment in tr.listPropertyAssignments()] +
+  [exportExternalDataManagementSystem(edms) for edms in tr.listExternalDataManagementSystems()] 
 );
     
 if not os.path.exists(outDir):
