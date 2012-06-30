@@ -29,6 +29,11 @@ public class ExternalDataManagementSystemTranslator
 {
     public static ExternalDataManagementSystem translate(ExternalDataManagementSystemPE edms)
     {
+        if (edms == null)
+        {
+            return null;
+        }
+
         ExternalDataManagementSystem result = new ExternalDataManagementSystem();
 
         result.setId(edms.getId());
