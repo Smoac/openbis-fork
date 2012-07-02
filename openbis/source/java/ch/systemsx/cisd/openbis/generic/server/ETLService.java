@@ -1620,12 +1620,14 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
         // in the first pass register samples without container to avoid dependency inversion
         BatchOperationExecutor.executeInBatches(new SampleBatchRegistration(sampleTable,
-                containerSamples, registratorOrNull), progress, "createContainerSamples");
+                containerSamples, registratorOrNull), getBatchSize(operationDetails), progress,
+                "createContainerSamples");
 
         // register samples with a container identifier
         // (container should have been created in the first pass)
         BatchOperationExecutor.executeInBatches(new SampleBatchRegistration(sampleTable,
-                containedSamples, registratorOrNull), progress, "createContainedSamples");
+                containedSamples, registratorOrNull), getBatchSize(operationDetails), progress,
+                "createContainedSamples");
 
         return newSamples.size();
     }
@@ -1662,7 +1664,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
         sampleTable.checkBeforeUpdate(sampleUpdates);
         BatchOperationExecutor.executeInBatches(new SampleUpdate(sampleTable, sampleUpdates),
-                progress, "updateSamples");
+                getBatchSize(operationDetails), progress, "updateSamples");
         return sampleUpdateCount;
     }
 
@@ -1751,7 +1753,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         final IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
         dataSetTable.checkBeforeUpdate(dataSetUpdates);
         BatchOperationExecutor.executeInBatches(
-                new DataSetBatchUpdate(dataSetTable, dataSetUpdates), progress, "updateDataSets");
+                new DataSetBatchUpdate(dataSetTable, dataSetUpdates),
+                getBatchSize(operationDetails), progress, "updateDataSets");
 
         return dataSetUpdatesCount;
     }
@@ -2057,4 +2060,11 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             return null;
         }
     }
+
+    private int getBatchSize(AtomicEntityOperationDetails details)
+    {
+        return details == null || details.getBatchSizeOrNull() == null ? BatchOperationExecutor
+                .getDefaultBatchSize() : details.getBatchSizeOrNull();
+    }
+
 }

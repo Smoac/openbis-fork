@@ -68,6 +68,8 @@ public class AtomicEntityOperationDetails implements Serializable
 
     private final List<DataSetBatchUpdatesDTO> dataSetUpdates;
 
+    private Integer batchSizeOrNull;
+
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
             List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
             List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
@@ -87,6 +89,20 @@ public class AtomicEntityOperationDetails implements Serializable
         this.materialRegistrations = new TreeMap<String, List<NewMaterial>>(materialRegistrations);
         this.dataSetRegistrations = new ArrayList<NewExternalData>(dataSetRegistrations);
         this.dataSetUpdates = new ArrayList<DataSetBatchUpdatesDTO>(dataSetUpdates);
+    }
+
+    public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
+            List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
+            List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
+            List<NewSample> sampleRegistrations,
+            Map<String, List<NewMaterial>> materialRegistrations,
+            List<? extends NewExternalData> dataSetRegistrations,
+            List<DataSetBatchUpdatesDTO> dataSetUpdates, Integer batchSizeOrNull)
+    {
+        this(registrationId, userIdOrNull, spaceRegistrations, projectRegistrations,
+                experimentRegistrations, sampleUpdates, sampleRegistrations, materialRegistrations,
+                dataSetRegistrations, dataSetUpdates);
+        this.batchSizeOrNull = batchSizeOrNull;
     }
 
     public TechId getRegistrationIdOrNull()
@@ -142,6 +158,11 @@ public class AtomicEntityOperationDetails implements Serializable
     public Map<String, List<NewMaterial>> getMaterialRegistrations()
     {
         return materialRegistrations;
+    }
+
+    public Integer getBatchSizeOrNull()
+    {
+        return batchSizeOrNull;
     }
 
     @Override

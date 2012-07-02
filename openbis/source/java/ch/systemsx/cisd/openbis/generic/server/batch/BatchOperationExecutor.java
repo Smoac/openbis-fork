@@ -84,6 +84,11 @@ public class BatchOperationExecutor
         }
     }
 
+    public static int getDefaultBatchSize()
+    {
+        return DEFAULT_BATCH_SIZE;
+    }
+
     private static void notifyProgressListener(IProgressListener progressListenerOrNull,
             String progressPhaseOrNull, int maxIndex, int currentIndex)
     {

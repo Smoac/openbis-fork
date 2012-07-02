@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -140,40 +142,48 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
     @Test
     public void testPerformEntityOperationsUpdateSample()
     {
-        // Find the samples to add
-        SearchCriteria searchCriteria = new SearchCriteria();
-        searchCriteria.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(
-                MatchClauseAttribute.CODE, "3VCP7"));
-        List<Sample> samplesToUpdate = service.searchForSamples(sessionToken, searchCriteria);
-        assertEquals(1, samplesToUpdate.size());
-        Sample sampleToUpdate = samplesToUpdate.get(0);
+        Sample sample = findSampleByCode("3VCP7");
+
+        // Update the comment
+        String sampleComment = "This is a new comment for a sample.";
+        updateEntityProperty(sample, "COMMENT", sampleComment);
+
+        // Update the parents
+        Sample parent = findSampleByCode("3V-126");
+        String parentComment = "This is a new comment for a parent.";
+        updateEntityProperty(parent, "COMMENT", parentComment);
+        assertEquals(1, sample.getParents().size());
+        sample.addParent(parent);
+
+        SampleUpdatesDTO parentUpdate = convertToSampleUpdateDTO(parent);
+        SampleUpdatesDTO sampleUpdate = convertToSampleUpdateDTO(sample);
+        performSampleUpdate(Arrays.asList(sampleUpdate, parentUpdate), 1);
+
+        // Now retrieve the sample again and check that the properties were updated.
+        Sample updatedSample = findSampleByCode("3VCP7");
+        Sample updatedParent = findSampleByCode("3V-126");
+
+        assertTrue("The modification date should have been updated", updatedSample
+                .getModificationDate().compareTo(sample.getModificationDate()) > 0);
+        assertTrue("The modification date should have been updated", updatedParent
+                .getModificationDate().compareTo(sample.getModificationDate()) > 0);
+        assertEquals(sampleComment, EntityHelper.tryFindPropertyValue(updatedSample, "COMMENT"));
+        assertEquals(parentComment, EntityHelper.tryFindPropertyValue(updatedParent, "COMMENT"));
+        assertEquals(2, updatedSample.getParents().size());
+    }
+
+    @Test(expectedExceptions = EnvironmentFailureException.class)
+    public void testPerformEntityOperationsUpdateStaleSample()
+    {
+        Sample sampleToUpdate = findSampleByCode("3VCP7");
 
         // Update the comment
         String newComment = "This is a new comment. This is not the old comment.";
-        String oldComment = EntityHelper.tryFindPropertyValue(sampleToUpdate, "COMMENT");
-        assertFalse(newComment.equals(oldComment));
-        EntityHelper.createOrUpdateProperty(sampleToUpdate, "COMMENT", newComment);
+        updateEntityProperty(sampleToUpdate, "COMMENT", newComment);
 
-        // Update the parents
-        SearchCriteria parentSearchCriteria = new SearchCriteria();
-        parentSearchCriteria.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(
-                MatchClauseAttribute.CODE, "3V-126"));
-        List<Sample> parentsToAdd = service.searchForSamples(sessionToken, parentSearchCriteria);
-        assertEquals(1, parentsToAdd.size());
-        Sample parentToAdd = parentsToAdd.get(0);
-        assertEquals(1, sampleToUpdate.getParents().size());
-        sampleToUpdate.addParent(parentToAdd);
-
-        performSampleUpdate(sampleToUpdate);
-
-        // Now retrieve the sample again and check that the properties were updated.
-        List<Sample> updatedSamples = service.searchForSamples(sessionToken, searchCriteria);
-        assertEquals(1, updatedSamples.size());
-        Sample updatedSample = updatedSamples.get(0);
-        assertTrue("The modification date should have been updated", updatedSample
-                .getModificationDate().compareTo(sampleToUpdate.getModificationDate()) > 0);
-        assertEquals(newComment, EntityHelper.tryFindPropertyValue(updatedSample, "COMMENT"));
-        assertEquals(2, updatedSample.getParents().size());
+        SampleUpdatesDTO sampleUpdate = convertToSampleUpdateDTO(sampleToUpdate);
+        sampleUpdate.setVersion(new Date());
+        performSampleUpdate(Arrays.asList(sampleUpdate), 1);
     }
 
     @SuppressWarnings("null")
@@ -181,12 +191,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
     public void testPerformEntityOperationsCreateSample()
     {
         // Get the parents
-        SearchCriteria parentSearchCriteria = new SearchCriteria();
-        parentSearchCriteria.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(
-                MatchClauseAttribute.CODE, "3VCP7"));
-        List<Sample> parentsToAdd = service.searchForSamples(sessionToken, parentSearchCriteria);
-        assertEquals(1, parentsToAdd.size());
-        Sample parent = parentsToAdd.get(0);
+        Sample parent = findSampleByCode("3VCP7");
 
         NewSample sampleToCreate = new NewSample();
         String newSampleIdentifier = "/" + parent.getSpace().getCode() + "/" + "NEW-SAMPLE";
@@ -251,7 +256,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
             dataSetUpdates.add(updates);
         }
 
-        performDataSetUpdates(dataSetUpdates);
+        performDataSetUpdates(dataSetUpdates, 1);
 
         // Now retrieve the sample again and check that the properties were updated.
         List<ExternalData> updatedDataSets =
@@ -284,7 +289,21 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
 
     }
 
-    private void performDataSetUpdates(List<DataSetBatchUpdatesDTO> dataSetUpdates)
+    @Test(expectedExceptions = EnvironmentFailureException.class)
+    public void testPerformEntityOperationsUpdateStaleDataSet()
+    {
+        ExternalData dataSetToUpdate = findDatasetByCode("20081105092159188-3");
+
+        DataSetBatchUpdatesDTO update =
+                createDataSetUpdateDTO(dataSetToUpdate, "COMMENT",
+                        "This is a new comment. This is not the old comment.");
+
+        update.setVersion(new Date());
+        performDataSetUpdates(Arrays.asList(update), 1);
+    }
+
+    private void performDataSetUpdates(List<DataSetBatchUpdatesDTO> dataSetUpdates,
+            Integer batchSizeOrNull)
     {
         TechId registrationid = new TechId(service.drawANewUniqueID(sessionToken));
         List<NewSpace> spaceRegistrations = Collections.emptyList();
@@ -299,19 +318,17 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
                 new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
                         projectRegistrations, experimentRegistrations, sampleUpdates,
                         sampleRegistrations, materialRegistrations, dataSetRegistrations,
-                        dataSetUpdates);
+                        dataSetUpdates, batchSizeOrNull);
         service.performEntityOperations(sessionToken, details);
     }
 
-    private void performSampleUpdate(Sample sampleToUpdate)
+    private void performSampleUpdate(List<SampleUpdatesDTO> sampleUpdates, Integer batchSizeOrNull)
     {
         TechId registrationid = new TechId(service.drawANewUniqueID(sessionToken));
         List<NewSpace> spaceRegistrations = Collections.emptyList();
         List<NewProject> projectRegistrations = Collections.emptyList();
         List<NewExperiment> experimentRegistrations = Collections.emptyList();
 
-        SampleUpdatesDTO sampleUpdate = convertToSampleUpdateDTO(sampleToUpdate);
-        List<SampleUpdatesDTO> sampleUpdates = Arrays.asList(sampleUpdate);
         List<NewSample> sampleRegistrations = Collections.emptyList();
         Map<String, List<NewMaterial>> materialRegistrations = Collections.emptyMap();
         List<? extends NewExternalData> dataSetRegistrations = Collections.emptyList();
@@ -320,7 +337,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
                 new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
                         projectRegistrations, experimentRegistrations, sampleUpdates,
                         sampleRegistrations, materialRegistrations, dataSetRegistrations,
-                        dataSetUpdates);
+                        dataSetUpdates, batchSizeOrNull);
         service.performEntityOperations(sessionToken, details);
     }
 
@@ -479,4 +496,33 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
 
         assertFalse(result.contains("/TESTGROUP/SAMPLE_EXAMPLE"));
     }
+
+    private Sample findSampleByCode(String code)
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(
+                MatchClauseAttribute.CODE, code));
+        List<Sample> samples = service.searchForSamples(sessionToken, searchCriteria);
+        assertEquals(1, samples.size());
+        return samples.get(0);
+    }
+
+    private ExternalData findDatasetByCode(String code)
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(
+                MatchClauseAttribute.CODE, code));
+        List<ExternalData> dataSets = service.searchForDataSets(sessionToken, searchCriteria);
+        assertEquals(1, dataSets.size());
+        return dataSets.get(0);
+    }
+
+    private void updateEntityProperty(IEntityPropertiesHolder entity, String propertyName,
+            String propertyValue)
+    {
+        String oldValue = EntityHelper.tryFindPropertyValue(entity, propertyName);
+        assertFalse(propertyValue.equals(oldValue));
+        EntityHelper.createOrUpdateProperty(entity, propertyName, propertyValue);
+    }
+
 }
