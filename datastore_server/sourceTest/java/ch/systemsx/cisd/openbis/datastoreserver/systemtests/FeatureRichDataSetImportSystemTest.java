@@ -48,7 +48,7 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         return new File(rootDir, "incoming-rich-test");
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testRichImport() throws Exception
     {
 
