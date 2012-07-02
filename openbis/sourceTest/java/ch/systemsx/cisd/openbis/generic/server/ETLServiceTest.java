@@ -1100,6 +1100,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     List<SampleUpdatesDTO> sampleUpdateList = Arrays.asList(sampleUpdate);
                     one(entityOperationChecker).assertSpaceSampleUpdateAllowed(SESSION,
                             sampleUpdateList);
+                    one(sampleTable).checkBeforeUpdate(sampleUpdateList);
                     one(sampleTable).prepareForUpdateWithSampleUpdates(sampleUpdateList);
                     one(sampleTable).save();
 
@@ -1147,6 +1148,7 @@ public class ETLServiceTest extends AbstractServerTestCase
 
                     one(entityOperationChecker).assertDataSetUpdateAllowed(SESSION,
                             Arrays.asList(dataSetUpdate));
+                    one(dataSetTable).checkBeforeUpdate(Arrays.asList(dataSetUpdate));
                     one(dataSetTable).update(Arrays.asList(dataSetUpdate));
                     one(dataSetTable).save();
                 }
