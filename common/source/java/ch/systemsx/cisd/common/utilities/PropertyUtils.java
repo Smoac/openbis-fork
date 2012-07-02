@@ -176,6 +176,26 @@ public final class PropertyUtils
     }
 
     /**
+     * @returns A list of comma separated values at the specific property key. Each item is trimmed,
+     *          but case is not changed.
+     */
+    public final static List<String> tryGetListInOriginalCase(Properties properties,
+            String propertyKey)
+    {
+        String itemsList = PropertyUtils.getProperty(properties, propertyKey);
+        if (itemsList == null)
+        {
+            return null;
+        }
+        String[] items = itemsList.split(LIST_SEPARATOR);
+        for (int i = 0; i < items.length; i++)
+        {
+            items[i] = items[i].trim();
+        }
+        return Arrays.asList(items);
+    }
+
+    /**
      * Looks up given <var>propertyKey</var> in given <var>properties</var>.
      * 
      * @return <code>defaultValue</code> if given <var>propertyKey</var> could not be found.
