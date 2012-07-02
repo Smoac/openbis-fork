@@ -975,7 +975,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         Future<TableData<T>> tableData = cast(cache.get(dataKey));
         if (tableData == null)
         {
-            operationLog.error("Reference to the stale cache key " + dataKey);
+            operationLog.warn("Reference to the stale cache key " + dataKey);
             return null;
         }
         try
@@ -1014,7 +1014,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             debug(String.format("Result set for key '%s' has been removed.", resultSetKey));
         } else
         {
-            operationLog.error(String.format("No result set for key '%s' could be found.",
+            operationLog.warn(String.format("No result set for key '%s' could be found.",
                     resultSetKey));
         }
     }
