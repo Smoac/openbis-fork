@@ -973,6 +973,7 @@ final class FileManager extends AbstractManager implements IFileManager
                     (user.getPassword() == null) ? null : user.getPassword().tryGetPlain();
             builder.setPassword(passwordOrNull);
             builder.setUserCode(user.getUserCode());
+            builder.setFullName(user.getUserFullName());
             for (final FileDTO fileDTO : filesLeft)
             {
                 builder.addFile(fileDTO);
