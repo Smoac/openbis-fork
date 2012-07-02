@@ -114,6 +114,8 @@ public class BasicConstant
 
     public static final String DATA_SET_UPLOAD_CLIENT_PATH = "data-set-uploader-launch.jnlp";
 
+    public static final String WEB_APPS_PROPERTY = "webapps";
+
     private BasicConstant()
     {
     }

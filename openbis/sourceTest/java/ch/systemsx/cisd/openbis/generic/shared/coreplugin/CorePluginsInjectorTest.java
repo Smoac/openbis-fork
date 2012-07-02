@@ -44,6 +44,10 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.generic.server.coreplugin.JettyWebAppPluginInjector;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 
 /**
@@ -354,9 +358,35 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
         injector.injectCorePlugins(properties);
 
-        assertEquals("example-webapp", properties.getProperty("webapps"));
-        String webappFolder = properties.getProperty("example-webapp.webapp-folder");
+        List<String> appList =
+                PropertyUtils.tryGetListInOriginalCase(properties, BasicConstant.WEB_APPS_PROPERTY);
+        assertEquals(1, appList.size());
+        assertEquals("example-webapp", appList.get(0));
+        Properties exampleWebappProperties =
+                PropertyParametersUtil.extractSingleSectionProperties(properties, appList.get(0),
+                        false).getProperties();
+        String webappFolder =
+                exampleWebappProperties
+                        .getProperty(JettyWebAppPluginInjector.WEB_APP_FOLDER_PROPERTY);
         assertEquals(webapps.toString() + "/example-webapp/html", webappFolder);
+
+        JettyWebAppPluginInjector.ContextConfiguration configuration =
+                new JettyWebAppPluginInjector.ContextConfiguration("example-webapp",
+                        exampleWebappProperties);
+        String expectedConfiguration =
+                "<Configure class=\"org.eclipse.jetty.server.handler.ContextHandler\">\n"
+                        + "  <Call class=\"org.eclipse.jetty.util.log.Log\" name=\"debug\"><Arg>Configure [example-webapp] webapp</Arg></Call>\n"
+                        + "  <Set name=\"contextPath\">/example-webapp</Set>\n"
+                        + "  <Set name=\"resourceBase\">targets/unit-test-wd/ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjectorTest/core-plugins/screening/1/dss/webapps/example-webapp/html</Set>\n"
+                        + "  <Set name=\"handler\">\n"
+                        + "    <New class=\"org.eclipse.jetty.server.handler.ResourceHandler\">\n"
+                        + "      <Set name=\"welcomeFiles\">\n"
+                        + "        <Array type=\"String\">\n"
+                        + "          <Item>index.html</Item>\n" + "        </Array>\n"
+                        + "      </Set>\n"
+                        + "      <Set name=\"cacheControl\">max-age=3600,public</Set>\n"
+                        + "    </New>\n" + "  </Set>\n" + "</Configure>";
+        assertEquals(expectedConfiguration, configuration.getConfigurationOrNull());
 
         context.assertIsSatisfied();
     }

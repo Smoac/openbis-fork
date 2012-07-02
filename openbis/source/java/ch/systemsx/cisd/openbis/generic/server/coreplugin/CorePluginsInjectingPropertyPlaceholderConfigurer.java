@@ -22,6 +22,7 @@ import java.util.Properties;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DataStoreServerBasedDataSourceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector;
@@ -50,11 +51,14 @@ public class CorePluginsInjectingPropertyPlaceholderConfigurer extends
                         CustomImport.PropertyNames.CUSTOM_IMPORTS.getName());
         PluginType queryDatabases = new PluginType("query-databases", "query-databases");
         PluginType miscellaneous = new PluginType("miscellaneous", null);
-        PluginType webapps = new PluginType("webapps", "webapps");
+        PluginType webapps = new PluginType("webapps", BasicConstant.WEB_APPS_PROPERTY);
 
         new CorePluginsInjector(ScannerType.AS, new IPluginType[]
             { maintenanceTasks, customImports, queryDatabases, miscellaneous, dssDataSources,
                     webapps }).injectCorePlugins(properties);
+
+        // Inject the web apps into jetty
+        new JettyWebAppPluginInjector(properties).injectWebApps();
     }
 
     private PluginType createPluginTypeDssDataSources()
