@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -282,7 +283,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         externalData.setDataProducerCode(newData.getDataProducerCode());
         externalData.setProductionDate(newData.getProductionDate());
         externalData.setCode(newData.getCode());
-        externalData.setDataSetType(getDataSetType(dataSetType));
+        externalData.setDataSetType(getDataSetType(dataSetType, DataSetKind.EXTERNAL));
         externalData.setFileFormatType(getFileFomatType(fileFormatType));
         externalData.setComplete(newData.getComplete());
         externalData.setShareId(newData.getShareId());
@@ -316,7 +317,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         dataPE.setDataProducerCode(newData.getDataProducerCode());
         dataPE.setProductionDate(newData.getProductionDate());
         dataPE.setCode(newData.getCode());
-        dataPE.setDataSetType(getDataSetType(dataSetType));
+        dataPE.setDataSetType(getDataSetType(dataSetType, DataSetKind.CONTAINER));
         dataPE.setRegistrator(tryToGetRegistrator(newData));
         dataStore = getDataStoreDAO().tryToFindDataStoreByCode(newData.getDataStoreCode());
         dataPE.setDataStore(dataStore);
@@ -346,7 +347,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         dataPE.setDataProducerCode(newData.getDataProducerCode());
         dataPE.setProductionDate(newData.getProductionDate());
         dataPE.setCode(newData.getCode());
-        dataPE.setDataSetType(getDataSetType(dataSetType));
+        dataPE.setDataSetType(getDataSetType(dataSetType, DataSetKind.LINK));
         dataPE.setRegistrator(tryToGetRegistrator(newData));
         dataStore = getDataStoreDAO().tryToFindDataStoreByCode(newData.getDataStoreCode());
         dataPE.setDataStore(dataStore);
@@ -395,7 +396,8 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         return null;
     }
 
-    private final DataSetTypePE getDataSetType(final DataSetType dataSetType)
+    private final DataSetTypePE getDataSetType(final DataSetType dataSetType,
+            DataSetKind expectedDataSetKind)
     {
         final String dataSetTypeCode = dataSetType.getCode();
         final DataSetTypePE dataSetTypeOrNull =
@@ -404,6 +406,15 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         {
             throw UserFailureException.fromTemplate("There is no data set type with code '%s'",
                     dataSetTypeCode);
+        }
+        String dataSetKind = dataSetTypeOrNull.getDataSetKind();
+        if (dataSetKind.equals(expectedDataSetKind.toString()) == false)
+        {
+            String dataSetKinAsString = dataSetKind.toString();
+            throw new UserFailureException("Data set type " + dataSetTypeCode + " is not a "
+                    + expectedDataSetKind + " data set type but "
+                    + (dataSetKinAsString.startsWith("E") ? "an " : "a ") + dataSetKinAsString
+                    + " data set type.");
         }
         return dataSetTypeOrNull;
     }

@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataManagementSystemDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
@@ -135,6 +136,8 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     protected IDatasetLister datasetLister;
 
+    protected IExternalDataManagementSystemDAO dataManagementSystemDAO;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -172,6 +175,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         entityOperationChecker = context.mock(IEntityOperationChecker.class);
         sampleLister = context.mock(ISampleLister.class);
         datasetLister = context.mock(IDatasetLister.class);
+        dataManagementSystemDAO = context.mock(IExternalDataManagementSystemDAO.class);
         context.checking(new Expectations()
             {
                 {
@@ -222,6 +226,8 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(corePluginDAO));
                     allowing(daoFactory).getProjectDAO();
                     will(returnValue(projectDAO));
+                    allowing(daoFactory).getExternalDataManagementSystemDAO();
+                    will(returnValue(dataManagementSystemDAO));
                 }
             });
     }
