@@ -298,4 +298,8 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet entityIds);
 
+    @Select(sql = "select code, modification_timestamp from data where code = any(?{1})", parameterBindings =
+        { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public DatasetVersionRecord[] getDatasetsVersionsForCodes(String[] datasetCodes);
+
 }

@@ -1050,8 +1050,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     @Override
-    public List<SimpleDataSetInformationDTO> listFileDataSets(String sessionToken, String dataStoreCode)
-            throws UserFailureException
+    public List<SimpleDataSetInformationDTO> listFileDataSets(String sessionToken,
+            String dataStoreCode) throws UserFailureException
     {
         List<ExternalData> dataSets = loadDataSets(sessionToken, dataStoreCode);
         return SimpleDataSetHelper.filterAndTranslate(dataSets);
@@ -1619,9 +1619,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
 
         // in the first pass register samples without container to avoid dependency inversion
-        BatchOperationExecutor
-                .executeInBatches(new SampleBatchRegistration(sampleTable, containerSamples,
-                        registratorOrNull), progress, "createContainerSamples");
+        BatchOperationExecutor.executeInBatches(new SampleBatchRegistration(sampleTable,
+                containerSamples, registratorOrNull), progress, "createContainerSamples");
 
         // register samples with a container identifier
         // (container should have been created in the first pass)
@@ -1661,6 +1660,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         assertSampleUpdatesAllowed(session, sampleUpdates);
         progress.update("authorizingSampleUpdates", sampleUpdateCount, sampleUpdateCount);
         final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
+        sampleTable.checkBeforeUpdate(sampleUpdates);
         BatchOperationExecutor.executeInBatches(new SampleUpdate(sampleTable, sampleUpdates),
                 progress, "updateSamples");
         return sampleUpdateCount;
@@ -1749,6 +1749,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         assertDataSetUpdateAllowed(session, dataSetUpdates);
         progress.update("authorizingDataSetUpdates", dataSetUpdatesCount, dataSetUpdatesCount);
         final IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        dataSetTable.checkBeforeUpdate(dataSetUpdates);
         BatchOperationExecutor.executeInBatches(
                 new DataSetBatchUpdate(dataSetTable, dataSetUpdates), progress, "updateDataSets");
 

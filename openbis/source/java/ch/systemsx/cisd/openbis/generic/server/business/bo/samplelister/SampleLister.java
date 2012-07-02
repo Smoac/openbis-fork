@@ -20,6 +20,9 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -173,6 +176,26 @@ public class SampleLister implements ISampleLister
             }
             children.add(relationship.sample_id_child);
         }
+        return map;
+    }
+
+    @Override
+    public Map<Long, Date> getIdToVersionMap(Collection<Long> sampleIds)
+    {
+        if (sampleIds == null || sampleIds.isEmpty())
+        {
+            return Collections.emptyMap();
+        }
+
+        SampleVersionRecord[] records =
+                dao.getQuery().getSamplesVersionsForIds(new LongOpenHashSet(sampleIds));
+        Map<Long, Date> map = new HashMap<Long, Date>();
+
+        for (SampleVersionRecord record : records)
+        {
+            map.put(record.id, record.modification_timestamp);
+        }
+
         return map;
     }
 

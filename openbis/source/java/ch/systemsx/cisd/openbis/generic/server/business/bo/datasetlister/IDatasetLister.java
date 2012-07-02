@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -112,5 +113,8 @@ public interface IDatasetLister
      * @return properties of given type for given dataset ids
      */
     Map<Long, GenericEntityPropertyRecord> fetchProperties(List<Long> ids, String propertyTypeCode);
+
+    /** Returns a map from data set code to data set version (modification date). */
+    public Map<String, Date> getCodeToVersionMap(Collection<String> dataSetCodes);
 
 }

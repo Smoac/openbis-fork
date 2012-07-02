@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslat
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,10 +39,12 @@ import org.springframework.dao.DataIntegrityViolationException;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionDisallowedTypesException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionUnknownLocationsException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -195,11 +198,15 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
 
     private List<DataPE> dataSets;
 
+    private IDatasetLister dataSetLister;
+
     public DataSetTable(final IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
-            final Session session, IRelationshipService relationshipService)
+            final Session session, IRelationshipService relationshipService,
+            IDatasetLister dataSetLister)
     {
         super(daoFactory, session, relationshipService);
         this.dssFactory = dssFactory;
+        this.dataSetLister = dataSetLister;
     }
 
     //
@@ -884,6 +891,39 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         {
             entityPropertiesConverter.checkMandatoryProperties(s.getProperties(),
                     s.getDataSetType(), cache);
+        }
+    }
+
+    @Override
+    public void checkBeforeUpdate(List<DataSetBatchUpdatesDTO> updates)
+    {
+        if (updates == null)
+        {
+            throw new IllegalArgumentException("Data set updates list cannot be null.");
+        }
+
+        List<String> codes = Code.extractCodes(updates);
+
+        Map<String, Date> versionsMap = dataSetLister.getCodeToVersionMap(codes);
+
+        for (DataSetBatchUpdatesDTO update : updates)
+        {
+            Date version = versionsMap.get(update.getCode());
+            if (version == null)
+            {
+                throw new UserFailureException("Data set with code " + update.getCode()
+                        + " is not in the database and therefore cannot be updated.");
+            } else if (version.equals(update.getVersion()) == false)
+            {
+                StringBuffer sb = new StringBuffer();
+                sb.append("Data set ");
+                sb.append(update.getCode());
+                sb.append(" has been updated since it was retrieved.\n");
+                sb.append("[Current: " + version);
+                sb.append(", Retrieved: " + update.getVersion());
+                sb.append("]");
+                throw new EnvironmentFailureException(sb.toString());
+            }
         }
     }
 

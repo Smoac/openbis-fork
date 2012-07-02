@@ -94,7 +94,7 @@ public final class DataSetTableTest extends AbstractBOTest
     private final DataSetTable createDataSetTable()
     {
         return new DataSetTable(daoFactory, dssFactory, ManagerTestTool.EXAMPLE_SESSION,
-                relationshipService);
+                relationshipService, datasetLister);
     }
 
     @BeforeMethod

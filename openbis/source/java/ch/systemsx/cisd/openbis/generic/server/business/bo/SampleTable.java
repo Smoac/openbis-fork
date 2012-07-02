@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +29,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IEntityOperationChecker;
@@ -66,14 +68,18 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 {
     private List<SamplePE> samples;
 
+    private ISampleLister sampleLister;
+
     private boolean dataChanged;
 
     private boolean businessRulesChecked;
 
     public SampleTable(final IDAOFactory daoFactory, final Session session,
-            IRelationshipService relationshipService, IEntityOperationChecker entityOperationChecker)
+            IRelationshipService relationshipService,
+            IEntityOperationChecker entityOperationChecker, ISampleLister sampleLister)
     {
         super(daoFactory, session, relationshipService, entityOperationChecker);
+        this.sampleLister = sampleLister;
     }
 
     @Override
@@ -438,6 +444,52 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     }
 
     @Override
+    public void checkBeforeUpdate(List<? extends SampleUpdatesDTO> updates)
+            throws UserFailureException
+    {
+        if (updates == null)
+        {
+            throw new IllegalArgumentException("Sample updates list cannot be null.");
+        }
+
+        List<Long> ids = new ArrayList<Long>(updates.size());
+
+        for (SampleUpdatesDTO update : updates)
+        {
+            if (update.getSampleIdOrNull() == null || update.getSampleIdOrNull().getId() == null)
+            {
+                throw new UserFailureException("Sample with identifier "
+                        + update.getSampleIdentifier()
+                        + " doesn't have a specified id and therefore cannot be updated.");
+            }
+            ids.add(update.getSampleIdOrNull().getId());
+        }
+
+        Map<Long, Date> versionsMap = sampleLister.getIdToVersionMap(ids);
+
+        for (SampleUpdatesDTO update : updates)
+        {
+            Date version = versionsMap.get(update.getSampleIdOrNull().getId());
+            if (version == null)
+            {
+                throw new UserFailureException("Sample with identifier "
+                        + update.getSampleIdentifier()
+                        + " is not in the database and therefore cannot be updated.");
+            } else if (version.equals(update.getVersion()) == false)
+            {
+                StringBuffer sb = new StringBuffer();
+                sb.append("Sample ");
+                sb.append(update.getSampleIdentifier());
+                sb.append(" has been updated since it was retrieved.\n");
+                sb.append("[Current: " + version);
+                sb.append(", Retrieved: " + update.getVersion());
+                sb.append("]");
+                throw new EnvironmentFailureException(sb.toString());
+            }
+        }
+    }
+
+    @Override
     public void prepareForUpdateWithSampleUpdates(List<SampleUpdatesDTO> updates)
     {
         assert updates != null : "Unspecified samples.";
@@ -475,17 +527,6 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                 throw new UserFailureException("Sample with identifier "
                         + sampleUpdates.getSampleIdentifier()
                         + " is not in the database and therefore cannot be updated.");
-            }
-            if (false == sample.getModificationDate().equals(sampleUpdates.getVersion()))
-            {
-                StringBuffer sb = new StringBuffer();
-                sb.append("Sample ");
-                sb.append(sampleUpdates.getSampleIdentifier());
-                sb.append(" has been updated since it was retrieved.\n");
-                sb.append("[Current: " + sample.getModificationDate());
-                sb.append(", Retrieved: " + sampleUpdates.getVersion());
-                sb.append("]");
-                throw new EnvironmentFailureException(sb.toString());
             }
             prepareBatchUpdate(sample, sampleUpdates, sampleOwnerCache, experimentCache,
                     propertiesCache);

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,5 +72,8 @@ public interface ISampleLister
 
     /** Returns a map from parent id to set of children ids for specified parents. */
     public Map<Long, Set<Long>> getParentToChildrenIdsMap(Collection<Long> parentIds);
+
+    /** Returns a map from sample id to sample version (modification date). */
+    public Map<Long, Date> getIdToVersionMap(Collection<Long> sampleIds);
 
 }

@@ -425,4 +425,8 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet sampleIds);
 
+    @Select(sql = "select id, modification_timestamp from samples where id = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public SampleVersionRecord[] getSamplesVersionsForIds(LongSet sampleIds);
+
 }

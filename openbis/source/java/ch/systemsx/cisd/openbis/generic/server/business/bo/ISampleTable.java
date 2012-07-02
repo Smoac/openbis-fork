@@ -53,6 +53,14 @@ public interface ISampleTable
             throws UserFailureException;
 
     /**
+     * This method should be invoked before a series of prepareForUpdateXXX() method calls. It
+     * checks the data before the update can be started. For instance, it verifies versions of
+     * objects for Optimistic Locking.
+     */
+    public void checkBeforeUpdate(List<? extends SampleUpdatesDTO> updates)
+            throws UserFailureException;
+
+    /**
      * Prepares given samples for update and stores them in this table.
      * <p>
      * NOTE: Business rules are checked in this step as well for better performance.

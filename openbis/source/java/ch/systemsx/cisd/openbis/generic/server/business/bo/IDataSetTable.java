@@ -140,6 +140,13 @@ public interface IDataSetTable
      */
     public void loadByDataStore(DataStorePE dataStore);
 
+    /**
+     * This method should be invoked before a series of update() method calls. It checks the data
+     * before the update can be started. For instance, it verifies versions of objects for
+     * Optimistic Locking.
+     */
+    public void checkBeforeUpdate(List<DataSetBatchUpdatesDTO> updates);
+
     void update(List<DataSetBatchUpdatesDTO> updates);
 
     void save();
@@ -153,6 +160,7 @@ public interface IDataSetTable
      * Execute the aggregation service from a service that supports
      * IReportingPluginTask#createAggregationReport method.
      */
-    TableModel createReportFromAggregationService(String key, String datastoreCode, Map<String, Object> parameters);
+    TableModel createReportFromAggregationService(String key, String datastoreCode,
+            Map<String, Object> parameters);
 
 }
