@@ -209,7 +209,18 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     {
         final SamplePE containerPE =
                 tryGetValidNotContainedSample(containerIdentifier, sampleIdentifier, defaultSpace);
-        samplePE.setContainer(containerPE);
+
+        if (containerPE == null)
+        {
+            relationshipService.removeSampleFromContainer(session, IdentifierHelper
+                    .sample(samplePE), samplePE);
+        } else
+        {
+            relationshipService.assignSampleToContainer(session, IdentifierHelper
+                    .sample(samplePE), samplePE,
+                    IdentifierHelper
+                            .sample(containerPE), containerPE);
+        }
     }
 
     protected void setParents(final SamplePE childPE, final String[] parents,

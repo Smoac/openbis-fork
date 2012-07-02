@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.systemtest.base;
 
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -42,8 +43,8 @@ public class RelationshipServiceStub implements IRelationshipService
     }
 
     @Override
-    public void assignSampleToExperiment(IAuthSession session, SampleIdentifier sample,
-            ExperimentIdentifier experiment)
+    public void assignSampleToExperiment(IAuthSession session, SampleIdentifier sampleId,
+            ExperimentIdentifier experimentId)
     {
     }
 
@@ -91,6 +92,23 @@ public class RelationshipServiceStub implements IRelationshipService
     @Override
     public void removeParentFromSample(IAuthSession session, SampleIdentifier sample,
             SampleIdentifier parent)
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void assignSampleToContainer(IAuthSession session, SampleIdentifier sampleId,
+            SamplePE sample,
+            SampleIdentifier containerId, SamplePE container)
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void removeSampleFromContainer(IAuthSession session, SampleIdentifier sampleId,
+            SamplePE sample)
     {
         // TODO Auto-generated method stub
 

@@ -25,10 +25,13 @@ import org.hamcrest.TypeSafeMatcher;
 public class CollectionContainsExactlyMatcher<T> extends TypeSafeMatcher<Collection<T>>
 {
 
+    private EqualityChecker<T> equalityChecker;
+
     private Collection<T> expected;
 
-    public CollectionContainsExactlyMatcher(T... elements)
+    public CollectionContainsExactlyMatcher(EqualityChecker<T> equalityChecker, T... elements)
     {
+        this.equalityChecker = equalityChecker;
         expected = new HashSet<T>();
         for (T t : elements)
         {
@@ -49,7 +52,28 @@ public class CollectionContainsExactlyMatcher<T> extends TypeSafeMatcher<Collect
         {
             return false;
         }
-        return actual.size() == expected.size() && actual.containsAll(expected);
+
+        if (actual.size() != expected.size())
+        {
+            return false;
+        }
+
+        for (T t : actual)
+        {
+            int count = 0;
+            for (T e : this.expected)
+            {
+                if (this.equalityChecker.equals(t, e))
+                {
+                    count++;
+                }
+            }
+            if (count != 1)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

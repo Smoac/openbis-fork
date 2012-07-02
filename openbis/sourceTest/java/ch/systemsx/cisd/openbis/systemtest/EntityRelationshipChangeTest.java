@@ -24,7 +24,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -68,7 +67,7 @@ public class EntityRelationshipChangeTest extends BaseTest
         Project project = create(aProject().inSpace(space));
         Experiment sourceExperiment = create(anExperiment().inProject(project));
         Experiment destinationExperiment = create(anExperiment().inProject(project));
-        DataSet dataset = create(aDataSet().inExperiment(sourceExperiment));
+        ExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
         DataSetUpdatesDTO updates =
                 create(anUpdateOf(dataset).withExperiment(destinationExperiment));
 
@@ -202,7 +201,7 @@ public class EntityRelationshipChangeTest extends BaseTest
         Experiment experiment = create(anExperiment().inProject(project));
         Sample sourceSample = create(aSample().inExperiment(experiment));
         Sample destinationSample = create(aSample().inExperiment(experiment));
-        DataSet dataset = create(aDataSet().inSample(sourceSample));
+        ExternalData dataset = create(aDataSet().inSample(sourceSample));
         DataSetUpdatesDTO updates = create(anUpdateOf(dataset).withSample(destinationSample));
 
         commonServer.updateDataSet(session, updates);
@@ -262,7 +261,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void addParent()
+    public void addParentToSample()
     {
         Sample parentToBe = create(aSample().inSpace(space));
         Sample childToBe = create(aSample().inSpace(space));
@@ -352,7 +351,7 @@ public class EntityRelationshipChangeTest extends BaseTest
 
     @Test(expectedExceptions =
         { UserFailureException.class })
-    public void sampleCannotBeUpdatedToBeChildOfComponentSample()
+    public void sampleCannotBeUpdatedToBeComponentOfComponentSample()
     {
         Sample container = create(aSample().inSpace(space));
         Sample component = create(aSample().inSpace(space).inContainer(container));
@@ -360,5 +359,127 @@ public class EntityRelationshipChangeTest extends BaseTest
         SampleUpdatesDTO updates = create(anUpdateOf(subComponent).withContainer(component));
 
         commonServer.updateSample(session, updates);
+    }
+
+    @Test
+    public void addParentToDataSet()
+    {
+        Project project = create(aProject().inSpace(space));
+        Experiment experiment = create(anExperiment().inProject(project));
+        Sample sample = create(aSample().inExperiment(experiment));
+        ExternalData parentToBe = create(aDataSet().inSample(sample));
+        ExternalData childToBe = create(aDataSet().inSample(sample));
+        DataSetUpdatesDTO updates = create(anUpdateOf(childToBe).withParent(parentToBe));
+
+        commonServer.updateDataSet(session, updates);
+
+        assertThat(serverSays(childToBe).getParents(), containsExactly(parentToBe));
+        assertThat(serverSays(parentToBe).getChildren(), containsExactly(childToBe));
+    }
+
+    @Test
+    public void changeParentOfDataSet()
+    {
+        Project project = create(aProject().inSpace(space));
+        Experiment experiment = create(anExperiment().inProject(project));
+        Sample sample = create(aSample().inExperiment(experiment));
+        ExternalData currentParent = create(aDataSet().inSample(sample));
+        ExternalData newParent = create(aDataSet().inSample(sample));
+        ExternalData child = create(aDataSet().inSample(sample).withParent(currentParent));
+        DataSetUpdatesDTO updates = create(anUpdateOf(child).withParent(newParent));
+
+        assertThat(serverSays(currentParent).getChildren(), containsExactly(child));
+
+        commonServer.updateDataSet(session, updates);
+
+        assertThat(serverSays(currentParent).getChildren().size(), is(0));
+        assertThat(serverSays(child).getParents(), containsExactly(newParent));
+        assertThat(serverSays(newParent).getChildren(), containsExactly(child));
+    }
+
+    @Test
+    public void removeParentOfDataSet()
+    {
+        Project project = create(aProject().inSpace(space));
+        Experiment experiment = create(anExperiment().inProject(project));
+        Sample sample = create(aSample().inExperiment(experiment));
+        ExternalData parent = create(aDataSet().inSample(sample));
+        ExternalData child = create(aDataSet().inSample(sample).withParent(parent));
+        DataSetUpdatesDTO updates = create(anUpdateOf(child));
+
+        commonServer.updateDataSet(session, updates);
+
+        assertThat(serverSays(child).getParents().size(), is(0));
+        assertThat(serverSays(parent).getChildren().size(), is(0));
+    }
+
+    @Test
+    public void addDataSetToContainerThroughUpdatingContainer()
+    {
+        Project project = create(aProject().inSpace(space));
+        Experiment experiment = create(anExperiment().inProject(project));
+        Sample sample = create(aSample().inExperiment(experiment));
+        ExternalData componentCandidate = create(aDataSet().inSample(sample));
+        ExternalData container = create(aDataSet().inSample(sample).asContainer());
+        DataSetUpdatesDTO updates =
+                create(anUpdateOf(container).withComponents(componentCandidate));
+
+        commonServer.updateDataSet(session, updates);
+
+        assertThat(serverSays(componentCandidate).tryGetContainer().getCode(),
+                is(container.getCode()));
+    }
+
+    @Test
+    public void addDataSetToContainerThroughUpdatingComponent()
+    {
+        Project project = create(aProject().inSpace(space));
+        Experiment experiment = create(anExperiment().inProject(project));
+        Sample sample = create(aSample().inExperiment(experiment));
+        ExternalData componentCandidate = create(aDataSet().inSample(sample));
+        ExternalData container = create(aDataSet().inSample(sample).asContainer());
+        DataSetUpdatesDTO updates =
+                create(anUpdateOf(componentCandidate).withContainer(container));
+
+        commonServer.updateDataSet(session, updates);
+
+        assertThat(serverSays(componentCandidate).tryGetContainer().getCode(),
+                is(container.getCode()));
+    }
+
+    @Test
+    public void removeDataSetFromContainer()
+    {
+        Project project = create(aProject().inSpace(space));
+        Experiment experiment = create(anExperiment().inProject(project));
+        Sample sample = create(aSample().inExperiment(experiment));
+        ExternalData component = create(aDataSet().inSample(sample));
+        ExternalData container =
+                create(aDataSet().inSample(sample).asContainer().withComponent(component));
+        DataSetUpdatesDTO updates = create(anUpdateOf(container).withComponents());
+
+        commonServer.updateDataSet(session, updates);
+
+        assertThat(serverSays(component).tryGetContainer(),
+                is(nullValue()));
+
+    }
+
+    @Test
+    public void dataSetUpdateWithNewContainerWillChangeContainerOfDataSet()
+    {
+        Project project = create(aProject().inSpace(space));
+        Experiment experiment = create(anExperiment().inProject(project));
+        Sample sample = create(aSample().inExperiment(experiment));
+        ExternalData component = create(aDataSet().inSample(sample));
+        create(aDataSet().inSample(sample).asContainer().withComponent(component));
+        ExternalData newContainer = create(aDataSet().inSample(sample).asContainer());
+        DataSetUpdatesDTO updates = create(anUpdateOf(newContainer).withComponents(component));
+
+        commonServer.updateDataSet(session, updates);
+
+        assertThat(serverSays(component).tryGetContainer().getCode(),
+                is(newContainer.getCode()));
+
     }
 }

@@ -27,8 +27,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -65,7 +65,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
 
     private Sample parentSample;
 
-    private DataSet dataSet;
+    private ExternalData dataSet;
 
     @BeforeClass
     public void createFixture()

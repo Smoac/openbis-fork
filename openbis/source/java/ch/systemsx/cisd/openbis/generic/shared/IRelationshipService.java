@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
@@ -24,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwn
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -37,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  */
 public interface IRelationshipService
 {
+    @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_EXPERIMENT_TO_PROJECT")
@@ -46,6 +51,7 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             ProjectIdentifier project);
 
+    @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_PROJECT_TO_SPACE")
@@ -55,15 +61,17 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             SpaceIdentifier space);
 
+    @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_SAMPLE_TO_EXPERIMENT")
     public void assignSampleToExperiment(IAuthSession session,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            SampleIdentifier sample,
+            SampleIdentifier sampleId,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ExperimentIdentifier experiment);
+            ExperimentIdentifier experimentid);
 
+    @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("UNASSIGN_SAMPLE_FROM_EXPERIMENT")
@@ -71,6 +79,7 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             SampleIdentifier sample);
 
+    @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.INSTANCE_ETL_SERVER, RoleWithHierarchy.INSTANCE_ADMIN })
     @Capability("UNSHARE_SAMPLE")
@@ -80,6 +89,7 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             SpaceIdentifier space);
 
+    @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_SAMPLE_TO_SPACE")
@@ -89,6 +99,7 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             SpaceIdentifier space);
 
+    @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.INSTANCE_ETL_SERVER, RoleWithHierarchy.INSTANCE_ADMIN })
     @Capability("SHARE_SAMPLE")
@@ -96,6 +107,7 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             SampleIdentifier sample);
 
+    @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_DATASET_TO_EXPERIMENT")
@@ -105,6 +117,7 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             ExperimentIdentifier experiment);
 
+    @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_DATASET_TO_SAMPLE")
@@ -114,6 +127,7 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             SampleIdentifier sample);
 
+    @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ADD_PARENT_TO_SAMPLE")
@@ -123,6 +137,7 @@ public interface IRelationshipService
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             SampleIdentifier parent);
 
+    @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("REMOVE_PARENT_FROM_SAMPLE")
@@ -131,5 +146,26 @@ public interface IRelationshipService
             SampleIdentifier sample,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             SampleIdentifier parent);
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
+    @Capability("ADD_CONTAINER_TO_SAMPLE")
+    public void assignSampleToContainer(IAuthSession session,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
+            SampleIdentifier sampleId,
+            SamplePE sample,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
+            SampleIdentifier containerId,
+            SamplePE container);
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
+    @Capability("REMOVE_CONTAINER_FROM_SAMPLE")
+    public void removeSampleFromContainer(IAuthSession session,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
+            SampleIdentifier sampleId,
+            SamplePE sample);
 
 }

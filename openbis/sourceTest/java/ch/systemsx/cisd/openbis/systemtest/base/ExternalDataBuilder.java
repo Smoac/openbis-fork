@@ -18,24 +18,27 @@ package ch.systemsx.cisd.openbis.systemtest.base;
 
 import static ch.systemsx.cisd.openbis.systemtest.base.BaseTest.id;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
-public class DataSetBuilder extends Builder<DataSet>
+public class ExternalDataBuilder extends Builder<ExternalData>
 {
     private IETLLIMSService etlService;
 
@@ -43,17 +46,27 @@ public class DataSetBuilder extends Builder<DataSet>
 
     private ExperimentIdentifier experimentIdentifier;
 
+    private List<String> parentCodes;
+
+    private List<String> componentCodes;
+
     private String code;
 
-    public DataSetBuilder(ICommonServerForInternalUse commonServer, IGenericServer genericServer,
+    private boolean container;
+
+    public ExternalDataBuilder(ICommonServerForInternalUse commonServer,
+            IGenericServer genericServer,
             IETLLIMSService etlService)
     {
         super(commonServer, genericServer);
         this.etlService = etlService;
         this.code = UUID.randomUUID().toString();
+        this.parentCodes = new ArrayList<String>();
+        this.container = false;
+        this.componentCodes = new ArrayList<String>();
     }
 
-    public DataSetBuilder inSample(Sample sample)
+    public ExternalDataBuilder inSample(Sample sample)
     {
         this.sampleIdentifier = id(sample);
         if (sample.getExperiment() != null)
@@ -63,21 +76,64 @@ public class DataSetBuilder extends Builder<DataSet>
         return this;
     }
 
-    public DataSetBuilder inExperiment(Experiment experiment)
+    public ExternalDataBuilder inExperiment(Experiment experiment)
     {
         this.experimentIdentifier = new ExperimentIdentifier(experiment);
         return this;
     }
 
+    public ExternalDataBuilder withParents(ExternalData... dataSets)
+    {
+        for (ExternalData parent : dataSets)
+        {
+            this.parentCodes.add(parent.getCode());
+        }
+        return this;
+    }
+
+    public ExternalDataBuilder withParent(ExternalData dataSet)
+    {
+        return this.withParents(dataSet);
+    }
+
+    public ExternalDataBuilder asContainer()
+    {
+        this.container = true;
+        return this;
+    }
+
+    public ExternalDataBuilder withComponents(ExternalData... data)
+    {
+        for (ExternalData component : data)
+        {
+            this.componentCodes.add(component.getCode());
+        }
+        return this;
+    }
+
+    public ExternalDataBuilder withComponent(ExternalData data)
+    {
+        return this.withComponents(data);
+    }
+
     @Override
-    public DataSet create()
+    public ExternalData create()
     {
         DataSetType dataSetType = new DataSetType();
         dataSetType.setCode(UUID.randomUUID().toString());
         dataSetType.setDataSetKind(DataSetKind.EXTERNAL);
         commonServer.registerDataSetType(systemSession, dataSetType);
 
-        NewExternalData data = new NewExternalData();
+        NewExternalData data;
+        if (this.container)
+        {
+            NewContainerDataSet cont = new NewContainerDataSet();
+            cont.setContainedDataSetCodes(this.componentCodes);
+            data = cont;
+        } else
+        {
+            data = new NewExternalData();
+        }
         data.setCode(this.code);
         data.setDataSetType(dataSetType);
         data.setFileFormatType(new FileFormatType(FileFormatType.DEFAULT_FILE_FORMAT_TYPE_CODE));
@@ -87,6 +143,7 @@ public class DataSetBuilder extends Builder<DataSet>
         data.setStorageFormat(StorageFormat.PROPRIETARY);
         data.setDataStoreCode("STANDARD");
         data.setExperimentIdentifierOrNull(this.experimentIdentifier);
+        data.setParentDataSetCodes(this.parentCodes);
 
         if (this.sampleIdentifier != null)
         {
@@ -96,7 +153,7 @@ public class DataSetBuilder extends Builder<DataSet>
             etlService.registerDataSet(systemSession, experimentIdentifier, data);
         }
 
-        return (DataSet) etlService.tryGetDataSet(systemSession, this.code);
+        return etlService.tryGetDataSet(systemSession, this.code);
 
     }
 }

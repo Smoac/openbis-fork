@@ -98,6 +98,7 @@ public class RelationshipService implements IRelationshipService
     {
         SamplePE sample = findSample(sampleId);
         ExperimentPE experiment = findExperiment(experimentId);
+
         sample.setExperiment(experiment);
 
         for (DataPE dataset : sample.getDatasets())
@@ -194,6 +195,24 @@ public class RelationshipService implements IRelationshipService
         }
         throw UserFailureException.fromTemplate(ERR_SAMPLE_PARENT_RELATIONSHIP_NOT_FOUND, sampleId,
                 parentId);
+    }
+
+    @Override
+    public void assignSampleToContainer(IAuthSession session, SampleIdentifier sampleId,
+            SamplePE sample,
+            SampleIdentifier containerId, SamplePE container)
+    {
+        // SamplePE sample = findSample(sampleId);
+        // SamplePE container = findSample(containerId);
+        sample.setContainer(container);
+    }
+
+    @Override
+    public void removeSampleFromContainer(IAuthSession session, SampleIdentifier sampleId,
+            SamplePE sample)
+    {
+        // SamplePE sample = findSample(sampleId);
+        sample.setContainer(null);
     }
 
     private DataPE findDataSet(String dataSetCode)

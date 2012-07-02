@@ -20,11 +20,13 @@ import static ch.systemsx.cisd.openbis.systemtest.base.BaseTest.id;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
@@ -44,13 +46,24 @@ public class DataSetUpdateBuilder extends Builder<DataSetUpdatesDTO>
 
     private String fileFormatTypeCode;
 
+    private List<ExternalData> parents;
+
+    private String containerCode;
+
+    private List<ExternalData> components;
+
     public DataSetUpdateBuilder(ICommonServerForInternalUse commonServer,
-            IGenericServer genericServer, DataSet data)
+            IGenericServer genericServer, ExternalData data)
     {
         super(commonServer, genericServer);
         this.datasetId = new TechId(data.getId());
         this.version = data.getModificationDate();
-        this.fileFormatTypeCode = data.getFileFormatType().getCode();
+        if (data instanceof DataSet)
+        {
+            this.fileFormatTypeCode = ((DataSet) data).getFileFormatType().getCode();
+        }
+        this.parents = null;
+        this.experimentIdentifier = new ExperimentIdentifier(data.getExperiment());
     }
 
     public DataSetUpdateBuilder withSample(Sample sample)
@@ -66,6 +79,42 @@ public class DataSetUpdateBuilder extends Builder<DataSetUpdatesDTO>
         return this;
     }
 
+    public DataSetUpdateBuilder withParents(ExternalData... dataSets)
+    {
+        this.parents = new ArrayList<ExternalData>();
+        for (ExternalData parent : dataSets)
+        {
+            this.parents.add(parent);
+        }
+        return this;
+    }
+
+    public DataSetUpdateBuilder withParent(ExternalData dataSet)
+    {
+        return this.withParents(dataSet);
+    }
+
+    public DataSetUpdateBuilder withContainer(ExternalData dataSet)
+    {
+        this.containerCode = dataSet.getCode();
+        return this;
+    }
+
+    public DataSetUpdateBuilder withComponents(ExternalData... dataSets)
+    {
+        this.components = new ArrayList<ExternalData>();
+        for (ExternalData component : dataSets)
+        {
+            this.components.add(component);
+        }
+        return this;
+    }
+
+    public DataSetUpdateBuilder withComponent(ExternalData dataSet)
+    {
+        return this.withComponents(dataSet);
+    }
+
     @Override
     public DataSetUpdatesDTO create()
     {
@@ -77,6 +126,28 @@ public class DataSetUpdateBuilder extends Builder<DataSetUpdatesDTO>
 
         updates.setExperimentIdentifierOrNull(this.experimentIdentifier);
         updates.setSampleIdentifierOrNull(this.sampleIdentifier);
+
+        if (this.parents != null)
+        {
+            String[] parentCodes = new String[this.parents.size()];
+            for (int i = 0; i < parentCodes.length; i++)
+            {
+                parentCodes[i] = this.parents.get(i).getCode();
+            }
+            updates.setModifiedParentDatasetCodesOrNull(parentCodes);
+        }
+
+        updates.setModifiedContainerDatasetCodeOrNull(this.containerCode);
+
+        if (this.components != null)
+        {
+            String[] componentCodes = new String[this.components.size()];
+            for (int i = 0; i < componentCodes.length; i++)
+            {
+                componentCodes[i] = this.components.get(i).getCode();
+            }
+            updates.setModifiedContainedDatasetCodesOrNull(componentCodes);
+        }
 
         return updates;
     }

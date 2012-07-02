@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -219,9 +218,9 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         return new SampleBuilder(commonServer, genericServer);
     }
 
-    protected DataSetBuilder aDataSet()
+    protected ExternalDataBuilder aDataSet()
     {
-        return new DataSetBuilder(commonServer, genericServer, etlService);
+        return new ExternalDataBuilder(commonServer, genericServer, etlService);
     }
 
     protected ProjectUpdateBuilder anUpdateOf(Project project)
@@ -239,7 +238,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         return new SampleUpdateBuilder(commonServer, genericServer, sample);
     }
 
-    protected DataSetUpdateBuilder anUpdateOf(DataSet dataset)
+    protected DataSetUpdateBuilder anUpdateOf(ExternalData dataset)
     {
         return new DataSetUpdateBuilder(commonServer, genericServer, dataset);
     }
@@ -284,9 +283,17 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         return new InSampleMatcher(sample);
     }
 
-    protected <T> Matcher<Collection<T>> containsExactly(T... elements)
+    protected Matcher<Collection<Sample>> containsExactly(Sample... elements)
     {
-        return new CollectionContainsExactlyMatcher<T>(elements);
+        return new CollectionContainsExactlyMatcher<Sample>(new StandardEqualityChecker<Sample>(),
+                elements);
+    }
+
+    protected Matcher<Collection<ExternalData>> containsExactly(ExternalData... elements)
+    {
+        return new CollectionContainsExactlyMatcher<ExternalData>(
+                new ExternalDataEqualityChecker(),
+                elements);
     }
 
     protected Experiment serverSays(Experiment experiment)
