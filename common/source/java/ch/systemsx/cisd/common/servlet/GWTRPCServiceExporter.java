@@ -22,6 +22,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
@@ -56,6 +57,8 @@ import ch.systemsx.cisd.common.utilities.MethodUtils;
 public abstract class GWTRPCServiceExporter extends RemoteServiceServlet implements
         InitializingBean, ServletConfigAware, DisposableBean, BeanNameAware, Controller
 {
+    private static final String SESSION_EXP_MSG = "Session expired. Please login again.";
+
     private static final long serialVersionUID = 1L;
 
     private static final Logger operationLog =
@@ -142,12 +145,13 @@ public abstract class GWTRPCServiceExporter extends RemoteServiceServlet impleme
         final String methodDescription =
                 String.format("Invoking method '%s' failed.", targetMethod == null ? "<unknown>"
                         : MethodUtils.describeMethod(targetMethod));
+        final Level level = SESSION_EXP_MSG.equals(cause.getMessage()) ? Level.WARN : Level.ERROR;
         if (cause instanceof IOptionalStackTraceLoggingException)
         {
-            operationLog.error(methodDescription + ": " + cause.getMessage());
+            operationLog.log(level, methodDescription + ": " + cause.getMessage());
         } else
         {
-            operationLog.error(methodDescription, cause);
+            operationLog.log(level, methodDescription, cause);
         }
     }
 
