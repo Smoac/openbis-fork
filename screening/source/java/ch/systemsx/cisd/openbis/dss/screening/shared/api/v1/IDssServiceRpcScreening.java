@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.screening.shared.api.v1;
 import java.io.InputStream;
 import java.util.List;
 
-import com.googlecode.jsonrpc4j.JsonRpcParamName;
+import com.googlecode.jsonrpc4j.JsonRpcParam;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.IRpcService;
@@ -356,11 +356,11 @@ public interface IDssServiceRpcScreening extends IRpcService
      */
     @MinimalMinorVersion(4)
     @DataSetAccessGuard
-    public List<PlateImageReference> listPlateImageReferences(@JsonRpcParamName("sessionToken")
+    public List<PlateImageReference> listPlateImageReferences(@JsonRpcParam("sessionToken")
     String sessionToken, @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
-    @JsonRpcParamName("dataSetIdentifier")
-    IDatasetIdentifier dataSetIdentifier, @JsonRpcParamName("wellPositions")
-    List<WellPosition> wellPositions, @JsonRpcParamName("channel")
+    @JsonRpcParam("dataSetIdentifier")
+    IDatasetIdentifier dataSetIdentifier, @JsonRpcParam("wellPositions")
+    List<WellPosition> wellPositions, @JsonRpcParam("channel")
     String channel);
 
     /**
@@ -370,11 +370,11 @@ public interface IDssServiceRpcScreening extends IRpcService
      */
     @MinimalMinorVersion(6)
     @DataSetAccessGuard
-    public List<PlateImageReference> listPlateImageReferences(@JsonRpcParamName("sessionToken")
+    public List<PlateImageReference> listPlateImageReferences(@JsonRpcParam("sessionToken")
     String sessionToken, @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
-    @JsonRpcParamName("dataSetIdentifier")
-    IDatasetIdentifier dataSetIdentifier, @JsonRpcParamName("wellPositions")
-    List<WellPosition> wellPositions, @JsonRpcParamName("channels")
+    @JsonRpcParam("dataSetIdentifier")
+    IDatasetIdentifier dataSetIdentifier, @JsonRpcParam("wellPositions")
+    List<WellPosition> wellPositions, @JsonRpcParam("channels")
     List<String> channels);
 
     /**
@@ -384,10 +384,10 @@ public interface IDssServiceRpcScreening extends IRpcService
      */
     @MinimalMinorVersion(5)
     @DataSetAccessGuard
-    public List<MicroscopyImageReference> listImageReferences(@JsonRpcParamName("sessionToken")
+    public List<MicroscopyImageReference> listImageReferences(@JsonRpcParam("sessionToken")
     String sessionToken, @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
-    @JsonRpcParamName("dataSetIdentifier")
-    IDatasetIdentifier dataSetIdentifier, @JsonRpcParamName("channel")
+    @JsonRpcParam("dataSetIdentifier")
+    IDatasetIdentifier dataSetIdentifier, @JsonRpcParam("channel")
     String channel);
 
     /**
@@ -397,10 +397,10 @@ public interface IDssServiceRpcScreening extends IRpcService
      */
     @MinimalMinorVersion(6)
     @DataSetAccessGuard
-    public List<MicroscopyImageReference> listImageReferences(@JsonRpcParamName("sessionToken")
+    public List<MicroscopyImageReference> listImageReferences(@JsonRpcParam("sessionToken")
     String sessionToken, @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
-    @JsonRpcParamName("dataSetIdentifier")
-    IDatasetIdentifier dataSetIdentifier, @JsonRpcParamName("channels")
+    @JsonRpcParam("dataSetIdentifier")
+    IDatasetIdentifier dataSetIdentifier, @JsonRpcParam("channels")
     List<String> channels);
 
     /**
