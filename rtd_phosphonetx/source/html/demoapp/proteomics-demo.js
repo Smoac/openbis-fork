@@ -49,7 +49,8 @@ function displayResultsAsGraph(data)
         return;
     }
     
-    var xOffset = 70,
+    var delayStep = 20,
+        xOffset = 70,
         yOffset = 40,
         xStep = 200,
         yStep = 30,
@@ -76,6 +77,7 @@ function displayResultsAsGraph(data)
     g.selectAll("path").data(function(d) { return d[1]; })
         .enter().append("svg:path")
         .attr("class", "line")
+        .transition().delay(function(d,i) { return i * delayStep; })
         .attr("d", function(d,i) { 
             var y0 = d[0] * yStep;
             var y1 = d[1] * yStep;
@@ -91,18 +93,21 @@ function displayResultsAsGraph(data)
         .attr("class", "node")
         .attr("transform", function(d,i) { return "translate(0, " + (i * yStep) + ")"; });
         
-    node.append("svg:circle").attr("r", 5);
+    node.append("svg:circle")        
+        .transition().delay(function(d,i) { return i * delayStep; })
+        .attr("r", 5);
             
     node.append("svg:text")
+        .on("click", function(d) { if (d.level == indexOfLinkedColumn) {
+                                       window.open(openbisUrl + "/?#entity=EXPERIMENT&permId=" + d.permId, '_blank');
+                                   }
+                                 })
+        .transition().delay(function(d,i) { return i * delayStep; })
         .text(function(d) { return d.label; })
         .attr("class", function(d) { return d.level == indexOfLinkedColumn ? "linked" : "notLinked";})
         .attr("text-anchor", "left")
         .attr("x", xLabel)
         .attr("y", yLabel)
-        .on("click", function(d) { if (d.level == indexOfLinkedColumn) {
-                                       window.open(openbisUrl + "/?#entity=EXPERIMENT&permId=" + d.permId, '_blank');
-                                   }
-                                 });
 }
 
 
