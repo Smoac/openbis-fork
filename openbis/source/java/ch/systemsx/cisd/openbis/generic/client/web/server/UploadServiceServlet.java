@@ -86,7 +86,8 @@ public final class UploadServiceServlet extends AbstractCommandController
         this(new SessionFilesSetter());
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings(
+        { "unchecked", "rawtypes" })
     private final static Iterator<String> cast(final Iterator iterator)
     {
         return iterator;

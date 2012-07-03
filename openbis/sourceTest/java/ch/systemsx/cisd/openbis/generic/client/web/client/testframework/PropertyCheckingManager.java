@@ -58,7 +58,8 @@ public class PropertyCheckingManager extends Assert
     /**
      * Checks the assertion for the specified properties.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings(
+        { "unchecked", "rawtypes" })
     public void assertProperties(final Map<String, ?> actualProperties)
     {
         for (final Map.Entry<String, IValueAssertion> expectedProperty : expectedProperties
