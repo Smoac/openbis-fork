@@ -1044,7 +1044,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    @SuppressWarnings("unused")
     @DataProvider(name = "booleans")
     private Object[][] provideAllBooleans()
     {
@@ -1083,7 +1082,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    @SuppressWarnings("unused")
     @DataProvider(name = "saveFileTestData")
     private Object[][] provideAllSaveFileTestData()
     {
@@ -1162,7 +1160,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         }
     }
 
-    @SuppressWarnings("unused")
     @DataProvider(name = "fileRetentions")
     private Object[][] provideAllFileRetentions()
     {

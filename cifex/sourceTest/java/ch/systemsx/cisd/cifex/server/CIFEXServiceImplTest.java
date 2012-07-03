@@ -1190,7 +1190,6 @@ public class CIFEXServiceImplTest
                 aService, 1);
     }
 
-    @SuppressWarnings("unused")
     @DataProvider(name = "currentUserAndUserToUpdate")
     private Object[][] provideAllBooleans()
     {

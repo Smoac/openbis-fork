@@ -128,7 +128,6 @@ public final class AnnotationUtilsTest
         @SuppressWarnings("unused")
         protected Object b;
 
-        @SuppressWarnings("unused")
         @BeanProperty
         protected void setA(final Object a)
         {

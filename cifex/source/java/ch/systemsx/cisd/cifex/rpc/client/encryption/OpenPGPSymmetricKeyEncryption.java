@@ -151,6 +151,8 @@ public class OpenPGPSymmetricKeyEncryption
                     encryptedDataGenerator.open(outStream, inFile.length()
                             + getPGPLiteralDataHeaderLength(PGPLiteralData.BINARY, inFile));
             closeables.add(encryptingOutStream);
+            // literalData is closed implicitly when pgpOutStream is closed.
+            @SuppressWarnings("resource")
             final PGPLiteralDataGenerator literalData = new PGPLiteralDataGenerator();
             final OutputStream pgpOutStream =
                     literalData.open(encryptingOutStream, PGPLiteralData.BINARY, inFile.getName(),

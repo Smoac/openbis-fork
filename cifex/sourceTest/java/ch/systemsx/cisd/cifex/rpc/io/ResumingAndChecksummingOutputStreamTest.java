@@ -358,6 +358,6 @@ public class ResumingAndChecksummingOutputStreamTest
                         public void exceptionThrown(IOException e)
                         {
                         }
-                    }, 10, 0);
+                    }, 10, 0).close();
     }
 }

@@ -73,28 +73,34 @@ public class FileDetailsTableCellRenderer implements TableCellRenderer
     static String numberOfBytesToDisplayString(long numBytes)
     {
         final Formatter f = new Formatter();
-        float numKBytes = (float) numBytes / KB;
-        if (numKBytes < 1.f)
+        try
         {
-            f.format("%d bytes", numBytes);
+            float numKBytes = (float) numBytes / KB;
+            if (numKBytes < 1.f)
+            {
+                f.format("%d bytes", numBytes);
+                return f.toString();
+            }
+    
+            if (numKBytes < 1000.f)
+            {
+                f.format("%.2f kB", numKBytes);
+                return f.toString();
+            }
+    
+            float numMBytes = (float) numBytes / MB;
+            if (numMBytes < 1000.f)
+            {
+                f.format("%.2f MB", numMBytes);
+                return f.toString();
+            }
+    
+            float numGBytes = numMBytes / KB;
+            f.format("%.2f GB", numGBytes);
             return f.toString();
-        }
-
-        if (numKBytes < 1000.f)
+        } finally
         {
-            f.format("%.2f kB", numKBytes);
-            return f.toString();
+            f.close();
         }
-
-        float numMBytes = (float) numBytes / MB;
-        if (numMBytes < 1000.f)
-        {
-            f.format("%.2f MB", numMBytes);
-            return f.toString();
-        }
-
-        float numGBytes = numMBytes / KB;
-        f.format("%.2f GB", numGBytes);
-        return f.toString();
     }
 }

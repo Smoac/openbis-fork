@@ -55,10 +55,16 @@ public final class MD5ChecksumCalculator implements IChecksumCalculator
     {
         byte[] buf = new byte[bufferSize];
         MD5InputStream in = new MD5InputStream(inputStream);
-        while (in.read(buf) != -1)
+        try
         {
+            while (in.read(buf) != -1)
+            {
+            }
+            return MD5.asHex(in.hash());
+        } finally
+        {
+            in.close();
         }
-        return MD5.asHex(in.hash());
     }
     
     /** Calculates a checksum for specified byte array. */

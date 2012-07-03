@@ -124,7 +124,6 @@ public final class UserDAOTest extends AbstractDAOTest
 
     }
 
-    @SuppressWarnings("unused")
     @DataProvider(name = "userProvider")
     private final static Object[][] getUser()
     {

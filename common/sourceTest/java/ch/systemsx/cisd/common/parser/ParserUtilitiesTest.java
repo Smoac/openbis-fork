@@ -112,14 +112,20 @@ public final class ParserUtilitiesTest
         FileUtils.writeLines(file, Arrays.asList(lines));
         ParserUtilities.LineSplitter splitter =
                 new ParserUtilities.LineSplitter(file, NonEmptyLineFilter.INSTANCE);
-        ILine<String> line = splitter.tryNextLine();
-        assertEquals("non-empty line", line.getText());
-        assertEquals(1, line.getNumber());
-        line = splitter.tryNextLine();
-        assertEquals("hello", line.getText());
-        assertEquals(3, line.getNumber());
-        assertNull(splitter.tryNextLine());
-        assert file.delete();
+        try
+        {
+            ILine<String> line = splitter.tryNextLine();
+            assertEquals("non-empty line", line.getText());
+            assertEquals(1, line.getNumber());
+            line = splitter.tryNextLine();
+            assertEquals("hello", line.getText());
+            assertEquals(3, line.getNumber());
+            assertNull(splitter.tryNextLine());
+            assert file.delete();
+        } finally
+        {
+            splitter.close();
+        }
     }
 
     @Test

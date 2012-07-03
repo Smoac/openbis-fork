@@ -42,6 +42,7 @@ public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCa
         ConcatenatedContentInputStream stream =
                 new ConcatenatedContentInputStream(false, new IHierarchicalContentNode[0]);
         AssertJUnit.assertEquals(-1, stream.read());
+        stream.close();
     }
 
     @Test

@@ -43,8 +43,8 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
  */
 public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigrationStepExecutor
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, MigrationStepExecutor.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            MigrationStepExecutor.class);
 
     private static final String JAVA_MIGRATION_STEP_PREFIX = "--JAVA";
 
@@ -87,13 +87,19 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
                         }
 
                     });
-        IMigrationStep stepOrNull = null;
-        ILine<?> lineOrNull;
-        while (stepOrNull == null && (lineOrNull = splitter.tryNextLine()) != null)
+        try
         {
-            stepOrNull = tryExtractMigrationStepFromLine(lineOrNull.getText());
+            IMigrationStep stepOrNull = null;
+            ILine<?> lineOrNull;
+            while (stepOrNull == null && (lineOrNull = splitter.tryNextLine()) != null)
+            {
+                stepOrNull = tryExtractMigrationStepFromLine(lineOrNull.getText());
+            }
+            return stepOrNull;
+        } finally
+        {
+            splitter.close();
         }
-        return stepOrNull;
     }
 
     private final IMigrationStep tryExtractMigrationStepFromLine(final String lineToProcess)
@@ -144,8 +150,8 @@ public class MigrationStepExecutor extends SimpleJdbcDaoSupport implements IMigr
         } else
         {
             operationLog.debug(String.format(
-                    "No migration step class found for migration script '%s'.", migrationScript
-                            .getName()));
+                    "No migration step class found for migration script '%s'.",
+                    migrationScript.getName()));
         }
         inited = true;
     }
