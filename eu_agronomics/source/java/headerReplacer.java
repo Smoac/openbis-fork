@@ -72,9 +72,10 @@ public class headerReplacer
     private void createHashMap() throws Exception
     {
 
+        BufferedReader input = null;
         try
         {
-            BufferedReader input = new BufferedReader(new FileReader(mapFile));
+            input = new BufferedReader(new FileReader(mapFile));
             String line = null;
 
             int lineNum = 0;
@@ -111,16 +112,23 @@ public class headerReplacer
         } catch (IOException ex)
         {
             ex.printStackTrace();
+        } finally
+        {
+            if (input != null)
+            {
+                input.close();
+            }
         }
 
     }
 
     private void createOutFile() throws Exception
     {
-
+        BufferedReader input;
+        BufferedWriter fOut = null;
         try
         {
-            BufferedReader input = new BufferedReader(new FileReader(inFile));
+            input = new BufferedReader(new FileReader(inFile));
             String line = null;
             Integer lineNum = 0;
             File f = new File("./" + outFile);
@@ -128,48 +136,59 @@ public class headerReplacer
             //f.mkdirs();
             if (f.exists()){
                 System.out.println("File exists " + f.toString());
+                input.close();
                 throw new Exception("Output file already exists on the file system. Delete the existing file and re-run. File is :\n" + f.toString());
             }
             f.createNewFile();
                 
-            BufferedWriter fOut = new BufferedWriter(new FileWriter(f));
-       
-                
-            while ((line = input.readLine()) != null)
+            try
             {
-                lineNum++;
-                if (lineNum == headerIndex)
+                fOut = new BufferedWriter(new FileWriter(f));
+           
+                    
+                while ((line = input.readLine()) != null)
                 {
-                    Scanner tokenize = new Scanner(line).useDelimiter("\t");
-
-                    ArrayList<String> headings = new ArrayList<String>();
-                    while (tokenize.hasNext())
+                    lineNum++;
+                    if (lineNum == headerIndex)
                     {
-
-                        String toke = tokenize.next();
-
-                        if (hm.containsKey(toke))
+                        Scanner tokenize = new Scanner(line).useDelimiter("\t");
+    
+                        ArrayList<String> headings = new ArrayList<String>();
+                        while (tokenize.hasNext())
                         {
-                            headings.add(hm.get(toke));
-                        } else
-                        {
-                            throw new Exception("The column heading \"" + toke + "\" in " + inFile
-                                    + " does not exist in mapFile " + mapFile);
+    
+                            String toke = tokenize.next();
+    
+                            if (hm.containsKey(toke))
+                            {
+                                headings.add(hm.get(toke));
+                            } else
+                            {
+                                throw new Exception("The column heading \"" + toke + "\" in " + inFile
+                                        + " does not exist in mapFile " + mapFile);
+                            }
+    
+                            
+    
                         }
-
-                        
-
+                        String headrow = StringUtils.join(headings.toArray(), "\t") + "\n";
+                        fOut.write(headrow);
+                 
+                    } else
+                    {
+                        fOut.write(line + "\n");
                     }
-                    String headrow = StringUtils.join(headings.toArray(), "\t") + "\n";
-                    fOut.write(headrow);
-             
-                } else
+                }
+                input.close();
+                fOut.close();
+            } finally
+            {
+                input.close();
+                if (fOut != null)
                 {
-                    fOut.write(line + "\n");
+                    fOut.close();
                 }
             }
-            input.close();
-            fOut.close();
             System.out.println("Done writing.");
             
         } catch (IOException ex)

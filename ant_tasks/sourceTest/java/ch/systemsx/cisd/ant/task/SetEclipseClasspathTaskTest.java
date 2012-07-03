@@ -68,11 +68,12 @@ public class SetEclipseClasspathTaskTest extends AssertJUnit
 
         void saveTo(File file) throws IOException
         {
-            FileWriter writer = null;
+            PrintWriter printWriter = null;
             try
             {
-                writer = new FileWriter(new File(file, EclipseClasspathReader.CLASSPATH_FILE));
-                PrintWriter printWriter = new PrintWriter(writer);
+                printWriter =
+                        new PrintWriter(new FileWriter(new File(file,
+                                EclipseClasspathReader.CLASSPATH_FILE)));
                 printWriter.println("<classpath>");
                 for (EclipseClasspathEntry entry : entries)
                 {
@@ -85,9 +86,9 @@ public class SetEclipseClasspathTaskTest extends AssertJUnit
                 throw ex;
             } finally
             {
-                if (writer != null)
+                if (printWriter != null)
                 {
-                    writer.close();
+                    printWriter.close();
                 }
             }
         }

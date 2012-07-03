@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.PropertyConfigurator;
 
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
@@ -137,18 +138,24 @@ public class LoadImagesWithTransformationTest
                     sb.append(".png");
 
                     print("Writing " + sb.toString() + "...");
+                    FileOutputStream fos = null;
                     try
                     {
-                        FileOutputStream fos = new FileOutputStream(sb.toString());
+                        fos = new FileOutputStream(sb.toString());
                         fos.write(imageFileBytes);
+                        fos.close();
                     } catch (FileNotFoundException ex)
                     {
                         ex.printStackTrace();
                     } catch (IOException ex)
                     {
-                        // TODO Auto-generated catch block
                         ex.printStackTrace();
                     }
+                    finally
+                    {
+                        IOUtils.closeQuietly(fos);
+                    }
+                    
                 }
 
             });

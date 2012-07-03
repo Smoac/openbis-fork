@@ -141,20 +141,21 @@ class Utils
 
     static void appendEntryToConfigFile(File configFile, String propertiesEntry)
     {
-        FileWriter fileWriter = null;
+        PrintWriter printWriter = null;
         try
         {
-            fileWriter = new FileWriter(configFile, true);
-            PrintWriter printWriter = new PrintWriter(fileWriter);
+            printWriter =
+                    new PrintWriter(new FileWriter(configFile, true));
             printWriter.println();
             printWriter.println(propertiesEntry);
+            printWriter.close();
         } catch (IOException ex)
         {
             throw new RuntimeException("Couldn't append property " + ENABLED_TECHNOLOGIES_KEY
                     + " to " + configFile, ex);
         } finally
         {
-            IOUtils.closeQuietly(fileWriter);
+            IOUtils.closeQuietly(printWriter);
         }
     }
 
