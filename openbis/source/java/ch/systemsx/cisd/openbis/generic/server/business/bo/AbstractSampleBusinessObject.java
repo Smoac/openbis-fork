@@ -210,6 +210,16 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         final SamplePE containerPE =
                 tryGetValidNotContainedSample(containerIdentifier, sampleIdentifier, defaultSpace);
 
+        if (samplePE.getContainer() == null && containerPE == null)
+        {
+            return;
+        }
+
+        if (samplePE.getContainer() != null && samplePE.getContainer().equals(containerPE))
+        {
+            return;
+        }
+
         if (containerPE == null)
         {
             relationshipService.removeSampleFromContainer(session, IdentifierHelper
