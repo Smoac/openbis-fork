@@ -64,7 +64,7 @@ public interface ISampleImmutable
     /**
      * Return the contained sample objects. Only available for samples existing prior the
      * transaction start that were obtained from the server with their contained samples included.
-     * Call {@link #canReturnContainedSamples()} to see if these can be provided.
+     * Call {@link #canGetContainedSamples()} to see if these can be provided.
      * 
      * @throws IllegalStateException If the contained samples cannot be returned.
      */
