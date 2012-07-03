@@ -160,7 +160,8 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         addToolBarButton(createDeleteButton(new IDelegatedAction()
             {
                 @Override
-                @SuppressWarnings("unchecked")
+                @SuppressWarnings(
+                    { "unchecked", "rawtypes" })
                 public void execute()
                 {
                     final AsyncCallback<Void> callback =
