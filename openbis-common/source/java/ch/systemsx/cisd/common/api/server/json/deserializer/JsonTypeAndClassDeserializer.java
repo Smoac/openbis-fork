@@ -153,6 +153,7 @@ public class JsonTypeAndClassDeserializer extends AsPropertyTypeDeserializer
         }
     }
 
+    @SuppressWarnings("resource") // TokenBuffer.close() just marks the buffer as closed.
     private Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TokenBuffer tb,
             String type) throws IOException, JsonProcessingException
     {
