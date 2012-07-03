@@ -5,7 +5,7 @@
 	<classpathentry kind="lib" path="/libraries/knime/knime-core-util.jar" sourcepath="/libraries/knime/org.knime.core.util.source_2.5.1.0032007.jar"/>
 	<classpathentry kind="lib" path="/libraries/knime/knime-base.jar" sourcepath="/libraries/knime/org.knime.base.source_2.5.2.0032292.jar"/>
 	<classpathentry kind="lib" path="/libraries/knime/knime-core.jar" sourcepath="/libraries/knime/org.knime.core.source_2.5.2.0032283.jar"/>
-	<classpathentry kind="lib" path="/libraries/openbis-apis/query/openbis-query-api.jar"/>
+	<classpathentry kind="lib" path="/libraries/openbis-apis/query/openbis-query-api.jar" sourcepath="/libraries/openbis-apis/query/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
@@ -22,6 +22,5 @@
 	<classpathentry kind="lib" path="/libraries/knime/eclipse-equinox-common.jar"/>
 	<classpathentry kind="lib" path="/libraries/knime/eclipse-osgi.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jackson-old/jackson-core-asl.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
