@@ -49,9 +49,9 @@
 	<classpathentry kind="lib" path="/libraries/reflections/lib/xml-apis-1.0.b2.jar"/>
 	<classpathentry kind="lib" path="/libraries/reflections/reflections.jar"/>
 	<classpathentry kind="lib" path="/libraries/slf4j/slf4j.jar" sourcepath="/libraries/slf4j/src.jar"/>
-	<classpathentry kind="lib" path="/libraries/jackson/jackson-annotations.jar"/>
-	<classpathentry kind="lib" path="/libraries/jackson/jackson-core.jar"/>
-	<classpathentry kind="lib" path="/libraries/jackson/jackson-databind.jar"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-annotations.jar" sourcepath="/libraries/jackson/jackson-annotations-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-core.jar" sourcepath="/libraries/jackson/jackson-core-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jackson/jackson-databind.jar" sourcepath="/libraries/jackson/jackson-databind-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jsonrpc4j/jsonrpc4j.jar" sourcepath="/libraries/jsonrpc4j/jsonrpc4j-sources.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
