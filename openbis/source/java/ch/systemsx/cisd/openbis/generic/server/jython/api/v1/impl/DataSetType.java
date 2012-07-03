@@ -50,7 +50,7 @@ public class DataSetType extends DataSetTypeImmutable implements IDataSetType
     @Override
     public void setDataSetKind(String dataSetKind)
     {
-        DataSetKind.valueOf(dataSetKind);
+        getDataSetType().setDataSetKind(DataSetKind.valueOf(dataSetKind));
     }
 
     @Override
