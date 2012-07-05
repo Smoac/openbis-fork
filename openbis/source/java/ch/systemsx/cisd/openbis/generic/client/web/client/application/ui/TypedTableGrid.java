@@ -2489,15 +2489,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                     @Override
                     public void componentSelected(ButtonEvent be)
                     {
-                        manager.saveModifications(new IDelegatedAction()
-                            {
-
-                                @Override
-                                public void execute()
-                                {
-                                    refresh();
-                                }
-                            });
+                        manager.saveModifications();
                     }
                 }));
             add(new Button("Cancel", cancelIcon, new SelectionListener<ButtonEvent>()
