@@ -53,7 +53,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     private Space destinationSpace;
 
     @BeforeClass
-    public void createFixture()
+    public void createFixture() throws Exception
     {
         space = create(aSpace());
         sourceSpace = create(aSpace());
@@ -62,7 +62,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void dataSetCanBeUpdatedToAnotherExperiment()
+    public void dataSetCanBeUpdatedToAnotherExperiment() throws Exception
     {
         Project project = create(aProject().inSpace(space));
         Experiment sourceExperiment = create(anExperiment().inProject(project));
@@ -78,6 +78,7 @@ public class EntityRelationshipChangeTest extends BaseTest
 
     @Test
     public void registeringAnExperimentWithExistingSpaceLevelSampleAssociatesTheSampleWithTheExperiment()
+            throws Exception
     {
         Project project = create(aProject().inSpace(space));
         Sample sample = create(aSample().inSpace(space));
@@ -91,52 +92,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void updatingSampleToAnotherExperimentUpdatesTheExperimentOfAllDatasetsInSample()
-    {
-        Project project = create(aProject().inSpace(space));
-        Experiment sourceExperiment =
-                create(anExperiment().inProject(project).withCode("source_experiment"));
-        Experiment destinationExperiment =
-                create(anExperiment().inProject(project).withCode("destination_experiment"));
-        Sample sample = create(aSample().inExperiment(sourceExperiment));
-        ExternalData data = create(aDataSet().inSample(sample));
-        SampleUpdatesDTO updates =
-                create(anUpdateOf(serverSays(sample)).inExperiment(destinationExperiment));
-
-        commonServer.updateSample(session, updates);
-
-        assertThat(serverSays(sample), is(inExperiment(destinationExperiment)));
-        assertThat(serverSays(data), is(inExperiment(destinationExperiment)));
-    }
-
-    @Test
-    public void updatingSampleToHaveNoExperimentIsAllowedIfSampleDoesNotHaveDataSets()
-    {
-        Project project = create(aProject().inSpace(space));
-        Experiment experiment = create(anExperiment().inProject(project));
-        Sample sample = create(aSample().inExperiment(experiment));
-        SampleUpdatesDTO updates = create(anUpdateOf(sample).withoutExperiment());
-
-        commonServer.updateSample(session, updates);
-
-        assertThat(serverSays(sample).getExperiment(), is(nullValue()));
-    }
-
-    @Test(expectedExceptions =
-        { UserFailureException.class })
-    public void updatingSampleToHaveNoExperimentIsNotAllowedIfSampleHasDataSets()
-    {
-        Project project = create(aProject().inSpace(space));
-        Experiment experiment = create(anExperiment().inProject(project));
-        Sample sample = create(aSample().inExperiment(experiment));
-        create(aDataSet().inSample(sample));
-        SampleUpdatesDTO updates = create(anUpdateOf(serverSays(sample)).withoutExperiment());
-
-        commonServer.updateSample(session, updates);
-    }
-
-    @Test
-    public void experimentCanBeUpdatedToContainSpaceSamples()
+    public void experimentCanBeUpdatedToContainSpaceSamples() throws Exception
     {
         Project project = create(aProject().inSpace(space));
         Experiment experiment = create(anExperiment().inProject(project));
@@ -150,6 +106,7 @@ public class EntityRelationshipChangeTest extends BaseTest
 
     @Test
     public void sampleBecomesSpaceSampleIfExperimentUpdateRemovesItFromExperiment()
+            throws Exception
     {
         Project project = create(aProject().inSpace(space));
         Experiment experiment = create(anExperiment().inProject(project));
@@ -164,7 +121,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void experimentsCanBeUpdatedToAnotherProject()
+    public void experimentsCanBeUpdatedToAnotherProject() throws Exception
     {
         Project sourceProject = create(aProject().inSpace(space));
         Project destinationProject = create(aProject().inSpace(space));
@@ -179,6 +136,7 @@ public class EntityRelationshipChangeTest extends BaseTest
 
     @Test
     public void updatingExperimentToProjectInAnotherSpaceChangesTheSpaceOfSamplesInThatExperiment()
+            throws Exception
     {
         Project sourceProject = create(aProject().withCode("source").inSpace(sourceSpace));
         Project destinationProject =
@@ -195,7 +153,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void dataSetCanBeUpdatedToAnotherSample()
+    public void dataSetCanBeUpdatedToAnotherSample() throws Exception
     {
         Project project = create(aProject().inSpace(space));
         Experiment experiment = create(anExperiment().inProject(project));
@@ -211,6 +169,7 @@ public class EntityRelationshipChangeTest extends BaseTest
 
     @Test
     public void updatingProjectToAnotherSpaceChangesSpaceOfAllSamplesOfAllExperimentsInThatProject()
+            throws Exception
     {
         Project project = create(aProject().inSpace(sourceSpace));
         Experiment experiment1 = create(anExperiment().inProject(project));
@@ -227,7 +186,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void spaceLevelSampleCanBeUpdatedToAnotherSpace()
+    public void spaceLevelSampleCanBeUpdatedToAnotherSpace() throws Exception
     {
         Sample sample = create(aSample().inSpace(sourceSpace));
         SampleUpdatesDTO updates =
@@ -239,7 +198,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void spaceLevelSampleCanBeUpdatedToSharedSample()
+    public void spaceLevelSampleCanBeUpdatedToSharedSample() throws Exception
     {
         Sample sample = create(aSample().inSpace(space));
         SampleUpdatesDTO updates = create(anUpdateOf(sample).withoutSpace());
@@ -250,7 +209,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void sharedSampleCanBeUpdatedToSpaceLevelSample()
+    public void sharedSampleCanBeUpdatedToSpaceLevelSample() throws Exception
     {
         Sample sample = create(aSample());
         SampleUpdatesDTO updates = create(anUpdateOf(sample).inSpace(space));
@@ -261,7 +220,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void addParentToSample()
+    public void addParentToSample() throws Exception
     {
         Sample parentToBe = create(aSample().inSpace(space));
         Sample childToBe = create(aSample().inSpace(space));
@@ -273,7 +232,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void changeParentOfSample()
+    public void changeParentOfSample() throws Exception
     {
         Sample currentParent = create(aSample().inSpace(space));
         Sample child = create(aSample().inSpace(space).withParent(currentParent));
@@ -286,7 +245,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void removeParentOfSample()
+    public void removeParentOfSample() throws Exception
     {
         Sample parent1 = create(aSample().inSpace(space));
         Sample parent2 = create(aSample().inSpace(space));
@@ -300,7 +259,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void duplicateParents()
+    public void duplicateParents() throws Exception
     {
         Sample parent1 = create(aSample().inSpace(space));
         Sample parent2 = create(aSample().inSpace(space));
@@ -313,7 +272,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void addSampleToContainer()
+    public void addSampleToContainer() throws Exception
     {
         Sample container = create(aSample().inSpace(space));
         Sample componentCandidate = create(aSample().inSpace(space));
@@ -325,7 +284,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void removeSampleFromContainer()
+    public void removeSampleFromContainer() throws Exception
     {
         Sample container = create(aSample().inSpace(space));
         Sample component = create(aSample().inSpace(space).inContainer(container));
@@ -337,7 +296,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void sampleUpdateWithNewContainerWillChangeContanerOfSample()
+    public void sampleUpdateWithNewContainerWillChangeContanerOfSample() throws Exception
     {
         Sample container = create(aSample().inSpace(space));
         Sample component = create(aSample().inSpace(space).inContainer(container));
@@ -351,7 +310,7 @@ public class EntityRelationshipChangeTest extends BaseTest
 
     @Test(expectedExceptions =
         { UserFailureException.class })
-    public void sampleCannotBeUpdatedToBeComponentOfComponentSample()
+    public void sampleCannotBeUpdatedToBeComponentOfComponentSample() throws Exception
     {
         Sample container = create(aSample().inSpace(space));
         Sample component = create(aSample().inSpace(space).inContainer(container));
@@ -362,7 +321,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void addParentToDataSet()
+    public void addParentToDataSet() throws Exception
     {
         Project project = create(aProject().inSpace(space));
         Experiment experiment = create(anExperiment().inProject(project));
@@ -378,7 +337,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void changeParentOfDataSet()
+    public void changeParentOfDataSet() throws Exception
     {
         Project project = create(aProject().inSpace(space));
         Experiment experiment = create(anExperiment().inProject(project));
@@ -398,7 +357,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void removeParentOfDataSet()
+    public void removeParentOfDataSet() throws Exception
     {
         Project project = create(aProject().inSpace(space));
         Experiment experiment = create(anExperiment().inProject(project));
@@ -414,7 +373,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void addDataSetToContainerThroughUpdatingContainer()
+    public void addDataSetToContainerThroughUpdatingContainer() throws Exception
     {
         Project project = create(aProject().inSpace(space));
         Experiment experiment = create(anExperiment().inProject(project));
@@ -431,7 +390,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void addDataSetToContainerThroughUpdatingComponent()
+    public void addDataSetToContainerThroughUpdatingComponent() throws Exception
     {
         Project project = create(aProject().inSpace(space));
         Experiment experiment = create(anExperiment().inProject(project));
@@ -448,7 +407,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void removeDataSetFromContainer()
+    public void removeDataSetFromContainer() throws Exception
     {
         Project project = create(aProject().inSpace(space));
         Experiment experiment = create(anExperiment().inProject(project));
@@ -466,7 +425,7 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void dataSetUpdateWithNewContainerWillChangeContainerOfDataSet()
+    public void dataSetUpdateWithNewContainerWillChangeContainerOfDataSet() throws Exception
     {
         Project project = create(aProject().inSpace(space));
         Experiment experiment = create(anExperiment().inProject(project));

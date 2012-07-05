@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
-public class SampleUpdateBuilder extends Builder<SampleUpdatesDTO>
+public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
 {
     private TechId sampleId;
 
@@ -56,6 +56,7 @@ public class SampleUpdateBuilder extends Builder<SampleUpdatesDTO>
             IGenericServer genericServer, Sample sample)
     {
         super(commonServer, genericServer);
+        sample = refresh(sample);
         this.sampleId = new TechId(sample.getId());
         this.sampleCode = sample.getCode();
         if (sample.getExperiment() != null)
@@ -68,14 +69,14 @@ public class SampleUpdateBuilder extends Builder<SampleUpdatesDTO>
         this.container = null;
     }
 
-    public SampleUpdateBuilder inExperiment(Experiment experiment)
+    public SampleUpdateBuilder toExperiment(Experiment experiment)
     {
         inSpace(experiment.getProject().getSpace());
         this.experimentId = new ExperimentIdentifier(experiment);
         return this;
     }
 
-    public SampleUpdateBuilder withoutExperiment()
+    public SampleUpdateBuilder removingExperiment()
     {
         this.experimentId = null;
         return this;
@@ -138,4 +139,11 @@ public class SampleUpdateBuilder extends Builder<SampleUpdatesDTO>
                 this.sampleIdentifier, this.container != null ? this.container.getIdentifier()
                         : null, parentCodes);
     }
+
+    @Override
+    public void perform()
+    {
+        commonServer.updateSample(this.sessionToken, this.create());
+    }
+
 }

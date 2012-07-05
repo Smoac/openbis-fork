@@ -85,7 +85,7 @@ public class ExperimentBuilder extends Builder<Experiment>
     }
 
     @Override
-    public Experiment create()
+    public Experiment create() throws Exception
     {
 
         String experimentTypeCode = UUID.randomUUID().toString();
@@ -111,6 +111,7 @@ public class ExperimentBuilder extends Builder<Experiment>
         details.setSamples(this.samples);
         genericServer.registerExperiment(this.session, details,
                 new ArrayList<NewAttachment>());
+
         return getExperiment(experimentId);
     }
 

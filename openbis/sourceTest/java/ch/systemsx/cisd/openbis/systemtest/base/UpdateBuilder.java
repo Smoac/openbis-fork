@@ -17,39 +17,27 @@
 package ch.systemsx.cisd.openbis.systemtest.base;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
  * @author anttil
  */
-public abstract class Builder<T>
+public abstract class UpdateBuilder<T> extends Builder<T>
 {
-    protected final ICommonServerForInternalUse commonServer;
 
-    protected final IGenericServer genericServer;
+    protected String sessionToken;
 
-    protected final String systemSession;
-
-    protected String knownAs = "PEKKA";
-
-    public Builder(ICommonServerForInternalUse commonServer, IGenericServer genericServer)
+    public UpdateBuilder(ICommonServerForInternalUse commonServer, IGenericServer genericServer)
     {
-        this.commonServer = commonServer;
-        this.genericServer = genericServer;
-        this.systemSession = commonServer.tryToAuthenticateAsSystem().getSessionToken();
+        super(commonServer, genericServer);
+        this.sessionToken = this.systemSession;
     }
 
-    public abstract T create() throws Exception;
+    public abstract void perform();
 
-    public Sample refresh(Sample sample)
+    public final UpdateBuilder<T> as(String sessionToken)
     {
-        return BaseTest.refresh(sample, this.commonServer, this.systemSession);
-    }
-
-    public final Builder<T> knownAs(String name)
-    {
-        this.knownAs = name;
+        this.sessionToken = sessionToken;
         return this;
     }
 }

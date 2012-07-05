@@ -8,6 +8,7 @@
   <test name="system-cleandb-basic" annotations="JDK">
     <classes>
       <class name="ch.systemsx.cisd.openbis.systemtest.EntityRelationshipChangeTest" />
+      <class name="ch.systemsx.cisd.openbis.systemtest.UpdateExperimentOfSampleTest" />
     </classes>
   </test>
 

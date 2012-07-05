@@ -121,7 +121,13 @@ public class ExternalDataBuilder extends Builder<ExternalData>
     {
         DataSetType dataSetType = new DataSetType();
         dataSetType.setCode(UUID.randomUUID().toString());
-        dataSetType.setDataSetKind(DataSetKind.EXTERNAL);
+        if (this.container)
+        {
+            dataSetType.setDataSetKind(DataSetKind.CONTAINER);
+        } else
+        {
+            dataSetType.setDataSetKind(DataSetKind.EXTERNAL);
+        }
         commonServer.registerDataSetType(systemSession, dataSetType);
 
         NewExternalData data;

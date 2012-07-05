@@ -36,7 +36,7 @@ public class InExperimentMatcher extends TypeSafeMatcher<Object>
     @Override
     public void describeTo(Description description)
     {
-        description.appendText("An entity in experiment " + experiment.getCode());
+        description.appendText("An entity in experiment " + experiment);
     }
 
     @Override
@@ -50,5 +50,4 @@ public class InExperimentMatcher extends TypeSafeMatcher<Object>
             return ((DataSet) actual).getExperiment().getId() == experiment.getId();
         }
     }
-
 }

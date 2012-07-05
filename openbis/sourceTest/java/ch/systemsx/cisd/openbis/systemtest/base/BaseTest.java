@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -208,9 +209,14 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         this.sessionManager = sessionManager;
     }
 
-    protected static <T> T create(Builder<T> builder)
+    protected static <T> T create(Builder<T> builder) throws Exception
     {
         return builder.create();
+    }
+
+    protected void perform(UpdateBuilder<?> builder)
+    {
+        builder.perform();
     }
 
     protected SampleBuilder aSample()
@@ -308,8 +314,13 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
 
     protected Sample serverSays(Sample sample)
     {
+        return refresh(sample, commonServer, systemSessionToken);
+    }
+
+    public static Sample refresh(Sample sample, ICommonServer commonServer, String sessionToken)
+    {
         SampleParentWithDerived result =
-                commonServer.getSampleInfo(systemSessionToken, new TechId(sample.getId()));
+                commonServer.getSampleInfo(sessionToken, new TechId(sample.getId()));
         return result.getParent();
     }
 
