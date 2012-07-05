@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
         IColumnFilterWidget<T>
 {
-    private static final int FILTER_APPLICATION_TIMEOUT_MS = 500;
+    static final int FILTER_APPLICATION_TIMEOUT_MS = 500;
 
     private final static String MODEL_DISPLAY_KEY = "unescaped_value";
 
@@ -158,7 +158,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
             model.set(MODEL_DISPLAY_KEY, displayValue);
             displayValue = StringEscapeUtils.escapeHtml(displayValue);
             model.set(MODEL_ESCAPED_DISPLAY_KEY, displayValue);
-            // WORKAROUND to have consistent value displayed in combo box field, list & tooltip 
+            // WORKAROUND to have consistent value displayed in combo box field, list & tooltip
             // (no idea why tooltip has to be escaped twice)
             model.set(ModelDataPropertyNames.TOOLTIP, StringEscapeUtils.escapeHtml(displayValue));
             model.set(MODEL_VALUE_KEY, value);

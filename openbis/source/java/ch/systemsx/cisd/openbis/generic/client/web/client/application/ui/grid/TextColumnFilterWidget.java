@@ -52,7 +52,7 @@ public class TextColumnFilterWidget<T/* entity */> extends StoreFilterField<Mode
         String label = filteredField.getHeader();
         setEmptyText(label);
         setToolTip(label);
-        setValidationDelay(1000);
+        setValidationDelay(ListColumnFilterWidget.FILTER_APPLICATION_TIMEOUT_MS);
     }
 
     @Override
