@@ -186,40 +186,6 @@ public class EntityRelationshipChangeTest extends BaseTest
     }
 
     @Test
-    public void spaceLevelSampleCanBeUpdatedToAnotherSpace() throws Exception
-    {
-        Sample sample = create(aSample().inSpace(sourceSpace));
-        SampleUpdatesDTO updates =
-                create(anUpdateOf(sample).inSpace(destinationSpace));
-
-        commonServer.updateSample(session, updates);
-
-        assertThat(serverSays(sample), is(inSpace(destinationSpace)));
-    }
-
-    @Test
-    public void spaceLevelSampleCanBeUpdatedToSharedSample() throws Exception
-    {
-        Sample sample = create(aSample().inSpace(space));
-        SampleUpdatesDTO updates = create(anUpdateOf(sample).withoutSpace());
-
-        commonServer.updateSample(session, updates);
-
-        assertThat(serverSays(sample).getSpace(), is(nullValue()));
-    }
-
-    @Test
-    public void sharedSampleCanBeUpdatedToSpaceLevelSample() throws Exception
-    {
-        Sample sample = create(aSample());
-        SampleUpdatesDTO updates = create(anUpdateOf(sample).inSpace(space));
-
-        commonServer.updateSample(session, updates);
-
-        assertThat(serverSays(sample), is(inSpace(space)));
-    }
-
-    @Test
     public void addParentToSample() throws Exception
     {
         Sample parentToBe = create(aSample().inSpace(space));

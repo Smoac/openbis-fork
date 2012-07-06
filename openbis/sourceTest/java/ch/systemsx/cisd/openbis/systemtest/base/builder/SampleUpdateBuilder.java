@@ -71,7 +71,7 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
 
     public SampleUpdateBuilder toExperiment(Experiment experiment)
     {
-        inSpace(experiment.getProject().getSpace());
+        toSpace(experiment.getProject().getSpace());
         this.experimentId = new ExperimentIdentifier(experiment);
         return this;
     }
@@ -82,7 +82,7 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
         return this;
     }
 
-    public SampleUpdateBuilder withoutSpace()
+    public SampleUpdateBuilder removingSpace()
     {
         this.experimentId = null;
         this.sampleIdentifier =
@@ -90,7 +90,7 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
         return this;
     }
 
-    public SampleUpdateBuilder inSpace(Space space)
+    public SampleUpdateBuilder toSpace(Space space)
     {
         this.experimentId = null;
         this.sampleIdentifier =

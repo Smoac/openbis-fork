@@ -8,7 +8,10 @@
   <test name="system-cleandb-basic" annotations="JDK">
     <classes>
       <class name="ch.systemsx.cisd.openbis.systemtest.EntityRelationshipChangeTest" />
-      <class name="ch.systemsx.cisd.openbis.systemtest.UpdateExperimentOfSampleTest" />
+      <class name="ch.systemsx.cisd.openbis.systemtest.AssignSampleToExperimentTest" />
+      <class name="ch.systemsx.cisd.openbis.systemtest.UnassignSampleFromExperimentTest" />
+      <class name="ch.systemsx.cisd.openbis.systemtest.AssignSampleToSpaceTest" />
+      <class name="ch.systemsx.cisd.openbis.systemtest.UnassignSampleFromSpaceTest" />
     </classes>
   </test>
 
