@@ -71,8 +71,6 @@ public class DeletionTestCase extends SystemTestCase
 
     private static final String REASON = "REASON";
 
-    protected IETLLIMSService etlService;
-
     protected IDAOFactory daoFactory;
 
     protected IDeletionDAO deletionDAO;
