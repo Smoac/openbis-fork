@@ -12,6 +12,7 @@
 	<script type="text/javascript" src="d3.time.js"></script>
 	<script type="text/javascript" src="jquery.js"></script>
 	<script type="text/javascript" src="openbis.js"></script>
+	<script type="text/javascript" src="openbis-login.js"></script>
 	<!-- To speed development, cache the requests -->
 	<!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
 <script>
@@ -153,38 +154,7 @@ function enterApp(data)
 
 
 $(document).ready(function() {
-	$('#main').hide();
-	
-	var username = $("#username").value;
-	if(username == null || username.length==0) {
-		$("#username").focus();
-	} else {
-		$("#login-button").focus();
-	}
-	
-	$('#logout-button').click(function() { 
-		openbisServer.logout(function(data) { 
-			$("#login-form-div").show();
-			$("#main").hide();
-			$("#username").focus();
-		});
-	});
-	
-	$('#login-form').submit(function() {
-		 openbisServer.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { enterApp(data) })
-	});
-	
-	openbisServer.ifRestoredSessionActive(function(data) { enterApp(data) });
-
-		// Make the ENTER key the default button
-	$("login-form input").keypress(function (e) {
-		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
-			$('button[type=submit].default').click();
-			return false;
-		} else {
-			return true;
-		}
-	});
+  configureLoginPage(openbisServer, enterApp);
 });
 
 </script>
