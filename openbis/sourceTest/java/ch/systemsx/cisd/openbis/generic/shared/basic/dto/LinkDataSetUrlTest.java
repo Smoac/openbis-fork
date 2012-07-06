@@ -30,7 +30,7 @@ public class LinkDataSetUrlTest
     public void testToStringWithCodeThatDoesntRequireEncoding()
     {
         ExternalDataManagementSystem system = new ExternalDataManagementSystem();
-        system.setUrlTemplate("http://testdomain.com/?q=$code$");
+        system.setUrlTemplate("http://testdomain.com/?q=${code}");
 
         LinkDataSet dataset = new LinkDataSet();
         dataset.setExternalCode("TEST_EXTERNAL_CODE");
@@ -44,7 +44,7 @@ public class LinkDataSetUrlTest
     public void testToStringWithCodeThatDoesRequireEncoding()
     {
         ExternalDataManagementSystem system = new ExternalDataManagementSystem();
-        system.setUrlTemplate("http://testdomain.com/?q=$code$");
+        system.setUrlTemplate("http://testdomain.com/?q=${code}");
 
         LinkDataSet dataset = new LinkDataSet();
         dataset.setExternalCode("TEST EXTERNAL CODE");
@@ -71,7 +71,7 @@ public class LinkDataSetUrlTest
     public void testToStringWithTemplateUrlWithManyCodePatterns()
     {
         ExternalDataManagementSystem system = new ExternalDataManagementSystem();
-        system.setUrlTemplate("http://testdomain.com/?q1=$code$&q2=$code$");
+        system.setUrlTemplate("http://testdomain.com/?q1=${code}&q2=${code}");
 
         LinkDataSet dataset = new LinkDataSet();
         dataset.setExternalCode("TEST_EXTERNAL_CODE");
@@ -110,7 +110,7 @@ public class LinkDataSetUrlTest
     public void testToStringWithExternalCodeNull()
     {
         ExternalDataManagementSystem system = new ExternalDataManagementSystem();
-        system.setUrlTemplate("http://testdomain.com/?q=$code$");
+        system.setUrlTemplate("http://testdomain.com/?q=${code}");
 
         LinkDataSet dataset = new LinkDataSet();
         dataset.setExternalDataManagementSystem(system);
