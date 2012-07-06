@@ -57,8 +57,7 @@ public interface ISampleTable
      * checks the data before the update can be started. For instance, it verifies versions of
      * objects for Optimistic Locking.
      */
-    public void checkBeforeUpdate(List<? extends SampleUpdatesDTO> updates)
-            throws UserFailureException;
+    public void checkBeforeUpdate(List<SampleUpdatesDTO> updates) throws UserFailureException;
 
     /**
      * Prepares given samples for update and stores them in this table.

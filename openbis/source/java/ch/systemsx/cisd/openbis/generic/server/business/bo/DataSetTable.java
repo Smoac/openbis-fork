@@ -44,7 +44,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionDisallowedTypesException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionUnknownLocationsException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -198,15 +197,11 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
 
     private List<DataPE> dataSets;
 
-    private IDatasetLister dataSetLister;
-
     public DataSetTable(final IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
-            final Session session, IRelationshipService relationshipService,
-            IDatasetLister dataSetLister)
+            final Session session, IRelationshipService relationshipService)
     {
         super(daoFactory, session, relationshipService);
         this.dssFactory = dssFactory;
-        this.dataSetLister = dataSetLister;
     }
 
     //
@@ -902,13 +897,24 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             throw new IllegalArgumentException("Data set updates list cannot be null.");
         }
 
-        List<String> codes = Code.extractCodes(updates);
+        loadByDataSetCodes(Code.extractCodes(updates), true, true);
 
-        Map<String, Date> versionsMap = dataSetLister.getCodeToVersionMap(codes);
+        Map<String, Date> versionsMap = new HashMap<String, Date>();
+        for (DataPE dataSet : dataSets)
+        {
+            versionsMap.put(dataSet.getCode(), dataSet.getModificationDate());
+        }
 
         for (DataSetBatchUpdatesDTO update : updates)
         {
+            if (update.getCode() == null)
+            {
+                throw new UserFailureException(
+                        "Data set doesn't have a specified code and therefore cannot be updated.");
+            }
+
             Date version = versionsMap.get(update.getCode());
+
             if (version == null)
             {
                 throw new UserFailureException("Data set with code " + update.getCode()

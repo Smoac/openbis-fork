@@ -128,7 +128,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public final ISampleTable createSampleTable(final Session session)
     {
         return new SampleTable(getDaoFactory(), session, getRelationshipService(),
-                getEntityOperationChecker(), createSampleLister(session));
+                getEntityOperationChecker());
     }
 
     @Override
@@ -165,8 +165,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public final IDataSetTable createDataSetTable(final Session session)
     {
-        return new DataSetTable(getDaoFactory(), getDSSFactory(), session,
-                getRelationshipService(), createDatasetLister(session));
+        return new DataSetTable(getDaoFactory(), getDSSFactory(), session, getRelationshipService());
     }
 
     @Override

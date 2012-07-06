@@ -23,7 +23,6 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -944,27 +943,6 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
 
         return result;
-    }
-
-    @Override
-    public Map<String, Date> getCodeToVersionMap(Collection<String> dataSetCodes)
-    {
-        if (dataSetCodes == null || dataSetCodes.isEmpty())
-        {
-            return Collections.emptyMap();
-        }
-
-        DatasetVersionRecord[] records =
-                query.getDatasetsVersionsForCodes(dataSetCodes.toArray(new String[dataSetCodes
-                        .size()]));
-        Map<String, Date> map = new HashMap<String, Date>();
-
-        for (DatasetVersionRecord record : records)
-        {
-            map.put(record.code, record.modification_timestamp);
-        }
-
-        return map;
     }
 
 }

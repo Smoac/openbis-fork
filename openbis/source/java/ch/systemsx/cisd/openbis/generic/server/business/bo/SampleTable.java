@@ -29,7 +29,6 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IEntityOperationChecker;
@@ -68,18 +67,14 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 {
     private List<SamplePE> samples;
 
-    private ISampleLister sampleLister;
-
     private boolean dataChanged;
 
     private boolean businessRulesChecked;
 
     public SampleTable(final IDAOFactory daoFactory, final Session session,
-            IRelationshipService relationshipService,
-            IEntityOperationChecker entityOperationChecker, ISampleLister sampleLister)
+            IRelationshipService relationshipService, IEntityOperationChecker entityOperationChecker)
     {
         super(daoFactory, session, relationshipService, entityOperationChecker);
-        this.sampleLister = sampleLister;
     }
 
     @Override
@@ -444,15 +439,18 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     }
 
     @Override
-    public void checkBeforeUpdate(List<? extends SampleUpdatesDTO> updates)
-            throws UserFailureException
+    public void checkBeforeUpdate(List<SampleUpdatesDTO> updates) throws UserFailureException
     {
         if (updates == null)
         {
             throw new IllegalArgumentException("Sample updates list cannot be null.");
         }
 
-        List<Long> ids = new ArrayList<Long>(updates.size());
+        Map<Long, Date> versionsMap = new HashMap<Long, Date>();
+        for (SamplePE sample : loadSamplesByTechId(updates))
+        {
+            versionsMap.put(sample.getId(), sample.getModificationDate());
+        }
 
         for (SampleUpdatesDTO update : updates)
         {
@@ -462,14 +460,9 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                         + update.getSampleIdentifier()
                         + " doesn't have a specified id and therefore cannot be updated.");
             }
-            ids.add(update.getSampleIdOrNull().getId());
-        }
 
-        Map<Long, Date> versionsMap = sampleLister.getIdToVersionMap(ids);
-
-        for (SampleUpdatesDTO update : updates)
-        {
             Date version = versionsMap.get(update.getSampleIdOrNull().getId());
+
             if (version == null)
             {
                 throw new UserFailureException("Sample with identifier "

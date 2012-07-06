@@ -54,7 +54,9 @@ import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSe
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.DataSetBatchUpdate;
+import ch.systemsx.cisd.openbis.generic.server.batch.DataSetCheckBeforeBatchUpdate;
 import ch.systemsx.cisd.openbis.generic.server.batch.SampleBatchRegistration;
+import ch.systemsx.cisd.openbis.generic.server.batch.SampleCheckBeforeUpdate;
 import ch.systemsx.cisd.openbis.generic.server.batch.SampleUpdate;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -1662,9 +1664,14 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         assertSampleUpdatesAllowed(session, sampleUpdates);
         progress.update("authorizingSampleUpdates", sampleUpdateCount, sampleUpdateCount);
         final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
-        sampleTable.checkBeforeUpdate(sampleUpdates);
+
+        BatchOperationExecutor.executeInBatches(new SampleCheckBeforeUpdate(sampleTable,
+                sampleUpdates), getBatchSize(operationDetails), progress,
+                "checkSamplesBeforeUpdate");
+
         BatchOperationExecutor.executeInBatches(new SampleUpdate(sampleTable, sampleUpdates),
                 getBatchSize(operationDetails), progress, "updateSamples");
+
         return sampleUpdateCount;
     }
 
@@ -1751,7 +1758,11 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         assertDataSetUpdateAllowed(session, dataSetUpdates);
         progress.update("authorizingDataSetUpdates", dataSetUpdatesCount, dataSetUpdatesCount);
         final IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
-        dataSetTable.checkBeforeUpdate(dataSetUpdates);
+
+        BatchOperationExecutor.executeInBatches(new DataSetCheckBeforeBatchUpdate(dataSetTable,
+                dataSetUpdates), getBatchSize(operationDetails), progress,
+                "checkDataSetsBeforeUpdate");
+
         BatchOperationExecutor.executeInBatches(
                 new DataSetBatchUpdate(dataSetTable, dataSetUpdates),
                 getBatchSize(operationDetails), progress, "updateDataSets");
