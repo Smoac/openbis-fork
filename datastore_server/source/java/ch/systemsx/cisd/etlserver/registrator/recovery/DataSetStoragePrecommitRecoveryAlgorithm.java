@@ -68,7 +68,7 @@ public class DataSetStoragePrecommitRecoveryAlgorithm<T extends DataSetInformati
         this.recoveryAlgorithm =
                 new DataSetStorageRecoveryAlgorithm<T>(dataSetInformation, dataStoreStrategyKey,
                         incomingDataSetFile, stagingDirectory, preCommitDirectory, dataStoreCode,
-                        dataSetStoragePaths, DataSetKind.EXTERNAL);
+                        dataSetStoragePaths, DataSetKind.PHYSICAL);
         this.transaction = transaction;
         this.markerFile = markerFile;
     }

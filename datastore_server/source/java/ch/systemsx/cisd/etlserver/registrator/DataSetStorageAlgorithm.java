@@ -837,7 +837,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
      */
     public DataSetKind getDataSetKind()
     {
-        return DataSetKind.EXTERNAL;
+        return DataSetKind.PHYSICAL;
     }
 
 }

@@ -273,7 +273,7 @@ public class UploadingCommandTest extends AssertJUnit
         externalData.setDerived(true); // measured == (derived == false)
         DataSetTypePE dataSetTypePE = new DataSetTypePE();
         dataSetTypePE.setCode("D");
-        dataSetTypePE.setDataSetKind(DataSetKind.EXTERNAL.name());
+        dataSetTypePE.setDataSetKind(DataSetKind.PHYSICAL.name());
         externalData.setDataSetType(dataSetTypePE);
         externalData.setExperiment(createExperiment());
         // TODO 2009-09-15, Piotr Buczek: write a test with no parents but with sample connection

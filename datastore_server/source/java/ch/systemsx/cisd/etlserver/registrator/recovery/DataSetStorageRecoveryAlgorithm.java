@@ -138,7 +138,7 @@ public class DataSetStorageRecoveryAlgorithm<T extends DataSetInformation> imple
             case LINK:
                 return new LinkDataSetStorageAlgorithm<T>(dataStoreStrategy, storageProcessor,
                         fileOperations, mailClient, this);
-            case EXTERNAL:
+            case PHYSICAL:
                 return algorithm.createExternalDataSetStorageAlgorithm(dataStoreStrategy,
                         storageProcessor, fileOperations, mailClient);
             default:

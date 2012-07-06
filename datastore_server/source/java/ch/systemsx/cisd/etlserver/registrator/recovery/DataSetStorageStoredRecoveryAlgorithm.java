@@ -48,7 +48,7 @@ public class DataSetStorageStoredRecoveryAlgorithm<T extends DataSetInformation>
         recoveryAlgorithm =
                 new DataSetStorageRecoveryAlgorithm<T>(dataSetInformation, dataStoreStrategyKey,
                         incomingDataSetFile, stagingDirectory, preCommitDirectory, dataStoreCode,
-                        dataSetStoragePaths, DataSetKind.EXTERNAL);
+                        dataSetStoragePaths, DataSetKind.PHYSICAL);
     }
 
     public DataSetStorageStoredRecoveryAlgorithm(T dataSetInformation,
