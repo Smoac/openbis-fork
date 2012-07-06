@@ -507,7 +507,7 @@ public final class DataSetTableTest extends AbstractBOTest
         experiment.setProject(project);
         data.setExperiment(experiment);
         DataSetTypePE type = new DataSetTypePE();
-        type.setDataSetKind(DataSetKind.EXTERNAL.name());
+        type.setDataSetKind(DataSetKind.PHYSICAL.name());
         data.setDataSetType(type);
         FileFormatTypePE fileFormatType = new FileFormatTypePE();
         fileFormatType.setCode("fileFormat");

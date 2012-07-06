@@ -21,5 +21,5 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  */
 public enum DataSetKind
 {
-    EXTERNAL, CONTAINER, LINK;
+    PHYSICAL, CONTAINER, LINK;
 }

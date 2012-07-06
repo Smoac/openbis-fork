@@ -379,7 +379,7 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
 
     public DataSetKind getDataSetKind()
     {
-        return DataSetKind.EXTERNAL;
+        return DataSetKind.PHYSICAL;
     }
 
     // 'transient'

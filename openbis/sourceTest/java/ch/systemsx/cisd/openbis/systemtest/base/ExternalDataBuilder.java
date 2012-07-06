@@ -126,7 +126,7 @@ public class ExternalDataBuilder extends Builder<ExternalData>
             dataSetType.setDataSetKind(DataSetKind.CONTAINER);
         } else
         {
-            dataSetType.setDataSetKind(DataSetKind.EXTERNAL);
+            dataSetType.setDataSetKind(DataSetKind.PHYSICAL);
         }
         commonServer.registerDataSetType(systemSession, dataSetType);
 

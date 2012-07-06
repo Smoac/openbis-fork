@@ -43,7 +43,7 @@ public class DataSetType extends DataSetTypeImmutable implements IDataSetType
             getDataSetType().setDataSetKind(DataSetKind.CONTAINER);
         } else
         {
-            getDataSetType().setDataSetKind(DataSetKind.EXTERNAL);
+            getDataSetType().setDataSetKind(DataSetKind.PHYSICAL);
         }
     }
 

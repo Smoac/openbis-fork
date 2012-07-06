@@ -283,7 +283,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         externalData.setDataProducerCode(newData.getDataProducerCode());
         externalData.setProductionDate(newData.getProductionDate());
         externalData.setCode(newData.getCode());
-        externalData.setDataSetType(getDataSetType(dataSetType, DataSetKind.EXTERNAL));
+        externalData.setDataSetType(getDataSetType(dataSetType, DataSetKind.PHYSICAL));
         externalData.setFileFormatType(getFileFomatType(fileFormatType));
         externalData.setComplete(newData.getComplete());
         externalData.setShareId(newData.getShareId());

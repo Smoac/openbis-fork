@@ -65,7 +65,7 @@ public class TranslatorTest extends AssertJUnit
     {
         edms = new ExternalDataManagementSystem();
         edms.setCode("EDMS1");
-        edms.setUrlTemplate("http://www.$code$.ch");
+        edms.setUrlTemplate("http://www.${code}.ch");
 
         experiment =
                 new ExperimentBuilder().id(1).permID("e-1").identifier("/S/P/E1").type("my-type")

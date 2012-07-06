@@ -63,6 +63,12 @@ public class DataSetTypeImmutable implements IDataSetTypeImmutable
     }
 
     @Override
+    public boolean isLinkType()
+    {
+        return DataSetKind.LINK == getDataSetType().getDataSetKind();
+    }
+
+    @Override
     public String getDataSetKind()
     {
         DataSetKind kind = getDataSetType().getDataSetKind();
