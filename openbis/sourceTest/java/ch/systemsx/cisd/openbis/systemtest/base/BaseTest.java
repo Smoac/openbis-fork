@@ -57,6 +57,23 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.Builder;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.DataSetUpdateBuilder;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.ExperimentBuilder;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.ExperimentUpdateBuilder;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.ExternalDataBuilder;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.ProjectBuilder;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.ProjectUpdateBuilder;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.SampleBuilder;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.SampleUpdateBuilder;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.SessionBuilder;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.SpaceBuilder;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.UpdateBuilder;
+import ch.systemsx.cisd.openbis.systemtest.base.matcher.CollectionContainsExactlyMatcher;
+import ch.systemsx.cisd.openbis.systemtest.base.matcher.InExperimentMatcher;
+import ch.systemsx.cisd.openbis.systemtest.base.matcher.InProjectMatcher;
+import ch.systemsx.cisd.openbis.systemtest.base.matcher.InSampleMatcher;
+import ch.systemsx.cisd.openbis.systemtest.base.matcher.InSpaceMatcher;
 
 /**
  * @author anttil

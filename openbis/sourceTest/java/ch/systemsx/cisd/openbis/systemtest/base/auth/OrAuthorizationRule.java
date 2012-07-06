@@ -14,30 +14,30 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.systemtest.base;
+package ch.systemsx.cisd.openbis.systemtest.base.auth;
 
-import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
-import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
+import java.util.Map;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
  * @author anttil
  */
-public abstract class UpdateBuilder<T> extends Builder<T>
+public class OrAuthorizationRule implements AuthorizationRule
 {
+    private final AuthorizationRule rule1;
 
-    protected String sessionToken;
+    private final AuthorizationRule rule2;
 
-    public UpdateBuilder(ICommonServerForInternalUse commonServer, IGenericServer genericServer)
+    public OrAuthorizationRule(AuthorizationRule rule1, AuthorizationRule rule2)
     {
-        super(commonServer, genericServer);
-        this.sessionToken = this.systemSession;
+        this.rule1 = rule1;
+        this.rule2 = rule2;
     }
 
-    public abstract void perform();
-
-    public final UpdateBuilder<T> as(String sessionToken)
+    @Override
+    public boolean accepts(Map<GuardedDomain, RoleWithHierarchy> roles)
     {
-        this.sessionToken = sessionToken;
-        return this;
+        return this.rule1.accepts(roles) || this.rule2.accepts(roles);
     }
 }

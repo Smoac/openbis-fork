@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.systemtest.base;
+package ch.systemsx.cisd.openbis.systemtest.base.matcher;
 
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;

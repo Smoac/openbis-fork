@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.systemtest.base;
+package ch.systemsx.cisd.openbis.systemtest.base.matcher;
 
 import java.util.Collection;
 import java.util.HashSet;
 
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
+
+import ch.systemsx.cisd.openbis.systemtest.base.EqualityChecker;
 
 public class CollectionContainsExactlyMatcher<T> extends TypeSafeMatcher<Collection<T>>
 {

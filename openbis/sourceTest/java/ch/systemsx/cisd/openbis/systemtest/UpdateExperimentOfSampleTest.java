@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
+import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.and;
+import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
+import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.or;
+import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,10 +34,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
-import ch.systemsx.cisd.openbis.systemtest.base.RolePermutator;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
 
 /**
  * @author anttil
@@ -149,20 +156,51 @@ public class UpdateExperimentOfSampleTest extends BaseTest
         sample = create(aSample().inExperiment(sourceExperiment));
     }
 
+    public static final GuardedDomain space1;
+
+    public static final GuardedDomain space2;
+
+    public static final GuardedDomain instance;
+
+    public static final AuthorizationRule assignSampleToExperimentRule;
+
+    static
+    {
+        space1 = new GuardedDomain("space1", RoleLevel.SPACE);
+        space2 = new GuardedDomain("space2", RoleLevel.SPACE);
+        instance = new GuardedDomain("instance", RoleLevel.INSTANCE);
+
+        // (space1 power and space2 power) or
+        // (space1 user and space2 user and instance1 etl_server) or
+        // instance_admin
+
+        AuthorizationRule powerUsers =
+                and(rule(space1, RoleWithHierarchy.SPACE_POWER_USER),
+                        rule(space2, RoleWithHierarchy.SPACE_POWER_USER));
+
+        AuthorizationRule users =
+                and(rule(space1, RoleWithHierarchy.SPACE_USER),
+                        rule(space2, RoleWithHierarchy.SPACE_USER), rule(instance,
+                                RoleWithHierarchy.INSTANCE_ETL_SERVER));
+
+        AuthorizationRule admins = rule(instance, RoleWithHierarchy.INSTANCE_ADMIN);
+
+        assignSampleToExperimentRule = or(powerUsers, users, admins);
+    }
+
     @DataProvider(name = "rolesAllowedToUpdateExperimentOfSample")
     public static Object[][] rolesAllowedToAssignSampleToExperiment()
     {
-        RolePermutator rp =
-                new RolePermutator(2, RoleWithHierarchy.SPACE_POWER_USER);
-        return rp.getAcceptedPermutations();
+        return RolePermutator.getAcceptedPermutations(assignSampleToExperimentRule, space1, space2,
+                instance);
     }
 
     @DataProvider(name = "rolesNotAllowedToUpdateExperimentOfSample")
     public static Object[][] rolesNotAllowedToAssignSampleToExperiment()
     {
-        RolePermutator rp =
-                new RolePermutator(2, RoleWithHierarchy.SPACE_POWER_USER);
-        return rp.getRejectedPermutations();
+        return RolePermutator.getAcceptedPermutations(not(assignSampleToExperimentRule), space1,
+                space2, instance);
+
     }
 
 }
