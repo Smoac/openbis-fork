@@ -189,7 +189,7 @@ public class DataSetListerTest extends AbstractDAOTest
         dms1.setCode("DMS_1");
         dms1.setLabel("Test EDMS");
         dms1.setOpenBIS(false);
-        dms1.setUrlTemplate("http://example.edms.pl/code=$code$");
+        dms1.setUrlTemplate("http://example.edms.pl/code=${code}");
         dms1.setDatabaseInstance(db);
 
         ExternalDataManagementSystem dms2 = new ExternalDataManagementSystem();
@@ -197,7 +197,7 @@ public class DataSetListerTest extends AbstractDAOTest
         dms2.setCode("DMS_2");
         dms2.setLabel("Test External openBIS instance");
         dms2.setOpenBIS(true);
-        dms2.setUrlTemplate("http://www.openbis.ch/perm_id=$code$");
+        dms2.setUrlTemplate("http://www.openbis.ch/perm_id=${code}");
         dms2.setDatabaseInstance(db);
 
         assertEqualsToExternalDMS(dms1, results.get(0).getExternalDataManagementSystem());
