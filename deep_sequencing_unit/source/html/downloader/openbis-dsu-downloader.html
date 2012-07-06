@@ -775,12 +775,12 @@ $(document).ready(function() {
 
 // set the focus 
 function onPageLoad(){
-          if(username.value.length==0) {
-            $("#username").focus();
-          }
-          else {
-            $("#login-button").focus();
-          }
+	var username = $("#username").value;
+	if(username == null || username.length==0) {
+		$("#username").focus();
+	} else {
+		$("#login-button").focus();
+	}
 }
 
 function log(msg){
