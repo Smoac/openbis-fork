@@ -443,10 +443,10 @@ function enterApp(data)
 $(document).ready(function() {
 	$('#main').hide();
 	
-	if(username.value.length==0) {
+	var username = $("#username").value;
+	if(username == null || username.length==0) {
 		$("#username").focus();
-	}
-	else {
+	} else {
 		$("#login-button").focus();
 	}
 	
