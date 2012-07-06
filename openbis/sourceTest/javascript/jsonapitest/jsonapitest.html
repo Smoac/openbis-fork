@@ -16,11 +16,12 @@ var server = new openbis('https://sprint-openbis.ethz.ch/openbis/openbis', 'http
 $(document).ready(function() {
   $('#main').hide();
   
-  if(username.value.length==0) {
-    $("#username").focus();
-  } else {
-    $("#login-button").focus();
-  }
+	var username = $("#username").value;
+	if(username == null || username.length==0) {
+		$("#username").focus();
+	} else {
+		$("#login-button").focus();
+	}
   
   $('#logout-button').click(function() { 
     server.logout(function(data) { 
