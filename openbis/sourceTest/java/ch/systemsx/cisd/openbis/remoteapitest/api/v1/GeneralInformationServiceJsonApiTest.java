@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.remoteapitest.api.v1;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static junit.framework.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
@@ -608,6 +608,28 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
                 "[DataSet[20110509092359990-11,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=non-virtual comment}], "
                         + "DataSet[20110509092359990-12,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=non-virtual comment}]]",
                 result.toString());
+    }
+
+    @Test
+    public void testSearchForDataSetsLinked()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE,
+                "LINK_TYPE"));
+
+        List<DataSet> result =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+
+        assertEquals(3, result.size());
+        assertEquals("CODE1", result.get(0).getExternalDataSetCode());
+        assertEquals("CODE2", result.get(1).getExternalDataSetCode());
+        assertEquals("CODE3", result.get(2).getExternalDataSetCode());
+        assertEquals("http://example.edms.pl/code=CODE1", result.get(0).getExternalDataSetLink());
+        assertEquals("http://example.edms.pl/code=CODE2", result.get(1).getExternalDataSetLink());
+        assertEquals("http://www.openbis.ch/perm_id=CODE3", result.get(2).getExternalDataSetLink());
+        assertEquals("DMS_1", result.get(0).getExternalDataManagementSystem().getCode());
+        assertEquals("DMS_1", result.get(1).getExternalDataManagementSystem().getCode());
+        assertEquals("DMS_2", result.get(2).getExternalDataManagementSystem().getCode());
     }
 
     @Test

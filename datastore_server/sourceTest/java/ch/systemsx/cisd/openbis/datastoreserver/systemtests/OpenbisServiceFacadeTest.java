@@ -44,9 +44,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -214,6 +216,26 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         File exampleDataSet = new File(workingDirectory, "observer-data");
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         serviceFacade.putDataSet(newDataset, exampleDataSet);
+    }
+
+    @Test
+    public void testSearchForLinkedDataSets() throws Exception
+    {
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, "LINK_TYPE"));
+
+        List<DataSet> dataSets = serviceFacade.searchForDataSets(sc);
+        assertEquals(3, dataSets.size());
+        assertEquals("CODE1", dataSets.get(0).getExternalDataSetCode());
+        assertEquals("CODE2", dataSets.get(1).getExternalDataSetCode());
+        assertEquals("CODE3", dataSets.get(2).getExternalDataSetCode());
+        assertEquals("http://example.edms.pl/code=CODE1", dataSets.get(0).getExternalDataSetLink());
+        assertEquals("http://example.edms.pl/code=CODE2", dataSets.get(1).getExternalDataSetLink());
+        assertEquals("http://www.openbis.ch/perm_id=CODE3", dataSets.get(2)
+                .getExternalDataSetLink());
+        assertEquals("DMS_1", dataSets.get(0).getExternalDataManagementSystem().getCode());
+        assertEquals("DMS_1", dataSets.get(1).getExternalDataManagementSystem().getCode());
+        assertEquals("DMS_2", dataSets.get(2).getExternalDataManagementSystem().getCode());
     }
 
     private IOpenbisServiceFacade createServiceFacade(String userName)
