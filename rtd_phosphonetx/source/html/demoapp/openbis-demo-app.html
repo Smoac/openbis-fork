@@ -26,12 +26,12 @@ openbisServer = new openbis(baseURL + '/openbis/openbis', baseURL + '/datastore_
 $(document).ready(function() {
     $('#main').hide();
     
-    if(username.value.length==0) {
-        $("#username").focus();
-    }
-    else {
-        $("#login-button").focus();
-    }
+	var username = $("#username").value;
+	if(username == null || username.length==0) {
+		$("#username").focus();
+	} else {
+		$("#login-button").focus();
+	}
     
     $('#logout-button').click(function() { 
         openbisServer.logout(function(data) { 
