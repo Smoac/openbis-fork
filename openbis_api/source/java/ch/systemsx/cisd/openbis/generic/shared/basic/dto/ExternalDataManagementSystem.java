@@ -18,9 +18,12 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * @author Pawel Glyzewski
  */
+@JsonObject("ExternalDataManagementSystem")
 public class ExternalDataManagementSystem extends Code<ExternalDataManagementSystem> implements
         Serializable
 {

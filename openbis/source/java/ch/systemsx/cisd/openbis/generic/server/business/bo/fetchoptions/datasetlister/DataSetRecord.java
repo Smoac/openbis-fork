@@ -66,12 +66,24 @@ public class DataSetRecord
 
     public String sps_code;
 
+    public Long die_id;
+
     public String die_code;
+
+    public String die_uuid;
 
     public Boolean die_is_original_source;
 
     public String ld_external_code;
 
+    public Long edms_id;
+
+    public String edms_code;
+
+    public String edms_label;
+
     public String edms_url_template;
+
+    public Boolean edms_is_openbis;
 
 }

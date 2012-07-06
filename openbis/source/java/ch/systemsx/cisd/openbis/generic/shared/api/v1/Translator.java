@@ -53,8 +53,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary.VocabularyInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicURLEncoder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
@@ -62,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetUrl;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
@@ -367,12 +366,10 @@ public class Translator
         {
             LinkDataSet linkDataSet = externalDatum.tryGetAsLinkDataSet();
             initializer.setExternalDataSetCode(linkDataSet.getExternalCode());
-            initializer.setExternalDataSetLink(linkDataSet.getExternalDataManagementSystem()
-                    .getUrlTemplate() == null ? null : linkDataSet
-                    .getExternalDataManagementSystem()
-                    .getUrlTemplate()
-                    .replaceAll(BasicConstant.EXTERNAL_DMS_URL_TEMPLATE_CODE_PATTERN,
-                            BasicURLEncoder.encode(linkDataSet.getExternalCode())));
+            LinkDataSetUrl linkDataSetUrl = new LinkDataSetUrl(linkDataSet);
+            initializer.setExternalDataSetLink(linkDataSetUrl.toString());
+            initializer.setExternalDataManagementSystem(linkDataSet
+                    .getExternalDataManagementSystem());
         }
 
         initializer.setRetrievedConnections(connectionsToGet);

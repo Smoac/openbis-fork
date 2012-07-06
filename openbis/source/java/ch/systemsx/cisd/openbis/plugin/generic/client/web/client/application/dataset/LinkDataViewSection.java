@@ -16,14 +16,17 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 
 /**
@@ -43,20 +46,68 @@ public class LinkDataViewSection extends TabContent
     @Override
     protected void showContent()
     {
-        Panel content = new SimplePanel();
+        Panel content = new FlowPanel();
         content.setStyleName("linkDataViewContent");
+        content.add(createInfoWidget());
+        content.add(createCodeWidget());
+        content.add(createDmsWidget());
+        content.add(createLinkWidget());
+        add(content);
 
-        LinkDataSetAnchor anchor = LinkDataSetAnchor.tryCreateWithUrlAsText(dataset);
+    }
+
+    private Widget createInfoWidget()
+    {
+        Label label = new Label(viewContext.getMessage(Dict.LINKED_DATA_SET_INFO));
+        label.addStyleName("linkDataViewInfo");
+        return label;
+    }
+
+    private Widget createCodeWidget()
+    {
+        Label label = new Label(viewContext.getMessage(Dict.LINKED_DATA_SET_CODE));
+        label.addStyleName("linkDataViewLabel");
+        Label value = new Label(StringEscapeUtils.unescapeHtml(dataset.getExternalCode()));
+
+        Panel panel = new HorizontalPanel();
+        panel.add(label);
+        panel.add(value);
+        return panel;
+    }
+
+    private Widget createDmsWidget()
+    {
+        Label label = new Label(viewContext.getMessage(Dict.LINKED_DATA_SET_DMS));
+        label.addStyleName("linkDataViewLabel");
+        Label value =
+                new Label(StringEscapeUtils.unescapeHtml(dataset.getExternalDataManagementSystem()
+                        .getLabel())
+                        + " ("
+                        + StringEscapeUtils.unescapeHtml(dataset.getExternalDataManagementSystem()
+                                .getCode()) + ")");
+
+        Panel panel = new HorizontalPanel();
+        panel.add(label);
+        panel.add(value);
+        return panel;
+    }
+
+    private Widget createLinkWidget()
+    {
+        LinkDataSetAnchor anchor = LinkDataSetAnchor.tryCreate(dataset);
 
         if (anchor != null)
         {
-            content.add(anchor);
+            Label label = new Label(viewContext.getMessage(Dict.LINKED_DATA_SET_LINK));
+            label.addStyleName("linkDataViewLabel");
+
+            Panel panel = new HorizontalPanel();
+            panel.add(label);
+            panel.add(anchor);
+            return panel;
         } else
         {
-            content.add(new Label(viewContext
-                    .getMessage(Dict.LINKED_DATA_SET_URL_NOT_AVAILABLE_MSG)));
+            return new Label(viewContext.getMessage(Dict.LINKED_DATA_SET_LINK_NOT_AVAILABLE_MSG));
         }
-
-        add(content);
     }
 }

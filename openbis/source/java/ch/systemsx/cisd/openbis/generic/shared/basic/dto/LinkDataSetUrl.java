@@ -25,11 +25,27 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicURLEncoder;
 public class LinkDataSetUrl
 {
 
-    private LinkDataSet dataset;
+    private String externalCode;
+
+    private String urlTemplate;
+
+    public LinkDataSetUrl(String externalCode, String urlTemplate)
+    {
+        this.externalCode = externalCode;
+        this.urlTemplate = urlTemplate;
+    }
 
     public LinkDataSetUrl(LinkDataSet dataset)
     {
-        this.dataset = dataset;
+        if (dataset == null)
+        {
+            throw new IllegalArgumentException("Dataset cannot be null");
+        }
+        externalCode = dataset.getExternalCode();
+        if (dataset.getExternalDataManagementSystem() != null)
+        {
+            urlTemplate = dataset.getExternalDataManagementSystem().getUrlTemplate();
+        }
     }
 
     protected String maybeUnescape(String str)
@@ -40,15 +56,13 @@ public class LinkDataSetUrl
     @Override
     public String toString()
     {
-        if (dataset.getExternalCode() != null && dataset.getExternalDataManagementSystem() != null
-                && dataset.getExternalDataManagementSystem().getUrlTemplate() != null)
+        if (externalCode != null && urlTemplate != null)
         {
-            String externalCode = maybeUnescape(dataset.getExternalCode());
-            String urlTemplate =
-                    maybeUnescape(dataset.getExternalDataManagementSystem().getUrlTemplate());
+            String anExternalCode = maybeUnescape(externalCode);
+            String aUrlTemplate = maybeUnescape(urlTemplate);
 
-            return urlTemplate.replaceAll(BasicConstant.EXTERNAL_DMS_URL_TEMPLATE_CODE_PATTERN,
-                    BasicURLEncoder.encode(externalCode));
+            return aUrlTemplate.replaceAll(BasicConstant.EXTERNAL_DMS_URL_TEMPLATE_CODE_PATTERN,
+                    BasicURLEncoder.encode(anExternalCode));
         } else
         {
             return null;

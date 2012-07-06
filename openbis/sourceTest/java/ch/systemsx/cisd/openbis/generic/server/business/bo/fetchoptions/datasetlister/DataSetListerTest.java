@@ -43,6 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 
 /**
  * Test cases for {@link IDataSetListingQuery}.
@@ -175,6 +177,32 @@ public class DataSetListerTest extends AbstractDAOTest
         assertEquals("http://example.edms.pl/code=CODE1", results.get(0).getExternalDataSetLink());
         assertEquals("http://example.edms.pl/code=CODE2", results.get(1).getExternalDataSetLink());
         assertEquals("http://www.openbis.ch/perm_id=CODE3", results.get(2).getExternalDataSetLink());
+
+        DatabaseInstance db = new DatabaseInstance();
+        db.setId(1L);
+        db.setCode("CISD");
+        db.setUuid("57F0FA8F-80AC-42AB-9C6A-AAADBCC37A3E");
+        db.setHomeDatabase(true);
+
+        ExternalDataManagementSystem dms1 = new ExternalDataManagementSystem();
+        dms1.setId(1L);
+        dms1.setCode("DMS_1");
+        dms1.setLabel("Test EDMS");
+        dms1.setOpenBIS(false);
+        dms1.setUrlTemplate("http://example.edms.pl/code=$code$");
+        dms1.setDatabaseInstance(db);
+
+        ExternalDataManagementSystem dms2 = new ExternalDataManagementSystem();
+        dms2.setId(2L);
+        dms2.setCode("DMS_2");
+        dms2.setLabel("Test External openBIS instance");
+        dms2.setOpenBIS(true);
+        dms2.setUrlTemplate("http://www.openbis.ch/perm_id=$code$");
+        dms2.setDatabaseInstance(db);
+
+        assertEqualsToExternalDMS(dms1, results.get(0).getExternalDataManagementSystem());
+        assertEqualsToExternalDMS(dms1, results.get(1).getExternalDataManagementSystem());
+        assertEqualsToExternalDMS(dms2, results.get(2).getExternalDataManagementSystem());
     }
 
     private static void sortDataSetsByCode(List<DataSet> dataSets)
@@ -266,4 +294,35 @@ public class DataSetListerTest extends AbstractDAOTest
         }
 
     }
+
+    private void assertEqualsToExternalDMS(ExternalDataManagementSystem expected,
+            ExternalDataManagementSystem actual)
+    {
+        assertFalse(expected == null ^ actual == null);
+
+        if (expected != null && actual != null)
+        {
+            assertEquals(expected.getId(), actual.getId());
+            assertEquals(expected.getCode(), actual.getCode());
+            assertEquals(expected.getLabel(), actual.getLabel());
+            assertEquals(expected.getUrlTemplate(), actual.getUrlTemplate());
+            assertEquals(expected.isOpenBIS(), actual.isOpenBIS());
+            assertEqualsToDatabaseInstance(expected.getDatabaseInstance(),
+                    actual.getDatabaseInstance());
+        }
+    }
+
+    private void assertEqualsToDatabaseInstance(DatabaseInstance expected, DatabaseInstance actual)
+    {
+        assertFalse(expected == null ^ actual == null);
+
+        if (expected != null && actual != null)
+        {
+            assertEquals(expected.getId(), actual.getId());
+            assertEquals(expected.getCode(), actual.getCode());
+            assertEquals(expected.getIdentifier(), actual.getIdentifier());
+            assertEquals(expected.getUuid(), actual.getUuid());
+        }
+    }
+
 }

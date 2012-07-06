@@ -34,21 +34,7 @@ public class LinkDataSetAnchor extends Anchor
         setTarget("_blank");
     }
 
-    public static final LinkDataSetAnchor tryCreateWithExternalCodeAsText(LinkDataSet dataset)
-    {
-        String url = new UnescapingLinkDataSetUrl(dataset).toString();
-
-        if (url != null)
-        {
-            return new LinkDataSetAnchor(StringEscapeUtils.unescapeHtml(dataset.getExternalCode()),
-                    url);
-        } else
-        {
-            return null;
-        }
-    }
-
-    public static final LinkDataSetAnchor tryCreateWithUrlAsText(LinkDataSet dataset)
+    public static final LinkDataSetAnchor tryCreate(LinkDataSet dataset)
     {
         String url = new UnescapingLinkDataSetUrl(dataset).toString();
 

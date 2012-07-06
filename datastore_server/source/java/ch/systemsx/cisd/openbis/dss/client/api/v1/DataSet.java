@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.api.retry.RetryProxyFactory;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 
 /**
  * A class that provides uniform access to data set metadata (from the openBIS AS) and data (from
@@ -193,6 +194,15 @@ public class DataSet
     public String getExternalDataSetLink()
     {
         return getMetadata().getExternalDataSetLink();
+    }
+
+    /**
+     * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#getExternalDataManagementSystem()
+     */
+    @Retry
+    public ExternalDataManagementSystem getExternalDataManagementSystem()
+    {
+        return getMetadata().getExternalDataManagementSystem();
     }
 
     /**

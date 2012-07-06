@@ -33,6 +33,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 
 /**
  * Immutable value object representing a data set.
@@ -74,6 +75,8 @@ public final class DataSet implements Serializable
         private String externalDataSetCode;
 
         private String externalDataSetLink;
+
+        private ExternalDataManagementSystem externalDataManagementSystem;
 
         private EnumSet<Connections> retrievedConnections = EnumSet.noneOf(Connections.class);
 
@@ -229,6 +232,17 @@ public final class DataSet implements Serializable
         {
             this.externalDataSetLink = externalDataSetLink;
         }
+
+        public ExternalDataManagementSystem getExternalDataManagementSystem()
+        {
+            return externalDataManagementSystem;
+        }
+
+        public void setExternalDataManagementSystem(
+                ExternalDataManagementSystem externalDataManagementSystem)
+        {
+            this.externalDataManagementSystem = externalDataManagementSystem;
+        }
     }
 
     private String code;
@@ -246,6 +260,8 @@ public final class DataSet implements Serializable
     private String externalDataSetCode;
 
     private String externalDataSetLink;
+
+    private ExternalDataManagementSystem externalDataManagementSystem;
 
     private HashMap<String, String> properties;
 
@@ -294,7 +310,7 @@ public final class DataSet implements Serializable
         this.linkDataSet = initializer.isLinkDataSet();
         this.externalDataSetCode = initializer.getExternalDataSetCode();
         this.externalDataSetLink = initializer.getExternalDataSetLink();
-
+        this.externalDataManagementSystem = initializer.getExternalDataManagementSystem();
     }
 
     /**
@@ -417,6 +433,11 @@ public final class DataSet implements Serializable
         return externalDataSetLink;
     }
 
+    public ExternalDataManagementSystem getExternalDataManagementSystem()
+    {
+        return externalDataManagementSystem;
+    }
+
     public List<DataSet> getContainedDataSets()
     {
         return containedDataSets;
@@ -533,6 +554,12 @@ public final class DataSet implements Serializable
     private void setExternalDataSetLink(String externalDataSetLink)
     {
         this.externalDataSetLink = externalDataSetLink;
+    }
+
+    private void setExternalDataManagementSystem(
+            ExternalDataManagementSystem externalDataManagementSystem)
+    {
+        this.externalDataManagementSystem = externalDataManagementSystem;
     }
 
     private void setContainedDataSets(List<DataSet> containedDataSets)

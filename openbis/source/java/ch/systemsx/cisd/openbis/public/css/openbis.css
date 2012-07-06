@@ -305,3 +305,12 @@ body,div,td,.default-text {
 .linkDataViewContent {
 	margin: 10px;	
 }
+
+.linkDataViewInfo {
+	font-weight: bold;
+	margin-bottom: 5px;	
+}
+
+.linkDataViewLabel {
+	margin-right: 5px;	
+}

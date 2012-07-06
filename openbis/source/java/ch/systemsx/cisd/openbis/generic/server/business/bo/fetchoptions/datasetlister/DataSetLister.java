@@ -34,9 +34,10 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicURLEncoder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetUrl;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -175,10 +176,24 @@ public class DataSetLister implements IDataSetLister
         if (initializer.isLinkDataSet())
         {
             initializer.setExternalDataSetCode(dataSet.ld_external_code);
-            initializer.setExternalDataSetLink(dataSet.edms_url_template == null ? null
-                    : dataSet.edms_url_template.replaceAll(
-                            BasicConstant.EXTERNAL_DMS_URL_TEMPLATE_CODE_PATTERN,
-                            BasicURLEncoder.encode(dataSet.ld_external_code)));
+            LinkDataSetUrl linkDataSetUrl =
+                    new LinkDataSetUrl(dataSet.ld_external_code, dataSet.edms_url_template);
+            initializer.setExternalDataSetLink(linkDataSetUrl.toString());
+
+            DatabaseInstance db = new DatabaseInstance();
+            db.setId(dataSet.die_id);
+            db.setCode(dataSet.die_code);
+            db.setUuid(dataSet.die_uuid);
+            db.setHomeDatabase(dataSet.die_is_original_source);
+
+            ExternalDataManagementSystem edms = new ExternalDataManagementSystem();
+            edms.setId(dataSet.edms_id);
+            edms.setCode(dataSet.edms_code);
+            edms.setLabel(dataSet.edms_label);
+            edms.setUrlTemplate(dataSet.edms_url_template);
+            edms.setDatabaseInstance(db);
+            edms.setOpenBIS(dataSet.edms_is_openbis);
+            initializer.setExternalDataManagementSystem(edms);
         }
         initializer.setRegistrationDetails(createDataSetRegistrationDetails(dataSet));
         initializer.setExperimentIdentifier(experimentIdentifier.toString());

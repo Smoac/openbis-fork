@@ -744,7 +744,11 @@ var common = {
  processing_info_msg: "'{0}' has been scheduled successfully. Email will be send to you when it is finished.",
  dataset_not_available_msg: "Data Set {0} is {1}. You can not perform any operation using its data.",
  linked_data_set: "Linked Data Set",
- linked_data_set_url_not_available: "A link to an external DMS is not available.",
+ linked_data_set_info: "This is a linked data set",
+ linked_data_set_code: "External Code: ",
+ linked_data_set_dms: "External DMS: ",
+ linked_data_set_link: "Link: ",
+ linked_data_set_link_not_available: "Link: not available",
  
  //
  // Material Browser

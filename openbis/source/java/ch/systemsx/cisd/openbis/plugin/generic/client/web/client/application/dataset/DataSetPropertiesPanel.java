@@ -86,11 +86,11 @@ public class DataSetPropertiesPanel extends ContentPanel
 
         if (dataset.isLinkData())
         {
-            LinkDataSetAnchor anchor =
-                    LinkDataSetAnchor.tryCreateWithExternalCodeAsText(dataset.tryGetAsLinkDataSet());
+            LinkDataSetAnchor anchor = LinkDataSetAnchor.tryCreate(dataset.tryGetAsLinkDataSet());
 
             if (anchor != null)
             {
+                anchor.setHTML(dataset.tryGetAsLinkDataSet().getExternalCode());
                 properties.put(messageProvider.getMessage(Dict.LINKED_DATA_SET), anchor);
             } else
             {

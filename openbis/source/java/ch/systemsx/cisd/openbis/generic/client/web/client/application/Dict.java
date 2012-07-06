@@ -669,8 +669,16 @@ public abstract class Dict
 
     public static final String LINKED_DATA_SET = "linked_data_set";
 
-    public static final String LINKED_DATA_SET_URL_NOT_AVAILABLE_MSG =
-            "linked_data_set_url_not_available";
+    public static final String LINKED_DATA_SET_INFO = "linked_data_set_info";
+
+    public static final String LINKED_DATA_SET_CODE = "linked_data_set_code";
+
+    public static final String LINKED_DATA_SET_DMS = "linked_data_set_dms";
+
+    public static final String LINKED_DATA_SET_LINK = "linked_data_set_link";
+
+    public static final String LINKED_DATA_SET_LINK_NOT_AVAILABLE_MSG =
+            "linked_data_set_link_not_available";
 
     //
     // Sample Registration

@@ -233,6 +233,7 @@ public class TranslatorTest extends AssertJUnit
         assertTrue(translated.isLinkDataSet());
         assertEquals(dsLink.getLinkDataSet().getExternalCode(), translated.getExternalDataSetCode());
         assertEquals("http://www.EX_CODE.ch", translated.getExternalDataSetLink());
+        assertEquals(edms, translated.getExternalDataManagementSystem());
     }
 
     private void assertBasicAttributes(
