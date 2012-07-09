@@ -185,7 +185,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
         assertThat(serverSays(sample).getExperiment(), is(nullValue()));
     }
 
-    @Test(dataProvider = "rolesAllowedToUnassignSampleFromExperiment")
+    @Test(dataProvider = "rolesAllowedToUnassignSampleFromExperiment", groups = "authorization")
     public void unassigningIsAllowedFor(
             RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
@@ -198,7 +198,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToUnassignSampleFromExperiment", expectedExceptions =
-        { AuthorizationFailureException.class })
+        { AuthorizationFailureException.class }, groups = "authorization")
     public void unassigningIsNotAllowedFor(
             RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception

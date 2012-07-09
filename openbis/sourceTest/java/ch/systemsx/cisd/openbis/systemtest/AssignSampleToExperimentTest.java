@@ -269,7 +269,7 @@ public class AssignSampleToExperimentTest extends BaseTest
         assertThat(serverSays(sample), is(inExperiment(experiment)));
     }
 
-    @Test(dataProvider = "rolesAllowedToAssignSampleToExperiment")
+    @Test(dataProvider = "rolesAllowedToAssignSampleToExperiment", groups = "authorization")
     public void assigningSampleToExperimentIsAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
@@ -284,7 +284,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignSampleToExperiment", expectedExceptions =
-        { AuthorizationFailureException.class })
+        { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningSampleToExperimentIsNotAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
@@ -298,7 +298,7 @@ public class AssignSampleToExperimentTest extends BaseTest
         perform(anUpdateOf(sample).toExperiment(destinationExperiment).as(user));
     }
 
-    @Test(dataProvider = "rolesAllowedToAssignSharedSampleToExperiment")
+    @Test(dataProvider = "rolesAllowedToAssignSharedSampleToExperiment", groups = "authorization")
     public void assigningSharedSampleToExperimentIsAllowedFor(
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
@@ -312,7 +312,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignSharedSampleToExperiment", expectedExceptions =
-        { AuthorizationFailureException.class })
+        { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningSharedSampleToExperimentIsNotAllowedFor(
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
@@ -325,7 +325,7 @@ public class AssignSampleToExperimentTest extends BaseTest
         perform(anUpdateOf(sample).toExperiment(destinationExperiment).as(user));
     }
 
-    @Test(dataProvider = "rolesAllowedToAssignSampleToExperimentThroughExperimentUpdate")
+    @Test(dataProvider = "rolesAllowedToAssignSampleToExperimentThroughExperimentUpdate", groups = "authorization")
     public void assigningSampleToExperimentThroughExperimentUpdateIsAllowedFor(
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
@@ -339,7 +339,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignSampleToExperimentThroughExperimentUpdate", expectedExceptions =
-        { AuthorizationFailureException.class })
+        { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningSampleToExperimentThroughExperimentUpdateIsNotAllowedFor(
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception

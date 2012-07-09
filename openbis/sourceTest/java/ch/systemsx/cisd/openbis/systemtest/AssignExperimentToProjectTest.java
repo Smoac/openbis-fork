@@ -75,7 +75,7 @@ public class AssignExperimentToProjectTest extends BaseTest
         assertThat(serverSays(sample), is(inSpace(destinationSpace)));
     }
 
-    @Test(dataProvider = "rolesAllowedToAssignExperimentToProject")
+    @Test(dataProvider = "rolesAllowedToAssignExperimentToProject", groups = "authorization")
     public void assigningExperimentToProjectIsAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
@@ -90,7 +90,7 @@ public class AssignExperimentToProjectTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignExperimentToProject", expectedExceptions =
-        { AuthorizationFailureException.class })
+        { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningExperimentToProjectIsNotAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,

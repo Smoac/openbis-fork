@@ -182,7 +182,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
         assertThat(serverSays(component), is(inExperiment(sourceExperiment)));
     }
 
-    @Test(dataProvider = "rolesAllowedToAssignDataSetToExperiment")
+    @Test(dataProvider = "rolesAllowedToAssignDataSetToExperiment", groups = "authorization")
     public void assigningDataSetToExperimentIsAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
@@ -197,7 +197,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignDataSetToExperiment", expectedExceptions =
-        { AuthorizationFailureException.class })
+        { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningDataSetToExperimentIsNotAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,

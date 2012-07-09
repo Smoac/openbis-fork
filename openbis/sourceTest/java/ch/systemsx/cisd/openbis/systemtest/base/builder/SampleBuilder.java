@@ -45,17 +45,26 @@ public class SampleBuilder extends Builder<Sample>
 
     private Sample container;
 
+    private String id;
+
     public SampleBuilder(ICommonServerForInternalUse commonServer, IGenericServer genericServer)
     {
         super(commonServer, genericServer);
         this.parents = new ArrayList<Sample>();
         this.container = null;
+        this.id = UUID.randomUUID().toString();
     }
 
     @SuppressWarnings("hiding")
     public SampleBuilder inExperiment(Experiment experiment)
     {
         this.experiment = experiment;
+        return this;
+    }
+
+    public SampleBuilder withCode(String code)
+    {
+        this.id = code;
         return this;
     }
 
@@ -112,14 +121,14 @@ public class SampleBuilder extends Builder<Sample>
         if (this.experiment != null)
         {
             identifier = "/" + this.experiment.getProject().getSpace().getCode() + "/"
-                    + UUID.randomUUID().toString().toUpperCase();
+                    + this.id.toUpperCase();
         } else if (this.space != null)
         {
             identifier = "/" + this.space.getCode() + "/"
-                    + UUID.randomUUID().toString().toUpperCase();
+                    + this.id.toUpperCase();
         } else
         {
-            identifier = "/" + UUID.randomUUID().toString().toUpperCase();
+            identifier = "/" + this.id.toUpperCase();
         }
 
         NewSample data = new NewSample();

@@ -6,8 +6,11 @@
   </groups>
   
   <test name="system-cleandb-basic" annotations="JDK">
+    <run>
+      <exclude name="authorization"/>
+    </run>
+  
     <classes>
-      <class name="ch.systemsx.cisd.openbis.systemtest.EntityRelationshipChangeTest" />
       <class name="ch.systemsx.cisd.openbis.systemtest.AssignSampleToExperimentTest" />
       <class name="ch.systemsx.cisd.openbis.systemtest.UnassignSampleFromExperimentTest" />
       <class name="ch.systemsx.cisd.openbis.systemtest.AssignSampleToSpaceTest" />
@@ -16,10 +19,17 @@
       <class name="ch.systemsx.cisd.openbis.systemtest.AssignDataSetToExperimentTest" />
       <class name="ch.systemsx.cisd.openbis.systemtest.AssignExperimentToProjectTest" />
       <class name="ch.systemsx.cisd.openbis.systemtest.AssignProjectToSpaceTest" />
+      <class name="ch.systemsx.cisd.openbis.systemtest.UpdateSampleParentsTest" />
+      <class name="ch.systemsx.cisd.openbis.systemtest.UpdateSampleContainmentTest" />
+      <class name="ch.systemsx.cisd.openbis.systemtest.UpdateDataSetParentsTest" />
+      <class name="ch.systemsx.cisd.openbis.systemtest.UpdateDataSetContainmentTest" />
     </classes>
   </test>
 
   <test name="system-cleandb-stub-relationship-service" annotations="JDK">
+    <run>
+      <exclude name="authorization"/>
+    </run>
     <classes>
       <class name="ch.systemsx.cisd.openbis.systemtest.RelationshipServiceAuthorizationTest" />
     </classes>

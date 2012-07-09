@@ -29,6 +29,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -78,6 +79,16 @@ public class UnassignSampleFromSpaceTest extends BaseTest
         perform(anUpdateOf(sample).removingSpace());
 
         assertThat(serverSays(sample).getExperiment(), is(nullValue()));
+    }
+
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void sampleWithDataSetCannotBeUnassignedFromSpace() throws Exception
+    {
+        Sample sample = create(aSample().inExperiment(experiment));
+        create(aDataSet().inSample(sample));
+
+        perform(anUpdateOf(sample).removingSpace());
     }
 
     @Test
@@ -172,7 +183,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
         assertThat(serverSays(component), is(inSpace(space)));
     }
 
-    @Test(dataProvider = "rolesAllowedToUnassignSampleFromSpace")
+    @Test(dataProvider = "rolesAllowedToUnassignSampleFromSpace", groups = "authorization")
     public void unassigningIsAllowedFor(
             RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
@@ -185,7 +196,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToUnassignSampleFromSpace", expectedExceptions =
-        { AuthorizationFailureException.class })
+        { AuthorizationFailureException.class }, groups = "authorization")
     public void unassigningIsNotAllowedFor(
             RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception

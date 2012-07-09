@@ -186,7 +186,7 @@ public class AssignSampleToSpaceTest extends BaseTest
         assertThat(serverSays(component), is(inSpace(sourceSpace)));
     }
 
-    @Test(dataProvider = "rolesAllowedToAssignSampleToSpace")
+    @Test(dataProvider = "rolesAllowedToAssignSampleToSpace", groups = "authorization")
     public void assigningSampleToSpaceIsAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
@@ -201,7 +201,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignSampleToSpace", expectedExceptions =
-        { AuthorizationFailureException.class })
+        { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningSampleToSpaceIsNotAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
@@ -215,7 +215,7 @@ public class AssignSampleToSpaceTest extends BaseTest
         perform(anUpdateOf(sample).toSpace(destinationSpace).as(user));
     }
 
-    @Test(dataProvider = "rolesAllowedToAssignSharedSampleToSpace")
+    @Test(dataProvider = "rolesAllowedToAssignSharedSampleToSpace", groups = "authorization")
     public void assigningSharedSampleToSpaceIsAllowedFor(
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
@@ -229,7 +229,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignSharedSampleToSpace", expectedExceptions =
-        { AuthorizationFailureException.class })
+        { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningSharedSampleToSpaceIsNotAllowedFor(
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception

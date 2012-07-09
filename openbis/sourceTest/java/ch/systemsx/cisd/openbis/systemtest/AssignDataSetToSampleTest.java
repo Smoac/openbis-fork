@@ -201,7 +201,7 @@ public class AssignDataSetToSampleTest extends BaseTest
         assertThat(serverSays(component), is(inSample(sourceSample)));
     }
 
-    @Test(dataProvider = "rolesAllowedToAssignDataSetToSample")
+    @Test(dataProvider = "rolesAllowedToAssignDataSetToSample", groups = "authorization")
     public void assigningDataSetToSampleIsAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
@@ -216,7 +216,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignDataSetToSample", expectedExceptions =
-        { AuthorizationFailureException.class })
+        { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningDataSetToSampleIsNotAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,

@@ -99,12 +99,12 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
         return this;
     }
 
-    public SampleUpdateBuilder withParent(Sample sample)
+    public SampleUpdateBuilder toHaveParent(Sample sample)
     {
-        return this.withParents(sample);
+        return this.toHaveParents(sample);
     }
 
-    public SampleUpdateBuilder withParents(Sample... samples)
+    public SampleUpdateBuilder toHaveParents(Sample... samples)
     {
         for (Sample parent : samples)
         {
@@ -113,9 +113,15 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
         return this;
     }
 
-    public SampleUpdateBuilder withContainer(Sample sample)
+    public SampleUpdateBuilder toHaveContainer(Sample sample)
     {
         this.container = sample;
+        return this;
+    }
+
+    public SampleUpdateBuilder removingContainer()
+    {
+        this.container = null;
         return this;
     }
 
