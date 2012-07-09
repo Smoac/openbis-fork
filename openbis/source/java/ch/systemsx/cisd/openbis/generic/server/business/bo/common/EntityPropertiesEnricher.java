@@ -148,8 +148,14 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
                 final String template = vocabularyURLMap.get(val.covo_id);
                 if (template != null)
                 {
-                    vocabularyTerm.setUrl(template.replaceAll(
-                            BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PATTERN, val.code));
+                    String url =
+                            template.replaceAll(
+                                    BasicConstant.DEPRECATED_VOCABULARY_URL_TEMPLATE_TERM_PATTERN,
+                                    val.code);
+                    url =
+                            url.replaceAll(BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PATTERN,
+                                    val.code);
+                    vocabularyTerm.setUrl(url);
                 }
                 terms.put(val.id, vocabularyTerm);
             }

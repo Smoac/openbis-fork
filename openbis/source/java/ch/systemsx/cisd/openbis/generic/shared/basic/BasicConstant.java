@@ -52,11 +52,22 @@ public class BasicConstant
             + "(undefined)";
 
     /** Template part of Vocabulary URL that that is replaced with vocabulary term code. */
-    public static final String VOCABULARY_URL_TEMPLATE_TERM_PART = "$term$";
+    public static final String VOCABULARY_URL_TEMPLATE_TERM_PART = "${term}";
 
     /** Pattern for template part of Vocabulary URL that that is replaced with vocabulary term code. */
     public static final String VOCABULARY_URL_TEMPLATE_TERM_PATTERN =
-            VOCABULARY_URL_TEMPLATE_TERM_PART.replaceAll("\\$", "\\\\\\$");
+            VOCABULARY_URL_TEMPLATE_TERM_PART.replaceAll("\\$", "\\\\\\$")
+                    .replaceAll("\\{", "\\\\{").replaceAll("\\}", "\\\\}");
+
+    /** Deprecated template part of Vocabulary URL that that is replaced with vocabulary term code. */
+    public static final String DEPRECATED_VOCABULARY_URL_TEMPLATE_TERM_PART = "$term$";
+
+    /**
+     * Pattern for deprecated template part of Vocabulary URL that that is replaced with vocabulary
+     * term code.
+     */
+    public static final String DEPRECATED_VOCABULARY_URL_TEMPLATE_TERM_PATTERN =
+            DEPRECATED_VOCABULARY_URL_TEMPLATE_TERM_PART.replaceAll("\\$", "\\\\\\$");
 
     /**
      * Template part of an external DMS URL that is replaced with an external data set code.
