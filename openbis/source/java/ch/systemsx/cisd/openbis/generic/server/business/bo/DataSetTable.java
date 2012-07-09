@@ -597,7 +597,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         String sessionToken = dataStore.getSessionToken();
         String userSessionToken = session.getSessionToken();
         return service.createReportFromDatasets(sessionToken, userSessionToken,
-                datastoreServiceKey, locations);
+                datastoreServiceKey, locations, tryGetLoggedUserEmail());
     }
 
     private List<DatasetDescription> loadAvailableDatasetDescriptions(List<String> dataSetCodes)
@@ -1051,6 +1051,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         String sessionToken = dataStore.getSessionToken();
         String userSessionToken = session.getSessionToken();
         return service.createReportFromAggregationService(sessionToken, userSessionToken,
-                datastoreServiceKey, parameters);
+                datastoreServiceKey, parameters, tryGetLoggedUserEmail());
     }
 }

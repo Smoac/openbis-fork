@@ -33,6 +33,8 @@ import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
@@ -312,7 +314,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     @Override
     public TableModel createReportFromDatasets(String sessionToken, String userSessionToken,
-            String serviceKey, List<DatasetDescription> datasets)
+            String serviceKey, List<DatasetDescription> datasets,
+            String userEmailOrNull)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
@@ -326,9 +329,11 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             {
                 manager.lock(dataSet.getDataSetCode());
             }
+            IMailClient mailClient = createEMailClient();
             return task.createReport(datasets, new DataSetProcessingContext(
                     getHierarchicalContentProvider(), new DataSetDirectoryProvider(storeRoot,
-                            manager), new HashMap<String, String>(), null, null, userSessionToken));
+                            manager), new HashMap<String, String>(), mailClient, userEmailOrNull,
+                    userSessionToken));
 
         } finally
         {
@@ -388,7 +393,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     @Override
     public TableModel createReportFromAggregationService(String sessionToken,
-            String userSessionToken, String serviceKey, Map<String, Object> parameters)
+            String userSessionToken, String serviceKey, Map<String, Object> parameters,
+            String userEmailOrNull)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
         PluginTaskProvider<IReportingPluginTask> reportingPlugins =
@@ -397,14 +403,21 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         IShareIdManager manager = getShareIdManager();
         try
         {
+            IMailClient mailClient = createEMailClient();
             return task.createAggregationReport(parameters, new DataSetProcessingContext(
                     getHierarchicalContentProvider(), new DataSetDirectoryProvider(storeRoot,
-                            manager), new HashMap<String, String>(), null, null, userSessionToken));
+                            manager), new HashMap<String, String>(), mailClient, userEmailOrNull,
+                    userSessionToken));
 
         } finally
         {
             manager.releaseLocks();
         }
+    }
+
+    private IMailClient createEMailClient()
+    {
+        return new MailClient(mailClientParameters);
     }
 
     private void scheduleTask(String sessionToken, String description,

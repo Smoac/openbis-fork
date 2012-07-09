@@ -85,7 +85,7 @@ public interface IDataStoreService
 
     /** Runs the reporting task with the specified id for provided datasets */
     public TableModel createReportFromDatasets(String sessionToken, String userSessionToken,
-            String serviceKey, List<DatasetDescription> datasets);
+            String serviceKey, List<DatasetDescription> datasets, String userEmailOrNull);
 
     /**
      * Schedules the processing task with the specified id for provided datasets and specified
@@ -147,7 +147,8 @@ public interface IDataStoreService
      * @since 7
      */
     public TableModel createReportFromAggregationService(String sessionToken,
-            String userSessionToken, String serviceKey, Map<String, Object> parameters);
+            String userSessionToken, String serviceKey, Map<String, Object> parameters,
+            String userEmailOrNull);
 
     public String putDataSet(String sessionToken, String dropboxName,
             CustomImportFile customImportFile);

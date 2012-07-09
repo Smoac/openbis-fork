@@ -134,10 +134,11 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
 
     @Override
     public TableModel createReportFromDatasets(String sessionToken, String userSessionToken,
-            String serviceKey, List<DatasetDescription> datasets)
+            String serviceKey, List<DatasetDescription> datasets,
+            String userEmailOrNull)
     {
-        log("createReportFromDatasets", "USER_SESSION(%s) TASK_ID(%s) NO_OF_DATASETS(%s)",
-                userSessionToken, serviceKey, datasets.size());
+        log("createReportFromDatasets", "USER_SESSION(%s) TASK_ID(%s) NO_OF_DATASETS(%s) EMAIL(%s)",
+                userSessionToken, serviceKey, datasets.size(), userEmailOrNull);
         return null;
     }
 
@@ -177,10 +178,11 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
 
     @Override
     public TableModel createReportFromAggregationService(String sessionToken,
-            String userSessionToken, String serviceKey, Map<String, Object> parameters)
+            String userSessionToken, String serviceKey, Map<String, Object> parameters,
+            String userEmailOrNull)
     {
-        log("createReportFromAggregationService", "USER_SESSION(%s) SERVICE(%s) PARAMETERS(%s)",
-                userSessionToken, serviceKey, parameters);
+        log("createReportFromAggregationService", "USER_SESSION(%s) SERVICE(%s) PARAMETERS(%s) EMAIL(%s)",
+                userSessionToken, serviceKey, parameters, userEmailOrNull);
         return null;
     }
 
