@@ -46,7 +46,7 @@ public class ExampleAggregationServicePlugin extends AbstractAggregationServiceR
     @Override
     public TableModel createAggregationReport(Map<String, Object> parameters, DataSetProcessingContext context)
     {
-        SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
+        SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
         builder.addHeader("String");
         builder.addHeader("Integer");
 
@@ -55,7 +55,7 @@ public class ExampleAggregationServicePlugin extends AbstractAggregationServiceR
         row.setCell("Integer", 20);
 
         row = builder.addRow();
-        row.setCell("String", "World");
+        row.setCell("String", parameters.get("name").toString());
         row.setCell("Integer", 30);
 
         return builder.getTableModel();
