@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
-public class ExperimentUpdateBuilder extends Builder<ExperimentUpdatesDTO>
+public class ExperimentUpdateBuilder extends UpdateBuilder<ExperimentUpdatesDTO>
 {
     private ExperimentUpdatesDTO updates;
 
@@ -53,7 +53,7 @@ public class ExperimentUpdateBuilder extends Builder<ExperimentUpdatesDTO>
                 .getSpace().getCode(), experiment.getProject().getCode()));
     }
 
-    public ExperimentUpdateBuilder withProject(Project project)
+    public ExperimentUpdateBuilder toProject(Project project)
     {
         updates.setProjectIdentifier(new ProjectIdentifier("CISD", project.getSpace()
                 .getCode(), project.getCode()));
@@ -71,9 +71,21 @@ public class ExperimentUpdateBuilder extends Builder<ExperimentUpdatesDTO>
         return this;
     }
 
+    public ExperimentUpdateBuilder removingSamples()
+    {
+        updates.setSampleCodes(new String[0]);
+        return this;
+    }
+
     @Override
     public ExperimentUpdatesDTO create()
     {
         return updates;
+    }
+
+    @Override
+    public void perform()
+    {
+        commonServer.updateExperiment(this.sessionToken, this.create());
     }
 }

@@ -46,16 +46,16 @@ import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
  */
 public class UnassignSampleFromExperimentTest extends BaseTest
 {
-    private Sample sample;
-
     private Experiment experiment;
 
     private Space space;
 
     @Test
-    public void experimentAssociationOfTheSampleIsRemoved()
+    public void experimentAssignmentOfTheSampleIsRemoved()
             throws Exception
     {
+        Sample sample = create(aSample().inExperiment(experiment));
+
         perform(anUpdateOf(sample).removingExperiment());
 
         assertThat(serverSays(sample).getExperiment(), is(nullValue()));
@@ -64,6 +64,8 @@ public class UnassignSampleFromExperimentTest extends BaseTest
     @Test
     public void spaceAssociationOfTheSampleIsLeftIntact() throws Exception
     {
+        Sample sample = create(aSample().inExperiment(experiment));
+
         perform(anUpdateOf(sample).removingExperiment());
 
         assertThat(serverSays(sample), is(inSpace(space)));
@@ -74,6 +76,8 @@ public class UnassignSampleFromExperimentTest extends BaseTest
     public void unassigningFailsIfTheSampleHasDataSets()
             throws Exception
     {
+        Sample sample = create(aSample().inExperiment(experiment));
+
         create(aDataSet().inSample(sample));
 
         perform(anUpdateOf(sample).removingExperiment());
@@ -82,45 +86,103 @@ public class UnassignSampleFromExperimentTest extends BaseTest
     @Test
     public void childSampleCanBeUnassigned() throws Exception
     {
-        Sample child = create(aSample().withParent(sample).inExperiment(experiment));
+        Sample parent = create(aSample().inExperiment(experiment));
+        Sample child = create(aSample().withParent(parent).inExperiment(experiment));
 
         perform(anUpdateOf(child).removingExperiment());
 
         assertThat(serverSays(child).getExperiment(), is(nullValue()));
-        assertThat(serverSays(sample), is(inExperiment(experiment)));
+    }
+
+    @Test
+    public void experimentAssignmentOfParentSampleIsNotChangedWhenChildSampleIsUnassigned()
+            throws Exception
+    {
+        Sample parent = create(aSample().inExperiment(experiment));
+        Sample child = create(aSample().withParent(parent).inExperiment(experiment));
+
+        perform(anUpdateOf(child).removingExperiment());
+
+        assertThat(serverSays(parent), is(inExperiment(experiment)));
     }
 
     @Test
     public void parentSampleCanBeUnassigned() throws Exception
     {
-        Sample child = create(aSample().withParent(sample).inExperiment(experiment));
+        Sample parent = create(aSample().inExperiment(experiment));
+        create(aSample().withParent(parent).inExperiment(experiment));
 
-        perform(anUpdateOf(sample).removingExperiment());
+        perform(anUpdateOf(parent).removingExperiment());
 
-        assertThat(serverSays(sample).getExperiment(), is(nullValue()));
+        assertThat(serverSays(parent).getExperiment(), is(nullValue()));
+    }
+
+    @Test
+    public void experimentAssignmentOfChildSampleIsNotChangedWhenParentSampleIsUnassigned()
+            throws Exception
+    {
+        Sample parent = create(aSample().inExperiment(experiment));
+        Sample child = create(aSample().withParent(parent).inExperiment(experiment));
+
+        perform(anUpdateOf(parent).removingExperiment());
+
         assertThat(serverSays(child), is(inExperiment(experiment)));
     }
 
     @Test
     public void componentSampleCanBeUnassigned() throws Exception
     {
-        Sample component = create(aSample().inContainer(sample).inExperiment(experiment));
+        Sample container = create(aSample().inExperiment(experiment));
+        Sample component = create(aSample().inContainer(container).inExperiment(experiment));
 
         perform(anUpdateOf(component).removingExperiment());
 
         assertThat(serverSays(component).getExperiment(), is(nullValue()));
-        assertThat(serverSays(sample), is(inExperiment(experiment)));
+    }
+
+    @Test
+    public void experimentAssignmentOfContainerSampleIsNotChangedWhenComponentSampleIsUnassigned()
+            throws Exception
+    {
+        Sample container = create(aSample().inExperiment(experiment));
+        Sample component = create(aSample().inContainer(container).inExperiment(experiment));
+
+        perform(anUpdateOf(component).removingExperiment());
+
+        assertThat(serverSays(container), is(inExperiment(experiment)));
     }
 
     @Test
     public void containerSampleCanBeUnassigned() throws Exception
     {
-        Sample component = create(aSample().inContainer(sample).inExperiment(experiment));
+        Sample container = create(aSample().inExperiment(experiment));
+        create(aSample().inContainer(container).inExperiment(experiment));
 
-        perform(anUpdateOf(sample).removingExperiment());
+        perform(anUpdateOf(container).removingExperiment());
+
+        assertThat(serverSays(container).getExperiment(), is(nullValue()));
+    }
+
+    @Test
+    public void experimentAssignmentOfComponentSampleIsNotChangedWhenContainerSampleIsUnassigned()
+            throws Exception
+    {
+        Sample container = create(aSample().inExperiment(experiment));
+        Sample component = create(aSample().inContainer(container).inExperiment(experiment));
+
+        perform(anUpdateOf(container).removingExperiment());
+
+        assertThat(serverSays(component), is(inExperiment(experiment)));
+    }
+
+    @Test
+    public void unassigningCanBeDoneThroughExperimentUpdate() throws Exception
+    {
+        Sample sample = create(aSample().inExperiment(experiment));
+
+        perform(anUpdateOf(experiment).removingSamples());
 
         assertThat(serverSays(sample).getExperiment(), is(nullValue()));
-        assertThat(serverSays(component), is(inExperiment(experiment)));
     }
 
     @Test(dataProvider = "rolesAllowedToUnassignSampleFromExperiment")
@@ -128,6 +190,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
             RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
+        Sample sample = create(aSample().inExperiment(experiment));
         String user =
                 create(aSession().withSpaceRole(spaceRole, space).withInstanceRole(instanceRole));
 
@@ -140,6 +203,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
             RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
+        Sample sample = create(aSample().inExperiment(experiment));
         String user =
                 create(aSession().withSpaceRole(spaceRole, space).withInstanceRole(instanceRole));
 
@@ -152,13 +216,11 @@ public class UnassignSampleFromExperimentTest extends BaseTest
         space = create(aSpace());
         Project project = create(aProject().inSpace(space));
         experiment = create(anExperiment().inProject(project));
-        sample = create(aSample().inExperiment(experiment));
     }
 
     @BeforeClass
     void createAuthorizationRules()
     {
-
         spaceDomain = new GuardedDomain("space", RoleLevel.SPACE);
         instance = new GuardedDomain("instance", RoleLevel.INSTANCE);
 

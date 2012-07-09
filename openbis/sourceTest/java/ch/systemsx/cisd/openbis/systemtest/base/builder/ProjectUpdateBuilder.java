@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
-public class ProjectUpdateBuilder extends Builder<ProjectUpdatesDTO>
+public class ProjectUpdateBuilder extends UpdateBuilder<ProjectUpdatesDTO>
 {
     private ProjectUpdatesDTO updates;
 
@@ -42,7 +42,7 @@ public class ProjectUpdateBuilder extends Builder<ProjectUpdatesDTO>
         updates.setVersion(project.getModificationDate());
     }
 
-    public ProjectUpdateBuilder withSpace(Space space)
+    public ProjectUpdateBuilder toSpace(Space space)
     {
         updates.setGroupCode(space.getCode());
         return this;
@@ -57,5 +57,11 @@ public class ProjectUpdateBuilder extends Builder<ProjectUpdatesDTO>
     private Project refresh(Project project)
     {
         return commonServer.getProjectInfo(systemSession, new TechId(project.getId()));
+    }
+
+    @Override
+    public void perform()
+    {
+        commonServer.updateProject(this.sessionToken, this.create());
     }
 }

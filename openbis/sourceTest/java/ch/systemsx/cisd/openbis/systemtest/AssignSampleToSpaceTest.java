@@ -53,18 +53,28 @@ public class AssignSampleToSpaceTest extends BaseTest
     public Space destinationSpace;
 
     @Test
-    public void sampleWithAnExperimentIsAssociatedWithTheNewSpace() throws Exception
+    public void sampleWithExperimentCanBeAssignedToNewSpace() throws Exception
     {
         Sample sample = create(aSample().inExperiment(experiment));
 
         perform(anUpdateOf(sample).toSpace(destinationSpace));
 
         assertThat(serverSays(sample), is(inSpace(destinationSpace)));
+    }
+
+    @Test
+    public void experimentAssignmentOfSampleIsRemovedWhenSampleIsAssignedToNewSpace()
+            throws Exception
+    {
+        Sample sample = create(aSample().inExperiment(experiment));
+
+        perform(anUpdateOf(sample).toSpace(destinationSpace));
+
         assertThat(serverSays(sample).getExperiment(), is(nullValue()));
     }
 
     @Test
-    public void spaceSampleIsAssociatedWithTheNewSpace() throws Exception
+    public void spaceSampleCanBeAssignedToNewSpace() throws Exception
     {
         Sample sample = create(aSample().inSpace(sourceSpace));
 
@@ -74,7 +84,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test
-    public void sharedSampleIsAssociatedWithTheNewSpace() throws Exception
+    public void sharedSampleCanBeAssignedToSpace() throws Exception
     {
         Sample sample = create(aSample());
 
@@ -84,7 +94,20 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test
-    public void childSampleCanBeAssignedToNewSpace() throws Exception
+    public void childSampleCanBeAssignedToNewSpace()
+            throws Exception
+    {
+        Sample parent = create(aSample().inExperiment(experiment));
+        Sample child = create(aSample().inExperiment(experiment).withParent(parent));
+
+        perform(anUpdateOf(child).toSpace(destinationSpace));
+
+        assertThat(serverSays(child), is(inSpace(destinationSpace)));
+    }
+
+    @Test
+    public void spaceAssignmentOfParentSampleIsNotChangedWhenChildSampleIsAssignedToNewSpace()
+            throws Exception
     {
         Sample parent = create(aSample().inExperiment(experiment));
         Sample child = create(aSample().inExperiment(experiment).withParent(parent));
@@ -92,11 +115,22 @@ public class AssignSampleToSpaceTest extends BaseTest
         perform(anUpdateOf(child).toSpace(destinationSpace));
 
         assertThat(serverSays(parent), is(inSpace(sourceSpace)));
-        assertThat(serverSays(child), is(inSpace(destinationSpace)));
     }
 
     @Test
     public void parentSampleCanBeAssignedToNewSpace() throws Exception
+    {
+        Sample parent = create(aSample().inExperiment(experiment));
+        create(aSample().inExperiment(experiment).withParent(parent));
+
+        perform(anUpdateOf(parent).toSpace(destinationSpace));
+
+        assertThat(serverSays(parent), is(inSpace(destinationSpace)));
+    }
+
+    @Test
+    public void spaceAssignmentOfChildSampleIsNotChangedWhenParentSampleIsAssignedToNewSpace()
+            throws Exception
     {
         Sample parent = create(aSample().inExperiment(experiment));
         Sample child = create(aSample().inExperiment(experiment).withParent(parent));
@@ -104,7 +138,6 @@ public class AssignSampleToSpaceTest extends BaseTest
         perform(anUpdateOf(parent).toSpace(destinationSpace));
 
         assertThat(serverSays(child), is(inSpace(sourceSpace)));
-        assertThat(serverSays(parent), is(inSpace(destinationSpace)));
     }
 
     @Test
@@ -115,12 +148,35 @@ public class AssignSampleToSpaceTest extends BaseTest
 
         perform(anUpdateOf(component).toSpace(destinationSpace));
 
-        assertThat(serverSays(container), is(inSpace(sourceSpace)));
         assertThat(serverSays(component), is(inSpace(destinationSpace)));
     }
 
     @Test
+    public void spaceAssignmentOfContainerSampleIsNotChangedWhenComponentSampleIsAssignedToNewSpace()
+            throws Exception
+    {
+        Sample container = create(aSample().inExperiment(experiment));
+        Sample component = create(aSample().inExperiment(experiment).inContainer(container));
+
+        perform(anUpdateOf(component).toSpace(destinationSpace));
+
+        assertThat(serverSays(container), is(inSpace(sourceSpace)));
+    }
+
+    @Test
     public void containerSampleCanBeAssignedToNewSpace() throws Exception
+    {
+        Sample container = create(aSample().inExperiment(experiment));
+        create(aSample().inExperiment(experiment).inContainer(container));
+
+        perform(anUpdateOf(container).toSpace(destinationSpace));
+
+        assertThat(serverSays(container), is(inSpace(destinationSpace)));
+    }
+
+    @Test
+    public void spaceAssignmentOfComponentSampleIsNotChangedWhenContainerSampleIsAssingnedToNewSpace()
+            throws Exception
     {
         Sample container = create(aSample().inExperiment(experiment));
         Sample component = create(aSample().inExperiment(experiment).inContainer(container));
@@ -128,7 +184,6 @@ public class AssignSampleToSpaceTest extends BaseTest
         perform(anUpdateOf(container).toSpace(destinationSpace));
 
         assertThat(serverSays(component), is(inSpace(sourceSpace)));
-        assertThat(serverSays(container), is(inSpace(destinationSpace)));
     }
 
     @Test(dataProvider = "rolesAllowedToAssignSampleToSpace")
@@ -185,6 +240,18 @@ public class AssignSampleToSpaceTest extends BaseTest
         Sample sharedSample = create(aSample());
 
         perform(anUpdateOf(sharedSample).toSpace(destinationSpace).as(user));
+    }
+
+    @Test
+    public void assigningSampleToSameSpaceIsAllowedToAllSpaceUsersAsNoRealChangeIsMade()
+            throws Exception
+    {
+        Sample sample = create(aSample().inSpace(sourceSpace));
+        String user = create(aSession().withSpaceRole(RoleWithHierarchy.SPACE_USER, sourceSpace));
+
+        perform(anUpdateOf(sample).toSpace(sourceSpace).as(user));
+
+        assertThat(serverSays(sample), is(inSpace(sourceSpace)));
     }
 
     @BeforeClass

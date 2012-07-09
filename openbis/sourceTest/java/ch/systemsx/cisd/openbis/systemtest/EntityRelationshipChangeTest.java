@@ -31,8 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleC
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 
@@ -48,141 +46,11 @@ public class EntityRelationshipChangeTest extends BaseTest
 
     private Space space;
 
-    private Space sourceSpace;
-
-    private Space destinationSpace;
-
     @BeforeClass
     public void createFixture() throws Exception
     {
         space = create(aSpace());
-        sourceSpace = create(aSpace());
-        destinationSpace = create(aSpace());
         session = create(aSession().withInstanceRole(RoleCode.ADMIN));
-    }
-
-    @Test
-    public void dataSetCanBeUpdatedToAnotherExperiment() throws Exception
-    {
-        Project project = create(aProject().inSpace(space));
-        Experiment sourceExperiment = create(anExperiment().inProject(project));
-        Experiment destinationExperiment = create(anExperiment().inProject(project));
-        ExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
-        DataSetUpdatesDTO updates =
-                create(anUpdateOf(dataset).withExperiment(destinationExperiment));
-
-        commonServer.updateDataSet(session, updates);
-
-        assertThat(serverSays(dataset), is(inExperiment(destinationExperiment)));
-    }
-
-    @Test
-    public void registeringAnExperimentWithExistingSpaceLevelSampleAssociatesTheSampleWithTheExperiment()
-            throws Exception
-    {
-        Project project = create(aProject().inSpace(space));
-        Sample sample = create(aSample().inSpace(space));
-
-        Experiment experiment =
-                create(anExperiment().asUser(session).withCode("the_experiment").inProject(project)
-                        .withSamples(sample));
-
-        assertThat(serverSays(sample), is(inSpace(space)));
-        assertThat(serverSays(sample), is(inExperiment(experiment)));
-    }
-
-    @Test
-    public void experimentCanBeUpdatedToContainSpaceSamples() throws Exception
-    {
-        Project project = create(aProject().inSpace(space));
-        Experiment experiment = create(anExperiment().inProject(project));
-        Sample sample = create(aSample().inSpace(space));
-        ExperimentUpdatesDTO updates = create(anUpdateOf(experiment).withSamples(sample));
-
-        commonServer.updateExperiment(session, updates);
-
-        assertThat(serverSays(sample), is(inExperiment(experiment)));
-    }
-
-    @Test
-    public void sampleBecomesSpaceSampleIfExperimentUpdateRemovesItFromExperiment()
-            throws Exception
-    {
-        Project project = create(aProject().inSpace(space));
-        Experiment experiment = create(anExperiment().inProject(project));
-        Sample sample = create(aSample().inExperiment(experiment));
-        Sample anotherSample = create(aSample().inExperiment(experiment));
-        ExperimentUpdatesDTO updates = create(anUpdateOf(experiment).withSamples(sample));
-
-        commonServer.updateExperiment(session, updates);
-
-        assertThat(serverSays(sample), is(inExperiment(experiment)));
-        assertThat(serverSays(anotherSample).getExperiment(), is(nullValue()));
-    }
-
-    @Test
-    public void experimentsCanBeUpdatedToAnotherProject() throws Exception
-    {
-        Project sourceProject = create(aProject().inSpace(space));
-        Project destinationProject = create(aProject().inSpace(space));
-        Experiment experiment = create(anExperiment().inProject(sourceProject));
-        ExperimentUpdatesDTO updates =
-                create(anUpdateOf(experiment).withProject(destinationProject));
-
-        commonServer.updateExperiment(session, updates);
-
-        assertThat(serverSays(experiment), is(inProject(destinationProject)));
-    }
-
-    @Test
-    public void updatingExperimentToProjectInAnotherSpaceChangesTheSpaceOfSamplesInThatExperiment()
-            throws Exception
-    {
-        Project sourceProject = create(aProject().withCode("source").inSpace(sourceSpace));
-        Project destinationProject =
-                create(aProject().withCode("destination").inSpace(destinationSpace));
-        Experiment experiment = create(anExperiment().inProject(sourceProject));
-        Sample sample = create(aSample().inExperiment(experiment));
-        ExperimentUpdatesDTO updates =
-                create(anUpdateOf(experiment).withProject(destinationProject));
-
-        commonServer.updateExperiment(session, updates);
-
-        assertThat(serverSays(experiment), is(inProject(destinationProject)));
-        assertThat(serverSays(sample), is(inSpace(destinationSpace)));
-    }
-
-    @Test
-    public void dataSetCanBeUpdatedToAnotherSample() throws Exception
-    {
-        Project project = create(aProject().inSpace(space));
-        Experiment experiment = create(anExperiment().inProject(project));
-        Sample sourceSample = create(aSample().inExperiment(experiment));
-        Sample destinationSample = create(aSample().inExperiment(experiment));
-        ExternalData dataset = create(aDataSet().inSample(sourceSample));
-        DataSetUpdatesDTO updates = create(anUpdateOf(dataset).withSample(destinationSample));
-
-        commonServer.updateDataSet(session, updates);
-
-        assertThat(serverSays(dataset), is(inSample(destinationSample)));
-    }
-
-    @Test
-    public void updatingProjectToAnotherSpaceChangesSpaceOfAllSamplesOfAllExperimentsInThatProject()
-            throws Exception
-    {
-        Project project = create(aProject().inSpace(sourceSpace));
-        Experiment experiment1 = create(anExperiment().inProject(project));
-        Experiment experiment2 = create(anExperiment().inProject(project));
-        Sample sample1 = create(aSample().inExperiment(experiment1));
-        Sample sample2 = create(aSample().inExperiment(experiment2));
-        ProjectUpdatesDTO updates = create(anUpdateOf(project).withSpace(destinationSpace));
-
-        commonServer.updateProject(session, updates);
-
-        assertThat(serverSays(project), is(inSpace(destinationSpace)));
-        assertThat(serverSays(sample1), is(inSpace(destinationSpace)));
-        assertThat(serverSays(sample2), is(inSpace(destinationSpace)));
     }
 
     @Test

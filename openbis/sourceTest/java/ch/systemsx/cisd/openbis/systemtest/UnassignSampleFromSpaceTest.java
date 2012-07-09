@@ -50,7 +50,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
     public Experiment experiment;
 
     @Test
-    public void spaceLevelSampleCanBeUpdatedToSharedSample() throws Exception
+    public void spaceLevelSampleCanBeUnassignedFromSpace() throws Exception
     {
         Sample sample = create(aSample().inSpace(space));
 
@@ -60,18 +60,28 @@ public class UnassignSampleFromSpaceTest extends BaseTest
     }
 
     @Test
-    public void sampleWithAnExperimentCanBeUpdatedToSharedSample() throws Exception
+    public void sampleWithAnExperimentCanBeUnassignedFromSpace() throws Exception
+    {
+        Sample sample = create(aSample().inExperiment(experiment));
+
+        perform(anUpdateOf(sample).removingSpace());
+
+        assertThat(serverSays(sample).getSpace(), is(nullValue()));
+    }
+
+    @Test
+    public void experimentAssignmentOfSampleIsRemovedWhenSampleIsUnassignedFromSpace()
+            throws Exception
     {
         Sample sample = create(aSample().inExperiment(experiment));
 
         perform(anUpdateOf(sample).removingSpace());
 
         assertThat(serverSays(sample).getExperiment(), is(nullValue()));
-        assertThat(serverSays(sample).getSpace(), is(nullValue()));
     }
 
     @Test
-    public void childOfSpaceLevelSampleCanBeShared() throws Exception
+    public void childSampleCanBeUnassignedFromSpace() throws Exception
     {
         Sample parent = create(aSample().inExperiment(experiment));
         Sample child = create(aSample().withParent(parent).inExperiment(experiment));
@@ -79,23 +89,41 @@ public class UnassignSampleFromSpaceTest extends BaseTest
         perform(anUpdateOf(child).removingSpace());
 
         assertThat(serverSays(child).getSpace(), is(nullValue()));
-        assertThat(serverSays(child).getExperiment(), is(nullValue()));
-        assertThat(serverSays(parent), is(inSpace(space)));
-        assertThat(serverSays(parent), is(inExperiment(experiment)));
     }
 
     @Test
-    public void parentOfSpaceLevelSampleCanBeShared() throws Exception
+    public void spaceAssignmentOfParentSampleIsNotChangedWhenChildSampleIsUnassignedFromSpace()
+            throws Exception
+    {
+        Sample parent = create(aSample().inExperiment(experiment));
+        Sample child = create(aSample().withParent(parent).inExperiment(experiment));
+
+        perform(anUpdateOf(child).removingSpace());
+
+        assertThat(serverSays(parent), is(inSpace(space)));
+    }
+
+    @Test
+    public void parentSampleCanBeUnassignedFromSpace() throws Exception
+    {
+        Sample parent = create(aSample().inExperiment(experiment));
+        create(aSample().withParent(parent).inExperiment(experiment));
+
+        perform(anUpdateOf(parent).removingSpace());
+
+        assertThat(serverSays(parent).getSpace(), is(nullValue()));
+    }
+
+    @Test
+    public void spaceAssignmentOfChildSampleIsNotChangedWhenParentSampleIsUnassignedFromSpace()
+            throws Exception
     {
         Sample parent = create(aSample().inExperiment(experiment));
         Sample child = create(aSample().withParent(parent).inExperiment(experiment));
 
         perform(anUpdateOf(parent).removingSpace());
 
-        assertThat(serverSays(parent).getSpace(), is(nullValue()));
-        assertThat(serverSays(parent).getExperiment(), is(nullValue()));
         assertThat(serverSays(child), is(inSpace(space)));
-        assertThat(serverSays(child), is(inExperiment(experiment)));
     }
 
     @Test
@@ -107,23 +135,41 @@ public class UnassignSampleFromSpaceTest extends BaseTest
         perform(anUpdateOf(component).removingSpace());
 
         assertThat(serverSays(component).getSpace(), is(nullValue()));
-        assertThat(serverSays(component).getExperiment(), is(nullValue()));
+    }
+
+    @Test
+    public void spaceAssociationOfContainerSampleIsNotChangedWhenComponentSampleIsUnassignedFromSpace()
+            throws Exception
+    {
+        Sample container = create(aSample().inExperiment(experiment));
+        Sample component = create(aSample().inExperiment(experiment).inContainer(container));
+
+        perform(anUpdateOf(component).removingSpace());
+
         assertThat(serverSays(container), is(inSpace(space)));
-        assertThat(serverSays(container), is(inExperiment(experiment)));
     }
 
     @Test
     public void containerOfSpaceLevelSampleCanBeShared() throws Exception
     {
         Sample container = create(aSample().inExperiment(experiment));
-        Sample component = create(aSample().inExperiment(experiment).inContainer(container));
+        create(aSample().inExperiment(experiment).inContainer(container));
 
         perform(anUpdateOf(container).removingSpace());
 
         assertThat(serverSays(container).getSpace(), is(nullValue()));
-        assertThat(serverSays(container).getExperiment(), is(nullValue()));
+    }
+
+    @Test
+    public void spaceAssociationOfComponentSampleIsNotChangedWhenContainerSampleIsUnassignedFromSpace()
+            throws Exception
+    {
+        Sample container = create(aSample().inExperiment(experiment));
+        Sample component = create(aSample().inExperiment(experiment).inContainer(container));
+
+        perform(anUpdateOf(container).removingSpace());
+
         assertThat(serverSays(component), is(inSpace(space)));
-        assertThat(serverSays(component), is(inExperiment(experiment)));
     }
 
     @Test(dataProvider = "rolesAllowedToUnassignSampleFromSpace")

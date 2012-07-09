@@ -12,6 +12,10 @@
       <class name="ch.systemsx.cisd.openbis.systemtest.UnassignSampleFromExperimentTest" />
       <class name="ch.systemsx.cisd.openbis.systemtest.AssignSampleToSpaceTest" />
       <class name="ch.systemsx.cisd.openbis.systemtest.UnassignSampleFromSpaceTest" />
+      <class name="ch.systemsx.cisd.openbis.systemtest.AssignDataSetToSampleTest" />
+      <class name="ch.systemsx.cisd.openbis.systemtest.AssignDataSetToExperimentTest" />
+      <class name="ch.systemsx.cisd.openbis.systemtest.AssignExperimentToProjectTest" />
+      <class name="ch.systemsx.cisd.openbis.systemtest.AssignProjectToSpaceTest" />
     </classes>
   </test>
 

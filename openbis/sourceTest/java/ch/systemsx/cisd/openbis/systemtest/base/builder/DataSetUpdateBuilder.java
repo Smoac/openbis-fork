@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
-public class DataSetUpdateBuilder extends Builder<DataSetUpdatesDTO>
+public class DataSetUpdateBuilder extends UpdateBuilder<DataSetUpdatesDTO>
 {
     private TechId datasetId;
 
@@ -66,16 +66,19 @@ public class DataSetUpdateBuilder extends Builder<DataSetUpdatesDTO>
         this.experimentIdentifier = new ExperimentIdentifier(data.getExperiment());
     }
 
-    public DataSetUpdateBuilder withSample(Sample sample)
+    public DataSetUpdateBuilder toSample(Sample sample)
     {
-        withExperiment(sample.getExperiment());
+        toExperiment(sample.getExperiment());
         this.sampleIdentifier = id(sample);
         return this;
     }
 
-    public DataSetUpdateBuilder withExperiment(Experiment experiment)
+    public DataSetUpdateBuilder toExperiment(Experiment experiment)
     {
-        this.experimentIdentifier = new ExperimentIdentifier(experiment);
+        if (experiment != null)
+        {
+            this.experimentIdentifier = new ExperimentIdentifier(experiment);
+        }
         return this;
     }
 
@@ -150,5 +153,11 @@ public class DataSetUpdateBuilder extends Builder<DataSetUpdatesDTO>
         }
 
         return updates;
+    }
+
+    @Override
+    public void perform()
+    {
+        commonServer.updateDataSet(this.sessionToken, this.create());
     }
 }
