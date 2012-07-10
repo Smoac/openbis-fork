@@ -140,6 +140,12 @@ public class UpdateSampleParentsTest extends BaseTest
         perform(anUpdateOf(child).toHaveParent(parent));
     }
 
+    Space unrelatedAdmin;
+
+    Space unrelatedObserver;
+
+    Space unrelatedNone;
+
     @Test(dataProvider = "rolesAllowedToAddParentToSample", groups = "authorization")
     public void addingParentToSampleIsAllowedFor(
             RoleWithHierarchy spaceRole,
@@ -148,7 +154,11 @@ public class UpdateSampleParentsTest extends BaseTest
         Sample parentToBe = create(aSample().inSpace(space));
         Sample childToBe = create(aSample().inSpace(space));
         String user =
-                create(aSession().withSpaceRole(spaceRole, space).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(spaceRole, space)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(childToBe).toHaveParent(parentToBe).as(user));
     }
@@ -162,7 +172,11 @@ public class UpdateSampleParentsTest extends BaseTest
         Sample parentToBe = create(aSample().inSpace(space));
         Sample childToBe = create(aSample().inSpace(space));
         String user =
-                create(aSession().withSpaceRole(spaceRole, space).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(spaceRole, space)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(childToBe).toHaveParent(parentToBe).as(user));
     }
@@ -175,9 +189,12 @@ public class UpdateSampleParentsTest extends BaseTest
         Sample parent1 = create(aSample().inSpace(space));
         Sample parent2 = create(aSample().inSpace(space));
         Sample child = create(aSample().inSpace(space).withParents(parent1, parent2));
-
         String user =
-                create(aSession().withSpaceRole(spaceRole, space).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(spaceRole, space)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(child).toHaveParent(parent1).as(user));
     }
@@ -191,9 +208,12 @@ public class UpdateSampleParentsTest extends BaseTest
         Sample parent1 = create(aSample().inSpace(space));
         Sample parent2 = create(aSample().inSpace(space));
         Sample child = create(aSample().inSpace(space).withParents(parent1, parent2));
-
         String user =
-                create(aSession().withSpaceRole(spaceRole, space).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(spaceRole, space)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(child).toHaveParent(parent1).as(user));
     }
@@ -202,6 +222,9 @@ public class UpdateSampleParentsTest extends BaseTest
     void createFixture() throws Exception
     {
         space = create(aSpace());
+        unrelatedAdmin = create(aSpace());
+        unrelatedObserver = create(aSpace());
+        unrelatedNone = create(aSpace());
     }
 
     GuardedDomain spaceDomain;

@@ -39,7 +39,6 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -52,7 +51,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -195,8 +193,7 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(null));
 
                     allowing(relationshipService).removeSampleFromContainer(
-                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)),
-                            with(any(SamplePE.class)));
+                            with(any(IAuthSession.class)), with(any(SamplePE.class)));
 
                     BaseMatcher<SamplePE> matcher = new BaseMatcher<SamplePE>()
                         {
@@ -285,12 +282,6 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(daoFactory).getRelationshipTypeDAO();
                     will(returnValue(relationshipTypeDAO));
 
-                    one(relationshipTypeDAO).tryFindRelationshipTypeByCode(
-                            BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
-                    RelationshipTypePE result = new RelationshipTypePE();
-                    result.setCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
-                    will(returnValue(result));
-
                     allowing(daoFactory).getSampleDAO();
                     will(returnValue(sampleDAO));
 
@@ -322,9 +313,12 @@ public final class SampleBOTest extends AbstractBOTest
                     one(permIdDAO).createPermId();
                     will(returnValue("2009010112341234-1"));
 
-                    allowing(relationshipService).assignSampleToContainer(
-                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)),
-                            with(any(SamplePE.class)), with(any(SampleIdentifier.class)),
+                    one(relationshipService).assignSampleToContainer(
+                            with(any(IAuthSession.class)), with(any(SamplePE.class)),
+                            with(any(SamplePE.class)));
+
+                    one(relationshipService).addParentToSample(
+                            with(any(IAuthSession.class)), with(any(SamplePE.class)),
                             with(any(SamplePE.class)));
                 }
             });
@@ -333,11 +327,8 @@ public final class SampleBOTest extends AbstractBOTest
         sampleBO.define(newSample);
 
         final SamplePE sample = sampleBO.getSample();
-        // / assertEquals(sampleIdentifier.toString(), sample.getSampleIdentifier().toString());
         assertEquals(EXAMPLE_PERSON, sample.getRegistrator());
         assertSame(sampleType, sample.getSampleType());
-        // assertEquals(container, sample.getContainer());
-        assertEquals(generatedFrom, sample.getGeneratedFrom());
 
         context.assertIsSatisfied();
     }
@@ -404,11 +395,6 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(daoFactory).getRelationshipTypeDAO();
                     will(returnValue(relationshipTypeDAO));
 
-                    exactly(1).of(relationshipTypeDAO).tryFindRelationshipTypeByCode(
-                            BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
-                    RelationshipTypePE relationship = new RelationshipTypePE();
-                    relationship.setCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
-                    will(returnValue(relationship));
                     allowing(databaseInstanceDAO).tryFindDatabaseInstanceByCode(
                             EXAMPLE_DATABASE_INSTANCE.getCode());
                     will(returnValue(EXAMPLE_DATABASE_INSTANCE));
@@ -431,7 +417,10 @@ public final class SampleBOTest extends AbstractBOTest
                             with(any(IAuthSession.class)), with(any(SamplePE.class)));
 
                     allowing(relationshipService).removeSampleFromContainer(
-                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)),
+                            with(any(IAuthSession.class)), with(any(SamplePE.class)));
+
+                    one(relationshipService).addParentToSample(
+                            with(any(IAuthSession.class)), with(any(SamplePE.class)),
                             with(any(SamplePE.class)));
 
                 }
@@ -443,9 +432,6 @@ public final class SampleBOTest extends AbstractBOTest
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
                         .<NewAttachment> emptyList(), now, IdentifierHelper.sample(sample), null,
                         modifiedParents));
-        SamplePE newParent = sample.getGeneratedFrom();
-        assertNotNull(newParent);
-        assertEquals(parent, newParent);
         context.assertIsSatisfied();
     }
 
@@ -469,11 +455,6 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(daoFactory).getRelationshipTypeDAO();
                     will(returnValue(relationshipTypeDAO));
 
-                    exactly(1).of(relationshipTypeDAO).tryFindRelationshipTypeByCode(
-                            BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
-                    RelationshipTypePE relationship = new RelationshipTypePE();
-                    relationship.setCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
-                    will(returnValue(relationship));
                     allowing(databaseInstanceDAO).tryFindDatabaseInstanceByCode(
                             EXAMPLE_DATABASE_INSTANCE.getCode());
                     will(returnValue(EXAMPLE_DATABASE_INSTANCE));
@@ -511,7 +492,10 @@ public final class SampleBOTest extends AbstractBOTest
                             with(any(IAuthSession.class)), with(any(SamplePE.class)));
 
                     allowing(relationshipService).removeSampleFromContainer(
-                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)),
+                            with(any(IAuthSession.class)), with(any(SamplePE.class)));
+
+                    atLeast(3).of(relationshipService).addParentToSample(
+                            with(any(IAuthSession.class)), with(any(SamplePE.class)),
                             with(any(SamplePE.class)));
 
                 }
@@ -525,12 +509,6 @@ public final class SampleBOTest extends AbstractBOTest
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
                         .<NewAttachment> emptyList(), now, IdentifierHelper.sample(sample), null,
                         modifiedParents));
-        List<SamplePE> parents = sample.getParents();
-        assertEquals(3, parents.size());
-        Collections.sort(parents);
-        assertEquals(parent1Group1, parents.get(0));
-        assertEquals(parent2Group1, parents.get(1));
-        assertEquals(parent3Group2, parents.get(2));
         context.assertIsSatisfied();
     }
 
@@ -585,9 +563,8 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(sample));
 
                     oneOf(relationshipService).assignSampleToContainer(
-                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)),
-                            with(any(SamplePE.class)),
-                            with(any(SampleIdentifier.class)), with(any(SamplePE.class)));
+                            with(any(IAuthSession.class)), with(any(SamplePE.class)),
+                            with(any(SamplePE.class)));
 
                 }
             });
@@ -644,9 +621,8 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(sample));
 
                     oneOf(relationshipService).assignSampleToContainer(
-                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)),
-                            with(any(SamplePE.class)),
-                            with(any(SampleIdentifier.class)), with(any(SamplePE.class)));
+                            with(any(IAuthSession.class)), with(any(SamplePE.class)),
+                            with(any(SamplePE.class)));
                 }
             });
         assertNull(sample.getContainer());
@@ -840,8 +816,7 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(null));
 
                     allowing(relationshipService).removeSampleFromContainer(
-                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)),
-                            with(any(SamplePE.class)));
+                            with(any(IAuthSession.class)), with(any(SamplePE.class)));
                 }
             });
         try

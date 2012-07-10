@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -126,8 +125,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
                     "the new sample is not connected to any experiment");
         }
 
-        relationshipService.assignDataSetToSample(session, data.getCode(), IdentifierHelper
-                .sample(newSample));
+        relationshipService.assignDataSetToSample(session, data, newSample);
     }
 
     protected void updateExperiment(DataPE data, ExperimentIdentifier experimentIdentifier)
@@ -141,8 +139,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
     {
         if (experiment.equals(data.getExperiment()) == false)
         {
-            relationshipService.assignDataSetToExperiment(session, data.getCode(), IdentifierHelper
-                    .createExperimentIdentifier(experiment));
+            relationshipService.assignDataSetToExperiment(session, data, experiment);
         }
     }
 

@@ -141,6 +141,12 @@ public class UpdateSampleContainmentTest extends BaseTest
 
     Space componentSpace;
 
+    Space unrelatedAdmin;
+
+    Space unrelatedObserver;
+
+    Space unrelatedNone;
+
     @Test(dataProvider = "rolesAllowedToSetContainerToSample", groups = "authorization")
     public void settingContainerToSampleIsAllowedFor(
             RoleWithHierarchy containerSpaceRole,
@@ -149,10 +155,13 @@ public class UpdateSampleContainmentTest extends BaseTest
     {
         Sample container = create(aSample().inSpace(containerSpace));
         Sample componentCandidate = create(aSample().inSpace(componentSpace));
-
         String user =
-                create(aSession().withSpaceRole(containerSpaceRole, containerSpace).withSpaceRole(
-                        componentSpaceRole, componentSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(containerSpaceRole, containerSpace)
+                        .withSpaceRole(componentSpaceRole, componentSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(componentCandidate).toHaveContainer(container).as(user));
     }
@@ -166,10 +175,13 @@ public class UpdateSampleContainmentTest extends BaseTest
     {
         Sample container = create(aSample().inSpace(containerSpace));
         Sample componentCandidate = create(aSample().inSpace(componentSpace));
-
         String user =
-                create(aSession().withSpaceRole(containerSpaceRole, containerSpace).withSpaceRole(
-                        componentSpaceRole, componentSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(containerSpaceRole, containerSpace)
+                        .withSpaceRole(componentSpaceRole, componentSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(componentCandidate).toHaveContainer(container).as(user));
     }
@@ -182,10 +194,13 @@ public class UpdateSampleContainmentTest extends BaseTest
     {
         Sample container = create(aSample().inSpace(containerSpace));
         Sample component = create(aSample().inSpace(componentSpace).inContainer(container));
-
         String user =
-                create(aSession().withSpaceRole(containerSpaceRole, containerSpace).withSpaceRole(
-                        componentSpaceRole, componentSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(containerSpaceRole, containerSpace)
+                        .withSpaceRole(componentSpaceRole, componentSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(component).removingContainer().as(user));
     }
@@ -199,10 +214,13 @@ public class UpdateSampleContainmentTest extends BaseTest
     {
         Sample container = create(aSample().inSpace(containerSpace));
         Sample component = create(aSample().inSpace(componentSpace).inContainer(container));
-
         String user =
-                create(aSession().withSpaceRole(containerSpaceRole, containerSpace).withSpaceRole(
-                        componentSpaceRole, componentSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(containerSpaceRole, containerSpace)
+                        .withSpaceRole(componentSpaceRole, componentSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(component).removingContainer().as(user));
     }
@@ -213,6 +231,9 @@ public class UpdateSampleContainmentTest extends BaseTest
         space = create(aSpace());
         containerSpace = create(aSpace());
         componentSpace = create(aSpace());
+        unrelatedAdmin = create(aSpace());
+        unrelatedObserver = create(aSpace());
+        unrelatedNone = create(aSpace());
     }
 
     GuardedDomain containerDomain;

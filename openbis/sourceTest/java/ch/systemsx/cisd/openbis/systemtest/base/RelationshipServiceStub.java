@@ -17,13 +17,12 @@
 package ch.systemsx.cisd.openbis.systemtest.base;
 
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * @author anttil
@@ -71,48 +70,34 @@ public class RelationshipServiceStub implements IRelationshipService
     }
 
     @Override
-    public void assignDataSetToExperiment(IAuthSession session, String dataSetCode,
-            ExperimentIdentifier experiment)
+    public void assignDataSetToExperiment(IAuthSession session, DataPE data, ExperimentPE experiment)
     {
     }
 
     @Override
-    public void assignDataSetToSample(IAuthSession session, String dataSetCode,
-            SampleIdentifier sample)
+    public void assignDataSetToSample(IAuthSession session, DataPE data, SamplePE sample)
     {
     }
 
     @Override
-    public void addParentToSample(IAuthSession session, SampleIdentifier sample,
-            SampleIdentifier parent)
+    public void addParentToSample(IAuthSession session, SamplePE sample,
+            SamplePE parent)
     {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
-    public void removeParentFromSample(IAuthSession session, SampleIdentifier sample,
-            SampleIdentifier parent)
+    public void removeParentFromSample(IAuthSession session, SamplePE sample,
+            SamplePE parent)
     {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
-    public void assignSampleToContainer(IAuthSession session, SampleIdentifier sampleId,
-            SamplePE sample,
-            SampleIdentifier containerId, SamplePE container)
+    public void assignSampleToContainer(IAuthSession session, SamplePE sample, SamplePE container)
     {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
-    public void removeSampleFromContainer(IAuthSession session, SampleIdentifier sampleId,
-            SamplePE sample)
+    public void removeSampleFromContainer(IAuthSession session, SamplePE sample)
     {
-        // TODO Auto-generated method stub
-
     }
-
 }

@@ -222,14 +222,10 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
         if (containerPE == null)
         {
-            relationshipService.removeSampleFromContainer(session, IdentifierHelper
-                    .sample(samplePE), samplePE);
+            relationshipService.removeSampleFromContainer(session, samplePE);
         } else
         {
-            relationshipService.assignSampleToContainer(session, IdentifierHelper
-                    .sample(samplePE), samplePE,
-                    IdentifierHelper
-                            .sample(containerPE), containerPE);
+            relationshipService.assignSampleToContainer(session, samplePE, containerPE);
         }
     }
 
@@ -278,29 +274,15 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                 newParents.remove(r.getParentSample());
             } else
             {
-                relationshipService.removeParentFromSample(session, IdentifierHelper.sample(child),
-                        IdentifierHelper.sample(r.getParentSample()));
+                relationshipService.removeParentFromSample(session, child, r.getParentSample());
             }
         }
 
-        SampleIdentifier childId = IdentifierHelper.sample(child);
-        if (this.tryToGetSampleByIdentifier(childId) == null) // new sample
+        for (SamplePE newParent : newParents)
         {
-            PersonPE actor = findPerson();
-            RelationshipTypePE relationship = tryFindParentChildRelationshipType();
-            for (SamplePE newParent : newParents)
-            {
-                child.addParentRelationship(new SampleRelationshipPE(newParent, child,
-                        relationship, actor));
-            }
-        } else
-        {
-            for (SamplePE newParent : newParents)
-            {
-                relationshipService.addParentToSample(session, childId,
-                        IdentifierHelper.sample(newParent));
-            }
+            relationshipService.addParentToSample(session, child, newParent);
         }
+
     }
 
     protected RelationshipTypePE tryFindParentChildRelationshipType()

@@ -22,21 +22,18 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataPEPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentPEPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectPEPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SamplePEPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpacePEPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * Definition of an internal service through which entity relationships can be changed and deleted.
@@ -117,51 +114,49 @@ public interface IRelationshipService
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_DATASET_TO_EXPERIMENT")
     public void assignDataSetToExperiment(IAuthSession session,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            String dataSetCode,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ExperimentIdentifier experiment);
+            @AuthorizationGuard(guardClass = DataPEPredicate.class)
+            DataPE dataSet,
+            @AuthorizationGuard(guardClass = ExperimentPEPredicate.class)
+            ExperimentPE experiment);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_DATASET_TO_SAMPLE")
     public void assignDataSetToSample(IAuthSession session,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            String dataSetCode,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            SampleIdentifier sample);
+            @AuthorizationGuard(guardClass = DataPEPredicate.class)
+            DataPE dataSet,
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
+            SamplePE sample);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ADD_PARENT_TO_SAMPLE")
     public void addParentToSample(IAuthSession session,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            SampleIdentifier sample,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            SampleIdentifier parent);
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
+            SamplePE sample,
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
+            SamplePE parent);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("REMOVE_PARENT_FROM_SAMPLE")
     public void removeParentFromSample(IAuthSession session,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            SampleIdentifier sample,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            SampleIdentifier parent);
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
+            SamplePE sample,
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
+            SamplePE parent);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ADD_CONTAINER_TO_SAMPLE")
     public void assignSampleToContainer(IAuthSession session,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            SampleIdentifier sampleId,
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
             SamplePE sample,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            SampleIdentifier containerId,
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
             SamplePE container);
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -169,8 +164,7 @@ public interface IRelationshipService
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("REMOVE_CONTAINER_FROM_SAMPLE")
     public void removeSampleFromContainer(IAuthSession session,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            SampleIdentifier sampleId,
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
             SamplePE sample);
 
 }

@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -366,8 +367,8 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
                         destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
 
         relationshipService.assignDataSetToExperiment(sessionManager.getSession(session),
-                dataSet.getCode(),
-                id(destinationExperiment));
+                pe(dataSet),
+                pe(destinationExperiment));
     }
 
     private void assignDataSetToSample(RoleWithHierarchy sourceSpaceRole,
@@ -380,8 +381,8 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
                         destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
 
         relationshipService.assignDataSetToSample(sessionManager.getSession(session),
-                dataSet.getCode(),
-                id(destinationSample));
+                pe(dataSet),
+                pe(destinationSample));
     }
 
     private void addParentToSample(RoleWithHierarchy sourceSpaceRole,
@@ -392,8 +393,8 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
                 create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
                         destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
 
-        relationshipService.addParentToSample(sessionManager.getSession(session), id(sourceSample),
-                id(destinationSample));
+        relationshipService.addParentToSample(sessionManager.getSession(session), pe(sourceSample),
+                pe(destinationSample));
 
     }
 
@@ -406,8 +407,8 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
                         destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
 
         relationshipService.removeParentFromSample(sessionManager.getSession(session),
-                id(childSample),
-                id(parentSample));
+                pe(childSample),
+                pe(parentSample));
     }
 
     @DataProvider(name = "rolesAllowedToAssignExperimentToProject")
@@ -605,6 +606,11 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     private SamplePE pe(Sample sample)
     {
         return daoFactory.getSampleDAO().tryToFindByPermID(sample.getPermId());
+    }
+
+    private DataPE pe(ExternalData data)
+    {
+        return daoFactory.getDataDAO().tryToFindDataSetByCode(data.getCode());
     }
 
     public static RoleWithHierarchy[][] toNestedArray(Collection<List<RoleWithHierarchy>> input)
