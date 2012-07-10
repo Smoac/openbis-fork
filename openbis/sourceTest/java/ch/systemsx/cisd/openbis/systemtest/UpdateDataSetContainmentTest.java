@@ -129,7 +129,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
     }
 
     @BeforeClass
-    protected void createFixture() throws Exception
+    void createFixture() throws Exception
     {
         Space space = create(aSpace());
         Project project = create(aProject().inSpace(space));

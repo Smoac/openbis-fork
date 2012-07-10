@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.systemtest;
 
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.and;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
-import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.or;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -33,22 +32,23 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.InstanceDomain;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
  * @author anttil
  */
 public class UnassignSampleFromSpaceTest extends BaseTest
 {
-    public Space space;
+    Space space;
 
-    public Experiment experiment;
+    Experiment experiment;
 
     @Test
     public void spaceLevelSampleCanBeUnassignedFromSpace() throws Exception
@@ -138,7 +138,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
     }
 
     @Test
-    public void componentOfSpaceLevelSampleCanBeShared() throws Exception
+    public void componentOfSpaceLevelSampleCanBeUnassignedFromSpace() throws Exception
     {
         Sample container = create(aSample().inExperiment(experiment));
         Sample component = create(aSample().inExperiment(experiment).inContainer(container));
@@ -161,7 +161,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
     }
 
     @Test
-    public void containerOfSpaceLevelSampleCanBeShared() throws Exception
+    public void containerOfSpaceLevelSampleCanBeUnassignedFromSpace() throws Exception
     {
         Sample container = create(aSample().inExperiment(experiment));
         create(aSample().inExperiment(experiment).inContainer(container));
@@ -216,34 +216,29 @@ public class UnassignSampleFromSpaceTest extends BaseTest
         experiment = create(anExperiment().inProject(project));
     }
 
+    GuardedDomain spaceDomain;
+
+    GuardedDomain instance;
+
+    AuthorizationRule unassignSampleFromSpaceRule;
+
     @BeforeClass
     void createAuthorizationRules()
     {
-
-        spaceDomain = new GuardedDomain("space", RoleLevel.SPACE);
-        instance = new GuardedDomain("instance", RoleLevel.INSTANCE);
+        instance = new InstanceDomain("instance");
+        spaceDomain = new SpaceDomain("space", instance);
 
         unassignSampleFromSpaceRule =
-                or(
-                        and(
-                                rule(spaceDomain, RoleWithHierarchy.SPACE_USER),
-                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
-                        ),
-                        rule(instance, RoleWithHierarchy.INSTANCE_ADMIN)
+                and(
+                        rule(spaceDomain, RoleWithHierarchy.SPACE_USER),
+                        rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
                 );
     }
-
-    public GuardedDomain spaceDomain;
-
-    public GuardedDomain instance;
-
-    public AuthorizationRule unassignSampleFromSpaceRule;
 
     @DataProvider
     Object[][] rolesAllowedToUnassignSampleFromSpace()
     {
-        return RolePermutator.getAcceptedPermutations(unassignSampleFromSpaceRule,
-                spaceDomain,
+        return RolePermutator.getAcceptedPermutations(unassignSampleFromSpaceRule, spaceDomain,
                 instance);
     }
 
@@ -251,7 +246,6 @@ public class UnassignSampleFromSpaceTest extends BaseTest
     Object[][] rolesNotAllowedToUnassignSampleFromSpace()
     {
         return RolePermutator.getAcceptedPermutations(not(unassignSampleFromSpaceRule),
-                spaceDomain,
-                instance);
+                spaceDomain, instance);
     }
 }

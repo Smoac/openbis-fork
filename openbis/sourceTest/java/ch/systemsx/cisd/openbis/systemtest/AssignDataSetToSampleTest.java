@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.systemtest;
 
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.and;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
-import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.or;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -33,13 +32,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.InstanceDomain;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
  * @author anttil
@@ -47,20 +47,20 @@ import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
 public class AssignDataSetToSampleTest extends BaseTest
 {
 
-    private Sample sourceSample;
+    Sample sourceSample;
 
-    private Sample destinationSample;
+    Sample destinationSample;
 
-    private Experiment sourceExperiment;
+    Experiment sourceExperiment;
 
-    private Experiment destinationExperiment;
+    Experiment destinationExperiment;
 
-    private Space sourceSpace;
+    Space sourceSpace;
 
-    private Space destinationSpace;
+    Space destinationSpace;
 
     @Test
-    public void dataSetWithSampleCanBeAssignedToNewSample() throws Exception
+    public void dataSetWithSampleCanBeAssignedToAnotherSample() throws Exception
     {
         ExternalData dataset = create(aDataSet().inSample(sourceSample));
 
@@ -80,7 +80,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     }
 
     @Test
-    public void dataSetWithoutSampleCanBeAssignedToNewSample() throws Exception
+    public void dataSetWithoutSampleCanBeAssignedToSample() throws Exception
     {
         ExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
 
@@ -110,7 +110,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     }
 
     @Test
-    public void childDataSetCanBeAssignedToNewSample() throws Exception
+    public void childDataSetCanBeAssignedToAnotherSample() throws Exception
     {
         ExternalData parent = create(aDataSet().inSample(sourceSample));
         ExternalData child = create(aDataSet().inSample(sourceSample).withParent(parent));
@@ -121,7 +121,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     }
 
     @Test
-    public void sampleAssignmentOfParentDataSetIsNotChangedWhenChildDataSetIsAssignedToNewSample()
+    public void sampleAssignmentOfParentDataSetIsNotChangedWhenChildDataSetIsAssignedToAnotherSample()
             throws Exception
     {
         ExternalData parent = create(aDataSet().inSample(sourceSample));
@@ -133,7 +133,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     }
 
     @Test
-    public void parentDataSetCanBeAssignedToNewSample() throws Exception
+    public void parentDataSetCanBeAssignedToAnotherSample() throws Exception
     {
         ExternalData parent = create(aDataSet().inSample(sourceSample));
         create(aDataSet().inSample(sourceSample).withParent(parent));
@@ -144,7 +144,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     }
 
     @Test
-    public void sampleAssignmentOfChildDataSetIsNotChangedWhenParentDatasetIsAssignedToNewSample()
+    public void sampleAssignmentOfChildDataSetIsNotChangedWhenParentDatasetIsAssignedToAnotherSample()
             throws Exception
     {
         ExternalData parent = create(aDataSet().inSample(sourceSample));
@@ -156,7 +156,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     }
 
     @Test
-    public void componentDataSetCanBeAssignedToNewSample() throws Exception
+    public void componentDataSetCanBeAssignedToAnotherSample() throws Exception
     {
         ExternalData component = create(aDataSet().inSample(sourceSample));
         create(aDataSet().inSample(sourceSample).withComponent(component));
@@ -167,7 +167,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     }
 
     @Test
-    public void sampleAssignmentOfContainerDataSetIsNotChangedWhenComponentDataSetIsAssignedToNewSample()
+    public void sampleAssignmentOfContainerDataSetIsNotChangedWhenComponentDataSetIsAssignedToAnotherSample()
             throws Exception
     {
         ExternalData component = create(aDataSet().inSample(sourceSample));
@@ -179,7 +179,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     }
 
     @Test
-    public void containerDataSetCanBeAssignedToNewSample() throws Exception
+    public void containerDataSetCanBeAssignedToAnotherSample() throws Exception
     {
         ExternalData component = create(aDataSet().inSample(sourceSample));
         ExternalData container = create(aDataSet().inSample(sourceSample).withComponent(component));
@@ -190,7 +190,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     }
 
     @Test
-    public void sampleAssignmentOfComponentDataSetIsNotChangedWhenContainerDataSetIsAssignedToNewSample()
+    public void sampleAssignmentOfComponentDataSetIsNotChangedWhenContainerDataSetIsAssignedToAnotherSample()
             throws Exception
     {
         ExternalData component = create(aDataSet().inSample(sourceSample));
@@ -231,7 +231,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     }
 
     @BeforeClass
-    protected void createFixture() throws Exception
+    void createFixture() throws Exception
     {
         sourceSpace = create(aSpace());
         Project sourceProject = create(aProject().inSpace(sourceSpace));
@@ -244,41 +244,40 @@ public class AssignDataSetToSampleTest extends BaseTest
         destinationSample = create(aSample().inExperiment(destinationExperiment));
     }
 
+    GuardedDomain source;
+
+    GuardedDomain destination;
+
+    GuardedDomain instance;
+
+    AuthorizationRule assignDataSetToSampleRule;
+
     @BeforeClass
     void createAuthorizationRules()
     {
-        space1 = new GuardedDomain("space1", RoleLevel.SPACE);
-        space2 = new GuardedDomain("space2", RoleLevel.SPACE);
-        instance = new GuardedDomain("instance", RoleLevel.INSTANCE);
+        instance = new InstanceDomain("instance");
+        source = new SpaceDomain("space1", instance);
+        destination = new SpaceDomain("space2", instance);
 
         assignDataSetToSampleRule =
-                or(
-                        and(
-                                rule(space1, RoleWithHierarchy.SPACE_POWER_USER),
-                                rule(space2, RoleWithHierarchy.SPACE_POWER_USER)),
-                        rule(instance, RoleWithHierarchy.INSTANCE_ADMIN)
+                and(
+                        rule(source, RoleWithHierarchy.SPACE_POWER_USER),
+                        rule(destination, RoleWithHierarchy.SPACE_POWER_USER)
                 );
     }
-
-    public GuardedDomain space1;
-
-    public GuardedDomain space2;
-
-    public GuardedDomain instance;
-
-    public AuthorizationRule assignDataSetToSampleRule;
 
     @DataProvider
     Object[][] rolesAllowedToAssignDataSetToSample()
     {
-        return RolePermutator.getAcceptedPermutations(assignDataSetToSampleRule, space1, space2,
+        return RolePermutator.getAcceptedPermutations(assignDataSetToSampleRule, source,
+                destination,
                 instance);
     }
 
     @DataProvider
     Object[][] rolesNotAllowedToAssignDataSetToSample()
     {
-        return RolePermutator.getAcceptedPermutations(not(assignDataSetToSampleRule), space1,
-                space2, instance);
+        return RolePermutator.getAcceptedPermutations(not(assignDataSetToSampleRule), source,
+                destination, instance);
     }
 }

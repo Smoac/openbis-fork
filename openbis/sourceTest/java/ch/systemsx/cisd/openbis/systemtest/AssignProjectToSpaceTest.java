@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.systemtest;
 
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.and;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
-import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.or;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -31,13 +30,14 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.InstanceDomain;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
  * @author anttil
@@ -49,7 +49,7 @@ public class AssignProjectToSpaceTest extends BaseTest
     Space destinationSpace;
 
     @Test
-    public void projectCanBeAssignedToNewSpace() throws Exception
+    public void projectCanBeAssignedToAnotherSpace() throws Exception
     {
         Project project = create(aProject().inSpace(sourceSpace));
 
@@ -59,7 +59,7 @@ public class AssignProjectToSpaceTest extends BaseTest
     }
 
     @Test
-    public void assigningProjectToNewSpaceChangesSpaceAssignmentOfSamplesInExperimentsInThatProject()
+    public void assigningProjectToAnotherSpaceChangesSpaceAssignmentOfSamplesInExperimentsInThatProject()
             throws Exception
     {
         Project project = create(aProject().inSpace(sourceSpace));
@@ -101,51 +101,47 @@ public class AssignProjectToSpaceTest extends BaseTest
     }
 
     @BeforeClass
-    protected void createFixture() throws Exception
+    void createFixture() throws Exception
     {
         sourceSpace = create(aSpace());
         destinationSpace = create(aSpace());
     }
 
+    GuardedDomain source;
+
+    GuardedDomain destination;
+
+    GuardedDomain instance;
+
+    AuthorizationRule assignProjectToSpaceRule;
+
     @BeforeClass
     void createAuthorizationRules()
     {
-        space1 = new GuardedDomain("space1", RoleLevel.SPACE);
-        space2 = new GuardedDomain("space2", RoleLevel.SPACE);
-        instance = new GuardedDomain("instance", RoleLevel.INSTANCE);
+        instance = new InstanceDomain("instance");
+        source = new SpaceDomain("space1", instance);
+        destination = new SpaceDomain("space2", instance);
 
         assignProjectToSpaceRule =
-                or(
-                        and(
-                                rule(space1, RoleWithHierarchy.SPACE_POWER_USER),
-                                rule(space2, RoleWithHierarchy.SPACE_POWER_USER)),
-
-                        rule(instance, RoleWithHierarchy.INSTANCE_ADMIN)
+                and(
+                        rule(source, RoleWithHierarchy.SPACE_POWER_USER),
+                        rule(destination, RoleWithHierarchy.SPACE_POWER_USER)
                 );
-
     }
-
-    public GuardedDomain space1;
-
-    public GuardedDomain space2;
-
-    public GuardedDomain instance;
-
-    public AuthorizationRule assignProjectToSpaceRule;
 
     @DataProvider
     Object[][] rolesAllowedToAssignProjectToSpace()
     {
-        return RolePermutator.getAcceptedPermutations(assignProjectToSpaceRule, space1,
-                space2,
+        return RolePermutator.getAcceptedPermutations(assignProjectToSpaceRule, source,
+                destination,
                 instance);
     }
 
     @DataProvider
     Object[][] rolesNotAllowedToAssignProjectToSpace()
     {
-        return RolePermutator.getAcceptedPermutations(not(assignProjectToSpaceRule), space1,
-                space2, instance);
+        return RolePermutator.getAcceptedPermutations(not(assignProjectToSpaceRule), source,
+                destination, instance);
     }
 
 }

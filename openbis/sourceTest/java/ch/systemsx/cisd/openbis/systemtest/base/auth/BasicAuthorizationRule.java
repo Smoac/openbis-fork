@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.systemtest.base.auth;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
@@ -54,14 +56,19 @@ public class BasicAuthorizationRule implements AuthorizationRule
     }
 
     @Override
-    public boolean accepts(Map<GuardedDomain, RoleWithHierarchy> roles)
+    public boolean accepts(Map<GuardedDomain, RoleWithHierarchy> permutation)
     {
-        RoleWithHierarchy role = roles.get(this.domain);
-        if (role == null)
+        Set<RoleWithHierarchy> roles = new HashSet<RoleWithHierarchy>();
+        GuardedDomain current = this.domain;
+        while (current != null)
         {
-            return false;
+            if (this.limit.getRoles().contains(permutation.get(current)))
+            {
+                return true;
+            }
+            current = current.getSuperDomain();
         }
 
-        return this.limit.getRoles().contains(role);
+        return false;
     }
 }

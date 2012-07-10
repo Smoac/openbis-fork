@@ -6,6 +6,10 @@
   </groups>
   
   <test name="system-cleandb-basic" annotations="JDK">
+    <run>
+      <exclude name="authorization"/>
+    </run>
+  
     <classes>
       <class name="ch.systemsx.cisd.openbis.systemtest.AssignSampleToExperimentTest" />
       <class name="ch.systemsx.cisd.openbis.systemtest.UnassignSampleFromExperimentTest" />
@@ -23,6 +27,9 @@
   </test>
 
   <test name="system-cleandb-stub-relationship-service" annotations="JDK">
+    <run>
+      <exclude name="authorization"/>
+    </run>
     <classes>
       <class name="ch.systemsx.cisd.openbis.systemtest.RelationshipServiceAuthorizationTest" />
     </classes>

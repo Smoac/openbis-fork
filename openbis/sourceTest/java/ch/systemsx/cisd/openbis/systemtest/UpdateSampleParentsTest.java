@@ -30,13 +30,14 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.InstanceDomain;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
  * @author anttil
@@ -198,16 +199,22 @@ public class UpdateSampleParentsTest extends BaseTest
     }
 
     @BeforeClass
-    protected void createFixture() throws Exception
+    void createFixture() throws Exception
     {
         space = create(aSpace());
     }
 
+    GuardedDomain spaceDomain;
+
+    GuardedDomain instance;
+
+    AuthorizationRule addParentToSampleRule;
+
     @BeforeClass
     void createAuthorizationRules()
     {
-        spaceDomain = new GuardedDomain("space", RoleLevel.SPACE);
-        instance = new GuardedDomain("instance", RoleLevel.INSTANCE);
+        instance = new InstanceDomain("instance");
+        spaceDomain = new SpaceDomain("space", instance);
 
         addParentToSampleRule =
                 or(
@@ -216,17 +223,9 @@ public class UpdateSampleParentsTest extends BaseTest
                         and(
                                 rule(spaceDomain, RoleWithHierarchy.SPACE_USER),
                                 rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
-                        ),
-
-                        rule(instance, RoleWithHierarchy.INSTANCE_ADMIN)
+                        )
                 );
     }
-
-    public GuardedDomain spaceDomain;
-
-    public GuardedDomain instance;
-
-    public AuthorizationRule addParentToSampleRule;
 
     @DataProvider
     Object[][] rolesAllowedToAddParentToSample()

@@ -33,13 +33,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.InstanceDomain;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
  * @author anttil
@@ -59,7 +60,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     Space destinationSpace;
 
     @Test
-    public void sampleWithExperimentCanBeAssignedToNewExperiment() throws Exception
+    public void sampleWithExperimentCanBeAssignedToAnotherExperiment() throws Exception
     {
         Sample sample = create(aSample().inExperiment(sourceExperiment));
 
@@ -113,7 +114,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test
-    public void childSampleCanBeAssignedToNewExperiment() throws Exception
+    public void childSampleCanBeAssignedToAnotherExperiment() throws Exception
     {
         Sample parent = create(aSample().inExperiment(sourceExperiment));
         Sample child = create(aSample().withParent(parent).inExperiment(sourceExperiment));
@@ -125,7 +126,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test
-    public void experimentAssignmentOfParentSampleIsNotChangedWhenChildSampleIsAssignedToNewExperiment()
+    public void experimentAssignmentOfParentSampleIsNotChangedWhenChildSampleIsAssignedToAnotherExperiment()
             throws Exception
     {
         Sample parent = create(aSample().inExperiment(sourceExperiment));
@@ -138,7 +139,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test
-    public void parentSampleCanBeAssignedToNewExperiment() throws Exception
+    public void parentSampleCanBeAssignedToAnotherExperiment() throws Exception
     {
         Sample parent = create(aSample().inExperiment(sourceExperiment));
         create(aSample().withParent(parent).inExperiment(sourceExperiment));
@@ -150,7 +151,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test
-    public void experimentAssignmentOfChildSampleIsNotChangedWhenParentSampleIsAssignmedToNewExperiment()
+    public void experimentAssignmentOfChildSampleIsNotChangedWhenParentSampleIsAssignmedToAnotherExperiment()
             throws Exception
     {
         Sample parent = create(aSample().inExperiment(sourceExperiment));
@@ -163,7 +164,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test
-    public void componentSampleCanBeAssignedToNewExperiment() throws Exception
+    public void componentSampleCanBeAssignedToAnotherExperiment() throws Exception
     {
         Sample container = create(aSample().inExperiment(sourceExperiment));
         Sample component = create(aSample().inContainer(container).inExperiment(sourceExperiment));
@@ -175,7 +176,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test
-    public void experimentAssignmentOfContainerSampleIsNotChangedWhenComponentSampleIsAssignedToNewExperiment()
+    public void experimentAssignmentOfContainerSampleIsNotChangedWhenComponentSampleIsAssignedToAnotherExperiment()
             throws Exception
     {
         Sample container = create(aSample().inExperiment(sourceExperiment));
@@ -188,7 +189,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test
-    public void containerSampleCanBeAssignedToNewExperiment() throws Exception
+    public void containerSampleCanBeAssignedToAnotherExperiment() throws Exception
     {
         Sample container = create(aSample().inExperiment(sourceExperiment));
         create(aSample().inContainer(container).inExperiment(sourceExperiment));
@@ -200,7 +201,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test
-    public void experimentAssignmentOfComponentSampleIsNotChangedWhenContainerSampleIsAssignedToNewExperiment()
+    public void experimentAssignmentOfComponentSampleIsNotChangedWhenContainerSampleIsAssignedToAnotherExperiment()
             throws Exception
     {
         Sample container = create(aSample().inExperiment(sourceExperiment));
@@ -225,7 +226,7 @@ public class AssignSampleToExperimentTest extends BaseTest
 
     @Test(expectedExceptions =
         { UserFailureException.class })
-    public void sampleWithoutExperimentCanNotBeAssignedToNewExperimentInAnotherSpaceThroughExperimentUpdate()
+    public void sampleWithoutExperimentCanNotBeAssignedToExperimentInAnotherSpaceThroughExperimentUpdate()
             throws Exception
     {
         Sample sample = create(aSample().inSpace(sourceSpace));
@@ -237,18 +238,19 @@ public class AssignSampleToExperimentTest extends BaseTest
 
     @Test(expectedExceptions =
         { UserFailureException.class })
-    public void sampleWithExperimentCanNotBeAssignedToExperimentThroughExperimentUpdate()
+    public void sampleWithExperimentCanNotBeAssignedToAnotherExperimentThroughExperimentUpdate()
             throws Exception
     {
-        Experiment destination = create(anExperiment().inProject(sourceProject));
+        Experiment destinationExperimentInSameSpace =
+                create(anExperiment().inProject(sourceProject));
         Sample sample = create(aSample().inExperiment(sourceExperiment));
 
-        perform(anUpdateOf(destination).withSamples(sample));
+        perform(anUpdateOf(destinationExperimentInSameSpace).withSamples(sample));
     }
 
     @Test(expectedExceptions =
         { UserFailureException.class })
-    public void sharedSampleCanNotBeAssignedToNewExperimentThroughExperimentUpdate()
+    public void sharedSampleCanNotBeAssignedToExperimentThroughExperimentUpdate()
             throws Exception
     {
         Sample sample = create(aSample());
@@ -259,7 +261,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test
-    public void registeringExperimentWithSampleInSameSpaceThatIsNotAssignedToExperimentAssignsTheSampleToTheNewExperiment()
+    public void registeringExperimentWithSampleInSameSpaceThatIsNotAssignedToAnyExperimentAssignsTheSampleToTheExperiment()
             throws Exception
     {
         Sample sample = create(aSample().inSpace(sourceSpace));
@@ -368,79 +370,75 @@ public class AssignSampleToExperimentTest extends BaseTest
                         .withCode("destinationExperiment"));
     }
 
+    GuardedDomain source;
+
+    GuardedDomain destination;
+
+    GuardedDomain instance;
+
+    AuthorizationRule assignSampleToExperimentRule;
+
+    AuthorizationRule assignSampleToExperimentThroughExperimentUpdateRule;
+
+    AuthorizationRule assignSharedSampleToExperimentRule;
+
     @BeforeClass
     void createAuthorizationRules()
     {
-        space1 = new GuardedDomain("space1", RoleLevel.SPACE);
-        space2 = new GuardedDomain("space2", RoleLevel.SPACE);
-        instance = new GuardedDomain("instance", RoleLevel.INSTANCE);
+        instance = new InstanceDomain("instance");
+        source = new SpaceDomain("space1", instance);
+        destination = new SpaceDomain("space2", instance);
 
         assignSampleToExperimentRule =
                 or(
                         and(
-                                rule(space1, RoleWithHierarchy.SPACE_POWER_USER),
-                                rule(space2, RoleWithHierarchy.SPACE_POWER_USER)),
+                                rule(source, RoleWithHierarchy.SPACE_POWER_USER),
+                                rule(destination, RoleWithHierarchy.SPACE_POWER_USER)),
 
                         and(
-                                rule(space1, RoleWithHierarchy.SPACE_USER),
-                                rule(space2, RoleWithHierarchy.SPACE_USER),
-                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)),
-
-                        rule(instance, RoleWithHierarchy.INSTANCE_ADMIN)
+                                rule(source, RoleWithHierarchy.SPACE_USER),
+                                rule(destination, RoleWithHierarchy.SPACE_USER),
+                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
+                        )
                 );
 
         assignSampleToExperimentThroughExperimentUpdateRule =
                 or(
-                        rule(space1, RoleWithHierarchy.SPACE_POWER_USER),
+                        rule(source, RoleWithHierarchy.SPACE_POWER_USER),
 
                         and(
-                                rule(space1, RoleWithHierarchy.SPACE_USER),
+                                rule(source, RoleWithHierarchy.SPACE_USER),
                                 rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
-                        ),
-
-                        rule(instance, RoleWithHierarchy.INSTANCE_ADMIN)
+                        )
                 );
 
         assignSharedSampleToExperimentRule =
-                or(
-                        and(
-                                rule(space1, RoleWithHierarchy.SPACE_USER),
-                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)),
-                        rule(instance, RoleWithHierarchy.INSTANCE_ADMIN)
+                and(
+                        rule(destination, RoleWithHierarchy.SPACE_USER),
+                        rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
                 );
     }
-
-    public GuardedDomain space1;
-
-    public GuardedDomain space2;
-
-    public GuardedDomain instance;
-
-    public AuthorizationRule assignSampleToExperimentRule;
-
-    public AuthorizationRule assignSampleToExperimentThroughExperimentUpdateRule;
-
-    public AuthorizationRule assignSharedSampleToExperimentRule;
 
     @DataProvider
     Object[][] rolesAllowedToAssignSampleToExperiment()
     {
-        return RolePermutator.getAcceptedPermutations(assignSampleToExperimentRule, space1, space2,
+        return RolePermutator.getAcceptedPermutations(assignSampleToExperimentRule, source,
+                destination,
                 instance);
     }
 
     @DataProvider
     Object[][] rolesNotAllowedToAssignSampleToExperiment()
     {
-        return RolePermutator.getAcceptedPermutations(not(assignSampleToExperimentRule), space1,
-                space2, instance);
+        return RolePermutator.getAcceptedPermutations(not(assignSampleToExperimentRule), source,
+                destination, instance);
     }
 
     @DataProvider
     Object[][] rolesAllowedToAssignSampleToExperimentThroughExperimentUpdate()
     {
         return RolePermutator.getAcceptedPermutations(
-                assignSampleToExperimentThroughExperimentUpdateRule, space1,
+                assignSampleToExperimentThroughExperimentUpdateRule, source,
                 instance);
     }
 
@@ -448,7 +446,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     Object[][] rolesNotAllowedToAssignSampleToExperimentThroughExperimentUpdate()
     {
         return RolePermutator.getAcceptedPermutations(
-                not(assignSampleToExperimentThroughExperimentUpdateRule), space1,
+                not(assignSampleToExperimentThroughExperimentUpdateRule), source,
                 instance);
     }
 
@@ -456,13 +454,13 @@ public class AssignSampleToExperimentTest extends BaseTest
     Object[][] rolesAllowedToAssignSharedSampleToExperiment()
     {
         return RolePermutator.getAcceptedPermutations(assignSharedSampleToExperimentRule,
-                space1, instance);
+                destination, instance);
     }
 
     @DataProvider
     Object[][] rolesNotAllowedToAssignSharedSampleToExperiment()
     {
         return RolePermutator.getAcceptedPermutations(not(assignSharedSampleToExperimentRule),
-                space1, instance);
+                destination, instance);
     }
 }

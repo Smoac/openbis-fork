@@ -31,13 +31,14 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.InstanceDomain;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
  * @author anttil
@@ -45,13 +46,13 @@ import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
 public class AssignExperimentToProjectTest extends BaseTest
 {
 
-    private Space sourceSpace;
+    Space sourceSpace;
 
-    private Space destinationSpace;
+    Space destinationSpace;
 
-    private Project sourceProject;
+    Project sourceProject;
 
-    private Project destinationProject;
+    Project destinationProject;
 
     @Test
     public void experimentCanBeUpdatedToAnotherProject() throws Exception
@@ -105,7 +106,7 @@ public class AssignExperimentToProjectTest extends BaseTest
     }
 
     @BeforeClass
-    protected void createFixture() throws Exception
+    void createFixture() throws Exception
     {
         sourceSpace = create(aSpace());
         destinationSpace = create(aSpace());
@@ -113,49 +114,49 @@ public class AssignExperimentToProjectTest extends BaseTest
         destinationProject = create(aProject().inSpace(destinationSpace));
     }
 
+    GuardedDomain source;
+
+    GuardedDomain destination;
+
+    GuardedDomain instance;
+
+    AuthorizationRule assignExperimentToProjectRule;
+
     @BeforeClass
     void createAuthorizationRules()
     {
-        space1 = new GuardedDomain("space1", RoleLevel.SPACE);
-        space2 = new GuardedDomain("space2", RoleLevel.SPACE);
-        instance = new GuardedDomain("instance", RoleLevel.INSTANCE);
+        instance = new InstanceDomain("instance");
+        source = new SpaceDomain("space1", instance);
+        destination = new SpaceDomain("space2", instance);
 
         assignExperimentToProjectRule =
                 or(
                         and(
-                                rule(space1, RoleWithHierarchy.SPACE_POWER_USER),
-                                rule(space2, RoleWithHierarchy.SPACE_POWER_USER)),
+                                rule(source, RoleWithHierarchy.SPACE_POWER_USER),
+                                rule(destination, RoleWithHierarchy.SPACE_POWER_USER)
+                        ),
 
                         and(
-                                rule(space1, RoleWithHierarchy.SPACE_USER),
-                                rule(space2, RoleWithHierarchy.SPACE_USER),
-                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)),
-
-                        rule(instance, RoleWithHierarchy.INSTANCE_ADMIN)
+                                rule(source, RoleWithHierarchy.SPACE_USER),
+                                rule(destination, RoleWithHierarchy.SPACE_USER),
+                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
+                        )
                 );
 
     }
 
-    public GuardedDomain space1;
-
-    public GuardedDomain space2;
-
-    public GuardedDomain instance;
-
-    public AuthorizationRule assignExperimentToProjectRule;
-
     @DataProvider
     Object[][] rolesAllowedToAssignExperimentToProject()
     {
-        return RolePermutator.getAcceptedPermutations(assignExperimentToProjectRule, space1,
-                space2,
+        return RolePermutator.getAcceptedPermutations(assignExperimentToProjectRule, source,
+                destination,
                 instance);
     }
 
     @DataProvider
     Object[][] rolesNotAllowedToAssignExperimentToProject()
     {
-        return RolePermutator.getAcceptedPermutations(not(assignExperimentToProjectRule), space1,
-                space2, instance);
+        return RolePermutator.getAcceptedPermutations(not(assignExperimentToProjectRule), source,
+                destination, instance);
     }
 }

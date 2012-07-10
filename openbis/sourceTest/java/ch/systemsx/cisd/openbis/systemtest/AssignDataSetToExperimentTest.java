@@ -33,26 +33,27 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.InstanceDomain;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
  * @author anttil
  */
 public class AssignDataSetToExperimentTest extends BaseTest
 {
-    private Experiment sourceExperiment;
+    Experiment sourceExperiment;
 
-    private Experiment destinationExperiment;
+    Experiment destinationExperiment;
 
-    private Space sourceSpace;
+    Space sourceSpace;
 
-    private Space destinationSpace;
+    Space destinationSpace;
 
     @Test
     public void dataSetWithoutSampleCanBeUpdatedToAnotherExperiment() throws Exception
@@ -76,7 +77,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
     }
 
     @Test
-    public void sampleAssignmentOfDataSetIsRemovedWhenDataSetIsAssignedToNewExperiment()
+    public void sampleAssignmentOfDataSetIsRemovedWhenDataSetIsAssignedToAnotherExperiment()
             throws Exception
     {
         Sample sample = create(aSample().inExperiment(sourceExperiment));
@@ -88,7 +89,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
     }
 
     @Test
-    public void childDataSetCanBeAssignedToNewExperiment() throws Exception
+    public void childDataSetCanBeAssignedToAnotherExperiment() throws Exception
     {
         ExternalData parent = create(aDataSet().inExperiment(sourceExperiment));
         ExternalData child = create(aDataSet().inExperiment(sourceExperiment).withParent(parent));
@@ -99,7 +100,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
     }
 
     @Test
-    public void experimentAssignmentOfParentDataSetIsNotChangedWhenChildDataSetIsAssignedToNewExperiment()
+    public void experimentAssignmentOfParentDataSetIsNotChangedWhenChildDataSetIsAssignedToAnotherExperiment()
             throws Exception
     {
         ExternalData parent = create(aDataSet().inExperiment(sourceExperiment));
@@ -111,7 +112,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
     }
 
     @Test
-    public void parentDataSetCanBeAssignedToNewExperiment() throws Exception
+    public void parentDataSetCanBeAssignedToAnotherExperiment() throws Exception
     {
         ExternalData parent = create(aDataSet().inExperiment(sourceExperiment));
         create(aDataSet().inExperiment(sourceExperiment).withParent(parent));
@@ -122,7 +123,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
     }
 
     @Test
-    public void experimentAssignmentOfChildDataSetIsNotChangedWhenParentDatasetIsAssignedToNewExperiment()
+    public void experimentAssignmentOfChildDataSetIsNotChangedWhenParentDatasetIsAssignedToAnotherExperiment()
             throws Exception
     {
         ExternalData parent = create(aDataSet().inExperiment(sourceExperiment));
@@ -134,7 +135,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
     }
 
     @Test
-    public void componentDataSetCanBeAssignedToNewSample() throws Exception
+    public void componentDataSetCanBeAssignedToAnotherExperiment() throws Exception
     {
         ExternalData component = create(aDataSet().inExperiment(sourceExperiment));
         create(aDataSet().inExperiment(sourceExperiment).withComponent(component));
@@ -145,7 +146,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
     }
 
     @Test
-    public void experimentAssignmentOfContainerDataSetIsNotChangedWhenComponentDataSetIsAssignedToNewExperiment()
+    public void experimentAssignmentOfContainerDataSetIsNotChangedWhenComponentDataSetIsAssignedToAnotherExperiment()
             throws Exception
     {
         ExternalData component = create(aDataSet().inExperiment(sourceExperiment));
@@ -158,7 +159,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
     }
 
     @Test
-    public void containerDataSetCanBeAssignedToNewSample() throws Exception
+    public void containerDataSetCanBeAssignedToAnotherExperiment() throws Exception
     {
         ExternalData component = create(aDataSet().inExperiment(sourceExperiment));
         ExternalData container =
@@ -170,7 +171,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
     }
 
     @Test
-    public void experimentAssignmentOfComponentDataSetIsNotChangedWhenContainerDataSetIsAssignedToNewExperiment()
+    public void experimentAssignmentOfComponentDataSetIsNotChangedWhenContainerDataSetIsAssignedToAnotherExperiment()
             throws Exception
     {
         ExternalData component = create(aDataSet().inExperiment(sourceExperiment));
@@ -183,7 +184,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesAllowedToAssignDataSetToExperiment", groups = "authorization")
-    public void assigningDataSetToExperimentIsAllowedFor(
+    public void assigningDataSetToAnotherExperimentIsAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
@@ -198,7 +199,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
 
     @Test(dataProvider = "rolesNotAllowedToAssignDataSetToExperiment", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
-    public void assigningDataSetToExperimentIsNotAllowedFor(
+    public void assigningDataSetToAnotherExperimentIsNotAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
@@ -212,7 +213,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
     }
 
     @BeforeClass
-    protected void createFixture() throws Exception
+    void createFixture() throws Exception
     {
         sourceSpace = create(aSpace());
         Project sourceProject = create(aProject().inSpace(sourceSpace));
@@ -223,47 +224,42 @@ public class AssignDataSetToExperimentTest extends BaseTest
         destinationExperiment = create(anExperiment().inProject(destinationProject));
     }
 
+    GuardedDomain source;
+
+    GuardedDomain destination;
+
+    GuardedDomain instance;
+
+    AuthorizationRule assignDataSetToExperimentRule;
+
     @BeforeClass
     void createAuthorizationRules()
     {
-        space1 = new GuardedDomain("space1", RoleLevel.SPACE);
-        space2 = new GuardedDomain("space2", RoleLevel.SPACE);
-        instance = new GuardedDomain("instance", RoleLevel.INSTANCE);
+        instance = new InstanceDomain("instance");
+        source = new SpaceDomain("space1", instance);
+        destination = new SpaceDomain("space2", instance);
 
         assignDataSetToExperimentRule =
-                or(
-                        and(
-                                rule(space1, RoleWithHierarchy.SPACE_POWER_USER),
-                                or(
-                                        rule(space2, RoleWithHierarchy.SPACE_POWER_USER),
-                                        rule(space2, RoleWithHierarchy.SPACE_ETL_SERVER),
-                                        rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
-                                )
-                        ),
-                        rule(instance, RoleWithHierarchy.INSTANCE_ADMIN)
+                and(
+                        rule(source, RoleWithHierarchy.SPACE_POWER_USER),
+                        or(
+                                rule(destination, RoleWithHierarchy.SPACE_POWER_USER),
+                                rule(destination, RoleWithHierarchy.SPACE_ETL_SERVER)
+                        )
                 );
     }
-
-    public GuardedDomain space1;
-
-    public GuardedDomain space2;
-
-    public GuardedDomain instance;
-
-    public AuthorizationRule assignDataSetToExperimentRule;
 
     @DataProvider
     Object[][] rolesAllowedToAssignDataSetToExperiment()
     {
-        return RolePermutator.getAcceptedPermutations(assignDataSetToExperimentRule, space1,
-                space2,
-                instance);
+        return RolePermutator.getAcceptedPermutations(assignDataSetToExperimentRule, source,
+                destination, instance);
     }
 
     @DataProvider
     Object[][] rolesNotAllowedToAssignDataSetToExperiment()
     {
-        return RolePermutator.getAcceptedPermutations(not(assignDataSetToExperimentRule), space1,
-                space2, instance);
+        return RolePermutator.getAcceptedPermutations(not(assignDataSetToExperimentRule), source,
+                destination, instance);
     }
 }

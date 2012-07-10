@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleL
 /**
  * @author anttil
  */
-public class GuardedDomain
+public abstract class GuardedDomain
 {
     private final String name;
 
@@ -44,6 +44,8 @@ public class GuardedDomain
     {
         return type;
     }
+
+    public abstract GuardedDomain getSuperDomain();
 
     @Override
     public boolean equals(Object o)

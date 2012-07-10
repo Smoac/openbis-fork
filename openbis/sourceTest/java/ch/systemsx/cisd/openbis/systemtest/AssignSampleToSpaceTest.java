@@ -32,13 +32,14 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.InstanceDomain;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
  * @author anttil
@@ -46,14 +47,14 @@ import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
 public class AssignSampleToSpaceTest extends BaseTest
 {
 
-    public Experiment experiment;
+    Experiment experiment;
 
-    public Space sourceSpace;
+    Space sourceSpace;
 
-    public Space destinationSpace;
+    Space destinationSpace;
 
     @Test
-    public void sampleWithExperimentCanBeAssignedToNewSpace() throws Exception
+    public void sampleWithExperimentCanBeAssignedToAnotherSpace() throws Exception
     {
         Sample sample = create(aSample().inExperiment(experiment));
 
@@ -63,7 +64,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test
-    public void experimentAssignmentOfSampleIsRemovedWhenSampleIsAssignedToNewSpace()
+    public void experimentAssignmentOfSampleIsRemovedWhenSampleIsAssignedToAnotherSpace()
             throws Exception
     {
         Sample sample = create(aSample().inExperiment(experiment));
@@ -74,7 +75,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test
-    public void spaceSampleCanBeAssignedToNewSpace() throws Exception
+    public void spaceSampleCanBeAssignedToAnotherSpace() throws Exception
     {
         Sample sample = create(aSample().inSpace(sourceSpace));
 
@@ -94,7 +95,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test
-    public void childSampleCanBeAssignedToNewSpace()
+    public void childSampleCanBeAssignedToAnotherSpace()
             throws Exception
     {
         Sample parent = create(aSample().inExperiment(experiment));
@@ -106,7 +107,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test
-    public void spaceAssignmentOfParentSampleIsNotChangedWhenChildSampleIsAssignedToNewSpace()
+    public void spaceAssignmentOfParentSampleIsNotChangedWhenChildSampleIsAssignedToAnotherSpace()
             throws Exception
     {
         Sample parent = create(aSample().inExperiment(experiment));
@@ -118,7 +119,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test
-    public void parentSampleCanBeAssignedToNewSpace() throws Exception
+    public void parentSampleCanBeAssignedToAnotherSpace() throws Exception
     {
         Sample parent = create(aSample().inExperiment(experiment));
         create(aSample().inExperiment(experiment).withParent(parent));
@@ -129,7 +130,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test
-    public void spaceAssignmentOfChildSampleIsNotChangedWhenParentSampleIsAssignedToNewSpace()
+    public void spaceAssignmentOfChildSampleIsNotChangedWhenParentSampleIsAssignedToAnotherSpace()
             throws Exception
     {
         Sample parent = create(aSample().inExperiment(experiment));
@@ -141,7 +142,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test
-    public void componentSampleCanBeAssignedToNewSpace() throws Exception
+    public void componentSampleCanBeAssignedToAnotherSpace() throws Exception
     {
         Sample container = create(aSample().inExperiment(experiment));
         Sample component = create(aSample().inExperiment(experiment).inContainer(container));
@@ -152,7 +153,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test
-    public void spaceAssignmentOfContainerSampleIsNotChangedWhenComponentSampleIsAssignedToNewSpace()
+    public void spaceAssignmentOfContainerSampleIsNotChangedWhenComponentSampleIsAssignedToAnotherSpace()
             throws Exception
     {
         Sample container = create(aSample().inExperiment(experiment));
@@ -164,7 +165,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test
-    public void containerSampleCanBeAssignedToNewSpace() throws Exception
+    public void containerSampleCanBeAssignedToAnotherSpace() throws Exception
     {
         Sample container = create(aSample().inExperiment(experiment));
         create(aSample().inExperiment(experiment).inContainer(container));
@@ -175,7 +176,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test
-    public void spaceAssignmentOfComponentSampleIsNotChangedWhenContainerSampleIsAssingnedToNewSpace()
+    public void spaceAssignmentOfComponentSampleIsNotChangedWhenContainerSampleIsAssingnedToAnotherSpace()
             throws Exception
     {
         Sample container = create(aSample().inExperiment(experiment));
@@ -187,7 +188,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesAllowedToAssignSampleToSpace", groups = "authorization")
-    public void assigningSampleToSpaceIsAllowedFor(
+    public void assigningSampleToAnotherSpaceIsAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
@@ -202,7 +203,7 @@ public class AssignSampleToSpaceTest extends BaseTest
 
     @Test(dataProvider = "rolesNotAllowedToAssignSampleToSpace", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
-    public void assigningSampleToSpaceIsNotAllowedFor(
+    public void assigningSampleToAnotherSpaceIsNotAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
@@ -243,7 +244,7 @@ public class AssignSampleToSpaceTest extends BaseTest
     }
 
     @Test
-    public void assigningSampleToSameSpaceIsAllowedToAllSpaceUsersAsNoRealChangeIsMade()
+    public void assigningSampleToSameSpaceIsAllowedToAllSpaceUsers()
             throws Exception
     {
         Sample sample = create(aSample().inSpace(sourceSpace));
@@ -264,71 +265,67 @@ public class AssignSampleToSpaceTest extends BaseTest
                 create(anExperiment().inProject(project));
     }
 
+    GuardedDomain source;
+
+    GuardedDomain destination;
+
+    GuardedDomain instance;
+
+    AuthorizationRule assignSampleToSpaceRule;
+
+    AuthorizationRule assignSharedSampleToSpaceRule;
+
     @BeforeClass
     void createAuthorizationRules()
     {
-        space1 = new GuardedDomain("space1", RoleLevel.SPACE);
-        space2 = new GuardedDomain("space2", RoleLevel.SPACE);
-        instance = new GuardedDomain("instance", RoleLevel.INSTANCE);
+        instance = new InstanceDomain("instance");
+        source = new SpaceDomain("space1", instance);
+        destination = new SpaceDomain("space2", instance);
 
         assignSampleToSpaceRule =
                 or(
                         and(
-                                rule(space1, RoleWithHierarchy.SPACE_POWER_USER),
-                                rule(space2, RoleWithHierarchy.SPACE_POWER_USER)),
+                                rule(source, RoleWithHierarchy.SPACE_POWER_USER),
+                                rule(destination, RoleWithHierarchy.SPACE_POWER_USER)),
 
                         and(
-                                rule(space1, RoleWithHierarchy.SPACE_USER),
-                                rule(space2, RoleWithHierarchy.SPACE_USER),
-                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)),
-
-                        rule(instance, RoleWithHierarchy.INSTANCE_ADMIN)
+                                rule(source, RoleWithHierarchy.SPACE_USER),
+                                rule(destination, RoleWithHierarchy.SPACE_USER),
+                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER))
                 );
 
         assignSharedSampleToSpaceRule =
-                or(
-                        and(
-                                rule(space1, RoleWithHierarchy.SPACE_USER),
-                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)),
-                        rule(instance, RoleWithHierarchy.INSTANCE_ADMIN)
+                and(
+                        rule(destination, RoleWithHierarchy.SPACE_USER),
+                        rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
                 );
     }
-
-    public GuardedDomain space1;
-
-    public GuardedDomain space2;
-
-    public GuardedDomain instance;
-
-    public AuthorizationRule assignSampleToSpaceRule;
-
-    public AuthorizationRule assignSharedSampleToSpaceRule;
 
     @DataProvider
     Object[][] rolesAllowedToAssignSampleToSpace()
     {
-        return RolePermutator.getAcceptedPermutations(assignSampleToSpaceRule, space1, space2,
+        return RolePermutator.getAcceptedPermutations(assignSampleToSpaceRule, source, destination,
                 instance);
     }
 
     @DataProvider
     Object[][] rolesNotAllowedToAssignSampleToSpace()
     {
-        return RolePermutator.getAcceptedPermutations(not(assignSampleToSpaceRule), space1,
-                space2, instance);
+        return RolePermutator.getAcceptedPermutations(not(assignSampleToSpaceRule), source,
+                destination, instance);
     }
 
     @DataProvider
     Object[][] rolesAllowedToAssignSharedSampleToSpace()
     {
         return RolePermutator.getAcceptedPermutations(assignSharedSampleToSpaceRule,
-                space1, instance);
+                destination, instance);
     }
 
     @DataProvider
     Object[][] rolesNotAllowedToAssignSharedSampleToSpace()
     {
         return RolePermutator.getAcceptedPermutations(not(assignSharedSampleToSpaceRule),
-                space1, instance);
+                destination, instance);
     }
 }

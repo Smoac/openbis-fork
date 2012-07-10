@@ -33,25 +33,26 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.InstanceDomain;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
  * @author anttil
  */
 public class UnassignSampleFromExperimentTest extends BaseTest
 {
-    private Experiment experiment;
+    Experiment experiment;
 
-    private Space space;
+    Space space;
 
     @Test
-    public void experimentAssignmentOfTheSampleIsRemoved()
+    public void experimentAssignmentOfSampleIsRemoved()
             throws Exception
     {
         Sample sample = create(aSample().inExperiment(experiment));
@@ -62,7 +63,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
     }
 
     @Test
-    public void spaceAssociationOfTheSampleIsLeftIntact() throws Exception
+    public void spaceAssociationOfSampleIsLeftIntact() throws Exception
     {
         Sample sample = create(aSample().inExperiment(experiment));
 
@@ -218,11 +219,17 @@ public class UnassignSampleFromExperimentTest extends BaseTest
         experiment = create(anExperiment().inProject(project));
     }
 
+    GuardedDomain spaceDomain;
+
+    GuardedDomain instance;
+
+    AuthorizationRule unassignSampleFromExperimentRule;
+
     @BeforeClass
     void createAuthorizationRules()
     {
-        spaceDomain = new GuardedDomain("space", RoleLevel.SPACE);
-        instance = new GuardedDomain("instance", RoleLevel.INSTANCE);
+        instance = new InstanceDomain("instance");
+        spaceDomain = new SpaceDomain("space", instance);
 
         unassignSampleFromExperimentRule =
                 or(
@@ -230,31 +237,22 @@ public class UnassignSampleFromExperimentTest extends BaseTest
 
                         and(
                                 rule(spaceDomain, RoleWithHierarchy.SPACE_USER),
-                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)),
-
-                        rule(instance, RoleWithHierarchy.INSTANCE_ADMIN)
+                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
+                        )
                 );
     }
-
-    public GuardedDomain spaceDomain;
-
-    public GuardedDomain instance;
-
-    public AuthorizationRule unassignSampleFromExperimentRule;
 
     @DataProvider
     Object[][] rolesAllowedToUnassignSampleFromExperiment()
     {
         return RolePermutator.getAcceptedPermutations(unassignSampleFromExperimentRule,
-                spaceDomain,
-                instance);
+                spaceDomain, instance);
     }
 
     @DataProvider
     Object[][] rolesNotAllowedToUnassignSampleFromExperiment()
     {
         return RolePermutator.getAcceptedPermutations(not(unassignSampleFromExperimentRule),
-                spaceDomain,
-                instance);
+                spaceDomain, instance);
     }
 }
