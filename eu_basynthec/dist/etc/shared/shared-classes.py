@@ -142,7 +142,7 @@ class ValidationHelper:
 #
 # Strain validation stuff
 #
-strainIdRegex = re.compile("^ms|chassis\s*[1-3]|wt 168 trp\+")
+strainIdRegexMin = re.compile("^ms|chassis\s*[1-3]|wt 168 trp\+|jjs-mgp254")
 strainIdRegexFull = re.compile("^jjs-mgp[0-9]{1,3}|^jjs-din[0-9]{1,3}|^ms|chassis\s*[1-3]|wt 168 trp\+")
 strainIds = {}
 home_dir = os.environ.get('HOME', '')
@@ -160,7 +160,7 @@ def isStrainIdValid(strainId):
   """Return true if the strain id passes validation (has the form specified in the regex and is in Chris' strain db)"""
   strainIdLower = strainId.lower()
   if len(strainIds) > 0:
-    return strainIds.has_key(strainIdLower) or _match(strainIdRegex, strainIdLower)
+    return strainIds.has_key(strainIdLower) or _match(strainIdRegexMin, strainIdLower)
   else:
     return _match(strainIdRegexFull, strainIdLower)
   
