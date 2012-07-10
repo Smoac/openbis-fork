@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.and;
+import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
+import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.or;
+import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
 
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.annotations.BeforeClass;
@@ -39,6 +39,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.InstanceDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
  * @author anttil
@@ -47,30 +52,35 @@ import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
     { "classpath:stub_relationship_service.xml" }, inheritLocations = true)
 public class RelationshipServiceAuthorizationTest extends BaseTest
 {
+    Space sourceSpace;
 
-    private Space sourceSpace;
+    Space destinationSpace;
 
-    private Space destinationSpace;
+    Space unrelatedAdmin;
 
-    private Project sourceProject;
+    Space unrelatedObserver;
 
-    private Project destinationProject;
+    Space unrelatedNone;
 
-    private Experiment sourceExperiment;
+    Project sourceProject;
 
-    private Experiment destinationExperiment;
+    Project destinationProject;
 
-    private Sample sourceSample;
+    Experiment sourceExperiment;
 
-    private Sample destinationSample;
+    Experiment destinationExperiment;
 
-    private Sample sharedSample;
+    Sample sourceSample;
 
-    private Sample childSample;
+    Sample destinationSample;
 
-    private Sample parentSample;
+    Sample sharedSample;
 
-    private ExternalData dataSet;
+    Sample childSample;
+
+    Sample parentSample;
+
+    ExternalData dataSet;
 
     @BeforeClass
     public void createFixture() throws Exception
@@ -90,6 +100,10 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
 
         parentSample = create(aSample().inSpace(sourceSpace));
         childSample = create(aSample().inSpace(destinationSpace).withParent(parentSample));
+
+        unrelatedAdmin = create(aSpace());
+        unrelatedObserver = create(aSpace());
+        unrelatedNone = create(aSpace());
     }
 
     @Test(dataProvider = "rolesAllowedToAssignExperimentToProject", groups = "authorization")
@@ -275,327 +289,369 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
         removeParentFromSample(sourceSpaceRole, destinationSpaceRole, instanceRole);
     }
 
-    private void assignExperimentToProject(RoleWithHierarchy sourceSpaceRole,
+    void assignExperimentToProject(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         String session =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
-                        destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         relationshipService.assignExperimentToProject(sessionManager.getSession(session),
                 pe(sourceExperiment), pe(destinationProject));
     }
 
-    private void assignProjectToSpace(RoleWithHierarchy sourceSpaceRole,
+    void assignProjectToSpace(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         String session =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
-                        destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         relationshipService.assignProjectToSpace(sessionManager.getSession(session),
-                pe(sourceProject),
-                pe(destinationSpace));
+                pe(sourceProject), pe(destinationSpace));
     }
 
-    private void assignSampleToExperiment(RoleWithHierarchy sourceSpaceRole,
+    void assignSampleToExperiment(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         String session =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
-                        destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         relationshipService.assignSampleToExperiment(sessionManager.getSession(session),
-                pe(sourceSample),
-                pe(destinationExperiment));
+                pe(sourceSample), pe(destinationExperiment));
     }
 
-    private void unassignSampleFromExperiment(RoleWithHierarchy spaceRole,
+    void unassignSampleFromExperiment(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         String session =
-                create(aSession().withSpaceRole(spaceRole, sourceSpace).withInstanceRole(
-                        instanceRole));
+                create(aSession()
+                        .withSpaceRole(spaceRole, sourceSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         relationshipService.unassignSampleFromExperiment(sessionManager.getSession(session),
                 pe(sourceSample));
     }
 
-    private void unshareSample(RoleWithHierarchy spaceRole, RoleWithHierarchy instanceRole)
+    void unshareSample(RoleWithHierarchy spaceRole, RoleWithHierarchy instanceRole)
             throws Exception
     {
         String session =
-                create(aSession().withSpaceRole(spaceRole, destinationSpace).withInstanceRole(
-                        instanceRole));
-        relationshipService
-                .unshareSample(sessionManager.getSession(session), pe(sharedSample),
-                        pe(destinationSpace));
-    }
+                create(aSession()
+                        .withSpaceRole(spaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
-    private void assignSampleToSpace(RoleWithHierarchy sourceSpaceRole,
-            RoleWithHierarchy destinationSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
-    {
-
-        String session =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
-                        destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
-
-        relationshipService.assignSampleToSpace(sessionManager.getSession(session),
-                pe(sourceSample),
+        relationshipService.unshareSample(sessionManager.getSession(session), pe(sharedSample),
                 pe(destinationSpace));
     }
 
-    private void shareSample(RoleWithHierarchy spaceRole, RoleWithHierarchy instanceRole)
+    void assignSampleToSpace(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+
+        String session =
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        relationshipService.assignSampleToSpace(sessionManager.getSession(session),
+                pe(sourceSample), pe(destinationSpace));
+    }
+
+    void shareSample(RoleWithHierarchy spaceRole, RoleWithHierarchy instanceRole)
             throws Exception
     {
         String session =
-                create(aSession().withSpaceRole(spaceRole, sourceSpace).withInstanceRole(
-                        instanceRole));
+                create(aSession()
+                        .withSpaceRole(spaceRole, sourceSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
         relationshipService.shareSample(sessionManager.getSession(session), pe(sourceSample));
     }
 
-    private void assignDataSetToExperiment(RoleWithHierarchy sourceSpaceRole,
+    void assignDataSetToExperiment(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         String session =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
-                        destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         relationshipService.assignDataSetToExperiment(sessionManager.getSession(session),
-                pe(dataSet),
-                pe(destinationExperiment));
+                pe(dataSet), pe(destinationExperiment));
     }
 
-    private void assignDataSetToSample(RoleWithHierarchy sourceSpaceRole,
+    void assignDataSetToSample(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
 
         String session =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
-                        destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         relationshipService.assignDataSetToSample(sessionManager.getSession(session),
-                pe(dataSet),
-                pe(destinationSample));
+                pe(dataSet), pe(destinationSample));
     }
 
-    private void addParentToSample(RoleWithHierarchy sourceSpaceRole,
+    void addParentToSample(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         String session =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
-                        destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         relationshipService.addParentToSample(sessionManager.getSession(session), pe(sourceSample),
                 pe(destinationSample));
 
     }
 
-    private void removeParentFromSample(RoleWithHierarchy sourceSpaceRole,
+    void removeParentFromSample(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         String session =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
-                        destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         relationshipService.removeParentFromSample(sessionManager.getSession(session),
-                pe(childSample),
-                pe(parentSample));
+                pe(childSample), pe(parentSample));
     }
 
+    GuardedDomain instance = new InstanceDomain("instance");
+
+    GuardedDomain source = new SpaceDomain("source", instance);
+
+    GuardedDomain destination = new SpaceDomain("destination", instance);
+
+    AuthorizationRule spaceAdminOrSpaceEtlServer =
+            and(
+                    or(
+                            rule(source, RoleWithHierarchy.SPACE_POWER_USER),
+                            rule(source, RoleWithHierarchy.SPACE_ETL_SERVER)
+                    ),
+                    or(
+                            rule(destination, RoleWithHierarchy.SPACE_POWER_USER),
+                            rule(destination, RoleWithHierarchy.SPACE_ETL_SERVER)
+                    )
+            );
+
+    AuthorizationRule spaceAdminOrSpaceEtlServerSingle =
+            or(
+                    rule(source, RoleWithHierarchy.SPACE_POWER_USER),
+                    rule(source, RoleWithHierarchy.SPACE_ETL_SERVER)
+            );
+
+    AuthorizationRule instanceEtlServer = rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER);
+
     @DataProvider(name = "rolesAllowedToAssignExperimentToProject")
-    public static RoleWithHierarchy[][] rolesAllowedToAssignExperimentToProject()
+    RoleWithHierarchy[][] rolesAllowedToAssignExperimentToProject()
     {
-        return toNestedArray(acceptedRoles(2, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServer,
+                source, destination, instance);
     }
 
     @DataProvider(name = "rolesNotAllowedToAssignExperimentToProject")
-    public static RoleWithHierarchy[][] rolesNotAllowedToAssignExperimentToProject()
+    RoleWithHierarchy[][] rolesNotAllowedToAssignExperimentToProject()
     {
-        return toNestedArray(rejectedRoles(2, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServer),
+                source, destination, instance);
     }
 
     @DataProvider(name = "rolesAllowedToAssignProjectToSpace")
-    public static RoleWithHierarchy[][] rolesAllowedToAssignProjectToSpace()
+    RoleWithHierarchy[][] rolesAllowedToAssignProjectToSpace()
     {
-        return toNestedArray(acceptedRoles(2, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServer,
+                source, destination, instance);
     }
 
     @DataProvider(name = "rolesNotAllowedToAssignProjectToSpace")
-    public static RoleWithHierarchy[][] rolesNotAllowedToAssignProjectToSpace()
+    RoleWithHierarchy[][] rolesNotAllowedToAssignProjectToSpace()
     {
-        return toNestedArray(rejectedRoles(2, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServer),
+                source, destination, instance);
     }
 
     @DataProvider(name = "rolesAllowedToAssignSampleToExperiment")
-    public static RoleWithHierarchy[][] rolesAllowedToAssignSampleToExperiment()
+    RoleWithHierarchy[][] rolesAllowedToAssignSampleToExperiment()
     {
-        return toNestedArray(acceptedRoles(2, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServer,
+                source, destination, instance);
     }
 
     @DataProvider(name = "rolesNotAllowedToAssignSampleToExperiment")
-    public static RoleWithHierarchy[][] rolesNotAllowedToAssignSampleToExperiment()
+    RoleWithHierarchy[][] rolesNotAllowedToAssignSampleToExperiment()
     {
-        return toNestedArray(rejectedRoles(2, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServer),
+                source, destination, instance);
     }
 
     @DataProvider(name = "rolesAllowedToUnassignSampleFromExperiment")
-    public static RoleWithHierarchy[][] rolesAllowedToUnassignSampleFromExperiment()
+    RoleWithHierarchy[][] rolesAllowedToUnassignSampleFromExperiment()
     {
-        return toNestedArray(acceptedRoles(1, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServerSingle,
+                source, instance);
     }
 
     @DataProvider(name = "rolesNotAllowedToUnassignSampleFromExperiment")
-    public static RoleWithHierarchy[][] rolesNotAllowedToUnassignSampleFromExperiment()
+    RoleWithHierarchy[][] rolesNotAllowedToUnassignSampleFromExperiment()
     {
-        return toNestedArray(rejectedRoles(1, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServerSingle),
+                source, instance);
     }
 
     @DataProvider(name = "rolesAllowedToUnshareSample")
-    public static RoleWithHierarchy[][] rolesAllowedToUnshareSample()
+    RoleWithHierarchy[][] rolesAllowedToUnshareSample()
     {
-        return toNestedArray(acceptedRoles(1, RoleWithHierarchy.INSTANCE_ETL_SERVER,
-                RoleWithHierarchy.INSTANCE_ADMIN));
+        return RolePermutator.getAcceptedPermutations(instanceEtlServer,
+                destination, instance);
     }
 
     @DataProvider(name = "rolesNotAllowedToUnshareSample")
-    public static RoleWithHierarchy[][] rolesNotAllowedToUnshareSample()
+    RoleWithHierarchy[][] rolesNotAllowedToUnshareSample()
     {
-        return toNestedArray(rejectedRoles(1, RoleWithHierarchy.INSTANCE_ETL_SERVER,
-                RoleWithHierarchy.INSTANCE_ADMIN));
+        return RolePermutator.getAcceptedPermutations(not(instanceEtlServer),
+                destination, instance);
     }
 
     @DataProvider(name = "rolesAllowedToAssignSampleToSpace")
-    public static RoleWithHierarchy[][] rolesAllowedToAssignSampleToSpace()
+    RoleWithHierarchy[][] rolesAllowedToAssignSampleToSpace()
     {
-        return toNestedArray(acceptedRoles(2, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServer,
+                source, destination, instance);
     }
 
     @DataProvider(name = "rolesNotAllowedToAssignSampleToSpace")
-    public static RoleWithHierarchy[][] rolesNotAllowedToAssignSampleToSpace()
+    RoleWithHierarchy[][] rolesNotAllowedToAssignSampleToSpace()
     {
-        return toNestedArray(rejectedRoles(2, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServer),
+                source, destination, instance);
     }
 
     @DataProvider(name = "rolesAllowedToShareSample")
-    public static RoleWithHierarchy[][] rolesAllowedToShareSample()
+    RoleWithHierarchy[][] rolesAllowedToShareSample()
     {
-        return toNestedArray(acceptedRoles(1, RoleWithHierarchy.INSTANCE_ETL_SERVER,
-                RoleWithHierarchy.INSTANCE_ADMIN));
+        return RolePermutator.getAcceptedPermutations(instanceEtlServer, source, instance);
     }
 
     @DataProvider(name = "rolesNotAllowedToShareSample")
-    public static RoleWithHierarchy[][] rolesNotAllowedToShareSample()
+    RoleWithHierarchy[][] rolesNotAllowedToShareSample()
     {
-        return toNestedArray(rejectedRoles(1, RoleWithHierarchy.INSTANCE_ETL_SERVER,
-                RoleWithHierarchy.INSTANCE_ADMIN));
+        return RolePermutator.getAcceptedPermutations(not(instanceEtlServer), source, instance);
     }
 
     @DataProvider(name = "rolesAllowedToAssignDataSetToExperiment")
-    public static RoleWithHierarchy[][] rolesAllowedToAssignDataSetToExperiment()
+    RoleWithHierarchy[][] rolesAllowedToAssignDataSetToExperiment()
     {
-        return toNestedArray(acceptedRoles(2, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServer,
+                source, destination, instance);
     }
 
     @DataProvider(name = "rolesNotAllowedToAssignDataSetToExperiment")
-    public static RoleWithHierarchy[][] rolesNotAllowedToAssignDataSetToExperiment()
+    RoleWithHierarchy[][] rolesNotAllowedToAssignDataSetToExperiment()
     {
-        return toNestedArray(rejectedRoles(2, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServer),
+                source, destination, instance);
     }
 
     @DataProvider(name = "rolesAllowedToAssignDataSetToSample")
-    public static RoleWithHierarchy[][] rolesAllowedToAssignDataSetToSample()
+    RoleWithHierarchy[][] rolesAllowedToAssignDataSetToSample()
     {
-        return toNestedArray(acceptedRoles(2, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServer,
+                source, destination, instance);
     }
 
     @DataProvider(name = "rolesNotAllowedToAssignDataSetToSample")
-    public static RoleWithHierarchy[][] rolesNotAllowedToAssignDataSetToSample()
+    RoleWithHierarchy[][] rolesNotAllowedToAssignDataSetToSample()
     {
-        return toNestedArray(rejectedRoles(2, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServer),
+                source, destination, instance);
     }
 
     @DataProvider(name = "rolesAllowedToAddParentToSample")
-    public static RoleWithHierarchy[][] rolesAllowedToAddParentToSample()
+    RoleWithHierarchy[][] rolesAllowedToAddParentToSample()
     {
-        return toNestedArray(acceptedRoles(2, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServer,
+                source, destination, instance);
     }
 
     @DataProvider(name = "rolesNotAllowedToAddParentToSample")
-    public static RoleWithHierarchy[][] rolesNotAllowedToAddParentToSample()
+    RoleWithHierarchy[][] rolesNotAllowedToAddParentToSample()
     {
-        return toNestedArray(rejectedRoles(2, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServer),
+                source, destination, instance);
     }
 
     @DataProvider(name = "rolesAllowedRemoveAddParentFromSample")
-    public static RoleWithHierarchy[][] rolesAllowedToRemoveParentFromSample()
+    RoleWithHierarchy[][] rolesAllowedToRemoveParentFromSample()
     {
-        return toNestedArray(acceptedRoles(2, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServer,
+                source, destination, instance);
     }
 
     @DataProvider(name = "rolesNotAllowedToRemoveParentFromSample")
-    public static RoleWithHierarchy[][] rolesNotAllowedToRemoveParentFromSample()
+    RoleWithHierarchy[][] rolesNotAllowedToRemoveParentFromSample()
     {
-        return toNestedArray(rejectedRoles(2, RoleWithHierarchy.SPACE_ETL_SERVER,
-                RoleWithHierarchy.SPACE_POWER_USER));
+        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServer),
+                source, destination, instance);
     }
 
-    public static Collection<RoleWithHierarchy> allInstanceRoles = new HashSet<RoleWithHierarchy>();
-
-    public static Collection<RoleWithHierarchy> allSpaceRoles = new HashSet<RoleWithHierarchy>();
-
-    {
-        allInstanceRoles.add(RoleWithHierarchy.INSTANCE_ADMIN);
-        allInstanceRoles.add(RoleWithHierarchy.INSTANCE_ETL_SERVER);
-        allInstanceRoles.add(RoleWithHierarchy.INSTANCE_OBSERVER);
-        allInstanceRoles.add(null);
-
-        allSpaceRoles.add(RoleWithHierarchy.SPACE_ADMIN);
-        allSpaceRoles.add(RoleWithHierarchy.SPACE_ETL_SERVER);
-        allSpaceRoles.add(RoleWithHierarchy.SPACE_POWER_USER);
-        allSpaceRoles.add(RoleWithHierarchy.SPACE_USER);
-        allSpaceRoles.add(RoleWithHierarchy.SPACE_OBSERVER);
-        allSpaceRoles.add(null);
-    }
-
-    private ExperimentPE pe(Experiment experiment)
+    ExperimentPE pe(Experiment experiment)
     {
         return daoFactory.getExperimentDAO().tryGetByPermID(experiment.getPermId());
     }
 
-    private ProjectPE pe(Project project)
+    ProjectPE pe(Project project)
     {
         return daoFactory.getProjectDAO().tryFindProject(
                 project.getSpace().getInstance().getCode(), project.getSpace().getCode(),
                 project.getCode());
     }
 
-    private SpacePE pe(Space space)
+    SpacePE pe(Space space)
     {
         return daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(
                 space.getCode(),
@@ -603,130 +659,13 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
                         space.getInstance().getCode()));
     }
 
-    private SamplePE pe(Sample sample)
+    SamplePE pe(Sample sample)
     {
         return daoFactory.getSampleDAO().tryToFindByPermID(sample.getPermId());
     }
 
-    private DataPE pe(ExternalData data)
+    DataPE pe(ExternalData data)
     {
         return daoFactory.getDataDAO().tryToFindDataSetByCode(data.getCode());
-    }
-
-    public static RoleWithHierarchy[][] toNestedArray(Collection<List<RoleWithHierarchy>> input)
-    {
-        RoleWithHierarchy[][] result = new RoleWithHierarchy[input.size()][];
-        int index = 0;
-        for (List<RoleWithHierarchy> roles : input)
-        {
-            result[index] = roles.toArray(new RoleWithHierarchy[0]);
-            index++;
-        }
-        return result;
-    }
-
-    public static Collection<List<RoleWithHierarchy>> acceptedRoles(int numSpaceRoles,
-            RoleWithHierarchy... limits)
-    {
-        Collection<RoleWithHierarchy> acceptedRoles = new HashSet<RoleWithHierarchy>();
-        for (RoleWithHierarchy limit : limits)
-        {
-            acceptedRoles.addAll(limit.getRoles());
-        }
-
-        Collection<List<RoleWithHierarchy>> results = new HashSet<List<RoleWithHierarchy>>();
-        for (RoleWithHierarchy instanceRole : allInstanceRoles)
-        {
-            for (List<RoleWithHierarchy> spaceRoles : getSpaceRoleCombinations(numSpaceRoles))
-            {
-                if (acceptedRoles.contains(instanceRole) || acceptedRoles.containsAll(spaceRoles))
-                {
-                    List<RoleWithHierarchy> result = new ArrayList<RoleWithHierarchy>();
-                    for (RoleWithHierarchy spaceRole : spaceRoles)
-                    {
-                        result.add(spaceRole);
-                    }
-                    result.add(instanceRole);
-                    results.add(result);
-                }
-            }
-        }
-        return results;
-    }
-
-    public static Collection<List<RoleWithHierarchy>> rejectedRoles(int numSpaceRoles,
-            RoleWithHierarchy... limits)
-    {
-        Collection<List<RoleWithHierarchy>> allCombinations = getAllRoleCombinations(numSpaceRoles);
-        Collection<List<RoleWithHierarchy>> acceptedCombinations =
-                acceptedRoles(numSpaceRoles, limits);
-        allCombinations.removeAll(acceptedCombinations);
-        return allCombinations;
-    }
-
-    public static Collection<List<RoleWithHierarchy>> getSpaceRoleCombinations(int num)
-    {
-        Collection<List<RoleWithHierarchy>> result = new HashSet<List<RoleWithHierarchy>>();
-        if (num == 0)
-        {
-            return result;
-        }
-
-        Collection<List<RoleWithHierarchy>> subLists = getSpaceRoleCombinations(num - 1);
-
-        for (RoleWithHierarchy role : allSpaceRoles)
-        {
-            if (subLists.size() == 0)
-            {
-                List<RoleWithHierarchy> list = new ArrayList<RoleWithHierarchy>();
-                list.add(role);
-                result.add(list);
-            } else
-            {
-                for (List<RoleWithHierarchy> subList : subLists)
-                {
-                    List<RoleWithHierarchy> list = new ArrayList<RoleWithHierarchy>();
-                    list.add(role);
-                    list.addAll(subList);
-                    result.add(list);
-                }
-            }
-        }
-        return result;
-    }
-
-    public static Collection<List<RoleWithHierarchy>> getAllRoleCombinations(int numSpaceRoles)
-    {
-        Collection<List<RoleWithHierarchy>> result = new HashSet<List<RoleWithHierarchy>>();
-
-        for (List<RoleWithHierarchy> spaceRoles : getSpaceRoleCombinations(numSpaceRoles))
-        {
-            for (RoleWithHierarchy instanceRole : allInstanceRoles)
-            {
-                List<RoleWithHierarchy> list = new ArrayList<RoleWithHierarchy>();
-                list.addAll(spaceRoles);
-                list.add(instanceRole);
-
-                if (containsOnlyNulls(list))
-                {
-                    continue;
-                }
-
-                result.add(list);
-            }
-        }
-        return result;
-    }
-
-    public static boolean containsOnlyNulls(Collection<?> collection)
-    {
-        for (Object o : collection)
-        {
-            if (o != null)
-            {
-                return false;
-            }
-        }
-        return true;
     }
 }
