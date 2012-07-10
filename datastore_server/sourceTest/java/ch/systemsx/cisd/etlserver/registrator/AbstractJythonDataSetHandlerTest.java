@@ -411,6 +411,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 StorageProcessorTransactionParameters parameters)
         {
             final File rootDir = parameters.getRootDir();
+            System.out.println("Store dir " + rootDir);
             dataSetInfoString = parameters.getDataSetInformation().toString();
             return new IStorageProcessorTransaction()
                 {
@@ -430,10 +431,11 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                         {
                             if (incomingDataSetFile.isDirectory())
                             {
-                                FileUtils.copyDirectory(incomingDataSetFile, rootDir);
+                                FileUtils.moveDirectoryToDirectory(incomingDataSetFile, rootDir,
+                                        true);
                             } else
                             {
-                                FileUtils.copyFileToDirectory(incomingDataSetFile, rootDir);
+                                FileUtils.moveFileToDirectory(incomingDataSetFile, rootDir, true);
                             }
                         } catch (IOException ex)
                         {
@@ -503,10 +505,10 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         assertEquals(new File(new File(stagingDirectory, dataSetCode), dataSetDirectory),
                 incomingDir);
 
-        assertEquals("hello world" + (testId + 1),
-                FileUtilities
-                        .loadToString(new File(datasetLocation, "read" + (testId + 1) + ".me"))
-                        .trim());
+        File dataSetFile =
+                new File(new File(datasetLocation, dataSetDirectory), "read" + (testId + 1) + ".me");
+
+        assertEquals("hello world" + (testId + 1), FileUtilities.loadToString(dataSetFile).trim());
     }
 
     protected void assertStorageProcess(AtomicEntityOperationDetails recordedObject,
