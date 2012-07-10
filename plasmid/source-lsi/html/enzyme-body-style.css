@@ -1,0 +1,141 @@
+body { font: 14px "Trebuchet MS", sans-serif; }
+
+h1 { font: 16px; }
+h3 { font: 12px; }
+
+div#vis_enzyme { 
+	padding-top: 10px;
+	font: 12px "Verdana", sans-serif; }	
+}
+div#vis_enzyme div { padding-top: 2px;}
+
+/* Inspector */
+
+div.inspector {
+	font: 14px "Verdana", sans-serif;
+	padding: 10px;
+	border: 1px solid gray;
+	margin: 10px 2px;
+	font-weight: bold;
+}
+
+.properties {
+  font-size: 10px;
+  font-weight: normal;
+  padding-top:10px;
+	width: 100%;
+
+}
+
+
+
+.properties td:nth-child(odd) {
+  background-color:#A6A64D;
+  width:30%;
+}
+
+.properties td:nth-child(even) {
+  background-color:#ECEFEF;
+  width:70%;
+}
+
+
+.close {
+	float: right;
+}
+
+.close:hover {
+	opacity: 0.5;
+	color: #AAA;
+	cursor: pointer;
+}
+
+.downloads {
+	color: black;
+	background-color: #E3E3E3;
+}
+
+table.downloads {
+  font-family: "Trebuchet MS", sans-serif;
+	font-size: 14px;
+	table-layout: fixed;
+	border-collapse: collapse;
+	margin: 0px;
+	padding: 0px;
+}
+
+/*
+.downloads caption {
+	text-align: left;
+}
+*/
+
+.downloads tr {
+	padding: 0px;
+}
+
+.downloads td {
+	border: 2px solid #FFFFFF;	
+	padding: 2px;
+}
+
+.downloads td:hover {
+	cursor: pointer;
+	text-decoration: underline
+}
+
+input:focus{
+background-color: white;
+}
+
+
+
+
+enzyme.table { counter-reset: line-number; }
+
+.enzyme-table-data-cell {
+	overflow: hidden;
+		
+}
+
+#enzyme-table tr:nth-of-type(odd) {
+   background-color:#E6CC80;
+}
+
+#enzyme-table tr:nth-of-type(even) {
+   background-color:#ECEFEF;
+}
+
+
+#enzyme-table tr.enzyme-table-data:hover {
+  font-weight: bold;
+}
+
+
+#enzyme-table tr.enzyme-table-data td {
+  padding: 5px;
+}
+
+#enzyme-table tr.enzyme-table-data:hover td {
+  padding: 5px 2px;
+}
+
+#enzyme-table td{
+
+padding:5px;
+}
+
+#enzyme-table tr.enzyme-table-header {
+ 
+  font-size:18px;
+  font-weight: bold;
+  color:#fff;
+  background-color:#D1A319;
+}
+
+#enzyme-table th {
+ 
+  padding-left:5px;
+  padding-right:5px;
+}
+
