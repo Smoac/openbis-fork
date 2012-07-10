@@ -196,7 +196,7 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
         cleanUpDirectoryBeforeTheTest(recoveryStateDir);
         DssRegistrationHealthMonitor.setOpenBisServiceForTest(openBisService);
-        
+
         JythonHookTestTool.createInTest().clear();
     }
 
@@ -320,7 +320,8 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
             String validationScriptPropertyOrNull, HashMap<String, String> overrideOrNull)
     {
         Properties threadProperties = new Properties();
-        threadProperties.setProperty(ThreadParameters.INCOMING_DIR, "incoming");
+        threadProperties.setProperty(ThreadParameters.INCOMING_DIR,
+                workingDirectory.getAbsolutePath());
         threadProperties.setProperty(ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION,
                 ThreadParameters.INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
         threadProperties.setProperty(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");

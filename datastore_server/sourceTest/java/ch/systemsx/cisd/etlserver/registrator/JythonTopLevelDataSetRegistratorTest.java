@@ -33,6 +33,7 @@ import java.util.Properties;
 
 import org.jmock.Expectations;
 import org.jmock.api.Invocation;
+import org.jmock.internal.ExpectationBuilder;
 import org.jmock.lib.action.CustomAction;
 import org.python.core.PyException;
 import org.testng.annotations.BeforeMethod;
@@ -50,6 +51,7 @@ import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.common.utilities.IPredicate;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
+import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
@@ -127,22 +129,27 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         return new File(script.getParentFile(), "v2-" + script.getName()).getPath();
     }
 
-    @DataProvider(name = "simpleTransactionTestCaseProvider")
-    public Object[][] simpleTransactionCases()
+    private static <T> Object[][] asObjectArray(List<T> testCases)
     {
-        List<TestCaseParameters> testCases = simpleTransactionCasesList();
         // here is crappy code for
         // return parameters.map( (x) => new Object[]{x} )
         Object[][] resultsList = new Object[testCases.size()][];
 
         int index = 0;
-        for (TestCaseParameters t : testCases)
+        for (T t : testCases)
         {
             resultsList[index++] = new Object[]
                 { t };
         }
 
         return resultsList;
+    }
+
+    @DataProvider(name = "simpleTransactionTestCaseProvider")
+    public Object[][] simpleTransactionCases()
+    {
+        List<TestCaseParameters> testCases = simpleTransactionCasesList();
+        return asObjectArray(testCases);
     }
 
     public List<TestCaseParameters> simpleTransactionCasesList()
@@ -857,6 +864,163 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         }
 
         jythonHookTestTool.assertNoMoreMessages();
+    }
+
+    /**
+     * Parameters for the single run of the testIncomingFileDeleted
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    private static class IncomingFileDeletedTestCaseParameters implements Cloneable
+    {
+        /**
+         * short description of the test. Will be presented in the test results view
+         */
+        protected String title;
+
+        /**
+         * The dropbox script file that should be used for this test case
+         */
+        protected String dropboxScriptPath = scriptPathV2("simple-testcase.py");
+
+        /**
+         * Specifies what properties should be overriden for this test case.
+         */
+        protected HashMap<String, String> overrideProperties;
+
+        /**
+         * When does this incoming file get deleted?
+         */
+        protected DeletionPoint deletionPoint = null;
+
+        private IncomingFileDeletedTestCaseParameters(String title)
+        {
+            this.title = title;
+            this.overrideProperties = new HashMap<String, String>();
+        }
+
+        @Override
+        public IncomingFileDeletedTestCaseParameters clone()
+        {
+            try
+            {
+                return (IncomingFileDeletedTestCaseParameters) super.clone();
+            } catch (CloneNotSupportedException e)
+            {
+                return null;
+            }
+        }
+
+        @Override
+        public String toString()
+        {
+            return title;
+        }
+
+        public TestCaseParameters toTestCaseParameters()
+        {
+            TestCaseParameters testCase = new TestCaseParameters(title);
+            testCase.shouldUseAutoRecovery = true;
+
+            return testCase;
+        }
+
+        public enum DeletionPoint
+        {
+            DURING_PRECOMMIT_COPY, BEFORE_OPENBIS_REGISTRATION, AFTER_OPENBIS_REGISTRATION;
+        }
+    }
+
+    @DataProvider(name = "incomingFileDeletedTestCaseProvider")
+    public Object[][] incomingFileDeletedCases()
+    {
+        List<IncomingFileDeletedTestCaseParameters> testCases = incomingFileDeletedCasesList();
+        return asObjectArray(testCases);
+    }
+
+    public List<IncomingFileDeletedTestCaseParameters> incomingFileDeletedCasesList()
+    {
+
+        ArrayList<IncomingFileDeletedTestCaseParameters> testCases =
+                new ArrayList<IncomingFileDeletedTestCaseParameters>();
+
+        // Delete the incoming file while the prestaging copy is being made
+        IncomingFileDeletedTestCaseParameters testCase =
+                new IncomingFileDeletedTestCaseParameters(
+                        "Incoming file deleted during prestaging copy.");
+        testCase.deletionPoint =
+                IncomingFileDeletedTestCaseParameters.DeletionPoint.DURING_PRECOMMIT_COPY;
+        testCases.add(testCase);
+
+        // Delete the incoming file after the prestaging copy has been made, but before the metadata
+        // has been registered with the AS
+        testCase =
+                new IncomingFileDeletedTestCaseParameters(
+                        "Incoming file deleted before metadata registration.");
+        testCase.dropboxScriptPath = scriptPathV2("delete-before-registration.py");
+        testCase.deletionPoint =
+                IncomingFileDeletedTestCaseParameters.DeletionPoint.BEFORE_OPENBIS_REGISTRATION;
+        testCases.add(testCase);
+
+        // Delete the incoming file after the metadata has been registered with the AS
+        testCase =
+                new IncomingFileDeletedTestCaseParameters(
+                        "Incoming file deleted after metadata registration.");
+        testCase.dropboxScriptPath = scriptPathV2("delete-after-registration.py");
+        testCase.deletionPoint =
+                IncomingFileDeletedTestCaseParameters.DeletionPoint.AFTER_OPENBIS_REGISTRATION;
+        testCases.add(testCase);
+
+        return testCases;
+    }
+
+    @Test(dataProvider = "incomingFileDeletedTestCaseProvider")
+    public void testIncomingFileDeleted(final IncomingFileDeletedTestCaseParameters testCase)
+    {
+        // Not yet handled
+        if (testCase.deletionPoint == IncomingFileDeletedTestCaseParameters.DeletionPoint.DURING_PRECOMMIT_COPY)
+        {
+            return;
+        }
+        initializeStorageRecoveryManagerMock();
+        setUpHomeDataBaseExpectations();
+
+        Properties properties =
+                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
+                        testCase.overrideProperties);
+
+        // Create the handler
+        TopLevelDataSetRegistratorGlobalState globalState = createGlobalState(properties);
+        handler = new TestingDataSetHandlerV2(globalState, false, false);
+
+        createDataWithOneSubDataSet();
+
+        final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicOperationDetails =
+                new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
+        context.checking(getTestIncomingFileDeletedExcpectations(testCase, atomicOperationDetails));
+        handler.handle(markerFile);
+
+        if (testCase.deletionPoint == IncomingFileDeletedTestCaseParameters.DeletionPoint.AFTER_OPENBIS_REGISTRATION)
+        {
+            assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
+            assertEquals(1, MockStorageProcessor.instance.calledCommitCount);
+        } else
+        {
+            assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
+            assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
+
+        }
+
+        assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
+        context.assertIsSatisfied();
+    }
+
+    private ExpectationBuilder getTestIncomingFileDeletedExcpectations(
+            final IncomingFileDeletedTestCaseParameters testCase,
+            final RecordingMatcher<AtomicEntityOperationDetails> atomicOperationDetails)
+    {
+        return getSimpleTransactionExpectations(testCase.toTestCaseParameters(),
+                atomicOperationDetails);
     }
 
     @Test
