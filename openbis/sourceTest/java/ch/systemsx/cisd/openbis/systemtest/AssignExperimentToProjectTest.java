@@ -82,10 +82,17 @@ public class AssignExperimentToProjectTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        Experiment experiment = create(anExperiment().inProject(sourceProject));
+        Space unrelatedObserver = create(aSpace());
+        Space unrelatedAdmin = create(aSpace());
+        create(aSpace().withCode("unrelatedWithoutAccess"));
         String user =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
-                        destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+        Experiment experiment = create(anExperiment().inProject(sourceProject));
 
         perform(anUpdateOf(experiment).toProject(destinationProject).as(user));
     }
@@ -97,10 +104,17 @@ public class AssignExperimentToProjectTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        Experiment experiment = create(anExperiment().inProject(sourceProject));
+        Space unrelatedObserver = create(aSpace());
+        Space unrelatedAdmin = create(aSpace());
+        create(aSpace().withCode("unrelatedWithoutAccess"));
         String user =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
-                        destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+        Experiment experiment = create(anExperiment().inProject(sourceProject));
 
         perform(anUpdateOf(experiment).toProject(destinationProject).as(user));
     }

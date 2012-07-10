@@ -68,23 +68,17 @@ public class RelationshipService implements IRelationshipService
     private DAOFactory daoFactory;
 
     @Override
-    public void assignExperimentToProject(IAuthSession session, ExperimentIdentifier experimentId,
-            ProjectIdentifier projectId)
+    public void assignExperimentToProject(IAuthSession session, ExperimentPE experiment,
+            ProjectPE project)
     {
-        ExperimentPE experiment = findExperiment(experimentId);
-        ProjectPE project = findProject(projectId);
-
         SampleUtils.setSamplesGroup(experiment, project.getSpace());
         experiment.setProject(project);
     }
 
     @Override
-    public void assignProjectToSpace(IAuthSession session, ProjectIdentifier projectId,
-            SpaceIdentifier spaceId)
+    public void assignProjectToSpace(IAuthSession session, ProjectPE project,
+            SpacePE space)
     {
-        ProjectPE project = findProject(projectId);
-        SpacePE space = findSpace(spaceId);
-
         project.setSpace(space);
         for (ExperimentPE experiment : project.getExperiments())
         {

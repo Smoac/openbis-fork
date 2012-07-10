@@ -77,10 +77,17 @@ public class AssignProjectToSpaceTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        Project project = create(aProject().inSpace(sourceSpace));
+        Space unrelatedObserver = create(aSpace());
+        Space unrelatedAdmin = create(aSpace());
+        create(aSpace().withCode("unrelatedWithoutAccess"));
         String user =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
-                        destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+        Project project = create(aProject().inSpace(sourceSpace));
 
         perform(anUpdateOf(project).toSpace(destinationSpace).as(user));
     }
@@ -92,10 +99,17 @@ public class AssignProjectToSpaceTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        Project project = create(aProject().inSpace(sourceSpace));
+        Space unrelatedObserver = create(aSpace());
+        Space unrelatedAdmin = create(aSpace());
+        create(aSpace().withCode("unrelatedWithoutAccess"));
         String user =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
-                        destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+        Project project = create(aProject().inSpace(sourceSpace));
 
         perform(anUpdateOf(project).toSpace(destinationSpace).as(user));
     }

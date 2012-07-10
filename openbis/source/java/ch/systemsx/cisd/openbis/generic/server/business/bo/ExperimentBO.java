@@ -428,10 +428,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         ProjectPE previousProject = experiment.getProject();
         if (project.equals(previousProject) == false)
         {
-            relationshipService.assignExperimentToProject(session, new ExperimentIdentifier(
-                    new ProjectIdentifier(previousProject.getSpace().getDatabaseInstance()
-                            .getCode(), previousProject.getSpace().getCode(), previousProject
-                            .getCode()), experiment.getCode()), updates.getProjectIdentifier());
+            relationshipService.assignExperimentToProject(session, experiment, project);
         }
 
         for (NewAttachment attachment : updates.getAttachments())

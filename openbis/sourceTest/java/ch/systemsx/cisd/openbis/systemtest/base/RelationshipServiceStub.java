@@ -17,10 +17,12 @@
 package ch.systemsx.cisd.openbis.systemtest.base;
 
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -31,14 +33,14 @@ public class RelationshipServiceStub implements IRelationshipService
 {
 
     @Override
-    public void assignExperimentToProject(IAuthSession session, ExperimentIdentifier experiment,
-            ProjectIdentifier project)
+    public void assignExperimentToProject(IAuthSession session, ExperimentPE experiment,
+            ProjectPE project)
     {
     }
 
     @Override
-    public void assignProjectToSpace(IAuthSession session, ProjectIdentifier project,
-            SpaceIdentifier space)
+    public void assignProjectToSpace(IAuthSession session, ProjectPE project,
+            SpacePE space)
     {
     }
 

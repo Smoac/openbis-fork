@@ -33,6 +33,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 
 /**
@@ -279,7 +282,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
                         destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
 
         relationshipService.assignExperimentToProject(sessionManager.getSession(session),
-                id(sourceExperiment), id(destinationProject));
+                pe(sourceExperiment), pe(destinationProject));
     }
 
     private void assignProjectToSpace(RoleWithHierarchy sourceSpaceRole,
@@ -291,8 +294,8 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
                         destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
 
         relationshipService.assignProjectToSpace(sessionManager.getSession(session),
-                id(sourceProject),
-                id(destinationSpace));
+                pe(sourceProject),
+                pe(destinationSpace));
     }
 
     private void assignSampleToExperiment(RoleWithHierarchy sourceSpaceRole,
@@ -576,6 +579,26 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
         allSpaceRoles.add(RoleWithHierarchy.SPACE_USER);
         allSpaceRoles.add(RoleWithHierarchy.SPACE_OBSERVER);
         allSpaceRoles.add(null);
+    }
+
+    private ExperimentPE pe(Experiment experiment)
+    {
+        return daoFactory.getExperimentDAO().tryGetByPermID(experiment.getPermId());
+    }
+
+    private ProjectPE pe(Project project)
+    {
+        return daoFactory.getProjectDAO().tryFindProject(
+                project.getSpace().getInstance().getCode(), project.getSpace().getCode(),
+                project.getCode());
+    }
+
+    private SpacePE pe(Space space)
+    {
+        return daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(
+                space.getCode(),
+                daoFactory.getDatabaseInstanceDAO().tryFindDatabaseInstanceByCode(
+                        space.getInstance().getCode()));
     }
 
     public static RoleWithHierarchy[][] toNestedArray(Collection<List<RoleWithHierarchy>> input)

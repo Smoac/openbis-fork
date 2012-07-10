@@ -46,9 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -289,13 +287,23 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         String groupCode = updates.getGroupCode();
         if (groupCode != null && groupCode.equals(project.getSpace().getCode()) == false)
         {
-            ProjectIdentifier projectId = IdentifierHelper.createProjectIdentifier(project);
-            SpaceIdentifier spaceId =
-                    new SpaceIdentifier(project.getSpace().getDatabaseInstance().getCode(),
-                            groupCode);
-            relationshipService.assignProjectToSpace(session, projectId, spaceId);
+
+            relationshipService.assignProjectToSpace(session, project, findGroup(groupCode));
         }
         dataChanged = true;
+    }
+
+    private SpacePE findGroup(String groupCode)
+    {
+        SpacePE group =
+                getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(groupCode,
+                        project.getSpace().getDatabaseInstance());
+        if (group == null)
+        {
+            throw UserFailureException
+                    .fromTemplate("No space with the name '%s' found!", groupCode);
+        }
+        return group;
     }
 
     @Override

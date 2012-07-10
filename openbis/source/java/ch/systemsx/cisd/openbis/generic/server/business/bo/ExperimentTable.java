@@ -250,14 +250,26 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         if (updates.isProjectUpdateRequested())
         {
             ProjectPE previousProject = experiment.getProject();
-            ProjectIdentifier previousProjectId =
-                    new ProjectIdentifier(previousProject.getSpace().getDatabaseInstance()
-                            .getCode(), previousProject.getSpace().getCode(), previousProject
-                            .getCode());
+            ProjectPE project = findProject(updates.getProjectIdentifier());
 
-            relationshipService.assignExperimentToProject(session, new ExperimentIdentifier(
-                    previousProjectId, experiment.getCode()), updates.getProjectIdentifier());
+            if (previousProject.equals(project))
+            {
+                return;
+            }
+            relationshipService.assignExperimentToProject(session, experiment, project);
         }
+    }
+
+    private ProjectPE findProject(ProjectIdentifier newProjectIdentifier)
+    {
+        ProjectPE project =
+                getProjectDAO().tryFindProject(newProjectIdentifier.getDatabaseInstanceCode(),
+                        newProjectIdentifier.getSpaceCode(), newProjectIdentifier.getProjectCode());
+        if (project == null)
+        {
+            throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND, newProjectIdentifier);
+        }
+        return project;
     }
 
     private void batchUpdateProperties(ExperimentPE experiment, List<IEntityProperty> properties,

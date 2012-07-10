@@ -23,13 +23,18 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentPEPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectPEPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpacePEPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -46,20 +51,20 @@ public interface IRelationshipService
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_EXPERIMENT_TO_PROJECT")
     public void assignExperimentToProject(IAuthSession session,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ExperimentIdentifier experiment,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ProjectIdentifier project);
+            @AuthorizationGuard(guardClass = ExperimentPEPredicate.class)
+            ExperimentPE experiment,
+            @AuthorizationGuard(guardClass = ProjectPEPredicate.class)
+            ProjectPE project);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_PROJECT_TO_SPACE")
     public void assignProjectToSpace(IAuthSession session,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ProjectIdentifier project,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            SpaceIdentifier space);
+            @AuthorizationGuard(guardClass = ProjectPEPredicate.class)
+            ProjectPE project,
+            @AuthorizationGuard(guardClass = SpacePEPredicate.class)
+            SpacePE space);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
