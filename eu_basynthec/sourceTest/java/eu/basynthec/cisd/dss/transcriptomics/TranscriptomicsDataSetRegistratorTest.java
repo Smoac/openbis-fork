@@ -78,7 +78,7 @@ public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecData
 
         NewExternalData tsvDataSet =
                 atomicOperationDetails.recordedObject().getDataSetRegistrations().get(2);
-        String location = tsvDataSet.getLocation();
+        String location = tsvDataSet.getLocation() + "/tsv-multi/";
         File tsvFile =
                 new File(new File(workingDirectory, "/1/" + location),
                         "Transcriptomics-Example.xlsx.tsv");
@@ -86,7 +86,7 @@ public class TranscriptomicsDataSetRegistratorTest extends AbstractBaSynthecData
 
         NewExternalData tsvSplitDataSet =
                 atomicOperationDetails.recordedObject().getDataSetRegistrations().get(3);
-        location = tsvSplitDataSet.getLocation();
+        location = tsvSplitDataSet.getLocation() + "/tsv/";
         File tsvSplitFolder = new File(workingDirectory, "/1/" + location);
         String[] contents = tsvSplitFolder.list();
         Arrays.sort(contents);

@@ -48,8 +48,7 @@ public class OD600DataSetRegistratorTest extends AbstractBaSynthecDataSetRegistr
         createData("OD600-Example.xlsx");
 
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicOperationDetails =
-                setUpDataSetRegistrationExpectations(OD600,
-                        TSV_MULTISTRAIN_EXPORT_DATA_SET_TYPE);
+                setUpDataSetRegistrationExpectations(OD600, TSV_MULTISTRAIN_EXPORT_DATA_SET_TYPE);
 
         handler.handle(markerFile);
 
@@ -77,7 +76,7 @@ public class OD600DataSetRegistratorTest extends AbstractBaSynthecDataSetRegistr
 
         NewExternalData tsvSplitDataSet =
                 atomicOperationDetails.recordedObject().getDataSetRegistrations().get(3);
-        String location = tsvSplitDataSet.getLocation();
+        String location = tsvSplitDataSet.getLocation() + "/tsv";
         File tsvSplitFolder = new File(workingDirectory, "/1/" + location);
         String[] contents = tsvSplitFolder.list();
         Arrays.sort(contents);
