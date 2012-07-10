@@ -163,14 +163,18 @@ public class SimpleImageDataSetRegistrator
                 imageDatasetFactory.createDataSetRegistrationDetails();
         ImageDataSetInformation imageDataset = registrationDetails.getDataSetInformation();
         setImageDataset(incoming, imageDataset);
-        List<ChannelColorComponent> channelColorComponentsOrNull =
-                simpleImageConfig.getChannelColorComponentsOrNull();
-        if (channelColorComponentsOrNull == null)
+        List<Channel> channels = simpleImageConfig.getChannels();
+        if (channels != null)
         {
-            imageDataset.setChannels(simpleImageConfig.getChannels());
-        } else
-        {
-            imageDataset.setChannels(simpleImageConfig.getChannels(), channelColorComponentsOrNull);
+            List<ChannelColorComponent> channelColorComponentsOrNull =
+                    simpleImageConfig.getChannelColorComponentsOrNull();
+            if (channelColorComponentsOrNull == null)
+            {
+                imageDataset.setChannels(channels);
+            } else
+            {
+                imageDataset.setChannels(channels, channelColorComponentsOrNull);
+            }
         }
         setRegistrationDetails(registrationDetails, imageDataset);
         return registrationDetails;
