@@ -233,10 +233,22 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
     public static class NoOpDelegate implements ITopLevelDataSetRegistratorDelegate
     {
+        private final DataSetRegistrationPreStagingBehavior preStagingBehavior;
+
+        public NoOpDelegate(DataSetRegistrationPreStagingBehavior preStagingBehavior)
+        {
+            this.preStagingBehavior = preStagingBehavior;
+        }
 
         @Override
         public void didRegisterDataSets(List<DataSetInformation> dataSetInformations)
         {
+        }
+
+        @Override
+        public DataSetRegistrationPreStagingBehavior getPrestagingBehavior()
+        {
+            return preStagingBehavior;
         }
 
     }
@@ -367,7 +379,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         if (preStagingUsage == DataSetRegistrationPreStagingBehavior.USE_ORIGINAL)
         {
             DataSetFile incoming = new DataSetFile(incomingDataSetFile);
-            handle(incoming, null, new NoOpDelegate(), markerFileCleanupAction);
+            handle(incoming, null, new NoOpDelegate(
+                    DataSetRegistrationPreStagingBehavior.USE_ORIGINAL), markerFileCleanupAction);
         } else
         {
             // If we should the prestaging phase, we make a hardlink copy in prestaging area
@@ -378,7 +391,9 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             // For cleanup we use the postRegistrationCleanUpAction wich clears the prestaging area.
             PostRegistrationCleanUpAction cleanupAction =
                     new PostRegistrationCleanUpAction(dsf, markerFileCleanupAction);
-            handle(dsf, null, new NoOpDelegate(), cleanupAction);
+            handle(dsf, null,
+                    new NoOpDelegate(DataSetRegistrationPreStagingBehavior.USE_PRESTAGING),
+                    cleanupAction);
         }
     }
 

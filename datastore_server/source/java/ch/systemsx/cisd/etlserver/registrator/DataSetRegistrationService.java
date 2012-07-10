@@ -347,8 +347,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
             } else if (dataSetInformation.isLinkDataSet())
             {
                 algorithm =
-                        new LinkDataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails,
-                                strategy, registratorContext.getStorageProcessor(),
+                        new LinkDataSetStorageAlgorithm<T>(dataSetFile, dataSetDetails, strategy,
+                                registratorContext.getStorageProcessor(),
                                 globalContext.getDataSetValidator(), globalContext.getDssCode(),
                                 registratorContext.getFileOperations(),
                                 globalContext.getMailClient(), stagingDirectory, precommitDirectory);
@@ -445,6 +445,11 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     public DataSetFile getIncomingDataSetFile()
     {
         return incomingDataSetFile;
+    }
+
+    public boolean shouldUsePrestaging()
+    {
+        return delegate.getPrestagingBehavior() == DataSetRegistrationPreStagingBehavior.USE_PRESTAGING;
     }
 
 }

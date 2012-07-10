@@ -37,6 +37,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPreStagingBehavior;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
@@ -542,19 +543,34 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         IEntityOperationService<T> entityRegistrationService =
                 registrationService.getEntityRegistrationService();
 
-        File realIncomingFile = getIncomingDataSetFile().getRealIncomingFile();
-        if (false == realIncomingFile.exists())
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Incoming file [");
-            sb.append(realIncomingFile.getAbsolutePath());
-            sb.append("] ");
-            sb.append(" was deleted before registration.");
-
-            throw new IncomingFileDeletedBeforeRegistrationException(sb.toString());
-        }
+        verifyOriginalFileIsStillAvailable();
 
         entityRegistrationService.performOperationsInApplcationServer(registrationDetails);
+    }
+
+    /**
+     * If we use prestaging, then we check that the original file has not been deleted.
+     */
+    private void verifyOriginalFileIsStillAvailable()
+    {
+        if (false == registrationService.shouldUsePrestaging())
+        {
+            return;
+        }
+
+        File realIncomingFile = getIncomingDataSetFile().getRealIncomingFile();
+        if (realIncomingFile.exists())
+        {
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Incoming file [");
+        sb.append(realIncomingFile.getAbsolutePath());
+        sb.append("] ");
+        sb.append(" was deleted before registration.");
+
+        throw new IncomingFileDeletedBeforeRegistrationException(sb.toString());
     }
 
     @Override

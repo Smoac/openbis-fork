@@ -47,6 +47,7 @@ import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPreStagingBehavior;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
@@ -703,7 +704,8 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                 DataSetFile dataSetFile)
         {
             return createDataSetRegistrationService(dataSetFile, null,
-                    new DoNothingDelegatedAction(), new NoOpDelegate());
+                    new DoNothingDelegatedAction(), new NoOpDelegate(
+                            DataSetRegistrationPreStagingBehavior.USE_ORIGINAL));
         }
 
         /**

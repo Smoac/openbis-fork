@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver;
 
 import java.util.List;
 
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPreStagingBehavior;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -28,4 +29,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public interface ITopLevelDataSetRegistratorDelegate
 {
     void didRegisterDataSets(List<DataSetInformation> dataSetInformations);
+
+    DataSetRegistrationPreStagingBehavior getPrestagingBehavior();
 }

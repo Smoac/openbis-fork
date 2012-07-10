@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPreStagingBehavior;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
@@ -68,6 +69,12 @@ class PutDataSetTopLevelDataSetHandler
         public void didRegisterDataSets(List<DataSetInformation> dataSetInformations)
         {
             registeredDataSets.addAll(dataSetInformations);
+        }
+
+        @Override
+        public DataSetRegistrationPreStagingBehavior getPrestagingBehavior()
+        {
+            return DataSetRegistrationPreStagingBehavior.USE_ORIGINAL;
         }
 
     }
