@@ -225,7 +225,8 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, "LINK_TYPE"));
 
         List<DataSet> dataSets = serviceFacade.searchForDataSets(sc);
-        assertEquals(3, dataSets.size());
+        assertTrue("Should have found at least three data sets. Found " + dataSets.size(),
+                3 <= dataSets.size());
         assertEquals("CODE1", dataSets.get(0).getExternalDataSetCode());
         assertEquals("CODE2", dataSets.get(1).getExternalDataSetCode());
         assertEquals("CODE3", dataSets.get(2).getExternalDataSetCode());
