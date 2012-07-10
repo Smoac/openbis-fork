@@ -411,7 +411,6 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
                 StorageProcessorTransactionParameters parameters)
         {
             final File rootDir = parameters.getRootDir();
-            System.out.println("Store dir " + rootDir);
             dataSetInfoString = parameters.getDataSetInformation().toString();
             return new IStorageProcessorTransaction()
                 {

@@ -1,12 +1,13 @@
 from java.lang import IllegalArgumentException
 from java.io import File
+from ch.systemsx.cisd.common.filesystem import FileUtilities
 
 execfile("sourceTest/java/ch/systemsx/cisd/etlserver/registrator/all-hooks.py")
 
 def pre_metadata_registration(context):
   path_to_delete = context.getPersistentMap().get("path")
   file_to_delete = File(path_to_delete)
-  file_to_delete.delete()
+  FileUtilities.deleteRecursively(file_to_delete)
   jythonHookTestTool.log("pre_metadata_registration")
 
 def process(tr):

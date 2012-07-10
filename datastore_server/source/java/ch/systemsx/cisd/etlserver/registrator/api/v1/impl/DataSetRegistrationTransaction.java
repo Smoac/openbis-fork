@@ -42,6 +42,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.IEntityOperationService;
+import ch.systemsx.cisd.etlserver.registrator.IncomingFileDeletedBeforeRegistrationException;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
@@ -540,6 +541,18 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                         dataSetRegistrations);
         IEntityOperationService<T> entityRegistrationService =
                 registrationService.getEntityRegistrationService();
+
+        File realIncomingFile = getIncomingDataSetFile().getRealIncomingFile();
+        if (false == realIncomingFile.exists())
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Incoming file [");
+            sb.append(realIncomingFile.getAbsolutePath());
+            sb.append("] ");
+            sb.append(" was deleted before registration.");
+
+            throw new IncomingFileDeletedBeforeRegistrationException(sb.toString());
+        }
 
         entityRegistrationService.performOperationsInApplcationServer(registrationDetails);
     }

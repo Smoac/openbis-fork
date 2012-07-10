@@ -921,6 +921,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         {
             TestCaseParameters testCase = new TestCaseParameters(title);
             testCase.shouldUseAutoRecovery = true;
+            if (deletionPoint == DeletionPoint.BEFORE_OPENBIS_REGISTRATION)
+            {
+                testCase.failurePoint = TestCaseParameters.FailurePoint.BEFORE_OPENBIS_REGISTRATION;
+            }
 
             return testCase;
         }
@@ -982,10 +986,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         {
             return;
         }
-        if (testCase.deletionPoint == IncomingFileDeletedTestCaseParameters.DeletionPoint.BEFORE_OPENBIS_REGISTRATION)
-        {
-            return;
-        }
         initializeStorageRecoveryManagerMock();
         setUpHomeDataBaseExpectations();
 
@@ -1015,7 +1015,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
         } else
         {
-            assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
+            assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
             assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
             assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
         }
@@ -1023,12 +1023,31 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.assertIsSatisfied();
     }
 
+    @SuppressWarnings("unchecked")
     private ExpectationBuilder getTestIncomingFileDeletedExcpectations(
             final IncomingFileDeletedTestCaseParameters testCase,
             final RecordingMatcher<AtomicEntityOperationDetails> atomicOperationDetails)
     {
-        return getSimpleTransactionExpectations(testCase.toTestCaseParameters(),
-                atomicOperationDetails);
+        Expectations e =
+                getSimpleTransactionExpectations(testCase.toTestCaseParameters(),
+                        atomicOperationDetails);
+        if (testCase.deletionPoint == IncomingFileDeletedTestCaseParameters.DeletionPoint.BEFORE_OPENBIS_REGISTRATION)
+        {
+            e.one(openBisService).drawANewUniqueID();
+            e.will(Expectations.returnValue(new Long(1)));
+
+            e.one(storageRecoveryManager).checkpointPrecommittedState(
+                    e.with(Expectations.any(TechId.class)),
+                    e.with(Expectations.any(DataSetStorageAlgorithmRunner.class)));
+
+            e.one(storageRecoveryManager).canRecoverFromError(
+                    e.with(Expectations.any(UserFailureException.class)));
+            e.will(Expectations.returnValue(false));
+
+            // e.one(storageRecoveryManager).removeCheckpoint(
+            // e.with(Expectations.any(DataSetStorageAlgorithmRunner.class)));
+        }
+        return e;
     }
 
     @Test
