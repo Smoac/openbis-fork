@@ -142,10 +142,10 @@ public class JythonScreeningDropboxRecoveryTest extends AbstractJythonDataSetHan
         assertEquals(new DataSetType("HCS_IMAGE_CONTAINER_RAW"),
                 hcsImageContainerRawDataSet.getDataSetType());
 
-        File rawDatasetLocation = assertStorageDirectoryOfDataset(hcsImageRawDataSet);
+        File rawDatasetLocation =
+                new File(assertStorageDirectoryOfDataset(hcsImageRawDataSet), "original");
         File overviewDatasetLocation = assertStorageDirectoryOfDataset(hcsImageOverviewDataSet);
 
-        System.out.println(hcsImageRawDataSet.getLocation());
         System.out.println(hcsImageOverviewDataSet.getLocation());
 
         assertTrue("The plate directory exists", new File(rawDatasetLocation, "PLATE").exists());
