@@ -103,7 +103,7 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
         DataSet<FeatureVectorDataSetInformation> dataSet =
                 (DataSet<FeatureVectorDataSetInformation>) transaction
                         .createNewDataSet(registrationDetails);
-        return new FeatureVectorDataSet(dataSet);
+        return new FeatureVectorDataSet(dataSet, transaction.getGlobalState().getOpenBisService());
     }
 
     @Override

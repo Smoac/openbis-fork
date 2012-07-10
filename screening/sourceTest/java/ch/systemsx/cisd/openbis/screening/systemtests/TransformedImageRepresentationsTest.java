@@ -142,7 +142,7 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
 
     private String getTestDataFolder()
     {
-        return "../screening/resource/test-data/" + getClass().getSimpleName() + "/";
+        return "../screening/resource/test-data/TransformedImageRepresentationsTest/";
     }
 
     @Override

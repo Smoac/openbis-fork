@@ -23,6 +23,7 @@ import java.util.List;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
+import ch.systemsx.cisd.openbis.dss.etl.PlateGeometryOracle;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImageDataSet;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
@@ -124,4 +125,16 @@ public class ImageContainerDataSet extends DataSet<DataSetInformation> implement
         }
     }
 
+    @Override
+    public String figureGeometry()
+    {
+        return PlateGeometryOracle.figureGeometry(getImageRegistrationDetails(), service);
+    }
+
+    @SuppressWarnings("unchecked")
+    private DataSetRegistrationDetails<ImageDataSetInformation> getImageRegistrationDetails()
+    {
+        return (DataSetRegistrationDetails<ImageDataSetInformation>) originalDataset
+                .getRegistrationDetails();
+    }
 }

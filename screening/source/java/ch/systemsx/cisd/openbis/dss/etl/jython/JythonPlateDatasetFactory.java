@@ -130,34 +130,8 @@ public class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInform
     public String figureGeometry(
             DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails)
     {
-        List<ImageFileInfo> images =
-                registrationDetails.getDataSetInformation().getImageDataSetStructure().getImages();
-        List<WellLocation> locations = extractLocations(images);
-        List<String> plateGeometries =
-                loadPlateGeometries(registratorState.getGlobalState().getOpenBisService());
-        return PlateGeometryOracle.figureGeometry(locations, plateGeometries);
-    }
-
-    private static List<String> loadPlateGeometries(IEncapsulatedOpenBISService openbisService)
-    {
-        Collection<VocabularyTerm> terms =
-                openbisService.listVocabularyTerms(ScreeningConstants.PLATE_GEOMETRY);
-        List<String> plateGeometries = new ArrayList<String>();
-        for (VocabularyTerm v : terms)
-        {
-            plateGeometries.add(v.getCode());
-        }
-        return plateGeometries;
-    }
-
-    private static List<WellLocation> extractLocations(List<ImageFileInfo> images)
-    {
-        List<WellLocation> locations = new ArrayList<WellLocation>();
-        for (ImageFileInfo image : images)
-        {
-            locations.add(image.tryGetWellLocation());
-        }
-        return locations;
+        IEncapsulatedOpenBISService openBisService = registratorState.getGlobalState().getOpenBisService();
+        return PlateGeometryOracle.figureGeometry(registrationDetails, openBisService);
     }
 
     // ----

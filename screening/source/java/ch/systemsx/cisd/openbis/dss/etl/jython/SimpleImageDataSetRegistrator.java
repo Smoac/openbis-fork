@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetStructure;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorComponent;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageIdentifier;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageMetadata;
@@ -162,6 +163,15 @@ public class SimpleImageDataSetRegistrator
                 imageDatasetFactory.createDataSetRegistrationDetails();
         ImageDataSetInformation imageDataset = registrationDetails.getDataSetInformation();
         setImageDataset(incoming, imageDataset);
+        List<ChannelColorComponent> channelColorComponentsOrNull =
+                simpleImageConfig.getChannelColorComponentsOrNull();
+        if (channelColorComponentsOrNull == null)
+        {
+            imageDataset.setChannels(simpleImageConfig.getChannels());
+        } else
+        {
+            imageDataset.setChannels(simpleImageConfig.getChannels(), channelColorComponentsOrNull);
+        }
         setRegistrationDetails(registrationDetails, imageDataset);
         return registrationDetails;
     }

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -26,7 +27,13 @@ import java.util.Map;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -37,6 +44,39 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  */
 public class PlateGeometryOracle
 {
+    public static String figureGeometry(
+            DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails,
+            IEncapsulatedOpenBISService openBisService)
+    {
+        List<ImageFileInfo> images =
+                registrationDetails.getDataSetInformation().getImageDataSetStructure().getImages();
+        List<WellLocation> locations = extractLocations(images);
+        List<String> plateGeometries =
+                loadPlateGeometries(openBisService);
+        return PlateGeometryOracle.figureGeometry(locations, plateGeometries);
+    }
+
+    private static List<String> loadPlateGeometries(IEncapsulatedOpenBISService openbisService)
+    {
+        Collection<VocabularyTerm> terms =
+                openbisService.listVocabularyTerms(ScreeningConstants.PLATE_GEOMETRY);
+        List<String> plateGeometries = new ArrayList<String>();
+        for (VocabularyTerm v : terms)
+        {
+            plateGeometries.add(v.getCode());
+        }
+        return plateGeometries;
+    }
+
+    private static List<WellLocation> extractLocations(List<ImageFileInfo> images)
+    {
+        List<WellLocation> locations = new ArrayList<WellLocation>();
+        for (ImageFileInfo image : images)
+        {
+            locations.add(image.tryGetWellLocation());
+        }
+        return locations;
+    }
 
     public static String figureGeometry(List<WellLocation> plateLocations,
             List<String> plateGeometries)

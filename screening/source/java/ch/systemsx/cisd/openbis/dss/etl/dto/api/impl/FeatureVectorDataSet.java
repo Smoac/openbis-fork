@@ -22,6 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IFeatureVectorDataSet;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
@@ -33,19 +34,23 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
  *
  * @author Franz-Josef Elmer
  */
-public class FeatureVectorDataSet implements IFeatureVectorDataSet
+public class FeatureVectorDataSet extends DataSet<FeatureVectorDataSetInformation> implements
+        IFeatureVectorDataSet
 {
     private final DataSet<FeatureVectorDataSetInformation> dataSet;
 
-    public FeatureVectorDataSet(DataSet<FeatureVectorDataSetInformation> dataSet)
+    public FeatureVectorDataSet(DataSet<FeatureVectorDataSetInformation> dataSet,
+            IEncapsulatedOpenBISService service)
     {
+        super(dataSet.getRegistrationDetails(), dataSet.getDataSetStagingFolder(), service);
         this.dataSet = dataSet;
     }
 
     @Override
     public void setAnalysisProcedure(String analysisProcedure)
     {
-        dataSet.getRegistrationDetails().getDataSetInformation().setAnalysisProcedure(analysisProcedure);
+        dataSet.getRegistrationDetails().getDataSetInformation()
+                .setAnalysisProcedure(analysisProcedure);
     }
 
     @Override
@@ -54,11 +59,13 @@ public class FeatureVectorDataSet implements IFeatureVectorDataSet
         return dataSet.equals(obj);
     }
 
+    @Override
     public DataSetRegistrationDetails<? extends FeatureVectorDataSetInformation> getRegistrationDetails()
     {
         return dataSet.getRegistrationDetails();
     }
 
+    @Override
     public File getDataSetStagingFolder()
     {
         return dataSet.getDataSetStagingFolder();
@@ -263,6 +270,7 @@ public class FeatureVectorDataSet implements IFeatureVectorDataSet
         return dataSet.toString();
     }
 
+    @Override
     public File tryDataSetContents()
     {
         return dataSet.tryDataSetContents();

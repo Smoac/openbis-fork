@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 
 /**
@@ -41,4 +42,16 @@ public interface IImageDataSet extends IDataSet
      * By default there will be no such links.
      */
     void establishSampleLinkForContainedDataSets();
+    
+    /**
+     * Utility method to find out the plate geometry by looking for which wells images are
+     * available.
+     * 
+     * @return a constant which can be used as a vocabulary term value for $PLATE_GEOMETRY property
+     *         of a plate/
+     * @throws UserFailureException if all available geometries in openBIS are too small (there is a
+     *             well outside).
+     */
+    String figureGeometry();
+    
 }

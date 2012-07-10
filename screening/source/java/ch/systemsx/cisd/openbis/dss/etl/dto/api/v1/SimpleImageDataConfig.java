@@ -242,6 +242,10 @@ abstract public class SimpleImageDataConfig
 
     private String thumbnailsFileFormat;
 
+    private List<Channel> channels;
+
+    private List<ChannelColorComponent> channelColorComponentsOrNull;
+    
     // --- getters & setters ----------------------------------------------
 
     public ImageStorageConfiguraton getImageStorageConfiguration()
@@ -331,6 +335,16 @@ abstract public class SimpleImageDataConfig
     {
         return computeCommonIntensityRangeOfAllImagesIsDefault;
     }
+    
+    public List<Channel> getChannels()
+    {
+        return channels;
+    }
+    
+    public List<ChannelColorComponent> getChannelColorComponentsOrNull()
+    {
+        return channelColorComponentsOrNull;
+    }
 
     // ----- Setters -------------------------
 
@@ -355,6 +369,24 @@ abstract public class SimpleImageDataConfig
         this.recognizedImageExtensions = recognizedImageExtensions;
     }
 
+    /** Sets all channels available in the data set. */
+    public void setChannels(List<Channel> channels)
+    {
+        this.channels = channels;
+    }
+
+    /**
+     * Use this method if channels are encoded in color components of one image (or in other words:
+     * each image contains merged channels). For each channel you have to specify the corresponding
+     * color component of the image.
+     */
+    public void setChannels(List<Channel> channels,
+            List<ChannelColorComponent> channelColorComponents)
+    {
+        this.channels = channels;
+        channelColorComponentsOrNull = channelColorComponents;
+    }
+    
     /** should thumbnails be generated? False by default. */
     public void setGenerateThumbnails(boolean generateThumbnails)
     {
