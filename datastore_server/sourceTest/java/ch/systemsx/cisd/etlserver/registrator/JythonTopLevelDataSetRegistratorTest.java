@@ -982,6 +982,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         {
             return;
         }
+        if (testCase.deletionPoint == IncomingFileDeletedTestCaseParameters.DeletionPoint.BEFORE_OPENBIS_REGISTRATION)
+        {
+            return;
+        }
         initializeStorageRecoveryManagerMock();
         setUpHomeDataBaseExpectations();
 
@@ -1004,14 +1008,18 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         {
             assertEquals(1, MockStorageProcessor.instance.incomingDirs.size());
             assertEquals(1, MockStorageProcessor.instance.calledCommitCount);
+            assertStorageProcess(atomicOperationDetails.recordedObject(), DATA_SET_CODE,
+                    "sub_data_set_1", 0);
+            assertFalse("The incoming data set file should have been deleted",
+                    incomingDataSetFile.exists());
+            assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
         } else
         {
             assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
             assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
-
+            assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
         }
 
-        assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
         context.assertIsSatisfied();
     }
 
@@ -1102,8 +1110,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         File incomingDir1 = MockStorageProcessor.instance.incomingDirs.get(0);
         assertEquals(new File(new File(stagingDirectory, DATA_SET_CODE + 1), "sub_data_set_1"),
                 incomingDir1);
-        assertEquals("hello world1",
-                FileUtilities.loadToString(new File(datasetLocation1, "read1.me")).trim());
+        assertEquals(
+                "hello world1",
+                FileUtilities.loadToString(
+                        new File(new File(datasetLocation1, "sub_data_set_1"), "read1.me")).trim());
         assertEquals(experiment2.getIdentifier(), dataSet2.getExperimentIdentifierOrNull()
                 .toString());
         assertEquals(DATA_SET_CODE + 2, dataSet2.getCode());
@@ -1120,8 +1130,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         File incomingDir2 = MockStorageProcessor.instance.incomingDirs.get(1);
         assertEquals(new File(new File(stagingDirectory, DATA_SET_CODE + 2), "sub_data_set_2"),
                 incomingDir2);
-        assertEquals("hello world2",
-                FileUtilities.loadToString(new File(datasetLocation2, "read2.me")).trim());
+        assertEquals(
+                "hello world2",
+                FileUtilities.loadToString(
+                        new File(new File(datasetLocation2, "sub_data_set_2"), "read2.me")).trim());
         context.assertIsSatisfied();
     }
 
