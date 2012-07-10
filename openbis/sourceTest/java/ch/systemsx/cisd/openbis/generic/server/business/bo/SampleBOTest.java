@@ -428,7 +428,7 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(false));
 
                     allowing(relationshipService).unassignSampleFromExperiment(
-                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)));
+                            with(any(IAuthSession.class)), with(any(SamplePE.class)));
 
                     allowing(relationshipService).removeSampleFromContainer(
                             with(any(IAuthSession.class)), with(any(SampleIdentifier.class)),
@@ -508,7 +508,7 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(false));
 
                     allowing(relationshipService).unassignSampleFromExperiment(
-                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)));
+                            with(any(IAuthSession.class)), with(any(SamplePE.class)));
 
                     allowing(relationshipService).removeSampleFromContainer(
                             with(any(IAuthSession.class)), with(any(SampleIdentifier.class)),
@@ -574,7 +574,7 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(false));
 
                     allowing(relationshipService).unassignSampleFromExperiment(
-                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)));
+                            with(any(IAuthSession.class)), with(any(SamplePE.class)));
 
                     allowing(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(
                             with("MY_GROUP"), with(any(DatabaseInstancePE.class)));
@@ -633,7 +633,7 @@ public final class SampleBOTest extends AbstractBOTest
                             sample.getSampleType());
 
                     allowing(relationshipService).unassignSampleFromExperiment(
-                            with(any(IAuthSession.class)), with(any(SampleIdentifier.class)));
+                            with(any(IAuthSession.class)), with(any(SamplePE.class)));
 
                     allowing(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(
                             with("MY_GROUP"), with(any(DatabaseInstancePE.class)));

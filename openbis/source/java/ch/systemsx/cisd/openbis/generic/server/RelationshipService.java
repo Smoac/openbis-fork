@@ -87,12 +87,9 @@ public class RelationshipService implements IRelationshipService
     }
 
     @Override
-    public void assignSampleToExperiment(IAuthSession session, SampleIdentifier sampleId,
-            ExperimentIdentifier experimentId)
+    public void assignSampleToExperiment(IAuthSession session, SamplePE sample,
+            ExperimentPE experiment)
     {
-        SamplePE sample = findSample(sampleId);
-        ExperimentPE experiment = findExperiment(experimentId);
-
         sample.setExperiment(experiment);
 
         for (DataPE dataset : sample.getDatasets())
@@ -102,9 +99,8 @@ public class RelationshipService implements IRelationshipService
     }
 
     @Override
-    public void unassignSampleFromExperiment(IAuthSession session, SampleIdentifier sampleId)
+    public void unassignSampleFromExperiment(IAuthSession session, SamplePE sample)
     {
-        SamplePE sample = findSample(sampleId);
         if (sample.getExperiment() != null)
         {
             sample.getExperiment().removeSample(sample);
@@ -112,26 +108,22 @@ public class RelationshipService implements IRelationshipService
     }
 
     @Override
-    public void assignSampleToSpace(IAuthSession session, SampleIdentifier sampleId,
-            SpaceIdentifier spaceId)
+    public void assignSampleToSpace(IAuthSession session, SamplePE sample,
+            SpacePE space)
     {
-        SamplePE sample = findSample(sampleId);
-        SpacePE space = findSpace(spaceId);
         sample.setDatabaseInstance(null);
         sample.setSpace(space);
     }
 
     @Override
-    public void unshareSample(IAuthSession session, SampleIdentifier sampleId,
-            SpaceIdentifier spaceId)
+    public void unshareSample(IAuthSession session, SamplePE sample, SpacePE space)
     {
-        assignSampleToSpace(session, sampleId, spaceId);
+        assignSampleToSpace(session, sample, space);
     }
 
     @Override
-    public void shareSample(IAuthSession session, SampleIdentifier sampleId)
+    public void shareSample(IAuthSession session, SamplePE sample)
     {
-        SamplePE sample = findSample(sampleId);
         SpacePE space = sample.getSpace();
         sample.setSpace(null);
         sample.setDatabaseInstance(space.getDatabaseInstance());

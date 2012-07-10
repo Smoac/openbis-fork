@@ -186,6 +186,12 @@ public class UnassignSampleFromExperimentTest extends BaseTest
         assertThat(serverSays(sample).getExperiment(), is(nullValue()));
     }
 
+    Space unrelatedAdmin;
+
+    Space unrelatedObserver;
+
+    Space unrelatedNone;
+
     @Test(dataProvider = "rolesAllowedToUnassignSampleFromExperiment", groups = "authorization")
     public void unassigningIsAllowedFor(
             RoleWithHierarchy spaceRole,
@@ -193,7 +199,11 @@ public class UnassignSampleFromExperimentTest extends BaseTest
     {
         Sample sample = create(aSample().inExperiment(experiment));
         String user =
-                create(aSession().withSpaceRole(spaceRole, space).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(spaceRole, space)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(sample).removingExperiment().as(user));
     }
@@ -206,7 +216,11 @@ public class UnassignSampleFromExperimentTest extends BaseTest
     {
         Sample sample = create(aSample().inExperiment(experiment));
         String user =
-                create(aSession().withSpaceRole(spaceRole, space).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(spaceRole, space)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(sample).removingExperiment().as(user));
     }
@@ -217,6 +231,10 @@ public class UnassignSampleFromExperimentTest extends BaseTest
         space = create(aSpace());
         Project project = create(aProject().inSpace(space));
         experiment = create(anExperiment().inProject(project));
+
+        unrelatedAdmin = create(aSpace());
+        unrelatedObserver = create(aSpace());
+        unrelatedNone = create(aSpace());
     }
 
     GuardedDomain spaceDomain;

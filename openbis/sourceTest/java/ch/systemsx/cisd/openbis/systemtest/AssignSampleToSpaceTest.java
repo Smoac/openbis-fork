@@ -187,16 +187,26 @@ public class AssignSampleToSpaceTest extends BaseTest
         assertThat(serverSays(component), is(inSpace(sourceSpace)));
     }
 
+    Space unrelatedAdmin;
+
+    Space unrelatedObserver;
+
+    Space unrelatedNone;
+
     @Test(dataProvider = "rolesAllowedToAssignSampleToSpace", groups = "authorization")
     public void assigningSampleToAnotherSpaceIsAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        String user =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
-                        destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
         Sample sample = create(aSample().inSpace(sourceSpace));
+        String user =
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(sample).toSpace(destinationSpace).as(user));
     }
@@ -208,10 +218,14 @@ public class AssignSampleToSpaceTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        String user =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
-                        destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
         Sample sample = create(aSample().inSpace(sourceSpace));
+        String user =
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(sample).toSpace(destinationSpace).as(user));
     }
@@ -221,10 +235,13 @@ public class AssignSampleToSpaceTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        String user =
-                create(aSession().withSpaceRole(destinationSpaceRole, destinationSpace)
-                        .withInstanceRole(instanceRole));
         Sample sharedSample = create(aSample());
+        String user =
+                create(aSession()
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(sharedSample).toSpace(destinationSpace).as(user));
     }
@@ -235,10 +252,13 @@ public class AssignSampleToSpaceTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        String user =
-                create(aSession().withSpaceRole(destinationSpaceRole, destinationSpace)
-                        .withInstanceRole(instanceRole));
         Sample sharedSample = create(aSample());
+        String user =
+                create(aSession()
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(sharedSample).toSpace(destinationSpace).as(user));
     }
@@ -261,8 +281,11 @@ public class AssignSampleToSpaceTest extends BaseTest
         sourceSpace = create(aSpace());
         destinationSpace = create(aSpace());
         Project project = create(aProject().inSpace(sourceSpace));
-        experiment =
-                create(anExperiment().inProject(project));
+        experiment = create(anExperiment().inProject(project));
+
+        unrelatedAdmin = create(aSpace());
+        unrelatedObserver = create(aSpace());
+        unrelatedNone = create(aSpace());
     }
 
     GuardedDomain source;

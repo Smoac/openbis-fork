@@ -24,7 +24,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * @author anttil
@@ -45,29 +44,29 @@ public class RelationshipServiceStub implements IRelationshipService
     }
 
     @Override
-    public void assignSampleToExperiment(IAuthSession session, SampleIdentifier sampleId,
-            ExperimentIdentifier experimentId)
+    public void assignSampleToExperiment(IAuthSession session, SamplePE sample,
+            ExperimentPE experiment)
     {
     }
 
     @Override
-    public void unassignSampleFromExperiment(IAuthSession session, SampleIdentifier sample)
+    public void unassignSampleFromExperiment(IAuthSession session, SamplePE sample)
     {
     }
 
     @Override
-    public void unshareSample(IAuthSession session, SampleIdentifier sample, SpaceIdentifier space)
+    public void unshareSample(IAuthSession session, SamplePE sample, SpacePE space)
     {
     }
 
     @Override
-    public void assignSampleToSpace(IAuthSession session, SampleIdentifier sample,
-            SpaceIdentifier space)
+    public void assignSampleToSpace(IAuthSession session, SamplePE sample,
+            SpacePE space)
     {
     }
 
     @Override
-    public void shareSample(IAuthSession session, SampleIdentifier sample)
+    public void shareSample(IAuthSession session, SamplePE sample)
     {
     }
 

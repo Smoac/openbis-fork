@@ -271,6 +271,12 @@ public class AssignSampleToExperimentTest extends BaseTest
         assertThat(serverSays(sample), is(inExperiment(experiment)));
     }
 
+    Space unrelatedAdmin;
+
+    Space unrelatedObserver;
+
+    Space unrelatedNone;
+
     @Test(dataProvider = "rolesAllowedToAssignSampleToExperiment", groups = "authorization")
     public void assigningSampleToExperimentIsAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
@@ -279,8 +285,12 @@ public class AssignSampleToExperimentTest extends BaseTest
     {
         Sample sample = create(aSample().inExperiment(sourceExperiment));
         String user =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
-                        destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(sample).toExperiment(destinationExperiment).as(user));
     }
@@ -294,8 +304,12 @@ public class AssignSampleToExperimentTest extends BaseTest
     {
         Sample sample = create(aSample().inExperiment(sourceExperiment));
         String user =
-                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace).withSpaceRole(
-                        destinationSpaceRole, destinationSpace).withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(sample).toExperiment(destinationExperiment).as(user));
     }
@@ -307,8 +321,11 @@ public class AssignSampleToExperimentTest extends BaseTest
     {
         Sample sample = create(aSample());
         String user =
-                create(aSession().withSpaceRole(destinationSpaceRole, destinationSpace)
-                        .withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(sample).toExperiment(destinationExperiment).as(user));
     }
@@ -321,8 +338,11 @@ public class AssignSampleToExperimentTest extends BaseTest
     {
         Sample sample = create(aSample());
         String user =
-                create(aSession().withSpaceRole(destinationSpaceRole, destinationSpace)
-                        .withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(sample).toExperiment(destinationExperiment).as(user));
     }
@@ -334,8 +354,11 @@ public class AssignSampleToExperimentTest extends BaseTest
     {
         Sample sample = create(aSample().inSpace(destinationSpace));
         String user =
-                create(aSession().withSpaceRole(destinationSpaceRole, destinationSpace)
-                        .withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(destinationExperiment).withSamples(sample).as(user));
     }
@@ -348,8 +371,11 @@ public class AssignSampleToExperimentTest extends BaseTest
     {
         Sample sample = create(aSample().inSpace(destinationSpace));
         String user =
-                create(aSession().withSpaceRole(destinationSpaceRole, destinationSpace)
-                        .withInstanceRole(instanceRole));
+                create(aSession()
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(destinationExperiment).withSamples(sample).as(user));
     }
@@ -364,10 +390,17 @@ public class AssignSampleToExperimentTest extends BaseTest
         destinationProject = create(aProject().inSpace(destinationSpace));
 
         sourceExperiment =
-                create(anExperiment().inProject(sourceProject).withCode("sourceExperiment"));
+                create(anExperiment()
+                        .inProject(sourceProject)
+                        .withCode("sourceExperiment"));
         destinationExperiment =
-                create(anExperiment().inProject(destinationProject)
+                create(anExperiment()
+                        .inProject(destinationProject)
                         .withCode("destinationExperiment"));
+
+        unrelatedAdmin = create(aSpace());
+        unrelatedObserver = create(aSpace());
+        unrelatedNone = create(aSpace());
     }
 
     GuardedDomain source;

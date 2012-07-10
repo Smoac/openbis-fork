@@ -56,9 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -506,8 +504,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         {
             SampleUtils.checkSampleWithoutDatasets(getDataDAO(), sample);
 
-            SampleIdentifier sampleId = IdentifierHelper.sample(sample);
-            relationshipService.unassignSampleFromExperiment(session, sampleId);
+            relationshipService.unassignSampleFromExperiment(session, sample);
         }
     }
 
@@ -515,10 +512,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     {
         for (SamplePE sample : samples)
         {
-            SampleIdentifier sampleId = IdentifierHelper.sample(sample);
-
-            relationshipService.assignSampleToExperiment(session, sampleId, IdentifierHelper
-                    .createExperimentIdentifier(experiment));
+            relationshipService.assignSampleToExperiment(session, sample, experiment);
         }
     }
 

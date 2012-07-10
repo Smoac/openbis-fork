@@ -52,6 +52,17 @@ public abstract class PersistentEntityPredicate<T> implements IPredicate<T>
                 {
                     return Status.OK;
                 }
+
+                SpacePE space = getSpace(valueOrNull);
+
+                if (space != null)
+                {
+                    if (space.getDatabaseInstance().equals(allowed.getAssignedDatabaseInstance()))
+                    {
+                        return Status.OK;
+                    }
+                }
+
             } else
             {
                 if (allowed.getAssignedSpace().equals(getSpace(valueOrNull)))
@@ -60,6 +71,7 @@ public abstract class PersistentEntityPredicate<T> implements IPredicate<T>
                 }
             }
         }
+
         return Status.createError();
     }
 

@@ -76,15 +76,19 @@ public class AssignExperimentToProjectTest extends BaseTest
         assertThat(serverSays(sample), is(inSpace(destinationSpace)));
     }
 
+    Space unrelatedAdmin;
+
+    Space unrelatedObserver;
+
+    Space unrelatedNone;
+
     @Test(dataProvider = "rolesAllowedToAssignExperimentToProject", groups = "authorization")
     public void assigningExperimentToProjectIsAllowedFor(
             RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        Space unrelatedObserver = create(aSpace());
-        Space unrelatedAdmin = create(aSpace());
-        create(aSpace().withCode("unrelatedWithoutAccess"));
+        Experiment experiment = create(anExperiment().inProject(sourceProject));
         String user =
                 create(aSession()
                         .withSpaceRole(sourceSpaceRole, sourceSpace)
@@ -92,7 +96,6 @@ public class AssignExperimentToProjectTest extends BaseTest
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
-        Experiment experiment = create(anExperiment().inProject(sourceProject));
 
         perform(anUpdateOf(experiment).toProject(destinationProject).as(user));
     }
@@ -104,9 +107,7 @@ public class AssignExperimentToProjectTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        Space unrelatedObserver = create(aSpace());
-        Space unrelatedAdmin = create(aSpace());
-        create(aSpace().withCode("unrelatedWithoutAccess"));
+        Experiment experiment = create(anExperiment().inProject(sourceProject));
         String user =
                 create(aSession()
                         .withSpaceRole(sourceSpaceRole, sourceSpace)
@@ -114,7 +115,6 @@ public class AssignExperimentToProjectTest extends BaseTest
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
-        Experiment experiment = create(anExperiment().inProject(sourceProject));
 
         perform(anUpdateOf(experiment).toProject(destinationProject).as(user));
     }
@@ -126,6 +126,10 @@ public class AssignExperimentToProjectTest extends BaseTest
         destinationSpace = create(aSpace());
         sourceProject = create(aProject().inSpace(sourceSpace));
         destinationProject = create(aProject().inSpace(destinationSpace));
+
+        unrelatedAdmin = create(aSpace());
+        unrelatedObserver = create(aSpace());
+        unrelatedNone = create(aSpace());
     }
 
     GuardedDomain source;

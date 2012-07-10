@@ -486,15 +486,13 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
             if (space == null)
             {
-                relationshipService.shareSample(session, IdentifierHelper.sample(sample));
+                relationshipService.shareSample(session, sample);
             } else if (sample.getSpace() == null)
             {
-                relationshipService.unshareSample(session, IdentifierHelper.sample(sample),
-                        IdentifierHelper.space(space));
+                relationshipService.unshareSample(session, sample, space);
             } else
             {
-                relationshipService.assignSampleToSpace(session, IdentifierHelper.sample(sample),
-                        IdentifierHelper.space(space));
+                relationshipService.assignSampleToSpace(session, sample, space);
             }
             return true;
         }
@@ -529,8 +527,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                     sample.getIdentifier());
         }
 
-        SampleIdentifier sampleId = IdentifierHelper.sample(sample);
-        relationshipService.unassignSampleFromExperiment(session, sampleId);
+        relationshipService.unassignSampleFromExperiment(session, sample);
     }
 
     private void changeExperiment(SamplePE sample, ExperimentIdentifier identifier,
@@ -545,9 +542,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         ensureExperimentIsValid(identifier, newExperiment, sample);
         ensureSampleAttachableToExperiment(sample);
 
-        SampleIdentifier sampleId = IdentifierHelper.sample(sample);
-
-        relationshipService.assignSampleToExperiment(session, sampleId, identifier);
+        relationshipService.assignSampleToExperiment(session, sample, newExperiment);
     }
 
     private void ensureSampleAttachableToExperiment(SamplePE sample)

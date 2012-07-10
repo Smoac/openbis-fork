@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCo
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentPEPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectPEPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SamplePEPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpacePEPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -36,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Definition of an internal service through which entity relationships can be changed and deleted.
@@ -71,46 +71,46 @@ public interface IRelationshipService
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_SAMPLE_TO_EXPERIMENT")
     public void assignSampleToExperiment(IAuthSession session,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            SampleIdentifier sampleId,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ExperimentIdentifier experimentid);
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
+            SamplePE sample,
+            @AuthorizationGuard(guardClass = ExperimentPEPredicate.class)
+            ExperimentPE experiment);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("UNASSIGN_SAMPLE_FROM_EXPERIMENT")
     public void unassignSampleFromExperiment(IAuthSession session,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            SampleIdentifier sample);
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
+            SamplePE sample);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.INSTANCE_ETL_SERVER, RoleWithHierarchy.INSTANCE_ADMIN })
     @Capability("UNSHARE_SAMPLE")
     public void unshareSample(IAuthSession session,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            SampleIdentifier sample,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            SpaceIdentifier space);
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
+            SamplePE sample,
+            @AuthorizationGuard(guardClass = SpacePEPredicate.class)
+            SpacePE space);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
     @Capability("ASSIGN_SAMPLE_TO_SPACE")
     public void assignSampleToSpace(IAuthSession session,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            SampleIdentifier sample,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            SpaceIdentifier space);
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
+            SamplePE sample,
+            @AuthorizationGuard(guardClass = SpacePEPredicate.class)
+            SpacePE space);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
         { RoleWithHierarchy.INSTANCE_ETL_SERVER, RoleWithHierarchy.INSTANCE_ADMIN })
     @Capability("SHARE_SAMPLE")
     public void shareSample(IAuthSession session,
-            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
-            SampleIdentifier sample);
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
+            SamplePE sample);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
