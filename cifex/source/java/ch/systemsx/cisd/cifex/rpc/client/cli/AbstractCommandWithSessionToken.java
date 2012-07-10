@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.cifex.rpc.client.cli;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import ch.systemsx.cisd.cifex.rpc.client.ClientConfigurationFiles;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -29,6 +32,8 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  */
 public abstract class AbstractCommandWithSessionToken extends AbstractCommand
 {
+
+    private static final long ONE_MINUTE = 60 * 1000L;
 
     private static String tryCheckAndGetSessionToken()
     {
@@ -92,6 +97,18 @@ public abstract class AbstractCommandWithSessionToken extends AbstractCommand
             return 1;
         }
         final ICIFEXComponent serviceOrNull = tryGetComponent();
+        if (serviceOrNull == null)
+        {
+            return 2;
+        }
+        new Timer("keep-alive ping", true).schedule(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                serviceOrNull.checkSession(sessionToken);
+            }
+        }, ONE_MINUTE, ONE_MINUTE);
         return execute(sessionToken, serviceOrNull, args);
     }
 
