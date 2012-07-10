@@ -204,7 +204,7 @@ public class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInform
         return createFeatureVectorRegistrationDetails(featureDefinitions);
     }
 
-    private DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetails(
+    public DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorRegistrationDetails(
             List<FeatureDefinition> featureDefinitions)
     {
         DataSetRegistrationDetails<FeatureVectorDataSetInformation> registrationDetails =

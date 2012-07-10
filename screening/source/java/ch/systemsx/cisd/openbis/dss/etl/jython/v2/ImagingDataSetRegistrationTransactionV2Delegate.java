@@ -17,11 +17,16 @@
 package ch.systemsx.cisd.openbis.dss.etl.jython.v2;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
@@ -29,8 +34,16 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinition;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSet;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSetInformation;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImageDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IFeatureVectorDataSet;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.SimpleFeatureVectorDataConfig;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvFeatureVectorParser;
 import ch.systemsx.cisd.openbis.dss.etl.jython.ImagingDataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
@@ -61,6 +74,36 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
             File incomingFolderWithImages)
     {
         return transaction.createNewImageDataSet(imageDataSet, incomingFolderWithImages);
+    }
+
+    @Override
+    public IFeatureVectorDataSet createNewFeatureVectorDataSet(
+            SimpleFeatureVectorDataConfig featureDataSetConfig, File featureVectorFileOrNull)
+    {
+        List<FeatureDefinition> featureDefinitions;
+        Properties properties = featureDataSetConfig.getProperties();
+        if (properties == null)
+        {
+            featureDefinitions =
+                    ((FeaturesBuilder) featureDataSetConfig.getFeaturesBuilder())
+                            .getFeatureDefinitionValuesList();
+        } else
+        {
+            try
+            {
+                featureDefinitions = CsvFeatureVectorParser.parse(featureVectorFileOrNull, properties);
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+        DataSetRegistrationDetails<FeatureVectorDataSetInformation> registrationDetails =
+                transaction.getFactory().createFeatureVectorRegistrationDetails(featureDefinitions);
+        @SuppressWarnings("unchecked")
+        DataSet<FeatureVectorDataSetInformation> dataSet =
+                (DataSet<FeatureVectorDataSetInformation>) transaction
+                        .createNewDataSet(registrationDetails);
+        return new FeatureVectorDataSet(dataSet);
     }
 
     @Override

@@ -19,8 +19,11 @@ package ch.systemsx.cisd.openbis.dss.etl.jython.v2;
 import java.io.File;
 
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImageDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IFeatureVectorDataSet;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.SimpleFeatureVectorDataConfig;
 
 /**
  * 
@@ -31,9 +34,16 @@ public interface IImagingDataSetRegistrationTransactionV2 extends
  IDataSetRegistrationTransactionV2
 {
     /**
-     * Creates a new image dataset. See {@link SimpleImageDataConfig} documentation for
+     * Creates a new image data set. See {@link SimpleImageDataConfig} documentation for
      * configuration details.
      */
     IImageDataSet createNewImageDataSet(SimpleImageDataConfig imageDataSet,
             File incomingFolderWithImages);
+    
+    /**
+     * Creates a new feature vector data set based on either the {@link FeaturesBuilder} provided by
+     * the specified {@link SimpleFeatureVectorDataConfig} or the specified file.
+     */
+    IFeatureVectorDataSet createNewFeatureVectorDataSet(
+            SimpleFeatureVectorDataConfig featureDataSetConfig, File featureVectorFileOrNull);
 }

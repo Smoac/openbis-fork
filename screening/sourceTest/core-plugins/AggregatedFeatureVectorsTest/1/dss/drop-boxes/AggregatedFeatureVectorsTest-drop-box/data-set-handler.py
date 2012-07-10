@@ -1,3 +1,5 @@
+from ch.systemsx.cisd.openbis.dss.etl.dto.api.v2 import SimpleFeatureVectorDataConfig 
+
 PLATE_GEOMETRY_PROPERTY_CODE = "$PLATE_GEOMETRY"
 PLATE_GEOMETRY = "384_WELLS_16X24"
 
@@ -32,16 +34,16 @@ def create_plate(tr, experiment, plateCode, gene):
     return plate
 
 
-def create_analysis_data_set(tr, plate, builder, analysis_procedure, ds_file):    
-    analysis_registration_details = factory.createFeatureVectorDatasetDetails(builder)    
-    analysis_data_set = tr.createNewDataSet(analysis_registration_details)
+def create_analysis_data_set(tr, plate, config, analysis_procedure, ds_file):    
+    analysis_data_set = tr.createNewFeatureVectorDataSet(config, None)
     analysis_data_set.setSample(plate)
     analysis_data_set.setPropertyValue("$ANALYSIS_PROCEDURE", analysis_procedure)
-    analysis_data_set_file = tr.moveFile(incoming.getPath() + "/" + ds_file, analysis_data_set)
+    analysis_data_set_file = tr.moveFile(tr.incoming.getPath() + "/" + ds_file, analysis_data_set)
 
 def create_dataset_with_features1(tr, experiment, gene):
     plate1 = create_plate(tr, experiment, "PLATE1", gene)
-    builder = factory.createFeaturesBuilder()
+    config = SimpleFeatureVectorDataConfig()
+    builder = config.featuresBuilder
     
     featureX = builder.defineFeature("X")
     featureX.addValue(1, 1, "1")
@@ -51,11 +53,12 @@ def create_dataset_with_features1(tr, experiment, gene):
     featureY.addValue(1, 1, "3")
     featureY.addValue(1, 2, "2")
 
-    create_analysis_data_set(tr, plate1, builder, "p1", "data-set-1.csv")    
+    create_analysis_data_set(tr, plate1, config, "p1", "data-set-1.csv")    
 
 def create_dataset_with_features2(tr, experiment, gene):
     plate2 = create_plate(tr, experiment, "PLATE2", gene)
-    builder = factory.createFeaturesBuilder()
+    config = SimpleFeatureVectorDataConfig()
+    builder = config.featuresBuilder
     
     featureA = builder.defineFeature("A")
     featureA.addValue(1, 1, "10")
@@ -69,18 +72,19 @@ def create_dataset_with_features2(tr, experiment, gene):
     featureX.addValue(1, 1, "5")
     featureX.addValue(1, 2, "6")
 
-    create_analysis_data_set(tr, plate2, builder, "p2", "data-set-2.file")    
+    create_analysis_data_set(tr, plate2, config, "p2", "data-set-2.file")    
 
 
-tr = service.transaction()
-experiment = create_experiment(tr)
+def process(transaction): 
+    incoming = transaction.incoming
+    experiment = create_experiment(transaction)
 
-geneCode = "G"
-geneG = tr.createNewMaterial(geneCode, "GENE") 
+    geneCode = "G"
+    geneG = transaction.createNewMaterial(geneCode, "GENE") 
 
-create_dataset_with_features1(tr, experiment, geneG)
-create_dataset_with_features2(tr, experiment, geneG)
+    create_dataset_with_features1(transaction, experiment, geneG)
+    create_dataset_with_features2(transaction, experiment, geneG)
 
-# delete the empty incoming, its 
-# contents have been moved to the data sets 
-incoming.delete()
+    # delete the empty incoming, its 
+    # contents have been moved to the data sets 
+    incoming.delete()

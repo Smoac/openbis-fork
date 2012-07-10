@@ -76,6 +76,8 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
 
     private final String originalDirName;
 
+    private final JythonPlateDatasetFactory factory;
+
     @SuppressWarnings("unchecked")
     public ImagingDataSetRegistrationTransaction(File rollBackStackParentFolder,
             File workingDirectory, File stagingDirectory,
@@ -89,10 +91,15 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         assert registrationDetailsFactory instanceof JythonPlateDatasetFactory : "JythonPlateDatasetFactory expected, but got: "
                 + registrationDetailsFactory.getClass().getCanonicalName();
 
-        JythonPlateDatasetFactory factory = (JythonPlateDatasetFactory) registrationDetailsFactory;
+        factory = (JythonPlateDatasetFactory) registrationDetailsFactory;
         this.imageDatasetFactory = factory.imageDatasetFactory;
         this.imageContainerDatasetFactory = factory.imageContainerDatasetFactory;
         this.originalDirName = originalDirName;
+    }
+
+    public JythonPlateDatasetFactory getFactory()
+    {
+        return factory;
     }
 
     @Override
