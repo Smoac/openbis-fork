@@ -16,13 +16,7 @@
 
 package ch.systemsx.cisd.common.filesystem;
 
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
-
 import java.io.File;
-import java.io.IOException;
-
-import org.testng.annotations.Test;
 
 /**
  * Test cases for the {@link FastRecursiveHardLinkMaker}.
