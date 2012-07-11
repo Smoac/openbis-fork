@@ -99,11 +99,18 @@ public class DataCompletedFilter implements IStoreItemFilter
     {
         final StoreItemLocation storeItemLocation = fileStore.getStoreItemLocation(item);
         final List<String> command = new ArrayList<String>();
+        final String path = FileUtilities.getCanonicalPath(getDataCompletedScript());
         if (OSUtilities.isWindows())
         {
-            command.add("sh");
+            if (path.endsWith(".bat"))
+            {
+                command.add("cmd");
+            } else // Assume we have Cygwin's shell.
+            {
+                command.add("sh");
+            }
         }
-        command.add(FileUtilities.getCanonicalPath(getDataCompletedScript()));
+        command.add(path);
         command.add(storeItemLocation.getAbsolutePath());
         final String host = storeItemLocation.getHost();
         if (host != null)
