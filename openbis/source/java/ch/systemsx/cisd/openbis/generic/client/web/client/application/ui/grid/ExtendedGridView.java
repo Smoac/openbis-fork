@@ -281,7 +281,7 @@ public class ExtendedGridView extends GridView
                 {
                     buf.append(" x-grid3-dirty-cell");
                 } else
-                { // rendiring of the outdated cells
+                { // rendering of the outdated cells
                     if (model instanceof BaseEntityModel<?>)
                     {
                         BaseEntityModel<?> baseEntityModel = (BaseEntityModel<?>) model;
