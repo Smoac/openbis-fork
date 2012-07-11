@@ -163,7 +163,7 @@ abstract class AbstractCommand implements ICommand
     }
 
     protected void addConsoleProgressListener(final IProgressListenerHolder downloader,
-            final boolean noProgressFeedback)
+            final boolean printFilenameOnStart, final boolean noProgressFeedback)
     {
         downloader.addProgressListener(new IProgressListener()
             {
@@ -174,6 +174,10 @@ abstract class AbstractCommand implements ICommand
                 public void start(File file, String operationName, long fileSize, Long fileIdOrNull)
                 {
                     size = fileSize;
+                    if (printFilenameOnStart)
+                    {
+                        System.out.println(file.getName());
+                    }
                 }
 
                 @Override
@@ -190,7 +194,10 @@ abstract class AbstractCommand implements ICommand
                 public void finished(boolean successful)
                 {
                     size = 0L;
-                    System.out.println();
+                    if (noProgressFeedback == false)
+                    {
+                        System.out.println();
+                    }
                 }
 
                 @Override

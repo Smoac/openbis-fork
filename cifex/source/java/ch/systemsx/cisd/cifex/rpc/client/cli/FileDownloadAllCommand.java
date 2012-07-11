@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.cifex.rpc.client.cli;
 
 import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -26,6 +24,7 @@ import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXDownloader;
 import ch.systemsx.cisd.cifex.rpc.client.encryption.OpenPGPSymmetricKeyEncryption;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
@@ -34,30 +33,25 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * 
  * @author Bernd Rinn
  */
-public class FileDownloadCommand extends AbstractCommandWithSessionToken
+public class FileDownloadAllCommand extends AbstractCommandWithSessionToken
 {
 
-    private static final String NAME = "download";
+    private static final String NAME = "download_all";
 
-    private static FileDownloadCommand instance;
+    private static FileDownloadAllCommand instance;
 
     private Parameters parameters;
-
-    private static final Pattern FILE_ID_LINK_PATTERN = Pattern.compile("fileId=([0-9]+)");
 
     private static class Parameters extends MinimalParameters
     {
 
-        @Option(name = "d", longName = "directory", metaVar = "DIR", usage = "Directory to download the file to.")
+        @Option(name = "d", longName = "directory", metaVar = "DIR", usage = "Directory to download the files to.")
         private File directory;
-
-        @Option(name = "n", longName = "name", metaVar = "FILE", usage = "File name to use for the downloaded file (instead of the one stored in CIFEX).")
-        private String name;
 
         @Option(name = "q", longName = "quiet", usage = "Suppress progress reporting.")
         private boolean quiet;
 
-        @Option(name = "D", longName = "decrypt", usage = "Decrypt file after downloading.")
+        @Option(name = "D", longName = "decrypt", usage = "Decrypt files after downloading.")
         private boolean decrypt;
 
         @Option(name = "p", longName = "passphrase", metaVar = "STRING", usage = "The pass phrase to use for encryption.")
@@ -66,29 +60,12 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
         @Option(name = "O", longName = "overwrote-output-file", metaVar = "FLAG", usage = "Whether an already existing output file for the local decrypted file should be silently overwritten (only used if decryption is enabled).")
         private boolean overwriteOutputFile;
 
-        private long fileID;
-
         public Parameters(String[] args)
         {
-            super(args, NAME, "<cifex_file_id or cifex_link>");
-            if (getArgs().size() != 1)
+            super(args, NAME, "");
+            if (getArgs().isEmpty() == false)
             {
                 printHelp(true);
-            }
-            final String fileIdStr = getArgs().get(0);
-            try
-            {
-                fileID = Long.parseLong(fileIdStr);
-            } catch (NumberFormatException ex)
-            {
-                final Matcher fileIdLinkMatcher = FILE_ID_LINK_PATTERN.matcher(fileIdStr);
-                if (fileIdLinkMatcher.find())
-                {
-                    fileID = Long.parseLong(fileIdLinkMatcher.group(1));
-                } else
-                {
-                    printHelp(true);
-                }
             }
         }
 
@@ -97,30 +74,9 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
             return directory;
         }
 
-        public String getName()
-        {
-            if (isDecrypt() && name != null)
-            {
-                return name + OpenPGPSymmetricKeyEncryption.PGP_FILE_EXTENSION;
-            } else
-            {
-                return name;
-            }
-        }
-
-        public String getClearName()
-        {
-            return name;
-        }
-
         public boolean beQuiet()
         {
             return quiet;
-        }
-
-        public long getFileID()
-        {
-            return fileID;
         }
 
         public boolean isDecrypt()
@@ -140,7 +96,7 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
 
     }
 
-    private FileDownloadCommand()
+    private FileDownloadAllCommand()
     {
         super(NAME);
     }
@@ -156,11 +112,11 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
     }
 
     /** Returns the unique instance of this class. */
-    public final static synchronized FileDownloadCommand getInstance()
+    public final static synchronized FileDownloadAllCommand getInstance()
     {
         if (instance == null)
         {
-            instance = new FileDownloadCommand();
+            instance = new FileDownloadAllCommand();
         }
         return instance;
     }
@@ -188,7 +144,7 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
             throws UserFailureException, EnvironmentFailureException
     {
         final ICIFEXDownloader downloader = cifex.createDownloader(sessionToken);
-        addConsoleProgressListener(downloader, false, getParameters().beQuiet());
+        addConsoleProgressListener(downloader, true, getParameters().beQuiet());
 
         final String passphrase;
         if (getParameters().isDecrypt())
@@ -198,17 +154,17 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
         {
             passphrase = null;
         }
-        final File file =
-                downloader.download(getParameters().getFileID(), getParameters().getDirectory(),
-                        getParameters().getName(), getParameters().isOverwriteOutputFile());
-
-        if (getParameters().isDecrypt())
+        for (FileInfoDTO fileInfo : cifex.listDownloadFiles(sessionToken))
         {
-            File clearTextFile =
-                    OpenPGPSymmetricKeyEncryption.decrypt(file, getParameters().getClearName(),
-                            passphrase, true);
-            if (getParameters().getName() == null)
+            final File file =
+                    downloader.download(fileInfo.getID(), getParameters().getDirectory(), null,
+                            true);
+
+            if (getParameters().isDecrypt())
             {
+                File clearTextFile =
+                        OpenPGPSymmetricKeyEncryption.decrypt(file, null, passphrase,
+                                getParameters().isOverwriteOutputFile());
                 System.out.println("\nDecrypted file is '" + clearTextFile + "'.");
             }
         }

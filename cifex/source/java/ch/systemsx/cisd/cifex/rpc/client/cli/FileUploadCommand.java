@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.cifex.rpc.client.cli;
 
 import java.io.File;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -58,31 +59,42 @@ public class FileUploadCommand extends AbstractCommandWithSessionToken
         @Option(name = "E", longName = "encrypt", usage = "Encrypt file before uploading.")
         private boolean encrypt;
 
-        @Option(name = "n", longName = "name", usage = "Name of the file as reported to the server.")
+        @Option(name = "n", longName = "name", usage = "Name of the file as reported to the server (only allowed when exactly one file is given).")
         private String name;
 
         @Option(name = "p", longName = "passphrase", metaVar = "STRING", usage = "The pass phrase to use for encryption.")
         private String passphrase;
 
-        @Option(name = "g", longName = "generate-passphrase", metaVar = "FLAG", usage = "Automatically generate a passphrase (incompatible with -p).", skipForExample=true)
+        @Option(name = "g", longName = "generate-passphrase", metaVar = "FLAG", usage = "Automatically generate a passphrase (incompatible with -p).", skipForExample = true)
         private boolean generatePassphrase;
 
-        @Option(name = "s", longName = "short-passphrase", metaVar = "FLAG", usage = "Create a short and quite memorizable password (implies -g).", skipForExample=true)
+        @Option(name = "s", longName = "short-passphrase", metaVar = "FLAG", usage = "Create a short and quite memorizable password (implies -g).", skipForExample = true)
         private boolean shortPassphrase;
 
         @Option(name = "O", longName = "overwrote-output-file", metaVar = "FLAG", usage = "Whether an already existing output file for the local encrypted file should be silently overwritten (only used if encryption is enabled).")
         private boolean overwriteOutputFile;
 
-        private FileWithOverrideName file;
+        private List<FileWithOverrideName> files;
 
         public Parameters(String[] args)
         {
-            super(args, NAME, "<file>");
-            if (getArgs().size() != 1 || (getPassphrase() != null && isGeneratePassphrase()))
+            super(args, NAME, "<file> [<file>...]");
+            if (getArgs().isEmpty() || (getPassphrase() != null && isGeneratePassphrase())
+                    || (getArgs().size() > 1 && name != null))
             {
                 printHelp(true);
             }
-            file = new FileWithOverrideName(new File(getArgs().get(0)), name);
+            files = new ArrayList<FileWithOverrideName>(getArgs().size());
+            if (name != null)
+            {
+                files.add(new FileWithOverrideName(new File(getArgs().get(0)), name));
+            } else
+            {
+                for (String filename : getArgs())
+                {
+                    files.add(new FileWithOverrideName(new File(filename), null));
+                }
+            }
             comment = StringUtils.trimToEmpty(comment);
             recipients = StringUtils.trimToEmpty(recipients);
         }
@@ -122,9 +134,9 @@ public class FileUploadCommand extends AbstractCommandWithSessionToken
             return recipients;
         }
 
-        FileWithOverrideName getFile()
+        List<FileWithOverrideName> getFiles()
         {
-            return file;
+            return files;
         }
 
         public boolean beQuiet()
@@ -178,7 +190,8 @@ public class FileUploadCommand extends AbstractCommandWithSessionToken
             System.err.println("No password has been specified, exiting.");
             System.exit(1);
         }
-        String passphraseRepeat = tryGetPassphrase("Passphrase (repeat): ", parameters.getPassphrase());
+        String passphraseRepeat =
+                tryGetPassphrase("Passphrase (repeat): ", parameters.getPassphrase());
         if (passphrase.equals(passphraseRepeat) == false)
         {
             System.err.println("The two passphrases do not match, exiting.");
@@ -199,20 +212,28 @@ public class FileUploadCommand extends AbstractCommandWithSessionToken
             throws UserFailureException, EnvironmentFailureException
     {
         final ICIFEXUploader uploader = cifex.createUploader(sessionToken);
-        addConsoleProgressListener(uploader, getParameters().beQuiet());
-        FileWithOverrideName file = getParameters().getFile();
+        addConsoleProgressListener(uploader, getParameters().getFiles().size() > 1, getParameters()
+                .beQuiet());
 
+        final List<FileWithOverrideName> files;
         if (getParameters().isEncrypt())
         {
             final String passphrase = getPassphraseOrExit();
-            final File encryptedFile =
-                    OpenPGPSymmetricKeyEncryption.encrypt(file.getOriginalFile(), file.getEncryptedFile(),
-                            passphrase, getParameters().isOverwriteOutputFile());
-            file = new FileWithOverrideName(encryptedFile, file.tryGetOverrideName());
+            files = new ArrayList<FileWithOverrideName>(getParameters().getFiles().size());
+            for (FileWithOverrideName file : getParameters().getFiles())
+            {
+                final File encryptedFile =
+                        OpenPGPSymmetricKeyEncryption.encrypt(file.getOriginalFile(), file
+                                .getEncryptedFile(), passphrase, getParameters()
+                                .isOverwriteOutputFile());
+                file = new FileWithOverrideName(encryptedFile, file.tryGetOverrideName());
+                files.add(file);
+            }
+        } else
+        {
+            files = getParameters().getFiles();
         }
-
-        uploader.upload(Collections.singletonList(file), getParameters().getRecipients(),
-                getParameters().getComment());
+        uploader.upload(files, getParameters().getRecipients(), getParameters().getComment());
         return 0;
     }
 

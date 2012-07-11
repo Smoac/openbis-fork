@@ -194,6 +194,7 @@ public class CIFEXClient
         registerCommand(map, ListDownloadFilesCommand.getInstance());
         registerCommand(map, ListOwnedFilesCommand.getInstance());
         registerCommand(map, FileDownloadCommand.getInstance());
+        registerCommand(map, FileDownloadAllCommand.getInstance());
         registerCommand(map, FileUploadCommand.getInstance());
         registerCommand(map, FileDeletionCommand.getInstance());
         registerCommand(map, ComputeCRC32Checksum.getInstance());
