@@ -3,6 +3,7 @@ from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import ImageMetadata
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
+
 SPACE_CODE = "TEST"
 PROJECT_CODE = "TEST-PROJECT"
 PROJECT_ID = "/%(SPACE_CODE)s/%(PROJECT_CODE)s" % vars()
@@ -12,7 +13,6 @@ EXPERIMENT_ID = "/%(SPACE_CODE)s/%(PROJECT_CODE)s/%(EXPERIMENT_CODE)s" % vars()
 PLATE_CODE = "PLATE1"
 PLATE_ID = "/%(SPACE_CODE)s/%(PLATE_CODE)s" % vars()
 PLATE_GEOMETRY_PROPERTY_CODE = "$PLATE_GEOMETRY"
-
 
 def create_space_if_needed(transaction):
     space = transaction.getSpace(SPACE_CODE)
@@ -46,7 +46,6 @@ def create_plate_if_needed(transaction):
     if None == samp:
         exp = create_experiment_if_needed(transaction)
         samp = transaction.createNewSample(PLATE_ID, 'PLATE')
-        samp.setPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE, "384_WELLS_16X24")
         samp.setExperiment(exp)
         
     return samp

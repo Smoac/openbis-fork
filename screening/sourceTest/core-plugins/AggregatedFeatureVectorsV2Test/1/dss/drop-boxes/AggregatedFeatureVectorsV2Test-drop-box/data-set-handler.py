@@ -37,7 +37,7 @@ def create_plate(tr, experiment, plateCode, gene):
 def create_analysis_data_set(tr, plate, config, analysis_procedure, ds_file):    
     analysis_data_set = tr.createNewFeatureVectorDataSet(config, None)
     analysis_data_set.setSample(plate)
-    analysis_data_set.setPropertyValue("$ANALYSIS_PROCEDURE", analysis_procedure)
+    analysis_data_set.setAnalysisProcedure(analysis_procedure)
     analysis_data_set_file = tr.moveFile(tr.incoming.getPath() + "/" + ds_file, analysis_data_set)
 
 def create_dataset_with_features1(tr, experiment, gene):
