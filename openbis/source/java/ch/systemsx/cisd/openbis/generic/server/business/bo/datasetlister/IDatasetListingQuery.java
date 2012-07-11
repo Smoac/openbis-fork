@@ -245,9 +245,10 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
      * 
      * @param entityIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "SELECT pr.ds_id as entity_id, etpt.prty_id, etpt.script_id, pr.value "
+    @Select(sql = "SELECT pr.ds_id as entity_id, etpt.prty_id, etpt.script_id, pr.value, sc.script_type "
             + "      FROM data_set_properties pr"
             + "      JOIN data_set_type_property_types etpt ON pr.dstpt_id=etpt.id"
+            + "      LEFT OUTER JOIN scripts sc ON etpt.script_id = sc.id"
             + "     WHERE pr.value is not null AND pr.ds_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(

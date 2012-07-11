@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
@@ -35,6 +37,10 @@ public class BaseEntityModel<T> extends SimplifiedBaseModelData
 {
     private static final long serialVersionUID = 1L;
 
+    private boolean outdated = false;
+
+    private final Set<String> outdatable = new HashSet<String>();
+
     /** NOTE: it's assumed that columnDefinitions do not contain custom columns */
     public BaseEntityModel(final GridRowModel<T> entity,
             List<? extends IColumnDefinition<T>> columnDefinitions)
@@ -49,6 +55,10 @@ public class BaseEntityModel<T> extends SimplifiedBaseModelData
             {
                 set(ModelDataPropertyNames.link(column.getIdentifier()),
                         ((IColumnDefinitionUI<T>) column).tryGetLink(entity.getOriginalObject()));
+                if (((IColumnDefinitionUI<?>) column).isDynamicProperty())
+                {
+                    outdatable.add(column.getIdentifier());
+                }
             }
         }
         addCustomColumns(entity);
@@ -59,6 +69,7 @@ public class BaseEntityModel<T> extends SimplifiedBaseModelData
         for (Entry<String, PrimitiveValue> entry : model.getCalculatedColumnValues().entrySet())
         {
             set(entry.getKey(), entry.getValue());
+            outdatable.add(entry.getKey());
         }
     }
 
@@ -72,4 +83,18 @@ public class BaseEntityModel<T> extends SimplifiedBaseModelData
         return get(ModelDataPropertyNames.link(columnId));
     }
 
+    public boolean isOutdated()
+    {
+        return outdated;
+    }
+
+    public void setOutdated(boolean outdated)
+    {
+        this.outdated = outdated;
+    }
+
+    public boolean isOutdatable(String columnName)
+    {
+        return outdatable.contains(columnName);
+    }
 }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * The view model.
@@ -88,5 +89,10 @@ public class GenericViewModel
     public boolean isAnonymousAllowed()
     {
         return anonymousAllowed;
+    }
+
+    public Person getLoggedInPerson()
+    {
+        return sessionContext.getUser().getUserPersonObject();
     }
 }

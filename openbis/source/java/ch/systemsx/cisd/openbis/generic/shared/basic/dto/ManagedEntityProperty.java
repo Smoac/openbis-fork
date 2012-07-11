@@ -69,7 +69,7 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
     {
         return entityProperty.getPropertyType().getCode();
     }
-    
+
     @Override
     public boolean isSpecialValue()
     {
@@ -91,7 +91,13 @@ public class ManagedEntityProperty implements IEntityProperty, IManagedProperty
     {
         return true;
     }
-    
+
+    @Override
+    public boolean isDynamic()
+    {
+        return false;
+    }
+
     //
     // IEntityProperty delegated methods
     //

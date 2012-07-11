@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectGrid;
-
 /**
- * IDs of column of {@link ProjectGrid}.
+ * IDs of static columns common to many grids
  * 
- * @author Franz-Josef Elmer
+ * @author Pawel Glyzewski
  */
-public class ProjectGridColumnIDs
+public class CommonGridColumnIDs
 {
-    public static final String CODE = "CODE";
+    public static final String MODIFIER = "MODIFIER";
 
-    public static final String SPACE = "SPACE";
-
-    public static final String DESCRIPTION = "DESCRIPTION";
-
-    public static final String REGISTRATOR = "REGISTRATOR";
-
-    public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
+    public static final String MODIFICATION_DATE = "MODIFICATION_DATE";
 }

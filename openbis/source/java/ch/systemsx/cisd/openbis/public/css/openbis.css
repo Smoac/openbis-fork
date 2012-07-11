@@ -314,3 +314,16 @@ body,div,td,.default-text {
 .linkDataViewLabel {
 	margin-right: 5px;	
 }
+
+/*************************
+ * Outdated grid cells
+ *************************/
+
+.cisd-grid-outdated-cell {
+  background: transparent no-repeat 0 0;
+  color: gray;
+}
+
+.cisd-grid-outdated-cell {
+  background-image: url(../images/outdated.gif);
+}

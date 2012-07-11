@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.en
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -287,7 +288,7 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
                 super.createColumnsDefinition();
         schema.setGridCellRendererFor(ExternalDataGridColumnIDs.REGISTRATOR,
                 PersonRenderer.REGISTRATOR_RENDERER);
-        schema.setGridCellRendererFor(ExternalDataGridColumnIDs.MODIFIER,
+        schema.setGridCellRendererFor(CommonGridColumnIDs.MODIFIER,
                 PersonRenderer.MODIFIER_RENDERER);
         schema.setGridCellRendererFor(ExternalDataGridColumnIDs.SHOW_DETAILS_LINK,
                 createShowDetailsLinkCellRenderer());

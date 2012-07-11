@@ -60,6 +60,11 @@ public interface IColumn
     public IColumn editable();
 
     /**
+     * Sets dynamic property flag to <code>true</code>.
+     */
+    public IColumn dynamicProperty();
+
+    /**
      * Sets the vocabulary for controlled vocabulary property type
      */
     public void setVocabulary(Vocabulary vocabularyOrNull);

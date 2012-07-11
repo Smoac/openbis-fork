@@ -33,8 +33,10 @@ public abstract class AbstractEntityProperty implements IEntityProperty
     private PropertyType propertyType;
 
     private Long ordinal;
-    
+
     private boolean scriptable;
+
+    private boolean dynamic;
 
     @Override
     public PropertyType getPropertyType()
@@ -140,6 +142,17 @@ public abstract class AbstractEntityProperty implements IEntityProperty
     public boolean isScriptable()
     {
         return scriptable;
+    }
+
+    @Override
+    public boolean isDynamic()
+    {
+        return dynamic;
+    }
+
+    public void setDynamic(boolean dynamic)
+    {
+        this.dynamic = dynamic;
     }
 
     //

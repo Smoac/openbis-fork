@@ -388,9 +388,10 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
      * 
      * @param sampleIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, stpt.script_id, sp.value "
+    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, stpt.script_id, sp.value, sc.script_type "
             + "      FROM sample_properties sp"
             + "      JOIN sample_type_property_types stpt ON sp.stpt_id=stpt.id"
+            + "      LEFT OUTER JOIN scripts sc ON stpt.script_id = sc.id"
             + "     WHERE sp.value is not null AND sp.samp_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(

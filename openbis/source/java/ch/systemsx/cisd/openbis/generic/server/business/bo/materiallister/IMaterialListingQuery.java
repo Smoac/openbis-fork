@@ -80,9 +80,10 @@ public interface IMaterialListingQuery extends TransactionQuery, IPropertyListin
      * 
      * @param entityIds The set of material ids to get the property values for.
      */
-    @Select(sql = "SELECT pr.mate_id as entity_id, etpt.prty_id, etpt.script_id, pr.value "
+    @Select(sql = "SELECT pr.mate_id as entity_id, etpt.prty_id, etpt.script_id, pr.value, sc.script_type "
             + "      FROM material_properties pr"
             + "      JOIN material_type_property_types etpt ON pr.mtpt_id=etpt.id"
+            + "      LEFT OUTER JOIN scripts sc ON etpt.script_id = sc.id"
             + "     WHERE pr.value is not null AND pr.mate_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(

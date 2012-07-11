@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * An extract from the Session object, used internally on the server side.
@@ -43,6 +44,8 @@ public class SessionContextDTO implements Serializable
     private String userEmail;
 
     private boolean isAnonymous;
+
+    private Person userPersonObject;
 
     public void setSessionToken(String sessionToken)
     {
@@ -114,4 +117,13 @@ public class SessionContextDTO implements Serializable
         this.isAnonymous = isAnonymous;
     }
 
+    public void setUserPersonObject(Person userPersonObject)
+    {
+        this.userPersonObject = userPersonObject;
+    }
+
+    public Person getUserPersonObject()
+    {
+        return userPersonObject;
+    }
 }

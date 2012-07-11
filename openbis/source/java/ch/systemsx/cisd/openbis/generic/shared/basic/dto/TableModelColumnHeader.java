@@ -49,6 +49,8 @@ public class TableModelColumnHeader implements Serializable
 
     private boolean editable;
 
+    private boolean dynamicProperty;
+
     private boolean linkEntitiesOnly;
 
     protected Vocabulary vocabularyOrNull;
@@ -152,6 +154,16 @@ public class TableModelColumnHeader implements Serializable
     public boolean isEditable()
     {
         return editable;
+    }
+
+    public void setDynamicProperty(boolean dynamicProperty)
+    {
+        this.dynamicProperty = dynamicProperty;
+    }
+
+    public boolean isDynamicProperty()
+    {
+        return dynamicProperty;
     }
 
     public void setLinkEntitiesOnly(boolean linkEntitiesOnly)

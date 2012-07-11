@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityProperty;
 
@@ -124,6 +125,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
             property.setValue(val.value);
             property.setPropertyType(propertyTypes.get(val.prty_id));
             property.setScriptable(val.script_id != null);
+            property.setDynamic(ScriptType.DYNAMIC_PROPERTY.name().equals(val.script_type));
             entity.getProperties().add(property);
         }
 

@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDirectlyConnectedController;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityDisplayCriteriaKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
@@ -433,7 +434,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                 super.createColumnsDefinition();
         definitions.setGridCellRendererFor(SampleGridColumnIDs.REGISTRATOR,
                 PersonRenderer.REGISTRATOR_RENDERER);
-        definitions.setGridCellRendererFor(SampleGridColumnIDs.MODIFIER,
+        definitions.setGridCellRendererFor(CommonGridColumnIDs.MODIFIER,
                 PersonRenderer.MODIFIER_RENDERER);
         definitions.setGridCellRendererFor(SampleGridColumnIDs.SHOW_DETAILS_LINK_COLUMN_NAME,
                 createShowDetailsLinkCellRenderer());

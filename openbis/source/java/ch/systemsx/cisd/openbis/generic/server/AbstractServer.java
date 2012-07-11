@@ -85,6 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomColumnTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 
@@ -627,6 +628,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         result.setUserName(session.getUserName());
         result.setUserEmail(session.getUserEmail());
         result.setAnonymous(session.isAnonymous());
+        result.setUserPersonObject(PersonTranslator.translate(person));
         return result;
     }
 

@@ -37,4 +37,9 @@ public interface IColumnDefinitionUI<T> extends IColumnDefinition<T>
     Vocabulary tryGetVocabulary();
 
     String tryGetLink(T entity);
+
+    /**
+     * Returns <code>true</code> if the column cell is a dynamic property
+     */
+    boolean isDynamicProperty();
 }

@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProjectGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -179,7 +180,7 @@ public class ProjectGrid extends TypedTableGrid<Project>
                 createMultilineStringCellRenderer());
         schema.setGridCellRendererFor(ProjectGridColumnIDs.REGISTRATOR,
                 PersonRenderer.REGISTRATOR_RENDERER);
-        schema.setGridCellRendererFor(ProjectGridColumnIDs.MODIFIER,
+        schema.setGridCellRendererFor(CommonGridColumnIDs.MODIFIER,
                 PersonRenderer.MODIFIER_RENDERER);
         return schema;
     }

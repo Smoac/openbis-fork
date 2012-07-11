@@ -312,6 +312,7 @@ public abstract class AbstractClientService implements IClientService,
         user.setUserName(session.getUserName());
         user.setHomeGroupCode(session.tryGetHomeGroupCode());
         user.setUserEmail(session.getUserEmail());
+        user.setUserPersonObject(session.getUserPersonObject());
         sessionContext.setUser(user);
         sessionContext.setAnonymous(session.isAnonymous());
 

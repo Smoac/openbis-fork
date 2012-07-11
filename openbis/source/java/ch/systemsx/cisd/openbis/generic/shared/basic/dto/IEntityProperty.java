@@ -57,6 +57,8 @@ public interface IEntityProperty extends Serializable, Comparable<IEntityPropert
 
     boolean isManaged();
 
+    boolean isDynamic();
+
     boolean isScriptable();
 
 }

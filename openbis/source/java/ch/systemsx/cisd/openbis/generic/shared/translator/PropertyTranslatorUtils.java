@@ -68,6 +68,7 @@ final class PropertyTranslatorUtils
         final DataTypeCode typeCode = PropertyTranslatorUtils.getDataTypeCode(propertyPE);
         final AbstractEntityProperty basicProperty = createEntityProperty(typeCode);
         basicProperty.setScriptable(propertyPE.getEntityTypePropertyType().isScriptable());
+        basicProperty.setDynamic(propertyPE.getEntityTypePropertyType().isDynamic());
         return basicProperty;
     }
 

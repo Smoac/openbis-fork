@@ -74,6 +74,12 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
         return false;
     }
 
+    @Override
+    public boolean isDynamicProperty()
+    {
+        return false;
+    }
+
     public boolean isLink()
     {
         return false;

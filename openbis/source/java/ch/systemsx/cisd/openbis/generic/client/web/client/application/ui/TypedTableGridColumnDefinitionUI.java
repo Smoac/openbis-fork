@@ -79,6 +79,12 @@ public class TypedTableGridColumnDefinitionUI<T extends Serializable> extends
         return header.isEditable();
     }
 
+    @Override
+    public boolean isDynamicProperty()
+    {
+        return header.isDynamicProperty();
+    }
+
     public boolean isLink()
     {
         return false;

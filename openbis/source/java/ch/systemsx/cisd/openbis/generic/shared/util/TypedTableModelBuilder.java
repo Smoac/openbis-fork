@@ -253,6 +253,7 @@ public class TypedTableModelBuilder<T extends Serializable>
                         value = DataTypeUtils.convertTo(dataType, property.tryGetAsString());
                 }
                 setEditableFlag(column, propertyType);
+                setDynamicFlag(column, property);
                 column.addValue(value);
             }
         }
@@ -266,6 +267,14 @@ public class TypedTableModelBuilder<T extends Serializable>
             if (TableCellUtil.isEditiableProperty(propertyType))
             {
                 column.editable();
+            }
+        }
+
+        private void setDynamicFlag(IColumn column, IEntityProperty property)
+        {
+            if (property.isDynamic())
+            {
+                column.dynamicProperty();
             }
         }
 
@@ -338,6 +347,13 @@ public class TypedTableModelBuilder<T extends Serializable>
         public IColumn editable()
         {
             header.setEditable(true);
+            return this;
+        }
+
+        @Override
+        public IColumn dynamicProperty()
+        {
+            header.setDynamicProperty(true);
             return this;
         }
 

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -132,6 +133,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Constants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdatesResult;
@@ -149,12 +151,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
@@ -2398,7 +2402,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                         }
                         if (isApplyModificationsComplete())
                         {
-                            onApplyModificationsComplete();
+                            onApplyModificationsComplete(model);
                         }
                     }
 
@@ -2409,7 +2413,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                         handleError(caught.getMessage());
                         if (isApplyModificationsComplete())
                         {
-                            onApplyModificationsComplete();
+                            onApplyModificationsComplete(model);
                         }
                     }
 
@@ -2427,7 +2431,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             return finishedModifications == modificationsByModel.size();
         }
 
-        private void onApplyModificationsComplete()
+        private void onApplyModificationsComplete(BaseEntityModel<TableModelRowWithObject<T>> model)
         {
             if (failedModifications.size() > 0)
             {
@@ -2440,6 +2444,10 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             } else
             {
                 GWTUtils.displayInfo("All modifications successfully applied.");
+                model.setOutdated(true);
+                model.set(CommonGridColumnIDs.MODIFIER, viewContext.getModel().getLoggedInPerson());
+                model.set(CommonGridColumnIDs.MODIFICATION_DATE, SimpleDateRenderer
+                        .renderDate((new DateTableCell(new Date())).getDateTime()));
                 grid.getStore().commitChanges(); // no need to refresh - everything should be valid
             }
             clearModifications();
@@ -2501,7 +2509,6 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                     }
                 }));
         }
-
     }
 
     /**

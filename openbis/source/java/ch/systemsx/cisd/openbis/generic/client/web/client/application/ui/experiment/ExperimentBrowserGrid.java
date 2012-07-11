@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
@@ -336,7 +337,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                 super.createColumnsDefinition();
         schema.setGridCellRendererFor(ExperimentBrowserGridColumnIDs.REGISTRATOR,
                 PersonRenderer.REGISTRATOR_RENDERER);
-        schema.setGridCellRendererFor(ExperimentBrowserGridColumnIDs.MODIFIER,
+        schema.setGridCellRendererFor(CommonGridColumnIDs.MODIFIER,
                 PersonRenderer.MODIFIER_RENDERER);
         schema.setGridCellRendererFor(ExperimentBrowserGridColumnIDs.SHOW_DETAILS_LINK,
                 createShowDetailsLinkCellRenderer());

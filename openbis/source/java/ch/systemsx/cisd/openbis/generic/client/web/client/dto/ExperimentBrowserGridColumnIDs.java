@@ -37,11 +37,7 @@ public class ExperimentBrowserGridColumnIDs
 
     public static final String REGISTRATOR = "REGISTRATOR";
 
-    public static final String MODIFIER = "MODIFIER";
-
     public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
-
-    public static final String MODIFICATION_DATE = "MODIFICATION_DATE";
 
     public static final String IS_DELETED = "IS_DELETED";
 

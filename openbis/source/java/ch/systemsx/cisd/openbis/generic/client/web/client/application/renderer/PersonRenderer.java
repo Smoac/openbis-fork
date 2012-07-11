@@ -82,10 +82,17 @@ public final class PersonRenderer
                             ColumnData config, int rowIndex, int colIndex,
                             ListStore<BaseEntityModel<?>> store, Grid<BaseEntityModel<?>> grid)
                     {
-                        Person registrator =
-                                ((TableModelRowWithObject<IRegistratorAndModifierHolder>) model
-                                        .getBaseObject()).getObjectOrNull().getModifier();
-                        return PersonRenderer.createPersonAnchor(registrator);
+                        Person modifier = null;
+                        if (model.get(property) != null && model.get(property) instanceof Person)
+                        {
+                            modifier = model.get(property);
+                        } else
+                        {
+                            modifier =
+                                    ((TableModelRowWithObject<IRegistratorAndModifierHolder>) model
+                                            .getBaseObject()).getObjectOrNull().getModifier();
+                        }
+                        return PersonRenderer.createPersonAnchor(modifier);
                     }
                 };
 
