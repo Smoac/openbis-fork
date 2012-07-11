@@ -44,7 +44,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEn
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
  * 

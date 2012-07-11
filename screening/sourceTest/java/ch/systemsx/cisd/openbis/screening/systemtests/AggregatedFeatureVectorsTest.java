@@ -321,4 +321,9 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
         return exampleDataSet;
     }
 
+    @Override
+    protected int dataSetImportWaitDurationInSeconds()
+    {
+        return 60;
+    }
 }
