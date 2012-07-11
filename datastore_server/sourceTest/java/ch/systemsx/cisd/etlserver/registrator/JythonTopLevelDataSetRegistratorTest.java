@@ -40,12 +40,14 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.eodsql.MockDataSet;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.TestBigStructureCreator;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
@@ -924,6 +926,9 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
             if (deletionPoint == DeletionPoint.BEFORE_OPENBIS_REGISTRATION)
             {
                 testCase.failurePoint = TestCaseParameters.FailurePoint.BEFORE_OPENBIS_REGISTRATION;
+            } else if (deletionPoint == DeletionPoint.DURING_PRECOMMIT_COPY)
+            {
+                testCase.failurePoint = TestCaseParameters.FailurePoint.AT_THE_BEGINNING;
             }
 
             return testCase;
@@ -982,10 +987,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     public void testIncomingFileDeleted(final IncomingFileDeletedTestCaseParameters testCase)
     {
         // Not yet handled
-        if (testCase.deletionPoint == IncomingFileDeletedTestCaseParameters.DeletionPoint.DURING_PRECOMMIT_COPY)
-        {
-            return;
-        }
         initializeStorageRecoveryManagerMock();
         setUpHomeDataBaseExpectations();
 
@@ -997,12 +998,30 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         TopLevelDataSetRegistratorGlobalState globalState = createGlobalState(properties);
         handler = new TestingDataSetHandlerV2(globalState, false, false);
 
-        createDataWithOneSubDataSet();
-
         final RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails> atomicOperationDetails =
                 new RecordingMatcher<ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails>();
-        context.checking(getTestIncomingFileDeletedExcpectations(testCase, atomicOperationDetails));
-        handler.handle(markerFile);
+
+        // Used in the parallel deletion of the incoming file test
+        if (testCase.deletionPoint == IncomingFileDeletedTestCaseParameters.DeletionPoint.DURING_PRECOMMIT_COPY)
+        {
+            TestBigStructureCreator creator = createBigStructureDataSet();
+            assertTrue(creator.verifyStructure());
+            context.checking(getTestIncomingFileDeletedExcpectations(testCase,
+                    atomicOperationDetails));
+
+            creator.deleteBigStructureAsync();
+            handler.handle(markerFile);
+            assertFalse(creator.verifyStructure());
+            JythonHookTestTool jythonHookTestTool =
+                    JythonHookTestTool.createFromWorkingDirectory(workingDirectory);
+            jythonHookTestTool.assertNoMoreMessages();
+        } else
+        {
+            createDataWithOneSubDataSet();
+            context.checking(getTestIncomingFileDeletedExcpectations(testCase,
+                    atomicOperationDetails));
+            handler.handle(markerFile);
+        }
 
         if (testCase.deletionPoint == IncomingFileDeletedTestCaseParameters.DeletionPoint.AFTER_OPENBIS_REGISTRATION)
         {
@@ -1012,6 +1031,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     "sub_data_set_1", 0);
             assertFalse("The incoming data set file should have been deleted",
                     incomingDataSetFile.exists());
+            assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
+        } else if (testCase.deletionPoint == IncomingFileDeletedTestCaseParameters.DeletionPoint.DURING_PRECOMMIT_COPY)
+        {
+            assertEquals(0, MockStorageProcessor.instance.incomingDirs.size());
+            assertEquals(0, MockStorageProcessor.instance.calledCommitCount);
             assertEquals("[]", Arrays.asList(stagingDirectory.list()).toString());
         } else
         {
@@ -1522,6 +1546,28 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + "data_set");
         FileUtilities.writeToFile(markerFile, "");
+    }
+
+    private TestBigStructureCreator createBigStructureDataSet()
+    {
+        try
+        {
+            File root = new File(workingDirectory, "data_set");
+            int[] numberOfFolders =
+                { 100, 10 };
+            int[] numberOfFiles =
+                { 1, 10, 10 };
+            TestBigStructureCreator creator =
+                    new TestBigStructureCreator(root, numberOfFolders, numberOfFiles);
+            incomingDataSetFile = creator.createBigStructure();
+            assertTrue(incomingDataSetFile.isDirectory());
+            markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + "data_set");
+            FileUtilities.writeToFile(markerFile, "");
+            return creator;
+        } catch (IOException e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        }
     }
 
     @Test
