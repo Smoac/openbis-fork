@@ -108,7 +108,7 @@ public class MiscellaneousDropBoxApiV2FeaturesTest extends AbstractScreeningSyst
                         ListSampleCriteria.createForExperiment(new TechId(experiment.getId())));
 
         Sample sample = samples.get(0);
-        assertEquals("/TEST/PLATE1", sample.getIdentifier());
+        assertEquals("/TEST/PLATE137", sample.getIdentifier());
         assertEquals("[$PLATE_GEOMETRY: 24_WELLS_4X6]", sample.getProperties().toString());
         assertEquals(1, samples.size());
     }
