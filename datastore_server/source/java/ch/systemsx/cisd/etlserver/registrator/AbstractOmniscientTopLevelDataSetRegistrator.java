@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.AssertionCatchingImmutableCopierWrapper;
 import ch.systemsx.cisd.common.filesystem.FastRecursiveHardLinkMaker;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -384,7 +385,12 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         } else
         {
             // If we should the prestaging phase, we make a hardlink copy in prestaging area
-            File copyOfIncoming = copyIncomingFileToPreStaging(incomingDataSetFile);
+            File copyOfIncoming = tryCopyIncomingFileToPreStaging(incomingDataSetFile);
+            if (null == copyOfIncoming)
+            {
+                // Nothing to do
+                return;
+            }
 
             DataSetFile dsf = new DataSetFile(incomingDataSetFile, copyOfIncoming);
 
@@ -397,7 +403,12 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         }
     }
 
-    private File copyIncomingFileToPreStaging(File incomingDataSetFile)
+    /**
+     * Make a copy of the file to the prestaging directory.
+     * 
+     * @return The file in the prestaging directory or null if a copy could not be made.
+     */
+    private File tryCopyIncomingFileToPreStaging(File incomingDataSetFile)
     {
         TopLevelDataSetRegistratorGlobalState globalState = state.getGlobalState();
         File preStagingRootDir = globalState.getPreStagingDir();
@@ -408,7 +419,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         preStagingDir.mkdir();
 
         // Try to find a hardlink maker
-        IImmutableCopier hardlinkMaker = FastRecursiveHardLinkMaker.tryCreate();
+        IImmutableCopier hardlinkMaker =
+                new AssertionCatchingImmutableCopierWrapper(FastRecursiveHardLinkMaker.tryCreate());
         boolean linkWasMade = false;
         if (null != hardlinkMaker)
         {
@@ -418,15 +430,22 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             if (status.isError())
             {
                 final String msg =
-                        status.tryGetErrorMessage() == null ? "inknown error" : status
+                        status.tryGetErrorMessage() == null ? "Unknown error" : status
                                 .tryGetErrorMessage();
-                operationLog.warn("Failed to make a hard link copy of " + incomingDirName + " to "
-                        + preStagingDir + ": " + msg);
+                operationLog.warn("Failed to make a hard link copy of " + incomingDataSetFile
+                        + " to " + preStagingDir + ": " + msg);
             }
         }
 
         if (false == linkWasMade)
         {
+            // First check if the original file still exists
+            if (false == incomingDataSetFile.exists())
+            {
+                operationLog.warn(incomingDataSetFile.getAbsolutePath()
+                        + " has been deleted. Nothing to process.");
+                return null;
+            }
             FileOperations.getMonitoredInstanceForCurrentThread().copyToDirectory(
                     incomingDataSetFile, preStagingDir);
         }
