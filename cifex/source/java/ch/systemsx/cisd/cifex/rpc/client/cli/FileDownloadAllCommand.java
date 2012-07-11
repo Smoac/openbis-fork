@@ -71,6 +71,10 @@ public class FileDownloadAllCommand extends AbstractCommandWithSessionToken
 
         public File getDirectory()
         {
+            if (directory.isDirectory() == false)
+            {
+                directory.mkdirs();
+            }
             return directory;
         }
 
