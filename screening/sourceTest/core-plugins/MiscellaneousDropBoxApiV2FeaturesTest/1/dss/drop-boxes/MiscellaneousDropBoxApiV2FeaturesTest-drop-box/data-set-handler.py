@@ -38,7 +38,7 @@ def create_experiment_if_needed(transaction):
         
     return exp
     
-def create_plate_if_needed(transaction):
+def create_plate_if_needed(transaction, plateGeometry):
     """ Get the specified sample or register it if necessary """
 
     samp = transaction.getSample(PLATE_ID)
@@ -47,6 +47,7 @@ def create_plate_if_needed(transaction):
         exp = create_experiment_if_needed(transaction)
         samp = transaction.createNewSample(PLATE_ID, 'PLATE')
         samp.setExperiment(exp)
+        samp.setPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE, plateGeometry)
         
     return samp
 
@@ -79,8 +80,7 @@ def process(transaction):
         imageDataset.setUseImageMagicToGenerateThumbnails(False)
         imageDataset.setPlate(SPACE_CODE, PLATE_CODE)
         dataset = transaction.createNewImageDataSet(imageDataset, incoming);
-        plate = create_plate_if_needed(transaction)
         plateGeometry = dataset.figureGeometry()
-        plate.setPropertyValue(PLATE_GEOMETRY_PROPERTY_CODE, plateGeometry)
+        plate = create_plate_if_needed(transaction, plateGeometry)
         dataset.setSample(plate)
         transaction.moveFile(incoming.getPath(), dataset);
