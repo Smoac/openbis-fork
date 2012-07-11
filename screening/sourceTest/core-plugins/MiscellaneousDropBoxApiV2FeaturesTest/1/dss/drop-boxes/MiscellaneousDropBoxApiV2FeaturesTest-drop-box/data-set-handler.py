@@ -78,7 +78,6 @@ def process(transaction):
         imageDataset.setRawImageDatasetType()
         imageDataset.setGenerateThumbnails(True)
         imageDataset.setUseImageMagicToGenerateThumbnails(False)
-        imageDataset.setPlate(SPACE_CODE, PLATE_CODE)
         dataset = transaction.createNewImageDataSet(imageDataset, incoming);
         plateGeometry = dataset.figureGeometry()
         plate = create_plate_if_needed(transaction, plateGeometry)

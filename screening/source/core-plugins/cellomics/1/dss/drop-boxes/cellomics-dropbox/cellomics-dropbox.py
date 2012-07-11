@@ -82,7 +82,6 @@ if incoming.isDirectory():
     imageDataset.setRawImageDatasetType()
     imageDataset.setGenerateThumbnails(True)
     imageDataset.setUseImageMagicToGenerateThumbnails(False)
-    imageDataset.setPlate(SPACE_CODE, PLATE_CODE)
     imageDataset.setImageLibrary('BioFormats', 'CellomicsReader##SINGLE_IMAGE')
     registrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)  
     transaction = service.transaction(incoming, factory)

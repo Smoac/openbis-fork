@@ -23,6 +23,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails.DefaultThumbnailsConfiguration;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails.IThumbnailsConfiguration;
@@ -31,6 +32,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails.ZoomLevelBasedThum
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ConvertToolImageTransformerFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformationBuffer;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
@@ -353,7 +355,10 @@ abstract public class SimpleImageDataConfig
      * 
      * @param spaceCode space where the plate for which the dataset has been acquired exist
      * @param plateCode code of the plate to which the dataset will belong
+     * @deprecated instead invoke {@link IDataSet#setSample(ISampleImmutable)} on the
+     *             {@link IDataSet} object created.
      */
+    @Deprecated
     public void setPlate(String spaceCode, String plateCode)
     {
         this.spaceCode = spaceCode;
