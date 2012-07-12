@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.jython.v2;
+package ch.systemsx.cisd.openbis.dss.etl.dto.api.v2;
 
 import java.io.File;
 
@@ -22,16 +22,13 @@ import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransac
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImageDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IFeatureVectorDataSet;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.SimpleFeatureVectorDataConfig;
 
 /**
- * 
+ * Extension of {@link IDataSetRegistrationTransactionV2} for screening.
  *
  * @author Jakub Straszewski
  */
-public interface IImagingDataSetRegistrationTransactionV2 extends
- IDataSetRegistrationTransactionV2
+public interface IImagingDataSetRegistrationTransactionV2 extends IDataSetRegistrationTransactionV2
 {
     /**
      * Creates a new image data set. See {@link SimpleImageDataConfig} documentation for
