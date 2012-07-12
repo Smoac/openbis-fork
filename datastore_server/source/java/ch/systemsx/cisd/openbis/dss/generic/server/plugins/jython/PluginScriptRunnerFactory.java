@@ -62,6 +62,8 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 
     private final static String MAIL_SERVICE_VARIABLE_NAME = "mailService";
 
+    private final static String AUTHORIZATION_SERVICE = "authorizationService";
+
     private static final String CONTENT_PROVIDER_VARIABLE_NAME = "contentProvider";
 
     private final String scriptPath;
@@ -164,6 +166,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         evaluator.set(SEARCH_SERVICE_VARIABLE_NAME, createSearchService());
         evaluator.set(MAIL_SERVICE_VARIABLE_NAME, createMailService(context));
         evaluator.set(DATA_SOURCE_QUERY_SERVICE_VARIABLE_NAME, createDataSourceQueryService());
+        evaluator.set(AUTHORIZATION_SERVICE, createAuthorizationService());
         return evaluator;
     }
 
