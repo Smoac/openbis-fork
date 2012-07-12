@@ -259,6 +259,15 @@ public interface ICommonServer extends IServer
     public List<Project> listProjects(String sessionToken);
 
     /**
+     * Returns all projects.
+     * 
+     * @return a sorted list of {@link Project}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Project> listProjectsForUser(String sessionToken, String userId);
+
+    /**
      * Registers a new person.
      */
     @Transactional

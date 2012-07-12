@@ -236,6 +236,13 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public List<Project> listProjectsForUser(String sessionToken, String userId)
+    {
+        logAccess(sessionToken, "list-projects-for-user", "USER_ID(%s)", userId);
+        return null;
+    }
+
+    @Override
     public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary> listVocabularies(
             String sessionToken)
     {

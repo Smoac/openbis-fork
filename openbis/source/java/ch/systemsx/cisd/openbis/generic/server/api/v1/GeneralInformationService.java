@@ -731,6 +731,16 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    @Capability("LIST_PROJECTS_FOR_USER")
+    public List<Project> listProjectsForUser(String sessionToken, String userId)
+    {
+        checkSession(sessionToken);
+        return Translator.translateProjects(commonServer.listProjectsForUser(sessionToken, userId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @Capability("GET_MATERIALS_BY_CODES")
     public List<Material> getMaterialByCodes(String sessionToken,

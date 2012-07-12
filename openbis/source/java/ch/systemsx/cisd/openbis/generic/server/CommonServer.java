@@ -97,6 +97,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchData
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -523,6 +524,30 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final List<ProjectPE> projects = getDAOFactory().getProjectDAO().listProjects();
         Collections.sort(projects);
         return ProjectTranslator.translate(projects);
+    }
+
+    @Override
+    public final List<Project> listProjectsForUser(final String sessionToken, String userId)
+    {
+        checkSession(sessionToken);
+        final List<ProjectPE> allProjectPEs = getDAOFactory().getProjectDAO().listProjects();
+        // Have to sort the PEs because Project does not have a compare method
+        Collections.sort(allProjectPEs);
+        List<Project> allProjects = ProjectTranslator.translate(allProjectPEs);
+
+        PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+        ProjectValidator validator = new ProjectValidator();
+
+        ArrayList<Project> projects = new ArrayList<Project>();
+        for (Project project : allProjects)
+        {
+            if (validator.doValidation(person, project))
+            {
+                projects.add(project);
+            }
+        }
+
+        return projects;
     }
 
     @Override
