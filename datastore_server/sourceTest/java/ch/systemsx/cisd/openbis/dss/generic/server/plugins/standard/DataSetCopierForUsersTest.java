@@ -66,6 +66,8 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
 
     private ISshCommandExecutor sshCommandExecutor;
 
+    private IImmutableCopierFactory hardLinkMakerFactory;
+    
     private File storeRoot;
 
     private File sshExecutableDummy;
@@ -86,6 +88,7 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
         context = new Mockery();
         pathFactory = context.mock(IPathCopierFactory.class);
         sshFactory = context.mock(ISshCommandExecutorFactory.class);
+        hardLinkMakerFactory = context.mock(IImmutableCopierFactory.class);
         copier = context.mock(IPathCopier.class);
         sshCommandExecutor = context.mock(ISshCommandExecutor.class);
         storeRoot = new File(workingDirectory, "store");
@@ -135,7 +138,8 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
                 }
             });
         DataSetCopier dataSetCopier =
-                new DataSetCopierForUsers(properties, storeRoot, pathFactory, sshFactory);
+                new DataSetCopierForUsers(properties, storeRoot, pathFactory, sshFactory,
+                        hardLinkMakerFactory);
 
         ProcessingStatus processingStatus =
                 dataSetCopier.process(Arrays.asList(ds), dataSetProcessingContext);
@@ -159,7 +163,8 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
                 }
             });
         DataSetCopier dataSetCopier =
-                new DataSetCopierForUsers(properties, storeRoot, pathFactory, sshFactory);
+                new DataSetCopierForUsers(properties, storeRoot, pathFactory, sshFactory,
+                        hardLinkMakerFactory);
 
         ProcessingStatus processingStatus =
                 dataSetCopier.process(Arrays.asList(ds), dataSetProcessingContext);

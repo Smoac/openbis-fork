@@ -37,16 +37,16 @@ public class DataSetCopierForUsers extends DataSetCopier
 
     public DataSetCopierForUsers(Properties properties, File storeRoot)
     {
-        this(properties, storeRoot, new RsyncCopierFactory(), new SshCommandExecutorFactory());
+        this(properties, storeRoot, new RsyncCopierFactory(), new SshCommandExecutorFactory(), new ImmutableCopierFactory());
     }
 
     @Private
     DataSetCopierForUsers(Properties properties, File storeRoot,
             IPathCopierFactory pathCopierFactory,
-            ISshCommandExecutorFactory sshCommandExecutorFactory)
+            ISshCommandExecutorFactory sshCommandExecutorFactory, IImmutableCopierFactory immutableCopierFactory)
     {
         super(properties, storeRoot, new Copier(properties, pathCopierFactory,
-                sshCommandExecutorFactory)
+                sshCommandExecutorFactory, immutableCopierFactory)
             {
                 private static final long serialVersionUID = 1L;
 

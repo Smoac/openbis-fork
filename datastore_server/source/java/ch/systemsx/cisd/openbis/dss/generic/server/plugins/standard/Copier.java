@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
+import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandExecutor;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
@@ -50,6 +51,8 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
 
     private final File sshExecutable;
 
+    private File lnExecutable;
+    
     private final String hostFile;
 
     private final String rsyncPasswordFile;
@@ -58,18 +61,36 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
 
     private final ISshCommandExecutorFactory sshCommandExecutorFactory;
 
+    private final IImmutableCopierFactory immutableCopierFactory;
+    
     private final boolean renameToDataSetCode;
 
+    private final boolean hardLinkCopy;
+
     public Copier(Properties properties, IPathCopierFactory pathCopierFactory,
-            ISshCommandExecutorFactory sshCommandExecutorFactory)
+            ISshCommandExecutorFactory sshCommandExecutorFactory,
+            IImmutableCopierFactory immutableCopierFactory)
     {
         this.pathCopierFactory = pathCopierFactory;
         this.sshCommandExecutorFactory = sshCommandExecutorFactory;
+        this.immutableCopierFactory = immutableCopierFactory;
         rsyncPasswordFile = properties.getProperty(DataSetCopier.RSYNC_PASSWORD_FILE_KEY);
         rsyncExecutable = getExecutable(properties, DataSetCopier.RSYNC_EXEC);
         sshExecutable = getExecutable(properties, DataSetCopier.SSH_EXEC);
         hostFile = PropertyUtils.getMandatoryProperty(properties, DataSetCopier.DESTINATION_KEY);
-        renameToDataSetCode = PropertyUtils.getBoolean(properties, "rename-to-dataset-code", false);
+        renameToDataSetCode = PropertyUtils.getBoolean(properties, DataSetCopier.RENAME_TO_DATASET_CODE_KEY, false);
+        hardLinkCopy = PropertyUtils.getBoolean(properties, DataSetCopier.HARD_LINK_COPY_KEY, false);
+        if (hardLinkCopy)
+        {
+            String host = HostAwareFileWithHighwaterMark.create(hostFile, -1).tryGetHost();
+            if (host != null)
+            {
+                throw new ConfigurationFailureException(
+                        "Hard link copying not possible on an unmounted destination on host '"
+                                + host + "'.");
+            }
+            lnExecutable = getExecutable(properties, DataSetCopier.LN_EXEC);
+        }
     }
 
     protected String transformHostFile(String originalHostFile,
@@ -100,24 +121,37 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
         }
         File destination = hostAwareFile.getFile();
         File destinationFile = new File(destination, originalData.getName());
+        String dataSetCode = dataSetInformation.getDataSetCode();
+        File finalDestinationFile = new File(destination, renameToDataSetCode ? dataSetCode : originalData.getName());
         BooleanStatus destinationExists =
-                checkDestinationFileExistence(destinationFile, host, sshCommandExecutor);
+                checkDestinationFileExistence(finalDestinationFile, host, sshCommandExecutor);
 
         if (destinationExists.isSuccess())
         {
-            operationLog.error("Destination file/directory '" + destinationFile.getPath()
+            operationLog.error("Destination file/directory '" + finalDestinationFile.getPath()
                     + "' already exists - dataset files will not be copied.");
             return Status.createError(DataSetCopier.ALREADY_EXIST_MSG);
         } else if (destinationExists.isError())
         {
-            operationLog.error("Could not test destination file/directory '" + destinationFile
+            operationLog.error("Could not test destination file/directory '" + finalDestinationFile
                     + "' existence" + (host != null ? " on host '" + host + "'" : "") + ": "
                     + destinationExists.tryGetMessage());
             return Status.createError(DataSetCopier.COPYING_FAILED_MSG);
         }
-        Status status =
-                copier.copyToRemote(originalData, destination, host, rsyncModule, rsyncPasswordFile);
-        String dataSetCode = dataSetInformation.getDataSetCode();
+        Status status;
+        if (hardLinkCopy)
+        {
+            IImmutableCopier hardLinkMaker = immutableCopierFactory.create(rsyncExecutable,
+            lnExecutable);
+            status =
+                    hardLinkMaker.copyImmutably(originalData, destination,
+                            renameToDataSetCode ? dataSetCode : null);
+        } else
+        {
+            status =
+                    copier.copyToRemote(originalData, destination, host, rsyncModule,
+                            rsyncPasswordFile);
+        }
         if (status.isError())
         {
             operationLog.error("Could not copy data set " + dataSetCode
@@ -127,20 +161,19 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
                     + status);
             return Status.createError(DataSetCopier.COPYING_FAILED_MSG);
         }
-        if (renameToDataSetCode)
+        if (hardLinkCopy == false && renameToDataSetCode)
         {
-            File newFile = new File(destination, dataSetCode);
             if (host == null)
             {
-                if (destinationFile.renameTo(newFile))
+                if (destinationFile.renameTo(finalDestinationFile) == false)
                 {
                     operationLog.error("Moving of '" + destinationFile.getPath() + "' to '"
-                            + newFile + "' failed.");
-                    return Status.createError("couldn't move");
+                            + finalDestinationFile + "' failed.");
+                    return Status.createError("couldn't rename");
                 }
             } else
             {
-                String newFilePath = newFile.getPath();
+                String newFilePath = finalDestinationFile.getPath();
                 ProcessResult result =
                     sshCommandExecutor.executeCommandRemotely("mv " + destinationFile.getPath()
                             + " " + newFilePath, DataSetCopier.SSH_TIMEOUT_MILLIS);
@@ -148,7 +181,7 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
                 {
                     operationLog.error("Remote move of '" + destinationFile.getPath() + "' to '"
                             + newFilePath + "' failed with exit value: " + result.getExitValue());
-                    return Status.createError("couldn't move");
+                    return Status.createError("couldn't rename");
                 }
             }
         }

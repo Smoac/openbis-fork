@@ -44,6 +44,10 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
 
     public static final String RSYNC_PASSWORD_FILE_KEY = "rsync-password-file";
 
+    public static final String RENAME_TO_DATASET_CODE_KEY = "rename-to-dataset-code";
+    
+    public static final String HARD_LINK_COPY_KEY = "hard-link-copy";
+    
     @Private
     static final String ALREADY_EXIST_MSG = "already exist";
 
@@ -54,6 +58,8 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
 
     public static final String RSYNC_EXEC = "rsync";
 
+    public static final String LN_EXEC = "ln";
+    
     public static final String SSH_EXEC = "ssh";
 
     public static final long SSH_TIMEOUT_MILLIS = 15 * 1000; // 15s
@@ -61,15 +67,16 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
     public DataSetCopier(Properties properties, File storeRoot)
     {
         this(properties, storeRoot, new RsyncCopierFactory(), new SshCommandExecutorFactory(),
-                SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+                new ImmutableCopierFactory(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
     @Private
     DataSetCopier(Properties properties, File storeRoot, IPathCopierFactory pathCopierFactory,
-            ISshCommandExecutorFactory sshCommandExecutorFactory, ITimeProvider timeProvider)
+            ISshCommandExecutorFactory sshCommandExecutorFactory,
+            IImmutableCopierFactory immutableCopierFactory, ITimeProvider timeProvider)
     {
         super(properties, storeRoot, new Copier(properties, pathCopierFactory,
-                sshCommandExecutorFactory), timeProvider);
+                sshCommandExecutorFactory, immutableCopierFactory), timeProvider);
     }
 
     public DataSetCopier(Properties properties, File storeRoot,

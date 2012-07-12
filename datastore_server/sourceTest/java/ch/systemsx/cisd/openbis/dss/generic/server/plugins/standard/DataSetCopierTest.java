@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopier.DESTINATION_KEY;
+import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopier.HARD_LINK_COPY_KEY;
+import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopier.RENAME_TO_DATASET_CODE_KEY;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopier.RSYNC_PASSWORD_FILE_KEY;
 
 import java.io.File;
@@ -39,6 +41,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
+import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandExecutor;
 import ch.systemsx.cisd.common.mail.EMailAddress;
@@ -56,6 +59,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
     { DataSetCopier.class, AbstractDropboxProcessingPlugin.class })
 public class DataSetCopierTest extends AbstractFileSystemTestCase
 {
+    private static final String RSYNC_EXECUTABLE = "rsync-executable";
+
     private static final String SHARE_ID = "42";
 
     private static final String USER_EMAIL = "a@bc.de";
@@ -83,6 +88,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     private File sshExecutableDummy;
 
     private File rsyncExecutableDummy;
+    
+    private File lnExecutableDummy;
 
     private Properties properties;
 
@@ -108,6 +115,10 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
     private IMailClient mailClient;
 
+    private IImmutableCopier hardLinkMaker;
+
+    private IImmutableCopierFactory hardLinkMakerFactory;
+
     @BeforeMethod
     public void beforeMethod() throws IOException
     {
@@ -117,6 +128,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         pathFactory = context.mock(IPathCopierFactory.class);
         sshFactory = context.mock(ISshCommandExecutorFactory.class);
         copier = context.mock(IPathCopier.class);
+        hardLinkMakerFactory = context.mock(IImmutableCopierFactory.class);
+        hardLinkMaker = context.mock(IImmutableCopier.class);
         sshCommandExecutor = context.mock(ISshCommandExecutor.class);
         storeRoot = new File(workingDirectory, "store");
         storeRoot.mkdirs();
@@ -124,9 +137,12 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         sshExecutableDummy.createNewFile();
         rsyncExecutableDummy = new File(workingDirectory, "my-rsync");
         rsyncExecutableDummy.createNewFile();
+        lnExecutableDummy = new File(workingDirectory, "my-ln");
+        lnExecutableDummy.createNewFile();
         properties = new Properties();
         properties.setProperty("ssh-executable", sshExecutableDummy.getPath());
-        properties.setProperty("rsync-executable", rsyncExecutableDummy.getPath());
+        properties.setProperty(RSYNC_EXECUTABLE, rsyncExecutableDummy.getPath());
+        properties.setProperty("ln-executable", lnExecutableDummy.getPath());
         ds1 = createDataSetDescription("ds1", DS1_LOCATION, true);
         File share = new File(storeRoot, SHARE_ID);
         File ds1Folder = new File(share, DS1_LOCATION + "/original");
@@ -462,22 +478,21 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testCopyLocallyFails()
+    public void testCopyLocallyFailsBecauseDestinationExists()
     {
-        properties.setProperty(DESTINATION_KEY, "tmp/test");
-
-        File existingDestinationDir = new File("tmp/test/existing");
+        final File destination = new File(workingDirectory, "tmp/test");
+        properties.setProperty(DESTINATION_KEY, destination.getPath());
+        File existingDestinationDir = new File(destination, "existing");
         existingDestinationDir.mkdirs();
-
         prepareCreateAndCheckCopier(null, null, 4, true);
         context.checking(new Expectations()
             {
                 {
-                    one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test"), null, null,
+                    one(copier).copyToRemote(ds1Data, getCanonicalFile(destination), null, null,
                             null);
                     will(returnValue(Status.createError("error message")));
 
-                    one(copier).copyToRemote(ds2Data, getCanonicalFile("tmp/test"), null, null,
+                    one(copier).copyToRemote(ds2Data, getCanonicalFile(destination), null, null,
                             null);
                     will(returnValue(Status.OK));
                 }
@@ -495,7 +510,25 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         Status alreadyExistStatus = Status.createError(DataSetCopier.ALREADY_EXIST_MSG);
         assertError(processingStatus, alreadyExistStatus, ds3, ds4);
 
-        existingDestinationDir.delete();
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCopyLocallyWithRenamingFailsBecauseDestinationExists()
+    {
+        final File destination = new File(workingDirectory, "tmp/test");
+        properties.setProperty(DESTINATION_KEY, destination.getPath());
+        properties.setProperty(RENAME_TO_DATASET_CODE_KEY, "true");
+        File existingDestinationDir = new File(destination, ds1.getDataSetCode());
+        existingDestinationDir.mkdirs();
+        prepareCreateAndCheckCopier(null, null, 1, true);
+        DataSetCopier dataSetCopier = createCopier();
+
+        ProcessingStatus processingStatus =
+                dataSetCopier.process(Arrays.asList(ds1), dummyContext);
+
+        Status errorStatus = Status.createError(DataSetCopier.ALREADY_EXIST_MSG);
+        assertError(processingStatus, errorStatus, ds1);
 
         context.assertIsSatisfied();
     }
@@ -631,6 +664,113 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testHardLinkCopyingNotPossibleForRemoteDestinations()
+    {
+        properties.setProperty(DESTINATION_KEY, "host:tmp/test");
+        properties.setProperty(HARD_LINK_COPY_KEY, "true");
+        
+        try
+        {
+            createCopier();
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Hard link copying not possible on an unmounted destination "
+                    + "on host 'host'.", ex.getMessage());
+        }
+
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testHardLinkCopyingSucessfully()
+    {
+        properties.setProperty(DESTINATION_KEY, "tmp/test");
+        properties.setProperty(HARD_LINK_COPY_KEY, "true");
+        properties.setProperty(AbstractDropboxProcessingPlugin.SEND_DETAILED_EMAIL_KEY, "true");
+        prepareCreateAndCheckCopier(null, null, 1, true);
+        final RecordingMatcher<String> subjectRecorder = new RecordingMatcher<String>();
+        final RecordingMatcher<String> contentRecorder = new RecordingMatcher<String>();
+        final RecordingMatcher<EMailAddress[]> recipientsRecorder =
+                new RecordingMatcher<EMailAddress[]>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(hardLinkMakerFactory).create(rsyncExecutableDummy, lnExecutableDummy);
+                    will(returnValue(hardLinkMaker));
+                    
+                    one(hardLinkMaker).copyImmutably(ds1Data, getCanonicalFile("tmp/test"), null);
+                    will(returnValue(Status.OK));
+                    
+                    one(mailClient).sendEmailMessage(with(subjectRecorder), with(contentRecorder),
+                            with(new IsNull<EMailAddress>()), with(new IsNull<EMailAddress>()),
+                            with(recipientsRecorder));
+                }
+            });
+        DataSetCopier dataSetCopier = createCopier();
+        
+        ProcessingStatus processingStatus =
+                dataSetCopier.process(Arrays.asList(ds1), dummyContext);
+        
+        assertNoErrors(processingStatus);
+        assertSuccessful(processingStatus, ds1);
+        assertEquals(USER_EMAIL, recipientsRecorder.recordedObject()[0].tryGetEmailAddress());
+        assertEquals("Data set ds1 [MY_DATA] successfully processed",
+                subjectRecorder.recordedObject());
+        assertEquals("Successfully processed data set ds1 [MY_DATA].\n\n" + "Processing details:\n"
+                + "Description: Copy to tmp/test\n" + "Experiment: /g/p/e [MY_EXPERIMENT]\n"
+                + "Sample: /g/s [MY_SAMPLE]\n" + "Started: 1970-01-01 01:00:00 +0100.\n"
+                + "Finished: 1970-01-01 01:00:00 +0100.", contentRecorder.recordedObject());
+
+        context.assertIsSatisfied();
+    }
+
+    
+    @Test
+    public void testHardLinkCopyingWithRenamingSucessfully()
+    {
+        properties.setProperty(DESTINATION_KEY, "tmp/test");
+        properties.setProperty(HARD_LINK_COPY_KEY, "true");
+        properties.setProperty(RENAME_TO_DATASET_CODE_KEY, "true");
+        properties.setProperty(AbstractDropboxProcessingPlugin.SEND_DETAILED_EMAIL_KEY, "true");
+        prepareCreateAndCheckCopier(null, null, 1, true);
+        final RecordingMatcher<String> subjectRecorder = new RecordingMatcher<String>();
+        final RecordingMatcher<String> contentRecorder = new RecordingMatcher<String>();
+        final RecordingMatcher<EMailAddress[]> recipientsRecorder =
+                new RecordingMatcher<EMailAddress[]>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(hardLinkMakerFactory).create(rsyncExecutableDummy, lnExecutableDummy);
+                    will(returnValue(hardLinkMaker));
+
+                    one(hardLinkMaker).copyImmutably(ds1Data, getCanonicalFile("tmp/test"),
+                            ds1.getDataSetCode());
+                    will(returnValue(Status.OK));
+
+                    one(mailClient).sendEmailMessage(with(subjectRecorder), with(contentRecorder),
+                            with(new IsNull<EMailAddress>()), with(new IsNull<EMailAddress>()),
+                            with(recipientsRecorder));
+                }
+            });
+        DataSetCopier dataSetCopier = createCopier();
+
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1), dummyContext);
+
+        assertNoErrors(processingStatus);
+        assertSuccessful(processingStatus, ds1);
+        assertEquals(USER_EMAIL, recipientsRecorder.recordedObject()[0].tryGetEmailAddress());
+        assertEquals("Data set ds1 [MY_DATA] successfully processed",
+                subjectRecorder.recordedObject());
+        assertEquals("Successfully processed data set ds1 [MY_DATA].\n\n" + "Processing details:\n"
+                + "Description: Copy to tmp/test\n" + "Experiment: /g/p/e [MY_EXPERIMENT]\n"
+                + "Sample: /g/s [MY_SAMPLE]\n" + "Started: 1970-01-01 01:00:00 +0100.\n"
+                + "Finished: 1970-01-01 01:00:00 +0100.", contentRecorder.recordedObject());
+
+        context.assertIsSatisfied();
+    }
 
     private void prepareCreateAndCheckCopier(final String hostOrNull,
             final String rsyncModuleOrNull, final int numberOfExpectedCreations,
@@ -683,7 +823,9 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     private void assertError(ProcessingStatus processingStatus, Status errorStatus,
             DatasetDescription... datasets)
     {
-        processingStatus.getErrorStatuses().contains(errorStatus);
+        List<Status> errorStatuses = processingStatus.getErrorStatuses();
+        assertEquals("Error statuses " + errorStatuses + " dosn't contain " + errorStatus, true,
+                errorStatuses.contains(errorStatus));
         checkStatus(processingStatus, errorStatus, datasets);
     }
 
@@ -707,9 +849,14 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
     private File getCanonicalFile(String fileName)
     {
+        return getCanonicalFile(new File(fileName));
+    }
+
+    private File getCanonicalFile(File file)
+    {
         try
         {
-            return new File(fileName).getCanonicalFile();
+            return file.getCanonicalFile();
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -718,7 +865,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
     private DataSetCopier createCopier()
     {
-        return new DataSetCopier(properties, storeRoot, pathFactory, sshFactory, timeProvider);
+        return new DataSetCopier(properties, storeRoot, pathFactory, sshFactory,
+                hardLinkMakerFactory, timeProvider);
     }
 
 }
