@@ -318,6 +318,11 @@ public interface IGeneralInformationService extends IRpcService
     public List<Project> listProjects(String sessionToken);
 
     /**
+     * Returns all available projects that a particular user can see
+     */
+    public List<Project> listProjectsForUser(String sessionToken, String userId);
+
+    /**
      * Returns the materials with specified identifiers (i.e. code and type).
      */
     public List<Material> getMaterialByCodes(String sessionToken,
