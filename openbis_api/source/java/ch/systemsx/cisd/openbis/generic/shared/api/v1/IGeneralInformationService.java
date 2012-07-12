@@ -318,7 +318,11 @@ public interface IGeneralInformationService extends IRpcService
     public List<Project> listProjects(String sessionToken);
 
     /**
-     * Returns all available projects that a particular user can see
+     * Returns all available projects that a particular user can see.
+     * 
+     * @param userId The user identifier of the user to get the projects for.
+     * 
+     * @since 1.18
      */
     public List<Project> listProjectsForUser(String sessionToken, String userId);
 
