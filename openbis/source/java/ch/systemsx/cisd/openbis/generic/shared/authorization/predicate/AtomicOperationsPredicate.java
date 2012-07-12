@@ -181,9 +181,9 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
             }
         }
 
-        private Status isInstanceEtlServer(PersonPE person)
+        private Status isInstanceEtlServer(PersonPE aPerson)
         {
-            for (RoleAssignmentPE role : person.getRoleAssignments())
+            for (RoleAssignmentPE role : aPerson.getRoleAssignments())
             {
                 if (role.getSpace() == null)
                 {
@@ -196,7 +196,7 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
             }
             return Status.createError(false,
                     "None of method roles '[INSTANCE_ETL_SERVER, INSTANCE_ADMIN]' could be found in roles of user '"
-                            + person.getUserId() + "'.");
+                            + aPerson.getUserId() + "'.");
         }
 
         private Status evaluateExperimentUpdatePredicate()

@@ -33,7 +33,7 @@ public final class VocabularyListDeletionConfirmationDialog extends
         AbstractDataListPermanentDeletionConfirmationDialog<TableModelRowWithObject<Vocabulary>>
 {
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
+    private final IViewContext<ICommonClientServiceAsync> localViewContext;
 
     public VocabularyListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext,
@@ -41,13 +41,13 @@ public final class VocabularyListDeletionConfirmationDialog extends
             AbstractAsyncCallback<Void> callback)
     {
         super(viewContext, vocabularies, callback);
-        this.viewContext = viewContext;
+        this.localViewContext = viewContext;
     }
 
     @Override
     protected void executeDeletion(AsyncCallback<Void> deletionCallback)
     {
-        viewContext.getCommonService().deleteVocabularies(TechId.createList(data),
+        localViewContext.getCommonService().deleteVocabularies(TechId.createList(data),
                 reason.getValue(), deletionCallback);
     }
 
