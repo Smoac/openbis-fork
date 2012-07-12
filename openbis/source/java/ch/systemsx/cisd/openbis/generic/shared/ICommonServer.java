@@ -264,7 +264,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link Project}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<Project> listProjectsForUser(String sessionToken, String userId);
 
     /**
