@@ -249,9 +249,9 @@ public class UpdateSampleContainmentTest extends BaseTest
     @BeforeClass
     void createAuthorizationRules()
     {
-        instance = new InstanceDomain("instance");
-        containerDomain = new SpaceDomain("container", instance);
-        componentDomain = new SpaceDomain("component", instance);
+        instance = new InstanceDomain();
+        containerDomain = new SpaceDomain(instance);
+        componentDomain = new SpaceDomain(instance);
 
         setContainerToSampleRule =
                 or(

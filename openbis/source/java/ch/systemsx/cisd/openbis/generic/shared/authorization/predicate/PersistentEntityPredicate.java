@@ -36,43 +36,34 @@ public abstract class PersistentEntityPredicate<T> implements IPredicate<T>
 {
 
     @Override
-    public Status evaluate(PersonPE person, List<RoleWithIdentifier> allowedRoles, T valueOrNull)
+    public Status evaluate(PersonPE person, List<RoleWithIdentifier> allowedRoles, T value)
             throws UserFailureException
     {
-        if (valueOrNull == null)
+        if (value == null)
         {
             return Status.createError("null value cannot be authorized");
         }
 
+        SpacePE space = getSpace(value);
+        DatabaseInstancePE instance =
+                space != null ? space.getDatabaseInstance() : getInstance(value);
+
         for (RoleWithIdentifier allowed : allowedRoles)
         {
-            if (allowed.getRoleLevel().equals(RoleLevel.INSTANCE))
+            RoleLevel level = allowed.getRoleLevel();
+
+            if (level.equals(RoleLevel.INSTANCE)
+                    && allowed.getAssignedDatabaseInstance().equals(instance))
             {
-                if (allowed.getAssignedDatabaseInstance().equals(getInstance(valueOrNull)))
-                {
-                    return Status.OK;
-                }
-
-                SpacePE space = getSpace(valueOrNull);
-
-                if (space != null)
-                {
-                    if (space.getDatabaseInstance().equals(allowed.getAssignedDatabaseInstance()))
-                    {
-                        return Status.OK;
-                    }
-                }
-
-            } else
+                return Status.OK;
+            }
+            else if (level.equals(RoleLevel.SPACE) && allowed.getAssignedSpace().equals(space))
             {
-                if (allowed.getAssignedSpace().equals(getSpace(valueOrNull)))
-                {
-                    return Status.OK;
-                }
+                return Status.OK;
             }
         }
 
-        return Status.createError();
+        return Status.createError(person.getUserId() + " does not have enough privileges.");
     }
 
     public abstract SpacePE getSpace(T value);
@@ -82,7 +73,5 @@ public abstract class PersistentEntityPredicate<T> implements IPredicate<T>
     @Override
     public void init(IAuthorizationDataProvider provider)
     {
-
     }
-
 }

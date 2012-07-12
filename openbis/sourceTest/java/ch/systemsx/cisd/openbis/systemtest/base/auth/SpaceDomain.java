@@ -26,9 +26,9 @@ public class SpaceDomain extends GuardedDomain
 
     private GuardedDomain superDomain;
 
-    public SpaceDomain(String name, GuardedDomain instance)
+    public SpaceDomain(GuardedDomain instance)
     {
-        super(name, RoleLevel.SPACE);
+        super(RoleLevel.SPACE);
         this.superDomain = instance;
     }
 

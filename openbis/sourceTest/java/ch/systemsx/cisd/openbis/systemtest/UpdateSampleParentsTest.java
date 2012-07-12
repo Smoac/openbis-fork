@@ -246,8 +246,8 @@ public class UpdateSampleParentsTest extends BaseTest
     @BeforeClass
     void createAuthorizationRules()
     {
-        instance = new InstanceDomain("instance");
-        spaceDomain = new SpaceDomain("space", instance);
+        instance = new InstanceDomain();
+        spaceDomain = new SpaceDomain(instance);
 
         addParentToSampleRule =
                 or(

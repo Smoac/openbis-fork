@@ -53,10 +53,11 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
     private Sample container;
 
     public SampleUpdateBuilder(ICommonServerForInternalUse commonServer,
-            IGenericServer genericServer, Sample sample)
+            IGenericServer genericServer, Sample sampleToBeUpdated)
     {
         super(commonServer, genericServer);
-        sample = refresh(sample);
+        Sample sample = refresh(sampleToBeUpdated);
+
         this.sampleId = new TechId(sample.getId());
         this.sampleCode = sample.getCode();
         if (sample.getExperiment() != null)

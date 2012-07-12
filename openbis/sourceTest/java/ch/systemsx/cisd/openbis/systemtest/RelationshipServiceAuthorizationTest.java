@@ -654,11 +654,11 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
                 pe(this.sourceDataSet));
     }
 
-    GuardedDomain instance = new InstanceDomain("instance");
+    GuardedDomain instance = new InstanceDomain();
 
-    GuardedDomain source = new SpaceDomain("source", instance);
+    GuardedDomain source = new SpaceDomain(instance);
 
-    GuardedDomain destination = new SpaceDomain("destination", instance);
+    GuardedDomain destination = new SpaceDomain(instance);
 
     AuthorizationRule spaceAdminOrSpaceEtlServer =
             and(

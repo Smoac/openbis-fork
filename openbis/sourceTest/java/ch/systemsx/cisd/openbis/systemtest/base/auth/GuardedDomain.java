@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.systemtest.base.auth;
 
+import java.util.UUID;
+
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
@@ -25,19 +27,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleL
  */
 public abstract class GuardedDomain
 {
-    private final String name;
+    private final String id;
 
     private final RoleLevel type;
 
-    public GuardedDomain(String name, RoleLevel type)
+    public GuardedDomain(RoleLevel type)
     {
-        this.name = name;
+        this.id = UUID.randomUUID().toString();
         this.type = type;
     }
 
-    public String getName()
+    public String getId()
     {
-        return name;
+        return this.id;
     }
 
     public RoleLevel getType()
@@ -56,14 +58,14 @@ public abstract class GuardedDomain
         }
 
         GuardedDomain domain = (GuardedDomain) o;
-        return domain.getName().equals(this.name) && domain.getType().equals(this.type);
+        return domain.getId().equals(this.id) && domain.getType().equals(this.type);
     }
 
     @Override
     public int hashCode()
     {
         HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(this.name);
+        builder.append(this.id);
         builder.append(this.type);
         return builder.toHashCode();
     }
@@ -71,6 +73,6 @@ public abstract class GuardedDomain
     @Override
     public String toString()
     {
-        return this.name + " (" + this.type + ")";
+        return "GuardedDomain of type " + this.type;
     }
 }

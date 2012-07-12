@@ -34,9 +34,9 @@ public class SpaceBuilder extends Builder<Space>
         this.code = UUID.randomUUID().toString();
     }
 
-    public SpaceBuilder withCode(String code)
+    public SpaceBuilder withCode(String spaceCode)
     {
-        this.code = code;
+        this.code = spaceCode;
         return this;
     }
 

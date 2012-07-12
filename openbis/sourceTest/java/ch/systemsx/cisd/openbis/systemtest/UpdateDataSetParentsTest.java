@@ -278,9 +278,9 @@ public class UpdateDataSetParentsTest extends BaseTest
     @BeforeClass
     void createAuthorizationRules()
     {
-        instance = new InstanceDomain("instance");
-        childSpaceDomain = new SpaceDomain("child", instance);
-        parentSpaceDomain = new SpaceDomain("parent", instance);
+        instance = new InstanceDomain();
+        childSpaceDomain = new SpaceDomain(instance);
+        parentSpaceDomain = new SpaceDomain(instance);
 
         updateParentsOfDataSetRule =
                 and(

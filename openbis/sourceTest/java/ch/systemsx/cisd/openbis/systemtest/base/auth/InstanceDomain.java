@@ -24,9 +24,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleL
 public class InstanceDomain extends GuardedDomain
 {
 
-    public InstanceDomain(String name)
+    public InstanceDomain()
     {
-        super(name, RoleLevel.INSTANCE);
+        super(RoleLevel.INSTANCE);
     }
 
     @Override

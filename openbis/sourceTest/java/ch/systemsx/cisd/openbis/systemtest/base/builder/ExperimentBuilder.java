@@ -61,24 +61,18 @@ public class ExperimentBuilder extends Builder<Experiment>
         return this;
     }
 
-    public ExperimentBuilder withCode(String code)
+    public ExperimentBuilder withCode(String experimentCode)
     {
-        this.code = code;
+        this.code = experimentCode;
         return this;
     }
 
-    public ExperimentBuilder asUser(String session)
+    public ExperimentBuilder withSamples(Sample... sampleList)
     {
-        this.session = session;
-        return this;
-    }
-
-    public ExperimentBuilder withSamples(Sample... samples)
-    {
-        String[] sampleIds = new String[samples.length];
-        for (int i = 0; i < samples.length; i++)
+        String[] sampleIds = new String[sampleList.length];
+        for (int i = 0; i < sampleList.length; i++)
         {
-            sampleIds[i] = samples[i].getIdentifier();
+            sampleIds[i] = sampleList[i].getIdentifier();
         }
         this.samples = sampleIds;
         return this;

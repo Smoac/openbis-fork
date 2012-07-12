@@ -239,8 +239,8 @@ public class UpdateDataSetContainmentTest extends BaseTest
     @BeforeClass
     void createAuthorizationRules()
     {
-        instance = new InstanceDomain("instance");
-        spaceDomain = new SpaceDomain("space", instance);
+        instance = new InstanceDomain();
+        spaceDomain = new SpaceDomain(instance);
 
         addParentToSampleRule = rule(spaceDomain, RoleWithHierarchy.SPACE_POWER_USER);
     }

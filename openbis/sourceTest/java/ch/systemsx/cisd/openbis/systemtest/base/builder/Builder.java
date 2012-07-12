@@ -32,8 +32,6 @@ public abstract class Builder<T>
 
     protected final String systemSession;
 
-    protected String knownAs = "PEKKA";
-
     public Builder(ICommonServerForInternalUse commonServer, IGenericServer genericServer)
     {
         this.commonServer = commonServer;
@@ -46,11 +44,5 @@ public abstract class Builder<T>
     public Sample refresh(Sample sample)
     {
         return BaseTest.refresh(sample, this.commonServer, this.systemSession);
-    }
-
-    public final Builder<T> knownAs(String name)
-    {
-        this.knownAs = name;
-        return this;
     }
 }

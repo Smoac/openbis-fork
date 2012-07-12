@@ -418,9 +418,9 @@ public class AssignSampleToExperimentTest extends BaseTest
     @BeforeClass
     void createAuthorizationRules()
     {
-        instance = new InstanceDomain("instance");
-        source = new SpaceDomain("space1", instance);
-        destination = new SpaceDomain("space2", instance);
+        instance = new InstanceDomain();
+        source = new SpaceDomain(instance);
+        destination = new SpaceDomain(instance);
 
         assignSampleToExperimentRule =
                 or(
