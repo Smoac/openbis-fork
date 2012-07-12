@@ -152,6 +152,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    @SuppressWarnings("unused")
     @DataProvider(name = "booleans")
     private final Object[][] provideAllBooleans()
     {
@@ -179,6 +180,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    @SuppressWarnings("unused")
     @DataProvider(name = "userCodesAndUsers")
     private final Object[][] provideUserCodes()
     {
@@ -335,6 +337,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    @SuppressWarnings("unused")
     @DataProvider(name = "userEmptyCodesBeforeAndAfter")
     private final Object[][] provideUserCodesBeforeAndAfter()
     {
@@ -350,6 +353,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
         return data;
     }
 
+    @SuppressWarnings("unused")
     @DataProvider(name = "listsOfUsers")
     private final Object[][] provideListOfUsers()
     {
