@@ -17,9 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest.base.builder;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
-import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 
 /**
  * @author anttil
@@ -40,9 +38,4 @@ public abstract class Builder<T>
     }
 
     public abstract T create() throws Exception;
-
-    public Sample refresh(Sample sample)
-    {
-        return BaseTest.refresh(sample, this.commonServer, this.systemSession);
-    }
 }

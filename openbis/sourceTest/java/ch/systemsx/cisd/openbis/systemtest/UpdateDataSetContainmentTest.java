@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.systemtest;
 
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.BeforeClass;
@@ -58,8 +56,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
 
         perform(anUpdateOf(container).withComponent(componentCandidate));
 
-        assertThat(serverSays(componentCandidate).tryGetContainer().getCode(),
-                is(container.getCode()));
+        assertThat(componentCandidate, hasContainer(container));
     }
 
     @Test
@@ -71,8 +68,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
 
         perform(anUpdateOf(componentCandidate).withContainer(container));
 
-        assertThat(serverSays(componentCandidate).tryGetContainer().getCode(),
-                is(container.getCode()));
+        assertThat(componentCandidate, hasContainer(container));
     }
 
     @Test
@@ -84,7 +80,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
 
         perform(anUpdateOf(container).withComponents());
 
-        assertThat(serverSays(component).tryGetContainer(), is(nullValue()));
+        assertThat(component, hasNoContainer());
     }
 
     @Test
@@ -96,8 +92,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
 
         perform(anUpdateOf(newContainer).withComponent(component));
 
-        assertThat(serverSays(component).tryGetContainer().getCode(),
-                is(newContainer.getCode()));
+        assertThat(component, hasContainer(newContainer));
     }
 
     @Test(expectedExceptions =
@@ -117,10 +112,10 @@ public class UpdateDataSetContainmentTest extends BaseTest
                 create(aDataSet().inSample(sample).asContainer().withComponent(component));
         ExternalData subcomponent = create(aDataSet().inSample(sample));
 
-        perform(anUpdateOf(serverSays(component)).withComponent(serverSays(subcomponent)));
+        perform(anUpdateOf(component).withComponent(subcomponent));
 
-        assertThat(serverSays(component).tryGetContainer().getCode(), is(container.getCode()));
-        assertThat(serverSays(subcomponent).tryGetContainer().getCode(), is(component.getCode()));
+        assertThat(component, hasContainer(container));
+        assertThat(subcomponent, hasContainer(component));
     }
 
     @Test(expectedExceptions =

@@ -16,63 +16,42 @@
 
 package ch.systemsx.cisd.openbis.systemtest.base.matcher;
 
+import java.util.Collection;
+
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
-public class InSpaceMatcher extends TypeSafeMatcher<Object>
+public class HasNoParentMatcher extends TypeSafeMatcher<Object>
 {
-    private Space expectedSpace;
 
-    public InSpaceMatcher(Space space)
+    public HasNoParentMatcher()
     {
-        this.expectedSpace = space;
-    }
-
-    public InSpaceMatcher()
-    {
-        this(null);
     }
 
     @Override
     public void describeTo(Description description)
     {
-        if (expectedSpace == null)
-        {
-            description.appendText("An entity without space");
-        } else
-        {
-            description.appendText("An entity in space " + expectedSpace);
-        }
+        description.appendText("An entity without parent");
     }
 
     @Override
     public boolean matchesSafely(Object actual)
     {
-        Space actualSpace;
-        if (actual instanceof Project)
+        Collection<?> parents;
+        if (actual instanceof Sample)
         {
-            actualSpace = ((Project) actual).getSpace();
+            parents = ((Sample) actual).getParents();
+        } else if (actual instanceof ExternalData)
+        {
+            parents = ((ExternalData) actual).getParents();
         } else
-        {
-            actualSpace = ((Sample) actual).getSpace();
-        }
-
-        if (this.expectedSpace == null && actualSpace == null)
-        {
-            return true;
-        }
-
-        if (expectedSpace == null)
         {
             return false;
         }
 
-        return expectedSpace.equals(actualSpace);
-
+        return parents.size() == 0;
     }
-
 }

@@ -20,7 +20,6 @@ import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.and;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.or;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.BeforeClass;
@@ -55,7 +54,7 @@ public class UpdateSampleParentsTest extends BaseTest
 
         perform(anUpdateOf(childToBe).toHaveParent(parentToBe));
 
-        assertThat(serverSays(childToBe).getParents(), containsExactly(parentToBe));
+        assertThat(childToBe, hasParents(parentToBe));
     }
 
     @Test
@@ -67,7 +66,7 @@ public class UpdateSampleParentsTest extends BaseTest
 
         perform(anUpdateOf(child).toHaveParent(newParent));
 
-        assertThat(serverSays(child).getParents(), containsExactly(newParent));
+        assertThat(child, hasParents(newParent));
     }
 
     @Test
@@ -79,7 +78,7 @@ public class UpdateSampleParentsTest extends BaseTest
 
         perform(anUpdateOf(child).toHaveParent(parent1));
 
-        assertThat(serverSays(child).getParents(), containsExactly(parent1));
+        assertThat(child, hasParents(parent1));
     }
 
     @Test
@@ -91,7 +90,7 @@ public class UpdateSampleParentsTest extends BaseTest
 
         perform(anUpdateOf(child).toHaveParents());
 
-        assertThat(serverSays(child).getParents().size(), is(0));
+        assertThat(child, hasNoParents());
     }
 
     @Test
@@ -103,7 +102,7 @@ public class UpdateSampleParentsTest extends BaseTest
 
         perform(anUpdateOf(child).toHaveParents(parent1, parent2, parent1, parent2, parent2));
 
-        assertThat(serverSays(child).getParents(), containsExactly(parent1, parent2));
+        assertThat(child, hasParents(parent1, parent2));
     }
 
     @Test
@@ -113,7 +112,7 @@ public class UpdateSampleParentsTest extends BaseTest
 
         perform(anUpdateOf(sample).toHaveParent(sample));
 
-        assertThat(serverSays(sample).getParents(), containsExactly(sample));
+        assertThat(sample, hasParents(sample));
     }
 
     @Test
@@ -125,8 +124,8 @@ public class UpdateSampleParentsTest extends BaseTest
         perform(anUpdateOf(child).toHaveParent(parent));
         perform(anUpdateOf(parent).toHaveParent(child));
 
-        assertThat(serverSays(child).getParents(), containsExactly(parent));
-        assertThat(serverSays(parent).getParents(), containsExactly(child));
+        assertThat(child, hasParents(parent));
+        assertThat(parent, hasParents(child));
     }
 
     @Test(expectedExceptions =

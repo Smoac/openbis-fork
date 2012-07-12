@@ -26,28 +26,53 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 public class InExperimentMatcher extends TypeSafeMatcher<Object>
 {
 
-    private Experiment experiment;
+    private Experiment expectedExperiment;
 
     public InExperimentMatcher(Experiment experiment)
     {
-        this.experiment = experiment;
+        this.expectedExperiment = experiment;
+    }
+
+    public InExperimentMatcher()
+    {
+        this(null);
     }
 
     @Override
     public void describeTo(Description description)
     {
-        description.appendText("An entity in experiment " + experiment);
+        if (expectedExperiment == null)
+        {
+            description.appendText("An entity without experiment");
+        } else
+        {
+            description.appendText("An entity in experiment " + expectedExperiment);
+        }
     }
 
     @Override
     public boolean matchesSafely(Object actual)
     {
+        Experiment actualExperiment;
         if (actual instanceof Sample)
         {
-            return ((Sample) actual).getExperiment().getId() == experiment.getId();
+            actualExperiment = ((Sample) actual).getExperiment();
         } else
         {
-            return ((DataSet) actual).getExperiment().getId() == experiment.getId();
+            actualExperiment = ((DataSet) actual).getExperiment();
         }
+
+        if (this.expectedExperiment == null && actualExperiment == null)
+        {
+            return true;
+        }
+
+        if (expectedExperiment == null)
+        {
+            return false;
+        }
+
+        return actualExperiment != null
+                && expectedExperiment.getId().equals(actualExperiment.getId());
     }
 }

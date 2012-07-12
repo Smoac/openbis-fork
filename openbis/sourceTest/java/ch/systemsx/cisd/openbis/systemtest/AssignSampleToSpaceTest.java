@@ -21,7 +21,6 @@ import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.or;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.BeforeClass;
@@ -60,7 +59,7 @@ public class AssignSampleToSpaceTest extends BaseTest
 
         perform(anUpdateOf(sample).toSpace(destinationSpace));
 
-        assertThat(serverSays(sample), is(inSpace(destinationSpace)));
+        assertThat(sample, is(inSpace(destinationSpace)));
     }
 
     @Test
@@ -71,7 +70,7 @@ public class AssignSampleToSpaceTest extends BaseTest
 
         perform(anUpdateOf(sample).toSpace(destinationSpace));
 
-        assertThat(serverSays(sample).getExperiment(), is(nullValue()));
+        assertThat(sample, hasNoExperiment());
     }
 
     @Test
@@ -81,7 +80,7 @@ public class AssignSampleToSpaceTest extends BaseTest
 
         perform(anUpdateOf(sample).toSpace(destinationSpace));
 
-        assertThat(serverSays(sample), is(inSpace(destinationSpace)));
+        assertThat(sample, is(inSpace(destinationSpace)));
     }
 
     @Test
@@ -91,7 +90,7 @@ public class AssignSampleToSpaceTest extends BaseTest
 
         perform(anUpdateOf(sample).toSpace(destinationSpace));
 
-        assertThat(serverSays(sample), is(inSpace(destinationSpace)));
+        assertThat(sample, is(inSpace(destinationSpace)));
     }
 
     @Test
@@ -103,7 +102,7 @@ public class AssignSampleToSpaceTest extends BaseTest
 
         perform(anUpdateOf(child).toSpace(destinationSpace));
 
-        assertThat(serverSays(child), is(inSpace(destinationSpace)));
+        assertThat(child, is(inSpace(destinationSpace)));
     }
 
     @Test
@@ -115,7 +114,7 @@ public class AssignSampleToSpaceTest extends BaseTest
 
         perform(anUpdateOf(child).toSpace(destinationSpace));
 
-        assertThat(serverSays(parent), is(inSpace(sourceSpace)));
+        assertThat(parent, is(inSpace(sourceSpace)));
     }
 
     @Test
@@ -126,7 +125,7 @@ public class AssignSampleToSpaceTest extends BaseTest
 
         perform(anUpdateOf(parent).toSpace(destinationSpace));
 
-        assertThat(serverSays(parent), is(inSpace(destinationSpace)));
+        assertThat(parent, is(inSpace(destinationSpace)));
     }
 
     @Test
@@ -138,7 +137,7 @@ public class AssignSampleToSpaceTest extends BaseTest
 
         perform(anUpdateOf(parent).toSpace(destinationSpace));
 
-        assertThat(serverSays(child), is(inSpace(sourceSpace)));
+        assertThat(child, is(inSpace(sourceSpace)));
     }
 
     @Test
@@ -149,7 +148,7 @@ public class AssignSampleToSpaceTest extends BaseTest
 
         perform(anUpdateOf(component).toSpace(destinationSpace));
 
-        assertThat(serverSays(component), is(inSpace(destinationSpace)));
+        assertThat(component, is(inSpace(destinationSpace)));
     }
 
     @Test
@@ -161,7 +160,7 @@ public class AssignSampleToSpaceTest extends BaseTest
 
         perform(anUpdateOf(component).toSpace(destinationSpace));
 
-        assertThat(serverSays(container), is(inSpace(sourceSpace)));
+        assertThat(container, is(inSpace(sourceSpace)));
     }
 
     @Test
@@ -172,7 +171,7 @@ public class AssignSampleToSpaceTest extends BaseTest
 
         perform(anUpdateOf(container).toSpace(destinationSpace));
 
-        assertThat(serverSays(container), is(inSpace(destinationSpace)));
+        assertThat(container, is(inSpace(destinationSpace)));
     }
 
     @Test
@@ -184,7 +183,7 @@ public class AssignSampleToSpaceTest extends BaseTest
 
         perform(anUpdateOf(container).toSpace(destinationSpace));
 
-        assertThat(serverSays(component), is(inSpace(sourceSpace)));
+        assertThat(component, is(inSpace(sourceSpace)));
     }
 
     Space unrelatedAdmin;
@@ -272,7 +271,7 @@ public class AssignSampleToSpaceTest extends BaseTest
 
         perform(anUpdateOf(sample).toSpace(sourceSpace).as(user));
 
-        assertThat(serverSays(sample), is(inSpace(sourceSpace)));
+        assertThat(sample, is(inSpace(sourceSpace)));
     }
 
     @BeforeClass

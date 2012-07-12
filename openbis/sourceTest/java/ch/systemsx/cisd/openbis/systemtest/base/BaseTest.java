@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.systemtest.base;
 
-import java.util.Collection;
-
 import org.hamcrest.Matcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.GenericApplicationContext;
@@ -37,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -69,11 +66,19 @@ import ch.systemsx.cisd.openbis.systemtest.base.builder.SampleUpdateBuilder;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.SessionBuilder;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.SpaceBuilder;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.UpdateBuilder;
-import ch.systemsx.cisd.openbis.systemtest.base.matcher.CollectionContainsExactlyMatcher;
+import ch.systemsx.cisd.openbis.systemtest.base.matcher.ExternalDataHasChildrenMatcher;
+import ch.systemsx.cisd.openbis.systemtest.base.matcher.ExternalDataHasContainerMatcher;
+import ch.systemsx.cisd.openbis.systemtest.base.matcher.ExternalDataHasNoSampleMatcher;
+import ch.systemsx.cisd.openbis.systemtest.base.matcher.ExternalDataHasParentsMatcher;
+import ch.systemsx.cisd.openbis.systemtest.base.matcher.HasNoChildrenMatcher;
+import ch.systemsx.cisd.openbis.systemtest.base.matcher.HasNoContainerMatcher;
+import ch.systemsx.cisd.openbis.systemtest.base.matcher.HasNoParentMatcher;
 import ch.systemsx.cisd.openbis.systemtest.base.matcher.InExperimentMatcher;
 import ch.systemsx.cisd.openbis.systemtest.base.matcher.InProjectMatcher;
 import ch.systemsx.cisd.openbis.systemtest.base.matcher.InSampleMatcher;
 import ch.systemsx.cisd.openbis.systemtest.base.matcher.InSpaceMatcher;
+import ch.systemsx.cisd.openbis.systemtest.base.matcher.SampleHasContainerMatcher;
+import ch.systemsx.cisd.openbis.systemtest.base.matcher.SampleHasParentsMatcher;
 
 /**
  * @author anttil
@@ -248,22 +253,22 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
 
     protected ProjectUpdateBuilder anUpdateOf(Project project)
     {
-        return new ProjectUpdateBuilder(commonServer, genericServer, project);
+        return new ProjectUpdateBuilder(commonServer, genericServer, refresh(project));
     }
 
     protected ExperimentUpdateBuilder anUpdateOf(Experiment experiment)
     {
-        return new ExperimentUpdateBuilder(commonServer, genericServer, experiment);
+        return new ExperimentUpdateBuilder(commonServer, genericServer, refresh(experiment));
     }
 
     protected SampleUpdateBuilder anUpdateOf(Sample sample)
     {
-        return new SampleUpdateBuilder(commonServer, genericServer, sample);
+        return new SampleUpdateBuilder(commonServer, genericServer, refresh(sample));
     }
 
     protected DataSetUpdateBuilder anUpdateOf(ExternalData dataset)
     {
-        return new DataSetUpdateBuilder(commonServer, genericServer, dataset);
+        return new DataSetUpdateBuilder(commonServer, genericServer, refresh(dataset));
     }
 
     protected SessionBuilder aSession()
@@ -288,60 +293,107 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
 
     protected Matcher<Object> inSpace(Space space)
     {
-        return new InSpaceMatcher(space);
+        return RefreshingMatcherProxy.newInstance(new InSpaceMatcher(space), this);
+    }
+
+    protected Matcher<Object> hasNoSpace()
+    {
+        return RefreshingMatcherProxy.newInstance(new InSpaceMatcher(), this);
     }
 
     protected Matcher<Object> inExperiment(Experiment experiment)
     {
-        return new InExperimentMatcher(experiment);
+        return RefreshingMatcherProxy.newInstance(new InExperimentMatcher(refresh(experiment)),
+                this);
+    }
+
+    protected Matcher<Object> hasNoExperiment()
+    {
+        return RefreshingMatcherProxy.newInstance(new InExperimentMatcher(), this);
     }
 
     protected Matcher<Experiment> inProject(Project project)
     {
-        return new InProjectMatcher(project);
+        return RefreshingMatcherProxy.newInstance(new InProjectMatcher(refresh(project)), this);
     }
 
     protected Matcher<ExternalData> inSample(Sample sample)
     {
-        return new InSampleMatcher(sample);
+        return RefreshingMatcherProxy.newInstance(new InSampleMatcher(refresh(sample)), this);
     }
 
-    protected Matcher<Collection<Sample>> containsExactly(Sample... elements)
+    protected Matcher<ExternalData> hasParents(ExternalData first, ExternalData... rest)
     {
-        return new CollectionContainsExactlyMatcher<Sample>(new StandardEqualityChecker<Sample>(),
-                elements);
+        return RefreshingMatcherProxy.newInstance(new ExternalDataHasParentsMatcher(first, rest),
+                this);
     }
 
-    protected Matcher<Collection<ExternalData>> containsExactly(ExternalData... elements)
+    protected Matcher<ExternalData> hasChildren(ExternalData first, ExternalData... rest)
     {
-        return new CollectionContainsExactlyMatcher<ExternalData>(
-                new ExternalDataEqualityChecker(),
-                elements);
+        return RefreshingMatcherProxy.newInstance(new ExternalDataHasChildrenMatcher(first, rest),
+                this);
     }
 
-    protected Experiment serverSays(Experiment experiment)
+    protected Matcher<Object> hasNoParents()
+    {
+        return RefreshingMatcherProxy.newInstance(new HasNoParentMatcher(), this);
+    }
+
+    protected Matcher<ExternalData> hasNoChildren()
+    {
+        return RefreshingMatcherProxy.newInstance(new HasNoChildrenMatcher(), this);
+    }
+
+    protected Matcher<ExternalData> hasNoSample()
+    {
+        return RefreshingMatcherProxy.newInstance(new ExternalDataHasNoSampleMatcher(), this);
+    }
+
+    protected Matcher<Sample> hasParents(Sample first, Sample... rest)
+    {
+        return RefreshingMatcherProxy.newInstance(new SampleHasParentsMatcher(first, rest), this);
+    }
+
+    protected Matcher<Object> hasNoParent()
+    {
+        return RefreshingMatcherProxy.newInstance(new HasNoParentMatcher(), this);
+    }
+
+    protected Matcher<Sample> hasContainer(Sample container)
+    {
+        return RefreshingMatcherProxy.newInstance(
+                new SampleHasContainerMatcher(refresh(container)), this);
+    }
+
+    protected Matcher<ExternalData> hasContainer(ExternalData container)
+    {
+        return RefreshingMatcherProxy.newInstance(new ExternalDataHasContainerMatcher(
+                refresh(container)), this);
+    }
+
+    protected Matcher<Object> hasNoContainer()
+    {
+        return RefreshingMatcherProxy.newInstance(new HasNoContainerMatcher(), this);
+    }
+
+    protected Experiment refresh(Experiment experiment)
     {
         return commonServer.getExperimentInfo(systemSessionToken, new TechId(experiment.getId()));
     }
 
-    protected Project serverSays(Project project)
+    protected Project refresh(Project project)
     {
         return commonServer.getProjectInfo(systemSessionToken, new TechId(project.getId()));
     }
 
-    protected Sample serverSays(Sample sample)
-    {
-        return refresh(sample, commonServer, systemSessionToken);
-    }
-
-    public static Sample refresh(Sample sample, ICommonServer commonServer, String sessionToken)
+    protected Sample refresh(Sample sample)
     {
         SampleParentWithDerived result =
-                commonServer.getSampleInfo(sessionToken, new TechId(sample.getId()));
+                commonServer.getSampleInfo(systemSessionToken, new TechId(sample.getId()));
         return result.getParent();
     }
 
-    protected ExternalData serverSays(ExternalData data)
+    protected ExternalData refresh(ExternalData data)
     {
         return etlService.tryGetDataSet(systemSessionToken, data.getCode());
     }

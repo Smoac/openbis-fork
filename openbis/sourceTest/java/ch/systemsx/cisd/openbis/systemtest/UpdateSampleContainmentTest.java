@@ -20,8 +20,6 @@ import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.and;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.or;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.BeforeClass;
@@ -56,7 +54,7 @@ public class UpdateSampleContainmentTest extends BaseTest
 
         perform(anUpdateOf(componentCandidate).toHaveContainer(container));
 
-        assertThat(serverSays(componentCandidate).getContainer(), is(container));
+        assertThat(componentCandidate, hasContainer(container));
     }
 
     @Test
@@ -68,7 +66,7 @@ public class UpdateSampleContainmentTest extends BaseTest
 
         perform(anUpdateOf(componentCandidate).toHaveContainer(container));
 
-        assertThat(serverSays(componentCandidate).getContainer(), is(container));
+        assertThat(componentCandidate, hasContainer(container));
     }
 
     @Test
@@ -79,7 +77,7 @@ public class UpdateSampleContainmentTest extends BaseTest
 
         perform(anUpdateOf(componentCandidate).toHaveContainer(container));
 
-        assertThat(serverSays(componentCandidate).getContainer(), is(container));
+        assertThat(componentCandidate, hasContainer(container));
     }
 
     @Test
@@ -90,7 +88,7 @@ public class UpdateSampleContainmentTest extends BaseTest
 
         perform(anUpdateOf(componentCandidate).toHaveContainer(container));
 
-        assertThat(serverSays(componentCandidate).getContainer(), is(container));
+        assertThat(componentCandidate, hasContainer(container));
     }
 
     @Test
@@ -101,7 +99,7 @@ public class UpdateSampleContainmentTest extends BaseTest
 
         perform(anUpdateOf(component).removingContainer());
 
-        assertThat(serverSays(component).getContainer(), is(nullValue()));
+        assertThat(component, hasNoContainer());
     }
 
     @Test
@@ -113,7 +111,7 @@ public class UpdateSampleContainmentTest extends BaseTest
 
         perform(anUpdateOf(component).toHaveContainer(newContainer));
 
-        assertThat(serverSays(component).getContainer(), is(newContainer));
+        assertThat(component, hasContainer(newContainer));
     }
 
     @Test(expectedExceptions =
@@ -134,7 +132,7 @@ public class UpdateSampleContainmentTest extends BaseTest
 
         perform(anUpdateOf(sample).toHaveContainer(sample));
 
-        assertThat(serverSays(sample).getContainer(), is(serverSays(sample)));
+        assertThat(sample, hasContainer(sample));
     }
 
     Space containerSpace;

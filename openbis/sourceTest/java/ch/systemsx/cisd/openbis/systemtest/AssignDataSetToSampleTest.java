@@ -65,7 +65,7 @@ public class AssignDataSetToSampleTest extends BaseTest
 
         perform(anUpdateOf(dataset).toSample(destinationSample));
 
-        assertThat(serverSays(dataset), is(inSample(destinationSample)));
+        assertThat(dataset, is(inSample(destinationSample)));
     }
 
     @Test
@@ -75,7 +75,7 @@ public class AssignDataSetToSampleTest extends BaseTest
 
         perform(anUpdateOf(dataset).toSample(destinationSample));
 
-        assertThat(serverSays(dataset), is(inExperiment(destinationExperiment)));
+        assertThat(dataset, is(inExperiment(destinationExperiment)));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class AssignDataSetToSampleTest extends BaseTest
 
         perform(anUpdateOf(dataset).toSample(destinationSample));
 
-        assertThat(serverSays(dataset), is(inSample(destinationSample)));
+        assertThat(dataset, is(inSample(destinationSample)));
     }
 
     @Test(expectedExceptions =
@@ -116,7 +116,7 @@ public class AssignDataSetToSampleTest extends BaseTest
 
         perform(anUpdateOf(child).toSample(destinationSample));
 
-        assertThat(serverSays(child), is(inSample(destinationSample)));
+        assertThat(child, is(inSample(destinationSample)));
     }
 
     @Test
@@ -128,7 +128,7 @@ public class AssignDataSetToSampleTest extends BaseTest
 
         perform(anUpdateOf(child).toSample(destinationSample));
 
-        assertThat(serverSays(parent), is(inSample(sourceSample)));
+        assertThat(parent, is(inSample(sourceSample)));
     }
 
     @Test
@@ -139,7 +139,7 @@ public class AssignDataSetToSampleTest extends BaseTest
 
         perform(anUpdateOf(parent).toSample(destinationSample));
 
-        assertThat(serverSays(parent), is(inSample(destinationSample)));
+        assertThat(parent, is(inSample(destinationSample)));
     }
 
     @Test
@@ -151,7 +151,7 @@ public class AssignDataSetToSampleTest extends BaseTest
 
         perform(anUpdateOf(parent).toSample(destinationSample));
 
-        assertThat(serverSays(child), is(inSample(sourceSample)));
+        assertThat(child, is(inSample(sourceSample)));
     }
 
     @Test
@@ -162,7 +162,7 @@ public class AssignDataSetToSampleTest extends BaseTest
 
         perform(anUpdateOf(component).toSample(destinationSample));
 
-        assertThat(serverSays(component), is(inSample(destinationSample)));
+        assertThat(component, is(inSample(destinationSample)));
     }
 
     @Test
@@ -174,7 +174,7 @@ public class AssignDataSetToSampleTest extends BaseTest
 
         perform(anUpdateOf(component).toSample(destinationSample));
 
-        assertThat(serverSays(container), is(inSample(sourceSample)));
+        assertThat(container, is(inSample(sourceSample)));
     }
 
     @Test
@@ -185,7 +185,7 @@ public class AssignDataSetToSampleTest extends BaseTest
 
         perform(anUpdateOf(container).toSample(destinationSample));
 
-        assertThat(serverSays(container), is(inSample(destinationSample)));
+        assertThat(container, is(inSample(destinationSample)));
     }
 
     @Test
@@ -197,7 +197,7 @@ public class AssignDataSetToSampleTest extends BaseTest
 
         perform(anUpdateOf(container).toSample(destinationSample));
 
-        assertThat(serverSays(component), is(inSample(sourceSample)));
+        assertThat(component, is(inSample(sourceSample)));
     }
 
     Space unrelatedAdmin;

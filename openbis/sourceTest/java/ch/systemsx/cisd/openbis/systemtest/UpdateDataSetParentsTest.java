@@ -20,7 +20,6 @@ import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.and;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.or;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.BeforeClass;
@@ -58,8 +57,8 @@ public class UpdateDataSetParentsTest extends BaseTest
 
         perform(anUpdateOf(childToBe).withParent(parentToBe));
 
-        assertThat(serverSays(childToBe).getParents(), containsExactly(parentToBe));
-        assertThat(serverSays(parentToBe).getChildren(), containsExactly(childToBe));
+        assertThat(childToBe, hasParents(parentToBe));
+        assertThat(parentToBe, hasChildren(childToBe));
     }
 
     @Test
@@ -71,9 +70,9 @@ public class UpdateDataSetParentsTest extends BaseTest
 
         perform(anUpdateOf(child).withParent(newParent));
 
-        assertThat(serverSays(child).getParents(), containsExactly(newParent));
-        assertThat(serverSays(parent).getChildren().size(), is(0));
-        assertThat(serverSays(newParent).getChildren(), containsExactly(child));
+        assertThat(child, hasParents(newParent));
+        assertThat(parent, hasNoChildren());
+        assertThat(newParent, hasChildren(child));
     }
 
     @Test
@@ -85,9 +84,9 @@ public class UpdateDataSetParentsTest extends BaseTest
 
         perform(anUpdateOf(child).withParent(parent1));
 
-        assertThat(serverSays(child).getParents(), containsExactly(parent1));
-        assertThat(serverSays(parent1).getChildren(), containsExactly(child));
-        assertThat(serverSays(parent2).getChildren().size(), is(0));
+        assertThat(child, hasParents(parent1));
+        assertThat(parent1, hasChildren(child));
+        assertThat(parent2, hasNoChildren());
     }
 
     @Test
@@ -97,11 +96,11 @@ public class UpdateDataSetParentsTest extends BaseTest
         ExternalData parent2 = create(aDataSet().inSample(sample));
         ExternalData child = create(aDataSet().inSample(sample).withParents(parent1, parent2));
 
-        perform(anUpdateOf(child).withParents());
+        perform(anUpdateOf(child).removingParents());
 
-        assertThat(serverSays(child).getParents().size(), is(0));
-        assertThat(serverSays(parent1).getChildren().size(), is(0));
-        assertThat(serverSays(parent2).getChildren().size(), is(0));
+        assertThat(child, hasNoParents());
+        assertThat(parent1, hasNoChildren());
+        assertThat(parent2, hasNoChildren());
     }
 
     @Test
@@ -113,7 +112,7 @@ public class UpdateDataSetParentsTest extends BaseTest
 
         perform(anUpdateOf(child).withParents(parent1, parent2, parent1, parent2, parent2));
 
-        assertThat(serverSays(child).getParents(), containsExactly(parent1, parent2));
+        assertThat(child, hasParents(parent1, parent2));
     }
 
     @Test(expectedExceptions =
@@ -143,7 +142,7 @@ public class UpdateDataSetParentsTest extends BaseTest
 
         perform(anUpdateOf(child).withParent(parent));
 
-        assertThat(serverSays(child).getParents(), containsExactly(parent));
+        assertThat(child, hasParents(parent));
     }
 
     Sample childSample;

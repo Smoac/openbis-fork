@@ -21,7 +21,6 @@ import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.or;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.BeforeClass;
@@ -62,7 +61,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
 
         perform(anUpdateOf(dataset).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(dataset), is(inExperiment(destinationExperiment)));
+        assertThat(dataset, is(inExperiment(destinationExperiment)));
     }
 
     @Test
@@ -73,7 +72,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
 
         perform(anUpdateOf(dataset).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(dataset), is(inExperiment(destinationExperiment)));
+        assertThat(dataset, is(inExperiment(destinationExperiment)));
     }
 
     @Test
@@ -85,7 +84,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
 
         perform(anUpdateOf(dataset).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(dataset).getSample(), is(nullValue()));
+        assertThat(dataset, hasNoSample());
     }
 
     @Test
@@ -96,7 +95,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
 
         perform(anUpdateOf(child).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(child), is(inExperiment(destinationExperiment)));
+        assertThat(child, is(inExperiment(destinationExperiment)));
     }
 
     @Test
@@ -108,7 +107,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
 
         perform(anUpdateOf(child).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(parent), is(inExperiment(sourceExperiment)));
+        assertThat(parent, is(inExperiment(sourceExperiment)));
     }
 
     @Test
@@ -119,7 +118,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
 
         perform(anUpdateOf(parent).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(parent), is(inExperiment(destinationExperiment)));
+        assertThat(parent, is(inExperiment(destinationExperiment)));
     }
 
     @Test
@@ -131,7 +130,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
 
         perform(anUpdateOf(parent).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(child), is(inExperiment(sourceExperiment)));
+        assertThat(child, is(inExperiment(sourceExperiment)));
     }
 
     @Test
@@ -142,7 +141,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
 
         perform(anUpdateOf(component).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(component), is(inExperiment(destinationExperiment)));
+        assertThat(component, is(inExperiment(destinationExperiment)));
     }
 
     @Test
@@ -155,7 +154,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
 
         perform(anUpdateOf(component).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(container), is(inExperiment(sourceExperiment)));
+        assertThat(container, is(inExperiment(sourceExperiment)));
     }
 
     @Test
@@ -167,7 +166,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
 
         perform(anUpdateOf(container).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(container), is(inExperiment(destinationExperiment)));
+        assertThat(container, is(inExperiment(destinationExperiment)));
     }
 
     @Test
@@ -180,7 +179,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
 
         perform(anUpdateOf(container).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(component), is(inExperiment(sourceExperiment)));
+        assertThat(component, is(inExperiment(sourceExperiment)));
     }
 
     Space unrelatedAdmin;

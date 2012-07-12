@@ -21,7 +21,6 @@ import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.or;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.BeforeClass;
@@ -59,7 +58,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
 
         perform(anUpdateOf(sample).removingExperiment());
 
-        assertThat(serverSays(sample).getExperiment(), is(nullValue()));
+        assertThat(sample, hasNoExperiment());
     }
 
     @Test
@@ -69,7 +68,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
 
         perform(anUpdateOf(sample).removingExperiment());
 
-        assertThat(serverSays(sample), is(inSpace(space)));
+        assertThat(sample, is(inSpace(space)));
     }
 
     @Test(expectedExceptions =
@@ -92,7 +91,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
 
         perform(anUpdateOf(child).removingExperiment());
 
-        assertThat(serverSays(child).getExperiment(), is(nullValue()));
+        assertThat(child, hasNoExperiment());
     }
 
     @Test
@@ -104,7 +103,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
 
         perform(anUpdateOf(child).removingExperiment());
 
-        assertThat(serverSays(parent), is(inExperiment(experiment)));
+        assertThat(parent, is(inExperiment(experiment)));
     }
 
     @Test
@@ -115,7 +114,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
 
         perform(anUpdateOf(parent).removingExperiment());
 
-        assertThat(serverSays(parent).getExperiment(), is(nullValue()));
+        assertThat(parent, hasNoExperiment());
     }
 
     @Test
@@ -127,7 +126,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
 
         perform(anUpdateOf(parent).removingExperiment());
 
-        assertThat(serverSays(child), is(inExperiment(experiment)));
+        assertThat(child, is(inExperiment(experiment)));
     }
 
     @Test
@@ -138,7 +137,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
 
         perform(anUpdateOf(component).removingExperiment());
 
-        assertThat(serverSays(component).getExperiment(), is(nullValue()));
+        assertThat(component, hasNoExperiment());
     }
 
     @Test
@@ -150,7 +149,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
 
         perform(anUpdateOf(component).removingExperiment());
 
-        assertThat(serverSays(container), is(inExperiment(experiment)));
+        assertThat(container, is(inExperiment(experiment)));
     }
 
     @Test
@@ -161,7 +160,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
 
         perform(anUpdateOf(container).removingExperiment());
 
-        assertThat(serverSays(container).getExperiment(), is(nullValue()));
+        assertThat(container, hasNoExperiment());
     }
 
     @Test
@@ -173,7 +172,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
 
         perform(anUpdateOf(container).removingExperiment());
 
-        assertThat(serverSays(component), is(inExperiment(experiment)));
+        assertThat(component, is(inExperiment(experiment)));
     }
 
     @Test
@@ -183,7 +182,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
 
         perform(anUpdateOf(experiment).removingSamples());
 
-        assertThat(serverSays(sample).getExperiment(), is(nullValue()));
+        assertThat(sample, hasNoExperiment());
     }
 
     Space unrelatedAdmin;

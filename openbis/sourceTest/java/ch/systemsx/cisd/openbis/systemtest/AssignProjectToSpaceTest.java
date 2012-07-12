@@ -55,7 +55,7 @@ public class AssignProjectToSpaceTest extends BaseTest
 
         perform(anUpdateOf(project).toSpace(destinationSpace));
 
-        assertThat(serverSays(project), is(inSpace(destinationSpace)));
+        assertThat(project, is(inSpace(destinationSpace)));
     }
 
     @Test
@@ -68,7 +68,7 @@ public class AssignProjectToSpaceTest extends BaseTest
 
         perform(anUpdateOf(project).toSpace(destinationSpace));
 
-        assertThat(serverSays(sample), is(inSpace(destinationSpace)));
+        assertThat(sample, is(inSpace(destinationSpace)));
     }
 
     Space unrelatedAdmin;

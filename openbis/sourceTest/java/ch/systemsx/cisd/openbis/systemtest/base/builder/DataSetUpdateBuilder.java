@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.systemtest.base.builder;
 import static ch.systemsx.cisd.openbis.systemtest.base.BaseTest.id;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -82,19 +83,23 @@ public class DataSetUpdateBuilder extends UpdateBuilder<DataSetUpdatesDTO>
         return this;
     }
 
-    public DataSetUpdateBuilder withParents(ExternalData... dataSets)
+    public DataSetUpdateBuilder withParents(ExternalData first, ExternalData... rest)
     {
         this.parents = new ArrayList<ExternalData>();
-        for (ExternalData parent : dataSets)
-        {
-            this.parents.add(parent);
-        }
+        this.parents.add(first);
+        this.parents.addAll(Arrays.asList(rest));
         return this;
     }
 
     public DataSetUpdateBuilder withParent(ExternalData dataSet)
     {
         return this.withParents(dataSet);
+    }
+
+    public DataSetUpdateBuilder removingParents()
+    {
+        this.parents = new ArrayList<ExternalData>();
+        return this;
     }
 
     public DataSetUpdateBuilder withContainer(ExternalData dataSet)

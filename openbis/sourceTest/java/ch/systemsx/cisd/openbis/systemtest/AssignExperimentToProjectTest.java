@@ -61,7 +61,7 @@ public class AssignExperimentToProjectTest extends BaseTest
 
         perform(anUpdateOf(experiment).toProject(destinationProject));
 
-        assertThat(serverSays(experiment), is(inProject(destinationProject)));
+        assertThat(experiment, is(inProject(destinationProject)));
     }
 
     @Test
@@ -73,7 +73,7 @@ public class AssignExperimentToProjectTest extends BaseTest
 
         perform(anUpdateOf(experiment).toProject(destinationProject));
 
-        assertThat(serverSays(sample), is(inSpace(destinationSpace)));
+        assertThat(sample, is(inSpace(destinationSpace)));
     }
 
     Space unrelatedAdmin;

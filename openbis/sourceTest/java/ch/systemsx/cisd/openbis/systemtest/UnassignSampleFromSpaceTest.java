@@ -20,7 +20,6 @@ import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.and;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
 import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.BeforeClass;
@@ -57,7 +56,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
 
         perform(anUpdateOf(sample).removingSpace());
 
-        assertThat(serverSays(sample).getSpace(), is(nullValue()));
+        assertThat(sample, hasNoSpace());
     }
 
     @Test
@@ -67,7 +66,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
 
         perform(anUpdateOf(sample).removingSpace());
 
-        assertThat(serverSays(sample).getSpace(), is(nullValue()));
+        assertThat(sample, hasNoSpace());
     }
 
     @Test
@@ -78,7 +77,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
 
         perform(anUpdateOf(sample).removingSpace());
 
-        assertThat(serverSays(sample).getExperiment(), is(nullValue()));
+        assertThat(sample, hasNoSpace());
     }
 
     @Test(expectedExceptions =
@@ -99,7 +98,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
 
         perform(anUpdateOf(child).removingSpace());
 
-        assertThat(serverSays(child).getSpace(), is(nullValue()));
+        assertThat(child, hasNoSpace());
     }
 
     @Test
@@ -111,7 +110,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
 
         perform(anUpdateOf(child).removingSpace());
 
-        assertThat(serverSays(parent), is(inSpace(space)));
+        assertThat(parent, is(inSpace(space)));
     }
 
     @Test
@@ -122,7 +121,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
 
         perform(anUpdateOf(parent).removingSpace());
 
-        assertThat(serverSays(parent).getSpace(), is(nullValue()));
+        assertThat(parent, hasNoSpace());
     }
 
     @Test
@@ -134,7 +133,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
 
         perform(anUpdateOf(parent).removingSpace());
 
-        assertThat(serverSays(child), is(inSpace(space)));
+        assertThat(child, is(inSpace(space)));
     }
 
     @Test
@@ -145,7 +144,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
 
         perform(anUpdateOf(component).removingSpace());
 
-        assertThat(serverSays(component).getSpace(), is(nullValue()));
+        assertThat(component, hasNoSpace());
     }
 
     @Test
@@ -157,7 +156,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
 
         perform(anUpdateOf(component).removingSpace());
 
-        assertThat(serverSays(container), is(inSpace(space)));
+        assertThat(container, is(inSpace(space)));
     }
 
     @Test
@@ -168,7 +167,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
 
         perform(anUpdateOf(container).removingSpace());
 
-        assertThat(serverSays(container).getSpace(), is(nullValue()));
+        assertThat(container, hasNoSpace());
     }
 
     @Test
@@ -180,7 +179,7 @@ public class UnassignSampleFromSpaceTest extends BaseTest
 
         perform(anUpdateOf(container).removingSpace());
 
-        assertThat(serverSays(component), is(inSpace(space)));
+        assertThat(component, is(inSpace(space)));
     }
 
     Space unrelatedAdmin;

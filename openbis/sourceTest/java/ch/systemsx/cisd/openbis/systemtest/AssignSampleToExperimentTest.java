@@ -66,7 +66,7 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         perform(anUpdateOf(sample).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(sample), is(inExperiment(destinationExperiment)));
+        assertThat(sample, is(inExperiment(destinationExperiment)));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         perform(anUpdateOf(sample).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(sample), is(inSpace(destinationSpace)));
+        assertThat(sample, is(inSpace(destinationSpace)));
     }
 
     @Test
@@ -88,7 +88,7 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         perform(anUpdateOf(sample).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(dataSet), is(inExperiment(destinationExperiment)));
+        assertThat(dataSet, is(inExperiment(destinationExperiment)));
     }
 
     @Test
@@ -98,8 +98,8 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         perform(anUpdateOf(sample).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(sample), is(inExperiment(destinationExperiment)));
-        assertThat(serverSays(sample), is(inSpace(destinationSpace)));
+        assertThat(sample, is(inExperiment(destinationExperiment)));
+        assertThat(sample, is(inSpace(destinationSpace)));
     }
 
     @Test
@@ -109,8 +109,8 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         perform(anUpdateOf(sample).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(sample), is(inExperiment(destinationExperiment)));
-        assertThat(serverSays(sample), is(inSpace(destinationSpace)));
+        assertThat(sample, is(inExperiment(destinationExperiment)));
+        assertThat(sample, is(inSpace(destinationSpace)));
     }
 
     @Test
@@ -121,8 +121,8 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         perform(anUpdateOf(child).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(child), is(inExperiment(destinationExperiment)));
-        assertThat(serverSays(child), is(inSpace(destinationSpace)));
+        assertThat(child, is(inExperiment(destinationExperiment)));
+        assertThat(child, is(inSpace(destinationSpace)));
     }
 
     @Test
@@ -134,8 +134,8 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         perform(anUpdateOf(child).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(parent), is(inExperiment(sourceExperiment)));
-        assertThat(serverSays(parent), is(inSpace(sourceSpace)));
+        assertThat(parent, is(inExperiment(sourceExperiment)));
+        assertThat(parent, is(inSpace(sourceSpace)));
     }
 
     @Test
@@ -146,8 +146,8 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         perform(anUpdateOf(parent).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(parent), is(inExperiment(destinationExperiment)));
-        assertThat(serverSays(parent), is(inSpace(destinationSpace)));
+        assertThat(parent, is(inExperiment(destinationExperiment)));
+        assertThat(parent, is(inSpace(destinationSpace)));
     }
 
     @Test
@@ -159,8 +159,8 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         perform(anUpdateOf(parent).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(child), is(inExperiment(sourceExperiment)));
-        assertThat(serverSays(child), is(inSpace(sourceSpace)));
+        assertThat(child, is(inExperiment(sourceExperiment)));
+        assertThat(child, is(inSpace(sourceSpace)));
     }
 
     @Test
@@ -171,8 +171,8 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         perform(anUpdateOf(component).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(component), is(inExperiment(destinationExperiment)));
-        assertThat(serverSays(component), is(inSpace(destinationSpace)));
+        assertThat(component, is(inExperiment(destinationExperiment)));
+        assertThat(component, is(inSpace(destinationSpace)));
     }
 
     @Test
@@ -184,8 +184,8 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         perform(anUpdateOf(component).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(container), is(inExperiment(sourceExperiment)));
-        assertThat(serverSays(container), is(inSpace(sourceSpace)));
+        assertThat(container, is(inExperiment(sourceExperiment)));
+        assertThat(container, is(inSpace(sourceSpace)));
     }
 
     @Test
@@ -196,8 +196,8 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         perform(anUpdateOf(container).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(container), is(inExperiment(destinationExperiment)));
-        assertThat(serverSays(container), is(inSpace(destinationSpace)));
+        assertThat(container, is(inExperiment(destinationExperiment)));
+        assertThat(container, is(inSpace(destinationSpace)));
     }
 
     @Test
@@ -209,8 +209,8 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         perform(anUpdateOf(container).toExperiment(destinationExperiment));
 
-        assertThat(serverSays(component), is(inExperiment(sourceExperiment)));
-        assertThat(serverSays(component), is(inSpace(sourceSpace)));
+        assertThat(component, is(inExperiment(sourceExperiment)));
+        assertThat(component, is(inSpace(sourceSpace)));
     }
 
     @Test
@@ -221,7 +221,7 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         perform(anUpdateOf(destinationExperiment).withSamples(sample));
 
-        assertThat(serverSays(sample), is(inExperiment(destinationExperiment)));
+        assertThat(sample, is(inExperiment(destinationExperiment)));
     }
 
     @Test(expectedExceptions =
@@ -233,7 +233,7 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         perform(anUpdateOf(destinationExperiment).withSamples(sample));
 
-        assertThat(serverSays(sample), is(inExperiment(destinationExperiment)));
+        assertThat(sample, is(inExperiment(destinationExperiment)));
     }
 
     @Test(expectedExceptions =
@@ -257,7 +257,7 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         perform(anUpdateOf(destinationExperiment).withSamples(sample));
 
-        assertThat(serverSays(sample), is(inExperiment(destinationExperiment)));
+        assertThat(sample, is(inExperiment(destinationExperiment)));
     }
 
     @Test
@@ -268,7 +268,7 @@ public class AssignSampleToExperimentTest extends BaseTest
 
         Experiment experiment = create(anExperiment().inProject(sourceProject).withSamples(sample));
 
-        assertThat(serverSays(sample), is(inExperiment(experiment)));
+        assertThat(sample, is(inExperiment(experiment)));
     }
 
     Space unrelatedAdmin;
