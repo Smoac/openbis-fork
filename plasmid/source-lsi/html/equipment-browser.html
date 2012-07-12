@@ -480,9 +480,7 @@ function displayReturnedSamples(data)
 		.enter()
 		.append("tr")
 		.attr("class", "equipment-table-data")
-		.style("cursor", "pointer")
-		.on("click", inspectPlasmid)
-		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.COMPUTER, sample.properties.CONTACT_PERSON, sample.properties.IDENTIFIER , sample.properties.LOCATION , sample.properties.NAME , sample.properties.PHONE , sample.properties.PRODUCTNUMBER , sample.properties.TYPE, sample.properties.VENDOR, sample.properties.PRICE, sample.properties.CURRENCY]; })
+		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.COMPUTER, sample.properties.CONTACT_PERSON, sample.properties.IDENTIFIER , sample.properties.LOCATION , sample.properties.NAME , sample.properties.PHONE , sample.properties.TYPE, sample.properties.VENDOR, sample.properties.PRODUCTNUMBER, sample.properties.PRICE, sample.properties.CURRENCY]; })
 			.enter()
 			.append("td")
 			.append("div")
@@ -515,44 +513,16 @@ function equipmentFilter(filter, property, element, index, array) {
 }
 
 
-function visualize(ownerFilterText, ownerNumFilterText, equipmentNameFilterText, backboneFilterText, antibioticFilterText, markerFilterText )
+function visualize(codeFilterText)
 {
-	if (ownerFilterText == undefined) 
+	if (codeFilterText == undefined) 
 	{
-		ownerFilterText = "";
+		codeFilterText = "";
 	}
 
-	if (ownerNumFilterText == undefined) 
-	{
-		ownerNumFilterText = "";
-	}
 	
-	if (equipmentNameFilterText == undefined) 
-	{
-		equipmentNameFilterText = "";
-	}
-
-	if (backboneFilterText == undefined) 
-	{
-		backboneFilterText = "";
-	}
 	
-	if (antibioticFilterText == undefined) 
-	{
-		antibioticFilterText = "";
-	}
-
-	if (markerFilterText == undefined) 
-	{
-		markerFilterText = "";
-	}
-	
-	var displayedPlasmids = equipments.filter(equipmentFilter.curry(ownerFilterText, "OWNER"));
-	displayedPlasmids = displayedPlasmids.filter(equipmentFilter.curry(ownerNumFilterText, "OWNER_NUMBER"));
-	displayedPlasmids = displayedPlasmids.filter(equipmentFilter.curry(equipmentNameFilterText, "PLASMID_NAME"));
-	displayedPlasmids = displayedPlasmids.filter(equipmentFilter.curry(backboneFilterText, "BACKBONE"));
-	displayedPlasmids = displayedPlasmids.filter(equipmentFilter.curry(antibioticFilterText, "BACTERIAL_ANTIBIOTIC_RESISTANCE"));
-	displayedPlasmids = displayedPlasmids.filter(equipmentFilter.curry(markerFilterText, "YEAST_MARKER"));
+	var displayedPlasmids = equipments.filter(equipmentFilter.curry(codeFilterText, "CODE"));
 	
 
 
@@ -634,29 +604,11 @@ $(document).ready(function() {
 		 openbisServer.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { enterApp(data) })
 	});
 	
-	$('#owner_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#equipmentName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+	$('#code_filter').keyup(function() {
+		visualize($('#code_filter').val());
 	});	
 		
-	$('#ownerNum_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#equipmentName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
-	});
-
-  $('#equipmentName_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#equipmentName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
-	});
 	
-	$('#backbone_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#equipmentName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
-	});
-	
-	$('#antibiotic_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#equipmentName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
-	});
-	
-	$('#marker_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#equipmentName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
-	});
 	
 	
 	openbisServer.ifRestoredSessionActive(function(data) { enterApp(data) });
@@ -689,7 +641,7 @@ function ShowHide(divId)
 <body>
 	<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" style="position: absolute; left: 10px; height: 100px;"/>
 	<div id="login-form-div"style="position: absolute; left: 300px; top: 200px;">
-		<h1>openBIS YeastLab</h1>
+		<h1>openBIS LSI</h1>
 		<form id="login-form" action="javascript:">
 			<input id="username" type="text" required="required"> 
 			<input id="password" type="password" required="required"> 
@@ -728,16 +680,16 @@ function ShowHide(divId)
 		
 		
 				
-<!-- 		
-	<div id="filter-button"	style="padding-left:500px; padding-top: 650px; font-weight:bold; padding-bottom:30px;">
+ 		
+	<div id="filter-button"	style="padding-left:200px; padding-top: 630px; font-weight:bold; padding-bottom:30px;">
 		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
 		</div> 		
 	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
 		<table>
-			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Owner</td><td><input style="width: 200px" id="code_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Code</td><td><input style="width: 200px" id="code_filter" type="text"></td></tr> 		
 	 </table> 		
     </div>	
-              -->
+             
 		
 	
     
@@ -745,7 +697,7 @@ function ShowHide(divId)
 		<div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
 		  <table cellspacing="10" cellpadding="20">
 			<table id="equipment-table" style="float: left">
-			  <tr class="equipment-table-header" style="position: relative; top: expression(this.offsetParent.scrollTop-2);"><th>Code</th><th>Computer</th><th>Contact Person</th><th>Identifier</th><th>Location</th><th>Name</th><th>Phone</th><th>Product #</th><th>Type</th><th>Vendor</th><th>Price</th><th>Currency</th></tr>
+			  <tr class="equipment-table-header" style="position: relative; top: expression(this.offsetParent.scrollTop-2);"><th>Code</th><th>Computer</th><th>Contact Person</th><th>Identifier</th><th>Location</th><th>Name</th><th>Phone</th><th>Type</th><th>Vendor</th><th>Product #</th><th>Price</th><th>Currency</th></tr>
 			  <tbody><tr style="overflow:scroll"></tr></tbody>
 			</table>
 			</div>

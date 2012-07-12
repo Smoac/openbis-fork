@@ -444,8 +444,6 @@ function displayReturnedSamples(data)
 		.enter()
 		.append("tr")
 		.attr("class", "bacteria-table-data")
-		.style("cursor", "pointer")
-		.on("click", inspectBacteria)
 		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.PLASMID, sample.properties.CULTURE_TYPE]; })
 			.enter()
 			.append("td")
@@ -616,7 +614,7 @@ function ShowHide(divId)
 <body>
 	<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" style="position: absolute; left: 10px; height: 100px;"/>
 	<div id="login-form-div"style="position: absolute; left: 300px; top: 200px;">
-		<h1>openBIS YeastLab</h1>
+		<h1>openBIS LSI</h1>
 		<form id="login-form" action="javascript:">
 			<input id="username" type="text" required="required"> 
 			<input id="password" type="password" required="required"> 

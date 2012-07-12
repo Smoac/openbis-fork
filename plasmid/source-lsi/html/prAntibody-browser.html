@@ -26,7 +26,7 @@ openbisServer = new openbis('https://bs-openbis13:8443/openbis/openbis', 'https:
 var prAntibodys = null;
 
 /// The prAntibodys that are currently being inspected
-var inspectedPlasmids = [];
+var inspectedprAntibodies = [];
 
 /// The width of the inspectors section
 var inspectorsWidth = 450;
@@ -203,13 +203,13 @@ function get_children(data)
 
 
 /** Initialize the prAntibodys variable */
-function initializePlasmids(result)
+function initializeprAntibodies(result)
 {
       // Construct a map of all prAntibodys by id
   prAntibodysById = {};
 
 	// Split the prAntibodys into two groups, the ones that start with FRP in their sample name and the other ones.
-	var frpPlasmids = [], otherPlasmids = [];
+	var frpprAntibodies = [], otherprAntibodies = [];
 	var frpRegex = /^FRP[0-9]+/;
 	frpRegex.compile(frpRegex);
 	result.forEach(function(sampleOrId) {
@@ -228,18 +228,18 @@ function initializePlasmids(result)
 	    theSample = prAntibodysById[sampleOrId];
 		}       
  		if (frpRegex.test(theSample.code)) {
-			frpPlasmids.push(theSample);
+			frpprAntibodies.push(theSample);
 		} else {
-			otherPlasmids.push(theSample);
+			otherprAntibodies.push(theSample);
 		}
 	});
 	
 	// Sort each of the groups
-	otherPlasmids.sort(function(a, b) { 
+	otherprAntibodies.sort(function(a, b) { 
 		return (a.code < b.code) ? -1 : 1; 
 	});
 	
-	frpPlasmids.sort(function(a, b) {
+	frpprAntibodies.sort(function(a, b) {
 		// Sort based on the FRP number
 		var frpNumberA = parseInt(a.code.substring(3));
 		var frpNumberB = parseInt(b.code.substring(3));
@@ -247,210 +247,11 @@ function initializePlasmids(result)
 	});
 	
 	// Combine the two groups back together to produce the full collection of prAntibodys
-	prAntibodys = frpPlasmids.concat(otherPlasmids);
-}
-
-/** Set the size of the prAntibody-table based on whether or not inspectors are visible */
-function resizePlasmidTable()
-{
-	var cellWidth;
-	var areInspectorsVisible;
-	var padding = 10;
-	if (inspectedPlasmids.length > 0) {
-		cellWidth = ((getAppWidth() - inspectorsWidth) / 9) - padding + "px";
-		areInspectorsVisible = true;
-	} else {
-		cellWidth = "100%";
-		areInspectorsVisible = false;
-	}
-	var prAntibodyTableTransition = d3.selectAll('div.prAntibody-table-data-cell');
-	prAntibodyTableTransition.style('width', cellWidth);
-	if (areInspectorsVisible) {
-		$("#inspectorsContainer").show();
-	} else {
-		$("#inspectorsContainer").hide();
-	}
-}
-
-function inspectPlasmid(prAntibody)
-{
-	if (inspectedPlasmids.indexOf(prAntibody) < 0) {
-		inspectedPlasmids.push(prAntibody);
-		
-		// When requesting information about the sample, we don't need parents
-		// and children, so send a copy of the saple without that information.
-		var prAntibodyToSend = $.extend({}, prAntibody);
-		delete prAntibodyToSend.parents;
-		delete prAntibodyToSend.children;
-		openbisServer.listDataSetsForSample(prAntibodyToSend, true, dataset.curry(prAntibody));
-	}
-	resizePlasmidTable();
-	updateInspectors(1000);
-}
-
-function closeInspector(prAntibody)
-{
-	var index = inspectedPlasmids.indexOf(prAntibody);
-	if (index < 0) {
-		return;
-	}
-	
-	inspectedPlasmids.splice(index, 1);
-	resizePlasmidTable();
-	updateInspectors(1000);
-}
-
-function dataset(prAntibody, data) {
-	for (var i in data.result) {
-	  console.log(data.result)
-		openbisServer.listFilesForDataSet(data.result[i].code, "/", true, filelist.curry(prAntibody, data.result[i]));
-	}
-}
-
-function filelist(prAntibody, dataset, files) {
-	for (var i in files.result) {
-		if (!files.result[i].isDirectory) {
-			var inspector = inspectors.select("#"+prAntibody.code+"_INSPECTOR");
-			var pathInDataSet = files.result[i].pathInDataSet;
-			var downloadUrl = 'https://openbis-csb.ethz.ch:443/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
-			
-			inspector.select("td.data_sets").append("a").attr("href", downloadUrl).text(pathInDataSet)
-			inspector.select("td.data_sets").append("br");
-			
-			if (/\.svg$/.test(pathInDataSet)) {
-					// Retrieve the svg file and inject it into the DOM
-					d3.xml(downloadUrl, "image/svg+xml", function(xml) {
-						var importedNode = document.importNode(xml.documentElement, true);
-						d3.select(importedNode)
-							.attr("width", inspectorsWidth - 20)
-							.attr("height", inspectorsWidth - 20)
-							.attr("viewBox", "200 200 650 650");
-						inspector.node().appendChild(importedNode);
-					});
-			}
-		}
-	}
+	prAntibodys = frpprAntibodies.concat(otherprAntibodies);
 }
 
 
-/**
- * Draw / update node inspectors
- */
-function updateInspectors(duration)
-{		
-		// Draw / update the inspectors	
-	var inspector = inspectors.selectAll("div.inspector").data(inspectedPlasmids, function (d) { return d.code });
-		
-	var box = inspector
-			.enter()
-		.append("div")
-		.attr("class", "inspector")
-		.attr("id", function(d) {return d.code+"_INSPECTOR"})
-		.text(function(d) { return d.code });
-		
-	box.append("span")
-		.attr("class", "close")
-		.on("click", closeInspector)
-		.text("x");
-	
-	inspector
-		.exit()
-	.transition()
-	.duration(duration)
-	.style("opacity", "0")
-	.remove();
-		
-  var propsTable = box.append("table").attr("class", "properties");
-	propsTable.selectAll("tr").data(function(d) { return props_to_pairs1(d) })
-		.enter()
-			.append("tr")
-			.selectAll("td").data(function(d) { return d }).enter()
-				.append("td")
-				.attr("class", "property")
-				.style("opacity", "0")
-				.text(function(d) { return d })
-			.transition()
-				.duration(duration)
-				.style("opacity", "1");
-				
-	var propsTableParents = box.append("table").attr("class", "properties");
-	propsTableParents.selectAll("tr").data(function(d) { return get_parents(d) })
-		.enter()
-			.append("tr")
-			.on("click", function(trData) { inspectPlasmid(trData[1]) } )
-     	.style("cursor", "pointer")
-			.selectAll("td").data(function(d) { return d }).enter()
-				.append("td")
-				.attr("class", "property")
-				.style("opacity", "0")
-				.text(function(d) { 
-					if (null == d.identifier) {
-						return d;
-					} else { 
-					 	return d.identifier;
-					} 
-				})
-			.transition()
-				.duration(duration)
-				.style("opacity", "1");			
 
-
-	var propsTableChildren = box.append("table").attr("class", "properties");
-	propsTableChildren.selectAll("tr").data(function(d) { return get_children(d) })
-		.enter()
-			.append("tr")
-			.on("click", function(trData) { inspectPlasmid(trData[1]) } )
-     	.style("cursor", "pointer")
-			.selectAll("td").data(function(d) { return d }).enter()
-				.append("td")
-				.attr("class", "property")
-				.style("opacity", "0")
-				.text(function(d) { 
-					if (null == d.identifier) {
-						return d;
-					} else { 
-					 	return d.identifier;
-					} 
-				})
-			.transition()
-				.duration(duration)
-				.style("opacity", "1");			
-						
-		
-		var propsTable2 = box.append("table").attr("class", "properties");
-		propsTable2.selectAll("tr").data(function(d) { return props_to_pairs2(d) })
-		.enter()
-			.append("tr")
-			.selectAll("td").data(function(d) { return d }).enter()
-				.append("td")
-				.attr("class", "property")
-				.style("opacity", "0")
-				.text(function(d) { return d })
-			.transition()
-				.duration(duration)
-				.style("opacity", "1");		
-				
-				
-	var downloadTable = inspector.selectAll("table.downloads").data(function(d) { return [d] });
-	downloadTable
-		.enter()
-			.append("table")
-				.attr("width", "100%")
-				.attr("class", "downloads");
-	
-	// Add table row for data sets
-	var dataSetRow = box.select("table.properties").append("tr");
-	dataSetRow
-				.append("td")
-					.attr("class", "property")
-					.text("DATA_SETS");
-	dataSetRow
-				.append("td")
-					.attr("class", "data_sets");
-	
-	
-
-}
 
 
 /**
@@ -464,7 +265,7 @@ function displayReturnedSamples(data)
 		return;
 	}
 	
-	initializePlasmids(data.result);
+	initializeprAntibodies(data.result);
 	
 	// This will show the object in the log -- helpful for debugging
 	// console.log(data.result);
@@ -480,9 +281,7 @@ function displayReturnedSamples(data)
 		.enter()
 		.append("tr")
 		.attr("class", "prAntibody-table-data")
-		.style("cursor", "pointer")
-		.on("click", inspectPlasmid)
-		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.ANTIGEN, sample.properties.REACTIVITY]; })
+		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.ANTIGEN, sample.properties.REACTIVITY, sample.properties.APPLICATION, sample.properties.DILUTION, sample.properties.HOST, sample.properties.ISOTYPE, sample.properties.LABEL, sample.properties.STOCK_CONCENTRATION, sample.properties.VENDOR, sample.properties.PRODUCT_NUMBER, sample.properties.PRICE]; })
 			.enter()
 			.append("td")
 			.append("div")
@@ -515,44 +314,22 @@ function prAntibodyFilter(filter, property, element, index, array) {
 }
 
 
-function visualize(ownerFilterText, ownerNumFilterText, prAntibodyNameFilterText, backboneFilterText, antibioticFilterText, markerFilterText )
+function visualize(codeFilterText, antigenNumFilterText )
 {
-	if (ownerFilterText == undefined) 
+	if (codeFilterText == undefined) 
 	{
-		ownerFilterText = "";
+		codeFilterText = "";
 	}
 
-	if (ownerNumFilterText == undefined) 
+	if (antigenNumFilterText == undefined) 
 	{
-		ownerNumFilterText = "";
+		antigenFilterText = "";
 	}
 	
-	if (prAntibodyNameFilterText == undefined) 
-	{
-		prAntibodyNameFilterText = "";
-	}
-
-	if (backboneFilterText == undefined) 
-	{
-		backboneFilterText = "";
-	}
 	
-	if (antibioticFilterText == undefined) 
-	{
-		antibioticFilterText = "";
-	}
-
-	if (markerFilterText == undefined) 
-	{
-		markerFilterText = "";
-	}
+	var displayedprAntibodies = prAntibodys.filter(prAntibodyFilter.curry(codeFilterText, "CODE"));
+	displayedprAntibodies = displayedprAntibodies.filter(prAntibodyFilter.curry(antigenNumFilterText, "ANTIGEN"));
 	
-	var displayedPlasmids = prAntibodys.filter(prAntibodyFilter.curry(ownerFilterText, "OWNER"));
-	displayedPlasmids = displayedPlasmids.filter(prAntibodyFilter.curry(ownerNumFilterText, "OWNER_NUMBER"));
-	displayedPlasmids = displayedPlasmids.filter(prAntibodyFilter.curry(prAntibodyNameFilterText, "PLASMID_NAME"));
-	displayedPlasmids = displayedPlasmids.filter(prAntibodyFilter.curry(backboneFilterText, "BACKBONE"));
-	displayedPlasmids = displayedPlasmids.filter(prAntibodyFilter.curry(antibioticFilterText, "BACTERIAL_ANTIBIOTIC_RESISTANCE"));
-	displayedPlasmids = displayedPlasmids.filter(prAntibodyFilter.curry(markerFilterText, "YEAST_MARKER"));
 	
 
 
@@ -563,7 +340,7 @@ function visualize(ownerFilterText, ownerNumFilterText, prAntibodyNameFilterText
 
 		selection2.style("display", 
 			function(data) {
-				if ($.inArray(data, displayedPlasmids) != -1) {
+				if ($.inArray(data, displayedprAntibodies) != -1) {
 					return "table-row"
 				} else {
 					return  "none"
@@ -589,7 +366,7 @@ function showMatchingSamples()
 		operator : "MATCH_ALL_CLAUSES"
 	};
 
-	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS", "CHILDREN"], displayReturnedSamples);
+	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], displayReturnedSamples);
 }
 
 
@@ -634,29 +411,15 @@ $(document).ready(function() {
 		 openbisServer.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { enterApp(data) })
 	});
 	
-	$('#owner_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#prAntibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+	$('#code_filter').keyup(function() {
+		visualize($('#code_filter').val(), $('#antigen_filter').val());
 	});	
 		
-	$('#ownerNum_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#prAntibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+	$('#antigen_filter').keyup(function() {
+		visualize($('#code_filter').val(), $('#antigen_filter').val());
 	});
 
-  $('#prAntibodyName_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#prAntibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
-	});
-	
-	$('#backbone_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#prAntibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
-	});
-	
-	$('#antibiotic_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#prAntibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
-	});
-	
-	$('#marker_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#prAntibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
-	});
+ 
 	
 	
 	openbisServer.ifRestoredSessionActive(function(data) { enterApp(data) });
@@ -689,7 +452,7 @@ function ShowHide(divId)
 <body>
 	<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" style="position: absolute; left: 10px; height: 100px;"/>
 	<div id="login-form-div"style="position: absolute; left: 300px; top: 200px;">
-		<h1>openBIS YeastLab</h1>
+		<h1>openBIS LSI</h1>
 		<form id="login-form" action="javascript:">
 			<input id="username" type="text" required="required"> 
 			<input id="password" type="password" required="required"> 
@@ -726,16 +489,17 @@ function ShowHide(divId)
 		  <a href="file:///Users/barillac/workspace/plasmid/source-lsi/html/equipment-browser.html">Equipment</a>  
 		</div>	
 				
-<!-- 		
-	<div id="filter-button"	style="padding-left:500px; padding-top: 650px; font-weight:bold; padding-bottom:30px;">
+ 		
+	<div id="filter-button"	style="padding-left:200px; padding-top: 630px; font-weight:bold; padding-bottom:30px;">
 		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
 		</div> 		
 	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
 		<table>
-			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Owner</td><td><input style="width: 200px" id="code_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Code</td><td><input style="width: 200px" id="code_filter" type="text"></td></tr> 
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Antigen</td><td><input style="width: 200px" id="antigen_filter" type="text"></td></tr> 			  		
 	 </table> 		
     </div>	
-              -->
+              
 		
 	
     
@@ -743,7 +507,7 @@ function ShowHide(divId)
 		<div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
 		  <table cellspacing="10" cellpadding="20">
 			<table id="prAntibody-table" style="float: left">
-			  <tr class="prAntibody-table-header" style="position: relative; top: expression(this.offsetParent.scrollTop-2);"><th>Code</th><th>Antigen</th><th>Reactivity</th></tr>
+			  <tr class="prAntibody-table-header" style="position: relative; top: expression(this.offsetParent.scrollTop-2);"><th>Code</th><th>Antigen</th><th>Reactivity</th><th>Application</th><th>Dilution</th><th>Host</th><th>Isotype</th><th>Label</th><th>Stock Concentration</th><th>Vendor</th><th>Product Number</th><th>Price</th></tr>
 			  <tbody><tr style="overflow:scroll"></tr></tbody>
 			</table>
 			</div>

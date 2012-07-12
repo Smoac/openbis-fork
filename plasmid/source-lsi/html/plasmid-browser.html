@@ -9,15 +9,14 @@
 	<script type="text/javascript" src="d3.time.js"></script>
 	<script type="text/javascript" src="jquery.js"></script>
 	<script type="text/javascript" src="openbis.js"></script>
+	<script type="text/javascript" src="openbis-login.js"></script>
 	<script type="text/javascript" src="infra.js"></script>
 	<!-- To speed development, cache the requests -->
 	<!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
 <script>
 
 /// The openbisServer we use for our data
-openbisServer = new openbis('https://bs-openbis13:8443/openbis/openbis', 'https://bs-openbis13:8443/datastore_server');
-
-//openbisServer = new openbis('https://localhost:8443/openbis/openbis', 'https://bs-mbp156.ethz.ch:8443/datastore_server');
+openbisServer = new openbis('https://bs-openbis13:8443/openbis/openbis', 'https://bs-openbis13:8444/datastore_server');
 
 
 // Some global variables we refer to
@@ -64,7 +63,7 @@ function createVis()
 		.style("position", "relative")
 		.style("overflow", "auto")
 		.style("float", "right")
-		.style("top", "20px")		
+		.style("top", "100px")		
 		.style("display", "none");
 
 	didCreateVis = true;
@@ -109,7 +108,7 @@ function props_to_pairs1(data)
 	
 	
 
-	order1 = ["OWNER", "OWNER_NUMBER", "PLASMID_NAME", "BACKBONE", "BACTERIAL_ANTIBIOTIC_RESISTANCE",  "YEAST_MARKER",  "OTHER_MARKER",  "FLANKING_RESTRICTION_ENZYME",  "COMMENTS"]
+	order1 = ["OWNER" ]
 	new_list1 = []
 	for (var i in order1) {
 		for (var j in pairs) {
@@ -134,9 +133,9 @@ function props_to_pairs2(data)
 		pairs.push(pair);
 	}
 	
-	pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
+	//pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
 
-	order2 = ["BOX_NUMBER", "ROW", "COLUMN","REGISTRATION_DATE"]
+	order2 = ["BOX_NUMBER", "ROW", "COLUMN"]
 	new_list2 = []
 	for (var a in order2) {
 		for (var b in pairs) {
@@ -312,10 +311,20 @@ function filelist(plasmid, dataset, files) {
 		if (!files.result[i].isDirectory) {
 			var inspector = inspectors.select("#"+plasmid.code+"_INSPECTOR");
 			var pathInDataSet = files.result[i].pathInDataSet;
-			var downloadUrl = 'https://openbis-csb.ethz.ch:443/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
-			
+			var downloadUrl = 'https://bs-openbis13:8444/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
 			inspector.select("td.data_sets").append("a").attr("href", downloadUrl).text(pathInDataSet)
 			inspector.select("td.data_sets").append("br");
+
+
+			if (/\.jpg$/.test(pathInDataSet)) {
+				var jpgFile = downloadUrl + pathInDataSet;
+				inspector.append("img")
+					.attr("src", jpgFile)
+					.attr("width", inspectorsWidth - 20)
+				  .attr("height", "auto");
+    	}  
+			
+
 			
 			if (/\.svg$/.test(pathInDataSet)) {
 					// Retrieve the svg file and inject it into the DOM
@@ -515,44 +524,23 @@ function plasmidFilter(filter, property, element, index, array) {
 }
 
 
-function visualize(ownerFilterText, ownerNumFilterText, plasmidNameFilterText, backboneFilterText, antibioticFilterText, markerFilterText )
+function visualize(codeFilterText, plasmidFilterText)
 {
-	if (ownerFilterText == undefined) 
+	if (codeFilterText == undefined) 
 	{
-		ownerFilterText = "";
+		codeFilterText = "";
 	}
 
-	if (ownerNumFilterText == undefined) 
+	if (plasmidFilterText == undefined) 
 	{
-		ownerNumFilterText = "";
+		plasmidFilterText = "";
 	}
 	
-	if (plasmidNameFilterText == undefined) 
-	{
-		plasmidNameFilterText = "";
-	}
 
-	if (backboneFilterText == undefined) 
-	{
-		backboneFilterText = "";
-	}
 	
-	if (antibioticFilterText == undefined) 
-	{
-		antibioticFilterText = "";
-	}
-
-	if (markerFilterText == undefined) 
-	{
-		markerFilterText = "";
-	}
+	var displayedPlasmids = plasmids.filter(plasmidFilter.curry(codeFilterText, "CODE"));
+	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(plasmidFilterText, "PLASMID"));
 	
-	var displayedPlasmids = plasmids.filter(plasmidFilter.curry(ownerFilterText, "OWNER"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(ownerNumFilterText, "OWNER_NUMBER"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(plasmidNameFilterText, "PLASMID_NAME"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(backboneFilterText, "BACKBONE"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(antibioticFilterText, "BACTERIAL_ANTIBIOTIC_RESISTANCE"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(markerFilterText, "YEAST_MARKER"));
 	
 
 
@@ -634,29 +622,15 @@ $(document).ready(function() {
 		 openbisServer.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { enterApp(data) })
 	});
 	
-	$('#owner_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+	$('#code_filter').keyup(function() {
+		visualize($('#code_filter').val(), $('#plasmid_filter').val());
 	});	
 		
-	$('#ownerNum_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+	$('#plasmid_filter').keyup(function() {
+		visualize($('#code_filter').val(), $('#plasmid_filter').val());
 	});
 
-  $('#plasmidName_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
-	});
-	
-	$('#backbone_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
-	});
-	
-	$('#antibiotic_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
-	});
-	
-	$('#marker_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
-	});
+ 
 	
 	
 	openbisServer.ifRestoredSessionActive(function(data) { enterApp(data) });
@@ -689,7 +663,7 @@ function ShowHide(divId)
 <body>
 	<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" style="position: absolute; left: 10px; height: 100px;"/>
 	<div id="login-form-div"style="position: absolute; left: 300px; top: 200px;">
-		<h1>openBIS YeastLab</h1>
+		<h1>openBIS LSI</h1>
 		<form id="login-form" action="javascript:">
 			<input id="username" type="text" required="required"> 
 			<input id="password" type="password" required="required"> 
@@ -726,21 +700,17 @@ function ShowHide(divId)
 		  <a href="file:///Users/barillac/workspace/plasmid/source-lsi/html/equipment-browser.html">Equipment</a>  
 		</div>	
 				
-
-	<div id="filter-button"	style="padding-left:500px; padding-top: 650px; font-weight:bold; padding-bottom:30px;">
+<!--
+	<div id="filter-button"	style="padding-left:200px; padding-top: 650px; font-weight:bold; padding-bottom:30px;">
 		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
 		</div> 		
 	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
 		<table>
-			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Owner</td><td><input style="width: 200px" id="owner_filter" type="text"></td></tr> 		
-			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Owner Number</td><td><input style="width: 200px" id="ownerNum_filter" type="text"></td></tr>
-				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Plasmid Name</td><td> <input style="width: 200px" id="plasmidName_filter" type="text"></td></tr> 		
-      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Backbone</td><td> <input style="width: 200px" id="backbone_filter" type="text"></td></tr> 		
-   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Bacterial Antibitioc Resistance</td><td> <input style="width: 200px" id="antibiotic_filter" type="text"></td></tr> 		
-   	  	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">(Yeast) Marker</td><td> <input style="width: 200px" id="marker_filter" type="text"></td></tr> 		
-   	  </table> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Plasmid Code</td><td><input style="width: 200px" id="code_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Plasmid</td><td><input style="width: 200px" id="plasmid_filter" type="text"></td></tr>
+		</table> 		
     </div>	
-		
+-->	
 		
 	
     

@@ -480,9 +480,7 @@ function displayReturnedSamples(data)
 		.enter()
 		.append("tr")
 		.attr("class", "secAntibody-table-data")
-		.style("cursor", "pointer")
-		.on("click", inspectPlasmid)
-		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.APPLICATION, sample.properties.DILUTION, sample.properties.HOST , sample.properties.ISOTYPE , sample.properties.LABEL , sample.properties.STOCK_CONCENTRATION , sample.properties.VENDOR, sample.properties.PRICE , sample.properties.PRODUCT_NUMBER]; })
+		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.APPLICATION, sample.properties.DILUTION, sample.properties.HOST , sample.properties.ISOTYPE , sample.properties.LABEL , sample.properties.STOCK_CONCENTRATION , sample.properties.VENDOR, sample.properties.PRODUCT_NUMBER , sample.properties.PRICE]; })
 			.enter()
 			.append("td")
 			.append("div")
@@ -689,7 +687,7 @@ function ShowHide(divId)
 <body>
 	<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" style="position: absolute; left: 10px; height: 100px;"/>
 	<div id="login-form-div"style="position: absolute; left: 300px; top: 200px;">
-		<h1>openBIS YeastLab</h1>
+		<h1>openBIS LSI</h1>
 		<form id="login-form" action="javascript:">
 			<input id="username" type="text" required="required"> 
 			<input id="password" type="password" required="required"> 
@@ -745,7 +743,7 @@ function ShowHide(divId)
 		<div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
 		  <table cellspacing="10" cellpadding="20">
 			<table id="secAntibody-table" style="float: left">
-			  <tr class="secAntibody-table-header" style="position: relative; top: expression(this.offsetParent.scrollTop-2);"><th>Code</th><th>Application</th><th>Dilution</th><th>Host</th><th>Isotype</th><th>Label</th><th>Stock Concentration></th><th>Vendor</th><th>Price</th><th>Product Number</th></tr>
+			  <tr class="secAntibody-table-header" style="position: relative; top: expression(this.offsetParent.scrollTop-2);"><th>Code</th><th>Application</th><th>Dilution</th><th>Host</th><th>Isotype</th><th>Label</th><th>Stock Concentration</th><th>Vendor</th><th>Product Number</th><th>Price</th></tr>
 			  <tbody><tr style="overflow:scroll"></tr></tbody>
 			</table>
 			</div>
