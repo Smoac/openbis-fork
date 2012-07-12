@@ -64,6 +64,10 @@ cd openBIS-server
 if [ -f $KEYSTORE ]; then
   cp -p $KEYSTORE jetty/etc/openBIS.keystore
 fi
+if [ -f $CONFIG_DIR/capabilities ]; then
+  cp -p $CONFIG_DIR/capabilities jetty/etc
+fi
+
 
 echo Installing datastore server...
 cd ..
