@@ -247,8 +247,15 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
     public String getUrl()
     {
         String template = getVocabulary().getURLTemplate();
-        return template != null ? (template.replaceAll(
-                BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PATTERN, getCode())) : null;
+        if (null == template)
+        {
+            return null;
+        }
+        String url =
+                template.replaceAll(BasicConstant.DEPRECATED_VOCABULARY_URL_TEMPLATE_TERM_PATTERN,
+                        getCode());
+        url = url.replaceAll(BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PATTERN, getCode());
+        return url;
     }
 
 }
