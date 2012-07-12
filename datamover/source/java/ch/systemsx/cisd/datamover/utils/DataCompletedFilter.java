@@ -18,6 +18,7 @@ package ch.systemsx.cisd.datamover.utils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Level;
@@ -104,7 +105,7 @@ public class DataCompletedFilter implements IStoreItemFilter
         {
             if (path.endsWith(".bat"))
             {
-                command.add("cmd");
+                command.addAll(Arrays.asList("cmd", "/c"));
             } else // Assume we have Cygwin's shell.
             {
                 command.add("sh");
