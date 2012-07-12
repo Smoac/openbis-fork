@@ -140,6 +140,16 @@ public class UpdateSampleParentsTest extends BaseTest
         perform(anUpdateOf(child).toHaveParent(parent));
     }
 
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void childCannotBeShared() throws Exception
+    {
+        Sample parent = create(aSample().inSpace(space));
+        Sample child = create(aSample());
+
+        perform(anUpdateOf(child).toHaveParent(parent));
+    }
+
     Space unrelatedAdmin;
 
     Space unrelatedObserver;

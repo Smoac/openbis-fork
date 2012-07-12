@@ -653,10 +653,9 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
 
     private void addComponents(Collection<DataPE> componentsToAdd)
     {
-        PersonPE modifier = findPerson();
         for (DataPE component : componentsToAdd)
         {
-            data.addComponent(component, modifier);
+            relationshipService.assignDataSetToContainer(session, component, data);
         }
     }
 
@@ -664,7 +663,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     {
         for (DataPE component : componentsToRemove)
         {
-            data.removeComponent(component);
+            relationshipService.removeDataSetFromContainer(session, component);
         }
     }
 

@@ -16,20 +16,30 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
+import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
+import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.InstanceDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
  * @author anttil
@@ -128,6 +138,85 @@ public class UpdateDataSetContainmentTest extends BaseTest
 
     }
 
+    Space unrelatedAdmin;
+
+    Space unrelatedObserver;
+
+    Space unrelatedNone;
+
+    @Test(dataProvider = "rolesAllowedToAddContainerToDataSet", groups = "authorization")
+    public void addingContainerToDataSetIsAllowedFor(
+            RoleWithHierarchy spaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        ExternalData container = create(aDataSet().inSample(sample));
+        ExternalData component = create(aDataSet().inSample(sample));
+        String user =
+                create(aSession()
+                        .withSpaceRole(spaceRole, sample.getSpace())
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        perform(anUpdateOf(container).withComponent(component).as(user));
+    }
+
+    @Test(dataProvider = "rolesNotAllowedToAddContainerToDataSet", expectedExceptions =
+        { AuthorizationFailureException.class }, groups = "authorization")
+    public void addingContainerToDataSetNotIsAllowedFor(
+            RoleWithHierarchy spaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        ExternalData container = create(aDataSet().inSample(sample));
+        ExternalData component = create(aDataSet().inSample(sample));
+        String user =
+                create(aSession()
+                        .withSpaceRole(spaceRole, sample.getSpace())
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        perform(anUpdateOf(container).withComponent(component).as(user));
+    }
+
+    @Test(dataProvider = "rolesAllowedToAddContainerToDataSet", groups = "authorization")
+    public void removingContainerFromDataSetIsAllowedFor(
+            RoleWithHierarchy spaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        ExternalData component = create(aDataSet().inSample(sample));
+        ExternalData container =
+                create(aDataSet().inSample(sample).asContainer().withComponent(component));
+
+        String user =
+                create(aSession()
+                        .withSpaceRole(spaceRole, sample.getSpace())
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        perform(anUpdateOf(container).withComponents().as(user));
+    }
+
+    @Test(dataProvider = "rolesNotAllowedToAddContainerToDataSet", expectedExceptions =
+        { AuthorizationFailureException.class }, groups = "authorization")
+    public void removingContainerFromDataSetNotIsAllowedFor(
+            RoleWithHierarchy spaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        ExternalData component = create(aDataSet().inSample(sample));
+        ExternalData container =
+                create(aDataSet().inSample(sample).asContainer().withComponent(component));
+        String user =
+                create(aSession()
+                        .withSpaceRole(spaceRole, sample.getSpace())
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        perform(anUpdateOf(container).withComponents().as(user));
+    }
+
     @BeforeClass
     void createFixture() throws Exception
     {
@@ -135,5 +224,37 @@ public class UpdateDataSetContainmentTest extends BaseTest
         Project project = create(aProject().inSpace(space));
         Experiment experiment = create(anExperiment().inProject(project));
         sample = create(aSample().inExperiment(experiment));
+
+        unrelatedAdmin = create(aSpace());
+        unrelatedObserver = create(aSpace());
+        unrelatedNone = create(aSpace());
+    }
+
+    GuardedDomain spaceDomain;
+
+    GuardedDomain instance;
+
+    AuthorizationRule addParentToSampleRule;
+
+    @BeforeClass
+    void createAuthorizationRules()
+    {
+        instance = new InstanceDomain("instance");
+        spaceDomain = new SpaceDomain("space", instance);
+
+        addParentToSampleRule = rule(spaceDomain, RoleWithHierarchy.SPACE_POWER_USER);
+    }
+
+    @DataProvider
+    Object[][] rolesAllowedToAddContainerToDataSet()
+    {
+        return RolePermutator.getAcceptedPermutations(addParentToSampleRule, spaceDomain, instance);
+    }
+
+    @DataProvider
+    Object[][] rolesNotAllowedToAddContainerToDataSet()
+    {
+        return RolePermutator.getAcceptedPermutations(not(addParentToSampleRule), spaceDomain,
+                instance);
     }
 }

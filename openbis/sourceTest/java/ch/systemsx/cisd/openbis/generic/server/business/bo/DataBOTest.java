@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -301,6 +302,9 @@ public class DataBOTest extends AbstractBOTest
                 {
                     one(dataDAO).tryToFindDataSetByCode(PARENT_CODE);
                     will(returnValue(data));
+
+                    one(relationshipService).addParentToDataSet(with(any(IAuthSession.class)),
+                            with(any(DataPE.class)), with(any(DataPE.class)));
                 }
             });
 
@@ -312,8 +316,6 @@ public class DataBOTest extends AbstractBOTest
         assertEquals(null, loadedData.tryGetSample());
         assertSame(true, loadedData.isMeasured());
         assertSame(dataStore, loadedData.getDataStore());
-        assertEquals(1, loadedData.getParents().size());
-        assertSame(data, loadedData.getParents().iterator().next());
         context.assertIsSatisfied();
     }
 
@@ -347,6 +349,10 @@ public class DataBOTest extends AbstractBOTest
                     will(returnValue(dataSetTypeUnknown));
 
                     one(dataDAO).createDataSet(parentData, EXAMPLE_PERSON);
+
+                    one(relationshipService).addParentToDataSet(with(any(IAuthSession.class)),
+                            with(any(DataPE.class)), with(any(DataPE.class)));
+
                 }
             });
 
@@ -358,8 +364,6 @@ public class DataBOTest extends AbstractBOTest
         assertEquals(null, data.tryGetSample());
         assertSame(true, data.isMeasured());
         assertSame(dataStore, data.getDataStore());
-        assertEquals(1, data.getParents().size());
-        assertEquals(parentData, data.getParents().iterator().next());
         context.assertIsSatisfied();
     }
 
@@ -394,6 +398,10 @@ public class DataBOTest extends AbstractBOTest
                     will(returnValue(dataSetTypeUnknown));
 
                     one(dataDAO).createDataSet(parentData, EXAMPLE_PERSON);
+
+                    one(relationshipService).addParentToDataSet(with(any(IAuthSession.class)),
+                            with(any(DataPE.class)), with(any(DataPE.class)));
+
                 }
             });
 
@@ -404,8 +412,6 @@ public class DataBOTest extends AbstractBOTest
         assertSame(null, data.tryGetSample());
         assertSame(true, data.isMeasured());
         assertSame(dataStore, data.getDataStore());
-        assertEquals(1, data.getParents().size());
-        assertEquals(parentData, data.getParents().iterator().next());
         context.assertIsSatisfied();
     }
 

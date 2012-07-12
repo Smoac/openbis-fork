@@ -100,4 +100,24 @@ public class RelationshipServiceStub implements IRelationshipService
     public void removeSampleFromContainer(IAuthSession session, SamplePE sample)
     {
     }
+
+    @Override
+    public void addParentToDataSet(IAuthSession session, DataPE data, DataPE parent)
+    {
+    }
+
+    @Override
+    public void removeParentFromDataSet(IAuthSession session, DataPE data, DataPE parent)
+    {
+    }
+
+    @Override
+    public void assignDataSetToContainer(IAuthSession session, DataPE data, DataPE container)
+    {
+    }
+
+    @Override
+    public void removeDataSetFromContainer(IAuthSession session, DataPE sample)
+    {
+    }
 }

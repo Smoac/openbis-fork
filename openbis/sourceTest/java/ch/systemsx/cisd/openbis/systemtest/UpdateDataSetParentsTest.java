@@ -16,19 +16,31 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
+import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.and;
+import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
+import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.or;
+import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.InstanceDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 
 /**
  * @author anttil
@@ -126,16 +138,108 @@ public class UpdateDataSetParentsTest extends BaseTest
     @Test
     public void parentCanBeInDifferentSpaceThanChild() throws Exception
     {
-        Space parentSpace = create(aSpace());
-        Project parentProject = create(aProject().inSpace(parentSpace));
-        Experiment parentExperiment = create(anExperiment().inProject(parentProject));
-        Sample parentSample = create(aSample().inExperiment(parentExperiment));
         ExternalData parent = create(aDataSet().inSample(parentSample));
-        ExternalData child = create(aDataSet().inSample(sample));
+        ExternalData child = create(aDataSet().inSample(childSample));
 
         perform(anUpdateOf(child).withParent(parent));
 
         assertThat(serverSays(child).getParents(), containsExactly(parent));
+    }
+
+    Sample childSample;
+
+    Sample parentSample;
+
+    Space childSpace;
+
+    Space parentSpace;
+
+    Space unrelatedAdmin;
+
+    Space unrelatedObserver;
+
+    Space unrelatedNone;
+
+    @Test(dataProvider = "rolesAllowedToAddParentToDataSet", groups = "authorization")
+    public void addingParentToDataSetIsAllowedFor(
+            RoleWithHierarchy childSpaceRole,
+            RoleWithHierarchy parentSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        ExternalData parentToBe = create(aDataSet().inSample(parentSample));
+        ExternalData childToBe = create(aDataSet().inSample(childSample));
+        String user =
+                create(aSession()
+                        .withSpaceRole(childSpaceRole, childSpace)
+                        .withSpaceRole(parentSpaceRole, parentSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        perform(anUpdateOf(childToBe).withParent(parentToBe).as(user));
+    }
+
+    @Test(dataProvider = "rolesNotAllowedToAddParentToDataSet", expectedExceptions =
+        { AuthorizationFailureException.class }, groups = "authorization")
+    public void addingParentToDataSetNotIsAllowedFor(
+            RoleWithHierarchy childSpaceRole,
+            RoleWithHierarchy parentSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        ExternalData parentToBe = create(aDataSet().inSample(parentSample));
+        ExternalData childToBe = create(aDataSet().inSample(childSample));
+        String user =
+                create(aSession()
+                        .withSpaceRole(childSpaceRole, childSpace)
+                        .withSpaceRole(parentSpaceRole, parentSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        perform(anUpdateOf(childToBe).withParent(parentToBe).as(user));
+    }
+
+    @Test(dataProvider = "rolesAllowedToRemoveParentFromDataSet", groups = "authorization")
+    public void removingParentFromDataSetIsAllowedFor(
+            RoleWithHierarchy childSpaceRole,
+            RoleWithHierarchy parentSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        ExternalData parent1 = create(aDataSet().inSample(parentSample));
+        ExternalData parent2 = create(aDataSet().inSample(parentSample));
+        ExternalData child = create(aDataSet().inSample(childSample).withParents(parent1, parent2));
+
+        String user =
+                create(aSession()
+                        .withSpaceRole(childSpaceRole, childSpace)
+                        .withSpaceRole(parentSpaceRole, parentSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        perform(anUpdateOf(child).withParent(parent1).as(user));
+    }
+
+    @Test(dataProvider = "rolesNotAllowedToRemoveParentFromDataSet", expectedExceptions =
+        { AuthorizationFailureException.class }, groups = "authorization")
+    public void removingParentFromDataSetNotIsAllowedFor(
+            RoleWithHierarchy childSpaceRole,
+            RoleWithHierarchy parentSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        ExternalData parent1 = create(aDataSet().inSample(parentSample));
+        ExternalData parent2 = create(aDataSet().inSample(parentSample));
+        ExternalData child = create(aDataSet().inSample(childSample).withParents(parent1, parent2));
+
+        String user =
+                create(aSession()
+                        .withSpaceRole(childSpaceRole, childSpace)
+                        .withSpaceRole(parentSpaceRole, parentSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        perform(anUpdateOf(child).withParent(parent1).as(user));
     }
 
     @BeforeClass
@@ -146,5 +250,73 @@ public class UpdateDataSetParentsTest extends BaseTest
         Experiment experiment = create(anExperiment().inProject(project));
         sample = create(aSample().inExperiment(experiment));
 
+        unrelatedAdmin = create(aSpace());
+        unrelatedObserver = create(aSpace());
+        unrelatedNone = create(aSpace());
+
+        childSpace = create(aSpace());
+        parentSpace = create(aSpace());
+        Project childProject = create(aProject().inSpace(childSpace));
+        Project parentProject = create(aProject().inSpace(parentSpace));
+        Experiment childExperiment = create(anExperiment().inProject(childProject));
+        Experiment parentExperiment = create(anExperiment().inProject(parentProject));
+        childSample = create(aSample().inExperiment(childExperiment));
+        parentSample = create(aSample().inExperiment(parentExperiment));
+
+    }
+
+    GuardedDomain childSpaceDomain;
+
+    GuardedDomain parentSpaceDomain;
+
+    GuardedDomain instance;
+
+    AuthorizationRule updateParentsOfDataSetRule;
+
+    AuthorizationRule removeParentFromDataSetRule;
+
+    @BeforeClass
+    void createAuthorizationRules()
+    {
+        instance = new InstanceDomain("instance");
+        childSpaceDomain = new SpaceDomain("child", instance);
+        parentSpaceDomain = new SpaceDomain("parent", instance);
+
+        updateParentsOfDataSetRule =
+                and(
+                        rule(childSpaceDomain, RoleWithHierarchy.SPACE_POWER_USER),
+                        or(
+                                rule(parentSpaceDomain, RoleWithHierarchy.SPACE_POWER_USER),
+                                rule(parentSpaceDomain, RoleWithHierarchy.SPACE_ETL_SERVER)
+                        )
+                );
+    }
+
+    @DataProvider
+    Object[][] rolesAllowedToAddParentToDataSet()
+    {
+        return RolePermutator.getAcceptedPermutations(updateParentsOfDataSetRule, childSpaceDomain,
+                parentSpaceDomain, instance);
+    }
+
+    @DataProvider
+    Object[][] rolesNotAllowedToAddParentToDataSet()
+    {
+        return RolePermutator.getAcceptedPermutations(not(updateParentsOfDataSetRule),
+                childSpaceDomain, parentSpaceDomain, instance);
+    }
+
+    @DataProvider
+    Object[][] rolesAllowedToRemoveParentFromDataSet()
+    {
+        return RolePermutator.getAcceptedPermutations(updateParentsOfDataSetRule, childSpaceDomain,
+                parentSpaceDomain, instance);
+    }
+
+    @DataProvider
+    Object[][] rolesNotAllowedToRemoveParentFromDataSet()
+    {
+        return RolePermutator.getAcceptedPermutations(not(updateParentsOfDataSetRule),
+                childSpaceDomain, parentSpaceDomain, instance);
     }
 }

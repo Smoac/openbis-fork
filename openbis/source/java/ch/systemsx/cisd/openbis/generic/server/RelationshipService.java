@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -40,6 +41,9 @@ public class RelationshipService implements IRelationshipService
 {
     private static final String ERR_SAMPLE_PARENT_RELATIONSHIP_NOT_FOUND =
             "Sample '%s' did not have parent '%s'";
+
+    private static final String ERR_DATASET_PARENT_RELATIONSHIP_NOT_FOUND =
+            "DataSet '%s' did not have parent '%s'";
 
     private DAOFactory daoFactory;
 
@@ -159,6 +163,49 @@ public class RelationshipService implements IRelationshipService
     public void removeSampleFromContainer(IAuthSession session, SamplePE sample)
     {
         sample.setContainer(null);
+    }
+
+    @Override
+    public void addParentToDataSet(IAuthSession session, DataPE data, DataPE parent)
+    {
+        PersonPE actor = session.tryGetPerson();
+        data.addParentRelationship(new DataSetRelationshipPE(parent, data, actor));
+    }
+
+    @Override
+    public void removeParentFromDataSet(IAuthSession session, DataPE data, DataPE parent)
+    {
+        DataSetRelationshipPE remove = null;
+        for (DataSetRelationshipPE r : data.getParentRelationships())
+        {
+            if (r.getParentDataSet().equals(parent))
+            {
+                remove = r;
+                break;
+            }
+        }
+
+        if (remove != null)
+        {
+            data.removeParentRelationship(remove);
+        } else
+        {
+            throw UserFailureException.fromTemplate(ERR_DATASET_PARENT_RELATIONSHIP_NOT_FOUND, data
+                    .getCode(), parent.getCode());
+        }
+    }
+
+    @Override
+    public void assignDataSetToContainer(IAuthSession session, DataPE data, DataPE container)
+    {
+        PersonPE modifier = session.tryGetPerson();
+        container.addComponent(data, modifier);
+    }
+
+    @Override
+    public void removeDataSetFromContainer(IAuthSession session, DataPE sample)
+    {
+        sample.getContainer().removeComponent(sample);
     }
 
     public void setDaoFactory(DAOFactory daoFactory)

@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdentifierBusinessObject
 {
 
-    private IRelationshipService relationshipService;
+    protected IRelationshipService relationshipService;
 
     public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session,
             IRelationshipService relationshipService)
@@ -185,8 +185,6 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
 
     protected void replaceParents(DataPE child, Set<DataPE> newParents, boolean validate)
     {
-        PersonPE actor = findPerson();
-
         // quick check for deletions
         for (DataPE parent : newParents)
         {
@@ -212,13 +210,13 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         {
             if (false == newParents.contains(r.getParentDataSet()))
             {
-                child.removeParentRelationship(r);
+                relationshipService.removeParentFromDataSet(session, child, r.getParentDataSet());
             }
         }
 
         for (DataPE newParent : newParents)
         {
-            child.addParentRelationship(new DataSetRelationshipPE(newParent, child, actor));
+            relationshipService.addParentToDataSet(session, child, newParent);
         }
     }
 

@@ -76,11 +76,9 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
 
     Sample sharedSample;
 
-    Sample childSample;
+    ExternalData sourceDataSet;
 
-    Sample parentSample;
-
-    ExternalData dataSet;
+    ExternalData destinationDataSet;
 
     @BeforeClass
     public void createFixture() throws Exception
@@ -89,7 +87,6 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
         sourceProject = create(aProject().inSpace(sourceSpace));
         sourceExperiment = create(anExperiment().inProject(sourceProject));
         sourceSample = create(aSample().inExperiment(sourceExperiment));
-        dataSet = create(aDataSet().inSample(sourceSample));
 
         destinationSpace = create(aSpace());
         destinationProject = create(aProject().inSpace(destinationSpace));
@@ -98,8 +95,8 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
 
         sharedSample = create(aSample());
 
-        parentSample = create(aSample().inSpace(sourceSpace));
-        childSample = create(aSample().inSpace(destinationSpace).withParent(parentSample));
+        sourceDataSet = create(aDataSet().inSample(sourceSample));
+        destinationDataSet = create(aDataSet().inSample(destinationSample));
 
         unrelatedAdmin = create(aSpace());
         unrelatedObserver = create(aSpace());
@@ -289,6 +286,104 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
         removeParentFromSample(sourceSpaceRole, destinationSpaceRole, instanceRole);
     }
 
+    @Test(dataProvider = "rolesAllowedToAddContainerToSample", groups = "authorization")
+    public void addingContainerToSampleIsAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        addContainerToSample(sourceSpaceRole, destinationSpaceRole, instanceRole);
+    }
+
+    @Test(dataProvider = "rolesNotAllowedToAddContainerToSample", expectedExceptions =
+        { AuthorizationFailureException.class }, groups = "authorization")
+    public void addingContainerToSampleIsNotAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        addContainerToSample(sourceSpaceRole, destinationSpaceRole, instanceRole);
+    }
+
+    @Test(dataProvider = "rolesAllowedToRemoveContainerFromSample", groups = "authorization")
+    public void removingContainerFromSampleIsAuthorizedFor(RoleWithHierarchy spaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        removeContainerFromSample(spaceRole, instanceRole);
+    }
+
+    @Test(dataProvider = "rolesNotAllowedToRemoveContainerFromSample", expectedExceptions =
+        { AuthorizationFailureException.class }, groups = "authorization")
+    public void removingContainerFromSampleIsNotAuthorizedFor(RoleWithHierarchy spaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        removeContainerFromSample(spaceRole, instanceRole);
+    }
+
+    @Test(dataProvider = "rolesAllowedToAddParentToDataSet", groups = "authorization")
+    public void addingParentToDataSetIsAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        addParentToDataSet(sourceSpaceRole, destinationSpaceRole, instanceRole);
+    }
+
+    @Test(dataProvider = "rolesNotAllowedToAddParentToDataSet", expectedExceptions =
+        { AuthorizationFailureException.class }, groups = "authorization")
+    public void addingParentToDataSetIsNotAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        addParentToDataSet(sourceSpaceRole, destinationSpaceRole, instanceRole);
+    }
+
+    @Test(dataProvider = "rolesAllowedToRemoveParentFromDataSet", groups = "authorization")
+    public void removingParentFromDataSetIsAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        removeParentFromDataSet(sourceSpaceRole, destinationSpaceRole, instanceRole);
+    }
+
+    @Test(dataProvider = "rolesNotAllowedToRemoveParentFromDataSet", expectedExceptions =
+        { AuthorizationFailureException.class }, groups = "authorization")
+    public void removingParentFromDataSetIsNotAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        removeParentFromDataSet(sourceSpaceRole, destinationSpaceRole, instanceRole);
+    }
+
+    @Test(dataProvider = "rolesAllowedToAddContainerToDataSet", groups = "authorization")
+    public void addingContainerToDataSetIsAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        addContainerToDataSet(sourceSpaceRole, destinationSpaceRole, instanceRole);
+    }
+
+    @Test(dataProvider = "rolesNotAllowedToAddContainerToDataSet", expectedExceptions =
+        { AuthorizationFailureException.class }, groups = "authorization")
+    public void addingContainerToDataSetIsNotAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        addContainerToDataSet(sourceSpaceRole, destinationSpaceRole, instanceRole);
+    }
+
+    @Test(dataProvider = "rolesAllowedToRemoveContainerFromDataSet", groups = "authorization")
+    public void removingContainerFromDataSetIsAuthorizedFor(RoleWithHierarchy spaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        removeContainerFromDataSet(spaceRole, instanceRole);
+    }
+
+    @Test(dataProvider = "rolesNotAllowedToRemoveContainerFromDataSet", expectedExceptions =
+        { AuthorizationFailureException.class }, groups = "authorization")
+    public void removingContainerFromDataSetIsNotAuthorizedFor(RoleWithHierarchy spaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        removeContainerFromDataSet(spaceRole, instanceRole);
+    }
+
     void assignExperimentToProject(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
@@ -408,7 +503,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         relationshipService.assignDataSetToExperiment(sessionManager.getSession(session),
-                pe(dataSet), pe(destinationExperiment));
+                pe(sourceDataSet), pe(destinationExperiment));
     }
 
     void assignDataSetToSample(RoleWithHierarchy sourceSpaceRole,
@@ -425,7 +520,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         relationshipService.assignDataSetToSample(sessionManager.getSession(session),
-                pe(dataSet), pe(destinationSample));
+                pe(sourceDataSet), pe(destinationSample));
     }
 
     void addParentToSample(RoleWithHierarchy sourceSpaceRole,
@@ -458,7 +553,105 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         relationshipService.removeParentFromSample(sessionManager.getSession(session),
-                pe(childSample), pe(parentSample));
+                pe(sourceSample), pe(destinationSample));
+    }
+
+    void addContainerToSample(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        String session =
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        relationshipService.assignSampleToContainer(sessionManager.getSession(session),
+                pe(sourceSample),
+                pe(destinationSample));
+
+    }
+
+    void removeContainerFromSample(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        String session =
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        relationshipService.removeSampleFromContainer(sessionManager.getSession(session),
+                pe(this.sourceSample));
+    }
+
+    void addParentToDataSet(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        String session =
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        relationshipService.addParentToDataSet(sessionManager.getSession(session),
+                pe(sourceDataSet),
+                pe(destinationDataSet));
+
+    }
+
+    void removeParentFromDataSet(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        String session =
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        relationshipService.removeParentFromDataSet(sessionManager.getSession(session),
+                pe(sourceDataSet), pe(destinationDataSet));
+    }
+
+    void addContainerToDataSet(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        String session =
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        relationshipService.assignDataSetToContainer(sessionManager.getSession(session),
+                pe(sourceDataSet),
+                pe(destinationDataSet));
+
+    }
+
+    void removeContainerFromDataSet(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        String session =
+                create(aSession()
+                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        relationshipService.removeDataSetFromContainer(sessionManager.getSession(session),
+                pe(this.sourceDataSet));
     }
 
     GuardedDomain instance = new InstanceDomain("instance");
@@ -625,7 +818,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
                 source, destination, instance);
     }
 
-    @DataProvider(name = "rolesAllowedRemoveAddParentFromSample")
+    @DataProvider(name = "rolesAllowedRemoveParentFromSample")
     RoleWithHierarchy[][] rolesAllowedToRemoveParentFromSample()
     {
         return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServer,
@@ -637,6 +830,90 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     {
         return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServer),
                 source, destination, instance);
+    }
+
+    @DataProvider(name = "rolesAllowedToAddContainerToSample")
+    RoleWithHierarchy[][] rolesAllowedToAddContainerToSample()
+    {
+        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServer,
+                source, destination, instance);
+    }
+
+    @DataProvider(name = "rolesNotAllowedToAddContainerToSample")
+    RoleWithHierarchy[][] rolesNotAllowedToAddContainerToSample()
+    {
+        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServer),
+                source, destination, instance);
+    }
+
+    @DataProvider(name = "rolesAllowedRemoveContainerFromSample")
+    RoleWithHierarchy[][] rolesAllowedToRemoveContainerFromSample()
+    {
+        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServerSingle,
+                source, instance);
+    }
+
+    @DataProvider(name = "rolesNotAllowedToRemoveContainerFromSample")
+    RoleWithHierarchy[][] rolesNotAllowedToRemoveContainerFromSample()
+    {
+        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServerSingle),
+                source, instance);
+    }
+
+    @DataProvider(name = "rolesAllowedToAddParentToDataSet")
+    RoleWithHierarchy[][] rolesAllowedToAddParentToDataSet()
+    {
+        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServer,
+                source, destination, instance);
+    }
+
+    @DataProvider(name = "rolesNotAllowedToAddParentToDataSet")
+    RoleWithHierarchy[][] rolesNotAllowedToAddParentToDataSet()
+    {
+        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServer),
+                source, destination, instance);
+    }
+
+    @DataProvider(name = "rolesAllowedRemoveParentFromDataSet")
+    RoleWithHierarchy[][] rolesAllowedToRemoveParentFromDataSet()
+    {
+        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServer,
+                source, destination, instance);
+    }
+
+    @DataProvider(name = "rolesNotAllowedToRemoveParentFromDataSet")
+    RoleWithHierarchy[][] rolesNotAllowedToRemoveParentFromDataSet()
+    {
+        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServer),
+                source, destination, instance);
+    }
+
+    @DataProvider(name = "rolesAllowedToAddContainerToDataSet")
+    RoleWithHierarchy[][] rolesAllowedToAddContainerToDataSet()
+    {
+        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServer,
+                source, destination, instance);
+    }
+
+    @DataProvider(name = "rolesNotAllowedToAddContainerToDataSet")
+    RoleWithHierarchy[][] rolesNotAllowedToAddContainerToDataSet()
+    {
+        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServer),
+                source, destination, instance);
+    }
+
+    @DataProvider(name = "rolesAllowedRemoveContainerFromDataSet")
+    RoleWithHierarchy[][] rolesAllowedToRemoveContainerFromDataSet()
+    {
+        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServerSingle,
+                source, instance);
+    }
+
+    @DataProvider(name = "rolesNotAllowedToRemoveContainerFromDataSet")
+    RoleWithHierarchy[][] rolesNotAllowedToRemoveContainerFromDataSet()
+    {
+        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServerSingle),
+                source, instance);
     }
 
     ExperimentPE pe(Experiment experiment)
