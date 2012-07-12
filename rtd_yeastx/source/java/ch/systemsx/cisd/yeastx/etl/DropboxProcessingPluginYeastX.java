@@ -21,7 +21,9 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDropboxProcessingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * A dropbox processing plugin that gets its dropbox directory from properties.
@@ -75,7 +77,8 @@ public class DropboxProcessingPluginYeastX extends AbstractDropboxProcessingPlug
     }
 
     @Override
-    protected String getProcessingDescription()
+    protected String getProcessingDescription(DatasetDescription dataset,
+            DataSetProcessingContext context)
     {
         return "Copy to " + properties.getProperty(DROPBOX_INCOMING_DIRECTORY_PROPERTY);
     }

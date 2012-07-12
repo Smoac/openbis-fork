@@ -23,6 +23,10 @@ import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * 
@@ -37,13 +41,15 @@ public class DataSetCopierForUsers extends DataSetCopier
 
     public DataSetCopierForUsers(Properties properties, File storeRoot)
     {
-        this(properties, storeRoot, new RsyncCopierFactory(), new SshCommandExecutorFactory(), new ImmutableCopierFactory());
+        this(properties, storeRoot, new RsyncCopierFactory(), new SshCommandExecutorFactory(),
+                new ImmutableCopierFactory(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
     @Private
     DataSetCopierForUsers(Properties properties, File storeRoot,
             IPathCopierFactory pathCopierFactory,
-            ISshCommandExecutorFactory sshCommandExecutorFactory, IImmutableCopierFactory immutableCopierFactory)
+            ISshCommandExecutorFactory sshCommandExecutorFactory,
+            IImmutableCopierFactory immutableCopierFactory, ITimeProvider timeProvider)
     {
         super(properties, storeRoot, new Copier(properties, pathCopierFactory,
                 sshCommandExecutorFactory, immutableCopierFactory)
@@ -54,25 +60,40 @@ public class DataSetCopierForUsers extends DataSetCopier
                 protected String transformHostFile(String originalHostFile,
                         Map<String, String> parameterBindings)
                 {
-                    int indexOfParameter = originalHostFile.indexOf(USER_PARAMETER_STRING);
-                    String hostFile = originalHostFile;
-                    if (indexOfParameter >= 0)
-                    {
-                        String user = parameterBindings.get(USER_PARAMETER);
-                        if (user == null)
-                        {
-                            throw new UserFailureException("Missing parameter '" + USER_PARAMETER
-                                    + "'.");
-                        }
-                        hostFile =
-                                originalHostFile.substring(0, indexOfParameter)
-                                        + user
-                                        + originalHostFile.substring(indexOfParameter
-                                                + USER_PARAMETER_STRING.length());
-                    }
-                    return hostFile;
+                    return createDestinationFileName(originalHostFile, parameterBindings);
                 }
-            });
+            }, timeProvider);
+    }
+
+    private static String createDestinationFileName(String originalHostFile,
+            Map<String, String> parameterBindings)
+    {
+        int indexOfParameter = originalHostFile.indexOf(USER_PARAMETER_STRING);
+        String hostFile = originalHostFile;
+        if (indexOfParameter >= 0)
+        {
+            String user = parameterBindings.get(USER_PARAMETER);
+            if (user == null)
+            {
+                throw new UserFailureException("Missing parameter '" + USER_PARAMETER
+                        + "'.");
+            }
+            hostFile =
+                    originalHostFile.substring(0, indexOfParameter)
+                            + user
+                            + originalHostFile.substring(indexOfParameter
+                                    + USER_PARAMETER_STRING.length());
+        }
+        return hostFile;
+    }
+
+    @Override
+    protected String getProcessingDescription(DatasetDescription dataset,
+            DataSetProcessingContext context)
+    {
+        return "Copy to "
+                + createDestinationFileName(properties.getProperty(DESTINATION_KEY),
+                        context.getParameterBindings());
     }
 
 }

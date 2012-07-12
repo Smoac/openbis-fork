@@ -117,7 +117,7 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
                         dataSetDescription.getSampleTypeCode());
         boolean withSample = sampleOrNull != null;
         boolean processingFailed = status.isError();
-        String processingDescription = getProcessingDescription();
+        String processingDescription = getProcessingDescription(dataSetDescription, context);
         Template template = getEMailMessageTemplate(processingFailed, withSample).createFreshCopy();
         String subject;
         if (processingFailed)
@@ -159,7 +159,7 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
     /**
      * Returns a description to be used in e-mails.
      */
-    protected abstract String getProcessingDescription();
+    protected abstract String getProcessingDescription(DatasetDescription dataset, DataSetProcessingContext context);
 
     private String render(String entity, String entityType)
     {

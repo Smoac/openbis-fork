@@ -22,7 +22,9 @@ import java.util.Properties;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * Processing plugin which copies data sets to a destination folder by using rsync. The destination
@@ -80,13 +82,14 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
     }
 
     public DataSetCopier(Properties properties, File storeRoot,
-            IPostRegistrationDatasetHandler dropboxHandler)
+            IPostRegistrationDatasetHandler dropboxHandler, ITimeProvider timeProvider)
     {
-        super(properties, storeRoot, dropboxHandler);
+        super(properties, storeRoot, dropboxHandler, timeProvider);
     }
 
     @Override
-    protected String getProcessingDescription()
+    protected String getProcessingDescription(DatasetDescription dataset,
+            DataSetProcessingContext context)
     {
         return "Copy to " + properties.getProperty(DESTINATION_KEY);
     }

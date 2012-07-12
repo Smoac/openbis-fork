@@ -27,6 +27,8 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IPathCopierF
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.ISshCommandExecutorFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncCopierFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.SshCommandExecutorFactory;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * 
@@ -50,7 +52,8 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
     }
 
     @Override
-    protected String getProcessingDescription()
+    protected String getProcessingDescription(DatasetDescription dataset,
+            DataSetProcessingContext context)
     {
         return "Copy to " + properties.getProperty(DESTINATION_KEY);
     }
