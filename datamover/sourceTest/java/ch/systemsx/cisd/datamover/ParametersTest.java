@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.datamover;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -137,33 +138,33 @@ public final class ParametersTest extends AbstractFileSystemTestCase
     {
         Parameters parameters = parse("--" + PropertyNames.OUTGOING_TARGET, "dir");
         HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark =
-            getFileWithHighwaterMark(PropertyNames.OUTGOING_TARGET, parameters);
+                getFileWithHighwaterMark(PropertyNames.OUTGOING_TARGET, parameters);
         assertEquals("dir", hostAwareFileWithHighwaterMark.getFile().getPath());
         assertNull(hostAwareFileWithHighwaterMark.tryGetHost());
         assertNull(hostAwareFileWithHighwaterMark.tryGetRsyncModule());
 
         parameters = parse("--" + PropertyNames.OUTGOING_TARGET, "host:dir");
         hostAwareFileWithHighwaterMark =
-            getFileWithHighwaterMark(PropertyNames.OUTGOING_TARGET, parameters);
+                getFileWithHighwaterMark(PropertyNames.OUTGOING_TARGET, parameters);
         assertEquals("dir", hostAwareFileWithHighwaterMark.getFile().getPath());
         assertEquals("host", hostAwareFileWithHighwaterMark.tryGetHost());
         assertNull(hostAwareFileWithHighwaterMark.tryGetRsyncModule());
 
         parameters = parse("--" + PropertyNames.OUTGOING_TARGET, "host:mod:dir");
         hostAwareFileWithHighwaterMark =
-            getFileWithHighwaterMark(PropertyNames.OUTGOING_TARGET, parameters);
+                getFileWithHighwaterMark(PropertyNames.OUTGOING_TARGET, parameters);
         assertEquals("dir", hostAwareFileWithHighwaterMark.getFile().getPath());
         assertEquals("host", hostAwareFileWithHighwaterMark.tryGetHost());
         assertEquals("mod", hostAwareFileWithHighwaterMark.tryGetRsyncModule());
 
         parameters = parse("--" + PropertyNames.OUTGOING_TARGET, "host:mod:dir>42");
         hostAwareFileWithHighwaterMark =
-            getFileWithHighwaterMark(PropertyNames.OUTGOING_TARGET, parameters);
+                getFileWithHighwaterMark(PropertyNames.OUTGOING_TARGET, parameters);
         assertEquals("dir", hostAwareFileWithHighwaterMark.getFile().getPath());
         assertEquals("host", hostAwareFileWithHighwaterMark.tryGetHost());
         assertEquals("mod", hostAwareFileWithHighwaterMark.tryGetRsyncModule());
         assertEquals(42L, hostAwareFileWithHighwaterMark.getHighwaterMark());
-}
+    }
 
     private final HostAwareFileWithHighwaterMark getFileWithHighwaterMark(final String optionName,
             final Parameters parameters)
@@ -199,8 +200,9 @@ public final class ParametersTest extends AbstractFileSystemTestCase
             parameters = parse("--" + PropertyNames.DATA_COMPLETED_SCRIPT, scriptName);
         } catch (final ConfigurationFailureException ex)
         {
-            assertEquals(String.format(Parameters.DATA_COMPLETED_SCRIPT_NOT_FOUND_TEMPLATE,
-                    scriptName), ex.getMessage());
+            assertEquals(
+                    String.format(Parameters.DATA_COMPLETED_SCRIPT_NOT_FOUND_TEMPLATE, scriptName),
+                    ex.getMessage());
         }
         final File scriptFile = new File(workingDirectory, scriptName);
         FileUtils.touch(scriptFile);
@@ -212,8 +214,8 @@ public final class ParametersTest extends AbstractFileSystemTestCase
     public void testDefaultCheckIntervalInternal() throws Exception
     {
         final Parameters parameters = parse();
-        assertEquals(1000 * Parameters.DEFAULT_CHECK_INTERVAL_INTERNAL, parameters
-                .getCheckIntervalInternalMillis());
+        assertEquals(1000 * Parameters.DEFAULT_CHECK_INTERVAL_INTERNAL,
+                parameters.getCheckIntervalInternalMillis());
     }
 
     @Test
@@ -227,24 +229,24 @@ public final class ParametersTest extends AbstractFileSystemTestCase
     public void testDefaultIntervalToWaitAfterFailureMillis() throws Exception
     {
         final Parameters parameters = parse();
-        assertEquals(1000 * Parameters.DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURES, parameters
-                .getIntervalToWaitAfterFailure());
+        assertEquals(1000 * Parameters.DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURES,
+                parameters.getIntervalToWaitAfterFailure());
     }
 
     @Test
     public void testDefaultMaximalNumberOfRetries() throws Exception
     {
         final Parameters parameters = parse();
-        assertEquals(Parameters.DEFAULT_MAXIMAL_NUMBER_OF_RETRIES, parameters
-                .getMaximalNumberOfRetries());
+        assertEquals(Parameters.DEFAULT_MAXIMAL_NUMBER_OF_RETRIES,
+                parameters.getMaximalNumberOfRetries());
     }
 
     @Test
     public void testDefaultInactivityPeriod() throws Exception
     {
         final Parameters parameters = parse();
-        assertEquals(1000 * Parameters.DEFAULT_INACTIVITY_PERIOD, parameters
-                .getInactivityPeriodMillis());
+        assertEquals(1000 * Parameters.DEFAULT_INACTIVITY_PERIOD,
+                parameters.getInactivityPeriodMillis());
     }
 
     @Test
@@ -333,6 +335,33 @@ public final class ParametersTest extends AbstractFileSystemTestCase
     }
 
     @Test
+    public void testSetLocalBufferDir() throws IOException
+    {
+        final Parameters params = parse("--buffer-dir", "data/buffer");
+        assertNull(params.getBufferDirectoryPath().tryGetHost());
+        assertNull(params.getBufferDirectoryPath().tryGetRsyncModule());
+        assertEquals(new File("data/buffer").getCanonicalPath(), params.getBufferDirectoryPath()
+                .getCanonicalPath());
+    }
+
+    @Test(expectedExceptions = ConfigurationFailureException.class)
+    public void testSetRemoteBufferDir() throws IOException
+    {
+        parse("--buffer-dir", "myserver:data/buffer");
+    }
+
+    @Test
+    public void testSetLocalBufferDirWindows() throws IOException
+    {
+        Parameters params = parse("--buffer-dir", "C:\\data\\buffer");
+        assertEquals(new File("C:\\data\\buffer"), params.getBufferDirectoryPath().getFile());
+        params = parse("--buffer-dir", "c:\\data\\buffer");
+        assertEquals(new File("c:\\data\\buffer"), params.getBufferDirectoryPath().getFile());
+        params = parse("--buffer-dir", "\\data\\buffer");
+        assertEquals(new File("\\data\\buffer"), params.getBufferDirectoryPath().getFile());
+    }
+
+    @Test
     public void testSetEverything() throws Exception
     {
         final String localDataDir = ".." + File.separator + "ldata";
@@ -348,9 +377,9 @@ public final class ParametersTest extends AbstractFileSystemTestCase
                 parse("--" + PropertyNames.INCOMING_TARGET,
                         remoteIncomingHost + ":" + localDataDir, "--" + PropertyNames.BUFFER_DIR,
                         localTempDir, "--" + PropertyNames.OUTGOING_TARGET, remoteHost + ":"
-                                + remoteDataDir, "--check-interval", Integer
-                                .toString(checkIntervall), "--quiet-period", Integer
-                                .toString(quietPeriod), "--treat-incoming-as-remote",
+                                + remoteDataDir, "--check-interval",
+                        Integer.toString(checkIntervall), "--quiet-period",
+                        Integer.toString(quietPeriod), "--treat-incoming-as-remote",
                         "--extra-copy-dir", extraCopyDir, "--rsync-overwrite");
         final IFileStore incomingStoreExpected =
                 createIncomingStore(localDataDir, remoteIncomingHost, parameters);

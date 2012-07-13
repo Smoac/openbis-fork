@@ -116,8 +116,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     private boolean rsyncOverwrite = DEFAULT_RSYNC_OVERWRITE;
 
     /**
-     * Extra parameters that are added to the end of the rsync command line, like e.g.
-     * --no-owner.
+     * Extra parameters that are added to the end of the rsync command line, like e.g. --no-owner.
      */
     @Option(longName = PropertyNames.EXTRA_RSYNC_PARAMS, usage = "Additional parameters added to the end of the rsync "
             + "command line.")
@@ -486,8 +485,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         extraRsyncParameters =
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.EXTRA_RSYNC_PARAMS);
         lnExecutable =
-            PropertyUtils.getProperty(serviceProperties, PropertyNames.LN_EXECUTABLE,
-                    lnExecutable);
+                PropertyUtils.getProperty(serviceProperties, PropertyNames.LN_EXECUTABLE,
+                        lnExecutable);
         sshExecutable =
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.SSH_EXECUTABLE,
                         sshExecutable);
@@ -990,6 +989,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
 
     public final static class HostAwareFileWithHighwaterMarkHandler extends OptionHandler
     {
+        private final static Pattern WINDOWS_DRIVE_PATTERN = Pattern.compile("^[a-zA-Z]:\\\\");
+
         static final char DIRECTORY_HIGHWATERMARK_SEP = '>';
 
         private final Setter<? super HostAwareFileWithHighwaterMark> setter;
@@ -1010,8 +1011,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         @Override
         public final String getDefaultMetaVariable()
         {
-            return "[HOST" + HostAwareFile.HOST_FILE_SEP + "]DIR["
-                    + DIRECTORY_HIGHWATERMARK_SEP + "KB]";
+            return "[HOST" + HostAwareFile.HOST_FILE_SEP + "]DIR[" + DIRECTORY_HIGHWATERMARK_SEP
+                    + "KB]";
         }
 
         @Override
@@ -1029,15 +1030,14 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             String host = null;
             String strHighwaterMark = null;
             final File file;
-            final int hostFileIndex = value.indexOf(HostAwareFile.HOST_FILE_SEP);
+            final int hostFileIndex = getHostFileIndex(value);
             final int fileHWMIndex = value.indexOf(DIRECTORY_HIGHWATERMARK_SEP);
             String rsyncModuleOrNull = null;
             if (hostFileIndex > -1 && fileHWMIndex > -1)
             {
                 host = value.substring(0, hostFileIndex);
                 final int rsyncModuleIndex =
-                        value.indexOf(HostAwareFile.HOST_FILE_SEP,
-                                hostFileIndex + 1);
+                        value.indexOf(HostAwareFile.HOST_FILE_SEP, hostFileIndex + 1);
                 if (rsyncModuleIndex > -1)
                 {
                     rsyncModuleOrNull = value.substring(hostFileIndex + 1, rsyncModuleIndex);
@@ -1074,6 +1074,18 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             }
             setter.addValue(new HostAwareFileWithHighwaterMark(host, file, rsyncModuleOrNull,
                     highwaterMark));
+        }
+
+        private int getHostFileIndex(final String value)
+        {
+            // Windows absolute path.
+            if (WINDOWS_DRIVE_PATTERN.matcher(value).find())
+            {
+                return -1;
+            } else
+            {
+                return value.indexOf(HostAwareFile.HOST_FILE_SEP);
+            }
         }
     }
 
