@@ -154,7 +154,7 @@ public interface IGeneralInformationService extends IRpcService
      * possible only in one direction.
      * <p>
      * May only be called by users who are <code>INSTANCE_OBSERVER</code>.
-
+     * 
      * @param searchCriteria The sample metadata values to be matched against.
      * @param fetchOptions Options that control which parts of the samples are fetched.
      * @since 1.18
@@ -162,6 +162,19 @@ public interface IGeneralInformationService extends IRpcService
     public List<Sample> searchForSamplesOnBehalfOfUser(String sessionToken,
             SearchCriteria searchCriteria,
             EnumSet<SampleFetchOption> fetchOptions, String userId);
+
+    /**
+     * Returns a filtered list of <var>allSamples</var> containing those samples which are
+     * visible to <var>userId</var>.
+     * 
+     * @param allSamples The list of samples that should be filtered.
+     * @param userId The user that the samples should be visible to that survive the filtering.
+     * @return The filtered list of <var>allSamples</var> containing those samples which are
+     *         visible to <var>userId</var>.
+     * @since 1.18
+     */
+    public List<Sample> filterSamplesVisibleToUser(String sessionToken, List<Sample> allSamples,
+            String userId);
 
     /**
      * Return all samples that belong to the supplied experiment.
@@ -217,6 +230,20 @@ public interface IGeneralInformationService extends IRpcService
      */
     public List<Experiment> listExperimentsHavingDataSets(String sessionToken,
             List<Project> projects, String experimentType);
+
+    /**
+     * Returns a filtered list of <var>allExperiments</var> containing those experiments which are
+     * visible to <var>userId</var>.
+     * 
+     * @param allExperiments The list of experiments that should be filtered.
+     * @param userId The user that the experiments should be visible to that survive the filtering.
+     * @return The filtered list of <var>allExperiments</var> containing all experiments which are
+     *         visible to <var>userId</var>.
+     * @since 1.18
+     */
+    public List<Experiment> filterExperimentsVisibleToUser(String sessionToken,
+            List<Experiment> allExperiments,
+            String userId);
 
     /**
      * Return the data sets attached to the specified sample, optionally including child samples.
@@ -338,6 +365,19 @@ public interface IGeneralInformationService extends IRpcService
      */
     public List<DataSet> searchForDataSetsOnBehalfOfUser(String sessionToken,
             SearchCriteria searchCriteria, String userId);
+
+    /**
+     * Returns a filtered list of <var>allDataSets</var> containing those data sets which are
+     * visible to <var>userId</var>.
+     * 
+     * @param allDataSets The list of data sets that should be filtered.
+     * @param userId The user that the data sets should be visible to that survive the filtering.
+     * @return The filtered list of <var>allDataSets</var> containing those data sets which are
+     *         visible to <var>userId</var>.
+     * @since 1.18
+     */
+    public List<DataSet> filterDataSetsVisibleToUser(String sessionToken,
+            List<DataSet> allDataSets, String userId);
 
     /**
      * Return all experiments matching a specified set of identifiers.

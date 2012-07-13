@@ -342,6 +342,29 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return samples;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    @Capability("SEARCH_ON_BEHALF_OF_USER")
+    public List<Sample> filterSamplesVisibleToUser(String sessionToken, List<Sample> allSamples,
+            String userId)
+    {
+        checkSession(sessionToken);
+
+        // filter by user
+        final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+        final SampleByIdentiferValidator validator = new SampleByIdentiferValidator();
+        final ArrayList<Sample> samples = new ArrayList<Sample>(allSamples.size());
+        for (Sample sample : allSamples)
+        {
+            if (validator.doValidation(person, sample))
+            {
+                samples.add(sample);
+            }
+        }
+        return samples;
+    }
+
     protected ISampleLister createSampleLister()
     {
         return new SampleLister(getDAOFactory());
@@ -478,6 +501,31 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             }
         }
         return null;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    @Capability("SEARCH_ON_BEHALF_OF_USER")
+    public List<Experiment> filterExperimentsVisibleToUser(String sessionToken,
+            List<Experiment> allExperiments,
+            String userId)
+    {
+        checkSession(sessionToken);
+
+        // filter by user
+        final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+        final ExperimentByIdentiferValidator validator = new ExperimentByIdentiferValidator();
+        final ArrayList<Experiment> experiments = new ArrayList<Experiment>(allExperiments.size());
+        for (Experiment experiment : allExperiments)
+        {
+            if (validator.doValidation(person, experiment))
+            {
+                experiments.add(experiment);
+            }
+        }
+        return experiments;
+
     }
 
     @Override
@@ -715,7 +763,6 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     public List<DataSet> searchForDataSetsOnBehalfOfUser(String sessionToken,
             SearchCriteria searchCriteria, String userId)
     {
-
         final List<DataSet> unfilteredDatasets = searchForDataSets(sessionToken, searchCriteria);
         // Filter for user
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
@@ -730,6 +777,30 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             }
         }
         return datasets;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    @Capability("SEARCH_ON_BEHALF_OF_USER")
+    public List<DataSet> filterDataSetsVisibleToUser(String sessionToken,
+            List<DataSet> allDataSets, String userId)
+    {
+        checkSession(sessionToken);
+
+        // filter by user
+        final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+        final DataSetByExperimentIdentifierValidator validator =
+                new DataSetByExperimentIdentifierValidator();
+        final ArrayList<DataSet> dataSets = new ArrayList<DataSet>(allDataSets.size());
+        for (DataSet dataSet : allDataSets)
+        {
+            if (validator.doValidation(person, dataSet))
+            {
+                dataSets.add(dataSet);
+            }
+        }
+        return dataSets;
     }
 
     @Override

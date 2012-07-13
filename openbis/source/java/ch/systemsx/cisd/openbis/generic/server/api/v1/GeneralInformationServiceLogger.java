@@ -130,6 +130,15 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public List<Sample> filterSamplesVisibleToUser(String sessionToken, List<Sample> allSamples,
+            String userId)
+    {
+        logAccess(sessionToken, "filter-samples-visible-to-user", "SAMPLES(%s)",
+                "USER(%S)", abbreviate(allSamples), userId);
+        return null;
+    }
+
+    @Override
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples)
     {
         logAccess(sessionToken, "list-data-sets", "SAMPLES(%s)", abbreviate(samples));
@@ -240,10 +249,29 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public List<DataSet> filterDataSetsVisibleToUser(String sessionToken,
+            List<DataSet> allDataSets, String userId)
+    {
+        logAccess(sessionToken, "filter-data-sets-visible-to-user", "DATASETS(%s)",
+                "USER(%S)", abbreviate(allDataSets), userId);
+        return null;
+    }
+
+    @Override
     public List<Experiment> listExperiments(String sessionToken, List<String> experimentIdentifiers)
     {
         logAccess(sessionToken, "list-experiments", "EXPERIMENT_IDENTIFIERS(%s)",
                 abbreviate(experimentIdentifiers));
+        return null;
+    }
+
+    @Override
+    public List<Experiment> filterExperimentsVisibleToUser(String sessionToken,
+            List<Experiment> allExperiments,
+            String userId)
+    {
+        logAccess(sessionToken, "filter-experiments-visible-to-user", "EXPERIMENTS(%s)",
+                "USER(%s)", abbreviate(allExperiments), userId);
         return null;
     }
 
