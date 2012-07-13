@@ -156,15 +156,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return new UnmodifiableSetDecorator<DataSetRelationshipPE>(getDataSetChildRelationships());
     }
 
-    /**
-     * Returns <code>true</code>, if and only if the relationships have been initialized.
-     */
-    @Transient
-    public boolean isChildRelationshipsInitialized()
-    {
-        return HibernateUtils.isInitialized(getDataSetChildRelationships());
-    }
-
     public void addChildRelationship(final DataSetRelationshipPE relationship)
     {
         relationship.setParentDataSet(this);

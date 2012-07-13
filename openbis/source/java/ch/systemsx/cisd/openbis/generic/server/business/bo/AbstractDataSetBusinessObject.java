@@ -78,7 +78,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
 
     protected void enrichWithChildren(DataPE dataPE)
     {
-        HibernateUtils.initialize(dataPE.getChildren());
+        HibernateUtils.initialize(dataPE.getChildRelationships());
     }
 
     protected void updateBatchProperties(DataPE data, List<IEntityProperty> newProperties,

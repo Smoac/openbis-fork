@@ -633,7 +633,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             {
                 throw new UserFailureException("Unknown data set " + dataSetCode);
             }
-            HibernateUtils.initialize(dataPE.getChildren());
+            HibernateUtils.initialize(dataPE.getChildRelationships());
             HibernateUtils.initialize(dataPE.getProperties());
             ExternalData ds = DataSetTranslator.translate(dataPE, session.getBaseIndexURL());
             result.add(Translator.translate(ds, connections));

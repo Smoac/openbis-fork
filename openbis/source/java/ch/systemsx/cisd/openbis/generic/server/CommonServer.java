@@ -1115,6 +1115,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final List<ExternalData> list = new ArrayList<ExternalData>(resultSet.size());
         for (final DataPE hit : resultSet)
         {
+            HibernateUtils.initialize(hit.getChildRelationships());
             list.add(DataSetTranslator.translate(hit, session.getBaseIndexURL(), withDetails));
         }
         return list;
@@ -1863,7 +1864,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         if ((entityKind.equals(EntityKind.SAMPLE) || entityKind.equals(EntityKind.DATA_SET) || entityKind
-                .equals(EntityKind.MATERIAL)) && EntityType.isDefinedInFileEntityTypeCode(type))
+                .equals(EntityKind.MATERIAL))
+                && EntityType.isDefinedInFileEntityTypeCode(type))
         {
             types.addAll(getDAOFactory().getEntityTypeDAO(
                     DtoConverters.convertEntityKind(entityKind)).listEntityTypes());

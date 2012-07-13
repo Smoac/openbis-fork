@@ -273,7 +273,7 @@ public class DataSetTranslator
     private static void setChildren(DataPE dataPE, ExternalData externalData)
     {
         List<ExternalData> children = new ArrayList<ExternalData>();
-        if (HibernateUtils.isInitialized(dataPE.getChildren()))
+        if (HibernateUtils.isInitialized(dataPE.getChildRelationships()))
         {
             for (DataPE childPE : dataPE.getChildren())
             {

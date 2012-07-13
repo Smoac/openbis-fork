@@ -60,7 +60,7 @@
 	<classpathentry kind="lib" path="/libraries/jta/jta.jar"/>
 	<classpathentry kind="lib" path="/libraries/hibernate-jpa-2.0-api/hibernate-jpa-2.0-api.jar"/>
 	<classpathentry kind="lib" path="/libraries/validation-api/validation-api.jar"/>
-	<classpathentry kind="lib" path="/libraries/hibernate-core/hibernate-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/hibernate-core/hibernate-core.jar" sourcepath="/libraries/hibernate-core/hibernate-core-sources.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring-beans.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring-web.jar"/>
