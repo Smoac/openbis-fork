@@ -37,7 +37,7 @@ public abstract class AbstractStructuredPropertyConverterTest extends AssertJUni
 
     protected IElementFactory factory = new ElementFactory();
 
-    private IStructuredPropertyConverter converter;
+    protected IStructuredPropertyConverter converter;
 
     @BeforeClass
     public void fixture()
@@ -47,7 +47,7 @@ public abstract class AbstractStructuredPropertyConverterTest extends AssertJUni
 
     protected abstract IStructuredPropertyConverter createConverter();
 
-    private static final class ValueManagedProperty implements IManagedProperty
+    protected static final class ValueManagedProperty implements IManagedProperty
     {
         private static final long serialVersionUID = 1L;
 
@@ -105,15 +105,7 @@ public abstract class AbstractStructuredPropertyConverterTest extends AssertJUni
     public void testNoNestedElements()
     {
 
-        List<IElement> elements =
-                Arrays.asList(
-                        factory.createElement("testname").addAttribute("attr1", "value1")
-                                .addAttribute("attr2", "value2").setData("dummy&<>data"),
-                        factory.createSampleLink("permIdSample").addAttribute("sampleAttrKey",
-                                "sampleAttrVal"),
-                        factory.createMaterialLink("materialCode", "typeCode").addAttribute(
-                                "materialAttrKey", "materialAttrVal")
-                        );
+        final List<IElement> elements = createElementsNoNestedElements();
 
         final String persistentValue = converter.convertToString(elements);
         final List<IElement> deserialized =
@@ -122,11 +114,36 @@ public abstract class AbstractStructuredPropertyConverterTest extends AssertJUni
         assertEquals(elements, deserialized);
     }
 
+    protected List<IElement> createElementsNoNestedElements()
+    {
+        final List<IElement> elements =
+                Arrays.asList(
+                        factory.createElement("testname").addAttribute("attr1", "value1")
+                                .addAttribute("attr2", "value2").setData("dummy&<>data"),
+                        factory.createSampleLink("permIdSample").addAttribute("sampleAttrKey",
+                                "sampleAttrVal"),
+                        factory.createMaterialLink("materialCode", "typeCode").addAttribute(
+                                "materialAttrKey", "materialAttrVal")
+                        );
+        return elements;
+    }
+
     @Test
     public void testWithNestedElements()
     {
 
-        List<IElement> elements =
+        final List<IElement> elements = createElementsWithNestedElements();
+
+        final String persistentValue = converter.convertToString(elements);
+        final List<IElement> deserialized =
+                converter.convertToElements(new ValueManagedProperty(persistentValue));
+
+        assertEquals(elements, deserialized);
+    }
+
+    protected List<IElement> createElementsWithNestedElements()
+    {
+        final List<IElement> elements =
                 Arrays.asList(
                         factory.createElement("name1")
                                 .addAttribute("attr1", "value1")
@@ -136,11 +153,6 @@ public abstract class AbstractStructuredPropertyConverterTest extends AssertJUni
                                 factory.createElement("nested1").addAttribute("na1", "nav2")),
                         factory.createMaterialLink("materialCode", "typeCode").addChildren(
                                 factory.createElement("nested2").addAttribute("na2", "nav2")));
-
-        final String persistentValue = converter.convertToString(elements);
-        final List<IElement> deserialized =
-                converter.convertToElements(new ValueManagedProperty(persistentValue));
-
-        assertEquals(elements, deserialized);
+        return elements;
     }
 }

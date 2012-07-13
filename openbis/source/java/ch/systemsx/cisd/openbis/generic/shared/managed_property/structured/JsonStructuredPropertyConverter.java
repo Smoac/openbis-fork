@@ -127,6 +127,11 @@ public class JsonStructuredPropertyConverter implements IStructuredPropertyConve
         this.factory = factory;
     }
 
+    public boolean canHandle(IManagedProperty property)
+    {
+        return property.getValue().startsWith("[");
+    }
+
     @Override
     public List<IElement> convertToElements(IManagedProperty property)
     {

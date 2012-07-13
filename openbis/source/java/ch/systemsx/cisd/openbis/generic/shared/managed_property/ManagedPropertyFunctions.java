@@ -15,6 +15,8 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IEntityInfor
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IStructuredPropertyConverter;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.ElementFactory;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.JsonStructuredPropertyConverter;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.XmlOrJsonStructuredPropertyConverter;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.structured.XmlStructuredPropertyConverter;
 
 /**
@@ -32,8 +34,21 @@ public class ManagedPropertyFunctions
 
     private static final IElementFactory ELEMENT_FACTORY_INSTANCE = new ElementFactory();
 
-    private static final IStructuredPropertyConverter STRUCTURED_PROPERTY_CONVERTER_INSTANCE =
+    private static final XmlStructuredPropertyConverter XML_ONLY_STRUCTURED_PROPERTY_CONVERTER_INSTANCE =
             new XmlStructuredPropertyConverter(ELEMENT_FACTORY_INSTANCE);
+
+    private static final JsonStructuredPropertyConverter JSON_ONLY_STRUCTURED_PROPERTY_CONVERTER_INSTANCE =
+            new JsonStructuredPropertyConverter(ELEMENT_FACTORY_INSTANCE);
+
+    private static final IStructuredPropertyConverter XML_STRUCTURED_PROPERTY_CONVERTER_INSTANCE =
+            new XmlOrJsonStructuredPropertyConverter(
+                    XML_ONLY_STRUCTURED_PROPERTY_CONVERTER_INSTANCE,
+                    JSON_ONLY_STRUCTURED_PROPERTY_CONVERTER_INSTANCE, true);
+
+    private static final IStructuredPropertyConverter JSON_STRUCTURED_PROPERTY_CONVERTER_INSTANCE =
+            new XmlOrJsonStructuredPropertyConverter(
+                    XML_ONLY_STRUCTURED_PROPERTY_CONVERTER_INSTANCE,
+                    JSON_ONLY_STRUCTURED_PROPERTY_CONVERTER_INSTANCE, false);
 
     // initialized by spring
     private static IEntityInformationProvider entityInformationProvider;
@@ -90,11 +105,27 @@ public class ManagedPropertyFunctions
     }
 
     /**
-     * @return a converter that can translate {@link IElement} to/from Strings.
+     * @return a converter that can translate {@link IElement} to/from Strings using XML.
      */
     public static IStructuredPropertyConverter propertyConverter()
     {
-        return STRUCTURED_PROPERTY_CONVERTER_INSTANCE;
+        return XML_STRUCTURED_PROPERTY_CONVERTER_INSTANCE;
+    }
+
+    /**
+     * @return a converter that can translate {@link IElement} to/from Strings using XML.
+     */
+    public static IStructuredPropertyConverter xmlPropertyConverter()
+    {
+        return XML_STRUCTURED_PROPERTY_CONVERTER_INSTANCE;
+    }
+
+    /**
+     * @return a converter that can translate {@link IElement} to/from Strings using JSON.
+     */
+    public static IStructuredPropertyConverter jsonPropertyConverter()
+    {
+        return JSON_STRUCTURED_PROPERTY_CONVERTER_INSTANCE;
     }
 
     /**

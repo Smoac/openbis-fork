@@ -53,11 +53,16 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
 
     private static final String ROOT_NAME = "root";
 
-    private IElementFactory factory;
+    private final IElementFactory factory;
 
     public XmlStructuredPropertyConverter(IElementFactory factory)
     {
         this.factory = factory;
+    }
+
+    public boolean canHandle(IManagedProperty property)
+    {
+        return property.getValue().startsWith("<" + ROOT_NAME + ">");
     }
 
     @Override
