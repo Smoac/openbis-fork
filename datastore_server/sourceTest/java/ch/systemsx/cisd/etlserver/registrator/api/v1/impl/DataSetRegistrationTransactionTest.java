@@ -494,7 +494,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                 {
                     if (createDataSetCode)
                     {
-                        oneOf(openBisService).createDataSetCode();
+                        oneOf(openBisService).createPermId();
                         will(returnValue(DATA_SET_CODE + 1));
                     }
 

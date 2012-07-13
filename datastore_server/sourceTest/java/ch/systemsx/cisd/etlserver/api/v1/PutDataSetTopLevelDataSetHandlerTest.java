@@ -157,7 +157,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
         context.checking(new Expectations()
             {
                 {
-                    one(service).createDataSetCode();
+                    one(service).createPermId();
                     will(returnValue(DATA_SET_CODE));
 
                     one(service).checkSpaceAccess(
@@ -207,7 +207,7 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
         context.checking(new Expectations()
             {
                 {
-                    one(service).createDataSetCode();
+                    one(service).createPermId();
                     will(returnValue(DATA_SET_CODE));
 
                     one(service).checkSpaceAccess(SESSION_TOKEN, sampleIdentifier.getSpaceLevel());

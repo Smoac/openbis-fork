@@ -154,7 +154,7 @@ public class DataSetRegistrationAlgorithm
             {
                 // Extractor didn't extract an externally generated data set code, so request one
                 // from the openBIS server.
-                dataSetInformation.setDataSetCode(openBisService.createDataSetCode());
+                dataSetInformation.setDataSetCode(openBisService.createPermId());
             }
 
             this.dataSetType = typeExtractor.getDataSetType(incomingDataSetFile);

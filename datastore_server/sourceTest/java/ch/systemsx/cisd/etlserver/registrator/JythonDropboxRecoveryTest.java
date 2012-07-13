@@ -958,7 +958,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             // create dataset
             for (int i = 0; i < retryCount; i++)
             {
-                one(openBisService).createDataSetCode();
+                one(openBisService).createPermId();
                 will(returnValue(DATA_SET_CODE + i)); // this dataset will never get done anything
                                                       // about
             }
@@ -1032,7 +1032,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             // create dataset
             for (int i = 0; i <= retryCount; i++)
             {
-                one(openBisService).createDataSetCode();
+                one(openBisService).createPermId();
                 will(returnValue(DATA_SET_CODE + i)); // this dataset will never get done anything
                                                       // about
             }
@@ -1187,7 +1187,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             ignoring(openBisService).heartbeat();
 
             // create dataset
-            one(openBisService).createDataSetCode();
+            one(openBisService).createPermId();
             will(returnValue(DATA_SET_CODE));
 
             // get experiment
@@ -1204,7 +1204,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         {
 
             // create dataset
-            one(openBisService).createDataSetCode();
+            one(openBisService).createPermId();
             will(returnValue(CONTAINER_DATA_SET_CODE));
 
             // validate dataset

@@ -271,7 +271,7 @@ public class JythonScreeningDropboxRecoveryTest extends AbstractJythonDataSetHan
             for (int i = 0; i < dataSets; i++)
             {
                 // create dataset
-                one(openBisService).createDataSetCode();
+                one(openBisService).createPermId();
                 will(returnValue(DATA_SET_CODE + i));
 
                 one(dataSetValidator).assertValidDataSet(with(any(DataSetType.class)),

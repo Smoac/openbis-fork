@@ -390,32 +390,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     }
 
     @Test
-    public void testCreateDataSetCode()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(sessionManager).getSession(SESSION_TOKEN);
-
-                    one(daoFactory).getPermIdDAO();
-                    will(returnValue(permIdDAO));
-
-                    one(permIdDAO).createPermId();
-                    will(returnValue("abc"));
-
-                    allowing(daoFactory).getPersistencyResources();
-                    will(returnValue(new PersistencyResources(null, null, null, null)));
-                }
-            });
-
-        String dataSetCode = createService().createDataSetCode(SESSION_TOKEN);
-
-        assertEquals("abc", dataSetCode);
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testPermId()
+    public void testCreatePermId()
     {
         context.checking(new Expectations()
             {

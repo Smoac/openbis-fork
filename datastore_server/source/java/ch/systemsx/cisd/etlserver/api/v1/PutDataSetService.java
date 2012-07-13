@@ -373,7 +373,7 @@ public class PutDataSetService
 
     public File createTemporaryIncomingDir(String dataSetTypeCodeOrNull)
     {
-        String uniqueFolderName = openBisService.createDataSetCode();
+        String uniqueFolderName = openBisService.createPermId();
         File temporaryIncomingDir =
                 new File(getTemporaryIncomingRoot(dataSetTypeCodeOrNull), uniqueFolderName);
         temporaryIncomingDir.mkdir();

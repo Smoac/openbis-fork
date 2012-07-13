@@ -454,12 +454,6 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     @Override
-    public String createDataSetCode(String sessionToken) throws UserFailureException
-    {
-        return createPermId(sessionToken);
-    }
-
-    @Override
     public String createPermId(String sessionToken) throws UserFailureException
     {
         checkSession(sessionToken); // throws exception if invalid sessionToken

@@ -300,13 +300,8 @@ public interface IEncapsulatedOpenBISService
             throws UserFailureException;
 
     /**
-     * Creates and returns a unique code for a new data set.
-     */
-    @ManagedAuthentication
-    public String createDataSetCode();
-
-    /**
-     * Creates and returns a new permanent ID that can be used to identify experiments, samples etc.
+     * Creates and returns a new permanent ID that can be used to identify experiments, samples or
+     * datasets.
      */
     @ManagedAuthentication
     public String createPermId();

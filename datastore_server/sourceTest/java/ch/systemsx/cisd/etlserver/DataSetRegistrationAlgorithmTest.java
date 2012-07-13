@@ -284,7 +284,7 @@ public class DataSetRegistrationAlgorithmTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue(DATA_SET_CODE));
                 }
             });

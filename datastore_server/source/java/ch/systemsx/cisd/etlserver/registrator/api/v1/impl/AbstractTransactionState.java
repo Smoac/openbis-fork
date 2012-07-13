@@ -795,7 +795,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         private String generateDataSetCode(
                 DataSetRegistrationDetails<? extends T> registrationDetails)
         {
-            return openBisService.createDataSetCode();
+            return openBisService.createPermId();
         }
 
         AtomicEntityOperationDetails<T> createEntityOperationDetails(TechId registrationId,

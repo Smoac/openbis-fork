@@ -395,15 +395,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider, IConversatio
             String dataSetCode) throws UserFailureException;
 
     /**
-     * Creates and returns a unique code for a new data set. TODO KE: 2011-04-19 remove this method.
-     * It is equivalent to "createPermId()"
-     */
-    @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public String createDataSetCode(final String sessionToken) throws UserFailureException;
-
-    /**
-     * Create and return a new permanent id that can be used to identify samples, experiments etc.
+     * Create and return a new permanent id that can be used to identify samples, experiments and
+     * datasets.
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)

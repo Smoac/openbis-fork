@@ -749,11 +749,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                 protected void createDataSet()
                 {
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue(DATA_SET_CODE));
                     if (testCase.shouldRegisterTwoDataSets)
                     {
-                        one(openBisService).createDataSetCode();
+                        one(openBisService).createPermId();
                         will(returnValue(DATA_SET_CODE_1));
                     }
                 }
@@ -1091,7 +1091,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.checking(new Expectations()
             {
                 {
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue(DATA_SET_CODE + 1));
 
                     atLeast(1).of(openBisService).tryToGetExperiment(
@@ -1104,7 +1104,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                             new File(new File(stagingDirectory, DATA_SET_CODE + 1),
                                     "sub_data_set_1"));
 
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue(DATA_SET_CODE + 2));
 
                     atLeast(1).of(openBisService).tryToGetExperiment(
@@ -1193,7 +1193,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.checking(new Expectations()
             {
                 {
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue(DATA_SET_CODE));
 
                     one(openBisService).createPermId();
@@ -1253,7 +1253,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.checking(new Expectations()
             {
                 {
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue(DATA_SET_CODE));
 
                     one(openBisService).createPermId();
@@ -1390,7 +1390,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.checking(new Expectations()
             {
                 {
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue(DATA_SET_CODE));
 
                     atLeast(1).of(openBisService).tryToGetExperiment(
@@ -1456,7 +1456,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         context.checking(new Expectations()
             {
                 {
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue(DATA_SET_CODE));
 
                     exactly(2).of(openBisService).tryToGetExperiment(
@@ -1727,7 +1727,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     allowing(storageRecoveryManager).getProcessingMarkerFile(incomingDataSetFile);
                     will(returnValue(new File(incomingDataSetFile.getParent(), "a_marker_file")));
 
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue(DATA_SET_CODE));
 
                     exactly(2).of(openBisService).tryToGetExperiment(

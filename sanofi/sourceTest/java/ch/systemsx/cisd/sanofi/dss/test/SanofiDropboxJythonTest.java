@@ -806,25 +806,25 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         context.checking(new Expectations()
             {
                 {
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue("image-raw-thumnails"));
 
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue(IMAGE_DATA_SET_CODE));
 
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue("image-raw-container"));
 
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue(ANALYSIS_DATA_SET_CODE));
 
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue("overlay-thumnails"));
 
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue(OVERLAY_DATA_SET_CODE));
 
-                    one(openBisService).createDataSetCode();
+                    one(openBisService).createPermId();
                     will(returnValue("overlay-container"));
 
                     final DataSetType thumnailsDataSetType =

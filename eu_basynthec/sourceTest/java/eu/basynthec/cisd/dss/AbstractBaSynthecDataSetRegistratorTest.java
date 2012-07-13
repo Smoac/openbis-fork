@@ -87,12 +87,12 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
                     allowing(openBisService).heartbeat();
                     
                     one(
-                            openBisService).createDataSetCode();
+                            openBisService).createPermId();
                     will(returnValue(DATA_SET_CODE));
 
                     String excelDataSetCode = DATA_SET_CODE + "-EXCEL";
                     one(
-                            openBisService).createDataSetCode();
+                            openBisService).createPermId();
                     will(returnValue(excelDataSetCode));
 
                     // Some if there is a multistrain data set type, it needs to be taken care of in
@@ -101,7 +101,7 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
                     {
                         String tsvMultistrain = DATA_SET_CODE + "-TSV-MULTISTRAIN";
                         one(
-                                openBisService).createDataSetCode();
+                                openBisService).createPermId();
                         will(returnValue(tsvMultistrain));
                     }
 
@@ -109,7 +109,7 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
                     if (requireSingleStrainTsvExport)
                     {
                         one(
-                                openBisService).createDataSetCode();
+                                openBisService).createPermId();
                         will(returnValue(tsvDataSetCode));
                     }
 

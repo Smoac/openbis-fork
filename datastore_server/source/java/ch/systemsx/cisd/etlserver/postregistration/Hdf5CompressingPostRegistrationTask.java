@@ -168,7 +168,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
                     }
                     return;
                 }
-                String hdf5DataSetCode = service.createDataSetCode();
+                String hdf5DataSetCode = service.createPermId();
                 operationLog.info(String.format(
                         "The contents of data set '%s' will be hdf5-compressed "
                                 + "into a new data set '%s'.", dataSetCode, hdf5DataSetCode));

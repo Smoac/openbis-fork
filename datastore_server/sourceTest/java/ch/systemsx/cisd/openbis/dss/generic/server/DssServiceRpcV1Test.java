@@ -312,7 +312,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 
                     allowing(openBisService).tryGetSession(SESSION_TOKEN);
                     will(returnValue(session));
-                    allowing(openBisService).createDataSetCode();
+                    allowing(openBisService).createPermId();
                     will(returnValue(NEW_DATA_SET_CODE));
                 }
             });

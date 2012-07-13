@@ -107,13 +107,6 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public String createDataSetCode(String sessionToken) throws UserFailureException
-    {
-        logTracking(sessionToken, "createDataSetCode", "");
-        return null;
-    }
-
-    @Override
     public String createPermId(String sessionToken) throws UserFailureException
     {
         logTracking(sessionToken, "createPermId", "");

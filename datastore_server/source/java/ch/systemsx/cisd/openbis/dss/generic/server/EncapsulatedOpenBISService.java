@@ -433,12 +433,6 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public final String createDataSetCode()
-    {
-        return service.createDataSetCode(session.getSessionToken());
-    }
-
-    @Override
     public final String createPermId()
     {
         return service.createPermId(session.getSessionToken());
