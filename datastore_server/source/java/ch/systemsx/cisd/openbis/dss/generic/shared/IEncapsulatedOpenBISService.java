@@ -75,7 +75,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 public interface IEncapsulatedOpenBISService
 {
     /**
-     * Tries to get the data set for the specified data set code.
+     * Tries to get the data set for the specified data set code, using the ETL server's session
+     * token.
      */
     @ManagedAuthentication
     public ExternalData tryGetDataSet(final String dataSetCode) throws UserFailureException;
@@ -293,8 +294,6 @@ public interface IEncapsulatedOpenBISService
     @ManagedAuthentication
     public List<SimpleDataSetInformationDTO> listDataSets() throws UserFailureException;
 
-
-
     /** @see IETLLIMSService#listDataSets(String, String, TrackingDataSetCriteria) */
     @ManagedAuthentication
     public List<ExternalData> listNewerDataSets(TrackingDataSetCriteria criteria)
@@ -409,14 +408,6 @@ public interface IEncapsulatedOpenBISService
     public SessionContextDTO tryGetSession(String sessionToken);
 
     /**
-     * Tries to get the data set for the specified data set code using the server's session token
-     * See {@link IETLLIMSService#tryGetDataSetForServer(String, String)}
-     */
-    @ManagedAuthentication
-    public ExternalData tryGetDataSetForServer(final String dataSetCode)
-            throws UserFailureException;
-
-    /**
      * Return a list of users who could be considered administrators. See
      * {@link IETLLIMSService#listAdministrators(String)}
      */
@@ -470,7 +461,7 @@ public interface IEncapsulatedOpenBISService
      */
     @ManagedAuthentication
     public List<Project> listProjects();
-    
+
     /**
      * {@link IETLLIMSService#listExperiments(String, ProjectIdentifier)}
      */
@@ -494,13 +485,13 @@ public interface IEncapsulatedOpenBISService
      */
     @ManagedAuthentication
     public List<String> getTrustedCrossOriginDomains();
-    
+
     /**
      * {@link IETLLIMSService#setStorageConfirmed(String, String)}
      */
     @ManagedAuthentication
     public void setStorageConfirmed(String dataSetCode);
-    
+
     /**
      * {@link IETLLIMSService#markSuccessfulPostRegistration(String, String)}
      */
@@ -512,7 +503,7 @@ public interface IEncapsulatedOpenBISService
      */
     @ManagedAuthentication
     public List<ExternalData> listDataSetsForPostRegistration();
-    
+
     /**
      * {@link IETLLIMSService#didEntityOperationsSucceed(String, TechId)}
      */
@@ -531,7 +522,6 @@ public interface IEncapsulatedOpenBISService
     @ManagedAuthentication
     public boolean doesUserHaveRole(String user, String roleCode, String spaceOrNull);
 
-    
     /**
      * {@link IETLLIMSService#filterToVisibleDataSets(String, String, List)}
      */

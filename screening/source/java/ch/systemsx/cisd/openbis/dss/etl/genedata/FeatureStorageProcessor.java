@@ -234,7 +234,7 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
             List<String> parentDataSetCodes = dataSetInformation.getParentDataSetCodes();
             for (String dataSetCode : parentDataSetCodes)
             {
-                ExternalData externalData = openBisService.tryGetDataSetForServer(dataSetCode);
+                ExternalData externalData = openBisService.tryGetDataSet(dataSetCode);
                 if (externalData == null)
                 {
                     throw new UserFailureException("Cannot find a parent dataset in openBIS: "

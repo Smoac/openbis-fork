@@ -1122,13 +1122,6 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     @Override
-    public ExternalData tryGetDataSetForServer(String sessionToken, String dataSetCode)
-            throws UserFailureException
-    {
-        return tryGetDataSet(sessionToken, dataSetCode);
-    }
-
-    @Override
     public Collection<VocabularyTerm> listVocabularyTerms(String sessionToken, String vocabularyCode)
             throws UserFailureException
     {

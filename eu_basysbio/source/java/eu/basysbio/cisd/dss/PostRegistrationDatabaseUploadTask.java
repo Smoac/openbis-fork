@@ -170,7 +170,7 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
         String experimentCode = dataSet.getExperimentCode();
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(databaseInstanceCode,
                 groupCode, projectCode, experimentCode));
-        ExternalData fullDataSet = service.tryGetDataSetForServer(dataSetCode);
+        ExternalData fullDataSet = service.tryGetDataSet(dataSetCode);
         List<IEntityProperty> properties = fullDataSet.getProperties();
         List<NewProperty> dataSetProperties = new ArrayList<NewProperty>();
         for (IEntityProperty property : properties)

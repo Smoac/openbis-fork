@@ -568,12 +568,6 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public ExternalData tryGetDataSetForServer(String dataSetCode) throws UserFailureException
-    {
-        return service.tryGetDataSetForServer(session.getSessionToken(), dataSetCode);
-    }
-
-    @Override
     public List<String> generateCodes(String prefix, int size)
     {
         return service.generateCodes(session.getSessionToken(), prefix, size);

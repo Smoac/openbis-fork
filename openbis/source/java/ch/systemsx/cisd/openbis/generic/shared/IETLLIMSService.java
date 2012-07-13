@@ -604,15 +604,6 @@ public interface IETLLIMSService extends IServer, ISessionProvider, IConversatio
             SpaceIdentifier spaceId);
 
     /**
-     * For the ETL Server to get data sets.
-     */
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public ExternalData tryGetDataSetForServer(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            String dataSetCode) throws UserFailureException;
-
-    /**
      * Returns a list of unique codes.
      */
     @Transactional

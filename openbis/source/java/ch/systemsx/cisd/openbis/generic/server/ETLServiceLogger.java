@@ -439,15 +439,6 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public ExternalData tryGetDataSetForServer(String sessionToken, String dataSetCode)
-            throws UserFailureException
-    {
-
-        logAccess(sessionToken, "tryGetDataSetForServer", "DATA_SET(%s)", dataSetCode);
-        return null;
-    }
-
-    @Override
     public Collection<VocabularyTerm> listVocabularyTerms(String sessionToken, String vocabulary)
             throws UserFailureException
     {
