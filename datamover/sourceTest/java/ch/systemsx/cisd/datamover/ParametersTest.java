@@ -359,6 +359,8 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         assertEquals(new File("c:\\data\\buffer"), params.getBufferDirectoryPath().getFile());
         params = parse("--buffer-dir", "\\data\\buffer");
         assertEquals(new File("\\data\\buffer"), params.getBufferDirectoryPath().getFile());
+        params = parse("--buffer-dir", "c:/data/buffer");
+        assertEquals(new File("c:/data/buffer"), params.getBufferDirectoryPath().getFile());
     }
 
     @Test

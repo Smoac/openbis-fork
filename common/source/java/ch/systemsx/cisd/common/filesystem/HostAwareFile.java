@@ -31,7 +31,7 @@ public class HostAwareFile extends AbstractHashable implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final static Pattern WINDOWS_DRIVE_PATTERN = Pattern.compile("^[a-zA-Z]:\\\\");
+    private final static Pattern WINDOWS_DRIVE_PATTERN = Pattern.compile("^[a-zA-Z]:[\\\\/]");
 
     public static final char HOST_FILE_SEP = ':';
 
