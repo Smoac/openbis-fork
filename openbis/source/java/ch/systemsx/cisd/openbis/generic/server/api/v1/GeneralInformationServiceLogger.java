@@ -120,6 +120,16 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public List<Sample> searchForSamplesOnBehalfOfUser(String sessionToken,
+            SearchCriteria searchCriteria, EnumSet<SampleFetchOption> fetchOptions, String userId)
+    {
+        logAccess(sessionToken, "search-for-samples-on-behalf-of-user",
+                "SEARCH_CRITERIA(%s) FETCH_OPTIONS(%s) USER(%S)",
+                searchCriteria, fetchOptions, userId);
+        return null;
+    }
+
+    @Override
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples)
     {
         logAccess(sessionToken, "list-data-sets", "SAMPLES(%s)", abbreviate(samples));
@@ -221,6 +231,15 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public List<DataSet> searchForDataSetsOnBehalfOfUser(String sessionToken,
+            SearchCriteria searchCriteria, String userId)
+    {
+        logAccess(sessionToken, "search-for-data-sets-on-behalf-of-user",
+                "SEARCH_CRITERIA(%s) USER(%s)", searchCriteria, userId);
+        return null;
+    }
+
+    @Override
     public List<Experiment> listExperiments(String sessionToken, List<String> experimentIdentifiers)
     {
         logAccess(sessionToken, "list-experiments", "EXPERIMENT_IDENTIFIERS(%s)",
@@ -236,9 +255,9 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     }
 
     @Override
-    public List<Project> listProjectsForUser(String sessionToken, String userId)
+    public List<Project> listProjectsOnBehalfOfUser(String sessionToken, String userId)
     {
-        logAccess(sessionToken, "list-projects-for-user", "USER_ID(%s)", userId);
+        logAccess(sessionToken, "list-projects-on-behalf-of-user", "USER(%s)", userId);
         return null;
     }
 
@@ -275,4 +294,5 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         logAccess(sessionToken, "search-for-materials", "SEARCH_CRITERIA(%s)", searchCriteria);
         return null;
     }
+
 }

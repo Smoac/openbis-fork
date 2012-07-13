@@ -382,13 +382,6 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<Project> listProjectsForUser(String sessionToken, String userId)
-    {
-        logAccess(sessionToken, "list_projects_for_user", "USER_ID(%s)", userId);
-        return null;
-    }
-
-    @Override
     public List<ExperimentType> listExperimentTypes(final String sessionToken)
     {
         logAccess(sessionToken, "list_experiment_types");
@@ -1438,4 +1431,5 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 edms.getCode());
 
     }
+
 }
