@@ -133,9 +133,9 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
     {
         File file;
         String hostNameOrNull = null;
-        final int index = hostFile.indexOf(HOST_FILE_SEP);
+        final int index = getHostFileIndex(hostFile);
         final String rsyncModuleOrNull;
-        if (index > -1 && isWindowsDriveLetter(hostFile, index) == false)
+        if (index > -1)
         {
             hostNameOrNull = hostFile.substring(0, index);
             final int index2 = hostFile.indexOf(HOST_FILE_SEP, index + 1);
@@ -155,12 +155,6 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
         }
         return new HostAwareFileWithHighwaterMark(hostNameOrNull, file, rsyncModuleOrNull,
                 highwaterMarkInKb);
-    }
-
-    private static boolean isWindowsDriveLetter(String hostFile, int colonIndex)
-    {
-        // e.g. c:\
-        return colonIndex == 1 && hostFile.length() >= 3 && hostFile.charAt(2) == '\\';
     }
 
     private static File getCanonicalFile(final String hostFile)

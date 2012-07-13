@@ -989,8 +989,6 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
 
     public final static class HostAwareFileWithHighwaterMarkHandler extends OptionHandler
     {
-        private final static Pattern WINDOWS_DRIVE_PATTERN = Pattern.compile("^[a-zA-Z]:\\\\");
-
         static final char DIRECTORY_HIGHWATERMARK_SEP = '>';
 
         private final Setter<? super HostAwareFileWithHighwaterMark> setter;
@@ -1030,7 +1028,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             String host = null;
             String strHighwaterMark = null;
             final File file;
-            final int hostFileIndex = getHostFileIndex(value);
+            final int hostFileIndex = HostAwareFileWithHighwaterMark.getHostFileIndex(value);
             final int fileHWMIndex = value.indexOf(DIRECTORY_HIGHWATERMARK_SEP);
             String rsyncModuleOrNull = null;
             if (hostFileIndex > -1 && fileHWMIndex > -1)
@@ -1076,17 +1074,6 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                     highwaterMark));
         }
 
-        private int getHostFileIndex(final String value)
-        {
-            // Windows absolute path.
-            if (WINDOWS_DRIVE_PATTERN.matcher(value).find())
-            {
-                return -1;
-            } else
-            {
-                return value.indexOf(HostAwareFile.HOST_FILE_SEP);
-            }
-        }
     }
 
 }

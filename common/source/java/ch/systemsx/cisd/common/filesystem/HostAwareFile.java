@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 
@@ -29,6 +30,8 @@ import ch.systemsx.cisd.common.utilities.AbstractHashable;
 public class HostAwareFile extends AbstractHashable implements Serializable
 {
     private static final long serialVersionUID = 1L;
+
+    private final static Pattern WINDOWS_DRIVE_PATTERN = Pattern.compile("^[a-zA-Z]:\\\\");
 
     public static final char HOST_FILE_SEP = ':';
 
@@ -93,4 +96,21 @@ public class HostAwareFile extends AbstractHashable implements Serializable
             }
         }
     }
+
+    /**
+     * Returns the index between host and file, or -1, if the <var>hostFileString</var> does not
+     * contain a host.
+     */
+    public static int getHostFileIndex(final String hostFileString)
+    {
+        // Windows absolute path.
+        if (WINDOWS_DRIVE_PATTERN.matcher(hostFileString).find())
+        {
+            return -1;
+        } else
+        {
+            return hostFileString.indexOf(HostAwareFile.HOST_FILE_SEP);
+        }
+    }
+
 }
