@@ -71,8 +71,7 @@ public interface IGeneralInformationService extends IRpcService
     public void logout(String sessionToken);
 
     /**
-     * Returns true if session with the specified token is still active, false otherwise. Available
-     * since minor version 4.
+     * Returns true if session with the specified token is still active, false otherwise.
      * 
      * @since 1.4
      */
@@ -94,7 +93,7 @@ public interface IGeneralInformationService extends IRpcService
             String sessionToken, String databaseInstanceCodeOrNull);
 
     /**
-     * Return all samples that match the search criteria. Available since minor version 1.
+     * Return all samples that match the search criteria.
      * This is a short cut for
      * 
      * <pre>
@@ -107,7 +106,7 @@ public interface IGeneralInformationService extends IRpcService
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria);
 
     /**
-     * Return all samples that match the search criteria. Available since minor version 17.
+     * Return all samples that match the search criteria.
      * <p>
      * The fetch options set is interpreted by the following rules.
      * <ul>
@@ -165,7 +164,7 @@ public interface IGeneralInformationService extends IRpcService
             EnumSet<SampleFetchOption> fetchOptions, String userId);
 
     /**
-     * Return all samples that belong to the supplied experiment. Available since minor version 1.
+     * Return all samples that belong to the supplied experiment.
      * 
      * @param experimentIdentifierString The identifier of the experiment samples will be listed
      *            for.
@@ -182,8 +181,7 @@ public interface IGeneralInformationService extends IRpcService
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples);
 
     /**
-     * Return all experiments of the given type that belong to the supplied projects. Available
-     * since minor version 2.
+     * Return all experiments of the given type that belong to the supplied projects.
      * 
      * @param projects The projects for which we return attached experiments.
      * @param experimentType The experiment type of the experiments we want to list. Since version
@@ -196,7 +194,7 @@ public interface IGeneralInformationService extends IRpcService
 
     /**
      * Return all experiments of the given type that belong to the supplied projects and have
-     * registered samles. Available since minor version 15.
+     * registered samles.
      * 
      * @param projects The projects for which we return attached experiments.
      * @param experimentType The experiment type of the experiments we want to list. Specifying a
@@ -209,7 +207,7 @@ public interface IGeneralInformationService extends IRpcService
 
     /**
      * Return all experiments of the given type that belong to the supplied projects and have
-     * registered data sets. Available since minor version 15.
+     * registered data sets.
      * 
      * @param projects The projects for which we return attached experiments.
      * @param experimentType The experiment type of the experiments we want to list. Specifying a
@@ -223,7 +221,7 @@ public interface IGeneralInformationService extends IRpcService
     /**
      * Return the data sets attached to the specified sample, optionally including child samples.
      * Note, that for returned container data sets the contained data sets have only code, type and
-     * registration date set. Available since minor version 3.
+     * registration date set.
      * 
      * @param sample The sample for which we return attached data sets.
      * @param areOnlyDirectlyConnectedIncluded If true, only data sets that are directly connected
@@ -235,8 +233,7 @@ public interface IGeneralInformationService extends IRpcService
             boolean areOnlyDirectlyConnectedIncluded);
 
     /**
-     * Returns the URL for the default data store server for this openBIS AS. Available since minor
-     * version 4.
+     * Returns the URL for the default data store server for this openBIS AS.
      * 
      * @since 1.4
      */
@@ -251,8 +248,7 @@ public interface IGeneralInformationService extends IRpcService
     public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode);
 
     /**
-     * Returns the URL for the default data store server for this openBIS AS. Available since minor
-     * version 5.
+     * Returns the URL for the default data store server for this openBIS AS.
      * 
      * @since 1.5
      */
@@ -281,8 +277,7 @@ public interface IGeneralInformationService extends IRpcService
             String sessionToken);
 
     /**
-     * Return all data sets attached to the given samples with connections. Available since minor
-     * version 7.
+     * Return all data sets attached to the given samples with connections.
      * 
      * @param samples The samples for which we return attached data sets.
      * @since 1.7
@@ -291,8 +286,7 @@ public interface IGeneralInformationService extends IRpcService
             EnumSet<Connections> connectionsToGet);
 
     /**
-     * Return all data sets attached to the given experiments with connections. Available since
-     * minor version 14.
+     * Return all data sets attached to the given experiments with connections.
      * 
      * @param experiments The experiments for which we return attached data sets.
      * @since 1.14
@@ -304,7 +298,6 @@ public interface IGeneralInformationService extends IRpcService
      * Returns meta data for all specified data sets. This contains data set type, properties, and
      * codes of linked parent and children data sets. For container data sets the contained data
      * sets are not returned. Thus, {@link DataSet#getContainedDataSets()} is always empty.
-     * Available since minor version 12.
      * 
      * @param dataSetCodes Codes of requested data sets.
      * @return result in the same order as the list of data set codes.
@@ -314,8 +307,7 @@ public interface IGeneralInformationService extends IRpcService
 
     /**
      * Returns meta data for all specified data sets. Which parts of the data sets objects are
-     * fetched is controlled with the <code>fetchOptions</code> parameter. Available since minor
-     * version 16.
+     * fetched is controlled with the <code>fetchOptions</code> parameter.
      * 
      * @param dataSetCodes Codes of requested data sets.
      * @param fetchOptions Options that control which parts of the data sets are fetched.
@@ -327,8 +319,7 @@ public interface IGeneralInformationService extends IRpcService
 
     /**
      * Return all data sets matching specified search criteria. Note, that for returned container
-     * data sets the contained data sets have only code, type and registration date set. Available
-     * since minor version 8.
+     * data sets the contained data sets have only code, type and registration date set.
      * 
      * @param searchCriteria the criteria used for searching.
      * @since 1.8
@@ -349,8 +340,7 @@ public interface IGeneralInformationService extends IRpcService
             SearchCriteria searchCriteria, String userId);
 
     /**
-     * Return all experiments matching a specified set of identifiers. Available since minor version
-     * 9.
+     * Return all experiments matching a specified set of identifiers.
      * 
      * @param experimentIdentifiers the identifiers of the experiments to be returned.
      * @since 1.9
