@@ -66,7 +66,7 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
         return convertStringToElements(property.getValue());
     }
 
-    public List<IElement> convertStringToElements(String propertyValue)
+    private List<IElement> convertStringToElements(String propertyValue)
     {
         if (ManagedProperty.isSpecialValue(propertyValue) || StringUtils.isBlank(propertyValue))
         {

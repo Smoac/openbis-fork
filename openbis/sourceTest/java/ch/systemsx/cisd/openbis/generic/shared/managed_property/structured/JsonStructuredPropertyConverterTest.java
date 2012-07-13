@@ -24,11 +24,11 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IStructuredP
  * @author Bernd Rinn
  */
 @Test
-public class XmlStructuredPropertyConverterTest extends AbstractStructuredPropertyConverterTest
+public class JsonStructuredPropertyConverterTest extends AbstractStructuredPropertyConverterTest
 {
     @Override
     protected IStructuredPropertyConverter createConverter()
     {
-        return new XmlStructuredPropertyConverter(factory);
+        return new JsonStructuredPropertyConverter(factory);
     }
 }
