@@ -187,9 +187,11 @@ public interface IGeneralInformationService extends IRpcService
             String experimentIdentifierString);
 
     /**
-     * Return all data sets attached to the given samples. Available since minor version 1.
+     * Return all data sets attached to the given samples.
      * 
      * @param samples The samples for which we return attached data sets.
+     * 
+     * @since 1.1
      */
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples);
 
@@ -268,7 +270,7 @@ public interface IGeneralInformationService extends IRpcService
 
     /**
      * Returns the download URL for the data store of specified data set or null if such data set
-     * does not exist. Available since minor version 4.
+     * does not exist.
      * 
      * @since 1.4
      */
@@ -282,7 +284,7 @@ public interface IGeneralInformationService extends IRpcService
     public List<DataSetType> listDataSetTypes(String sessionToken);
 
     /**
-     * Returns map of avaialable vocabulary terms. Available since minor version 6.
+     * Returns map of avaialable vocabulary terms.
      * <p>
      * The method cannot be fully utilized over JSON-RPC, because there is no sensible way to
      * (de)serialize a {@link Vocabulary} object to/from String. Any working implementation will
