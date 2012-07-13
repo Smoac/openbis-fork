@@ -16,12 +16,6 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
-import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.and;
-import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
-import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.or;
-import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -54,6 +55,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.AndAuthorizationRule;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.BasicAuthorizationRule;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.NotAuthorizationRule;
+import ch.systemsx.cisd.openbis.systemtest.base.auth.OrAuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.Builder;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.DataSetUpdateBuilder;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.ExperimentBuilder;
@@ -293,87 +300,82 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
 
     protected Matcher<Object> inSpace(Space space)
     {
-        return RefreshingMatcherProxy.newInstance(new InSpaceMatcher(space), this);
+        return new InSpaceMatcher(refresh(space));
     }
 
     protected Matcher<Object> hasNoSpace()
     {
-        return RefreshingMatcherProxy.newInstance(new InSpaceMatcher(), this);
+        return new InSpaceMatcher();
     }
 
     protected Matcher<Object> inExperiment(Experiment experiment)
     {
-        return RefreshingMatcherProxy.newInstance(new InExperimentMatcher(refresh(experiment)),
-                this);
+        return new InExperimentMatcher(refresh(experiment));
     }
 
     protected Matcher<Object> hasNoExperiment()
     {
-        return RefreshingMatcherProxy.newInstance(new InExperimentMatcher(), this);
+        return new InExperimentMatcher();
     }
 
     protected Matcher<Experiment> inProject(Project project)
     {
-        return RefreshingMatcherProxy.newInstance(new InProjectMatcher(refresh(project)), this);
+        return new InProjectMatcher(refresh(project));
     }
 
     protected Matcher<ExternalData> inSample(Sample sample)
     {
-        return RefreshingMatcherProxy.newInstance(new InSampleMatcher(refresh(sample)), this);
+        return new InSampleMatcher(refresh(sample));
     }
 
     protected Matcher<ExternalData> hasParents(ExternalData first, ExternalData... rest)
     {
-        return RefreshingMatcherProxy.newInstance(new ExternalDataHasParentsMatcher(first, rest),
-                this);
+        return new ExternalDataHasParentsMatcher(refresh(first), refresh(rest));
     }
 
     protected Matcher<ExternalData> hasChildren(ExternalData first, ExternalData... rest)
     {
-        return RefreshingMatcherProxy.newInstance(new ExternalDataHasChildrenMatcher(first, rest),
-                this);
+        return new ExternalDataHasChildrenMatcher(refresh(first), refresh(rest));
     }
 
     protected Matcher<Object> hasNoParents()
     {
-        return RefreshingMatcherProxy.newInstance(new HasNoParentMatcher(), this);
+        return new HasNoParentMatcher();
     }
 
     protected Matcher<ExternalData> hasNoChildren()
     {
-        return RefreshingMatcherProxy.newInstance(new HasNoChildrenMatcher(), this);
+        return new HasNoChildrenMatcher();
     }
 
     protected Matcher<ExternalData> hasNoSample()
     {
-        return RefreshingMatcherProxy.newInstance(new ExternalDataHasNoSampleMatcher(), this);
+        return new ExternalDataHasNoSampleMatcher();
     }
 
     protected Matcher<Sample> hasParents(Sample first, Sample... rest)
     {
-        return RefreshingMatcherProxy.newInstance(new SampleHasParentsMatcher(first, rest), this);
+        return new SampleHasParentsMatcher(refresh(first), refresh(rest));
     }
 
     protected Matcher<Object> hasNoParent()
     {
-        return RefreshingMatcherProxy.newInstance(new HasNoParentMatcher(), this);
+        return new HasNoParentMatcher();
     }
 
     protected Matcher<Sample> hasContainer(Sample container)
     {
-        return RefreshingMatcherProxy.newInstance(
-                new SampleHasContainerMatcher(refresh(container)), this);
+        return new SampleHasContainerMatcher(refresh(container));
     }
 
     protected Matcher<ExternalData> hasContainer(ExternalData container)
     {
-        return RefreshingMatcherProxy.newInstance(new ExternalDataHasContainerMatcher(
-                refresh(container)), this);
+        return new ExternalDataHasContainerMatcher(refresh(container));
     }
 
     protected Matcher<Object> hasNoContainer()
     {
-        return RefreshingMatcherProxy.newInstance(new HasNoContainerMatcher(), this);
+        return new HasNoContainerMatcher();
     }
 
     protected Experiment refresh(Experiment experiment)
@@ -393,9 +395,46 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         return result.getParent();
     }
 
+    protected Sample[] refresh(Sample[] samples)
+    {
+        Sample[] result = new Sample[samples.length];
+        int i = 0;
+        for (Sample sample : samples)
+        {
+            result[i] = refresh(sample);
+            i++;
+        }
+        return result;
+    }
+
+    protected ExternalData[] refresh(ExternalData[] dataSets)
+    {
+        ExternalData[] result = new ExternalData[dataSets.length];
+        int i = 0;
+        for (ExternalData data : dataSets)
+        {
+            result[i] = refresh(data);
+            i++;
+        }
+        return result;
+    }
+
     protected ExternalData refresh(ExternalData data)
     {
         return etlService.tryGetDataSet(systemSessionToken, data.getCode());
+    }
+
+    protected Space refresh(Space space)
+    {
+        for (Space refreshed : commonServer.listSpaces(systemSessionToken,
+                new DatabaseInstanceIdentifier("CISD")))
+        {
+            if (space.getId() == refreshed.getId())
+            {
+                return space;
+            }
+        }
+        throw new IllegalArgumentException("Space not found: " + space.getCode());
     }
 
     public static ExperimentIdentifier id(Experiment experiment)
@@ -427,5 +466,62 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         {
             return new SampleIdentifier(id(sample.getSpace()), sample.getCode());
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test(enabled = false)
+    public <T> void assertThat(T actual, Matcher<T> matcher)
+    {
+        T refreshed = actual;
+        if (actual instanceof ExternalData)
+        {
+            refreshed = (T) refresh((ExternalData) actual);
+        } else if (actual instanceof Sample)
+        {
+            refreshed = (T) refresh((Sample) actual);
+        } else if (actual instanceof Experiment)
+        {
+            refreshed = (T) refresh((Experiment) actual);
+        } else if (actual instanceof Project)
+        {
+            refreshed = (T) refresh((Project) actual);
+        } else if (actual instanceof Space)
+        {
+            refreshed = (T) refresh((Space) actual);
+        }
+
+        org.hamcrest.MatcherAssert.assertThat(refreshed, matcher);
+    }
+
+    public static AuthorizationRule rule(GuardedDomain domain, RoleWithHierarchy role)
+    {
+        return new BasicAuthorizationRule(domain, role);
+    }
+
+    public static AuthorizationRule and(AuthorizationRule rule1, AuthorizationRule rule2,
+            AuthorizationRule... rest)
+    {
+        AuthorizationRule main = new AndAuthorizationRule(rule1, rule2);
+        for (AuthorizationRule rule : rest)
+        {
+            main = new AndAuthorizationRule(main, rule);
+        }
+        return main;
+    }
+
+    public static AuthorizationRule or(AuthorizationRule rule1, AuthorizationRule rule2,
+            AuthorizationRule... rest)
+    {
+        AuthorizationRule main = new OrAuthorizationRule(rule1, rule2);
+        for (AuthorizationRule rule : rest)
+        {
+            main = new OrAuthorizationRule(main, rule);
+        }
+        return main;
+    }
+
+    public static AuthorizationRule not(AuthorizationRule rule)
+    {
+        return new NotAuthorizationRule(rule);
     }
 }

@@ -16,11 +16,6 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
-import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.and;
-import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.not;
-import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.or;
-import static ch.systemsx.cisd.openbis.systemtest.base.auth.RuleBuilder.rule;
-
 import org.springframework.test.context.ContextConfiguration;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -211,7 +206,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToShareSample", expectedExceptions =
-        { AuthorizationFailureException.class })
+        { AuthorizationFailureException.class }, groups = "authorization")
     public void sharingSampleIsNotAuthorizedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
