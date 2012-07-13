@@ -94,8 +94,9 @@ public interface IGeneralInformationService extends IRpcService
             String sessionToken, String databaseInstanceCodeOrNull);
 
     /**
-     * Return all samples that match the search criteria. Available since minor version 1. 
+     * Return all samples that match the search criteria. Available since minor version 1.
      * This is a short cut for
+     * 
      * <pre>
      * searchForSamples(sessionToken, searchCritera, EnumSet.of(SampleFetchOption.PROPERTIES))
      * </pre>
@@ -131,6 +132,37 @@ public interface IGeneralInformationService extends IRpcService
      */
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria,
             EnumSet<SampleFetchOption> fetchOptions);
+
+    /**
+     * Return all samples that match the search criteria and that a particular user is allowed to
+     * see.
+     * <p>
+     * The fetch options set is interpreted by the following rules.
+     * <ul>
+     * <li>If it does not contain {@link SampleFetchOption#PROPERTIES} only the basic attributes are
+     * returned for all samples including possible ancestors and descendants.
+     * <li>{@link SampleFetchOption#CHILDREN} will be ignored if
+     * {@link SampleFetchOption#DESCENDANTS} is in the set.
+     * <li>{@link SampleFetchOption#PARENTS} will be ignored if {@link SampleFetchOption#ANCESTORS}
+     * is in the set.
+     * <li>It is possible to combine {@link SampleFetchOption#CHILDREN}/
+     * {@link SampleFetchOption#DESCENDANTS} with {@link SampleFetchOption#PARENTS}/
+     * {@link SampleFetchOption#ANCESTORS}.
+     * </ul>
+     * The samples of the returned list also contain appropriated fetch options sets which tells
+     * whether one can expect properties, children, or parents. Note, that only the top-level
+     * samples can have both children or samples. For descendants and ancestors navigation is
+     * possible only in one direction.
+     * <p>
+     * May only be called by users who are <code>INSTANCE_OBSERVER</code>.
+
+     * @param searchCriteria The sample metadata values to be matched against.
+     * @param fetchOptions Options that control which parts of the samples are fetched.
+     * @since 1.18
+     */
+    public List<Sample> searchForSamplesOnBehalfOfUser(String sessionToken,
+            SearchCriteria searchCriteria,
+            EnumSet<SampleFetchOption> fetchOptions, String userId);
 
     /**
      * Return all samples that belong to the supplied experiment. Available since minor version 1.
@@ -294,7 +326,7 @@ public interface IGeneralInformationService extends IRpcService
             EnumSet<DataSetFetchOption> fetchOptions);
 
     /**
-     * Return all data sets matching a specified search criteria. Note, that for returned container
+     * Return all data sets matching specified search criteria. Note, that for returned container
      * data sets the contained data sets have only code, type and registration date set. Available
      * since minor version 8.
      * 
@@ -302,6 +334,19 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.8
      */
     public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria);
+
+    /**
+     * Return all data sets matching specified search criteria and visible to user
+     * <var>userId</var>. Note, that for returned container
+     * data sets the contained data sets have only code, type and registration date set.
+     * <p>
+     * May only be called by users who are <code>INSTANCE_OBSERVER</code>.
+     * 
+     * @param searchCriteria the criteria used for searching.
+     * @since 1.18
+     */
+    public List<DataSet> searchForDataSetsOnBehalfOfUser(String sessionToken,
+            SearchCriteria searchCriteria, String userId);
 
     /**
      * Return all experiments matching a specified set of identifiers. Available since minor version
@@ -318,13 +363,14 @@ public interface IGeneralInformationService extends IRpcService
     public List<Project> listProjects(String sessionToken);
 
     /**
-     * Returns all available projects that a particular user can see.
+     * Returns all available projects that a particular user is allowed to see.
+     * <p>
+     * May only be called by users with capability <code>LIST_PROJECTS_ON_BEHALF_OF_USER</code>.
      * 
      * @param userId The user identifier of the user to get the projects for.
-     * 
      * @since 1.18
      */
-    public List<Project> listProjectsForUser(String sessionToken, String userId);
+    public List<Project> listProjectsOnBehalfOfUser(String sessionToken, String userId);
 
     /**
      * Returns the materials with specified identifiers (i.e. code and type).
