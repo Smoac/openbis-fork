@@ -187,10 +187,23 @@ public interface IGeneralInformationService extends IRpcService
             String experimentIdentifierString);
 
     /**
+     * Return all samples that belong to the supplied experiment that are visible to user
+     * <var>userId</var>.
+     * <p>
+     * May only be called by users with capability <code>LIST_PROJECTS_ON_BEHALF_OF_USER</code>.
+     * 
+     * @param experimentIdentifierString The identifier of the experiment samples will be listed
+     *            for.
+     * @param userId The user to run this query on behalf of.
+     * @since 1.18
+     */
+    public List<Sample> listSamplesForExperimentOnBehalfOfUser(String sessionToken,
+            String experimentIdentifierString, String userId);
+
+    /**
      * Return all data sets attached to the given samples.
      * 
      * @param samples The samples for which we return attached data sets.
-     * 
      * @since 1.1
      */
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples);
@@ -315,6 +328,19 @@ public interface IGeneralInformationService extends IRpcService
             EnumSet<Connections> connectionsToGet);
 
     /**
+     * Return all data sets attached to the given samples with connections that the user
+     * <var>userId</var> is allowed to see.
+     * <p>
+     * May only be called by users with capability <code>LIST_PROJECTS_ON_BEHALF_OF_USER</code>.
+     * 
+     * @param samples The samples for which we return attached data sets.
+     * @param userId The user to run this query on behalf of.
+     * @since 1.18
+     */
+    public List<DataSet> listDataSetsOnBehalfOfUser(String sessionToken, List<Sample> samples,
+            EnumSet<Connections> connectionsToGet, String userId);
+
+    /**
      * Return all data sets attached to the given experiments with connections.
      * 
      * @param experiments The experiments for which we return attached data sets.
@@ -322,6 +348,19 @@ public interface IGeneralInformationService extends IRpcService
      */
     public List<DataSet> listDataSetsForExperiments(String sessionToken,
             List<Experiment> experiments, EnumSet<Connections> connectionsToGet);
+
+    /**
+     * Return all data sets attached to the given experiments with connections that the user
+     * <var>userId</var> is allowed to see.
+     * <p>
+     * May only be called by users with capability <code>LIST_PROJECTS_ON_BEHALF_OF_USER</code>.
+     * 
+     * @param experiments The experiments for which we return attached data sets.
+     * @param userId The user to run this query on behalf of.
+     * @since 1.18
+     */
+    public List<DataSet> listDataSetsForExperimentsOnBehalfOfUser(String sessionToken,
+            List<Experiment> experiments, EnumSet<Connections> connectionsToGet, String userId);
 
     /**
      * Returns meta data for all specified data sets. This contains data set type, properties, and

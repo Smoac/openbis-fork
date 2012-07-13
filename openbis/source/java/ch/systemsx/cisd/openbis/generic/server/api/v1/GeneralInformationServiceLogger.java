@@ -104,6 +104,16 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public List<Sample> listSamplesForExperimentOnBehalfOfUser(String sessionToken,
+            String experimentIdentifierString, String userId)
+    {
+        logAccess(sessionToken, "list-samples-for-experiment-on-behalf-of-user",
+                "EXPERIMENT_IDENTIFIER(%s)", "USER(%s)",
+                experimentIdentifierString, userId);
+        return null;
+    }
+
+    @Override
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
     {
         logAccess(sessionToken, "search-for-samples", "SEARCH_CRITERIA(%s)", searchCriteria);
@@ -216,6 +226,16 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public List<DataSet> listDataSetsOnBehalfOfUser(String sessionToken, List<Sample> samples,
+            EnumSet<Connections> connectionsToGet, String userId)
+    {
+        logAccess(sessionToken, "list-data-sets-on-behalf-of-user",
+                "SAMPLES(%s) CONNECTIONS(%s) USER(%S)",
+                abbreviate(samples), connectionsToGet, userId);
+        return null;
+    }
+
+    @Override
     public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes)
     {
         logAccess(sessionToken, "get-data-set-meta-data", "DATA_SETS(%s)", abbreviate(dataSetCodes));
@@ -303,6 +323,16 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     {
         logAccess(sessionToken, "list-data-sets-for-experiments",
                 "EXPERIMENTS(%s) CONNECTIONS(%s)", abbreviate(experiments), connectionsToGet);
+        return null;
+    }
+
+    @Override
+    public List<DataSet> listDataSetsForExperimentsOnBehalfOfUser(String sessionToken,
+            List<Experiment> experiments, EnumSet<Connections> connectionsToGet, String userId)
+    {
+        logAccess(sessionToken, "list-data-sets-for-experiments-on-behalf-of-user",
+                "EXPERIMENTS(%s) CONNECTIONS(%s) USER(%s)", abbreviate(experiments),
+                connectionsToGet, userId);
         return null;
     }
 
