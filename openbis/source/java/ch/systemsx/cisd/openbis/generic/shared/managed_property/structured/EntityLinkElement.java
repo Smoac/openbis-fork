@@ -49,4 +49,12 @@ public class EntityLinkElement extends Element implements IEntityLinkElement
         return kind;
     }
 
+    @Override
+    public String toString()
+    {
+        return "EntityLinkElement [kind=" + kind + ", name()=" + getName() + ", attributes="
+                + getAttributes() + ", children=" + getChildren() + ", data="
+                + getData() + "]";
+    }
+
 }

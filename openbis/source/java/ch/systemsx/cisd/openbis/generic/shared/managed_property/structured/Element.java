@@ -96,7 +96,6 @@ public class Element implements IElement
         return Collections.unmodifiableMap(attributes);
     }
 
-
     @Override
     public IElement setAttributes(Map<String, String> newAttributes)
     {
@@ -109,7 +108,6 @@ public class Element implements IElement
         this.attributes.putAll(newAttributes);
         return this;
     }
-
 
     @Override
     public IElement setChildren(List<IElement> newChildren)
@@ -150,7 +148,8 @@ public class Element implements IElement
         if (Pattern.matches("[a-zA-Z][\\w:]*", key) == false)
         {
             String error =
-                    String.format("Invalid attribute name '%s'. Attribute names must "
+                    String.format(
+                            "Invalid attribute name '%s'. Attribute names must "
                                     + "be non-emtpy strings containing characters from the English alphabet.",
                             key);
             throw new IllegalArgumentException(error);
@@ -231,5 +230,12 @@ public class Element implements IElement
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Element [name=" + name + ", attributes=" + attributes + ", children=" + children
+                + ", data=" + data + "]";
     }
 }
