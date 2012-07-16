@@ -70,7 +70,7 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
     {
         this(faultyPathDirectory, stopSignaler, null);
     }
-    
+
     public FaultyPathDirectoryScanningHandler(final File faultyPathDirectory,
             final IStopSignaler stopSignaler, IFaultyPathDirectoryScanningHandlerDelegate delegate)
     {
@@ -221,6 +221,10 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
         if (delegate != null
                 && delegate.shouldNotAddToFaultyPathsOrNull(scannedStore.asFile(storeItem)))
         {
+            operationLog
+                    .info("File "
+                            + storeItem
+                            + " not written to faulty paths. It will be reprocessed during the next iteration.");
             return Status.OK;
         }
 
