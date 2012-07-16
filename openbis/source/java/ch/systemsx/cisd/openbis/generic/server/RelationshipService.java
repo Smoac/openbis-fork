@@ -169,7 +169,9 @@ public class RelationshipService implements IRelationshipService
     public void addParentToDataSet(IAuthSession session, DataPE data, DataPE parent)
     {
         PersonPE actor = session.tryGetPerson();
-        data.addParentRelationship(new DataSetRelationshipPE(parent, data, actor));
+        DataSetRelationshipPE relationship = new DataSetRelationshipPE(parent, data, actor);
+        data.addParentRelationship(relationship);
+        parent.addChildRelationship(relationship);
     }
 
     @Override

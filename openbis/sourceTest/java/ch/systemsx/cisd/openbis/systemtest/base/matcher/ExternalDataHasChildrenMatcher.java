@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.systemtest.base.matcher;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,13 +27,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 public class ExternalDataHasChildrenMatcher extends TypeSafeMatcher<ExternalData>
 {
 
-    private Set<ExternalData> expectedChildren;
+    private Set<String> expectedChildren;
 
     public ExternalDataHasChildrenMatcher(ExternalData first, ExternalData... rest)
     {
-        this.expectedChildren = new HashSet<ExternalData>();
-        expectedChildren.add(first);
-        expectedChildren.addAll(Arrays.asList(rest));
+        this.expectedChildren = new HashSet<String>();
+        expectedChildren.add(first.getCode());
+        for (ExternalData d : rest)
+        {
+            expectedChildren.add(d.getCode());
+        }
     }
 
     @Override
@@ -53,7 +55,7 @@ public class ExternalDataHasChildrenMatcher extends TypeSafeMatcher<ExternalData
 
         for (ExternalData child : actual.getChildren())
         {
-            if (!expectedChildren.contains(child))
+            if (expectedChildren.contains(child.getCode()) == false)
             {
                 return false;
             }
