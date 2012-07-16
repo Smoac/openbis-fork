@@ -40,6 +40,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -48,8 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFileSystemTestCase
@@ -57,29 +56,41 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
     public static final class ParametersBuilder
     {
         private final Map<String, Object> parameters = new HashMap<String, Object>();
-        
+
         public ParametersBuilder parameter(String name, Object value)
         {
             parameters.put(name, value);
             return this;
         }
-        
+
         public Map<String, Object> getParameters()
         {
             return parameters;
         }
     }
-    
+
     private Mockery context;
+
     private ISearchService searchService;
+
     private IDataSourceQueryService queryService;
+
+    private IAuthorizationService authorizationService;
+
     private File store;
+
     private File scriptFolder;
+
     private DataSetProcessingContext processingContext;
+
     private IMailClient mailClient;
+
     private IHierarchicalContentProvider contentProvider;
+
     private IHierarchicalContent content;
+
     private IHierarchicalContentNode rootNode;
+
     private DataSet<?> dbDataSet;
 
     @BeforeMethod
@@ -89,6 +100,7 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
         searchService = context.mock(ISearchService.class);
         queryService = context.mock(IDataSourceQueryService.class);
         mailClient = context.mock(IMailClient.class);
+        authorizationService = context.mock(IAuthorizationService.class);
         contentProvider = context.mock(IHierarchicalContentProvider.class);
         content = context.mock(IHierarchicalContent.class);
         rootNode = context.mock(IHierarchicalContentNode.class);
@@ -98,7 +110,8 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
                         mailClient, "test-user");
         store = new File(workingDirectory, "store");
         store.mkdirs();
-        scriptFolder = new File("../datastore_server/resource/test-data/" + getClass().getSimpleName());
+        scriptFolder =
+                new File("../datastore_server/resource/test-data/" + getClass().getSimpleName());
     }
 
     @AfterMethod
@@ -136,12 +149,13 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
                     one(queryService).select("protein-db",
                             "select count(*) as count from proteins where data_set = ?{1}", "ds1");
                     will(returnValue(dbDataSet));
-                    
+
                     one(dbDataSet).size();
                     will(returnValue(1));
-                    
+
                     one(dbDataSet).get(0);
-                    will(returnValue(new ParametersBuilder().parameter("count", 42L).getParameters()));
+                    will(returnValue(new ParametersBuilder().parameter("count", 42L)
+                            .getParameters()));
                 }
             });
         Map<String, Object> parameters =
@@ -160,8 +174,7 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
         assertEquals(1, tableModel.getRows().size());
         context.assertIsSatisfied();
     }
-    
-    
+
     @Test
     public void testSearchServiceThrowsException()
     {
@@ -174,9 +187,8 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
                     will(throwException(new IllegalArgumentException("Invalid")));
                 }
             });
-        Map<String, Object> parameters =
-                new ParametersBuilder().getParameters();
-        
+        Map<String, Object> parameters = new ParametersBuilder().getParameters();
+
         IReportingPluginTask plugin = createPlugin("script.py");
         try
         {
@@ -189,17 +201,17 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
             String message = ex.getCause().getMessage();
             String prefix =
                     "Error occurred in line 28 of the script when evaluating 'aggregate({}, ";
-            assertTrue("Message '" + message + "' doesn't starts with '" + prefix + "'.", 
+            assertTrue("Message '" + message + "' doesn't starts with '" + prefix + "'.",
                     message.startsWith(prefix));
         }
-        
+
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],"
                 + "[SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
                 + "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,CODE,<null>,EQUALS]],[]]]]]",
                 searchCriteriaRecorder.recordedObject().toString());
         context.assertIsSatisfied();
     }
-    
+
     private IReportingPluginTask createPlugin(String scriptFile)
     {
         return new JythonBasedAggregationServiceReportingPlugin(new Properties(), store,
@@ -218,6 +230,13 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
                         {
                             return queryService;
                         }
+
+                        @Override
+                        protected IAuthorizationService createAuthorizationService()
+                        {
+                            return authorizationService;
+                        }
+
                     });
     }
 
