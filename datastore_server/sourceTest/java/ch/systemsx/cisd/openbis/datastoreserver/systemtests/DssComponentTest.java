@@ -109,13 +109,34 @@ public class DssComponentTest extends SystemTestCase
         }
     }
 
+    @Test
+    public void testFailingValidationPutDataSet() throws Exception
+    {
+        try
+        {
+            File exampleDataSet = new File(workingDirectory, "invalid-file");
+            createExampleDataSet(exampleDataSet);
+            moveFileToIncoming(exampleDataSet);
+            waitUntilDataSetImported();
+            // Do *not* increment the putCount because this test does not successfully register any
+            // data
+            // putCount++;
+        } catch (AssertionError ex)
+        {
+            // ignore this
+        } catch (NullPointerException ex)
+        {
+            // ignore this
+        }
+    }
+
     /**
      * Checks that the registration log is as we expect it to be. This test will break if new tests
      * are added that register data with the DSS but do not increment the putCount instance
      * variable. Make sure any tests that register data also increment this variable.
      */
     @Test(dependsOnMethods =
-        { "testPutDataSet", "testFailingPutDataSet" })
+        { "testPutDataSet", "testFailingPutDataSet", "testFailingValidationPutDataSet" })
     public void testRegistrationLog() throws Exception
     {
         File registrationLogDir = getRegistrationLogDir();
@@ -125,40 +146,47 @@ public class DssComponentTest extends SystemTestCase
         // The log directory should have 3 sub directories for in-process, succeeded, failed.
         assertEquals(3, logDirContents.length);
 
-        File succeededDir = new DssRegistrationLogDirectoryHelper(registrationLogDir).getSucceededDir();
+        File succeededDir =
+                new DssRegistrationLogDirectoryHelper(registrationLogDir).getSucceededDir();
         File[] succeededContents = checkDssRegistrationLogDirectoryCount(succeededDir, putCount);
 
         // Check the log contents
         File logFile = succeededContents[0];
         String[] expectedContents =
-            {
-                    "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Prepared registration of 1 data set:$",
-                    "^\\t\\d+-\\d+$",
-                    "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been moved to the pre-commit directory: .*$",
-                    "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} About to register metadata with AS: registrationId\\(\\d+\\)$",
-                    "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been registered with the openBIS Application Server.$",
-                    "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Storage processors have committed.$",
-                    "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been moved to the final store.$",
-                    "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Storage has been confirmed in openBIS Application Server.$"
-        };
+                    {
+                            "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Prepared registration of 1 data set:$",
+                            "^\\t\\d+-\\d+$",
+                            "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been moved to the pre-commit directory: .*$",
+                            "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} About to register metadata with AS: registrationId\\(\\d+\\)$",
+                            "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been registered with the openBIS Application Server.$",
+                            "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Storage processors have committed.$",
+                            "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been moved to the final store.$",
+                            "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Storage has been confirmed in openBIS Application Server.$" };
         checkLogFileContents(logFile, expectedContents);
 
         File failedDir = new DssRegistrationLogDirectoryHelper(registrationLogDir).getFailedDir();
-        File[] failedContents = checkDssRegistrationLogDirectoryCount(failedDir, 1);
+        File[] failedContents = checkDssRegistrationLogDirectoryCount(failedDir, 2);
         logFile = failedContents[0];
         expectedContents = new String[]
             { "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Processing failed : .*" };
+        checkLogFileContents(logFile, expectedContents);
+
+        logFile = failedContents[1];
+        expectedContents = new String[]
+            { "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Validation script .* found errors in incoming data set .*" };
         checkLogFileContents(logFile, expectedContents);
     }
 
     private void checkLogFileContents(File logFile, String[] expectedContents)
     {
         List<String> logFileContents = FileUtilities.loadToStringList(logFile);
-        assertTrue("" + logFileContents.size() + " < " + expectedContents.length, logFileContents.size() >= expectedContents.length);
+        assertTrue("" + logFileContents.size() + " < " + expectedContents.length,
+                logFileContents.size() >= expectedContents.length);
         int i = 0;
         for (String expected : expectedContents)
         {
-            assertTrue(expected + ".matches(" + logFileContents.get(i) + ")", Pattern.matches(expected, logFileContents.get(i++)));
+            assertTrue(expected + ".matches(" + logFileContents.get(i) + ")",
+                    Pattern.matches(expected, logFileContents.get(i++)));
         }
     }
 
