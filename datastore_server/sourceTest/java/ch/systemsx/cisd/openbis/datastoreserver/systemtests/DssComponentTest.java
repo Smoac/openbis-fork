@@ -166,15 +166,21 @@ public class DssComponentTest extends SystemTestCase
 
         File failedDir = new DssRegistrationLogDirectoryHelper(registrationLogDir).getFailedDir();
         File[] failedContents = checkDssRegistrationLogDirectoryCount(failedDir, 2);
-        logFile = failedContents[0];
-        expectedContents = new String[]
-            { "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Processing failed : .*" };
-        checkLogFileContents(logFile, expectedContents);
-
-        logFile = failedContents[1];
-        expectedContents = new String[]
-            { "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Validation script .* found errors in incoming data set .*" };
-        checkLogFileContents(logFile, expectedContents);
+        for (File failedLogFile : failedContents)
+        {
+            if (failedLogFile.getName().contains("invalid"))
+            {
+                expectedContents =
+                        new String[]
+                            { "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Validation script .* found errors in incoming data set .*" };
+                checkLogFileContents(failedLogFile, expectedContents);
+            } else
+            {
+                expectedContents = new String[]
+                    { "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Processing failed : .*" };
+                checkLogFileContents(failedLogFile, expectedContents);
+            }
+        }
     }
 
     private void checkLogFileContents(File logFile, String[] expectedContents)
