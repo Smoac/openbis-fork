@@ -600,8 +600,11 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                         incomingDataSetFile.getRealIncomingFile(), null, null,
                         ErrorType.INVALID_DATA_SET);
         sb.append(rollbacker.getErrorMessageForLog());
-        operationLog.info(sb.toString());
+        String logMessage = sb.toString();
+        operationLog.info(logMessage);
+        service.getDssRegistrationLog().log(logMessage);
         rollbacker.doRollback(service.getDssRegistrationLog());
+        service.getDssRegistrationLog().registerFailure();
     }
 
     @Override
