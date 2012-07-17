@@ -279,10 +279,10 @@ public class SimpleImageDataSetRegistrator
             if (readerOrNull != null)
             {
                 // NOTE: ugly side effect which is used later on
-            //    if (null == imageLibraryInfoOrNull.getReaderName())
-            //    {
-                    imageLibraryInfoOrNull.setReaderName(readerOrNull.getName());
-            //    }
+                // if (null == imageLibraryInfoOrNull.getReaderName())
+                // {
+                imageLibraryInfoOrNull.setReaderName(readerOrNull.getName());
+                // }
             } else
             {
                 throw ConfigurationFailureException.fromTemplate(
@@ -401,7 +401,7 @@ public class SimpleImageDataSetRegistrator
     private void computeAndAppendCommonIntensityRangeTransformation(List<ImageFileInfo> images,
             File incomingDir, List<Channel> channels, IImageReader readerOrNull)
     {
-        List<Channel> channelsForComputation =
+        final List<Channel> channelsForComputation =
                 tryFindChannelsToComputeCommonIntensityRange(channels);
         if (channelsForComputation == null)
         {
@@ -409,26 +409,47 @@ public class SimpleImageDataSetRegistrator
         }
         for (Channel channel : channelsForComputation)
         {
-            String channelCode = channel.getCode();
-            List<File> imagePaths = chooseChannelImages(images, incomingDir, channelCode);
+            final String channelCode = channel.getCode();
+            final List<File> imagePaths = chooseChannelImages(images, incomingDir, channelCode);
             operationLog.info(String.format("Computing intensity range for channel '%s'. "
                     + "Found %d images for the channel in incoming directory '%s'.", channelCode,
                     imagePaths.size(), incomingDir.getName()));
-            Levels intensityRange =
-                    tryComputeCommonIntensityRange(readerOrNull, imagePaths,
-                            simpleImageConfig.getComputeCommonIntensityRangeOfAllImagesThreshold());
-            if (intensityRange != null)
+            final Levels intensityRange;
+            if (simpleImageConfig.isCommonIntensityRangeOfAllImagesFixedLevels())
             {
-                operationLog.info(String.format(
-                        "Computed intensity range for channel '%s': %s (incoming directory '%s').",
-                        channelCode, intensityRange.toString(), incomingDir.getName()));
+                intensityRange =
+                        new Levels(
+                                simpleImageConfig.getCommonIntensityRangeOfAllImagesFixedMinLevel(),
+                                simpleImageConfig.getCommonIntensityRangeOfAllImagesFixedMaxLevel());
+                operationLog
+                        .info(String
+                                .format("Set intensity range for channel '%s' to fixed value: %s " +
+                                        "(incoming directory '%s').",
+                                        channelCode, intensityRange.toString(),
+                                        incomingDir.getName()));
                 appendCommonIntensityRangeTransformation(channel, intensityRange);
             } else
             {
-                operationLog
-                        .warn(String
-                                .format("Transformation cannot be generated for channel '%s' (incoming directory '%s').",
-                                        channelCode, incomingDir.getName()));
+                intensityRange =
+                        tryComputeCommonIntensityRange(readerOrNull, imagePaths,
+                                simpleImageConfig
+                                        .getComputeCommonIntensityRangeOfAllImagesThreshold());
+                if (intensityRange != null)
+                {
+                    operationLog
+                            .info(String
+                                    .format(
+                                            "Computed intensity range for channel '%s': %s (incoming directory '%s').",
+                                            channelCode, intensityRange.toString(),
+                                            incomingDir.getName()));
+                    appendCommonIntensityRangeTransformation(channel, intensityRange);
+                } else
+                {
+                    operationLog
+                            .warn(String
+                                    .format("Transformation cannot be generated for channel '%s' (incoming directory '%s').",
+                                            channelCode, incomingDir.getName()));
+                }
             }
         }
     }

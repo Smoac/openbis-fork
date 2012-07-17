@@ -242,12 +242,16 @@ abstract public class SimpleImageDataConfig
 
     private boolean computeCommonIntensityRangeOfAllImagesIsDefault = true;
 
+    private int commonIntensityRangeOfAllImagesFixedMinLevel = -1;
+
+    private int commonIntensityRangeOfAllImagesFixedMaxLevel = -1;
+
     private String thumbnailsFileFormat;
 
     private List<Channel> channels;
 
     private List<ChannelColorComponent> channelColorComponentsOrNull;
-    
+
     // --- getters & setters ----------------------------------------------
 
     public ImageStorageConfiguraton getImageStorageConfiguration()
@@ -328,6 +332,21 @@ abstract public class SimpleImageDataConfig
         return computeCommonIntensityRangeOfAllImagesThreshold;
     }
 
+    public boolean isCommonIntensityRangeOfAllImagesFixedLevels()
+    {
+        return commonIntensityRangeOfAllImagesFixedMaxLevel >= 0;
+    }
+
+    public int getCommonIntensityRangeOfAllImagesFixedMinLevel()
+    {
+        return commonIntensityRangeOfAllImagesFixedMinLevel;
+    }
+
+    public int getCommonIntensityRangeOfAllImagesFixedMaxLevel()
+    {
+        return commonIntensityRangeOfAllImagesFixedMaxLevel;
+    }
+
     public String getComputeCommonIntensityRangeOfAllImagesLabel()
     {
         return computeCommonIntensityRangeOfAllImagesLabel;
@@ -337,12 +356,12 @@ abstract public class SimpleImageDataConfig
     {
         return computeCommonIntensityRangeOfAllImagesIsDefault;
     }
-    
+
     public List<Channel> getChannels()
     {
         return channels;
     }
-    
+
     public List<ChannelColorComponent> getChannelColorComponentsOrNull()
     {
         return channelColorComponentsOrNull;
@@ -391,7 +410,7 @@ abstract public class SimpleImageDataConfig
         this.channels = channels;
         channelColorComponentsOrNull = channelColorComponents;
     }
-    
+
     /** should thumbnails be generated? False by default. */
     public void setGenerateThumbnails(boolean generateThumbnails)
     {
@@ -758,6 +777,39 @@ abstract public class SimpleImageDataConfig
     public void setComputeCommonIntensityRangeOfAllImagesThreshold(float threshold)
     {
         this.computeCommonIntensityRangeOfAllImagesThreshold = threshold;
+    }
+
+    /**
+     * Sets fixed levels for the common intensity range transformation for all images. If this one
+     * is
+     * set, the automatic level computation is switched off which can give big performance
+     * improvements. If the method
+     * {@link #setComputeCommonIntensityRangeOfAllImagesForChannels(String[])} is not called, will
+     * set the transformation for all channels.
+     */
+    public void setComputeCommonIntensityRangeOfAllImagesFixedLevels(int minLevel, int maxLevel)
+    {
+        if (computeCommonIntensityRangeOfAllImagesForChannelsOrNull == null)
+        {
+            setComputeCommonIntensityRangeOfAllImagesForAllChannels();
+        }
+        this.commonIntensityRangeOfAllImagesFixedMinLevel = minLevel;
+        this.commonIntensityRangeOfAllImagesFixedMaxLevel = maxLevel;
+    }
+
+    /**
+     * Sets fixed levels for the common intensity range transformation of the given cannels for all
+     * images. If this one is
+     * set, the automatic level computation is switched off which can give big performance
+     * improvements.
+     */
+    public void setComputeCommonIntensityRangeOfAllImagesFixedLevelsForChannels(
+            String[] channelCodesOrNull,
+            int minLevel, int maxLevel)
+    {
+        setComputeCommonIntensityRangeOfAllImagesForChannels(channelCodesOrNull);
+        this.commonIntensityRangeOfAllImagesFixedMinLevel = minLevel;
+        this.commonIntensityRangeOfAllImagesFixedMaxLevel = maxLevel;
     }
 
     /**
