@@ -252,7 +252,7 @@ public class SimpleImageDataSetRegistratorTest extends AbstractFileSystemTestCas
         configData.setImageLibrary("MyLibrary");
         assertFalse(configData.isFixedIntensityRangeForAllImagesDefined());
         configData.setDefaultFixedIntensityRangeForAllImages(99, 1001);
-        configData.addFixedIntensityRangeForAllImages("CHANNEL-4", 51,
+        configData.addFixedIntensityRangeForAllImages("channel-4", 51,
                 1017);
         assertTrue(configData.isFixedIntensityRangeForAllImagesDefined());
         DataSetRegistrationDetails<ImageDataSetInformation> actualDetails =
