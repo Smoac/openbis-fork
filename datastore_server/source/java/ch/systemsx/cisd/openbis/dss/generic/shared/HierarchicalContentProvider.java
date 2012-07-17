@@ -54,14 +54,15 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
             IShareIdManager shareIdManager, IConfigProvider configProvider)
     {
         this(openbisService, new DataSetDirectoryProvider(configProvider.getStoreRoot(),
-                shareIdManager));
+                shareIdManager), null);
     }
 
-    private HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
-            IDataSetDirectoryProvider directoryProvider)
+    public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
+            IShareIdManager shareIdManager, IConfigProvider configProvider,
+            IHierarchicalContentFactory hierarchicalContentFactory)
     {
-        this.openbisService = openbisService;
-        this.directoryProvider = directoryProvider;
+        this(openbisService, new DataSetDirectoryProvider(configProvider.getStoreRoot(),
+                shareIdManager), hierarchicalContentFactory);
     }
 
     @Private
