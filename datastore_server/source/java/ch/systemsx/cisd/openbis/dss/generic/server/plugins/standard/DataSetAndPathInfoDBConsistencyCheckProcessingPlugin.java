@@ -115,7 +115,10 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
             }
         }
 
-        sendEmail(datasets, context, differences, status);
+        if (status.getErrorStatuses().isEmpty())
+        {
+            sendEmail(datasets, context, differences);
+        }
 
         return status;
     }
@@ -192,7 +195,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
     }
 
     private void sendEmail(List<DatasetDescription> datasets, DataSetProcessingContext context,
-            Map<DatasetDescription, List<Difference>> differences, ProcessingStatus status)
+            Map<DatasetDescription, List<Difference>> differences)
     {
         IEmailSender mailSender =
                 new MailService(context.getMailClient(), context.getUserEmailOrNull())
