@@ -58,8 +58,8 @@ public class JythonPlateDataSetHandlerV2 extends JythonTopLevelDataSetHandlerV2<
      * Create a screening specific factory available to the python script.
      */
     @Override
-    protected IDataSetRegistrationDetailsFactory<DataSetInformation> createObjectFactory(
-            PythonInterpreter interpreter, DataSetInformation userProvidedDataSetInformationOrNull)
+    public IDataSetRegistrationDetailsFactory<DataSetInformation> createObjectFactory(
+            DataSetInformation userProvidedDataSetInformationOrNull)
     {
         return new JythonPlateDatasetFactory(getRegistratorState(),
                 userProvidedDataSetInformationOrNull);

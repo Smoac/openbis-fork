@@ -1,0 +1,167 @@
+/*
+ * Copyright 2012 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.etlserver.registrator.api.v2;
+
+import java.io.File;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
+import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
+import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
+import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.AbstractProgrammableTopLevelDataSetHandler;
+import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.api.IJavaDataSetRegistrationDropboxV1;
+import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+
+/**
+ * @author Pawel Glyzewski
+ */
+public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
+        AbstractProgrammableTopLevelDataSetHandler<T>
+{
+    // The key for the script in the properties file
+    public static final String PROGRAM_CLASS_KEY = "program-class";
+
+    private Class<? extends IJavaDataSetRegistrationDropboxV2<T>> programClass;
+
+    /**
+     * @param globalState
+     */
+    @SuppressWarnings("unchecked")
+    protected JavaTopLevelDataSetHandlerV2(TopLevelDataSetRegistratorGlobalState globalState)
+    {
+        super(globalState);
+
+        String className =
+                PropertyUtils.getMandatoryProperty(globalState.getThreadParameters()
+                        .getThreadProperties(), PROGRAM_CLASS_KEY);
+        try
+        {
+            programClass =
+                    (Class<? extends IJavaDataSetRegistrationDropboxV2<T>>) Class
+                            .forName(className);
+        } catch (ClassNotFoundException ex)
+        {
+            throw ConfigurationFailureException.fromTemplate("Class '%s' does not exist!",
+                    className);
+        }
+
+        DssRegistrationHealthMonitor.getInstance(globalState.getOpenBisService(),
+                globalState.getRecoveryStateDir());
+    }
+
+    /**
+     * V2 registration framework -- do not put files that are scheduled for recovery into the faulty
+     * paths.
+     */
+    @Override
+    public boolean shouldNotAddToFaultyPathsOrNull(File file)
+    {
+        // If there is a recovery marker file, do not add the file to faulty paths.
+        return hasRecoveryMarkerFile(file);
+    }
+
+    @Override
+    protected void handleDataSet(DataSetFile dataSetFile, DataSetRegistrationService<T> service)
+            throws Throwable
+    {
+        IJavaDataSetRegistrationDropboxV2<T> v2Programm = getV2DropboxProgram(service);
+
+        if (v2Programm.isRetryFunctionDefined())
+        {
+            executeProcessFunctionWithRetries(v2Programm,
+                    (JythonDataSetRegistrationServiceV2<T>) service, dataSetFile);
+        } else
+        {
+            // in case when there is no retry function defined we just call the process and don't
+            // try to catch any kind of exceptions
+            v2Programm.process(wrapTransaction(service.transaction()));
+        }
+    }
+
+    @Override
+    protected RecoveryHookAdaptor getRecoveryHookAdaptor(File incoming)
+    {
+        return new RecoveryHookAdaptor(incoming)
+            {
+                IJavaDataSetRegistrationDropboxV2<T> v2ProgramInternal;
+
+                @Override
+                protected IJavaDataSetRegistrationDropboxV2<T> getV2DropboxProgramInternal()
+                {
+                    if (v2ProgramInternal == null)
+                    {
+                        v2ProgramInternal = getV2DropboxProgram(null);
+                    }
+
+                    return v2ProgramInternal;
+                }
+            };
+
+    }
+
+    /**
+     * Create a Jython registration service that includes access to the interpreter.
+     * 
+     * @param pythonInterpreter
+     */
+    protected DataSetRegistrationService<T> createJythonDataSetRegistrationServiceV2(
+            DataSetFile incomingDataSetFile,
+            DataSetInformation userProvidedDataSetInformationOrNull,
+            IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
+            ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter pythonInterpreter,
+            TopLevelDataSetRegistratorGlobalState globalState)
+    {
+        return new DataSetRegistrationServiceV2<T>(this, incomingDataSetFile,
+                userProvidedDataSetInformationOrNull, cleanAfterwardsAction, delegate);
+    }
+
+    @Override
+    protected boolean shouldUseOldJythonHookFunctions()
+    {
+        return false;
+    }
+
+    @Override
+    protected IJavaDataSetRegistrationDropboxV2<T> getV2DropboxProgram(
+            DataSetRegistrationService<T> service)
+    {
+        try
+        {
+            return programClass.newInstance();
+        } catch (InstantiationException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } catch (IllegalAccessException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    @Override
+    protected IJavaDataSetRegistrationDropboxV1<T> getV1DropboxProgram()
+    {
+        throw new NotImplementedException(
+                "getV1DropboxProgram in not implemented, as this is V2 only handler.");
+    }
+}

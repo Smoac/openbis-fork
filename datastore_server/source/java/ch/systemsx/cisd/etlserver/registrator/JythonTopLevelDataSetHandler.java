@@ -25,16 +25,19 @@ import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
 
-import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.api.IJavaDataSetRegistrationDropboxV1;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IJavaDataSetRegistrationDropboxV2;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.JythonAsJavaDataSetRegistrationDropboxV2Wrapper;
 import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -44,9 +47,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * @author Chandrasekhar Ramakrishnan
  */
 public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
-        AbstractOmniscientTopLevelDataSetRegistrator<T>
+        AbstractProgrammableTopLevelDataSetHandler<T>
 {
-    protected enum JythonHookFunction
+    public enum JythonHookFunction
     {
         /**
          * The name of the v2 process function, that is executed during the registration. A
@@ -60,7 +63,8 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         ROLLBACK_SERVICE_FUNCTION_NAME("rollback_service", 2),
 
         /**
-         * The name of the function to define to hook into the transaction rollback mechanism. V1 only.
+         * The name of the function to define to hook into the transaction rollback mechanism. V1
+         * only.
          */
         ROLLBACK_TRANSACTION_FUNCTION_NAME("rollback_transaction", 4),
 
@@ -103,7 +107,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         DID_ENCOUNTER_SECONDARY_TRANSACTION_ERRORS_FUNCTION_NAME(
                 "did_encounter_secondary_transaction_errors", 3);
 
-        String name;
+        public final String name;
 
         int argCount;
 
@@ -140,6 +144,83 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
 
     // The key for the script in the properties file
     public static final String SCRIPT_PATH_KEY = "script-path";
+
+    private IJavaDataSetRegistrationDropboxV1<T> v1 = new IJavaDataSetRegistrationDropboxV1<T>()
+        {
+            @Override
+            public void rollbackTransaction(DataSetRegistrationService<T> service,
+                    DataSetRegistrationTransaction<T> transaction,
+                    DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable ex)
+            {
+                PythonInterpreter interpreter = getInterpreterFromService(service);
+
+                PyFunction function =
+                        tryJythonFunction(interpreter,
+                                JythonHookFunction.ROLLBACK_TRANSACTION_FUNCTION_NAME);
+                if (null != function)
+                {
+                    invokeRollbackTransactionFunction(function, service, transaction,
+                            algorithmRunner, ex);
+                } else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            @Override
+            public void rollbackService(DataSetRegistrationService<T> service, Throwable ex)
+            {
+                PythonInterpreter interpreter = getInterpreterFromService(service);
+                PyFunction function =
+                        tryJythonFunction(interpreter,
+                                JythonHookFunction.ROLLBACK_SERVICE_FUNCTION_NAME);
+                if (null != function)
+                {
+                    invokeRollbackServiceFunction(function, service, ex);
+                } else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            @Override
+            public void commitTransaction(DataSetRegistrationService<T> service,
+                    DataSetRegistrationTransaction<T> transaction)
+            {
+                PythonInterpreter interpreter = getInterpreterFromService(service);
+                PyFunction function =
+                        tryJythonFunction(interpreter,
+                                JythonHookFunction.COMMIT_TRANSACTION_FUNCTION_NAME);
+                if (null != function)
+                {
+                    invokeServiceTransactionFunction(function, service, transaction);
+                } else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            @Override
+            public void didEncounterSecondaryTransactionErrors(
+                    DataSetRegistrationService<T> service,
+                    DataSetRegistrationTransaction<T> transaction,
+                    List<SecondaryTransactionFailure> secondaryErrors)
+            {
+                PythonInterpreter interpreter = getInterpreterFromService(service);
+                PyFunction function =
+                        tryJythonFunction(
+                                interpreter,
+                                JythonHookFunction.DID_ENCOUNTER_SECONDARY_TRANSACTION_ERRORS_FUNCTION_NAME);
+                if (null != function)
+                {
+                    invokeDidEncounterSecondaryTransactionErrorsFunction(function, service,
+                            transaction, secondaryErrors);
+                } else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+        };
 
     protected final File scriptFile;
 
@@ -193,21 +274,6 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         interpreter.exec(scriptString);
 
         verifyEvaluatorHookFunctions(interpreter);
-    }
-
-    protected void waitTheRetryPeriod(int retryPeriod)
-    {
-        ConcurrencyUtilities.sleep(retryPeriod * 1000); // in seconds
-    }
-
-    protected void waitUntilApplicationIsReady(DataSetFile incomingDataSetFile)
-    {
-        while (false == DssRegistrationHealthMonitor.getInstance().isApplicationReady(
-                incomingDataSetFile.getRealIncomingFile().getParentFile()))
-        {
-            waitTheRetryPeriod(10);
-            // do nothing. just repeat until the application is ready
-        }
     }
 
     protected void verifyEvaluatorHookFunctions(PythonInterpreter interpreter)
@@ -282,58 +348,15 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     @Override
     protected void rollback(DataSetRegistrationService<T> service, Throwable throwable)
     {
-        PythonInterpreter interpreter = getInterpreterFromService(service);
-        PyFunction function =
-                tryJythonFunction(interpreter, JythonHookFunction.ROLLBACK_SERVICE_FUNCTION_NAME);
-        if (null != function)
+        try
         {
-            invokeRollbackServiceFunction(function, service, throwable);
+            v1.rollbackService(service, throwable);
+        } catch (NotImplementedException ex)
+        {
+            // ignore
         }
 
         super.rollback(service, throwable);
-    }
-
-    @Override
-    public void didRollbackTransaction(DataSetRegistrationService<T> service,
-            DataSetRegistrationTransaction<T> transaction,
-            DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable ex)
-    {
-        invokeRollbackTransactionFunction(service, transaction, algorithmRunner, ex);
-        super.didRollbackTransaction(service, transaction, algorithmRunner, ex);
-    }
-
-    @Override
-    public void didCommitTransaction(DataSetRegistrationService<T> service,
-            DataSetRegistrationTransaction<T> transaction)
-    {
-        super.didCommitTransaction(service, transaction);
-        invokeCommitTransactionFunction(service, transaction);
-    }
-
-    @Override
-    public void didPreRegistration(DataSetRegistrationService<T> service,
-            DataSetRegistrationContext.IHolder registrationContextHolder)
-    {
-        super.didPreRegistration(service, registrationContextHolder);
-        invokePreRegistrationFunction(service, registrationContextHolder);
-    }
-
-    @Override
-    public void didPostRegistration(DataSetRegistrationService<T> service,
-            DataSetRegistrationContext.IHolder registrationContextHolder)
-    {
-        super.didPostRegistration(service, registrationContextHolder);
-        invokePostRegistrationFunction(service, registrationContextHolder);
-    }
-
-    @Override
-    public void didEncounterSecondaryTransactionErrors(DataSetRegistrationService<T> service,
-            DataSetRegistrationTransaction<T> transaction,
-            List<SecondaryTransactionFailure> secondaryErrors)
-    {
-        super.didEncounterSecondaryTransactionErrors(service, transaction, secondaryErrors);
-
-        invokeDidEncounterSecondaryTransactionErrorsFunction(service, transaction, secondaryErrors);
     }
 
     // getters for v2 hook functions required for auto-recovery
@@ -375,109 +398,10 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
      * If true than the old methods of jython hook functions will also be used (as a fallbacks in
      * case of the new methods or missing, or normally)
      */
+    @Override
     protected boolean shouldUseOldJythonHookFunctions()
     {
         return true;
-    }
-
-    private void invokeRollbackTransactionFunction(DataSetRegistrationService<T> service,
-            DataSetRegistrationTransaction<T> transaction,
-            DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable ex)
-    {
-        PyFunction function = getRollbackPreRegistrationFunction(service);
-
-        if (null != function)
-        {
-            invokeTransactionFunctionWithContext(function, transaction, ex);
-        } else if (shouldUseOldJythonHookFunctions())
-        {
-            PythonInterpreter interpreter = getInterpreterFromService(service);
-
-            function =
-                    tryJythonFunction(interpreter,
-                            JythonHookFunction.ROLLBACK_TRANSACTION_FUNCTION_NAME);
-            if (null != function)
-            {
-                invokeRollbackTransactionFunction(function, service, transaction, algorithmRunner,
-                        ex);
-            } else
-            {
-                // No Rollback transaction function was called, see if the rollback service function
-                // was
-                // defined, and call it.
-                function =
-                        tryJythonFunction(interpreter,
-                                JythonHookFunction.ROLLBACK_SERVICE_FUNCTION_NAME);
-                if (null != function)
-                {
-                    invokeRollbackServiceFunction(function, service, ex);
-                }
-            }
-        }
-    }
-
-    private void invokeCommitTransactionFunction(DataSetRegistrationService<T> service,
-            DataSetRegistrationTransaction<T> transaction)
-    {
-        PythonInterpreter interpreter = getInterpreterFromService(service);
-
-        PyFunction function = tryGetPostStorageFunction(service);
-
-        if (null != function)
-        {
-            invokeTransactionFunctionWithContext(function, transaction);
-        } else if (shouldUseOldJythonHookFunctions())
-        {
-            function =
-                    tryJythonFunction(interpreter,
-                            JythonHookFunction.COMMIT_TRANSACTION_FUNCTION_NAME);
-            if (null != function)
-            {
-                invokeServiceTransactionFunction(function, service, transaction);
-            }
-        }
-    }
-
-    private void invokePreRegistrationFunction(DataSetRegistrationService<T> service,
-            DataSetRegistrationContext.IHolder registrationContextHolder)
-    {
-        PythonInterpreter interpreter = getInterpreterFromService(service);
-        PyFunction function =
-                tryJythonFunction(interpreter, JythonHookFunction.PRE_REGISTRATION_FUNCTION_NAME);
-
-        if (null != function)
-        {
-            invokeTransactionFunctionWithContext(function, registrationContextHolder);
-        }
-    }
-
-    private void invokePostRegistrationFunction(DataSetRegistrationService<T> service,
-            DataSetRegistrationContext.IHolder registrationContextHolder)
-    {
-        PyFunction function = tryGetPostRegistrationFunction(service);
-        if (null != function)
-        {
-            invokeTransactionFunctionWithContext(function, registrationContextHolder);
-        }
-    }
-
-    private void invokeDidEncounterSecondaryTransactionErrorsFunction(
-            DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction,
-            List<SecondaryTransactionFailure> secondaryErrors)
-    {
-        if (shouldUseOldJythonHookFunctions())
-        {
-            PythonInterpreter interpreter = getInterpreterFromService(service);
-            PyFunction function =
-                    tryJythonFunction(
-                            interpreter,
-                            JythonHookFunction.DID_ENCOUNTER_SECONDARY_TRANSACTION_ERRORS_FUNCTION_NAME);
-            if (null != function)
-            {
-                invokeDidEncounterSecondaryTransactionErrorsFunction(function, service,
-                        transaction, secondaryErrors);
-            }
-        }
     }
 
     protected PyFunction tryJythonFunction(PythonInterpreter interpreter,
@@ -512,19 +436,6 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         invokeFunction(function, service, transaction);
     }
 
-    private void invokeTransactionFunctionWithContext(PyFunction function,
-            DataSetRegistrationContext.IHolder registrationContextHolder, Object... additionalArgs)
-    {
-        if (additionalArgs.length > 0)
-        {
-            invokeFunction(function, registrationContextHolder.getRegistrationContext(),
-                    additionalArgs);
-        } else
-        {
-            invokeFunction(function, registrationContextHolder.getRegistrationContext());
-        }
-    }
-
     private void invokeDidEncounterSecondaryTransactionErrorsFunction(PyFunction function,
             DataSetRegistrationService<T> service, DataSetRegistrationTransaction<T> transaction,
             List<SecondaryTransactionFailure> secondaryErrors)
@@ -545,28 +456,11 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         return function.__call__(pyArgs);
     }
 
-    /**
-     * Set the factory available to the python script. Subclasses may want to override.
-     */
-    @SuppressWarnings("unchecked")
-    protected IDataSetRegistrationDetailsFactory<T> createObjectFactory(
-            PythonInterpreter interpreter, DataSetInformation userProvidedDataSetInformationOrNull)
+    public abstract static class ProgrammableDropboxObjectFactory<T extends DataSetInformation>
+            extends AbstractDataSetRegistrationDetailsFactory<T>
     {
-        return (IDataSetRegistrationDetailsFactory<T>) new JythonObjectFactory<DataSetInformation>(
-                getRegistratorState(), userProvidedDataSetInformationOrNull)
-            {
-                @Override
-                protected DataSetInformation createDataSetInformation()
-                {
-                    return new DataSetInformation();
-                }
-            };
-    }
-
-    public abstract static class JythonObjectFactory<T extends DataSetInformation> extends
-            AbstractDataSetRegistrationDetailsFactory<T>
-    {
-        public JythonObjectFactory(OmniscientTopLevelDataSetRegistratorState registratorState,
+        public ProgrammableDropboxObjectFactory(
+                OmniscientTopLevelDataSetRegistratorState registratorState,
                 DataSetInformation userProvidedDataSetInformationOrNull)
         {
             super(registratorState, userProvidedDataSetInformationOrNull);
@@ -600,15 +494,17 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     {
         private final PythonInterpreter interpreter;
 
-        public JythonDataSetRegistrationService(JythonTopLevelDataSetHandler<T> registrator,
+        public JythonDataSetRegistrationService(
+                AbstractProgrammableTopLevelDataSetHandler<T> registrator,
                 DataSetFile incomingDataSetFile,
                 DataSetInformation userProvidedDataSetInformationOrNull,
                 IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
                 ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter interpreter,
                 TopLevelDataSetRegistratorGlobalState globalState)
         {
-            super(registrator, incomingDataSetFile, registrator.createObjectFactory(interpreter,
-                    userProvidedDataSetInformationOrNull), globalCleanAfterwardsAction, delegate);
+            super(registrator, incomingDataSetFile, registrator
+                    .createObjectFactory(userProvidedDataSetInformationOrNull),
+                    globalCleanAfterwardsAction, delegate);
             interpreter.set(STATE_VARIABLE_NAME, globalState);
             this.interpreter = interpreter;
         }
@@ -656,4 +552,24 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         return false;
     }
 
+    @Override
+    protected IJavaDataSetRegistrationDropboxV2<T> getV2DropboxProgram(
+            DataSetRegistrationService<T> service)
+    {
+        return new JythonAsJavaDataSetRegistrationDropboxV2Wrapper<T>(
+                getInterpreterFromService(service));
+    }
+
+    @Override
+    protected IJavaDataSetRegistrationDropboxV1<T> getV1DropboxProgram()
+    {
+        return v1;
+    }
+
+    @Override
+    protected ch.systemsx.cisd.etlserver.registrator.AbstractProgrammableTopLevelDataSetHandler<T>.RecoveryHookAdaptor getRecoveryHookAdaptor(
+            File incoming)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -422,19 +422,17 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         IImmutableCopier hardlinkMaker =
                 new AssertionCatchingImmutableCopierWrapper(FastRecursiveHardLinkMaker.tryCreate());
         boolean linkWasMade = false;
-        if (null != hardlinkMaker)
+
+        // Use the hardlink maker if we got one
+        Status status = hardlinkMaker.copyImmutably(incomingDataSetFile, preStagingDir, null);
+        linkWasMade = status.isOK();
+        if (status.isError())
         {
-            // Use the hardlink maker if we got one
-            Status status = hardlinkMaker.copyImmutably(incomingDataSetFile, preStagingDir, null);
-            linkWasMade = status.isOK();
-            if (status.isError())
-            {
-                final String msg =
-                        status.tryGetErrorMessage() == null ? "Unknown error" : status
-                                .tryGetErrorMessage();
-                operationLog.warn("Failed to make a hard link copy of " + incomingDataSetFile
-                        + " to " + preStagingDir + ": " + msg);
-            }
+            final String msg =
+                    status.tryGetErrorMessage() == null ? "Unknown error" : status
+                            .tryGetErrorMessage();
+            operationLog.warn("Failed to make a hard link copy of " + incomingDataSetFile + " to "
+                    + preStagingDir + ": " + msg);
         }
 
         if (false == linkWasMade)

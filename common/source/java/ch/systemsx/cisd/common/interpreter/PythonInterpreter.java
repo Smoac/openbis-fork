@@ -36,7 +36,7 @@ public class PythonInterpreter extends org.python.util.PythonInterpreter
 
     private Resources resources = new Resources(operationLog);
 
-    private PythonInterpreter()
+    protected PythonInterpreter()
     {
     }
 

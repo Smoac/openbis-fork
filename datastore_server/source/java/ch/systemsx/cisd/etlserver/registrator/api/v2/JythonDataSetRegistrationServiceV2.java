@@ -22,6 +22,7 @@ import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.AbstractProgrammableTopLevelDataSetHandler;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
@@ -36,7 +37,8 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation>
         ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler.JythonDataSetRegistrationService<T>
 {
 
-    public JythonDataSetRegistrationServiceV2(JythonTopLevelDataSetHandlerV2<T> registrator,
+    public JythonDataSetRegistrationServiceV2(
+            AbstractProgrammableTopLevelDataSetHandler<T> registrator,
             DataSetFile incomingDataSetFile,
             DataSetInformation userProvidedDataSetInformationOrNull,
             IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
@@ -92,20 +94,19 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation>
             return transactions.get(0);
         }
     }
-    
-    
+
     /**
      * rolls back the existing transaction
      */
     public void rollbackAndForgetTransaction()
     {
         DataSetRegistrationTransaction<T> transaction = getTransaction();
-        
+
         transaction.rollback();
-        
+
         transactions.remove(transaction);
     }
-    
+
     /**
      * Commit any scheduled changes.
      */

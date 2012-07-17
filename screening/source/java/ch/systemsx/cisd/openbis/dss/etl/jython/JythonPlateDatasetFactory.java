@@ -26,7 +26,7 @@ import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetR
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
-import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler.JythonObjectFactory;
+import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler.ProgrammableDropboxObjectFactory;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.etl.PlateGeometryOracle;
@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  * @author jakubs
  */
 
-public class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInformation> implements
+public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<DataSetInformation> implements
         IImagingDatasetFactory
 {
     final IDataSetRegistrationDetailsFactory<ImageDataSetInformation> imageDatasetFactory;
@@ -66,7 +66,7 @@ public class JythonPlateDatasetFactory extends JythonObjectFactory<DataSetInform
                 new JythonImageDataSetRegistrationFactory(this.registratorState,
                         this.userProvidedDataSetInformationOrNull);
         this.featureVectorDatasetFactory =
-                new JythonObjectFactory<FeatureVectorDataSetInformation>(this.registratorState,
+                new ProgrammableDropboxObjectFactory<FeatureVectorDataSetInformation>(this.registratorState,
                         this.userProvidedDataSetInformationOrNull)
                     {
                         @Override

@@ -37,7 +37,7 @@ public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<Data
      */
     @Override
     protected IDataSetRegistrationDetailsFactory<DataSetInformation> createObjectFactory(
-            PythonInterpreter interpreter, DataSetInformation userProvidedDataSetInformationOrNull)
+            DataSetInformation userProvidedDataSetInformationOrNull)
     {
         return new JythonPlateDatasetFactory(getRegistratorState(),
                 userProvidedDataSetInformationOrNull);

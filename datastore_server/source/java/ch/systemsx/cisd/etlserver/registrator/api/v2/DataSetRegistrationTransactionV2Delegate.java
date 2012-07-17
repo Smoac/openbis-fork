@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISpaceImmutab
 /**
  * @author Jakub Straszewski
  */
-class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistrationTransactionV2
+public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistrationTransactionV2
 {
     private IDataSetRegistrationTransaction transaction;
 

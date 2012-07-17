@@ -19,8 +19,13 @@ package ch.systemsx.cisd.common.utilities;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.python.core.Py;
 import org.python.core.PyDictionary;
+import org.python.core.PyFunction;
+import org.python.core.PyObject;
 import org.python.core.PySequenceList;
+
+import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
 
 /**
  * Jython utility methods.
@@ -44,5 +49,35 @@ public class JythonUtils
             javaMap.put(tuple.get(0).toString(), tuple.get(1).toString());
         }
         return javaMap;
+    }
+
+    /**
+     * Tries to get a function defined in jython script
+     * 
+     * @return a Jython function object, or <code>null</code> if function doesn't exist.
+     */
+    public static PyFunction tryJythonFunction(PythonInterpreter interpreter, String functionName)
+    {
+        try
+        {
+            PyFunction function = interpreter.get(functionName, PyFunction.class);
+            return function;
+        } catch (Exception e)
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Turn all arguments into a python objects, and calls the specified function.
+     */
+    public static PyObject invokeFunction(PyFunction function, Object... args)
+    {
+        PyObject[] pyArgs = new PyObject[args.length];
+        for (int i = 0; i < args.length; i++)
+        {
+            pyArgs[i] = Py.java2py(args[i]);
+        }
+        return function.__call__(pyArgs);
     }
 }
