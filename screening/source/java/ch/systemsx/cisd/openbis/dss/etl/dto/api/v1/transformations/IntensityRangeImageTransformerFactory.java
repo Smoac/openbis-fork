@@ -51,6 +51,16 @@ public class IntensityRangeImageTransformerFactory implements IImageTransformerF
         this.whitePointIntensity = whitePointIntensity;
     }
 
+    public int getBlackPointIntensity()
+    {
+        return blackPointIntensity;
+    }
+
+    public int getWhitePointIntensity()
+    {
+        return whitePointIntensity;
+    }
+
     @Override
     public IImageTransformer createTransformer()
     {
