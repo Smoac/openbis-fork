@@ -153,7 +153,7 @@ public class SimpleImageDataSetRegistratorTest extends AbstractFileSystemTestCas
     }
 
     @Test
-    public void testFixedLevel()
+    public void testCommonFixedLevels()
     {
         final File f1 = copyExampleFile("pond.tif");
         final DataSetRegistrationDetails<ImageDataSetInformation> details =
@@ -180,11 +180,9 @@ public class SimpleImageDataSetRegistratorTest extends AbstractFileSystemTestCas
         configData.setMicroscopyData(true);
         configData.setPlate("space", "plate1");
         configData.setImageLibrary("MyLibrary");
-        assertFalse(configData.isCommonIntensityRangeOfAllImagesFixedLevels());
-        assertNull(configData.getComputeCommonIntensityRangeOfAllImagesForChannels());
-        configData.setComputeCommonIntensityRangeOfAllImagesFixedLevels(99, 1001);
-        assertTrue(configData.isCommonIntensityRangeOfAllImagesFixedLevels());
-        assertNotNull(configData.getComputeCommonIntensityRangeOfAllImagesForChannels());
+        assertFalse(configData.isFixedIntensityRangeForAllImagesDefined());
+        configData.setDefaultFixedIntensityRangeForAllImages(99, 1001);
+        assertTrue(configData.isFixedIntensityRangeForAllImagesDefined());
         DataSetRegistrationDetails<ImageDataSetInformation> actualDetails =
                 SimpleImageDataSetRegistrator.createImageDatasetDetails(configData, incoming,
                         factory, readerFactory);
@@ -217,7 +215,81 @@ public class SimpleImageDataSetRegistratorTest extends AbstractFileSystemTestCas
         assertEquals(1, channel2.getAvailableTransformations().length);
         assertTrue(channel2.getAvailableTransformations()[0].getImageTransformerFactory() instanceof IntensityRangeImageTransformerFactory);
         transformationFactory =
+                (IntensityRangeImageTransformerFactory) channel2.getAvailableTransformations()[0]
+                        .getImageTransformerFactory();
+        assertEquals(99, transformationFactory.getBlackPointIntensity());
+        assertEquals(1001, transformationFactory.getWhitePointIntensity());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDifferentFixedLevels()
+    {
+        final File f1 = copyExampleFile("pond.tif");
+        final DataSetRegistrationDetails<ImageDataSetInformation> details =
+                new DataSetRegistrationDetails<ImageDataSetInformation>();
+        details.setDataSetInformation(new ImageDataSetInformation());
+        context.checking(new Expectations()
+            {
+                {
+                    one(factory).createDataSetRegistrationDetails();
+                    will(returnValue(details));
+
+                    one(readerFactory).tryGetReaderForFile("MyLibrary", f1.getPath());
+                    will(returnValue(reader));
+
+                    one(reader).getName();
+                    will(returnValue("MyReader"));
+
+                    one(reader).getImageIDs(f1);
+                    will(returnValue(Arrays.asList(ImageID.parse("0-1-2-3"),
+                            ImageID.parse("1-2-3-9"), ImageID.parse("2-8-9-3"))));
+                }
+            });
+        MyConfigData configData = new MyConfigData();
+        configData.setMicroscopyData(true);
+        configData.setPlate("space", "plate1");
+        configData.setImageLibrary("MyLibrary");
+        assertFalse(configData.isFixedIntensityRangeForAllImagesDefined());
+        configData.setDefaultFixedIntensityRangeForAllImages(99, 1001);
+        configData.addFixedIntensityRangeForAllImages("CHANNEL-4", 51,
+                1017);
+        assertTrue(configData.isFixedIntensityRangeForAllImagesDefined());
+        DataSetRegistrationDetails<ImageDataSetInformation> actualDetails =
+                SimpleImageDataSetRegistrator.createImageDatasetDetails(configData, incoming,
+                        factory, readerFactory);
+
+        assertSame(details, actualDetails);
+        List<ImageFileInfo> images =
+                actualDetails.getDataSetInformation().getImageDataSetStructure().getImages();
+        assertEquals("ImageFileInfo [well=null, tile=[x=1,y=1], channel=CHANNEL-4, "
+                + "path=images/pond.tif, timepoint=1.0, depth=2.0, seriesNumber=1]", images.get(0)
+                .toString());
+        assertEquals("ImageFileInfo [well=null, tile=[x=1,y=1], channel=CHANNEL-10, "
+                + "path=images/pond.tif, timepoint=2.0, depth=3.0, seriesNumber=2]", images.get(1)
+                .toString());
+        assertEquals("ImageFileInfo [well=null, tile=[x=1,y=1], channel=CHANNEL-4, "
+                + "path=images/pond.tif, timepoint=8.0, depth=9.0, seriesNumber=3]", images.get(2)
+                .toString());
+        assertEquals(3, images.size());
+        assertEquals("CHANNEL-4CHANNEL-10", configData.channelCodes);
+        final List<Channel> channels = actualDetails.getDataSetInformation().getChannels();
+        assertEquals(2, channels.size());
+        final Channel channel1 = channels.get(0);
+        final Channel channel2 = channels.get(1);
+        assertEquals("CHANNEL-4", channel1.getCode());
+        assertEquals(1, channel1.getAvailableTransformations().length);
+        assertTrue(channel1.getAvailableTransformations()[0].getImageTransformerFactory() instanceof IntensityRangeImageTransformerFactory);
+        IntensityRangeImageTransformerFactory transformationFactory =
                 (IntensityRangeImageTransformerFactory) channel1.getAvailableTransformations()[0]
+                        .getImageTransformerFactory();
+        assertEquals(51, transformationFactory.getBlackPointIntensity());
+        assertEquals(1017, transformationFactory.getWhitePointIntensity());
+        assertEquals("CHANNEL-10", channel2.getCode());
+        assertEquals(1, channel2.getAvailableTransformations().length);
+        assertTrue(channel2.getAvailableTransformations()[0].getImageTransformerFactory() instanceof IntensityRangeImageTransformerFactory);
+        transformationFactory =
+                (IntensityRangeImageTransformerFactory) channel2.getAvailableTransformations()[0]
                         .getImageTransformerFactory();
         assertEquals(99, transformationFactory.getBlackPointIntensity());
         assertEquals(1001, transformationFactory.getWhitePointIntensity());

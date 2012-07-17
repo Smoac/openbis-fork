@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
@@ -242,9 +244,7 @@ abstract public class SimpleImageDataConfig
 
     private boolean computeCommonIntensityRangeOfAllImagesIsDefault = true;
 
-    private int commonIntensityRangeOfAllImagesFixedMinLevel = -1;
-
-    private int commonIntensityRangeOfAllImagesFixedMaxLevel = -1;
+    private Map<String, IntensityRange> fixedIntensityRangeForAllImages;
 
     private String thumbnailsFileFormat;
 
@@ -332,19 +332,14 @@ abstract public class SimpleImageDataConfig
         return computeCommonIntensityRangeOfAllImagesThreshold;
     }
 
-    public boolean isCommonIntensityRangeOfAllImagesFixedLevels()
+    public boolean isFixedIntensityRangeForAllImagesDefined()
     {
-        return commonIntensityRangeOfAllImagesFixedMaxLevel >= 0;
+        return fixedIntensityRangeForAllImages != null;
     }
 
-    public int getCommonIntensityRangeOfAllImagesFixedMinLevel()
+    public Map<String, IntensityRange> getFixedIntensityRangeForAllImages()
     {
-        return commonIntensityRangeOfAllImagesFixedMinLevel;
-    }
-
-    public int getCommonIntensityRangeOfAllImagesFixedMaxLevel()
-    {
-        return commonIntensityRangeOfAllImagesFixedMaxLevel;
+        return fixedIntensityRangeForAllImages;
     }
 
     public String getComputeCommonIntensityRangeOfAllImagesLabel()
@@ -781,35 +776,41 @@ abstract public class SimpleImageDataConfig
 
     /**
      * Sets fixed levels for the common intensity range transformation for all images. If this one
-     * is
-     * set, the automatic level computation is switched off which can give big performance
+     * is set, the automatic level computation is switched off which may give big performance
      * improvements. If the method
      * {@link #setComputeCommonIntensityRangeOfAllImagesForChannels(String[])} is not called, will
      * set the transformation for all channels.
      */
-    public void setComputeCommonIntensityRangeOfAllImagesFixedLevels(int minLevel, int maxLevel)
+    public void setDefaultFixedIntensityRangeForAllImages(int minLevel, int maxLevel)
     {
-        if (computeCommonIntensityRangeOfAllImagesForChannelsOrNull == null)
+        if (fixedIntensityRangeForAllImages == null)
         {
-            setComputeCommonIntensityRangeOfAllImagesForAllChannels();
+            fixedIntensityRangeForAllImages = new HashMap<String, IntensityRange>();
         }
-        this.commonIntensityRangeOfAllImagesFixedMinLevel = minLevel;
-        this.commonIntensityRangeOfAllImagesFixedMaxLevel = maxLevel;
+        this.fixedIntensityRangeForAllImages
+                .put(null, new IntensityRange(minLevel, maxLevel));
     }
 
     /**
-     * Sets fixed levels for the common intensity range transformation of the given cannels for all
-     * images. If this one is
-     * set, the automatic level computation is switched off which can give big performance
-     * improvements.
+     * Add fixed levels for the common intensity range transformation of the given cannel for all
+     * images. If this one is set, the automatic level computation is switched off which can give
+     * big performance improvements.
+     * <p>
+     * Note: If {@link #setDefaultFixedIntensityRangeForAllImages(int, int)} is called as
+     * well, then the values provided here will overwrite the default values provided there for the
+     * channel <var>channelCode</var>. Otherwise, the common intensity transformation will only be
+     * computed for the channels where the levels have been set explicitly by this method.
      */
-    public void setComputeCommonIntensityRangeOfAllImagesFixedLevelsForChannels(
-            String[] channelCodesOrNull,
-            int minLevel, int maxLevel)
+    public void addFixedIntensityRangeForAllImages(
+            String channelCode, int minLevel, int maxLevel)
     {
-        setComputeCommonIntensityRangeOfAllImagesForChannels(channelCodesOrNull);
-        this.commonIntensityRangeOfAllImagesFixedMinLevel = minLevel;
-        this.commonIntensityRangeOfAllImagesFixedMaxLevel = maxLevel;
+        if (fixedIntensityRangeForAllImages == null)
+        {
+            fixedIntensityRangeForAllImages = new HashMap<String, IntensityRange>();
+        }
+        this.fixedIntensityRangeForAllImages.put(
+                CodeNormalizer.normalize(channelCode), new IntensityRange(minLevel,
+                        maxLevel));
     }
 
     /**
