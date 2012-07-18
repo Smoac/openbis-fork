@@ -223,10 +223,11 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
     {
         SearchCriteria sc = new SearchCriteria();
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, "LINK_TYPE"));
+        List<DataSet> foundDataSets = serviceFacade.searchForDataSets(sc);
+        List<DataSet> dataSets = filterToExpected(foundDataSets);
+        assertEquals("Should have found three data sets. Found " + dataSets.size(), 3,
+                dataSets.size());
 
-        List<DataSet> dataSets = serviceFacade.searchForDataSets(sc);
-        assertTrue("Should have found at least three data sets. Found " + dataSets.size(),
-                3 <= dataSets.size());
         assertEquals("CODE1", dataSets.get(0).getExternalDataSetCode());
         assertEquals("CODE2", dataSets.get(1).getExternalDataSetCode());
         assertEquals("CODE3", dataSets.get(2).getExternalDataSetCode());
@@ -237,6 +238,25 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         assertEquals("DMS_1", dataSets.get(0).getExternalDataManagementSystem().getCode());
         assertEquals("DMS_1", dataSets.get(1).getExternalDataManagementSystem().getCode());
         assertEquals("DMS_2", dataSets.get(2).getExternalDataManagementSystem().getCode());
+    }
+
+    private List<DataSet> filterToExpected(List<DataSet> foundDataSets)
+    {
+        DataSet[] expected = new DataSet[3];
+        for (DataSet foundDataSet : foundDataSets)
+        {
+            if ("CODE1".equals(foundDataSet.getExternalDataSetCode()))
+            {
+                expected[0] = foundDataSet;
+            } else if ("CODE2".equals(foundDataSet.getExternalDataSetCode()))
+            {
+                expected[1] = foundDataSet;
+            } else if ("CODE3".equals(foundDataSet.getExternalDataSetCode()))
+            {
+                expected[2] = foundDataSet;
+            }
+        }
+        return Arrays.asList(expected);
     }
 
     private IOpenbisServiceFacade createServiceFacade(String userName)
