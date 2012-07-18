@@ -21,7 +21,6 @@ import java.io.File;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
-import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
@@ -42,7 +41,7 @@ public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
     // The key for the script in the properties file
     public static final String PROGRAM_CLASS_KEY = "program-class";
 
-    private Class<? extends IJavaDataSetRegistrationDropboxV2<T>> programClass;
+    private Class<? extends IJavaDataSetRegistrationDropboxV2> programClass;
 
     /**
      * @param globalState
@@ -58,8 +57,7 @@ public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
         try
         {
             programClass =
-                    (Class<? extends IJavaDataSetRegistrationDropboxV2<T>>) Class
-                            .forName(className);
+                    (Class<? extends IJavaDataSetRegistrationDropboxV2>) Class.forName(className);
         } catch (ClassNotFoundException ex)
         {
             throw ConfigurationFailureException.fromTemplate("Class '%s' does not exist!",
@@ -85,7 +83,9 @@ public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
     protected void handleDataSet(DataSetFile dataSetFile, DataSetRegistrationService<T> service)
             throws Throwable
     {
-        IJavaDataSetRegistrationDropboxV2<T> v2Programm = getV2DropboxProgram(service);
+        waitUntilApplicationIsReady(dataSetFile);
+
+        IJavaDataSetRegistrationDropboxV2 v2Programm = getV2DropboxProgram(service);
 
         if (v2Programm.isRetryFunctionDefined())
         {
@@ -104,10 +104,10 @@ public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
     {
         return new RecoveryHookAdaptor(incoming)
             {
-                IJavaDataSetRegistrationDropboxV2<T> v2ProgramInternal;
+                IJavaDataSetRegistrationDropboxV2 v2ProgramInternal;
 
                 @Override
-                protected IJavaDataSetRegistrationDropboxV2<T> getV2DropboxProgramInternal()
+                protected IJavaDataSetRegistrationDropboxV2 getV2DropboxProgramInternal()
                 {
                     if (v2ProgramInternal == null)
                     {
@@ -121,16 +121,14 @@ public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
     }
 
     /**
-     * Create a Jython registration service that includes access to the interpreter.
-     * 
-     * @param pythonInterpreter
+     * Create a V2 registration service.
      */
-    protected DataSetRegistrationService<T> createJythonDataSetRegistrationServiceV2(
+    @Override
+    protected DataSetRegistrationService<T> createDataSetRegistrationService(
             DataSetFile incomingDataSetFile,
             DataSetInformation userProvidedDataSetInformationOrNull,
             IDelegatedActionWithResult<Boolean> cleanAfterwardsAction,
-            ITopLevelDataSetRegistratorDelegate delegate, PythonInterpreter pythonInterpreter,
-            TopLevelDataSetRegistratorGlobalState globalState)
+            ITopLevelDataSetRegistratorDelegate delegate)
     {
         return new DataSetRegistrationServiceV2<T>(this, incomingDataSetFile,
                 userProvidedDataSetInformationOrNull, cleanAfterwardsAction, delegate);
@@ -143,7 +141,14 @@ public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
     }
 
     @Override
-    protected IJavaDataSetRegistrationDropboxV2<T> getV2DropboxProgram(
+    protected boolean hasRecoveryMarkerFile(File incoming)
+    {
+        return getGlobalState().getStorageRecoveryManager().getProcessingMarkerFile(incoming)
+                .exists();
+    }
+
+    @Override
+    protected IJavaDataSetRegistrationDropboxV2 getV2DropboxProgram(
             DataSetRegistrationService<T> service)
     {
         try

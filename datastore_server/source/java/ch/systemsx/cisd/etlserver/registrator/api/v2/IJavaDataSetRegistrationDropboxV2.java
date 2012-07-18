@@ -18,12 +18,11 @@ package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * @author Pawel Glyzewski
  */
-public interface IJavaDataSetRegistrationDropboxV2<T extends DataSetInformation>
+public interface IJavaDataSetRegistrationDropboxV2
 {
     public void process(IDataSetRegistrationTransactionV2 transaction);
 

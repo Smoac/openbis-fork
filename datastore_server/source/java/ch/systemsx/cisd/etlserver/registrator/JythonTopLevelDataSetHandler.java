@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.python.core.Py;
 import org.python.core.PyBaseCode;
-import org.python.core.PyException;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
 
@@ -359,41 +358,6 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         super.rollback(service, throwable);
     }
 
-    // getters for v2 hook functions required for auto-recovery
-    public PyFunction tryGetPostRegistrationFunction(DataSetRegistrationService<T> service)
-    {
-        PythonInterpreter interpreter = getInterpreterFromService(service);
-        PyFunction function =
-                tryJythonFunction(interpreter, JythonHookFunction.POST_REGISTRATION_FUNCTION_NAME);
-        return function;
-    }
-
-    public PyFunction tryGetPostStorageFunction(DataSetRegistrationService<T> service)
-    {
-        PythonInterpreter interpreter = getInterpreterFromService(service);
-        PyFunction function =
-                tryJythonFunction(interpreter, JythonHookFunction.POST_STORAGE_FUNCTION_NAME);
-        return function;
-    }
-
-    public PyFunction getRollbackPreRegistrationFunction(DataSetRegistrationService<T> service)
-    {
-        PythonInterpreter interpreter = getInterpreterFromService(service);
-        PyFunction function =
-                tryJythonFunction(interpreter,
-                        JythonHookFunction.ROLLBACK_PRE_REGISTRATION_FUNCTION_NAME);
-        return function;
-    }
-
-    public PyFunction getShouldRetryProcessFunction(DataSetRegistrationService<T> service)
-    {
-        PythonInterpreter interpreter = getInterpreterFromService(service);
-        PyFunction function =
-                tryJythonFunction(interpreter,
-                        JythonHookFunction.SHOULD_RETRY_PROCESS_FUNCTION_NAME);
-        return function;
-    }
-
     /**
      * If true than the old methods of jython hook functions will also be used (as a fallbacks in
      * case of the new methods or missing, or normally)
@@ -532,17 +496,6 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         return interpreter;
     }
 
-    @Override
-    protected Throwable asSerializableException(Throwable throwable)
-    {
-        if (throwable instanceof PyException)
-        {
-            return new RuntimeException(throwable.toString());
-        }
-
-        return super.asSerializableException(throwable);
-    }
-
     /**
      * V1 registration framework -- any file can go into faulty paths.
      */
@@ -553,10 +506,10 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     }
 
     @Override
-    protected IJavaDataSetRegistrationDropboxV2<T> getV2DropboxProgram(
+    protected IJavaDataSetRegistrationDropboxV2 getV2DropboxProgram(
             DataSetRegistrationService<T> service)
     {
-        return new JythonAsJavaDataSetRegistrationDropboxV2Wrapper<T>(
+        return new JythonAsJavaDataSetRegistrationDropboxV2Wrapper(
                 getInterpreterFromService(service));
     }
 

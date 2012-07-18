@@ -29,13 +29,12 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.JythonUtils;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler.JythonHookFunction;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * @author Pawel Glyzewski
  */
-public class JythonAsJavaDataSetRegistrationDropboxV2Wrapper<T extends DataSetInformation>
-        implements IJavaDataSetRegistrationDropboxV2<T>
+public class JythonAsJavaDataSetRegistrationDropboxV2Wrapper implements
+        IJavaDataSetRegistrationDropboxV2
 {
     protected static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             JythonAsJavaDataSetRegistrationDropboxV2Wrapper.class);

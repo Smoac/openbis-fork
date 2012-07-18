@@ -22,6 +22,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.python.core.PyException;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
@@ -83,8 +85,7 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
     abstract protected void handleDataSet(DataSetFile dataSetFile,
             DataSetRegistrationService<T> service) throws Throwable;
 
-    protected void executeProcessFunctionWithRetries(
-            IJavaDataSetRegistrationDropboxV2<T> v2Programm,
+    protected void executeProcessFunctionWithRetries(IJavaDataSetRegistrationDropboxV2 v2Programm,
             JythonDataSetRegistrationServiceV2<T> service, DataSetFile incomingDataSetFile)
     {
         DistinctExceptionsCollection errors = new DistinctExceptionsCollection();
@@ -661,7 +662,7 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
 
     protected abstract boolean shouldUseOldJythonHookFunctions();
 
-    protected abstract IJavaDataSetRegistrationDropboxV2<T> getV2DropboxProgram(
+    protected abstract IJavaDataSetRegistrationDropboxV2 getV2DropboxProgram(
             DataSetRegistrationService<T> service);
 
     protected abstract IJavaDataSetRegistrationDropboxV1<T> getV1DropboxProgram();
@@ -676,7 +677,7 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
      */
     protected abstract class RecoveryHookAdaptor implements IPrePostRegistrationHook<T>
     {
-        protected abstract IJavaDataSetRegistrationDropboxV2<T> getV2DropboxProgramInternal();
+        protected abstract IJavaDataSetRegistrationDropboxV2 getV2DropboxProgramInternal();
 
         protected final File incoming;
 
@@ -734,5 +735,16 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
                 // ignore
             }
         }
+    }
+
+    @Override
+    protected Throwable asSerializableException(Throwable throwable)
+    {
+        if (throwable instanceof PyException)
+        {
+            return new RuntimeException(throwable.toString());
+        }
+
+        return super.asSerializableException(throwable);
     }
 }

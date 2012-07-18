@@ -98,8 +98,8 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         // Configure the evaluator
         PythonInterpreter interpreter = service.getInterpreter();
 
-        IJavaDataSetRegistrationDropboxV2<T> v2Programm =
-                new JythonAsJavaDataSetRegistrationDropboxV2Wrapper<T>(interpreter);
+        IJavaDataSetRegistrationDropboxV2 v2Programm =
+                new JythonAsJavaDataSetRegistrationDropboxV2Wrapper(interpreter);
 
         // Invoke the evaluator
         interpreter.exec(scriptString);
@@ -143,10 +143,10 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     }
 
     @Override
-    protected IJavaDataSetRegistrationDropboxV2<T> getV2DropboxProgram(
+    protected IJavaDataSetRegistrationDropboxV2 getV2DropboxProgram(
             DataSetRegistrationService<T> service)
     {
-        return new JythonAsJavaDataSetRegistrationDropboxV2Wrapper<T>(
+        return new JythonAsJavaDataSetRegistrationDropboxV2Wrapper(
                 getInterpreterFromService(service));
     }
 
@@ -156,10 +156,10 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     {
         return new RecoveryHookAdaptor(incoming)
             {
-                IJavaDataSetRegistrationDropboxV2<T> v2ProgramInternal;
+                IJavaDataSetRegistrationDropboxV2 v2ProgramInternal;
 
                 @Override
-                protected IJavaDataSetRegistrationDropboxV2<T> getV2DropboxProgramInternal()
+                protected IJavaDataSetRegistrationDropboxV2 getV2DropboxProgramInternal()
                 {
                     if (v2ProgramInternal == null)
                     {
@@ -178,7 +178,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                         verifyEvaluatorHookFunctions(internalInterpreter);
 
                         v2ProgramInternal =
-                                new JythonAsJavaDataSetRegistrationDropboxV2Wrapper<T>(
+                                new JythonAsJavaDataSetRegistrationDropboxV2Wrapper(
                                         internalInterpreter);
                     }
                     return v2ProgramInternal;
