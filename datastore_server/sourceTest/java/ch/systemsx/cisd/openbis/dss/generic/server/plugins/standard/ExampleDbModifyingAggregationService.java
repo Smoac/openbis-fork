@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.Map;
 import java.util.Properties;
 
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -47,7 +47,7 @@ public class ExampleDbModifyingAggregationService extends
     }
 
     @Override
-    public TableModel process(IDataSetRegistrationTransaction transaction,
+    public TableModel process(IDataSetRegistrationTransactionV2 transaction,
             Map<String, Object> parameters, DataSetProcessingContext context)
     {
         transaction.createNewSpace("NewDummySpace", null);

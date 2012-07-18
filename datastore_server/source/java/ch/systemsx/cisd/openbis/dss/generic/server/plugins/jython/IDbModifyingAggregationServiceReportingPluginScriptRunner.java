@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTable
  */
 public interface IDbModifyingAggregationServiceReportingPluginScriptRunner
 {
-    public void process(IDataSetRegistrationTransaction transaction,
+    public void process(IDataSetRegistrationTransactionV2 transaction,
             Map<String, Object> parameters, ISimpleTableModelBuilderAdaptor tableBuilder)
             throws EvaluatorException;
 

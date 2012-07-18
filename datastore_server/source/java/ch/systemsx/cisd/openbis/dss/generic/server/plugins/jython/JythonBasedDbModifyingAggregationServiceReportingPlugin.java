@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDbModifyingAggregationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -66,7 +66,7 @@ public class JythonBasedDbModifyingAggregationServiceReportingPlugin extends
     }
 
     @Override
-    public TableModel process(final IDataSetRegistrationTransaction transaction,
+    public TableModel process(final IDataSetRegistrationTransactionV2 transaction,
             final Map<String, Object> parameters, final DataSetProcessingContext context)
     {
         ITableModelCreator generator = new ITableModelCreator()

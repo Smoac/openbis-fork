@@ -41,8 +41,8 @@ import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
-import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext.IHolder;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext.IHolder;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPreStagingBehavior;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
@@ -50,9 +50,10 @@ import ch.systemsx.cisd.etlserver.registrator.DefaultDataSetRegistrationDetailsF
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.IOmniscientEntityRegistrator;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.DataSetRegistrationTransactionV2Delegate;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -134,9 +135,7 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
         this.dssProperties = dssProperties;
         this.openBisService = openBisService;
         this.mailClient = mailClient;
-        filenameGenerator =
-                new DssUniqueFilenameGenerator(getClass().getSimpleName(), "mock-file",
-                        "serialized");
+        filenameGenerator = new DssUniqueFilenameGenerator("mock", "file", "serialized");
     }
 
     @Override
@@ -146,7 +145,8 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
         try
         {
             DataSetRegistrationService<T> service = createRegistrationService(parameters);
-            IDataSetRegistrationTransaction transaction = service.transaction();
+            IDataSetRegistrationTransactionV2 transaction =
+                    new DataSetRegistrationTransactionV2Delegate(service.transaction());
 
             TableModel tableModel = process(transaction, parameters, context);
 
@@ -162,7 +162,7 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
     /**
      * Do the processing using the user-provided parameters. Subclasses must implement.
      */
-    protected abstract TableModel process(IDataSetRegistrationTransaction transaction,
+    protected abstract TableModel process(IDataSetRegistrationTransactionV2 transaction,
             Map<String, Object> parameters, DataSetProcessingContext context);
 
     /**
@@ -328,7 +328,7 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
         Properties threadParameterProperties = new Properties();
         threadParameterProperties.put(ch.systemsx.cisd.etlserver.ThreadParameters.INCOMING_DIR,
                 getMockIncomingDir().getAbsolutePath());
-        return new ThreadParameters(threadParameterProperties, this.getClass().getName());
+        return new ThreadParameters(threadParameterProperties, this.getClass().getSimpleName());
     }
 
     private IEncapsulatedOpenBISService getOpenBisService()

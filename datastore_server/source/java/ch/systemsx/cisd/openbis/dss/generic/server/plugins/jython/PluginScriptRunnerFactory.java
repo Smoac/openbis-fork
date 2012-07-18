@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IMailService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -301,7 +301,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         }
 
         @Override
-        public void process(IDataSetRegistrationTransaction transaction,
+        public void process(IDataSetRegistrationTransactionV2 transaction,
                 Map<String, Object> parameters, ISimpleTableModelBuilderAdaptor tableBuilder)
                 throws EvaluatorException
         {
