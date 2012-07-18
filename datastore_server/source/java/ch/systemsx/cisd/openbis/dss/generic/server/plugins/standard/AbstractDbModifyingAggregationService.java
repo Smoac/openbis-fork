@@ -27,15 +27,16 @@ import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
+import ch.systemsx.cisd.common.utilities.AbstractDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
+import ch.systemsx.cisd.etlserver.DssUniqueFilenameGenerator;
 import ch.systemsx.cisd.etlserver.DynamicTransactionQueryFactory;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.Parameters;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
-import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.DoNothingDelegatedAction;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
@@ -63,6 +64,8 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
         AbstractAggregationServiceReportingPlugin implements IOmniscientEntityRegistrator<T>
 {
 
+    private static final String AGGREGATION_SERVICE_SCRATCH_DIR_NAME = "aggregation-service";
+
     private static final long serialVersionUID = 1L;
 
     private static IMailClient getMailClientFromProperties(Properties dssProperties)
@@ -77,6 +80,8 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
     private IEncapsulatedOpenBISService openBisService;
 
     private final IMailClient mailClient;
+
+    private final DssUniqueFilenameGenerator filenameGenerator;
 
     /**
      * Constructor for the AbstractDbModifyingAggegation service. This constructor is used by the
@@ -121,6 +126,9 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
         this.dssProperties = dssProperties;
         this.openBisService = openBisService;
         this.mailClient = mailClient;
+        filenameGenerator =
+                new DssUniqueFilenameGenerator(getClass().getSimpleName(), "mock-file",
+                        "serialized");
     }
 
     /**
@@ -133,9 +141,21 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
         return new File(storeRoot, getShareId());
     }
 
+    /**
+     * Directory used for scratch by the aggregation service.
+     */
+    private File getServiceScratchDir()
+    {
+        return new File(getShare(), AGGREGATION_SERVICE_SCRATCH_DIR_NAME);
+    }
+
+    /**
+     * Directory used for the fake incoming files used by the infrastructure. These fake files are
+     * necessary because much of the infrastructure assumes the existance of a file in a dropbox.
+     */
     protected File getMockIncomingDir()
     {
-        File incomingDir = new File(getShare(), "aggregation-service");
+        File incomingDir = new File(getServiceScratchDir(), "incoming");
         if (false == incomingDir.exists())
         {
             incomingDir.mkdirs();
@@ -147,14 +167,21 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
             throws IOException
     {
         // Create a file that represents the parameters
-        HashMap<String, Object> parameterHashMap = new HashMap<String, Object>(parameters);
-        File mockIncomingDataSetFile = new File(getMockIncomingDir(), "mock-file");
-        mockIncomingDataSetFile.createNewFile();
-        FileUtilities.writeToFile(mockIncomingDataSetFile, parameterHashMap);
+        final File mockIncomingDataSetFile = createMockIncomingFile(parameters);
         DataSetFile incoming = new DataSetFile(mockIncomingDataSetFile);
 
         // Create a clean-up action
-        IDelegatedActionWithResult<Boolean> cleanUpAction = new DoNothingDelegatedAction();
+        IDelegatedActionWithResult<Boolean> cleanUpAction =
+                new AbstractDelegatedActionWithResult<Boolean>(true)
+                    {
+
+                        @Override
+                        public Boolean execute()
+                        {
+                            mockIncomingDataSetFile.delete();
+                            return true;
+                        }
+                    };
 
         DataSetRegistrationPreStagingBehavior preStagingUsage =
                 DataSetRegistrationPreStagingBehavior.USE_ORIGINAL;
@@ -173,11 +200,23 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
         return service;
     }
 
+    /**
+     * The file the registration infrastructure should treat as the incoming file in the dropbox.
+     */
+    protected File createMockIncomingFile(Map<String, Object> parameters) throws IOException
+    {
+        HashMap<String, Object> parameterHashMap = new HashMap<String, Object>(parameters);
+        File mockIncomingDataSetFile =
+                new File(getMockIncomingDir(), filenameGenerator.generateFilename());
+        mockIncomingDataSetFile.createNewFile();
+        FileUtilities.writeToFile(mockIncomingDataSetFile, parameterHashMap);
+        return mockIncomingDataSetFile;
+    }
+
     @Override
     public File getRollBackStackParentFolder()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return getServiceScratchDir();
     }
 
     @Override
@@ -295,7 +334,7 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
         sb.append("\n");
         sb.append("Parameters: ");
         sb.append(parameters);
-    
+
         operationLog.error(sb.toString(), e);
     }
 }
