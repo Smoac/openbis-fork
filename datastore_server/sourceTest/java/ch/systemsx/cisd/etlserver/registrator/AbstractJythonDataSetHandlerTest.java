@@ -51,6 +51,7 @@ import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.JavaTopLevelDataSetHandlerV2;
 import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryManager;
@@ -223,6 +224,11 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
             handler =
                     new TestingDataSetHandlerV2(globalState, registrationShouldFail,
                             shouldReThrowException);
+        } else if (threadProperties.containsKey("TEST_JAVA_V2_API"))
+        {
+            handler =
+                    new TestingDataSetHandlerJavaV2(globalState, registrationShouldFail,
+                            shouldReThrowException);
         } else
         {
             handler =
@@ -299,24 +305,25 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
 
     protected Properties createThreadPropertiesRelativeToScriptsFolder(String scriptPath)
     {
-        return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath, null, null);
+        return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath, null, null,
+                null);
     }
 
     protected Properties createThreadPropertiesRelativeToScriptsFolder(String scriptPath,
-            HashMap<String, String> override)
+            String javaProgramClass, HashMap<String, String> override)
     {
-        return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath, null,
-                override);
+        return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath,
+                javaProgramClass, null, override);
     }
 
     protected Properties createThreadPropertiesRelativeToScriptsFolder(String scriptPath,
             String validationScriptPath)
     {
-        return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath,
+        return createThreadProperties(getRegistrationScriptsFolderPath() + scriptPath, null,
                 validationScriptPath, null);
     }
 
-    private Properties createThreadProperties(String scriptPath,
+    private Properties createThreadProperties(String scriptPath, String javaProgramClass,
             String validationScriptPropertyOrNull, HashMap<String, String> overrideOrNull)
     {
         Properties threadProperties = new Properties();
@@ -327,7 +334,15 @@ public abstract class AbstractJythonDataSetHandlerTest extends AbstractFileSyste
         threadProperties.setProperty(ThreadParameters.DELETE_UNIDENTIFIED_KEY, "false");
         threadProperties.setProperty(IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY,
                 MockStorageProcessor.class.getName());
-        threadProperties.setProperty(JythonTopLevelDataSetHandler.SCRIPT_PATH_KEY, scriptPath);
+        if (scriptPath != null)
+        {
+            threadProperties.setProperty(JythonTopLevelDataSetHandler.SCRIPT_PATH_KEY, scriptPath);
+        }
+        if (javaProgramClass != null)
+        {
+            threadProperties.setProperty(JavaTopLevelDataSetHandlerV2.PROGRAM_CLASS_KEY,
+                    javaProgramClass);
+        }
         if (null != validationScriptPropertyOrNull)
         {
             threadProperties.setProperty(

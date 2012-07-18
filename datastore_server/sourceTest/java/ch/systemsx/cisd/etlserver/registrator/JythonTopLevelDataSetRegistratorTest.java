@@ -53,9 +53,9 @@ import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.common.utilities.IPredicate;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
-import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
+import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
@@ -110,6 +110,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         ArrayList<TestCaseParameters> list = new ArrayList<TestCaseParameters>(2);
         list.add(params);
         list.add(versionV2(params));
+        list.add(versionJavaV2(params));
         return list;
     }
 
@@ -125,10 +126,53 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         return params;
     }
 
+    public TestCaseParameters versionJavaV2(final TestCaseParameters other)
+    {
+        TestCaseParameters params = other.clone();
+        params.overrideProperties = new HashMap<String, String>(params.overrideProperties);
+        params.overrideProperties.put("TEST_JAVA_V2_API", "");
+        params.dontCallOldApiJythonHooks = true;
+        params.title += " - JavaV2";
+        params.shouldUseAutoRecovery = true;
+        params.javaProgramClass = programJavaV2(other.dropboxScriptPath);
+        return params;
+    }
+
     private static String scriptPathV2(String scriptPath)
     {
         File script = new File(scriptPath);
         return new File(script.getParentFile(), "v2-" + script.getName()).getPath();
+    }
+
+    private static String programJavaV2(String scriptPath)
+    {
+        if (scriptPath.endsWith("simple-testcase.py"))
+        {
+            return JavaV2SimpleTestcase.class.getCanonicalName();
+        } else if (scriptPath.endsWith("testcase-without-post-storage.py"))
+        {
+            return JavaV2TestcaseWithoutPostStorage.class.getCanonicalName();
+        } else if (scriptPath.endsWith("file-not-found.py"))
+        {
+            return JavaV2FileNotFound.class.getCanonicalName();
+        } else if (scriptPath.endsWith("testcase-registration-context.py"))
+        {
+            return JavaV2TestcaseRegistrationContext.class.getCanonicalName();
+        } else if (scriptPath.endsWith("testcase-preregistration-hook-failed.py"))
+        {
+            return JavaV2TestcasePreregistrationHookFailed.class.getCanonicalName();
+        } else if (scriptPath.endsWith("testcase-postregistration-hook-failed.py"))
+        {
+            return JavaV2TestcasePostregistrationHookFailed.class.getCanonicalName();
+        } else if (scriptPath.endsWith("dying-script.py"))
+        {
+            return JavaV2DyingProgram.class.getCanonicalName();
+        } else if (scriptPath.endsWith("testcase-rollback.py"))
+        {
+            return JavaV2TestcaseRollback.class.getCanonicalName();
+        }
+
+        return null;
     }
 
     private static <T> Object[][] asObjectArray(List<T> testCases)
@@ -266,10 +310,18 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 @Override
                 public boolean execute(Exception arg)
                 {
-                    PyException pyException = (PyException) arg;
-                    IOExceptionUnchecked tunnel = (IOExceptionUnchecked) pyException.getCause();
-                    FileNotFoundException ex = (FileNotFoundException) tunnel.getCause();
-                    return ex.getMessage().startsWith("Neither '/non/existent/path' nor '");
+                    if (arg instanceof IOExceptionUnchecked)
+                    {
+                        IOExceptionUnchecked tunnel = (IOExceptionUnchecked) arg;
+                        FileNotFoundException ex = (FileNotFoundException) tunnel.getCause();
+                        return ex.getMessage().startsWith("Neither '/non/existent/path' nor '");
+                    } else
+                    {
+                        PyException pyException = (PyException) arg;
+                        IOExceptionUnchecked tunnel = (IOExceptionUnchecked) pyException.getCause();
+                        FileNotFoundException ex = (FileNotFoundException) tunnel.getCause();
+                        return ex.getMessage().startsWith("Neither '/non/existent/path' nor '");
+                    }
                 }
             };
         testCases.addAll(multipleVersionsOfTestCase(testCase));
@@ -379,6 +431,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         protected String dropboxScriptPath = "simple-testcase.py";
 
         /**
+         * Java program class name for pure Java dropboxes
+         */
+        protected String javaProgramClass;
+
+        /**
          * Specifies what properties should be overriden for this test case.
          */
         protected HashMap<String, String> overrideProperties;
@@ -483,7 +540,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         Properties properties =
                 createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
-                        testCase.overrideProperties);
+                        testCase.javaProgramClass, testCase.overrideProperties);
 
         createHandler(properties, false, testCase.shouldThrowExceptionDuringRegistration);
 
@@ -886,6 +943,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         protected String dropboxScriptPath = scriptPathV2("simple-testcase.py");
 
         /**
+         * Java program class name for pure Java dropboxes
+         */
+        protected String javaProgramClass = programJavaV2("simple-testcase.py");
+
+        /**
          * Specifies what properties should be overriden for this test case.
          */
         protected HashMap<String, String> overrideProperties;
@@ -992,7 +1054,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         Properties properties =
                 createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
-                        testCase.overrideProperties);
+                        testCase.javaProgramClass, testCase.overrideProperties);
 
         // Create the handler
         TopLevelDataSetRegistratorGlobalState globalState = createGlobalState(properties);

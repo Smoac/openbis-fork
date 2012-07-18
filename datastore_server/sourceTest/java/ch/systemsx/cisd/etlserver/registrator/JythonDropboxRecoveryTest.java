@@ -247,7 +247,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         createData();
 
         Properties properties =
-                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
+                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath, null,
                         testCase.overrideProperties);
 
         createHandler(properties, true, false);
@@ -580,7 +580,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         createData();
 
         Properties properties =
-                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
+                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath, null,
                         testCase.overrideProperties);
 
         createHandler(properties, true, false);
@@ -650,7 +650,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         createData();
 
         Properties properties =
-                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
+                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath, null,
                         testCase.overrideProperties);
 
         createHandler(properties, true, false);
@@ -736,7 +736,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         createData();
 
         Properties properties =
-                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
+                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath, null,
                         testCase.overrideProperties);
 
         properties.setProperty(ThreadParameters.DATASET_REGISTRATION_MAX_RETRY_COUNT,
@@ -827,7 +827,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         createData();
 
         Properties properties =
-                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath,
+                createThreadPropertiesRelativeToScriptsFolder(testCase.dropboxScriptPath, null,
                         testCase.overrideProperties);
 
         properties.setProperty(ThreadParameters.DATASET_REGISTRATION_MAX_RETRY_COUNT,
@@ -910,7 +910,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         createData();
 
         Properties properties =
-                createThreadPropertiesRelativeToScriptsFolder("v2-retry-process.py",
+                createThreadPropertiesRelativeToScriptsFolder("v2-retry-process.py", null,
                         testCase.overrideProperties);
 
         properties.setProperty(ThreadParameters.PROCESS_MAX_RETRY_COUNT, "100"); // we dont want it
@@ -981,7 +981,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         createData();
 
         Properties properties =
-                createThreadPropertiesRelativeToScriptsFolder("v2-retry-process.py",
+                createThreadPropertiesRelativeToScriptsFolder("v2-retry-process.py", null,
                         testCase.overrideProperties);
 
         properties.setProperty(ThreadParameters.PROCESS_MAX_RETRY_COUNT, "10"); // we dont want it
@@ -1062,7 +1062,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         createData();
 
         Properties properties =
-                createThreadPropertiesRelativeToScriptsFolder(script, testCase.overrideProperties);
+                createThreadPropertiesRelativeToScriptsFolder(script, null,
+                        testCase.overrideProperties);
 
         createHandler(properties, true, false);
 
