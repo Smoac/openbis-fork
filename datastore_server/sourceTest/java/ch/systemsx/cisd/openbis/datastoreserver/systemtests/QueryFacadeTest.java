@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.FacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
@@ -134,6 +135,39 @@ public class QueryFacadeTest extends SystemTestCase
         }
 
         assertTrue("Did not find a space called [NEWDUMMYSPACE]", foundSpace);
+    }
+
+    @Test
+    public void testJythonDbModifyingAggregationServiceReport() throws Exception
+    {
+        AggregationServiceDescription service =
+                getAggregationServiceDescription("example-jython-db-modifying-aggregation-service");
+        HashMap<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("code", "JYTHON-TEST");
+
+        QueryTableModel table = queryFacade.createReportFromAggregationService(service, parameters);
+
+        assertEquals("[CODE, IDENTIFIER]", getHeaders(table).toString());
+        assertEquals("[JYTHON-TEST, /CISD/JYTHON-TEST]", Arrays.asList(table.getRows().get(0))
+                .toString());
+        assertEquals(1, table.getRows().size());
+
+        IGeneralInformationService generalInformationService =
+                queryFacade.getGeneralInformationService();
+
+        List<Sample> samples =
+                generalInformationService.listSamplesForExperiment(queryFacade.getSessionToken(),
+                        "/CISD/NEMO/EXP-TEST-1");
+        boolean foundSample = false;
+        for (Sample sample : samples)
+        {
+            if ("JYTHON-TEST".equalsIgnoreCase(sample.getCode()))
+            {
+                foundSample = true;
+            }
+        }
+
+        assertTrue("Did not find a sample called [JYTHON-TEST]", foundSample);
     }
 
     private IQueryApiFacade createServiceFacade(String userName)

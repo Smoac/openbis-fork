@@ -28,8 +28,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 public interface IPluginScriptRunnerFactory extends Serializable
 {
     String getScriptPath();
-    
-    IAggregationServiceReportingPluginScriptRunner createAggregationServiceReportingPluginRunner(DataSetProcessingContext context);
+
+    IAggregationServiceReportingPluginScriptRunner createAggregationServiceReportingPluginRunner(
+            DataSetProcessingContext context);
+
+    IDbModifyingAggregationServiceReportingPluginScriptRunner createDbModifyingAggregationServiceReportingPluginRunner(
+            DataSetProcessingContext context);
 
     IReportingPluginScriptRunner createReportingPluginRunner(DataSetProcessingContext context);
 

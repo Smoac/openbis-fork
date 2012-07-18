@@ -19,17 +19,19 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
- * Interface to be implemented for a script runner of aggregation service reporting.
+ * Interface to be implemented for a script runner of a db-modifying aggregation service.
  * 
- * @author Franz-Josef Elmer
+ * @author Chandrasekhar Ramakrishnan
  */
-public interface IAggregationServiceReportingPluginScriptRunner
+public interface IDbModifyingAggregationServiceReportingPluginScriptRunner
 {
-    public void aggregate(Map<String, Object> parameters,
-            ISimpleTableModelBuilderAdaptor tableBuilder) throws EvaluatorException;
+    public void process(IDataSetRegistrationTransaction transaction,
+            Map<String, Object> parameters, ISimpleTableModelBuilderAdaptor tableBuilder)
+            throws EvaluatorException;
 
     public void releaseResources();
 }

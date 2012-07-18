@@ -97,6 +97,25 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         }
     }
 
+    @Override
+    public IDbModifyingAggregationServiceReportingPluginScriptRunner createDbModifyingAggregationServiceReportingPluginRunner(
+            DataSetProcessingContext context)
+    {
+        String scriptString = extractScriptFromPath(scriptPath);
+        try
+        {
+            Evaluator evaluator = createEvaluator(scriptString, context);
+            DataSetContentProvider contentProvider =
+                    new DataSetContentProvider(context.getHierarchicalContentProvider());
+            evaluator.set(CONTENT_PROVIDER_VARIABLE_NAME, contentProvider);
+            return new DbModifyingAggregationServiceReportingPluginScriptRunner(evaluator,
+                    contentProvider);
+        } catch (EvaluatorException ex)
+        {
+            throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
+        }
+    }
+
     /**
      * Factory method for creating an IReportingPluginScriptRunner for a given processing context.
      */
@@ -229,8 +248,6 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     {
         private final static String FUNCTION_NAME = "aggregate";
 
-        private final static String PROCESS_FUNCTION_NAME = "process";
-
         private final Evaluator evaluator;
 
         private final DataSetContentProvider contentProvider;
@@ -255,11 +272,40 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         }
 
         @Override
+        public void releaseResources()
+        {
+            contentProvider.closeContents();
+            evaluator.releaseResources();
+        }
+    }
+
+    private static class DbModifyingAggregationServiceReportingPluginScriptRunner implements
+            IDbModifyingAggregationServiceReportingPluginScriptRunner
+    {
+        private final static String FUNCTION_NAME = "process";
+
+        private final Evaluator evaluator;
+
+        private final DataSetContentProvider contentProvider;
+
+        DbModifyingAggregationServiceReportingPluginScriptRunner(Evaluator evaluator,
+                DataSetContentProvider contentProvider)
+        {
+            this.evaluator = evaluator;
+            this.contentProvider = contentProvider;
+            if (false == evaluator.hasFunction(FUNCTION_NAME))
+            {
+                throw new EvaluatorException("Function '" + FUNCTION_NAME
+                        + "' was not defined in the reporting plugin script");
+            }
+        }
+
+        @Override
         public void process(IDataSetRegistrationTransaction transaction,
                 Map<String, Object> parameters, ISimpleTableModelBuilderAdaptor tableBuilder)
                 throws EvaluatorException
         {
-            evaluator.evalFunction(PROCESS_FUNCTION_NAME, transaction, parameters, tableBuilder);
+            evaluator.evalFunction(FUNCTION_NAME, transaction, parameters, tableBuilder);
         }
 
         @Override

@@ -76,9 +76,9 @@ public class JythonBasedDbModifyingAggregationServiceReportingPlugin extends
                 {
                     operationLog.info("Aggregation report for the following parameters "
                             + "has been requested: " + parameters);
-                    IAggregationServiceReportingPluginScriptRunner runner =
+                    IDbModifyingAggregationServiceReportingPluginScriptRunner runner =
                             scriptRunnerFactory
-                                    .createAggregationServiceReportingPluginRunner(context);
+                                    .createDbModifyingAggregationServiceReportingPluginRunner(context);
                     try
                     {
                         runner.process(transaction, parameters, builder);
