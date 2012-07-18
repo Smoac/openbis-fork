@@ -47,7 +47,7 @@ public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
      * @param globalState
      */
     @SuppressWarnings("unchecked")
-    protected JavaTopLevelDataSetHandlerV2(TopLevelDataSetRegistratorGlobalState globalState)
+    public JavaTopLevelDataSetHandlerV2(TopLevelDataSetRegistratorGlobalState globalState)
     {
         super(globalState);
 
