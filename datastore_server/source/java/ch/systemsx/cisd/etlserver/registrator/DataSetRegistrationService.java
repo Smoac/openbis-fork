@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public class DataSetRegistrationService<T extends DataSetInformation> implements
         IDataSetRegistrationService, DataSetStorageAlgorithmRunner.IPrePostRegistrationHook<T>
 {
-    private final AbstractOmniscientTopLevelDataSetRegistrator<T> registrator;
+    private final IOmniscientEntityRegistrator<T> registrator;
 
     private final OmniscientTopLevelDataSetRegistratorState registratorContext;
 
@@ -94,7 +94,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
      * @param registrator The top level data set registrator
      * @param globalCleanAfterwardsAction An action to execute when the service has finished
      */
-    public DataSetRegistrationService(AbstractOmniscientTopLevelDataSetRegistrator<T> registrator,
+    public DataSetRegistrationService(IOmniscientEntityRegistrator<T> registrator,
             DataSetFile incomingDataSetFile,
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory,
             IDelegatedActionWithResult<Boolean> globalCleanAfterwardsAction,
@@ -429,7 +429,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         }
     }
 
-    protected AbstractOmniscientTopLevelDataSetRegistrator<T> getRegistrator()
+    protected IOmniscientEntityRegistrator<T> getRegistrator()
     {
         return registrator;
     }

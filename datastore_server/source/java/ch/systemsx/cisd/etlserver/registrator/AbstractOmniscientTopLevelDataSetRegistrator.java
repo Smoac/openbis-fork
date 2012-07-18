@@ -70,7 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
  * @author Chandrasekhar Ramakrishnan
  */
 public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends DataSetInformation>
-        extends AbstractTopLevelDataSetRegistrator
+        extends AbstractTopLevelDataSetRegistrator implements IOmniscientEntityRegistrator<T>
 {
     protected static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             AbstractOmniscientTopLevelDataSetRegistrator.class);
@@ -103,7 +103,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
         private final IDataSetOnErrorActionDecision onErrorActionDecision;
 
-        private OmniscientTopLevelDataSetRegistratorState(
+        public OmniscientTopLevelDataSetRegistratorState(
                 TopLevelDataSetRegistratorGlobalState globalState,
                 IStorageProcessorTransactional storageProcessor, ReentrantLock registrationLock,
                 IFileOperations fileOperations, IDataSetOnErrorActionDecision onErrorActionDecision)

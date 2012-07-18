@@ -38,12 +38,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 public class DefaultEntityOperationService<T extends DataSetInformation> implements
         IEntityOperationService<T>
 {
-    private final AbstractOmniscientTopLevelDataSetRegistrator<T> registrator;
+    private final IOmniscientEntityRegistrator<T> registrator;
 
     private final ITopLevelDataSetRegistratorDelegate delegate;
 
-    public DefaultEntityOperationService(
-            AbstractOmniscientTopLevelDataSetRegistrator<T> registrator,
+    public DefaultEntityOperationService(IOmniscientEntityRegistrator<T> registrator,
             ITopLevelDataSetRegistratorDelegate delegate)
     {
         this.registrator = registrator;
