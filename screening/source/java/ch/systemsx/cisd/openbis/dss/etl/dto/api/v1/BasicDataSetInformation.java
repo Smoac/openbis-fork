@@ -50,7 +50,14 @@ public class BasicDataSetInformation extends DataSetInformation
         this.fileFormatTypeCode = fileFormatCode;
     }
 
-    /** Mandatory: sets attributes of the connected sample */
+    /**
+     * Sets attributes of the connected sample - optional.
+     * <p>
+     * Alternatively, call
+     * {@link ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable#setSample(ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable)}
+     * on the object returned by
+     * {@link ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction#createNewDataSet()}.
+     */
     public void setSample(String sampleSpaceCode, String sampleCode)
     {
         super.setSpaceCode(sampleSpaceCode);
