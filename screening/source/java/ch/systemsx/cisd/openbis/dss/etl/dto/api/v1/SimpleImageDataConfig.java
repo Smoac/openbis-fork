@@ -369,10 +369,7 @@ abstract public class SimpleImageDataConfig
      * 
      * @param spaceCode space where the plate for which the dataset has been acquired exist
      * @param plateCode code of the plate to which the dataset will belong
-     * @deprecated instead invoke {@link IDataSet#setSample(ISampleImmutable)} on the
-     *             {@link IDataSet} object created.
      */
-    @Deprecated
     public void setPlate(String spaceCode, String plateCode)
     {
         this.spaceCode = spaceCode;

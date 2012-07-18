@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
 import java.util.Arrays;
 
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -52,11 +50,7 @@ public class BasicDataSetInformation extends DataSetInformation
         this.fileFormatTypeCode = fileFormatCode;
     }
 
-    /**
-     * @deprecated instead invoke {@link IDataSet#setSample(ISampleImmutable)} on the
-     *             {@link IDataSet} object created.
-     */
-    @Deprecated
+    /** Mandatory: sets attributes of the connected sample */
     public void setSample(String sampleSpaceCode, String sampleCode)
     {
         super.setSpaceCode(sampleSpaceCode);
