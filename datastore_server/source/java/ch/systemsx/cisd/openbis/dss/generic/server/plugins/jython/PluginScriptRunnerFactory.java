@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IMailService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -228,6 +229,8 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     {
         private final static String FUNCTION_NAME = "aggregate";
 
+        private final static String PROCESS_FUNCTION_NAME = "process";
+
         private final Evaluator evaluator;
 
         private final DataSetContentProvider contentProvider;
@@ -249,6 +252,14 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
                 ISimpleTableModelBuilderAdaptor tableBuilder) throws EvaluatorException
         {
             evaluator.evalFunction(FUNCTION_NAME, parameters, tableBuilder);
+        }
+
+        @Override
+        public void process(IDataSetRegistrationTransaction transaction,
+                Map<String, Object> parameters, ISimpleTableModelBuilderAdaptor tableBuilder)
+                throws EvaluatorException
+        {
+            evaluator.evalFunction(PROCESS_FUNCTION_NAME, transaction, parameters, tableBuilder);
         }
 
         @Override
