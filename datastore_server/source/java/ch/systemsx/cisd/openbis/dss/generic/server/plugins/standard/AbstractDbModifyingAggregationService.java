@@ -19,10 +19,12 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.locks.ReentrantLock;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -39,15 +41,21 @@ import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
+import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext.IHolder;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPreStagingBehavior;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.DefaultDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.IOmniscientEntityRegistrator;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceQueryService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -131,6 +139,32 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
                         "serialized");
     }
 
+    @Override
+    public final TableModel createAggregationReport(Map<String, Object> parameters,
+            DataSetProcessingContext context)
+    {
+        try
+        {
+            DataSetRegistrationService<T> service = createRegistrationService(parameters);
+            IDataSetRegistrationTransaction transaction = service.transaction();
+
+            TableModel tableModel = process(transaction, parameters, context);
+
+            service.commit();
+            return tableModel;
+        } catch (Exception e)
+        {
+            logInvocationError(parameters, e);
+            return errorTableModel(parameters, e);
+        }
+    }
+
+    /**
+     * Do the processing using the user-provided parameters. Subclasses must implement.
+     */
+    protected abstract TableModel process(IDataSetRegistrationTransaction transaction,
+            Map<String, Object> parameters, DataSetProcessingContext context);
+
     /**
      * Return the share that this service should use to store its data sets.
      * 
@@ -164,40 +198,45 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
     }
 
     protected DataSetRegistrationService<T> createRegistrationService(Map<String, Object> parameters)
-            throws IOException
     {
         // Create a file that represents the parameters
-        final File mockIncomingDataSetFile = createMockIncomingFile(parameters);
-        DataSetFile incoming = new DataSetFile(mockIncomingDataSetFile);
+        try
+        {
+            final File mockIncomingDataSetFile = createMockIncomingFile(parameters);
+            DataSetFile incoming = new DataSetFile(mockIncomingDataSetFile);
 
-        // Create a clean-up action
-        IDelegatedActionWithResult<Boolean> cleanUpAction =
-                new AbstractDelegatedActionWithResult<Boolean>(true)
-                    {
-
-                        @Override
-                        public Boolean execute()
+            // Create a clean-up action
+            IDelegatedActionWithResult<Boolean> cleanUpAction =
+                    new AbstractDelegatedActionWithResult<Boolean>(true)
                         {
-                            mockIncomingDataSetFile.delete();
-                            return true;
-                        }
-                    };
 
-        DataSetRegistrationPreStagingBehavior preStagingUsage =
-                DataSetRegistrationPreStagingBehavior.USE_ORIGINAL;
+                            @Override
+                            public Boolean execute()
+                            {
+                                mockIncomingDataSetFile.delete();
+                                return true;
+                            }
+                        };
 
-        NoOpDelegate delegate = new NoOpDelegate(preStagingUsage);
+            DataSetRegistrationPreStagingBehavior preStagingUsage =
+                    DataSetRegistrationPreStagingBehavior.USE_ORIGINAL;
 
-        @SuppressWarnings("unchecked")
-        IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory =
-                (IDataSetRegistrationDetailsFactory<T>) new DefaultDataSetRegistrationDetailsFactory(
-                        getRegistratorState(), null);
+            NoOpDelegate delegate = new NoOpDelegate(preStagingUsage);
 
-        DataSetRegistrationService<T> service =
-                new DataSetRegistrationService<T>(this, incoming, registrationDetailsFactory,
-                        cleanUpAction, delegate);
+            @SuppressWarnings("unchecked")
+            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory =
+                    (IDataSetRegistrationDetailsFactory<T>) new DefaultDataSetRegistrationDetailsFactory(
+                            getRegistratorState(), null);
 
-        return service;
+            DataSetRegistrationService<T> service =
+                    new DataSetRegistrationService<T>(this, incoming, registrationDetailsFactory,
+                            cleanUpAction, delegate);
+
+            return service;
+        } catch (IOException e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        }
     }
 
     /**
@@ -336,5 +375,54 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
         sb.append(parameters);
 
         operationLog.error(sb.toString(), e);
+    }
+
+    /**
+     * Callback when a transaction is rolledback. Subclasses may override.
+     */
+    @Override
+    public void didRollbackTransaction(DataSetRegistrationService<T> dataSetRegistrationService,
+            DataSetRegistrationTransaction<T> transaction,
+            DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex)
+    {
+
+    }
+
+    /**
+     * Callback when a transaction is committed. Subclasses may override.
+     */
+    @Override
+    public void didCommitTransaction(DataSetRegistrationService<T> dataSetRegistrationService,
+            DataSetRegistrationTransaction<T> transaction)
+    {
+    }
+
+    /**
+     * Callback when a transaction is prepared to be registered. Subclasses may override.
+     */
+    @Override
+    public void didPreRegistration(DataSetRegistrationService<T> service,
+            IHolder registrationContextHolder)
+    {
+    }
+
+    /**
+     * Callback when a transaction has been committed with the AS. Subclasses may override.
+     */
+    @Override
+    public void didPostRegistration(DataSetRegistrationService<T> service,
+            IHolder registrationContextHolder)
+    {
+    }
+
+    /**
+     * Callback when secondary problems are encountered. Subclasses may override.
+     */
+    @Override
+    public void didEncounterSecondaryTransactionErrors(
+            DataSetRegistrationService<T> dataSetRegistrationService,
+            DataSetRegistrationTransaction<T> transaction,
+            List<SecondaryTransactionFailure> secondaryErrors)
+    {
     }
 }

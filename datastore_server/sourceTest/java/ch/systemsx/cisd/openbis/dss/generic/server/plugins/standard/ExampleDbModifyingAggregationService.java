@@ -17,16 +17,10 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext.IHolder;
-import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
-import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -41,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 public class ExampleDbModifyingAggregationService extends
         AbstractDbModifyingAggregationService<DataSetInformation>
 {
+    private static final long serialVersionUID = 1L;
 
     /**
      * @param properties
@@ -51,60 +46,12 @@ public class ExampleDbModifyingAggregationService extends
         super(properties, storeRoot);
     }
 
-    private static final long serialVersionUID = 1L;
-
     @Override
-    public void didRollbackTransaction(
-            DataSetRegistrationService<DataSetInformation> dataSetRegistrationService,
-            DataSetRegistrationTransaction<DataSetInformation> transaction,
-            DataSetStorageAlgorithmRunner<DataSetInformation> algorithm, Throwable ex)
+    public TableModel process(IDataSetRegistrationTransaction transaction,
+            Map<String, Object> parameters, DataSetProcessingContext context)
     {
-    }
+        transaction.createNewSpace("NewDummySpace", null);
 
-    @Override
-    public void didCommitTransaction(
-            DataSetRegistrationService<DataSetInformation> dataSetRegistrationService,
-            DataSetRegistrationTransaction<DataSetInformation> transaction)
-    {
-    }
-
-    @Override
-    public void didPreRegistration(DataSetRegistrationService<DataSetInformation> service,
-            IHolder registrationContextHolder)
-    {
-    }
-
-    @Override
-    public void didPostRegistration(DataSetRegistrationService<DataSetInformation> service,
-            IHolder registrationContextHolder)
-    {
-    }
-
-    @Override
-    public void didEncounterSecondaryTransactionErrors(
-            DataSetRegistrationService<DataSetInformation> dataSetRegistrationService,
-            DataSetRegistrationTransaction<DataSetInformation> transaction,
-            List<SecondaryTransactionFailure> secondaryErrors)
-    {
-    }
-
-    @Override
-    public TableModel createAggregationReport(Map<String, Object> parameters,
-            DataSetProcessingContext context)
-    {
-        try
-        {
-            DataSetRegistrationService<DataSetInformation> service =
-                    createRegistrationService(parameters);
-            IDataSetRegistrationTransaction transaction = service.transaction();
-            transaction.createNewSpace("NewDummySpace", null);
-
-            service.commit();
-        } catch (Exception e)
-        {
-            logInvocationError(parameters, e);
-            return errorTableModel(parameters, e);
-        }
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
         builder.addHeader("String");
         builder.addHeader("Integer");
