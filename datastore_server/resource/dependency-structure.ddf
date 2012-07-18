@@ -23,13 +23,15 @@ check [dss] [etlserver] independentOf [private_openbis]
 # Check dependencies of etlserver to dss
 
 [dss.shared] = ${dss}.generic.shared.*
-[dss.dbmodifyingplugin] = ${dss}.generic.server.plugins.jython.* ${dss}.generic.server.plugins.standard.AbstractDbModifyingAggregationService
-[private_dss] = ${dss}.* excluding [dss.shared] [dss.dbmodifyingplugin] ${dss}.BuildAndEnvironmentInfo ${dss}.generic.DataStoreServer ${dss}.generic.server.api.v1.DssServiceRpcGeneric ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService
+[private_dss] = ${dss}.* excluding [dss.shared] ${dss}.BuildAndEnvironmentInfo ${dss}.generic.DataStoreServer ${dss}.generic.server.api.v1.DssServiceRpcGeneric ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService
+
+[etlserver_registration] = ${etlserver}.registrator.* ${etlserver}.DssUniqueFilenameGenerator ${etlserver}.Parameters ${etlserver}.ITopLevelDataSetRegistratorDelegate ${etlserver}.TopLevelDataSetRegistratorGlobalState ${etlserver}.IStorageProcessorTransactional ${etlserver}.DefaultStorageProcessor ${etlserver}.validation.* ${etlserver}.ThreadParameters ${etlserver}.DynamicTransactionQueryFactory
+[etlserver_minus_registration] = [etlserver] excluding [etlserver_registration]
 
 check sets [dss.shared] [private_dss]
 
 layer l1 = [dss.shared]
-layer l2 = [etlserver] [private_dss]
+layer l2 = [etlserver_minus_registration] [private_dss]
 
 check layeringOf l1 l2
 
