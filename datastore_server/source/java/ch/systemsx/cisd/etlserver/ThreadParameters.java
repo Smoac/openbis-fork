@@ -89,7 +89,7 @@ public final class ThreadParameters
     @Private
     public static final String DELETE_UNIDENTIFIED_KEY = "delete-unidentified";
 
-    private static final String REPROCESS_FAULTY_DATASETS_NAME = "reprocess-faulty-datasets";
+    public static final String REPROCESS_FAULTY_DATASETS_NAME = "reprocess-faulty-datasets";
 
     @Private
     public static final String ON_ERROR_DECISION_KEY = "on-error-decision";

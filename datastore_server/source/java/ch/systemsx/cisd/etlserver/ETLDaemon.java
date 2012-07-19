@@ -607,6 +607,17 @@ public final class ETLDaemon
                 @Override
                 public Status finishItemHandle(IScannedStore scannedStore, StoreItem storeItem)
                 {
+                    if (scannedStore.existsOrError(storeItem))
+                    {
+                        StringBuffer sb = new StringBuffer();
+                        sb.append("The thread configuration setting"
+                                + ch.systemsx.cisd.etlserver.ThreadParameters.REPROCESS_FAULTY_DATASETS_NAME
+                                + " = true.");
+                        sb.append(" File "
+                                + storeItem
+                                + " not written to faulty paths. It will be reprocessed during the next iteration.");
+                        operationLog.info(sb.toString());
+                    }
                     return Status.OK;
                 }
 
