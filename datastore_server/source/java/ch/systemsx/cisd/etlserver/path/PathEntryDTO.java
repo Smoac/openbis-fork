@@ -63,14 +63,14 @@ public class PathEntryDTO
     }
 
     public PathEntryDTO(long dataSetId, Long parentId, String relativePath, String fileName,
-            long sizeInBytes, Long checksumCRC32OrNull, boolean isDirectory, Date lastModifiedDate)
+            long sizeInBytes, Integer checksumCRC32OrNull, boolean isDirectory, Date lastModifiedDate)
     {
         this.dataSetId = dataSetId;
         this.parentId = parentId;
         this.relativePath = relativePath;
         this.fileName = fileName;
         this.sizeInBytes = sizeInBytes;
-        this.checksumCRC32 = checksumCRC32OrNull == null ? null : checksumCRC32OrNull.intValue();
+        this.checksumCRC32 = checksumCRC32OrNull;
         this.directory = isDirectory;
         this.lastModifiedDate = lastModifiedDate;
     }

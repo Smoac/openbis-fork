@@ -55,6 +55,6 @@ public interface IPathsInfoDAO extends TransactionQuery
     public List<PathEntryDTO> listDataSetFilesWithUnkownChecksum();
     
     @Update("update data_set_files set checksum_crc32 = ?{2} where id = ?{1}")
-    public void updateChecksum(long id, long checksum);
+    public void updateChecksum(long id, int checksum);
     
 }

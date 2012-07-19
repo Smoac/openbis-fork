@@ -59,11 +59,11 @@ public class PathInfoTest extends AbstractFileSystemTestCase
         check(getClass().getName(), true, 42, null, 2, root);
         check("d1", true, 27, null, 1, c0);
         check("d2", true, 27, null, 2, c00);
-        check("hello.txt", false, 11, 222957957L, 0, c00.getChildren().get(0));
-        check("table.tsv", false, 16, 2698160619L, 0, c00.getChildren().get(1));
+        check("hello.txt", false, 11, 222957957, 0, c00.getChildren().get(0));
+        check("table.tsv", false, 16, -1596806677, 0, c00.getChildren().get(1));
         check("d3", true, 15, null, 2, c1);
         check("d4", true, 0, null, 0, c1.getChildren().get(0));
-        check("read.me", false, 15, 1246790599L, 0, c1.getChildren().get(1));
+        check("read.me", false, 15, 1246790599, 0, c1.getChildren().get(1));
     }
     
     @Test
@@ -84,7 +84,7 @@ public class PathInfoTest extends AbstractFileSystemTestCase
     }
     
     private void check(String expectedName, boolean expectedIsDirectory, long expectedSize,
-            Long expectedChecksum, int expectedNumberOfChildren, PathInfo pathInfo)
+            Integer expectedChecksum, int expectedNumberOfChildren, PathInfo pathInfo)
     {
         assertEquals(expectedName, pathInfo.getFileName());
         assertEquals(expectedIsDirectory, pathInfo.isDirectory());

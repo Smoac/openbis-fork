@@ -463,7 +463,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
         }
 
         @Override
-        public long getChecksumCRC32() throws UnsupportedOperationException
+        public int getChecksumCRC32() throws UnsupportedOperationException
         {
             return lastExistingNode().getChecksumCRC32();
         }

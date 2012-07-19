@@ -97,11 +97,12 @@ public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemT
                     one(dao).createDataSetFiles(
                             with(equal(Arrays.asList(
                                     new PathEntryDTO(42L, 101L, "dir/hello.txt", "hello.txt", 11L,
-                                            222957957L, false, new Date(file1.lastModified())),
+                                            222957957, false, new Date(file1.lastModified())),
                                     new PathEntryDTO(42L, 101L, "dir/read.me", "read.me", 15L,
-                                            1246790599L, false, new Date(file2.lastModified())),
+                                            1246790599, false, new Date(file2.lastModified())),
                                     new PathEntryDTO(42L, 100L, "read.me", "read.me", 12L,
-                                            3188708281L, false, new Date(file2.lastModified()))))));
+                                            (int) 3188708281L, false,
+                                            new Date(file2.lastModified()))))));
 
                     one(dao).commit();
                 }

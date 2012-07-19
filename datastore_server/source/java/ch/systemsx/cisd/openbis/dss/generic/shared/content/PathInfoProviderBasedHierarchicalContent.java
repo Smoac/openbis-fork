@@ -248,9 +248,9 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         }
 
         @Override
-        protected long doGetChecksumCRC32()
+        protected int doGetChecksumCRC32()
         {
-            Long checksumCRC32 = pathInfo.getChecksumCRC32();
+            final Integer checksumCRC32 = pathInfo.getChecksumCRC32();
             if (checksumCRC32 != null)
             {
                 return checksumCRC32;

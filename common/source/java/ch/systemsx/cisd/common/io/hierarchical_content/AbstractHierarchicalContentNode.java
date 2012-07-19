@@ -48,7 +48,7 @@ public abstract class AbstractHierarchicalContentNode implements IHierarchicalCo
     abstract protected long doGetFileLength();
 
     /** Returns checksum of a node known NOT to be a directory. */
-    abstract protected long doGetChecksumCRC32();
+    abstract protected int doGetChecksumCRC32();
     
     /** Returns {@link IRandomAccessFile} of a node known NOT to be a directory. */
     abstract protected IRandomAccessFile doGetFileContent();
@@ -99,7 +99,7 @@ public abstract class AbstractHierarchicalContentNode implements IHierarchicalCo
     }
 
     @Override
-    public long getChecksumCRC32() throws UnsupportedOperationException
+    public int getChecksumCRC32() throws UnsupportedOperationException
     {
         failOnDirectory();
         return doGetChecksumCRC32();

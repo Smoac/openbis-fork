@@ -34,11 +34,14 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
  */
 public class IOUtilities
 {
+    private static final char[] HEX_CHARACTERS =
+            { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', };
+
     /**
      * Calculates the CRC32 checksum of specified input stream.
      * Note, that the input stream is closed after invocation of this method.
      */
-    public static long getChecksumCRC32(InputStream inputStream)
+    public static int getChecksumCRC32(InputStream inputStream)
     {
         Checksum checksummer = new CRC32();
         InputStream in = null;
@@ -51,6 +54,23 @@ public class IOUtilities
         } finally {
             IOUtils.closeQuietly(in);
         }
-        return checksummer.getValue();
+        return (int) checksummer.getValue();
     }
+    
+    /**
+     * Converts a CRC32 checksum to a string representation.
+     */
+    public static String crc32ToString(final int checksum)
+    {
+        final char buf[] = new char[8];
+        int w = checksum;
+        for (int i = 0, x = 7; i < 4; i++)
+        {
+            buf[x--] = HEX_CHARACTERS[w & 0xf];
+            buf[x--] = HEX_CHARACTERS[(w >>> 4) & 0xf];
+            w >>= 8;
+        }
+        return new String(buf);
+    }
+
 }

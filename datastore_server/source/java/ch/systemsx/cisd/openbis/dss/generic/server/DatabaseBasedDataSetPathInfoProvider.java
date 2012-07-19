@@ -53,7 +53,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
 
         public long size_in_bytes;
         
-        public Long checksum_crc32;
+        public Integer checksum_crc32;
 
         public boolean is_directory;
 

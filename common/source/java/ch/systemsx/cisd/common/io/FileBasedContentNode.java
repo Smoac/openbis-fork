@@ -136,11 +136,11 @@ public class FileBasedContentNode implements IHierarchicalContentNode
     }
 
     @Override
-    public long getChecksumCRC32() throws UnsupportedOperationException
+    public int getChecksumCRC32() throws UnsupportedOperationException
     {
         try
         {
-            return FileUtils.checksumCRC32(file);
+            return (int) FileUtils.checksumCRC32(file);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

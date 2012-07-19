@@ -35,6 +35,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -74,6 +75,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
     @BeforeMethod
     public void beforeMethod()
     {
+        LogInitializer.init();
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         directoryProvider = context.mock(IDataSetDirectoryProvider.class);
@@ -245,7 +247,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     will(returnValue(12345L));
 
                     one(node).getChecksumCRC32();
-                    will(returnValue(789L));
+                    will(returnValue(789));
                     
                     one(node).isDirectory();
                     will(returnValue(false));
@@ -255,7 +257,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
 
                     one(dao).createDataSetFiles(
                             with(equal(Collections.singletonList(new PathEntryDTO(101L, null,
-                                    "", "ds1-root", 12345L, 789L, false, new Date(42))))));
+                                    "", "ds1-root", 12345L, 789, false, new Date(42))))));
 
                     one(dao).commit();
                     one(shareIdManager).releaseLocks();

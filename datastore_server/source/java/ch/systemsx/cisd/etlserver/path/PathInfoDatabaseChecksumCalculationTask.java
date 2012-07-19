@@ -111,7 +111,7 @@ public class PathInfoDatabaseChecksumCalculationTask implements IMaintenanceTask
                     List<PathEntryDTO> pathEntries = entry.getValue();
                     for (PathEntryDTO pathEntry : pathEntries)
                     {
-                        long checksum =
+                        final int checksum =
                                 IOUtilities.getChecksumCRC32(content.getNode(
                                         pathEntry.getRelativePath()).getInputStream());
                         dao.updateChecksum(pathEntry.getId(), checksum);

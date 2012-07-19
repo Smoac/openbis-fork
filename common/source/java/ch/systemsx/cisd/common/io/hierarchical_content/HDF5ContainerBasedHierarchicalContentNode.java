@@ -266,8 +266,8 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         private HDF5DataSetBasedContent contentOrNull;
 
         private final HDF5ContainerBasedHierarchicalContentNode containerNode;
-        
-        private Long checksum;
+
+        private Integer checksum;
 
         public HDF5FileNode(HDF5ContainerBasedHierarchicalContentNode containerNode,
                 ArchiveEntry entry)
@@ -326,14 +326,16 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         }
 
         @Override
-        protected long doGetChecksumCRC32()
+        protected int doGetChecksumCRC32()
         {
             if (checksum == null)
             {
+                // TODO 2012-07-19, Bernd Rinn: Use entry.hasChecksum() to reliably detect whether
+                // this entry has a CRC32 checksum once JHDF5 is updated.
                 int entryChecksum = entry.getCrc32();
                 if (entryChecksum != 0)
                 {
-                    checksum = entryChecksum & 0xffffffffL;
+                    checksum = entryChecksum;
                 } else
                 {
                     checksum = IOUtilities.getChecksumCRC32(doGetInputStream());

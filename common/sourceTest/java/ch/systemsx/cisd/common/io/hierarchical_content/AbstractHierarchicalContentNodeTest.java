@@ -190,7 +190,7 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
                 }
 
                 @Override
-                protected long doGetChecksumCRC32()
+                protected int doGetChecksumCRC32()
                 {
                     return 0;
                 }
@@ -269,7 +269,7 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
                 }
 
                 @Override
-                protected long doGetChecksumCRC32()
+                protected int doGetChecksumCRC32()
                 {
                     return 0;
                 }

@@ -89,7 +89,7 @@ final class PathInfo
     
     private long sizeInBytes;
     
-    private Long checksumCRC32;
+    private Integer checksumCRC32;
     
     private PathInfo parent;
     
@@ -109,7 +109,7 @@ final class PathInfo
         return sizeInBytes;
     }
 
-    public Long getChecksumCRC32()
+    public Integer getChecksumCRC32()
     {
         return checksumCRC32;
     }

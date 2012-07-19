@@ -41,7 +41,7 @@ public class ByteArrayBasedContentNode implements IHierarchicalContentNode
 
     private long lastModified;
     
-    private Long checksum;
+    private Integer checksum;
 
     /**
      * Creates an instance for the specified byte array.
@@ -128,7 +128,7 @@ public class ByteArrayBasedContentNode implements IHierarchicalContentNode
     }
 
     @Override
-    public long getChecksumCRC32() throws UnsupportedOperationException
+    public int getChecksumCRC32() throws UnsupportedOperationException
     {
         if (checksum == null)
         {

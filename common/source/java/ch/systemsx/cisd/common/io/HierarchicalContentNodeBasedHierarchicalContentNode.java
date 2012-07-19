@@ -80,7 +80,7 @@ public class HierarchicalContentNodeBasedHierarchicalContentNode implements
             }
 
             @Override
-            public long getChecksumCRC32() throws UnsupportedOperationException
+            public int getChecksumCRC32() throws UnsupportedOperationException
             {
                 return 0;
             }
@@ -202,7 +202,7 @@ public class HierarchicalContentNodeBasedHierarchicalContentNode implements
     }
 
     @Override
-    public long getChecksumCRC32() throws UnsupportedOperationException
+    public int getChecksumCRC32() throws UnsupportedOperationException
     {
         return getContent().getChecksumCRC32();
     }

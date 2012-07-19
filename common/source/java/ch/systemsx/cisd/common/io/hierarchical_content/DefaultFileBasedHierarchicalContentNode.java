@@ -129,11 +129,11 @@ class DefaultFileBasedHierarchicalContentNode extends AbstractHierarchicalConten
     }
 
     @Override
-    protected long doGetChecksumCRC32()
+    protected int doGetChecksumCRC32()
     {
         try
         {
-            return FileUtils.checksumCRC32(file);
+            return (int) FileUtils.checksumCRC32(file);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

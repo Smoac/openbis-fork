@@ -128,7 +128,7 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
                     one(node1).getInputStream();
                     will(returnValue(new ByteArrayInputStream("a".getBytes())));
                     
-                    one(dao).updateChecksum(e1.getId(), 1908338681L);
+                    one(dao).updateChecksum(e1.getId(), 1908338681);
                     
                     one(content1).getNode("f2.txt");
                     will(returnValue(node2));
@@ -136,7 +136,7 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
                     one(node2).getInputStream();
                     will(returnValue(new ByteArrayInputStream("b".getBytes())));
                     
-                    one(dao).updateChecksum(e2.getId(), 3904355907L);
+                    one(dao).updateChecksum(e2.getId(), -390611389);
                     
                     one(dao).commit();
                     
@@ -146,7 +146,7 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
                     one(node3).getInputStream();
                     will(returnValue(new ByteArrayInputStream("c".getBytes())));
                     
-                    one(dao).updateChecksum(e3.getId(), 112844655L);
+                    one(dao).updateChecksum(e3.getId(), 112844655);
                     
                     one(dao).commit();
                 }

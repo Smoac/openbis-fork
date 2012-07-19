@@ -574,7 +574,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         private IHierarchicalContentNode parent;
         private boolean directory;
         private long size;
-        private long checksum;
+        private int checksum;
         
         void addNode(MockNode node)
         {
@@ -643,7 +643,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         }
 
         @Override
-        public long getChecksumCRC32() throws UnsupportedOperationException
+        public int getChecksumCRC32() throws UnsupportedOperationException
         {
             return checksum;
         }
@@ -705,7 +705,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
                     node.name = path.substring(lastIndexOfDelim + 1);
                 }
                 node.size = Long.parseLong(splittedDescription[1]);
-                node.checksum = Long.parseLong(splittedDescription[2], 16);
+                node.checksum = (int) Long.parseLong(splittedDescription[2], 16);
             }
         }
 

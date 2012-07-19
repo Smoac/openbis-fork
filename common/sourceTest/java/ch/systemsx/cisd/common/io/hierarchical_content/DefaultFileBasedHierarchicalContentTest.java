@@ -675,7 +675,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
                 }
 
                 @Override
-                public long getChecksumCRC32() throws UnsupportedOperationException
+                public int getChecksumCRC32() throws UnsupportedOperationException
                 {
                     throw new UnsupportedOperationException(METHOD_NOT_IMPLEMENTED);
                 }

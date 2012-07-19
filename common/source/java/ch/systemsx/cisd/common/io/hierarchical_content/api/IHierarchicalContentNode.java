@@ -99,7 +99,7 @@ public interface IHierarchicalContentNode
      * 
      * @throws UnsupportedOperationException if the node is an abstraction of a directory.
      */
-    long getChecksumCRC32() throws UnsupportedOperationException;
+    int getChecksumCRC32() throws UnsupportedOperationException;
 
     /**
      * Returns a read only {@link IRandomAccessFile} with file content of the node. *

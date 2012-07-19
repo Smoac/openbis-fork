@@ -35,7 +35,7 @@ public abstract class AbstractHierarchicalDirectoryContentNode extends
     }
 
     @Override
-    protected long doGetChecksumCRC32()
+    protected int doGetChecksumCRC32()
     {
         throw new UnsupportedOperationException(OPERATION_NOT_SUPPORTED_FOR_A_DIRECTORY);
     }
