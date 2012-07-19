@@ -111,6 +111,12 @@ public class ImageUtilTest extends AssertJUnit
         }
 
         @Override
+        public boolean isChecksumCRC32Precalculated()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
                 IOExceptionUnchecked
         {

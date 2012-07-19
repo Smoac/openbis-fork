@@ -91,7 +91,7 @@ public interface IHierarchicalContentNode
      * @throws UnsupportedOperationException if the node is an abstraction of a directory.
      */
     long getFileLength() throws UnsupportedOperationException;
-    
+
     /**
      * Returns the CRC32 checksum of a file abstracted by this node.
      * <p>
@@ -100,6 +100,13 @@ public interface IHierarchicalContentNode
      * @throws UnsupportedOperationException if the node is an abstraction of a directory.
      */
     int getChecksumCRC32() throws UnsupportedOperationException;
+
+    /**
+     * Returns <code>true</code>, if the CRC32 checksum is pre-calculated for this node and
+     * <code>false</code>, if it is calculated on demand when calling {@link #getChecksumCRC32()} or
+     * if this node does not have a CRC32 checksum (like e.g. a directory).
+     */
+    boolean isChecksumCRC32Precalculated();
 
     /**
      * Returns a read only {@link IRandomAccessFile} with file content of the node. *

@@ -116,6 +116,12 @@ public class HierarchicalContentNodeBasedHierarchicalContentNode implements
             {
                 return false;
             }
+
+            @Override
+            public boolean isChecksumCRC32Precalculated()
+            {
+                return false;
+            }
         };
 
     /**
@@ -205,6 +211,12 @@ public class HierarchicalContentNodeBasedHierarchicalContentNode implements
     public int getChecksumCRC32() throws UnsupportedOperationException
     {
         return getContent().getChecksumCRC32();
+    }
+
+    @Override
+    public boolean isChecksumCRC32Precalculated()
+    {
+        return getContent().isChecksumCRC32Precalculated();
     }
 
     @Override

@@ -138,6 +138,12 @@ public class ByteArrayBasedContentNode implements IHierarchicalContentNode
     }
 
     @Override
+    public boolean isChecksumCRC32Precalculated()
+    {
+        return false;
+    }
+
+    @Override
     public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
             IOExceptionUnchecked
     {

@@ -212,6 +212,12 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
                 {
                     return null;
                 }
+
+                @Override
+                public boolean isChecksumCRC32Precalculated()
+                {
+                    return false;
+                }
             };
     }
 
@@ -290,6 +296,12 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
                 public File tryGetFile()
                 {
                     return null;
+                }
+
+                @Override
+                public boolean isChecksumCRC32Precalculated()
+                {
+                    return false;
                 }
             };
     }

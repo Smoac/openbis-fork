@@ -141,6 +141,12 @@ class DefaultFileBasedHierarchicalContentNode extends AbstractHierarchicalConten
     }
 
     @Override
+    public boolean isChecksumCRC32Precalculated()
+    {
+        return false;
+    }
+
+    @Override
     public IRandomAccessFile doGetFileContent()
     {
         return new RandomAccessFileImpl(file, "r");

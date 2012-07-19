@@ -219,6 +219,12 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         }
 
         @Override
+        public boolean isChecksumCRC32Precalculated()
+        {
+            return false;
+        }
+
+        @Override
         public File tryGetFile()
         {
             return null;
@@ -328,20 +334,26 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         @Override
         protected int doGetChecksumCRC32()
         {
-            if (checksum == null)
+            if (checksum != null)
             {
-                // TODO 2012-07-19, Bernd Rinn: Use entry.hasChecksum() to reliably detect whether
-                // this entry has a CRC32 checksum once JHDF5 is updated.
-                int entryChecksum = entry.getCrc32();
-                if (entryChecksum != 0)
-                {
-                    checksum = entryChecksum;
-                } else
-                {
-                    checksum = IOUtilities.getChecksumCRC32(doGetInputStream());
-                }
+                return checksum;
+            }
+            if (isChecksumCRC32Precalculated())
+            {
+                checksum = entry.getCrc32();
+            } else
+            {
+                checksum = IOUtilities.getChecksumCRC32(doGetInputStream());
             }
             return checksum;
+        }
+
+        @Override
+        public boolean isChecksumCRC32Precalculated()
+        {
+            // TODO 2012-07-19, Bernd Rinn: Use entry.hasChecksum() to reliably detect whether
+            // this entry has a CRC32 checksum once JHDF5 is updated.
+            return checksum != null || entry.getCrc32() != 0;
         }
 
         @Override

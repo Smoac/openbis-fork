@@ -259,6 +259,12 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         }
 
         @Override
+        public boolean isChecksumCRC32Precalculated()
+        {
+            return pathInfo.getChecksumCRC32() != null;
+        }
+
+        @Override
         public File getFile() throws UnsupportedOperationException
         {
             File result = doGetFile();

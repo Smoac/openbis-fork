@@ -686,6 +686,12 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
                 {
                     throw new UnsupportedOperationException(METHOD_NOT_IMPLEMENTED);
                 }
+
+                @Override
+                public boolean isChecksumCRC32Precalculated()
+                {
+                    return false;
+                }
             };
     }
 

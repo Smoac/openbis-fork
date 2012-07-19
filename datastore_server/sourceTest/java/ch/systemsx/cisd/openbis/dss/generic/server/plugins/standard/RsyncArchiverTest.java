@@ -649,6 +649,12 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         }
 
         @Override
+        public boolean isChecksumCRC32Precalculated()
+        {
+            return true;
+        }
+        
+        @Override
         public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
                 IOExceptionUnchecked
         {
@@ -661,7 +667,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         {
             throw new UnsupportedOperationException();
         }
-        
+
     }
     
     private static final class MockContent implements IHierarchicalContent
