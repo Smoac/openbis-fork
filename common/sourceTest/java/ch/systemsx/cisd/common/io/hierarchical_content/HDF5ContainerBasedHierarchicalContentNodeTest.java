@@ -102,7 +102,7 @@ public class HDF5ContainerBasedHierarchicalContentNodeTest extends AssertJUnit
             {
                 builder.append("\n");
             }
-            builder.append(Long.toHexString(node.getChecksumCRC32()));
+            builder.append(Integer.toHexString(node.getChecksumCRC32()));
             builder.append(" ").append(node.getFileLength());
             builder.append(" ").append(node.getName());
         }
