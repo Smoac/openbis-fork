@@ -111,7 +111,8 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
             } else
             {
                 list.add(new FileInfoDssDTO(startPathNode.getRelativePath(), startPathNode
-                        .getName(), false, startPathNode.getFileLength()));
+                        .getName(), false, startPathNode.getFileLength(), startPathNode
+                        .isChecksumCRC32Precalculated() ? startPathNode.getChecksumCRC32() : null));
             }
             FileInfoDssDTO[] fileInfos = new FileInfoDssDTO[list.size()];
             return list.toArray(fileInfos);

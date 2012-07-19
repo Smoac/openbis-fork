@@ -87,7 +87,8 @@ public class HierarchicalFileInfoDssBuilder
     {
         FileInfoDssDTO fileInfo =
                 new FileInfoDssDTO(node.getRelativePath(), pathRelativeToListingRoot(node),
-                        node.isDirectory(), (node.isDirectory()) ? -1 : node.getFileLength());
+                        node.isDirectory(), (node.isDirectory()) ? -1 : node.getFileLength(),
+                        node.isChecksumCRC32Precalculated() ? node.getChecksumCRC32() : null);
         return fileInfo;
     }
 

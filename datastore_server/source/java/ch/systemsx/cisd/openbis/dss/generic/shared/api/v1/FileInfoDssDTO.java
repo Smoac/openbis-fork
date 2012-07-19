@@ -25,8 +25,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * Represents information about a file stored in DSS.
  * 
@@ -46,13 +44,22 @@ public class FileInfoDssDTO implements Serializable
 
     private long fileSize;
 
+    private Integer crc32Checksum;
+
     public FileInfoDssDTO(String pathInDataSet, String pathInListing, boolean isDirectory,
             long fileSize)
+    {
+        this(pathInDataSet, pathInListing, isDirectory, fileSize, null);
+    }
+
+    public FileInfoDssDTO(String pathInDataSet, String pathInListing, boolean isDirectory,
+            long fileSize, Integer crc32Checksum)
     {
         this.pathInDataSet = pathInDataSet;
         this.pathInListing = pathInListing;
         this.isDirectory = isDirectory;
         this.fileSize = fileSize;
+        this.crc32Checksum = crc32Checksum;
     }
 
     /**
@@ -89,6 +96,17 @@ public class FileInfoDssDTO implements Serializable
         return fileSize;
     }
 
+    /**
+     * Return the CRC32 checksum, if it is available and <code>null</code> otherwise.
+     * <p>
+     * Note that the checksum will only be available when it is precomputed and available from some
+     * sort of database, i.e. if it is computationally "cheap" to provide the checksum.
+     */
+    public Integer tryGetCrc32Checksum()
+    {
+        return crc32Checksum;
+    }
+
     @Override
     public String toString()
     {
@@ -96,6 +114,10 @@ public class FileInfoDssDTO implements Serializable
         sb.append(getPathInDataSet());
         sb.append(getPathInListing());
         sb.append(getFileSize());
+        if (tryGetCrc32Checksum() != null)
+        {
+            sb.append(tryGetCrc32Checksum());
+        }
         return sb.toString();
     }
 
@@ -127,4 +149,10 @@ public class FileInfoDssDTO implements Serializable
     {
         this.fileSize = fileSize;
     }
+
+    private void setCrc32Checksum(int crc32Checksum)
+    {
+        this.crc32Checksum = crc32Checksum;
+    }
+
 }
