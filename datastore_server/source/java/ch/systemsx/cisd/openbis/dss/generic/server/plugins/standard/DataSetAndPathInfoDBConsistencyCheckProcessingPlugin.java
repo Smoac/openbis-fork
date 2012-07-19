@@ -31,6 +31,7 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.io.IOUtilities;
 import ch.systemsx.cisd.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -118,6 +119,9 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
         if (status.getErrorStatuses().isEmpty())
         {
             sendEmail(datasets, context, differences);
+        } else
+        {
+            sendErrorEmail(context, status);
         }
 
         return status;
@@ -239,6 +243,27 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
                 }
                 body.append("\n");
             }
+        }
+
+        mailSender.withBody(body.toString());
+        mailSender.send();
+    }
+
+    private void sendErrorEmail(DataSetProcessingContext context, ProcessingStatus status)
+    {
+        IEmailSender mailSender =
+                new MailService(context.getMailClient(), context.getUserEmailOrNull())
+                        .createEmailSender();
+
+        mailSender.withSubject("File system and path info DB consistency check report");
+
+        final StringBuilder body = new StringBuilder();
+        body.append("Error when checking datasets:\n\n");
+
+        for (Status s : status.getErrorStatuses())
+        {
+            body.append(s.toString());
+            body.append("\n");
         }
 
         mailSender.withBody(body.toString());
@@ -377,11 +402,11 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
     private class ChecksumDifference extends Difference
     {
 
-        private long checksumInFS;
+        private int checksumInFS;
 
-        private long checksumInDB;
+        private int checksumInDB;
 
-        public ChecksumDifference(String path, long checksumInFS, long checksumInDB)
+        public ChecksumDifference(String path, int checksumInFS, int checksumInDB)
         {
             super(path);
             this.checksumInFS = checksumInFS;
@@ -391,8 +416,9 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
         @Override
         public String getDescription()
         {
-            return "'" + getPath() + "' checksum in the file system = " + checksumInFS
-                    + " but in the path info database = " + checksumInDB;
+            return "'" + getPath() + "' checksum in the file system = "
+                    + IOUtilities.crc32ToString(checksumInFS)
+                    + " but in the path info database = " + IOUtilities.crc32ToString(checksumInDB);
         }
 
     }
