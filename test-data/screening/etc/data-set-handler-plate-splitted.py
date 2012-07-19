@@ -76,10 +76,13 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
             return dict[channelCode]
         else:
             return None
-            
-if incoming.isDirectory(): 
-    imageDataset = ImageDataSetFlexible()
-    imageDataset.setRawImageDatasetType()
-    imageDataset.setPlate("PLATONIC", incoming.getName())
-    factory.registerImageDataset(imageDataset, incoming, service)
+
+def process(transaction):
+  incoming = transaction.getIncoming()            
+  if incoming.isDirectory(): 
+      imageDataset = ImageDataSetFlexible()
+      imageDataset.setRawImageDatasetType()
+      imageDataset.setPlate("PLATONIC", incoming.getName())
+      dataSet = transaction.createNewImageDataSet(imageDataset, incoming)
+      transaction.moveFile(incoming.getPath(), dataSet)
     

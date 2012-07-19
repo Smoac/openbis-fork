@@ -63,11 +63,14 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
     def getTileCoordinates(self, tileNumber, tileGeometry):
         return Location(1, 1)
 
-if incoming.isDirectory(): 
+def process(transaction):
+  incoming = transaction.getIncoming()
+  if incoming.isDirectory(): 
     imageDataset = ImageDataSetFlexible()
     imageDataset.setMicroscopyData(True)
     imageDataset.setDataSetType("MICROSCOPY_IMG")
     imageDataset.setMeasuredData(True)
     imageDataset.setPlate("PLATONIC", incoming.getName())
-    factory.registerImageDataset(imageDataset, incoming, service)
+    dataSet = transaction.createNewImageDataSet(imageDataset, incoming)
+    transaction.moveFile(incoming.getPath(), dataSet)
 

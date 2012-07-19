@@ -72,16 +72,18 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
     col = ((tileNumber - 1) % columns) + 1
     return Location(row, col)
 
-      
-if incoming.isDirectory(): 
-  imageDataset = ImageDataSetFlexible()
-  imageDataset.setRawImageDatasetType()
-  imageDataset.setPlate("PLATONIC", incoming.getName())
-  imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
-  datasetInfo = imageRegistrationDetails.getDataSetInformation()
-  channels = [ Channel(code, code) for code in ["DAPI", "GFP", "Cy5"]]
-  colorComponents = [ ChannelColorComponent.BLUE, ChannelColorComponent.GREEN, ChannelColorComponent.RED]
+def process(transaction):
+  incoming = transaction.getIncoming()
+  if incoming.isDirectory(): 
+    imageDataset = ImageDataSetFlexible()
+    imageDataset.setRawImageDatasetType()
+    imageDataset.setPlate("PLATONIC", incoming.getName())
+    imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
+    datasetInfo = imageRegistrationDetails.getDataSetInformation()
+    channels = [ Channel(code, code) for code in ["DAPI", "GFP", "Cy5"]]
+    colorComponents = [ ChannelColorComponent.BLUE, ChannelColorComponent.GREEN, ChannelColorComponent.RED]
   
-  datasetInfo.setChannels(channels, colorComponents)
-  
-  factory.registerImageDataset(imageRegistrationDetails, incoming, service)
+    datasetInfo.setChannels(channels, colorComponents)
+
+    dataSet = transaction.createNewImageDataSet(imageDataset, incoming)
+    transaction.moveFile(incoming.getPath(), dataSet)

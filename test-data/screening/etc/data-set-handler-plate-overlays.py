@@ -70,26 +70,26 @@ class ImageDataSetFlexible(SimpleImageDataConfig):
         col = ((tileNumber - 1) % columns) + 1
         return Location(row, col)
 
-space = "PLATONIC"
-if incoming.isDirectory(): 
-    imageDataset = ImageDataSetFlexible()
-    imageDataset.setSegmentationImageDatasetType()
-    splittedDataSetFolderName = incoming.getName().split('.')
-    plateName = splittedDataSetFolderName[0]
-    imageDataset.setPlate(space, plateName)
-    imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
-    transaction = service.transaction(incoming, factory);
-    newDataset = transaction.createNewDataSet(imageRegistrationDetails);
-    if len(splittedDataSetFolderName) > 2:
-        newDataset.setPropertyValue("$ANALYSIS_PROCEDURE", splittedDataSetFolderName[2])
-    searchService = transaction.getSearchService()
-    searchCriteria = SearchCriteria()
-    searchCriteria.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "HCS_IMAGE_RAW"))
-    sampleCriteria = SearchCriteria()
-    sampleCriteria.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.SPACE, space))
-    sampleCriteria.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, plateName))
-    searchCriteria.addSubCriteria(SearchSubCriteria.createSampleCriteria(sampleCriteria))
-    dataSets = searchService.searchForDataSets(searchCriteria)
-    if dataSets.size() > 0:
-        newDataset.setParentDatasets([dataSets[0].getDataSetCode()])
+def process(transaction):
+  incoming = transaction.getIncoming()
+  space = "PLATONIC"
+  if incoming.isDirectory(): 
+      imageDataset = ImageDataSetFlexible()
+      imageDataset.setSegmentationImageDatasetType()
+      splittedDataSetFolderName = incoming.getName().split('.')
+      plateName = splittedDataSetFolderName[0]
+      imageDataset.setPlate(space, plateName)
+      newDataset = transaction.createNewImageDataSet(imageRegistrationDetails, incoming);
+      if len(splittedDataSetFolderName) > 2:
+          newDataset.setPropertyValue("$ANALYSIS_PROCEDURE", splittedDataSetFolderName[2])
+      searchService = transaction.getSearchService()
+      searchCriteria = SearchCriteria()
+      searchCriteria.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "HCS_IMAGE_RAW"))
+      sampleCriteria = SearchCriteria()
+      sampleCriteria.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.SPACE, space))
+      sampleCriteria.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, plateName))
+      searchCriteria.addSubCriteria(SearchSubCriteria.createSampleCriteria(sampleCriteria))
+      dataSets = searchService.searchForDataSets(searchCriteria)
+      if dataSets.size() > 0:
+          newDataset.setParentDatasets([dataSets[0].getDataSetCode()])
     transaction.moveFile(incoming.getPath(), newDataset)

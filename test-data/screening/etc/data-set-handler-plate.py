@@ -88,7 +88,8 @@ def getAvailableChannelTransformations():
   
   return transforms.getTransformations()
 
-def process():
+def process(transaction):
+  incoming = transaction.getIncoming()
   if incoming.isDirectory(): 
     imageDataset = ImageDataSetFlexible()
     imageDataset.setRawImageDatasetType()
@@ -103,8 +104,6 @@ def process():
         representation.setTransformation(channel, transforms[1].getCode())
     imageDataset.addGeneratedImageRepresentationWithResolution('256x256')
 
-    imageRegistrationDetails = factory.createImageRegistrationDetails(imageDataset, incoming)
-    datasetInfo = imageRegistrationDetails.getDataSetInformation()
     channels = [ Channel(code, code) for code in ["DAPI", "GFP", "Cy5"]]
     colorComponents = [ ChannelColorComponent.BLUE, ChannelColorComponent.GREEN, ChannelColorComponent.RED]
   
@@ -112,8 +111,8 @@ def process():
     for channel in channels:
       channel.setAvailableTransformations(transforms)
   
-    datasetInfo.setChannels(channels, colorComponents)
+    imageDataset.setChannels(channels, colorComponents)
     
     # Create the data set
-    dataSet = transaction.createNewDataSet(imageRegistrationDetails)
+    dataSet = transaction.createNewImageDataSet(imageDataset, incoming)
     transaction.moveFile(incoming.getPath(), dataSet)
