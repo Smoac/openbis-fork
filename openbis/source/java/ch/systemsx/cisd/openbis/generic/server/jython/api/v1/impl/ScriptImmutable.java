@@ -27,9 +27,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
  */
 public class ScriptImmutable implements IScriptImmutable
 {
-    private Script script;
+    protected Script script;
 
-    public ScriptImmutable(Script script)
+    ScriptImmutable(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script script)
     {
         this.script = script;
     }

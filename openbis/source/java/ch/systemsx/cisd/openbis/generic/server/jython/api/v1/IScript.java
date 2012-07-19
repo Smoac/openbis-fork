@@ -17,27 +17,24 @@
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 
 /**
- * Read-only interface to an existing Script.
- * 
  * @author Manuel Kohler
  */
-public interface IScriptImmutable extends IEntityType
+public interface IScript extends IScriptImmutable
 {
 
     /**
-     * Get the description for this script.
+     * Set the description of the script
      */
-    @Override
-    public String getDescription();
+    void setDescription(String description);
 
     /**
-     * Get the name for this script.
+     * Set the name of the script
      */
-    public String getName();
+    void setName(String name);
 
     /**
-     * Get the script itself.
+     * Set the script content
      */
-    public String getScript();
+    void setScript(String script);
 
 }

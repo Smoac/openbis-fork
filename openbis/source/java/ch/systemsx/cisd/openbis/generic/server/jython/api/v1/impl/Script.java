@@ -16,13 +16,33 @@
 
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScript;
+
 /**
  * @author kohleman
  */
-public class Script extends ScriptImmutable
+public class Script extends ScriptImmutable implements IScript
 {
     public Script(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script script)
     {
         super(script);
+    }
+
+    @Override
+    public void setDescription(String description)
+    {
+        script.setDescription(description);
+    }
+
+    @Override
+    public void setName(String name)
+    {
+        script.setName(name);
+    }
+
+    @Override
+    public void setScript(String script)
+    {
+        this.script.setScript(script);
     }
 }

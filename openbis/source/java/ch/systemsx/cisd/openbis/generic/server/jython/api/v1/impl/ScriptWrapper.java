@@ -14,30 +14,34 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
+package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
+
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScript;
 
 /**
- * Read-only interface to an existing Script.
+ * Adapter adapting {@link ScriptImmutable} to {@link IScript}. Setter methods do nothing.
  * 
- * @author Manuel Kohler
+ * @author kohleman
  */
-public interface IScriptImmutable extends IEntityType
+class ScriptWrapper extends ScriptImmutable implements IScript
 {
+    ScriptWrapper(ScriptImmutable script)
+    {
+        super(script.script);
+    }
 
-    /**
-     * Get the description for this script.
-     */
     @Override
-    public String getDescription();
+    public void setDescription(String description)
+    {
+    }
 
-    /**
-     * Get the name for this script.
-     */
-    public String getName();
+    @Override
+    public void setName(String name)
+    {
+    }
 
-    /**
-     * Get the script itself.
-     */
-    public String getScript();
-
+    @Override
+    public void setScript(String script)
+    {
+    }
 }
