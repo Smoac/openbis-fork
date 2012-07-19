@@ -417,7 +417,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
         @Override
         public String getDescription()
         {
-            return "'" + getPath() + "' checksum in the file system = "
+            return "'" + getPath() + "' CRC32 checksum in the file system = "
                     + IOUtilities.crc32ToString(checksumInFS)
                     + " but in the path info database = " + IOUtilities.crc32ToString(checksumInDB);
         }
