@@ -184,8 +184,9 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
                 differences.add(new SizeDifference(fileNode.getRelativePath(), fileNode
                         .getFileLength(), pathInfoNode.getFileLength()));
             }
-            // check checksums
-            if (fileNode.getChecksumCRC32() != pathInfoNode.getChecksumCRC32())
+            // check checksums if stored in path Info db
+            if (pathInfoNode.isChecksumCRC32Precalculated()
+                    && (fileNode.getChecksumCRC32() != pathInfoNode.getChecksumCRC32()))
             {
                 differences.add(new ChecksumDifference(fileNode.getRelativePath(), fileNode
                         .getChecksumCRC32(), pathInfoNode.getChecksumCRC32()));
