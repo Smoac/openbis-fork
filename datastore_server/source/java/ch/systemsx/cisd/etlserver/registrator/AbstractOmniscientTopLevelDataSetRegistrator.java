@@ -209,8 +209,18 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             if (didOperationSucceed)
             {
                 // Registration succeeded -- delete original file
-                operationSuccessful =
-                        FileUtilities.deleteRecursively(incoming.getRealIncomingFile());
+                boolean stillExists = incoming.getRealIncomingFile().exists();
+                if (false == stillExists)
+                {
+                    operationLog
+                            .warn("Incoming file ["
+                                    + incoming.getRealIncomingFile()
+                                    + "] was deleted outside of openBIS after processing started. The data had already been registered in the database.");
+                } else
+                {
+                    operationSuccessful =
+                            FileUtilities.deleteRecursively(incoming.getRealIncomingFile());
+                }
 
                 // If the parent of the hardlink copy file, which we generated, is empty, delete it
                 // too
