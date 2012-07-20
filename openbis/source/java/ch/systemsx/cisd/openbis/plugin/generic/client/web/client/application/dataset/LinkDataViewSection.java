@@ -49,8 +49,6 @@ public class LinkDataViewSection extends TabContent
         Panel content = new FlowPanel();
         content.setStyleName("linkDataViewContent");
         content.add(createInfoWidget());
-        content.add(createCodeWidget());
-        content.add(createDmsWidget());
         content.add(createLinkWidget());
         add(content);
 
@@ -63,35 +61,6 @@ public class LinkDataViewSection extends TabContent
         return label;
     }
 
-    private Widget createCodeWidget()
-    {
-        Label label = new Label(viewContext.getMessage(Dict.LINKED_DATA_SET_CODE));
-        label.addStyleName("linkDataViewLabel");
-        Label value = new Label(StringEscapeUtils.unescapeHtml(dataset.getExternalCode()));
-
-        Panel panel = new HorizontalPanel();
-        panel.add(label);
-        panel.add(value);
-        return panel;
-    }
-
-    private Widget createDmsWidget()
-    {
-        Label label = new Label(viewContext.getMessage(Dict.LINKED_DATA_SET_DMS));
-        label.addStyleName("linkDataViewLabel");
-        Label value =
-                new Label(StringEscapeUtils.unescapeHtml(dataset.getExternalDataManagementSystem()
-                        .getLabel())
-                        + " ("
-                        + StringEscapeUtils.unescapeHtml(dataset.getExternalDataManagementSystem()
-                                .getCode()) + ")");
-
-        Panel panel = new HorizontalPanel();
-        panel.add(label);
-        panel.add(value);
-        return panel;
-    }
-
     private Widget createLinkWidget()
     {
         LinkDataSetAnchor anchor = LinkDataSetAnchor.tryCreate(dataset);
@@ -100,6 +69,9 @@ public class LinkDataViewSection extends TabContent
         {
             Label label = new Label(viewContext.getMessage(Dict.LINKED_DATA_SET_LINK));
             label.addStyleName("linkDataViewLabel");
+
+            anchor.setText(StringEscapeUtils.unescapeHtml(dataset.getExternalDataManagementSystem()
+                    .getLabel() + ":" + StringEscapeUtils.unescapeHtml(dataset.getExternalCode())));
 
             Panel panel = new HorizontalPanel();
             panel.add(label);
