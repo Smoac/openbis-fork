@@ -49,14 +49,14 @@ public class MultilineItemsField extends MultilineVarcharField
     public MultilineItemsField(final String label, final boolean mandatory)
     {
         super(label, mandatory);
-        initItemCounterListeners();
+        initItemCounter();
     }
 
     /** Constructor for multiline field with given number of lines. */
     public MultilineItemsField(final String label, final boolean mandatory, int lines)
     {
         super(label, mandatory, lines);
-        initItemCounterListeners();
+        initItemCounter();
     }
 
     /**
@@ -89,6 +89,7 @@ public class MultilineItemsField extends MultilineVarcharField
         String textValue = createTextValue(items);
         setValue(textValue);
         setOriginalValue(textValue);
+        refreshItemCounter();
     }
 
     public final void appendItem(String item)
@@ -97,10 +98,14 @@ public class MultilineItemsField extends MultilineVarcharField
         sb.append(getValue() == null ? "" : getValue());
         appendItem(sb, item);
         setValue(sb.toString());
+        refreshItemCounter();
     }
 
-    private void initItemCounterListeners()
+    private void initItemCounter()
     {
+        itemCounter = Document.get().createDivElement();
+        itemCounter.setClassName("textarea-item-counter");
+
         addListener(Events.Change, new Listener<FieldEvent>()
             {
                 @Override
@@ -118,11 +123,13 @@ public class MultilineItemsField extends MultilineVarcharField
                     scheduleItemCounterRefresh();
                 }
             });
+
+        refreshItemCounter();
     }
 
     private void scheduleItemCounterRefresh()
     {
-        if (itemCounter != null && itemCounterRefreshTimer == null)
+        if (itemCounterRefreshTimer == null)
         {
             itemCounterRefreshTimer = new Timer()
                 {
@@ -184,8 +191,6 @@ public class MultilineItemsField extends MultilineVarcharField
             table.setCellSpacing(0);
             TableRowElement row = doc.createTRElement();
             TextAreaElement textArea = doc.createTextAreaElement();
-            itemCounter = doc.createDivElement();
-            itemCounter.setClassName("textarea-item-counter");
 
             TableCellElement textAreaCell = doc.createTDElement();
             textAreaCell.appendChild(textArea);
@@ -199,8 +204,6 @@ public class MultilineItemsField extends MultilineVarcharField
 
             setElement((Element) wrapper.cast(), target, index);
             input = el().firstChild().firstChild().firstChild().firstChild();
-
-            refreshItemCounter();
         }
 
         super.onRender(target, index);
