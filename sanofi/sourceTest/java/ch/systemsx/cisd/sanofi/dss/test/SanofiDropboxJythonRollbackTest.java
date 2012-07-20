@@ -158,9 +158,6 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
         queryResult.add(createQueryResult("A1", "material-1"));
         queryResult.add(createQueryResult("B1", "material-1"));
 
-        setUpDataSetExpectations();
-        setUpListAdministratorExpectations();
-
         context.checking(new Expectations()
             {
                 {
@@ -208,6 +205,8 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                             with(equal(USER_EMAILS)));
                 }
             });
+        setUpDataSetExpectations();
+        setUpListAdministratorExpectations();
 
         try
         {

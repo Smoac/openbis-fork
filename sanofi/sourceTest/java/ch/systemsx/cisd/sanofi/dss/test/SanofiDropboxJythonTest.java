@@ -348,9 +348,6 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         queryResult.add(createQueryResult("B1"));
         queryResult.add(createQueryResult("B2"));
 
-        setUpDataSetExpectations();
-        setUpListAdministratorExpectations();
-
         context.checking(new Expectations()
             {
                 {
@@ -384,6 +381,9 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                             with(equal(ALL_EMAILS)));
                 }
             });
+        setUpDataSetExpectations();
+        setUpListAdministratorExpectations();
+
 
         handler.handle(markerFile);
 
@@ -496,9 +496,6 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     {
         createDataSetHandler(false, false);
 
-        setUpDataSetExpectations();
-        setUpListAdministratorExpectations();
-
         final MockDataSet<Map<String, Object>> queryResult = new MockDataSet<Map<String, Object>>();
         queryResult.add(createQueryResult("A1"));
 
@@ -536,6 +533,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                             with(equal(ALL_EMAILS)));
                 }
             });
+        setUpDataSetExpectations();
+        setUpListAdministratorExpectations();
 
         handler.handle(markerFile);
 
@@ -575,9 +574,6 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         queryResult.add(createQueryResult("A1", BATCH_MATERIAL_SUFFIX, "compound_material"));
         queryResult.add(createQueryResult("B1", BATCH_MATERIAL_SUFFIX, "compound_material"));
 
-        setUpDataSetExpectations();
-        setUpListAdministratorExpectations();
-
         context.checking(new Expectations()
             {
                 {
@@ -611,6 +607,8 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                             with(equal(ALL_EMAILS)));
                 }
             });
+        setUpDataSetExpectations();
+        setUpListAdministratorExpectations();
 
         handler.handle(markerFile);
 
