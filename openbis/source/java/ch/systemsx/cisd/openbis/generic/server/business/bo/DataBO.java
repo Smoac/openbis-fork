@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -569,7 +568,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             checkSameSpace(data.getContainer(), data);
         }
 
-        setParents(data, asList(updates.getModifiedParentDatasetCodesOrNull()));
+        setParents(data, asListOrNull(updates.getModifiedParentDatasetCodesOrNull()));
         updateComponents(updates.getModifiedContainedDatasetCodesOrNull());
         checkSameSpace(data, data.getContainedDataSets()); // even if components were not changed
         updateFileFormatType(data, updates.getFileFormatTypeCode());
@@ -579,11 +578,11 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         validateAndSave();
     }
 
-    private List<String> asList(String[] arrayOrNull)
+    private List<String> asListOrNull(String[] arrayOrNull)
     {
         if (arrayOrNull == null)
         {
-            return Collections.emptyList();
+            return null;
         } else
         {
             return Arrays.asList(arrayOrNull);
@@ -614,7 +613,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             removeComponents(currentComponents);
 
             final Set<String> currentCodes = extractCodes(currentComponents);
-            final Set<String> newCodes = asSet(asList(modifiedContainedDatasetCodesOrNull));
+            final Set<String> newCodes = asSet(asListOrNull(modifiedContainedDatasetCodesOrNull));
 
             // quick check for direct cycle
             final Set<String> brandNewCodes = new HashSet<String>(newCodes);

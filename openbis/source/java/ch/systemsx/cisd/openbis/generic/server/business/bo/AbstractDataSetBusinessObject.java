@@ -190,33 +190,50 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         {
             checkParentDeletion(parent, child.getCode());
         }
-        List<DataSetRelationshipPE> oldParents = new ArrayList<DataSetRelationshipPE>();
-        for (DataSetRelationshipPE r : child.getParentRelationships())
+
+        // get old parents
+        List<DataPE> oldParents = new ArrayList<DataPE>();
+        for (DataSetRelationshipPE oldParentRelation : child.getParentRelationships())
         {
-            oldParents.add(r);
+            oldParents.add(oldParentRelation.getParentDataSet());
         }
-        for (DataSetRelationshipPE r : oldParents)
+
+        Set<DataPE> parentsToRemove = new HashSet<DataPE>();
+        Set<DataPE> parentsToAdd = new HashSet<DataPE>();
+
+        // find parents to be added (exist in newParents but do not exist in old parents)
+        for (DataPE newParent : newParents)
         {
-            if (newParents.contains(r.getParentDataSet()))
+            if (oldParents.contains(newParent) == false)
             {
-                newParents.remove(r.getParentDataSet());
+                parentsToAdd.add(newParent);
             }
         }
-        if (validate)
+        // find parents to be removed (exist in oldParents but do not exist in new parents)
+        for (DataPE oldParent : oldParents)
         {
-            validateParentsRelationshipGraph(child, newParents);
-        }
-        for (DataSetRelationshipPE r : oldParents)
-        {
-            if (false == newParents.contains(r.getParentDataSet()))
+            if (newParents.contains(oldParent) == false)
             {
-                relationshipService.removeParentFromDataSet(session, child, r.getParentDataSet());
+                parentsToRemove.add(oldParent);
             }
         }
 
-        for (DataPE newParent : newParents)
+        // check cycles
+        if (validate)
         {
-            relationshipService.addParentToDataSet(session, child, newParent);
+            validateParentsRelationshipGraph(child, parentsToAdd);
+        }
+
+        // remove parents
+        for (DataPE parentToRemove : parentsToRemove)
+        {
+            relationshipService.removeParentFromDataSet(session, child, parentToRemove);
+        }
+
+        // add parents
+        for (DataPE parentToAdd : parentsToAdd)
+        {
+            relationshipService.addParentToDataSet(session, child, parentToAdd);
         }
     }
 
