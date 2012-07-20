@@ -24,6 +24,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.common.io.IOUtilities;
 
 /**
  * Represents information about a file stored in DSS.
@@ -116,7 +117,7 @@ public class FileInfoDssDTO implements Serializable
         sb.append(getFileSize());
         if (tryGetCrc32Checksum() != null)
         {
-            sb.append(tryGetCrc32Checksum());
+            sb.append(IOUtilities.crc32ToString(tryGetCrc32Checksum()));
         }
         return sb.toString();
     }

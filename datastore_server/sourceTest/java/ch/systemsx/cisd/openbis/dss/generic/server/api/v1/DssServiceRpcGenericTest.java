@@ -28,6 +28,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.io.IOUtilities;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.DatasetSessionAuthorizer;
@@ -101,18 +102,22 @@ public class DssServiceRpcGenericTest extends AssertJUnit
             {
                 {
                     one(content).getNode(path);
-                    IHierarchicalContentNode mainNode = context.mock(IHierarchicalContentNode.class, "mainNode");
+                    IHierarchicalContentNode mainNode =
+                            context.mock(IHierarchicalContentNode.class, "mainNode");
                     will(returnValue(mainNode));
-                    
+
                     allowing(mainNode).getName();
                     will(returnValue("main-node"));
-                    
+
                     allowing(mainNode).isDirectory();
+                    will(returnValue(false));
+
+                    allowing(mainNode).isChecksumCRC32Precalculated();
                     will(returnValue(false));
                     
                     allowing(mainNode).getRelativePath();
                     will(returnValue(path));
-                    
+
                     one(mainNode).getFileLength();
                     will(returnValue(42L));
                 }
@@ -129,7 +134,6 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    
     @Test
     public void testFilesForData()
     {
@@ -139,77 +143,91 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         prepareAuthorizationCheck(dataSetCode);
         prepareGetContent(dataSetCode);
         context.checking(new Expectations()
-        {
             {
-                IHierarchicalContentNode mainNode = createNodeMock("mainNode");
-                one(content).getNode(path);
-                will(returnValue(mainNode));
-                
-                IHierarchicalContentNode childNode1 = createNodeMock("childNode1");
-                IHierarchicalContentNode childNode1Child1 = createNodeMock("childNode1Child1");
-                IHierarchicalContentNode childNode1Child2 = createNodeMock("childNode1Child2");
-                IHierarchicalContentNode childNode2 = createNodeMock("childNode2");
-                IHierarchicalContentNode childNode2Child1 = createNodeMock("childNode2Child1");
-                IHierarchicalContentNode childNode3 = createNodeMock("childNode3");
-                
-                prepareDirectoryNode(mainNode, path, childNode1, childNode2, childNode3);
-                // child1
-                prepareDirectoryNode(childNode1, path + "/child1", childNode1Child1,
-                        childNode1Child2);
-                prepareFileNode(childNode1Child1, path + "/child1/child1", 11);
-                prepareFileNode(childNode1Child2, path + "/child1/child2", 12);
-                // child2
-                prepareDirectoryNode(childNode2, path + "/child2", childNode2Child1);
-                prepareFileNode(childNode2Child1, path + "/child2/child1", 21);
-                // child3
-                prepareFileNode(childNode3, path + "/child3", 3);
-            }
-            
-            private IHierarchicalContentNode createNodeMock(String mockName)
-            {
-                return context.mock(IHierarchicalContentNode.class, mockName);
-            }
-            
-            private void prepareFileNode(IHierarchicalContentNode node,
-                    final String relativePath, long length)
-            {
-                allowing(node).isDirectory();
-                will(returnValue(false));
-                allowing(node).getRelativePath();
-                will(returnValue(relativePath));
-                one(node).getFileLength();
-                will(returnValue(length));
-            }
-            
-            private void prepareDirectoryNode(IHierarchicalContentNode node,
-                    final String relativePath, IHierarchicalContentNode... childNodes)
-            {
-                allowing(node).isDirectory();
-                will(returnValue(true));
-                allowing(node).getRelativePath();
-                will(returnValue(relativePath));
-                one(node).getChildNodes();
-                will(returnValue(Arrays.asList(childNodes)));
-            }
-        });
-        
+                {
+                    IHierarchicalContentNode mainNode = createNodeMock("mainNode");
+                    one(content).getNode(path);
+                    will(returnValue(mainNode));
+
+                    IHierarchicalContentNode childNode1 = createNodeMock("childNode1");
+                    IHierarchicalContentNode childNode1Child1 = createNodeMock("childNode1Child1");
+                    IHierarchicalContentNode childNode1Child2 = createNodeMock("childNode1Child2");
+                    IHierarchicalContentNode childNode2 = createNodeMock("childNode2");
+                    IHierarchicalContentNode childNode2Child1 = createNodeMock("childNode2Child1");
+                    IHierarchicalContentNode childNode3 = createNodeMock("childNode3");
+
+                    prepareDirectoryNode(mainNode, path, childNode1, childNode2, childNode3);
+                    // child1
+                    prepareDirectoryNode(childNode1, path + "/child1", childNode1Child1,
+                            childNode1Child2);
+                    prepareFileNode(childNode1Child1, path + "/child1/child1", 11, 123);
+                    prepareFileNode(childNode1Child2, path + "/child1/child2", 12, -17);
+                    // child2
+                    prepareDirectoryNode(childNode2, path + "/child2", childNode2Child1);
+                    prepareFileNode(childNode2Child1, path + "/child2/child1", 21, 42);
+                    // child3
+                    prepareFileNode(childNode3, path + "/child3", 3, 1111);
+                }
+
+                private IHierarchicalContentNode createNodeMock(String mockName)
+                {
+                    return context.mock(IHierarchicalContentNode.class, mockName);
+                }
+
+                private void prepareFileNode(IHierarchicalContentNode node,
+                        final String relativePath, long length, int crc32Checksum)
+                {
+                    allowing(node).isDirectory();
+                    will(returnValue(false));
+                    allowing(node).getRelativePath();
+                    will(returnValue(relativePath));
+                    one(node).getFileLength();
+                    will(returnValue(length));
+                    one(node).isChecksumCRC32Precalculated();
+                    will(returnValue(true));
+                    one(node).getChecksumCRC32();
+                    will(returnValue(crc32Checksum));
+                }
+
+                private void prepareDirectoryNode(IHierarchicalContentNode node,
+                        final String relativePath, IHierarchicalContentNode... childNodes)
+                {
+                    allowing(node).isDirectory();
+                    will(returnValue(true));
+                    one(node).isChecksumCRC32Precalculated();
+                    will(returnValue(false));
+                    allowing(node).getRelativePath();
+                    will(returnValue(relativePath));
+                    one(node).getChildNodes();
+                    will(returnValue(Arrays.asList(childNodes)));
+                }
+            });
+
         FileInfoDssDTO[] dataSets =
-            dssService.listFilesForDataSet(SESSION_TOKEN, dataSetCode, path, true);
-        
+                dssService.listFilesForDataSet(SESSION_TOKEN, dataSetCode, path, true);
+
         assertEquals(6, dataSets.length);
-        assertEquals(fileInfoString(path, "child1", -1), dataSets[0].toString());
-        assertEquals(fileInfoString(path, "child1/child1", 11), dataSets[1].toString());
-        assertEquals(fileInfoString(path, "child1/child2", 12), dataSets[2].toString());
-        assertEquals(fileInfoString(path, "child2", -1), dataSets[3].toString());
-        assertEquals(fileInfoString(path, "child2/child1", 21), dataSets[4].toString());
-        assertEquals(fileInfoString(path, "child3", 3), dataSets[5].toString());
+        assertEquals(fileInfoString(path, "child1", -1, null), dataSets[0].toString());
+        assertEquals(fileInfoString(path, "child1/child1", 11, 123), dataSets[1].toString());
+        assertEquals(fileInfoString(path, "child1/child2", 12, -17), dataSets[2].toString());
+        assertEquals(fileInfoString(path, "child2", -1, null), dataSets[3].toString());
+        assertEquals(fileInfoString(path, "child2/child1", 21, 42), dataSets[4].toString());
+        assertEquals(fileInfoString(path, "child3", 3, 1111), dataSets[5].toString());
         context.assertIsSatisfied();
     }
-    
-    private static String fileInfoString(String startPath, String pathInListing, long length)
+
+    private static String fileInfoString(String startPath, String pathInListing, long length,
+            Integer checksum)
     {
-        return String.format("FileInfoDssDTO[%s/%s,%s,%d]", startPath, pathInListing,
-                pathInListing, length);
+        if (checksum != null)
+        {
+            return String.format("FileInfoDssDTO[%s/%s,%s,%d,%s]", startPath, pathInListing,
+                    pathInListing, length, IOUtilities.crc32ToString(checksum));
+        } else
+        {
+            return String.format("FileInfoDssDTO[%s/%s,%s,%d]", startPath, pathInListing,
+                    pathInListing, length);
+        }
     }
 
     private void prepareLockDataSet(final String dataSetCode)
