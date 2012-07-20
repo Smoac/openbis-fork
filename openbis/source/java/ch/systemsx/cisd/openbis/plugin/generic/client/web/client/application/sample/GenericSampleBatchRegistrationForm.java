@@ -78,6 +78,7 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
         groupSelector =
                 createGroupField(viewContext.getCommonViewContext(), "" + getId(), true,
                         generateCodesCheckbox);
+
         generateCodesCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
             {
                 @Override
@@ -85,6 +86,22 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
                 {
                     boolean selected = (Boolean) be.getValue();
                     FieldUtil.setVisibility(selected, groupSelector);
+                    if (selected)
+                    {
+                        updateExistingCheckbox.setValue(false);
+                    }
+                }
+            });
+        updateExistingCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
+            {
+                @Override
+                public void handleEvent(FieldEvent be)
+                {
+                    boolean selected = (Boolean) be.getValue();
+                    if (selected)
+                    {
+                        generateCodesCheckbox.setValue(false);
+                    }
                 }
             });
     }
