@@ -266,6 +266,10 @@ body,div,td,.default-text {
 	font-style: italic;
 }
 
+.textarea-item-counter {
+	margin-left: 5px;	
+}
+
 /*****************************
  * Movie buttons
  *****************************/

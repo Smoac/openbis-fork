@@ -18,6 +18,18 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.google.gwt.dom.client.DivElement;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.TableCellElement;
+import com.google.gwt.dom.client.TableElement;
+import com.google.gwt.dom.client.TableRowElement;
+import com.google.gwt.dom.client.TextAreaElement;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
+
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 
@@ -28,16 +40,23 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
  */
 public class MultilineItemsField extends MultilineVarcharField
 {
+
+    private DivElement itemCounter;
+
+    private Timer itemCounterRefreshTimer;
+
     /** Constructor for default sized field (5 lines). */
     public MultilineItemsField(final String label, final boolean mandatory)
     {
         super(label, mandatory);
+        initItemCounterListeners();
     }
 
     /** Constructor for multiline field with given number of lines. */
     public MultilineItemsField(final String label, final boolean mandatory, int lines)
     {
         super(label, mandatory, lines);
+        initItemCounterListeners();
     }
 
     /**
@@ -50,6 +69,11 @@ public class MultilineItemsField extends MultilineVarcharField
         {
             return null;
         }
+        return getItems();
+    }
+
+    public final String[] getItems()
+    {
         String text = getValue();
         if (StringUtils.isBlank(text) == false)
         {
@@ -75,6 +99,60 @@ public class MultilineItemsField extends MultilineVarcharField
         setValue(sb.toString());
     }
 
+    private void initItemCounterListeners()
+    {
+        addListener(Events.Change, new Listener<FieldEvent>()
+            {
+                @Override
+                public void handleEvent(FieldEvent be)
+                {
+                    scheduleItemCounterRefresh();
+                }
+            });
+
+        addListener(Events.KeyUp, new Listener<FieldEvent>()
+            {
+                @Override
+                public void handleEvent(FieldEvent be)
+                {
+                    scheduleItemCounterRefresh();
+                }
+            });
+    }
+
+    private void scheduleItemCounterRefresh()
+    {
+        if (itemCounter != null && itemCounterRefreshTimer == null)
+        {
+            itemCounterRefreshTimer = new Timer()
+                {
+                    @Override
+                    public void run()
+                    {
+                        refreshItemCounter();
+                        itemCounterRefreshTimer = null;
+                    }
+                };
+            itemCounterRefreshTimer.schedule(300);
+        }
+    }
+
+    private void refreshItemCounter()
+    {
+        String[] items = getItems();
+        int count = 0;
+
+        for (String item : items)
+        {
+            if (!StringUtils.isBlank(item))
+            {
+                count++;
+            }
+        }
+
+        itemCounter.setInnerText("(" + count + ")");
+    }
+
     private static String createTextValue(List<String> items)
     {
         StringBuilder sb = new StringBuilder();
@@ -92,6 +170,40 @@ public class MultilineItemsField extends MultilineVarcharField
             sb.append(GenericConstants.ITEMS_TEXTAREA_DEFAULT_SEPARATOR);
         }
         sb.append(item);
+    }
+
+    @Override
+    protected void onRender(Element target, int index)
+    {
+        if (el() == null)
+        {
+            Document doc = Document.get();
+            DivElement wrapper = doc.createDivElement();
+            TableElement table = doc.createTableElement();
+            table.setCellPadding(0);
+            table.setCellSpacing(0);
+            TableRowElement row = doc.createTRElement();
+            TextAreaElement textArea = doc.createTextAreaElement();
+            itemCounter = doc.createDivElement();
+            itemCounter.setClassName("textarea-item-counter");
+
+            TableCellElement textAreaCell = doc.createTDElement();
+            textAreaCell.appendChild(textArea);
+            TableCellElement itemCounterCell = doc.createTDElement();
+            itemCounterCell.appendChild(itemCounter);
+
+            row.appendChild(textAreaCell);
+            row.appendChild(itemCounterCell);
+            table.appendChild(row);
+            wrapper.appendChild(table);
+
+            setElement((Element) wrapper.cast(), target, index);
+            input = el().firstChild().firstChild().firstChild().firstChild();
+
+            refreshItemCounter();
+        }
+
+        super.onRender(target, index);
     }
 
 }
