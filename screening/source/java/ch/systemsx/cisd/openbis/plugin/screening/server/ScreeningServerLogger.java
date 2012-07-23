@@ -444,7 +444,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     public List<PlateMetadata> getPlateMetadataList(String sessionToken,
             List<? extends PlateIdentifier> plates) throws IllegalArgumentException
     {
-        logAccess(sessionToken, "getPlates", "plates(%s)", plates);
+        logAccess(sessionToken, "getPlateMetadataList", "#plates: %s", plates.size());
         return null;
     }
 
