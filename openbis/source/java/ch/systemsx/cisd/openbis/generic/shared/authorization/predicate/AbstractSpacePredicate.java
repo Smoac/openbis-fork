@@ -76,7 +76,7 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
                 return Status.OK;
             } else
             {
-                return createError(person, spaceCodeOrNull);
+                return createError(person);
             }
         }
 
@@ -85,13 +85,44 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
         {
             return Status.OK;
         }
-        return createError(person, spaceCodeOrNull);
+        return createError(person);
     }
 
-    private Status createError(final PersonPE person, final String spaceCodeOrNull)
+    protected Status evaluate(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
+            final DatabaseInstancePE databaseInstance, final long spaceTechId)
+    {
+        final String databaseInstanceUUID = databaseInstance.getUuid();
+        return evaluate(person, allowedRoles, databaseInstanceUUID, databaseInstance.getCode(),
+                spaceTechId);
+    }
+
+    protected Status evaluate(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
+            final String databaseInstanceUUID, final String databaseInstanceCode,
+            final long spaceTechId)
+    {
+        if (tryFindSpace(databaseInstanceUUID, spaceTechId) == null)
+        {
+            if (okForNonExistentSpaces)
+            {
+                return Status.OK;
+            } else
+            {
+                return createError(person);
+            }
+        }
+
+        final boolean matching = isMatching(allowedRoles, databaseInstanceUUID, spaceTechId);
+        if (matching)
+        {
+            return Status.OK;
+        }
+        return createError(person);
+    }
+
+    private Status createError(final PersonPE person)
     {
         return Status.createError(String.format("User '%s' does not have enough privileges.",
-                person.getUserId(), spaceCodeOrNull));
+                person.getUserId()));
     }
 
     private SpacePE tryFindSpace(final String databaseInstanceUUID, final String spaceCode)
@@ -99,6 +130,18 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
         for (final SpacePE space : spaces)
         {
             if (equalIdentifier(space, databaseInstanceUUID, spaceCode))
+            {
+                return space;
+            }
+        }
+        return null;
+    }
+
+    private SpacePE tryFindSpace(final String databaseInstanceUUID, final long spaceTechId)
+    {
+        for (final SpacePE space : spaces)
+        {
+            if (equalIdentifier(space, databaseInstanceUUID, spaceTechId))
             {
                 return space;
             }
@@ -128,6 +171,28 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
         return false;
     }
 
+    private boolean isMatching(final List<RoleWithIdentifier> allowedRoles,
+            final String databaseInstanceUUID, final long spaceTechId)
+    {
+        for (final RoleWithIdentifier role : allowedRoles)
+        {
+            final RoleLevel roleLevel = role.getRoleLevel();
+            if (roleLevel.equals(RoleLevel.SPACE)
+                    && equalIdentifier(role.getAssignedSpace(), databaseInstanceUUID,
+                            spaceTechId))
+            {
+                return true;
+            } else if (roleLevel.equals(RoleLevel.INSTANCE)
+                    && role.getAssignedDatabaseInstance().getUuid().equals(databaseInstanceUUID))
+            {
+                // permissions on the database instance level allow to access all spaces in this
+                // instance
+                return true;
+            }
+        }
+        return false;
+    }
+
     private boolean equalIdentifier(final SpacePE space, final String databaseInstanceUUID,
             final String spaceCodeOrNull)
     {
@@ -135,14 +200,22 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
                 && space.getDatabaseInstance().getUuid().equals(databaseInstanceUUID);
     }
 
-    protected Status evaluateSpace(final PersonPE person, final List<RoleWithIdentifier> allowedRoles, final SpacePE spaceOrNull)
+    private boolean equalIdentifier(final SpacePE space, final String databaseInstanceUUID,
+            final long spaceTechId)
+    {
+        return (space.getId() == spaceTechId)
+                && space.getDatabaseInstance().getUuid().equals(databaseInstanceUUID);
+    }
+
+    protected Status evaluateSpace(final PersonPE person,
+            final List<RoleWithIdentifier> allowedRoles, final SpacePE spaceOrNull)
     {
         if (spaceOrNull == null)
         {
             return Status.createError(String.format("User '%s' does not have enough privileges.",
                     person.getUserId()));
         }
-    
+
         final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceOrNull);
         final DatabaseInstancePE databaseInstance = spaceOrNull.getDatabaseInstance();
         return evaluate(person, allowedRoles, databaseInstance, spaceCode);

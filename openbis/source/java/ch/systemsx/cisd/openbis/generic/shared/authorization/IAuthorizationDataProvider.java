@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.authorization;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Set;
 
@@ -148,4 +149,9 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
      * Fetches all deletions with given tech ids.
      */
     public List<DeletionPE> getDeletions(List<TechId> deletionIds);
+
+    /**
+     * Returns the JDBC connection.
+     */
+    public Connection getConnection();
 }

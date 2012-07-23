@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
+import java.sql.Connection;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -477,5 +478,11 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     private static final <T> List<T> cast(final List list)
     {
         return list;
+    }
+
+    @Override
+    public Connection getConnection()
+    {
+        return daoFactory.getConnection();
     }
 }
