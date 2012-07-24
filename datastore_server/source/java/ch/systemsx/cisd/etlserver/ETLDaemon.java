@@ -610,7 +610,7 @@ public final class ETLDaemon
                     if (scannedStore.existsOrError(storeItem))
                     {
                         StringBuffer sb = new StringBuffer();
-                        sb.append("The thread configuration setting"
+                        sb.append("The thread configuration setting "
                                 + ch.systemsx.cisd.etlserver.ThreadParameters.REPROCESS_FAULTY_DATASETS_NAME
                                 + " = true.");
                         sb.append(" File "

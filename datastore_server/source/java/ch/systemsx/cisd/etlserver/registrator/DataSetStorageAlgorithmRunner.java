@@ -475,7 +475,11 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private void rollbackDuringMetadataRegistration(Throwable ex)
     {
-        operationLog.error("Failed to register metadata", ex);
+        if (false == ex instanceof IncomingFileDeletedBeforeRegistrationException)
+        {
+            // Don't log if the file was deleted before registration, we already know.
+            operationLog.error("Failed to register metadata", ex);
+        }
         rollbackStorageProcessors(ex);
         rollbackDelegate.didRollbackStorageAlgorithmRunner(this, ex,
                 ErrorType.OPENBIS_REGISTRATION_FAILURE);
@@ -576,8 +580,10 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         {
             result = registerData(registrationId, registrationData);
         }
-
-        dssRegistrationLog.log("Data has been registered with the openBIS Application Server.");
+        if (result)
+        {
+            dssRegistrationLog.log("Data has been registered with the openBIS Application Server.");
+        }
         return result;
     }
 
@@ -621,6 +627,14 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
                     applicationServerRegistrator.registerDataSetsInApplicationServer(
                             registrationId, registrationData);
                     return true;
+                } catch (IncomingFileDeletedBeforeRegistrationException e)
+                {
+                    operationLog
+                            .warn("The incoming file was deleted before registration. Nothing was registered in openBIS.");
+                    dssRegistrationLog
+                            .log("The incoming file was deleted before registration. Nothing was registered in openBIS.");
+                    rollbackDuringMetadataRegistration(e);
+                    return false;
                 } catch (final Throwable exception)
                 {
                     operationLog.error("Error in registrating data in application server",
@@ -753,8 +767,12 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private void rollbackStorageProcessors(Throwable ex)
     {
-        operationLog.error(
-                "Error during dataset registration: " + ExceptionUtils.getRootCauseMessage(ex), ex);
+        if (false == ex instanceof IncomingFileDeletedBeforeRegistrationException)
+        {
+            operationLog.error(
+                    "Error during dataset registration: " + ExceptionUtils.getRootCauseMessage(ex),
+                    ex);
+        }
 
         // Errors which are not AssertionErrors leave the system in a state that we don't
         // know and can't trust. Thus we will not perform any operations any more in this

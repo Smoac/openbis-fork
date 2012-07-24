@@ -504,8 +504,11 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     public void didRollbackStorageAlgorithmRunner(DataSetStorageAlgorithmRunner<T> algorithm,
             Throwable ex, ErrorType errorType)
     {
-
-        operationLog.error("The error ", ex);
+        if (false == ex instanceof IncomingFileDeletedBeforeRegistrationException)
+        {
+            // Don't log if the file was deleted before registration, we already know.
+            operationLog.error("The error ", ex);
+        }
         boolean useAutoRecovery = autoRecoverySettings == AutoRecoverySettings.USE_AUTO_RECOVERY;
 
         IDataSetStorageRecoveryManager storageRecoveryManager =
