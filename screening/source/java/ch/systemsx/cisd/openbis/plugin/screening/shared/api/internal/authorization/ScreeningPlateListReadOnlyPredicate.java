@@ -71,7 +71,7 @@ public class ScreeningPlateListReadOnlyPredicate extends
             }
             
             final String spaceCodeOrNull =
-                    SpaceCodeHelper.getSpaceCode(person, plate.tryGetSpaceCode());
+                    SpaceCodeHelper.tryGetSpaceCode(person, plate.tryGetSpaceCode());
             if (spaceCodeOrNull == null && hasPermId == false)
             {
                 throw new UndefinedSpaceException();
@@ -103,7 +103,7 @@ public class ScreeningPlateListReadOnlyPredicate extends
         return Status.OK;
     }
 
-    private final static int SAMPLE_PERM_ID_LIMIT = 999;
+    private final static int ARRAY_SIZE_LIMIT = 999;
 
     interface ISampleToSpaceQuery extends BaseQuery
     {
@@ -117,13 +117,13 @@ public class ScreeningPlateListReadOnlyPredicate extends
         final ISampleToSpaceQuery query =
                 QueryTool.getQuery(authorizationDataProvider.getConnection(),
                         ISampleToSpaceQuery.class);
-        if (permIds.size() > SAMPLE_PERM_ID_LIMIT)
+        if (permIds.size() > ARRAY_SIZE_LIMIT)
         {
             final Set<Long> spaceIds = new HashSet<Long>(permIds.size());
-            for (int startIdx = 0; startIdx < permIds.size(); startIdx += SAMPLE_PERM_ID_LIMIT)
+            for (int startIdx = 0; startIdx < permIds.size(); startIdx += ARRAY_SIZE_LIMIT)
             {
                 final List<String> permIdSubList = permIds.subList(startIdx,
-                        Math.min(permIds.size(), startIdx + SAMPLE_PERM_ID_LIMIT));
+                        Math.min(permIds.size(), startIdx + ARRAY_SIZE_LIMIT));
                 spaceIds.addAll(query.getSampleSpaceIds(permIdSubList.toArray(
                         new String[permIdSubList.size()])));
             }
