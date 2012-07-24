@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractSpacePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedSpaceException;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 
@@ -62,22 +63,27 @@ public class ScreeningPlateListReadOnlyPredicate extends
         final List<String> permIds = new ArrayList<String>(plates.size());
         for (PlateIdentifier plate : plates)
         {
+            boolean hasPermId = false;
             if (plate.getPermId() != null)
             {
                 permIds.add(plate.getPermId());
-            } else
+                hasPermId = true;
+            }
+            
+            final String spaceCodeOrNull =
+                    SpaceCodeHelper.getSpaceCode(person, plate.tryGetSpaceCode());
+            if (spaceCodeOrNull == null && hasPermId == false)
             {
-                final String spaceCode =
-                        SpaceCodeHelper.getSpaceCode(person, plate.tryGetSpaceCode());
-                if (plate.isSharedPlate() == false)
+                throw new UndefinedSpaceException();
+            }
+            if (spaceCodeOrNull != null && plate.isSharedPlate() == false)
+            {
+                final Status status =
+                        evaluate(person, allowedRoles, authorizationDataProvider
+                                .getHomeDatabaseInstance(), spaceCodeOrNull);
+                if (Status.OK.equals(status) == false)
                 {
-                    final Status status =
-                            evaluate(person, allowedRoles, authorizationDataProvider
-                                    .getHomeDatabaseInstance(), spaceCode);
-                    if (Status.OK.equals(status) == false)
-                    {
-                        return status;
-                    }
+                    return status;
                 }
             }
         }
