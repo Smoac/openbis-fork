@@ -14,29 +14,32 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.authorization.predicate;
+package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
+import java.util.Collections;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DelegatedPredicate;
 
 /**
- * Predicate based on {@link Experiment}.
+ * Predicate based on {@link ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample}. This
+ * predicate authorizes for read-only access, i.e. it will allow access to shared samples for all
+ * users.
  * 
- * @author Franz-Josef Elmer
+ * @author Bernd Rinn
  */
-public class SamplePredicate extends DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder>
+public class SamplePredicate extends DelegatedPredicate<List<Sample>, Sample>
 {
     public SamplePredicate()
     {
-        super(new SampleOwnerIdentifierPredicate());
+        super(new SampleListPredicate());
     }
 
     @Override
-    public SampleOwnerIdentifier tryConvert(IIdentifierHolder value)
+    public List<Sample> tryConvert(Sample value)
     {
-        return SampleIdentifierFactory.parse(value.getIdentifier());
+        return Collections.singletonList(value);
     }
 
     @Override

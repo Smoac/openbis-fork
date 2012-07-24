@@ -39,6 +39,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleListPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePredicate;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.datasetlister.DataSetLister;
@@ -76,7 +78,6 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.DataSetByExperimentIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectByIdentiferValidator;
@@ -422,7 +423,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
     public List<DataSet> listDataSets(String sessionToken,
-            @AuthorizationGuard(guardClass = SamplePredicate.class)
+            @AuthorizationGuard(guardClass = SampleListPredicate.class)
             List<Sample> samples)
     {
         return listDataSets(sessionToken, samples, EnumSet.noneOf(Connections.class));
@@ -651,7 +652,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
     public List<DataSet> listDataSets(String sessionToken,
-            @AuthorizationGuard(guardClass = SamplePredicate.class)
+            @AuthorizationGuard(guardClass = SampleListPredicate.class)
             List<Sample> samples, EnumSet<Connections> connections)
     {
         checkSession(sessionToken);

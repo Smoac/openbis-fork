@@ -24,13 +24,16 @@ import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DelegatedPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentIdentifierPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SamplePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
@@ -175,13 +178,15 @@ public class AuthorizationServiceUtils
 
     public List<String> filterSampleIds(String user, List<String> sampleIds)
     {
-        PersonPE person = getUserByName(user);
-        List<RoleWithIdentifier> userRoles = DefaultAccessController.getUserRoles(person);
+        final DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder> predicate =
+                createSampleOwnerPredicate();
+        final PersonPE person = getUserByName(user);
+        final List<RoleWithIdentifier> userRoles = DefaultAccessController.getUserRoles(person);
 
-        LinkedList<String> resultList = new LinkedList<String>();
+        final LinkedList<String> resultList = new LinkedList<String>();
         for (String sampleIdentifier : sampleIds)
         {
-            if (canAccessSample(person, userRoles, sampleIdentifier))
+            if (canAccessSample(predicate, person, userRoles, sampleIdentifier))
             {
                 resultList.add(sampleIdentifier);
             }
@@ -189,14 +194,11 @@ public class AuthorizationServiceUtils
         return resultList;
     }
 
-    private boolean canAccessSample(PersonPE person, List<RoleWithIdentifier> allowedRoles,
+    private boolean canAccessSample(
+            final DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder> predicate,
+            final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final String sampleIdentifier)
     {
-
-        SamplePredicate predicate = new SamplePredicate();
-
-        predicate.init(new AuthorizationDataProvider(daoFactory));
-
         final Status status = predicate.evaluate(person, allowedRoles, new IIdentifierHolder()
             {
                 @Override
@@ -206,7 +208,28 @@ public class AuthorizationServiceUtils
                 }
             });
 
-        return (status.getFlag().equals(StatusFlag.OK));
+        return Status.OK.equals(status);
     }
 
+    private DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder> createSampleOwnerPredicate()
+    {
+        final DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder> predicate =
+                new DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder>(
+                        new SampleOwnerIdentifierPredicate())
+                    {
+                        @Override
+                        public SampleOwnerIdentifier tryConvert(IIdentifierHolder value)
+                        {
+                            return SampleIdentifierFactory.parse(value.getIdentifier());
+                        }
+
+                        @Override
+                        public String getCandidateDescription()
+                        {
+                            return "sample";
+                        }
+                    };
+        predicate.init(new AuthorizationDataProvider(daoFactory));
+        return predicate;
+    }
 }
