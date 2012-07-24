@@ -174,6 +174,11 @@ public class EncapsulatedCommonServer
         commonServer.registerDataSetType(sessionToken, dataSetType.getDataSetType());
     }
 
+    public void registerScript(Script script)
+    {
+        commonServer.registerScript(sessionToken, script.script);
+    }
+
     public void registerMaterialType(MaterialTypeImmutable materialType)
     {
         commonServer.registerMaterialType(sessionToken, materialType.getMaterialType());

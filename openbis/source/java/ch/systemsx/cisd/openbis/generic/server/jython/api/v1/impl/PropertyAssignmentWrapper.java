@@ -24,8 +24,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyAssignment
  * 
  * @author Franz-Josef Elmer
  */
-class PropertyAssignmentWrapper extends PropertyAssignmentImmutable implements
-        IPropertyAssignment
+class PropertyAssignmentWrapper extends PropertyAssignmentImmutable implements IPropertyAssignment
 {
     PropertyAssignmentWrapper(PropertyAssignmentImmutable entityTypePropType)
     {
@@ -49,6 +48,26 @@ class PropertyAssignmentWrapper extends PropertyAssignmentImmutable implements
 
     @Override
     public void setPositionInForms(Long position)
+    {
+    }
+
+    @Override
+    public void setScriptName(String scriptName)
+    {
+    }
+
+    @Override
+    public void setDynamic(boolean dynamic)
+    {
+    }
+
+    @Override
+    public void setManaged(boolean managed)
+    {
+    }
+
+    @Override
+    public void setShownEdit(boolean edit)
     {
     }
 

@@ -17,15 +17,17 @@
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScript;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 
 /**
- * @author kohleman
+ * @author Manuel Kohler
  */
 public class Script extends ScriptImmutable implements IScript
 {
-    public Script(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script script)
+    public Script()
     {
-        super(script);
+        super();
     }
 
     @Override
@@ -44,5 +46,17 @@ public class Script extends ScriptImmutable implements IScript
     public void setScript(String script)
     {
         this.script.setScript(script);
+    }
+
+    @Override
+    public void setScriptType(String scriptType)
+    {
+        script.setScriptType(ScriptType.valueOf(scriptType));
+    }
+
+    @Override
+    public void setEntityForScript(String entityKind)
+    {
+        script.setEntityKind(EntityKind.valueOf(entityKind));
     }
 }

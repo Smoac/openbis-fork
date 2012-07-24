@@ -18,6 +18,7 @@ VARNAME_PREFIXES = {
   "EXPERIMENT" : "exp_type_",
   "SAMPLE" : "samp_type_",
   "DATA_SET" : "data_set_type_",
+  "SCRIPT" : "script_",
   "MATERIAL" : "material_type_",
   "PROPERTY" : "prop_type_",
   "ASSIGNMENT" : "assignment_",
@@ -59,6 +60,20 @@ def strLiteral(var):
     else: 
         # NULL
         return 'None'
+
+def scriptify(scriptBody):
+  returnstring = ""
+  comment = "'''"
+  escapedComment = '\\' + comment
+  lineIterator = iter(scriptBody.splitlines())
+  for line in lineIterator:
+    if comment in line:
+      line = line.replace (comment, escapedComment)
+    returnstring += line + "\n"
+  return ("'''" + returnstring + "'''")
+
+def replaceSpace(stringWithSpaces):
+  return stringWithSpaces.replace(" ", "_")
     
 def codeLiteral(code):
     normalized = code
@@ -91,7 +106,7 @@ def exportVocabulary(vocabulary):
     if (vocabulary.getCode() in EXISTING_VOCABULARY):
         result = ""
     else:
-        result = """
+        result = """    
 %(var)s = tr.getOrCreateNewVocabulary(%(code)s)
 %(var)s.setDescription(%(description)s)
 %(var)s.setUrlTemplate(%(urlTemplate)s)
@@ -123,7 +138,7 @@ def exportVocabulary(vocabulary):
             newTerm = codeLiteral(termDict[term][1])
             term_description = termDict[term][2]
             term_label = termDict[term][3]
-            result = result + """
+            result = result + """          
 %(termvar)s = tr.createNewVocabularyTerm(%(newTerm)s)
 %(termvar)s.setDescription(%(term_description)s)
 %(termvar)s.setLabel(%(term_label)s)
@@ -169,6 +184,8 @@ def exportDataSetType(dataSetType):
     code = codeLiteral(dataSetType.getCode())
     description = strLiteral(dataSetType.getDescription())
     dataSetKind = strLiteral(dataSetType.getDataSetKind())
+    mainDataSetPattern = dataSetType.getMainDataSetPattern()
+    mainDataSetPath = dataSetType.getMainDataSetPath()
     deletionDisallowed = dataSetType.isDeletionDisallowed()
     if (dataSetType.getCode() in EXISTING_DATASET_TYPES):
         return ""
@@ -177,7 +194,34 @@ def exportDataSetType(dataSetType):
 %(var)s = tr.getOrCreateNewDataSetType(%(code)s)
 %(var)s.setDescription(%(description)s)
 %(var)s.setDataSetKind(%(dataSetKind)s)
+%(var)s.setMainDataSetPattern(%(mainDataSetPattern)s)
+%(var)s.setMainDataSetPath(%(mainDataSetPath)s)
 %(var)s.setDeletionDisallowed(%(deletionDisallowed)s)
+""" % vars()
+
+def exportScripts (script):
+  var = getVarName("SCRIPT", replaceSpace(script.getName()))
+  name = strLiteral(replaceSpace(script.getName()))
+  description = strLiteral(script.getDescription())
+  scriptBody = scriptify(script.getScript())
+  scriptType = strLiteral(script.getScriptType())
+  scriptEntity = strLiteral(str(script.getEntity()))
+  if str(script.getEntity()) == 'None':
+    return """
+%(var)s = tr.getOrCreateNewScript(%(name)s)
+%(var)s.setName(%(name)s)
+%(var)s.setDescription(%(description)s)
+%(var)s.setScript(%(scriptBody)s)
+%(var)s.setScriptType(%(scriptType)s)
+""" % vars()
+  else:
+    return """
+%(var)s = tr.getOrCreateNewScript(%(name)s)
+%(var)s.setName(%(name)s)
+%(var)s.setDescription(%(description)s)
+%(var)s.setScript(%(scriptBody)s)
+%(var)s.setEntityForScript(%(scriptEntity)s)
+%(var)s.setScriptType(%(scriptType)s)
 """ % vars()
 
 def exportMaterialType(materialType):
@@ -226,12 +270,29 @@ def exportAssignment(assignment):
     isMandatory = assignment.isMandatory()
     section = strLiteral(assignment.getSection())
     posInForms = assignment.getPositionInForms()
-    return """
+    scriptName = strLiteral(assignment.getScriptName())
+    isDynamic = assignment.isDynamic()
+    isManaged = assignment.isManaged()
+    isShownEdit = assignment.shownInEditViews()
+    if str(assignment.getScriptName()) == 'None':
+      return """
 %(var)s = tr.assignPropertyType(%(entityVar)s, %(propertyVar)s)
 %(var)s.setMandatory(%(isMandatory)s)
 %(var)s.setSection(%(section)s)
 %(var)s.setPositionInForms(%(posInForms)s)
 """ % vars()
+    else:
+      return """
+%(var)s = tr.assignPropertyType(%(entityVar)s, %(propertyVar)s)
+%(var)s.setMandatory(%(isMandatory)s)
+%(var)s.setSection(%(section)s)
+%(var)s.setPositionInForms(%(posInForms)s)
+%(var)s.setScriptName(%(scriptName)s)
+%(var)s.setDynamic(%(isDynamic)s)
+%(var)s.setManaged(%(isManaged)s)
+%(var)s.setShownEdit(%(isShownEdit)s)
+""" % vars()      
+
 
 def exportExternalDataManagementSystem(edms):
     var = getVarName("EXTERNAL_DATA_MANAGEMENT_SYSTEM", edms.getCode())
@@ -263,16 +324,27 @@ tr = service.transaction()
 
 exportedContent = (
   [exportFileFormatType(fileType) for fileType in tr.listFileFormatTypes()] + 
+  ["""\nprint "Imported """ + str(len(tr.listFileFormatTypes())) + """ File Formats" """] + 
   [exportVocabulary(vocabulary)   for vocabulary in tr.listVocabularies()] + 
+  ["""\nprint "Imported """ + str(len(tr.listVocabularies())) + """ Vocabularies" """] + 
   [exportExperimentType(expType)  for expType in tr.listExperimentTypes()] + 
+  ["""\nprint "Imported """ + str(len(tr.listExperimentTypes())) + """ Experiment Types" """] + 
   [exportSampleType(sampleType)   for sampleType in tr.listSampleTypes()] + 
+  ["""\nprint "Imported """ + str(len(tr.listSampleTypes())) + """ Sample Types" """] + 
   [exportDataSetType(dataSetType) for dataSetType in tr.listDataSetTypes()] + 
+  ["""\nprint "Imported """ + str(len(tr.listDataSetTypes())) + """ Data Set Types" """] + 
+  [exportScripts(scripts) for scripts in tr.listScripts()] + 
+  ["""\nprint "Imported """ + str(len(tr.listScripts())) + """ Scripts" """] + 
   [exportMaterialType(materialType) for materialType in tr.listMaterialTypes()] + 
+  ["""\nprint "Imported """ + str(len(tr.listMaterialTypes())) + """ Material Types" """] + 
   [exportPropertyType(propertyType) for propertyType in tr.listPropertyTypes()] + 
-  [exportAssignment(assignment) for assignment in tr.listPropertyAssignments()] +
-  [exportExternalDataManagementSystem(edms) for edms in tr.listExternalDataManagementSystems()] 
+  ["""\nprint "Imported """ + str(len(tr.listPropertyTypes())) + """ Property Types" """] + 
+  [exportAssignment(assignment) for assignment in tr.listPropertyAssignments()] + 
+  ["""\nprint "Imported """ + str(len(tr.listPropertyAssignments())) + """ Property Assignments" """] + 
+  [exportExternalDataManagementSystem(edms) for edms in tr.listExternalDataManagementSystems()] + 
+  ["""\nprint "Imported """ + str(len(tr.listExternalDataManagementSystems())) + """ External DMSs" """]
 );
-    
+
 if not os.path.exists(outDir):
     os.makedirs(outDir)
     
@@ -280,12 +352,15 @@ out = codecs.open(outDir + "/master-data.py", "w", ENCODING)
 out.write("""# -*- coding: %(ENCODING)s -*-
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
 
+print ("Importing Master Data...")
+
 tr = service.transaction()
 
 """ % vars())
 
 exportedText = ''.join(exportedContent)
 out.write(exportedText.encode(ENCODING))
+out.write("\nprint (\"Import of Master Data finished.\") ")
 out.close()
 
 print "DONE"

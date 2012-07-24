@@ -54,4 +54,24 @@ public interface IPropertyAssignmentImmutable
      */
     Long getPositionInForms();
 
+    /**
+     * Return the name of the script in case of a dynamic or managed property
+     */
+    String getScriptName();
+
+    /**
+     * Return <code>true</code> if the property is dynamic
+     */
+    boolean isDynamic();
+
+    /**
+     * Return <code>true</code> if the property is managed
+     */
+    boolean isManaged();
+
+    /**
+     * Return <code>true</code> if the property is shown in the edit views
+     */
+    boolean shownInEditViews();
+
 }

@@ -44,4 +44,24 @@ public interface IPropertyAssignment extends IPropertyAssignmentImmutable
      */
     void setPositionInForms(Long position);
 
+    /**
+     * If handled by a script, the name is set here as a reference.
+     */
+    void setScriptName(String scriptName);
+
+    /**
+     * Set to <code>true</code> if the dynamic property is handled by a script.
+     */
+    void setDynamic(boolean dynamic);
+
+    /**
+     * Set to <code>true</code> if the managed property is handled by a script.
+     */
+    void setManaged(boolean managed);
+
+    /**
+     * Set to <code>true</code> if the sript-handled property should be shown in the edit mode.
+     */
+    void setShownEdit(boolean edit);
+
 }

@@ -20,24 +20,31 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.EntityKind;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScriptImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 
 /**
- * @author kohleman
+ * @author Manuel Kohler
  */
 public class ScriptImmutable implements IScriptImmutable
 {
-    protected Script script;
+    // protected Script script;
+
+    protected final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script script;
 
     ScriptImmutable(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script script)
     {
         this.script = script;
     }
 
-    @Override
-    public EntityKind getEntityKind()
+    ScriptImmutable()
     {
-        return EntityKind.valueOf(script.getEntityKind().name());
+        this(new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script());
+    }
+
+    @Override
+    public String getEntity()
+    {
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind kind = script.getEntityKind();
+        return kind == null ? null : kind.toString();
     }
 
     @Override
@@ -68,9 +75,10 @@ public class ScriptImmutable implements IScriptImmutable
         return script.getId();
     }
 
-    public ScriptType getScriptType()
+    @Override
+    public String getScriptType()
     {
-        return script.getScriptType();
+        return script.getScriptType().name();
     }
 
     @Override
@@ -93,7 +101,15 @@ public class ScriptImmutable implements IScriptImmutable
     @Override
     public String getCode()
     {
-        return script.getId().toString();
+        // there is no code for scripts, so we take the name as code
+        return script.getName();
+    }
+
+    @Override
+    public EntityKind getEntityKind()
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

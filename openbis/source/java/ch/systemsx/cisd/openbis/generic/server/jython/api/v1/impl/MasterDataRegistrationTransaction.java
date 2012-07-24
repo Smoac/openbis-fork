@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyTypeImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.ISampleType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.ISampleTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScript;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScriptImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabulary;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyImmutable;
@@ -58,6 +59,8 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     private final List<SampleType> createdSampleTypes = new ArrayList<SampleType>();
 
     private final List<DataSetType> createdDataSetTypes = new ArrayList<DataSetType>();
+
+    private final List<Script> createdScripts = new ArrayList<Script>();
 
     private final List<MaterialType> createdMaterialTypes = new ArrayList<MaterialType>();
 
@@ -183,6 +186,36 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     }
 
     @Override
+    public IScriptImmutable getScript(String code)
+    {
+        return findTypeForCode(commonServer.listScripts(), code);
+    }
+
+    @Override
+    public IScript getOrCreateNewScript(String code)
+    {
+        IScriptImmutable script = getScript(code);
+        if (script != null)
+        {
+            return new ScriptWrapper((ScriptImmutable) script);
+        }
+        return createNewScript();
+    }
+
+    private IScript createNewScript()
+    {
+        Script script = new Script();
+        createdScripts.add(script);
+        return script;
+    }
+
+    @Override
+    public List<IScriptImmutable> listScripts()
+    {
+        return commonServer.listScripts();
+    }
+
+    @Override
     public IMaterialType createNewMaterialType(String code)
     {
         MaterialType materialType = new MaterialType(code);
@@ -242,11 +275,6 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     public List<IFileFormatTypeImmutable> listFileFormatTypes()
     {
         return commonServer.listFileFormatTypes();
-    }
-
-    public List<IScriptImmutable> listScripts()
-    {
-        return commonServer.listScripts();
     }
 
     @Override
@@ -441,6 +469,7 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         registerExperimentTypes(createdExperimentTypes);
         registerSampleTypes(createdSampleTypes);
         registerDataSetTypes(createdDataSetTypes);
+        registerScripts(createdScripts);
         registerMaterialTypes(createdMaterialTypes);
         registerPropertyTypes(createdPropertyTypes);
         registerPropertyAssignments(createdAssignments);
@@ -499,6 +528,20 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
             } catch (Exception ex)
             {
                 transactionErrors.addTypeRegistrationError(ex, dataSetType);
+            }
+        }
+    }
+
+    private void registerScripts(List<Script> scripts)
+    {
+        for (Script script : scripts)
+        {
+            try
+            {
+                commonServer.registerScript(script);
+            } catch (Exception ex)
+            {
+                transactionErrors.addTypeRegistrationError(ex, script);
             }
         }
     }
@@ -566,4 +609,5 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
             commonServer.createOrUpdateExternalDataManagementSystem(edms);
         }
     }
+
 }

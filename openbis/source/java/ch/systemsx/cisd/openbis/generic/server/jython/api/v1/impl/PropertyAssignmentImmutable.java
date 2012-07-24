@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.EntityKind;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyAssignmentImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
 /**
  * @author Kaloyan Enimanev
@@ -72,6 +73,31 @@ public class PropertyAssignmentImmutable implements IPropertyAssignmentImmutable
     public EntityKind getEntityKind()
     {
         return EntityKind.valueOf(entityTypePropType.getEntityKind().name());
+    }
+
+    @Override
+    public boolean shownInEditViews()
+    {
+        return entityTypePropType.isShownInEditView();
+    }
+
+    @Override
+    public String getScriptName()
+    {
+        Script script = entityTypePropType.getScript();
+        return script == null ? null : script.getName();
+    }
+
+    @Override
+    public boolean isDynamic()
+    {
+        return entityTypePropType.isDynamic();
+    }
+
+    @Override
+    public boolean isManaged()
+    {
+        return entityTypePropType.isManaged();
     }
 
 }

@@ -37,4 +37,14 @@ public interface IScript extends IScriptImmutable
      */
     void setScript(String script);
 
+    /**
+     * Set the script type
+     */
+    void setScriptType(String scriptType);
+
+    /**
+     * Set the entity Type of the script
+     */
+    void setEntityForScript(String entityKind);
+
 }

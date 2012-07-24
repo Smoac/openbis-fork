@@ -44,4 +44,14 @@ class ScriptWrapper extends ScriptImmutable implements IScript
     public void setScript(String script)
     {
     }
+
+    @Override
+    public void setScriptType(String scriptType)
+    {
+    }
+
+    @Override
+    public void setEntityForScript(String entityKind)
+    {
+    }
 }

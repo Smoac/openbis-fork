@@ -23,6 +23,15 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
  */
 public interface IScriptImmutable extends IEntityType
 {
+    /**
+     * Get the entity of the script. The values can be EXPERIMENT, SAMPLE, DATA_SET, MATERIAL.
+     */
+    public String getEntity();
+
+    /**
+     * Get the type of script. The values can be either DYNAMIC or MANAGED
+     */
+    public String getScriptType();
 
     /**
      * Get the description for this script.

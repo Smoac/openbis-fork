@@ -110,6 +110,26 @@ public interface IMasterDataRegistrationTransaction
     List<IDataSetTypeImmutable> listDataSetTypes();
 
     /**
+     * Get a script from the openBIS AS. Returns null if the script does not exist.
+     * 
+     * @return A script or null
+     */
+    IScriptImmutable getScript(String code);
+
+    /**
+     * Gets or creates a script from the openBIS AS.
+     * 
+     * @return the already existing script or a freshly created one if it doesn't exist. Setter
+     *         methods on the returned script are ignored if the script already exists.
+     */
+    IScript getOrCreateNewScript(String code);
+
+    /**
+     * Return all scripts existing in the openBIS AS.
+     */
+    List<IScriptImmutable> listScripts();
+
+    /**
      * Create a new material type to register with the openBIS AS.
      * 
      * @param code the material type's code.

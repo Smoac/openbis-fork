@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 
-
 /**
  * @author Kaloyan Enimanev
  */
@@ -31,7 +30,7 @@ public interface IDataSetType extends IDataSetTypeImmutable
     public void setContainerType(boolean isContainerType);
 
     /**
-     * Sets the data set kind (EXTERNAL, CONTAINER or LINK)
+     * Sets the data set kind (PHYSICAL, CONTAINER or LINK)
      */
     public void setDataSetKind(String kind);
 

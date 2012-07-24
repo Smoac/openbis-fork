@@ -35,7 +35,7 @@ public interface IDataSetTypeImmutable extends IEntityType
     public boolean isLinkType();
 
     /**
-     * Get the kind of the data set type (EXTERNAL, CONTAINER or LINK)
+     * Get the kind of the data set type (PHYSICAL, CONTAINER or LINK)
      */
     public String getDataSetKind();
 

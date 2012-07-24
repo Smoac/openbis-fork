@@ -107,4 +107,52 @@ public class PropertyAssignment implements IPropertyAssignment
         return ch.systemsx.cisd.openbis.generic.server.jython.api.v1.EntityKind.valueOf(name);
     }
 
+    @Override
+    public boolean shownInEditViews()
+    {
+        return assignment.isShownInEditView();
+    }
+
+    @Override
+    public String getScriptName()
+    {
+        return assignment.getScriptName();
+    }
+
+    @Override
+    public boolean isDynamic()
+    {
+        return assignment.isDynamic();
+    }
+
+    @Override
+    public boolean isManaged()
+    {
+        return assignment.isManaged();
+    }
+
+    @Override
+    public void setScriptName(String scriptName)
+    {
+        assignment.setScriptName(scriptName);
+    }
+
+    @Override
+    public void setDynamic(boolean dynamic)
+    {
+        assignment.setDynamic(dynamic);
+    }
+
+    @Override
+    public void setManaged(boolean managed)
+    {
+        assignment.setManaged(managed);
+    }
+
+    @Override
+    public void setShownEdit(boolean edit)
+    {
+        assignment.setShownInEditView(edit);
+    }
+
 }
