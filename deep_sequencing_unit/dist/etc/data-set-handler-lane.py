@@ -44,7 +44,7 @@ def getFileNames(path=incomingPath):
   matches.sort()
   return(matches)
 
-def writeMetadataFile (fileName, parentPropertyTypes, parentPropertiesMap):
+def writeMetadataFile (fileName, parentPropertyTypes, parentPropertiesMap, fcMetaDataDict, fcMetaDataList):
   '''
   Writes a file of meta date related to one sample
   '''
@@ -52,7 +52,14 @@ def writeMetadataFile (fileName, parentPropertyTypes, parentPropertiesMap):
     metaDataFile = open(fileName,'w')
     for propertyType in parentPropertyTypes:
       metaDataFile.write(propertyType.encode('utf-8') + "\t" +
-      parentPropertiesMap[propertyType].tryGetAsString().encode('utf-8') + "\n")
+                         parentPropertiesMap[propertyType].tryGetAsString().encode('utf-8') + "\n")
+    
+    metaDataFile.write("\nFLOWCELL PROPERTIES\n".encode('utf-8'))
+
+    for fcMetaData in fcMetaDataList:
+      metaDataFile.write(fcMetaData.encode('utf-8') + "\t" +
+                         fcMetaDataDict[fcMetaData].tryGetAsString().encode('utf-8') + "\n")
+      pass
   except IOError:
     print ('File error, could not write '+ fileName)
   finally:
@@ -108,6 +115,40 @@ if (len(split) ==4):
   flowLane = split[-1]
   incoming_sample=runningDate+ '_'+ flowCellId + ':' + flowLane
 
+
+# -------------------------------------------------------------------------------
+
+def getFlowCellMetaData (flowCellId):
+  
+  def sortedDictValues(adict):
+    keys = adict.keys()
+    keys.sort()
+    return map(adict.get, keys)
+  
+  search = transaction.getSearchService()
+  sc = SearchCriteria()
+  print('Searching FlowCell: '+ str(flowCellId))
+  sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, flowCellId));
+  foundFlowCells = search.searchForSamples(sc)
+
+  try:
+    assert foundFlowCells.size() == 1
+  except AssertionError:
+    print (str(foundFlowCells.size()) + ' flow cells found which match the criterias: '+ flowCellId)
+  
+  fcPropertiesDict = {}
+  fcPropertyTypes = []
+
+  fcProperties = foundFlowCells[0].getSample().getProperties()
+  for property in fcProperties:
+      code = property.getPropertyType().getSimpleCode()
+      fcPropertyTypes.append(code)
+      fcPropertiesDict[code] = property
+  
+  fcPropertyTypes.sort()
+  return fcPropertiesDict, fcPropertyTypes
+
+
 # -------------------------------------------------------------------------------
 
 # Get the search service
@@ -132,7 +173,7 @@ else :
 
 # search for the parents
 sc = SearchCriteria()
-# set the Serach Criteria to an OR condition, default is AND
+# set the Search Criteria to an OR condition, default is AND
 sc.setOperator(SearchCriteria.SearchOperator.MATCH_ANY_CLAUSES)
 # Get the codes for all parents
 for parent in parents:
@@ -163,7 +204,7 @@ for f in range(0,len(folders)):
     parentProperties = parent.getProperties()
     # just get the current code
     parentCode = parent.getCode()
-    print("Found parent code: "+ parentCode)
+    #print("Found parent code: "+ parentCode)
 
     # reformat Java ArrayList and Sort
     parentPropertyTypes = []
@@ -194,7 +235,7 @@ for f in range(0,len(folders)):
       completeBarcode=barcode + "-" + index2
 
     parentPropertyTypes.sort()
-    # BSSE-DSU-1754_C0364ACXX_CTTGTAA-AACC_L007_R1_001.fastq.gz
+    # BSSE--1754_C0364ACXX_CTTGTAA-AACC_L007_R1_001.fastq.gz
     nameOfFile = parentCode + "_" + flowCellId + "_" + completeBarcode + "_L00" + flowLane +METADATA_FILE_SUFFIX
 
     if (parentCode == folders[f].split('_')[1]):
@@ -203,8 +244,9 @@ for f in range(0,len(folders)):
       #print("Creating metadata file:" + nameOfFile)
       # get a file from the IDataSetRegistrationTransaction so it is automatically part of the data set
       pathToFile = transaction.createNewFile(dataSet, folders[f], nameOfFile)
-      # use this file path to write to this file
-      writeMetadataFile(pathToFile, parentPropertyTypes, parentPropertiesMap)
+      
+      fcMetaDataDict, fcMetaDataList = getFlowCellMetaData(incoming_sample.split(":")[0])
+      writeMetadataFile(pathToFile, parentPropertyTypes, parentPropertiesMap, fcMetaDataDict, fcMetaDataList)
  
       affiliation_name = parentPropertiesMap[AFFILIATION_PROPERTY_NAME].tryGetAsString()
       extraCopy (affiliation_name, pathToFile) 
