@@ -91,9 +91,9 @@ public class ScreeningPlateListReadOnlyPredicate extends
         {
             for (Long spaceId : getSampleSpaceIds(permIds))
             {
-                if (spaceId == null)
+                if (spaceId == null || spaceId == 0)
                 {
-                    continue; // Shared samples will return a spaceId of null.
+                    continue; // Shared samples will return a spaceId of null (or 0 in EoDSQL).
                 }
                 final Status status =
                         evaluate(person, allowedRoles, authorizationDataProvider
