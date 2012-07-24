@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
@@ -98,7 +100,6 @@ public class SqlMigrationDataSource implements DataSource, DisposableBean
         return "MyDataSource[" + driver + ", " + url + ", " + owner + "]";
     }
 
-    // NOTE: the following methods are needed because we compile with JDK 6 on Hudson
     @Override
     public boolean isWrapperFor(Class<?> arg0) throws SQLException
     {
@@ -107,6 +108,12 @@ public class SqlMigrationDataSource implements DataSource, DisposableBean
 
     @Override
     public <T> T unwrap(Class<T> arg0) throws SQLException
+    {
+        return null;
+    }
+
+    //@Override -- un-comment when switching to Java 1.7
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException
     {
         return null;
     }
