@@ -53,7 +53,6 @@ public class RemoteApiTestCase extends AbstractTransactionalTestNGSpringContextT
         server = new Server();
         Connector connector = new SelectChannelConnector();
         connector.setPort(8888);
-        connector.setMaxIdleTime(360000);
         server.addConnector(connector);
         DispatcherServlet dispatcherServlet = new DispatcherServlet()
             {
