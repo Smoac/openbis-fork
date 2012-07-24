@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedSpaceException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -70,6 +70,31 @@ public class SpaceCodeHelper
     /**
      * Tries to find out the space.
      * <p>
+     * If given <var>spaceCode</var> specifies the home space, the home space of the
+     * {@link PersonPE} is returned. May return <code>null</code>, if no home space is defined for
+     * the user.
+     * </p>
+     */
+    public final static String tryGetSpaceCode(final PersonPE person, final String spaceCode)
+            throws UndefinedSpaceException
+    {
+        if (isHomeSpace(spaceCode))
+        {
+            final SpacePE homeSpace = person.getHomeSpace();
+            if (homeSpace == null)
+            {
+                return null;
+            }
+            return homeSpace.getCode();
+        } else
+        {
+            return spaceCode;
+        }
+    }
+
+    /**
+     * Tries to find out the space.
+     * <p>
      * If given <var>spaceCode</var> is a home space, the real space must be specified as home space
      * in given {@link PersonPE}.
      * </p>
@@ -79,18 +104,12 @@ public class SpaceCodeHelper
     public final static String getSpaceCode(final PersonPE person, final String spaceCode)
             throws UndefinedSpaceException
     {
-        if (isHomeSpace(spaceCode))
+        final String spaceCodeOrNull = tryGetSpaceCode(person, spaceCode);
+        if (spaceCodeOrNull == null)
         {
-            final SpacePE homeGroup = person.getHomeSpace();
-            if (homeGroup == null)
-            {
-                throw new UndefinedSpaceException();
-            }
-            return homeGroup.getCode();
-        } else
-        {
-            return spaceCode;
+            throw new UndefinedSpaceException();
         }
+        return spaceCodeOrNull;
     }
 
     /**
