@@ -21,12 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Widget;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentVersionsSection;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -58,6 +52,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractEntityDataSetsSection;
 
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Widget;
+
 /**
  * The <i>generic</i> experiment viewer.
  * 
@@ -72,7 +72,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    protected final IViewContext<IGenericClientServiceAsync> viewContext;
+    protected final IViewContext<IGenericClientServiceAsync> localViewContext;
 
     protected final IIdAndCodeHolder experimentId;
 
@@ -102,7 +102,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
 
         this.experimentId = experimentId;
         this.experimentType = experimentType;
-        this.viewContext = viewContext;
+        this.localViewContext = viewContext;
         setLayout(new BorderLayout());
         extendToolBar();
 
@@ -124,7 +124,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
 
     private void extendToolBar()
     {
-        if (viewContext.isSimpleOrEmbeddedMode())
+        if (localViewContext.isSimpleOrEmbeddedMode())
         {
             return;
         }
@@ -137,7 +137,8 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
                             isTrashEnabled() ? createDeletionCallback()
                                     : createPermanentDeletionCallback();
                     new ExperimentListDeletionConfirmationDialog(
-                            viewContext.getCommonViewContext(), callback, getOriginalData()).show();
+                            localViewContext.getCommonViewContext(), callback, getOriginalData())
+                            .show();
                 }
             }));
         addToolBarButton(createRevertDeletionButton(new IDelegatedAction()
@@ -145,7 +146,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
                 @Override
                 public void execute()
                 {
-                    new RevertDeletionConfirmationDialog(viewContext.getCommonViewContext(),
+                    new RevertDeletionConfirmationDialog(localViewContext.getCommonViewContext(),
                             getOriginalData(), createRevertDeletionCallback()).show();
                 }
             }));
@@ -154,7 +155,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
     @Override
     protected void reloadAllData()
     {
-        reloadExperiment(new AbstractAsyncCallback<Experiment>(viewContext)
+        reloadExperiment(new AbstractAsyncCallback<Experiment>(localViewContext)
             {
 
                 @Override
@@ -168,16 +169,16 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
 
     protected void reloadExperiment(AbstractAsyncCallback<Experiment> callback)
     {
-        viewContext.getCommonService().getExperimentInfo(new TechId(experimentId), callback);
+        localViewContext.getCommonService().getExperimentInfo(new TechId(experimentId), callback);
     }
 
     private void layoutExperimentDetailView()
     {
-        int logId = viewContext.log("layoutExperimentDetailView");
+        int logId = localViewContext.log("layoutExperimentDetailView");
         updateOriginalData(experiment);
         removeAll();
 
-        propertiesPanelOrNull = new ExperimentPropertiesPanel(experiment, viewContext, this);
+        propertiesPanelOrNull = new ExperimentPropertiesPanel(experiment, localViewContext, this);
         Component lowerLeftComponentOrNull = tryCreateLowerLeftComponent();
         if (lowerLeftComponentOrNull != null)
         {
@@ -186,10 +187,10 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
         add(propertiesPanelOrNull, createLeftBorderLayoutData());
         configureLeftPanel(propertiesPanelOrNull);
 
-        final Html loadingLabel = new Html(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
+        final Html loadingLabel = new Html(localViewContext.getMessage(Dict.LOAD_IN_PROGRESS));
         add(loadingLabel, createRightBorderLayoutData());
         layout();
-        viewContext.logStop(logId);
+        localViewContext.logStop(logId);
 
         GWTUtils.executeDelayed(new IDelegatedAction()
             {
@@ -236,7 +237,8 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
     private AttachmentVersionsSection createAttachmentsSection()
     {
         final IAttachmentHolder attachmentHolder = asExperimentAttachmentHolder(experimentId);
-        return new AttachmentVersionsSection(viewContext.getCommonViewContext(), attachmentHolder);
+        return new AttachmentVersionsSection(localViewContext.getCommonViewContext(),
+                attachmentHolder);
     }
 
     private static IAttachmentHolder asExperimentAttachmentHolder(
@@ -278,7 +280,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
         dataSection.setIds(DisplayTypeIDGenerator.DATA_SETS_SECTION);
         allPanels.add(dataSection);
 
-        allPanels.add(EntityHistoryGrid.createPropertiesHistorySection(viewContext,
+        allPanels.add(EntityHistoryGrid.createPropertiesHistorySection(localViewContext,
                 EntityKind.EXPERIMENT, new TechId(experimentId)));
 
         final AttachmentVersionsSection attachmentsSection = createAttachmentsSection();
@@ -289,14 +291,14 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
 
     protected DisposableTabContent createExperimentSampleSection()
     {
-        return new ExperimentSamplesSection(viewContext,
-                viewContext.getMessage(Dict.EXPERIMENT_SAMPLES_SELCTION_TITLE), experimentType,
-                experimentId);
+        return new ExperimentSamplesSection(localViewContext,
+                localViewContext.getMessage(Dict.EXPERIMENT_SAMPLES_SELCTION_TITLE),
+                experimentType, experimentId);
     }
 
     private DisposableTabContent createExperimentDataSetSection()
     {
-        return new AbstractEntityDataSetsSection(viewContext, new TechId(experimentId),
+        return new AbstractEntityDataSetsSection(localViewContext, new TechId(experimentId),
                 experimentType)
             {
 
@@ -313,7 +315,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
     private SectionsPanel layoutSections(List<DisposableTabContent> allPanels)
     {
         final SectionsPanel container =
-                new SectionsPanel(viewContext.getCommonViewContext(), ID_PREFIX + experimentId);
+                new SectionsPanel(localViewContext.getCommonViewContext(), ID_PREFIX + experimentId);
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_EXPERIMENT_VIEWER, displayIdSuffix);
         for (DisposableTabContent panel : allPanels)
         {
@@ -364,6 +366,6 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
     @Override
     protected String getDeleteButtonLabel()
     {
-        return viewContext.getMessage(Dict.BUTTON_DELETE_EXPERIMENT);
+        return localViewContext.getMessage(Dict.BUTTON_DELETE_EXPERIMENT);
     }
 }
