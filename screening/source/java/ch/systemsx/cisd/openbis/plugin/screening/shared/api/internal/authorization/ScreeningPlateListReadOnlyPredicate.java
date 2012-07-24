@@ -91,6 +91,10 @@ public class ScreeningPlateListReadOnlyPredicate extends
         {
             for (Long spaceId : getSampleSpaceIds(permIds))
             {
+                if (spaceId == null)
+                {
+                    continue; // Shared samples will return a spaceId of null.
+                }
                 final Status status =
                         evaluate(person, allowedRoles, authorizationDataProvider
                                 .getHomeDatabaseInstance(), spaceId);
