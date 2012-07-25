@@ -85,7 +85,7 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
         // - technical id
         // - permanent id
         // - space code
-        // - space identifier
+        // - identifier
         final List<Long> ids = new ArrayList<Long>(samples.size());
         final List<String> permIds = new ArrayList<String>(samples.size());
         for (Sample sample : samples)
@@ -122,9 +122,9 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
         }
         for (Long spaceId : getSampleSpaceIds(ids, permIds))
         {
-            if (spaceId == null || spaceId == 0)
+            if (spaceId == null)
             {
-                continue; // Shared samples will return a spaceId of null (or 0 in EoDSQL).
+                continue; // Shared samples will return a spaceId of null.
             }
             final Status status =
                     evaluate(person, allowedRoles, spaceId);
