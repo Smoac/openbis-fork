@@ -184,8 +184,8 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
 
     protected void initGUI()
     {
-        addFormFields();
         setValues();
+        addFormFields();
         setLoading(false);
         layout();
     }
