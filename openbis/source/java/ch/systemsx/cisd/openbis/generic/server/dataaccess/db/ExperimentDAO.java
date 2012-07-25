@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
@@ -360,6 +361,11 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         template.flush();
 
         scheduleDynamicPropertiesEvaluation(Collections.singletonList(experiment));
+
+        // BIS-128: with scheduling dynamic properties evaluation we assure that the sample index is
+        // reindexed.
+        scheduleDynamicPropertiesEvaluation(getDynamicPropertyEvaluatorScheduler(), SamplePE.class,
+                experiment.getSamples());
     }
 
     @Override
