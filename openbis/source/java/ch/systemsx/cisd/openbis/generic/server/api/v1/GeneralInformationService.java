@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentListPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleListPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePredicate;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -76,7 +77,6 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capabili
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentIdentifierPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.DataSetByExperimentIdentifierValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExperimentByIdentiferValidator;
@@ -696,7 +696,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
     public List<DataSet> listDataSetsForExperiments(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentPredicate.class)
+            @AuthorizationGuard(guardClass = ExperimentListPredicate.class)
             List<Experiment> experiments, EnumSet<Connections> connections)
     {
         checkSession(sessionToken);
