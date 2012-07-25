@@ -223,20 +223,31 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
 
             NoOpDelegate delegate = new NoOpDelegate(preStagingUsage);
 
-            @SuppressWarnings("unchecked")
-            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory =
-                    (IDataSetRegistrationDetailsFactory<T>) new DefaultDataSetRegistrationDetailsFactory(
-                            getRegistratorState(), null);
-
             DataSetRegistrationService<T> service =
-                    new DataSetRegistrationService<T>(this, incoming, registrationDetailsFactory,
-                            cleanUpAction, delegate);
+                    createRegistrationService(incoming, cleanUpAction, delegate);
 
             return service;
         } catch (IOException e)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(e);
         }
+    }
+
+    /**
+     * Create a registration service using the given parameters. Subclasses may override.
+     */
+    protected DataSetRegistrationService<T> createRegistrationService(DataSetFile incoming,
+            IDelegatedActionWithResult<Boolean> cleanUpAction, NoOpDelegate delegate)
+    {
+        @SuppressWarnings("unchecked")
+        IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory =
+                (IDataSetRegistrationDetailsFactory<T>) new DefaultDataSetRegistrationDetailsFactory(
+                        getRegistratorState(), null);
+
+        DataSetRegistrationService<T> service =
+                new DataSetRegistrationService<T>(this, incoming, registrationDetailsFactory,
+                        cleanUpAction, delegate);
+        return service;
     }
 
     /**
