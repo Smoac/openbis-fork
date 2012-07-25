@@ -1126,10 +1126,6 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     e.with(Expectations.any(TechId.class)),
                     e.with(Expectations.any(DataSetStorageAlgorithmRunner.class)));
 
-            e.one(storageRecoveryManager).canRecoverFromError(
-                    e.with(Expectations.any(UserFailureException.class)));
-            e.will(Expectations.returnValue(false));
-
             // e.one(storageRecoveryManager).removeCheckpoint(
             // e.with(Expectations.any(DataSetStorageAlgorithmRunner.class)));
         }
