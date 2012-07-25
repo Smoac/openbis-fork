@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 
 /**
- * Identifies a space (aka group).
+ * Identifies a data space.
  * 
  * @author Izabela Adamczyk
  */
