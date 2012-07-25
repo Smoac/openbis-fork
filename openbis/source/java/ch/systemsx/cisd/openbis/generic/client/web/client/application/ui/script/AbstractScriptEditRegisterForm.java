@@ -239,8 +239,8 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
 
     protected void initGUI()
     {
-        addFormFields();
         setValues();
+        addFormFields();
         setLoading(false);
         layout();
     }
