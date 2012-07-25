@@ -148,7 +148,7 @@ public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<
     }
 
     /**
-     * Parses the feature vactors from the specified CSV file. CSV format can be configured with
+     * Parses the feature vectors from the specified CSV file. CSV format can be configured with
      * following properties:
      * 
      * <pre>
