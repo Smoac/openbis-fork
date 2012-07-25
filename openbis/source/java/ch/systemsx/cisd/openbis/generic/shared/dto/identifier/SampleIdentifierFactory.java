@@ -178,7 +178,7 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
             // identifier starts with a slash - it refers to a home database
             if (tokens.length == 2 && tokens[1].length() == 0)
             {
-                // case: shortcut to home group, originalText is e.g. "//CP1"
+                // case: shortcut to home space, originalText is e.g. "//CP1"
                 return getDefaultSpaceIdentifier(defaultSpace);
             }
             DatabaseInstanceIdentifier homeDb = DatabaseInstanceIdentifier.createHome();
@@ -202,15 +202,15 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
     {
         if (defaultSpace == null)
         {
-            return new SampleOwnerIdentifier(GroupIdentifier.createHome());
+            return new SampleOwnerIdentifier(SpaceIdentifier.createHome());
         } else
         {
             return new SampleOwnerIdentifier(
-                    new GroupIdentifierFactory(defaultSpace).createIdentifier());
+                    new SpaceIdentifierFactory(defaultSpace).createIdentifier());
         }
     }
 
-    // tries to parse owner group if there is any
+    // tries to parse owner space if there is any
     private static SampleOwnerIdentifier continueParsingSampleOwner(String[] tokens,
             String originalText, DatabaseInstanceIdentifier dbIdent)
     {
@@ -220,10 +220,10 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
             return new SampleOwnerIdentifier(dbIdent);
         } else if (tokens.length == 2)
         {
-            // case: originalText is e.g. "db:/group/CP1" or "/group/CP1"
-            String groupCode = tokens[1];
-            return new SampleOwnerIdentifier(new GroupIdentifier(dbIdent,
-                    assertValidCode(groupCode)));
+            // case: originalText is e.g. "db:/space/CP1" or "/space/CP1"
+            String spaceCode = tokens[1];
+            return new SampleOwnerIdentifier(new SpaceIdentifier(dbIdent,
+                    assertValidCode(spaceCode)));
         } else
             throw createTooManyTokensExcp(originalText);
     }

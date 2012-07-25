@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * Parses the given text in the constructor to extract the database instance, the group and the
+ * Parses the given text in the constructor to extract the database instance, the space and the
  * project code.
  * 
  * <pre>
@@ -60,39 +60,39 @@ public final class ProjectIdentifierFactory extends AbstractIdentifierFactory
     public static ProjectIdentifier parseIdentifier(final TokenLexer lexer,
             final String defaultSpace)
     {
-        final GroupIdentifier groupIdentifier = parseGroup(lexer, defaultSpace);
+        final SpaceIdentifier spaceIdentifier = parseSpace(lexer, defaultSpace);
         final String projectCode = assertValidCode(lexer.next());
-        return create(groupIdentifier, projectCode);
+        return create(spaceIdentifier, projectCode);
     }
 
-    private static GroupIdentifier parseGroup(final TokenLexer lexer, final String defaultSpace)
+    private static SpaceIdentifier parseSpace(final TokenLexer lexer, final String defaultSpace)
     {
         final String firstToken = lexer.peek();
         if (tryAsDatabaseIdentifier(firstToken) == null && firstToken.length() > 0)
         {
             if (defaultSpace == null)
             {
-                return GroupIdentifier.createHome();
+                return SpaceIdentifier.createHome();
             } else
             {
-                return new GroupIdentifierFactory(defaultSpace).createIdentifier();
+                return new SpaceIdentifierFactory(defaultSpace).createIdentifier();
             }
         } else
         {
-            return GroupIdentifierFactory.parseIdentifier(lexer);
+            return SpaceIdentifierFactory.parseIdentifier(lexer);
         }
     }
 
-    private static ProjectIdentifier create(final GroupIdentifier groupIdentifier,
+    private static ProjectIdentifier create(final SpaceIdentifier spaceIdentifier,
             final String projectCode)
     {
-        return new ProjectIdentifier(groupIdentifier.getDatabaseInstanceCode(),
-                groupIdentifier.getSpaceCode(), projectCode);
+        return new ProjectIdentifier(spaceIdentifier.getDatabaseInstanceCode(),
+                spaceIdentifier.getSpaceCode(), projectCode);
     }
 
     public static String getSchema()
     {
-        return "[" + GroupIdentifierFactory.getSchema()
+        return "[" + SpaceIdentifierFactory.getSchema()
                 + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + "]"
                 + "<project-code>";
     }

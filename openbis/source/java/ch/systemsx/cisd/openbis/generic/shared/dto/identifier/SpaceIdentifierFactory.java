@@ -19,37 +19,37 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * Parses the given text in the constructor to extract the database instance and group. The expected
- * format is the following:
+ * Parses the given text in the constructor to extract the database instance and data space. The
+ * expected format is the following:
  * 
  * <pre>
- * [&lt;database-instance-code&gt;:]/&lt;group-code&gt;
+ * [&lt;database-instance-code&gt;:]/&lt;space-code&gt;
  * </pre>
  * 
  * @author Christian Ribeaud
  * @author Tomasz Pylak
  */
-public final class GroupIdentifierFactory extends AbstractIdentifierFactory
+public final class SpaceIdentifierFactory extends AbstractIdentifierFactory
 {
-    public GroupIdentifierFactory(final String textToParse) throws UserFailureException
+    public SpaceIdentifierFactory(final String textToParse) throws UserFailureException
     {
         super(textToParse);
     }
 
-    public final GroupIdentifier createIdentifier() throws UserFailureException
+    public final SpaceIdentifier createIdentifier() throws UserFailureException
     {
-        return parseGroupIdentifier(getTextToParse());
+        return parseSpaceIdentifier(getTextToParse());
     }
 
-    private static GroupIdentifier parseGroupIdentifier(final String text)
+    private static SpaceIdentifier parseSpaceIdentifier(final String text)
     {
         final TokenLexer lexer = new TokenLexer(text);
-        final GroupIdentifier groupIdentifier = parseIdentifier(lexer);
+        final SpaceIdentifier SpaceIdentifier = parseIdentifier(lexer);
         lexer.ensureNoTokensLeft();
-        return groupIdentifier;
+        return SpaceIdentifier;
     }
 
-    public static GroupIdentifier parseIdentifier(final TokenLexer lexer)
+    public static SpaceIdentifier parseIdentifier(final TokenLexer lexer)
     {
         final String firstToken = lexer.peek();
         final String dbCodeOrNull = tryAsDatabaseIdentifier(firstToken);
@@ -70,7 +70,7 @@ public final class GroupIdentifierFactory extends AbstractIdentifierFactory
         {
             assertValidCode(groupCodeOrNull);
         }
-        return new GroupIdentifier(dbCodeOrNull, groupCodeOrNull);
+        return new SpaceIdentifier(dbCodeOrNull, groupCodeOrNull);
     }
 
     public static String getSchema()
