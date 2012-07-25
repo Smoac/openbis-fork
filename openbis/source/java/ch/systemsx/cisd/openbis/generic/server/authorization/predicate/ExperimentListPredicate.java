@@ -111,9 +111,9 @@ public class ExperimentListPredicate extends AbstractSpacePredicate<List<Experim
     interface IExperimentToSpaceQuery extends BaseQuery
     {
         @Select(sql = "select distinct space_id from projects p left join experiments e on e.proj_id = p.id "
-                + "where id = any(?{1}) union "
+                + "where e.id = any(?{1}) union "
                 + "select distinct space_id from projects p left join experiments e on e.proj_id = p.id "
-                + "where perm_id = any(?{2})", parameterBindings =
+                + "where e.perm_id = any(?{2})", parameterBindings =
             { LongArrayMapper.class, StringArrayMapper.class })
         public List<Long> getExperimentSpaceIds(long[] experimentIds, String[] experimentPermIds);
     }
