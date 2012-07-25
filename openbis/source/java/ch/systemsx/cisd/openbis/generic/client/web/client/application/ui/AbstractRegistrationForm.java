@@ -88,8 +88,6 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
 
     protected InfoBox infoBox;
 
-    protected InfoBox unsavedChangesInfoBox;
-
     protected FormPanelWithSavePoint formPanel;
 
     protected final int labelWidth;
@@ -101,6 +99,8 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
     private boolean sessionKeysInitiated = false;
 
     private Html loadingInfo;
+
+    protected Html unsavedChangesInfo;
 
     protected LayoutContainer rightPanel;
 
@@ -125,10 +125,10 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
         setBorders(false);
         setScrollMode(Scroll.AUTO);
         setId(id);
-        add(unsavedChangesInfoBox = createUnsavedChangesInfoBox());
         add(infoBox = createInfoBox());
         add(loadingInfo = createLoadingInfo());
         add(WidgetUtils.inRow(formPanel = createFormPanel(), rightPanel = createAdditionalPanel()));
+        add(unsavedChangesInfo = createUnsavedChangesInfo());
     }
 
     private LayoutContainer createAdditionalPanel()
@@ -147,11 +147,13 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
         return result;
     }
 
-    private InfoBox createUnsavedChangesInfoBox()
+    private Html createUnsavedChangesInfo()
     {
-        InfoBox info = new InfoBox();
-        info.addStyleName("unsaved-changes-info");
-        return info;
+        Html result = new Html(messageProvider.getMessage(Dict.UNSAVED_FORM_CHANGES_INFO));
+        result.addStyleName("unsaved-changes-info");
+        result.setWidth(labelWidth + fieldWidth + PANEL_MARGIN);
+        result.setVisible(false);
+        return result;
     }
 
     private final static InfoBox createInfoBox()
@@ -174,17 +176,12 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
 
     protected void updateDirtyCheckAfterChange(boolean isDirty)
     {
-        String saveMsg = messageProvider.getMessage(Dict.BUTTON_SAVE);
-        String unsavedChangesMsg = messageProvider.getMessage(Dict.UNSAVED_FORM_CHANGES_INFO);
-
         if (isDirty)
         {
-            saveButton.setText(saveMsg + "*");
-            unsavedChangesInfoBox.displayInfo(unsavedChangesMsg);
+            unsavedChangesInfo.setVisible(true);
         } else
         {
-            saveButton.setText(saveMsg);
-            unsavedChangesInfoBox.reset();
+            unsavedChangesInfo.setVisible(false);
         }
     }
 

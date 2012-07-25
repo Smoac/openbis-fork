@@ -406,20 +406,4 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         return parentsArea.tryGetSamples();
     }
 
-    @Override
-    protected void updateDirtyCheckAfterChange(boolean isDirty)
-    {
-        super.updateDirtyCheckAfterChange(isDirty);
-
-        String saveUploadMsg = viewContext.getMessage(Dict.BUTTON_SAVE_AND_UPLOAD);
-
-        if (isDirty)
-        {
-            saveUploadButton.setText(saveUploadMsg + "*");
-        } else
-        {
-            saveUploadButton.setText(saveUploadMsg);
-        }
-    }
-
 }
