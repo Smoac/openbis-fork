@@ -65,12 +65,12 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISpaceBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.experimentlister.ExperimentLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
@@ -1288,14 +1288,14 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
 
         Session session = getSession(sessionToken);
-        IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
+        ISpaceBO spaceBO = businessObjectFactory.createSpaceBO(session);
         GroupIdentifier identifier =
                 new GroupIdentifier(spaceIdentifier.getDatabaseInstanceCode(),
                         spaceIdentifier.getSpaceCode());
         try
         {
-            groupBO.load(identifier);
-            return SpaceTranslator.translate(groupBO.getGroup());
+            spaceBO.load(identifier);
+            return SpaceTranslator.translate(spaceBO.getSpace());
         } catch (UserFailureException ufe)
         {
             // space does not exist
@@ -1502,17 +1502,17 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             String registratorUserIdOrNull)
     {
         // create space
-        IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
+        ISpaceBO groupBO = businessObjectFactory.createSpaceBO(session);
         groupBO.define(newSpace.getCode(), newSpace.getDescription());
         if (registratorUserIdOrNull != null)
         {
-            groupBO.getGroup().setRegistrator(
+            groupBO.getSpace().setRegistrator(
                     getOrCreatePerson(session.getSessionToken(), registratorUserIdOrNull));
         }
         groupBO.save();
 
         // create ADMIN role assignemnt
-        SpacePE space = groupBO.getGroup();
+        SpacePE space = groupBO.getSpace();
         if (newSpace.getSpaceAdminUserId() != null)
         {
             IRoleAssignmentTable roleTable =

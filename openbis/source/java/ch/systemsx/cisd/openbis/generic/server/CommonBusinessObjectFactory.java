@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GridCustomColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GridCustomFilterBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.GroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.SpaceBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTy
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISpaceBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -107,9 +107,9 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     }
 
     @Override
-    public final IGroupBO createGroupBO(final Session session)
+    public final ISpaceBO createSpaceBO(final Session session)
     {
-        return new GroupBO(getDaoFactory(), session);
+        return new SpaceBO(getDaoFactory(), session);
     }
 
     @Override

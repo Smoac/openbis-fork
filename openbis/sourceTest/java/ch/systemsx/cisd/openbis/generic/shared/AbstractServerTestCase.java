@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISpaceBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
@@ -130,7 +130,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected ISampleDAO sampleDAO;
 
-    protected IGroupBO groupBO;
+    protected ISpaceBO groupBO;
 
     protected ISampleBO sampleBO;
 
@@ -234,7 +234,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         hibernateSearchDAO = context.mock(IHibernateSearchDAO.class);
         entityOperationsLogDAO = context.mock(IEntityOperationsLogDAO.class);
         // BO
-        groupBO = context.mock(IGroupBO.class);
+        groupBO = context.mock(ISpaceBO.class);
         entityTypeBO = context.mock(IEntityTypeBO.class);
         sampleBO = context.mock(ISampleBO.class);
         materialBO = context.mock(IMaterialBO.class);

@@ -20,49 +20,49 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * Business object of a group. Holds an instance of {@link SpacePE}.
+ * Business object of a data space. Holds an instance of {@link SpacePE}.
  * 
  * @author Christian Ribeaud
  */
-public interface IGroupBO extends IEntityBusinessObject
+public interface ISpaceBO extends IEntityBusinessObject
 {
 
     /**
-     * Defines a new group of specified code for the home database instance. After invocation of
+     * Defines a new space of specified code for the home database instance. After invocation of
      * this method {@link IBusinessObject#save()} should be invoked to store the new group in the
      * <i>Data Access Layer</i>.
      * 
      * @throws UserFailureException if <code>group</code> does already exist.
      */
-    public void define(String groupCode, String descriptionOrNull) throws UserFailureException;
+    public void define(String spaceCode, String descriptionOrNull) throws UserFailureException;
 
     /**
-     * Loads a group described by identifier from Database Layer.
+     * Loads a space described by identifier from Database Layer.
      * 
      * @throws UserFailureException if <code>groupIdentifier</code> does not describe existing
      *             group.
      */
-    public void load(GroupIdentifier groupIdentifier) throws UserFailureException;
+    public void load(SpaceIdentifier spaceIdentifier) throws UserFailureException;
 
     /**
-     * Returns the group or null.
+     * Returns the space or <code>null</code>.
      */
-    public SpacePE getGroup() throws UserFailureException;
+    public SpacePE getSpace() throws UserFailureException;
 
     /**
-     * Updates the group.
+     * Updates the space.
      */
     public void update(ISpaceUpdates updates);
 
     /**
-     * Deletes group for specified reason.
+     * Deletes space for specified reason.
      * 
-     * @param groupId group technical identifier
-     * @throws UserFailureException if group with given technical identifier is not found.
+     * @param spaceId space technical identifier
+     * @throws UserFailureException if space with given technical identifier is not found.
      */
-    public void deleteByTechId(TechId groupId, String reason);
+    public void deleteByTechId(TechId spaceId, String reason);
 
 }

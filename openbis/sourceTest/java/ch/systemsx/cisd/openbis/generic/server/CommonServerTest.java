@@ -378,7 +378,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createGroupBO(SESSION);
+                    one(commonBusinessObjectFactory).createSpaceBO(SESSION);
                     will(returnValue(groupBO));
 
                     one(groupBO).define(groupCode, description);

@@ -61,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTy
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISpaceBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -361,7 +361,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             final String descriptionOrNull)
     {
         final Session session = getSession(sessionToken);
-        final IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
+        final ISpaceBO groupBO = businessObjectFactory.createSpaceBO(session);
         groupBO.define(spaceCode, descriptionOrNull);
         groupBO.save();
     }
@@ -384,7 +384,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         assert updates != null : "Unspecified updates";
 
         final Session session = getSession(sessionToken);
-        final IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
+        final ISpaceBO groupBO = businessObjectFactory.createSpaceBO(session);
         groupBO.update(updates);
     }
 
@@ -1422,7 +1422,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public void deleteSpaces(String sessionToken, List<TechId> groupIds, String reason)
     {
         Session session = getSession(sessionToken);
-        IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
+        ISpaceBO groupBO = businessObjectFactory.createSpaceBO(session);
         for (TechId id : groupIds)
         {
             groupBO.deleteByTechId(id, reason);

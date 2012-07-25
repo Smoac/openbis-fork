@@ -24,15 +24,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * Test cases for corresponding {@link GroupBO} class.
+ * Test cases for corresponding {@link SpaceBO} class.
  * 
  * @author Christian Ribeaud
  */
-public final class GroupBOTest extends AbstractBOTest
+public final class SpaceBOTest extends AbstractBOTest
 {
-    private final GroupBO createGroupBO()
+    private final SpaceBO createSpaceBO()
     {
-        return new GroupBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION);
+        return new SpaceBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION);
     }
 
     @Test
@@ -41,7 +41,7 @@ public final class GroupBOTest extends AbstractBOTest
         boolean fail = true;
         try
         {
-            createGroupBO().save();
+            createSpaceBO().save();
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -53,11 +53,11 @@ public final class GroupBOTest extends AbstractBOTest
     @Test
     public final void testDefineWithNullCode()
     {
-        final GroupBO groupBO = createGroupBO();
+        final SpaceBO spaceBO = createSpaceBO();
         boolean fail = true;
         try
         {
-            groupBO.define(null, null);
+            spaceBO.define(null, null);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -68,7 +68,7 @@ public final class GroupBOTest extends AbstractBOTest
     @Test
     public final void testDefineAndSave()
     {
-        final GroupBO spaceBO = createGroupBO();
+        final SpaceBO spaceBO = createSpaceBO();
         final DatabaseInstancePE instance = new DatabaseInstancePE();
         instance.setOriginalSource(true);
         final SpacePE groupDTO = new SpacePE();

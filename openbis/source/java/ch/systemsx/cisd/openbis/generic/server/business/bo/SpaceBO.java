@@ -36,19 +36,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * The only productive implementation of {@link IGroupBO}. We are using an interface here to keep
+ * The only productive implementation of {@link ISpaceBO}. We are using an interface here to keep
  * the system testable.
  * 
  * @author Christian Ribeaud
  */
-public final class GroupBO extends AbstractBusinessObject implements IGroupBO
+public final class SpaceBO extends AbstractBusinessObject implements ISpaceBO
 {
 
-    private SpacePE group;
+    private SpacePE space;
 
-    public GroupBO(final IDAOFactory daoFactory, final Session session)
+    public SpaceBO(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
     }
@@ -60,18 +61,18 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
     @Override
     public final void save() throws UserFailureException
     {
-        assert group != null : "Space not defined";
+        assert space != null : "Space not defined";
         try
         {
-            if (group.getDatabaseInstance().isOriginalSource() == false)
+            if (space.getDatabaseInstance().isOriginalSource() == false)
             {
-                throw new UserFailureException("Registration of space " + group
+                throw new UserFailureException("Registration of space " + space
                         + " on a non-home database is not allowed.");
             }
-            getSpaceDAO().createSpace(group);
+            getSpaceDAO().createSpace(space);
         } catch (final DataAccessException e)
         {
-            throwException(e, "Space '" + IdentifierHelper.createGroupIdentifier(group) + "'");
+            throwException(e, "Space '" + IdentifierHelper.createGroupIdentifier(space) + "'");
         }
     }
 
@@ -80,14 +81,14 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
     {
         loadDataByTechId(TechId.create(updates));
 
-        group.setDescription(updates.getDescription());
+        space.setDescription(updates.getDescription());
 
         validateAndSave();
     }
 
     private void validateAndSave()
     {
-        getSpaceDAO().validateAndSaveUpdatedEntity(group);
+        getSpaceDAO().validateAndSaveUpdatedEntity(space);
     }
 
     @Override
@@ -95,40 +96,40 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
             throws UserFailureException
     {
         assert groupCode != null : "Unspecified space code.";
-        group = new SpacePE();
+        space = new SpacePE();
         final GroupIdentifier groupIdentifier =
                 new GroupIdentifier(DatabaseInstanceIdentifier.HOME, groupCode);
         final DatabaseInstancePE databaseInstance =
                 SpaceIdentifierHelper.getDatabaseInstance(groupIdentifier, this);
-        group.setDatabaseInstance(databaseInstance);
-        group.setCode(groupIdentifier.getSpaceCode());
-        group.setDescription(descriptionOrNull);
-        group.setRegistrator(findPerson());
+        space.setDatabaseInstance(databaseInstance);
+        space.setCode(groupIdentifier.getSpaceCode());
+        space.setDescription(descriptionOrNull);
+        space.setRegistrator(findPerson());
     }
 
     @Override
-    public SpacePE getGroup() throws UserFailureException
+    public SpacePE getSpace() throws UserFailureException
     {
-        return group;
+        return space;
     }
 
     @Override
-    public void load(final GroupIdentifier groupIdentifier) throws UserFailureException
+    public void load(final SpaceIdentifier spaceIdentifier) throws UserFailureException
     {
-        group = SpaceIdentifierHelper.tryGetSpace(groupIdentifier, session.tryGetPerson(), this);
-        if (group == null)
+        space = SpaceIdentifierHelper.tryGetSpace(spaceIdentifier, session.tryGetPerson(), this);
+        if (space == null)
         {
             throw new UserFailureException(String.format("Space '%s' does not exist.",
-                    groupIdentifier));
+                    spaceIdentifier));
         }
     }
 
     @Override
-    public void loadDataByTechId(TechId groupId)
+    public void loadDataByTechId(TechId spaceId)
     {
         try
         {
-            group = getSpaceDAO().getByTechId(groupId);
+            space = getSpaceDAO().getByTechId(spaceId);
         } catch (DataRetrievalFailureException exception)
         {
             throw new UserFailureException(exception.getMessage());
@@ -136,34 +137,34 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
     }
 
     @Override
-    public void deleteByTechId(TechId groupId, String reason) throws UserFailureException
+    public void deleteByTechId(TechId spaceId, String reason) throws UserFailureException
     {
-        loadDataByTechId(groupId);
+        loadDataByTechId(spaceId);
         try
         {
-            getSpaceDAO().delete(group);
-            getEventDAO().persist(createDeletionEvent(group, session.tryGetPerson(), reason));
+            getSpaceDAO().delete(space);
+            getEventDAO().persist(createDeletionEvent(space, session.tryGetPerson(), reason));
         } catch (final DataAccessException ex)
         {
-            throwException(ex, String.format("Space '%s'", group.getCode()));
+            throwException(ex, String.format("Space '%s'", space.getCode()));
         }
     }
 
-    public static EventPE createDeletionEvent(SpacePE group, PersonPE registrator, String reason)
+    public static EventPE createDeletionEvent(SpacePE space, PersonPE registrator, String reason)
     {
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
         event.setEntityType(EntityType.SPACE);
-        event.setIdentifiers(Collections.singletonList(group.getCode()));
-        event.setDescription(getDeletionDescription(group));
+        event.setIdentifiers(Collections.singletonList(space.getCode()));
+        event.setDescription(getDeletionDescription(space));
         event.setReason(reason);
         event.setRegistrator(registrator);
 
         return event;
     }
 
-    private static String getDeletionDescription(SpacePE group)
+    private static String getDeletionDescription(SpacePE space)
     {
-        return String.format("%s", group.getCode());
+        return String.format("%s", space.getCode());
     }
 }

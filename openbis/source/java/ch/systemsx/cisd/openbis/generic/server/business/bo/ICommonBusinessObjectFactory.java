@@ -32,7 +32,7 @@ public interface ICommonBusinessObjectFactory extends IAbstractBussinessObjectFa
 {
     public IAttachmentBO createAttachmentBO(final Session session);
 
-    public IGroupBO createGroupBO(final Session session);
+    public ISpaceBO createSpaceBO(final Session session);
 
     public IScriptBO createScriptBO(final Session session);
 
