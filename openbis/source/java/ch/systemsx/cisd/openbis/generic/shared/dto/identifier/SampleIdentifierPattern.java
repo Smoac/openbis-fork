@@ -40,7 +40,7 @@ public class SampleIdentifierPattern extends AbstractHashable implements Seriali
      * Matches samples from the specified group and the database instance to which this group
      * belongs. Only samples with the code matching sampleCodePattern will be selected.
      */
-    public static SampleIdentifierPattern[] createGroupVisible(GroupIdentifier groupIdentifier,
+    public static SampleIdentifierPattern[] createGroupVisible(SpaceIdentifier groupIdentifier,
             String sampleCodePattern)
     {
         SampleOwnerIdentifier groupOwner = new SampleOwnerIdentifier(groupIdentifier);

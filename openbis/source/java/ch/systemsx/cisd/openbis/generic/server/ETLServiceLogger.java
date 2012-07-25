@@ -75,7 +75,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -370,7 +369,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     public SamplePE getSampleWithProperty(String sessionToken, String propertyTypeCode,
-            GroupIdentifier groupIdentifier, String propertyValue)
+            SpaceIdentifier groupIdentifier, String propertyValue)
     {
         logAccess(sessionToken, "getSampleWithProperty",
                 "PROPERTY_TYPE(%s) SPACE(%s) PROPERTY_VALUE(%s)", propertyTypeCode,

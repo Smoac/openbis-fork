@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.plugin.generic.server;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Helper class which extract identifiers from a {@link NewSample} instance.
@@ -49,7 +49,7 @@ class IdentifersExtractor
                             .createIdentifier(updatedSample.getDefaultSpaceIdentifier());
             // TODO 2011-08-31, Tomasz Pylak: container is ignored, what does it break?
             newSampleIdentifier =
-                    new SampleIdentifier(new GroupIdentifier(
+                    new SampleIdentifier(new SpaceIdentifier(
                             experimentIdentifierOrNull.getDatabaseInstanceCode(),
                             experimentIdentifierOrNull.getSpaceCode()),
                             oldSampleIdentifier.getSampleCode());

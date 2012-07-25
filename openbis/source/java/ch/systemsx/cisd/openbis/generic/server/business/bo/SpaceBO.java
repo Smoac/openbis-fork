@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -97,8 +96,8 @@ public final class SpaceBO extends AbstractBusinessObject implements ISpaceBO
     {
         assert groupCode != null : "Unspecified space code.";
         space = new SpacePE();
-        final GroupIdentifier groupIdentifier =
-                new GroupIdentifier(DatabaseInstanceIdentifier.HOME, groupCode);
+        final SpaceIdentifier groupIdentifier =
+                new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, groupCode);
         final DatabaseInstancePE databaseInstance =
                 SpaceIdentifierHelper.getDatabaseInstance(groupIdentifier, this);
         space.setDatabaseInstance(databaseInstance);

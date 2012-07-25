@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -56,7 +55,7 @@ public class AbundanceHandlerTest extends AssertJUnit
 
     private static final String EXPERIMENT_CODE = "E1";
 
-    private static final GroupIdentifier GROUP_IDENTIFIER = new GroupIdentifier((String) null,
+    private static final SpaceIdentifier SPACE_IDENTIFIER_MS = new SpaceIdentifier((String) null,
             CommonConstants.MS_DATA_SPACE);
 
     private static final String PARAMETER_VALUE = "1234.5";
@@ -65,7 +64,7 @@ public class AbundanceHandlerTest extends AssertJUnit
 
     private static final String PARAMETER_NAME = "ABC12";
 
-    private static final SampleIdentifier SAMPLE_IDENTIFER = new SampleIdentifier(GROUP_IDENTIFIER,
+    private static final SampleIdentifier SAMPLE_IDENTIFER = new SampleIdentifier(SPACE_IDENTIFIER_MS,
             PARAMETER_NAME);
 
     private static final ExperimentIdentifier EXPERIMENT_IDENTIFIER = new ExperimentIdentifier(

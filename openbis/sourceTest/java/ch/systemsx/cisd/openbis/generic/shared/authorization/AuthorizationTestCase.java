@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * @author Franz-Josef Elmer
@@ -76,7 +76,7 @@ public class AuthorizationTestCase extends AssertJUnit
      * Creates a role with level {@link RoleLevel#SPACE} with specified role code for specified
      * space.
      */
-    protected RoleWithIdentifier createGroupRole(RoleCode roleCode, GroupIdentifier spaceIdentifier)
+    protected RoleWithIdentifier createGroupRole(RoleCode roleCode, SpaceIdentifier spaceIdentifier)
     {
         SpacePE groupPE = new SpacePE();
         groupPE.setCode(spaceIdentifier.getSpaceCode());
@@ -186,7 +186,7 @@ public class AuthorizationTestCase extends AssertJUnit
     /**
      * Creates a group based on the specified identifier.
      */
-    protected SpacePE createGroup(GroupIdentifier identifier)
+    protected SpacePE createGroup(SpaceIdentifier identifier)
     {
         final String databaseInstanceCode = identifier.getDatabaseInstanceCode();
         final DatabaseInstancePE instance = createDatabaseInstance(databaseInstanceCode);
@@ -331,7 +331,7 @@ public class AuthorizationTestCase extends AssertJUnit
     {
         final List<RoleWithIdentifier> list = new ArrayList<RoleWithIdentifier>();
         final RoleWithIdentifier groupRole =
-                createGroupRole(RoleCode.USER, new GroupIdentifier(INSTANCE_CODE, SPACE_CODE));
+                createGroupRole(RoleCode.USER, new SpaceIdentifier(INSTANCE_CODE, SPACE_CODE));
         list.add(groupRole);
         if (withInstanceRole)
         {

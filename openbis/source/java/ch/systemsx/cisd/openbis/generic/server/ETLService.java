@@ -170,7 +170,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -1289,8 +1288,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
         Session session = getSession(sessionToken);
         ISpaceBO spaceBO = businessObjectFactory.createSpaceBO(session);
-        GroupIdentifier identifier =
-                new GroupIdentifier(spaceIdentifier.getDatabaseInstanceCode(),
+        SpaceIdentifier identifier =
+                new SpaceIdentifier(spaceIdentifier.getDatabaseInstanceCode(),
                         spaceIdentifier.getSpaceCode());
         try
         {

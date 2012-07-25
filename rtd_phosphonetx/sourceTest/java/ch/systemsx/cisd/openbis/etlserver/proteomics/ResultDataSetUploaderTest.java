@@ -64,7 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.CommonConstants;
@@ -309,7 +309,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         p1.setName(PROTEIN_NAME1);
         p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
         p1.getParameters().add(new Parameter());
-        final GroupIdentifier groupIdentifier = new GroupIdentifier((String) null, CommonConstants.MS_DATA_SPACE);
+        final SpaceIdentifier groupIdentifier = new SpaceIdentifier((String) null, CommonConstants.MS_DATA_SPACE);
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(groupIdentifier, CELL_LYSATE1);
         final ListSamplesByPropertyCriteria criteria =

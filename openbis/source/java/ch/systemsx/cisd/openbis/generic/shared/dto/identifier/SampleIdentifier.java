@@ -83,7 +83,7 @@ public class SampleIdentifier extends SampleOwnerIdentifier
     /** Home group level {@link SampleIdentifier} with type. */
     public static SampleIdentifier createHomeGroup(final String sampleCode)
     {
-        return new SampleIdentifier(GroupIdentifier.createHome(), sampleCode);
+        return new SampleIdentifier(SpaceIdentifier.createHome(), sampleCode);
     }
 
     public String getSampleCode()

@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.LocalExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -376,7 +376,7 @@ class DatasetMappingResolver
     private SampleIdentifier createSampleIdentifier(String sampleCode,
             DataSetMappingInformation mapping)
     {
-        return new SampleIdentifier(new GroupIdentifier((String) null, mapping
+        return new SampleIdentifier(new SpaceIdentifier((String) null, mapping
                 .getSpaceOrGroupCode()), sampleCode);
     }
 

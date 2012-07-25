@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCa
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Test cases for corresponding {@link DatabaseInstanceIdentifierPredicate} class.
@@ -126,7 +126,7 @@ public final class DatabaseInstanceIdentifierPredicateTest extends Authorization
         predicate.init(provider);
         final PersonPE person = createPerson();
         final Status evaluation =
-                predicate.doEvaluation(person, createRoles(false), new GroupIdentifier(
+                predicate.doEvaluation(person, createRoles(false), new SpaceIdentifier(
                         new DatabaseInstanceIdentifier(databaseInstance.getCode()),
                         SPACE_CODE));
         assertEquals(Status.OK, evaluation);

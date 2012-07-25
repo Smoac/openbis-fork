@@ -49,14 +49,14 @@ public final class IdentifierHelper
     }
 
     /**
-     * Creates a {@link GroupIdentifier} from given <var>groupPE</var>.
+     * Creates a {@link SpaceIdentifier} from given <var>groupPE</var>.
      */
-    public final static GroupIdentifier createGroupIdentifier(final SpacePE groupPE)
+    public final static SpaceIdentifier createGroupIdentifier(final SpacePE groupPE)
     {
         assert groupPE != null : "Unspecified space";
         assert groupPE.getDatabaseInstance() != null : "Any space must "
                 + "be attached to a database instance";
-        return new GroupIdentifier(createDatabaseInstanceIdentifier(groupPE.getDatabaseInstance()),
+        return new SpaceIdentifier(createDatabaseInstanceIdentifier(groupPE.getDatabaseInstance()),
                 groupPE.getCode());
     }
 
@@ -179,8 +179,8 @@ public final class IdentifierHelper
             DatabaseInstanceIdentifier instanceIdentifier =
                     space.getInstance().isHomeDatabase() ? DatabaseInstanceIdentifier.HOME_INSTANCE
                             : new DatabaseInstanceIdentifier(space.getInstance().getCode());
-            GroupIdentifier groupIdentifier =
-                    new GroupIdentifier(instanceIdentifier, space.getCode());
+            SpaceIdentifier groupIdentifier =
+                    new SpaceIdentifier(instanceIdentifier, space.getCode());
             return new SampleIdentifier(groupIdentifier, sample.getCode());
         } else
         {

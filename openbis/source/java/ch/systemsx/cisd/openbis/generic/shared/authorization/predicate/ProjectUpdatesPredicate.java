@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractT
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * An <code>IPredicate</code> implementation based on {@link ProjectUpdatesDTO}. Checks that: 1) the
@@ -60,8 +60,8 @@ public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO
     }
 
     @Override
-    protected
-    Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
+    protected Status doEvaluation(final PersonPE person,
+            final List<RoleWithIdentifier> allowedRoles,
             final ProjectUpdatesDTO updates)
     {
         assert spacePredicate.initialized : "Predicate has not been initialized";
@@ -75,8 +75,8 @@ public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO
         String newGroupCode = updates.getGroupCode();
         if (newGroupCode != null)
         {
-            GroupIdentifier newGroupIdentifier =
-                    new GroupIdentifier(DatabaseInstanceIdentifier.HOME, newGroupCode);
+            SpaceIdentifier newGroupIdentifier =
+                    new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, newGroupCode);
             status = spacePredicate.doEvaluation(person, allowedRoles, newGroupIdentifier);
         }
         return status;

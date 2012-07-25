@@ -68,11 +68,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.parser.NamedInputStream;
 import ch.systemsx.cisd.openbis.generic.shared.parser.SampleUploadSectionsParser;
 import ch.systemsx.cisd.openbis.generic.shared.parser.SampleUploadSectionsParser.BatchSamplesOperation;
@@ -281,7 +281,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                     parseSamples(
                             experiment.getSampleType(),
                             samplesSessionKey,
-                            new GroupIdentifier(identifier.getDatabaseInstanceCode(), identifier
+                            new SpaceIdentifier(identifier.getDatabaseInstanceCode(), identifier
                                     .getSpaceCode()).toString(), experiment.isGenerateCodes(),
                             false, null, BatchOperationKind.REGISTRATION);
             experiment.setNewSamples(result.getSamples());
@@ -543,7 +543,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                     parseSamples(
                             updates.getSampleType(),
                             updates.getSamplesSessionKey(),
-                            new GroupIdentifier(newProject.getDatabaseInstanceCode(), newProject
+                            new SpaceIdentifier(newProject.getDatabaseInstanceCode(), newProject
                                     .getSpaceCode()).toString(), updates.isGenerateCodes(), false,
                             null, BatchOperationKind.REGISTRATION);
             updates.setNewSamples(info.getSamples());

@@ -29,9 +29,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Test cases for corresponding {@link RoleWithIdentifier} class.
@@ -46,10 +46,10 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
     {
         final RoleWithHierarchy role = RoleWithHierarchy.valueOf(RoleLevel.SPACE, RoleCode.ADMIN);
         RoleWithIdentifier roleWithCode =
-                createGroupRole(RoleCode.ADMIN, new GroupIdentifier(INSTANCE_IDENTIFIER, "CISD"));
+                createGroupRole(RoleCode.ADMIN, new SpaceIdentifier(INSTANCE_IDENTIFIER, "CISD"));
         assertEquals(role, roleWithCode.getRole());
         roleWithCode =
-                createGroupRole(RoleCode.ADMIN, new GroupIdentifier(INSTANCE_IDENTIFIER, ""));
+                createGroupRole(RoleCode.ADMIN, new SpaceIdentifier(INSTANCE_IDENTIFIER, ""));
         assertEquals(role, roleWithCode.getRole());
     }
 
@@ -59,9 +59,9 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
         final Set<RoleWithHierarchy> singleton =
                 Collections.singleton(RoleWithHierarchy.valueOf(RoleLevel.SPACE, RoleCode.ADMIN));
         final List<RoleWithIdentifier> list = new ArrayList<RoleWithIdentifier>();
-        list.add(createGroupRole(RoleCode.ADMIN, new GroupIdentifier(INSTANCE_IDENTIFIER, "CISD")));
-        list.add(createGroupRole(RoleCode.USER, new GroupIdentifier(INSTANCE_IDENTIFIER, "3V")));
-        list.add(createGroupRole(RoleCode.ADMIN, new GroupIdentifier(INSTANCE_IDENTIFIER, "IMSB")));
+        list.add(createGroupRole(RoleCode.ADMIN, new SpaceIdentifier(INSTANCE_IDENTIFIER, "CISD")));
+        list.add(createGroupRole(RoleCode.USER, new SpaceIdentifier(INSTANCE_IDENTIFIER, "3V")));
+        list.add(createGroupRole(RoleCode.ADMIN, new SpaceIdentifier(INSTANCE_IDENTIFIER, "IMSB")));
         list.add(createInstanceRole(RoleCode.ETL_SERVER, INSTANCE_IDENTIFIER));
         DefaultAccessController.retainMatchingRoleWithIdentifiers(list, singleton);
         assertEquals(2, list.size());

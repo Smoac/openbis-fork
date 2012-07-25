@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.IPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Test cases for corresponding {@link PredicateExecutor} class.
@@ -60,7 +60,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
 
     private List<RoleWithIdentifier> createAllowedRoles()
     {
-        return Collections.singletonList(createGroupRole(RoleCode.USER, new GroupIdentifier("DB1",
+        return Collections.singletonList(createGroupRole(RoleCode.USER, new SpaceIdentifier("DB1",
                 "3V")));
     }
 

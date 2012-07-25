@@ -190,9 +190,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.parser.BisTabFileLoader;
 
 /**
@@ -346,8 +346,8 @@ public final class CommonClientService extends AbstractClientService implements
             final Grantee grantee)
     {
         final String sessionToken = getSessionToken();
-        final GroupIdentifier groupIdentifier =
-                new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
+        final SpaceIdentifier groupIdentifier =
+                new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, group);
         commonServer.registerSpaceRole(sessionToken, role.getRoleCode(), groupIdentifier, grantee);
     }
 
@@ -363,8 +363,8 @@ public final class CommonClientService extends AbstractClientService implements
             final Grantee grantee)
     {
         final String sessionToken = getSessionToken();
-        final GroupIdentifier groupIdentifier =
-                new GroupIdentifier(DatabaseInstanceIdentifier.HOME, group);
+        final SpaceIdentifier groupIdentifier =
+                new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, group);
         commonServer.deleteSpaceRole(sessionToken, role.getRoleCode(), groupIdentifier, grantee);
     }
 

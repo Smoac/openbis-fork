@@ -23,12 +23,12 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.test.EqualsHashCodeTestCase;
 
 /**
- * Test cases for corresponding {@link GroupIdentifier} class.
+ * Test cases for corresponding {@link SpaceIdentifier} class.
  * 
  * @author Christian Ribeaud
  */
 @Test
-public class GroupIdentifierTest extends EqualsHashCodeTestCase<GroupIdentifier>
+public class SpaceIdentifierTest extends EqualsHashCodeTestCase<SpaceIdentifier>
 {
 
     //
@@ -36,20 +36,20 @@ public class GroupIdentifierTest extends EqualsHashCodeTestCase<GroupIdentifier>
     //
 
     @Override
-    protected final GroupIdentifier createInstance() throws Exception
+    protected final SpaceIdentifier createInstance() throws Exception
     {
-        return new GroupIdentifier("DB1", "G");
+        return new SpaceIdentifier("DB1", "G");
     }
 
     @Override
-    protected final GroupIdentifier createNotEqualInstance() throws Exception
+    protected final SpaceIdentifier createNotEqualInstance() throws Exception
     {
-        return new GroupIdentifier((String) null, "G");
+        return new SpaceIdentifier((String) null, "G");
     }
 
     @Test
     public final void testEqualsIgnoreCase()
     {
-        assertEquals(new GroupIdentifier("DB2", "G"), new GroupIdentifier("DB2", "g"));
+        assertEquals(new SpaceIdentifier("DB2", "G"), new SpaceIdentifier("DB2", "g"));
     }
 }

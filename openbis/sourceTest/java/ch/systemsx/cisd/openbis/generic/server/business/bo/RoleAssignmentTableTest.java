@@ -25,10 +25,10 @@ import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Test cases for corresponding {@link RoleAssignmentTable} class.
@@ -49,8 +49,8 @@ public final class RoleAssignmentTableTest extends AbstractBOTest
         final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
         final String databaseInstanceCode = "DB2";
         final String groupCode = "cisd";
-        final GroupIdentifier groupIdentifier =
-                new GroupIdentifier(databaseInstanceCode, groupCode);
+        final SpaceIdentifier groupIdentifier =
+                new SpaceIdentifier(databaseInstanceCode, groupCode);
         newRoleAssignment.setSpaceIdentifier(groupIdentifier);
         newRoleAssignment.setRole(RoleCode.OBSERVER);
         final String userId = "test";

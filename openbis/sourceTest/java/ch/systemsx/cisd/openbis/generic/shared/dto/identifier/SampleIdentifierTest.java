@@ -43,7 +43,7 @@ public final class SampleIdentifierTest
     public final void testToStringGroupLevelHomeBd()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new GroupIdentifier(DatabaseInstanceIdentifier.HOME, "GR"),
+                new SampleIdentifier(new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, "GR"),
                         "SAMP");
         assertEquals(sampleIdentifier.toString(), "/GR/SAMP");
     }
@@ -52,7 +52,7 @@ public final class SampleIdentifierTest
     public final void testToStringGroupLevel()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new GroupIdentifier("DB", "GR"), "SAMP");
+                new SampleIdentifier(new SpaceIdentifier("DB", "GR"), "SAMP");
         assertEquals(sampleIdentifier.toString(), "DB:/GR/SAMP");
     }
 
@@ -76,13 +76,13 @@ public final class SampleIdentifierTest
         SampleIdentifier[] expectedOrder =
                 new SampleIdentifier[]
                     { SampleIdentifier.createHomeGroup(c1), SampleIdentifier.createHomeGroup(c2),
-                            new SampleIdentifier(new GroupIdentifier(homeDb, g1), c1),
-                            new SampleIdentifier(new GroupIdentifier(homeDb, g2), c1),
-                            new SampleIdentifier(new GroupIdentifier(homeDb, g2), c2),
-                            new SampleIdentifier(new GroupIdentifier(otherDb, g1), c1),
-                            new SampleIdentifier(new GroupIdentifier(otherDb, g1), c2),
-                            new SampleIdentifier(new GroupIdentifier(otherDb, g2), c1),
-                            new SampleIdentifier(new GroupIdentifier(otherDb, g2), c2) };
+                            new SampleIdentifier(new SpaceIdentifier(homeDb, g1), c1),
+                            new SampleIdentifier(new SpaceIdentifier(homeDb, g2), c1),
+                            new SampleIdentifier(new SpaceIdentifier(homeDb, g2), c2),
+                            new SampleIdentifier(new SpaceIdentifier(otherDb, g1), c1),
+                            new SampleIdentifier(new SpaceIdentifier(otherDb, g1), c2),
+                            new SampleIdentifier(new SpaceIdentifier(otherDb, g2), c1),
+                            new SampleIdentifier(new SpaceIdentifier(otherDb, g2), c2) };
 
         SampleIdentifier[] idents = revert(expectedOrder);
         Arrays.sort(idents);
@@ -96,7 +96,7 @@ public final class SampleIdentifierTest
         SampleIdentifier id2 = new SampleIdentifierFactory("DB:/SPACE/SAMP").createIdentifier();
         assertEquals(id1, id2);
     }
-    
+
     @Test
     public void testEquals2()
     {

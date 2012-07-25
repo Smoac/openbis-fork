@@ -69,9 +69,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**
@@ -89,14 +89,14 @@ public class DataBOTest extends AbstractBOTest
     private static final DatabaseInstanceIdentifier DATABASE_INSTANCE_IDENTIFIER =
             new DatabaseInstanceIdentifier(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE.getCode());
 
-    private static final GroupIdentifier GROUP_IDENTIFIER = new GroupIdentifier(
+    private static final SpaceIdentifier SPACE_IDENTIFIER = new SpaceIdentifier(
             DATABASE_INSTANCE_IDENTIFIER, ManagerTestTool.EXAMPLE_GROUP.getCode());
 
     private static final SampleIdentifier SAMPLE_IDENTIFIER = new SampleIdentifier(
-            GROUP_IDENTIFIER, "EXAMPLE_SAMPLE");
+            SPACE_IDENTIFIER, "EXAMPLE_SAMPLE");
 
     private static final ExperimentIdentifier EXPERIMENT_IDENTIFIER = new ExperimentIdentifier(
-            new ProjectIdentifier(GROUP_IDENTIFIER, ManagerTestTool.EXAMPLE_PROJECT.getCode()),
+            new ProjectIdentifier(SPACE_IDENTIFIER, ManagerTestTool.EXAMPLE_PROJECT.getCode()),
             "EXPERIMENT_CODE");
 
     private static final String DATA_STORE_CODE = "dss1";
@@ -807,7 +807,7 @@ public class DataBOTest extends AbstractBOTest
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
 
                     one(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(
-                            GROUP_IDENTIFIER.getSpaceCode(),
+                            SPACE_IDENTIFIER.getSpaceCode(),
                             ManagerTestTool.EXAMPLE_DATABASE_INSTANCE);
                     will(returnValue(ManagerTestTool.EXAMPLE_GROUP));
 

@@ -24,8 +24,8 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * @author Franz-Josef Elmer
@@ -107,7 +107,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         PersonPE person = createPerson();
         List<RoleWithIdentifier> roles = createRoles(false);
         SampleOwnerIdentifier identifier =
-                new SampleOwnerIdentifier(new GroupIdentifier(INSTANCE_IDENTIFIER, SPACE_CODE));
+                new SampleOwnerIdentifier(new SpaceIdentifier(INSTANCE_IDENTIFIER, SPACE_CODE));
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
 
@@ -124,7 +124,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         PersonPE person = createPerson();
         List<RoleWithIdentifier> roles = createRoles(false);
         SampleOwnerIdentifier identifier =
-                new SampleOwnerIdentifier(new GroupIdentifier(ANOTHER_INSTANCE_CODE,
+                new SampleOwnerIdentifier(new SpaceIdentifier(ANOTHER_INSTANCE_CODE,
                         ANOTHER_GROUP_CODE));
         prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createGroups());
         predicate.init(provider);
