@@ -665,7 +665,7 @@ public abstract class AbstractClientService implements IClientService,
     }
 
     @Override
-    public void changeUserHomeGroup(TechId groupIdOrNull)
+    public void changeUserHomeSpace(TechId groupIdOrNull)
     {
         try
         {

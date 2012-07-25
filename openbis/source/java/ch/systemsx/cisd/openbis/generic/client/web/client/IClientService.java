@@ -83,9 +83,9 @@ public interface IClientService extends RemoteService
     public DisplaySettings resetDisplaySettings();
 
     /**
-     * Changes logged user home group on the server.
+     * Changes home space of the logged-in user on the server.
      */
-    public void changeUserHomeGroup(TechId groupIdOrNull);
+    public void changeUserHomeSpace(TechId groupIdOrNull);
 
     /**
      * Logs out the user, saving his/her {@link DisplaySettings} if necessary.

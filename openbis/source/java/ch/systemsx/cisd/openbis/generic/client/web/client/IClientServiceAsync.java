@@ -57,8 +57,8 @@ public interface IClientServiceAsync
     /** @see IClientService#resetDisplaySettings() */
     public void resetDisplaySettings(AsyncCallback<DisplaySettings> resetUserSettingsCallback);
 
-    /** @see IClientService#changeUserHomeGroup(TechId) */
-    public void changeUserHomeGroup(TechId groupIdOrNull, AsyncCallback<Void> callback);
+    /** @see IClientService#changeUserHomeSpace(TechId) */
+    public void changeUserHomeSpace(TechId spaceIdOrNull, AsyncCallback<Void> callback);
 
     /** @see IClientService#logout(DisplaySettings, boolean) */
     public void logout(DisplaySettings displaySettings, boolean simpleViewMode,

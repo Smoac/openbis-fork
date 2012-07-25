@@ -570,7 +570,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 }
             });
 
-        commonClientService.changeUserHomeGroup(groupId);
+        commonClientService.changeUserHomeSpace(groupId);
 
         context.assertIsSatisfied();
     }

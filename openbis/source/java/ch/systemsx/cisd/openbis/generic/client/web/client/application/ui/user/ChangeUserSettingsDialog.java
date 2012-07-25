@@ -166,7 +166,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         String groupCodeOrNull = space == null ? null : space.getCode();
         TechId groupIdOrNull = TechId.create(space);
         viewContext.getModel().getSessionContext().getUser().setHomeGroupCode(groupCodeOrNull);
-        viewContext.getService().changeUserHomeGroup(groupIdOrNull, saveCallback);
+        viewContext.getService().changeUserHomeSpace(groupIdOrNull, saveCallback);
 
         RealNumberFormatingParameters formatingParameters = getRealNumberFormatingParameters();
         formatingParameters.setFormatingEnabled(formatingFields.isExpanded());
