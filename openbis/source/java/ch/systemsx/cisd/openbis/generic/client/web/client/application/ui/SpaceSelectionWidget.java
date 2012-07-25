@@ -224,7 +224,7 @@ public class SpaceSelectionWidget extends DropDownList<SpaceModel, Space>
     {
         DefaultResultSetConfig<String, TableModelRowWithObject<Space>> config =
                 DefaultResultSetConfig.createFetchAll();
-        viewContext.getCommonService().listGroups(config, new ListSpaceCallback(viewContext));
+        viewContext.getCommonService().listSpaces(config, new ListSpaceCallback(viewContext));
         callback.ignore();
     }
 

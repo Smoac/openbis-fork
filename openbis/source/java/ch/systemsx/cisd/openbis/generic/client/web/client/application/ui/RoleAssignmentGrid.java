@@ -150,7 +150,7 @@ public class RoleAssignmentGrid extends TypedTableGrid<RoleAssignment>
                         selectedRoleAssignment.getRoleSetCode(), grantee, roleListRefreshCallback);
             } else
             {
-                viewContext.getService().deleteGroupRole(selectedRoleAssignment.getRoleSetCode(),
+                viewContext.getService().deleteSpaceRole(selectedRoleAssignment.getRoleSetCode(),
                         selectedRoleAssignment.getSpace().getCode(), grantee,
                         roleListRefreshCallback);
             }

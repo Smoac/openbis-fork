@@ -132,9 +132,9 @@ public interface ICommonClientService extends IClientService
     public Boolean keepSessionAlive() throws UserFailureException;
 
     /**
-     * Returns a list of all groups.
+     * Returns a list of all spaces.
      */
-    public TypedTableResultSet<Space> listGroups(
+    public TypedTableResultSet<Space> listSpaces(
             DefaultResultSetConfig<String, TableModelRowWithObject<Space>> criteria)
             throws UserFailureException;
 
@@ -152,16 +152,16 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for groups.
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for spaces.
      */
-    public String prepareExportGroups(
+    public String prepareExportSpaces(
             final TableExportCriteria<TableModelRowWithObject<Space>> criteria)
             throws UserFailureException;
 
     /**
-     * Registers a new group with specified code and optional description.
+     * Registers a new space with specified code and optional description.
      */
-    public void registerGroup(String groupCode, String descriptionOrNull)
+    public void registerSpace(String spaceCode, String descriptionOrNull)
             throws UserFailureException;
 
     /**
@@ -170,9 +170,9 @@ public interface ICommonClientService extends IClientService
     public void updateScript(final IScriptUpdates updates) throws UserFailureException;
 
     /**
-     * Updates group.
+     * Updates space.
      */
-    public void updateGroup(final ISpaceUpdates updates) throws UserFailureException;
+    public void updateSpace(final ISpaceUpdates updates) throws UserFailureException;
 
     /**
      * Returns a list of all persons which belong to the current database instance.
@@ -217,15 +217,15 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Registers a new role from given role set code, group code and grantee.
+     * Registers a new role from given role set code, space code and grantee.
      */
-    public void registerGroupRole(RoleWithHierarchy role, String group, Grantee grantee)
+    public void registerSpaceRole(RoleWithHierarchy role, String spaceCode, Grantee grantee)
             throws UserFailureException;
 
     /**
-     * Deletes the role described by given role set code, group code and grantee.
+     * Deletes the role described by given role set code, space code and grantee.
      */
-    public void deleteGroupRole(RoleWithHierarchy role, String group, Grantee grantee)
+    public void deleteSpaceRole(RoleWithHierarchy role, String spaceCode, Grantee grantee)
             throws UserFailureException;
 
     /**
@@ -698,8 +698,8 @@ public interface ICommonClientService extends IClientService
     /** Deletes the specified projects. */
     public void deleteProjects(List<TechId> projectIds, String reason) throws UserFailureException;
 
-    /** Deletes the specified groups. */
-    public void deleteGroups(List<TechId> groupIds, String reason) throws UserFailureException;
+    /** Deletes the specified spaces. */
+    public void deleteSpaces(List<TechId> spaceIds, String reason) throws UserFailureException;
 
     /** Deletes the specified scripts. */
     public void deleteScripts(List<TechId> scriptIds) throws UserFailureException;

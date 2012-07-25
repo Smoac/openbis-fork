@@ -28,12 +28,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
- * {@link Window} containing group registration form.
+ * {@link Window} containing space registration form.
  * 
  * @author Franz-Josef Elmer
  * @author Izabela Adamczyk
  */
-public class AddGroupDialog extends AbstractRegistrationDialog
+public class AddSpaceDialog extends AbstractRegistrationDialog
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -41,10 +41,10 @@ public class AddGroupDialog extends AbstractRegistrationDialog
 
     private final DescriptionField descriptionField;
 
-    public AddGroupDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
+    public AddSpaceDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback)
     {
-        super(viewContext, viewContext.getMessage(Dict.ADD_GROUP_TITLE),
+        super(viewContext, viewContext.getMessage(Dict.ADD_SPACE_TITLE),
                 postRegistrationCallback);
         this.viewContext = viewContext;
         this.codeField = createCodeField(viewContext);
@@ -57,7 +57,7 @@ public class AddGroupDialog extends AbstractRegistrationDialog
     @Override
     protected void register(AsyncCallback<Void> registrationCallback)
     {
-        viewContext.getService().registerGroup(codeField.getValue(), descriptionField.getValue(),
+        viewContext.getService().registerSpace(codeField.getValue(), descriptionField.getValue(),
                 registrationCallback);
     }
 }

@@ -44,7 +44,7 @@ public class AddGroupDialog extends AbstractRegistrationDialog
     public AddGroupDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback)
     {
-        super(viewContext, viewContext.getMessage(Dict.ADD_GROUP_TITLE), postRegistrationCallback);
+        super(viewContext, viewContext.getMessage(Dict.ADD_SPACE_TITLE), postRegistrationCallback);
         this.viewContext = viewContext;
         this.codeField = createCodeField(viewContext);
         addField(codeField);
@@ -56,7 +56,7 @@ public class AddGroupDialog extends AbstractRegistrationDialog
     @Override
     protected void register(AsyncCallback<Void> registrationCallback)
     {
-        viewContext.getService().registerGroup(codeField.getValue(), descriptionField.getValue(),
+        viewContext.getService().registerSpace(codeField.getValue(), descriptionField.getValue(),
                 registrationCallback);
     }
 }

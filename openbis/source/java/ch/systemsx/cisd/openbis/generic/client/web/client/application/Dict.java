@@ -29,7 +29,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 public abstract class Dict
 {
 
-    public static final String ADD_GROUP_TITLE = "add_group_title";
+    public static final String ADD_SPACE_TITLE = "add_space_title";
 
     public static final String ADD_SCRIPT_TITLE = "add_script_title";
 
@@ -879,9 +879,9 @@ public abstract class Dict
             "make_official_vocabulary_terms_confirmation_message";
 
     //
-    // Group Browser
+    // Space Browser
     //
-    public static final String GROUP_BROWSER = "group_browser";
+    public static final String SPACE_BROWSER = "space_browser";
 
     //
     // Person Browser

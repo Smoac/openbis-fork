@@ -310,14 +310,14 @@ public final class CommonClientService extends AbstractClientService implements
     //
 
     @Override
-    public final void registerGroup(final String groupCode, final String descriptionOrNull)
+    public final void registerSpace(final String groupCode, final String descriptionOrNull)
     {
         final String sessionToken = getSessionToken();
         commonServer.registerSpace(sessionToken, groupCode, descriptionOrNull);
     }
 
     @Override
-    public final void updateGroup(final ISpaceUpdates updates)
+    public final void updateSpace(final ISpaceUpdates updates)
     {
         assert updates != null : "Unspecified updates.";
 
@@ -342,7 +342,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public final void registerGroupRole(final RoleWithHierarchy role, final String group,
+    public final void registerSpaceRole(final RoleWithHierarchy role, final String group,
             final Grantee grantee)
     {
         final String sessionToken = getSessionToken();
@@ -359,7 +359,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public final void deleteGroupRole(final RoleWithHierarchy role, final String group,
+    public final void deleteSpaceRole(final RoleWithHierarchy role, final String group,
             final Grantee grantee)
     {
         final String sessionToken = getSessionToken();
@@ -503,7 +503,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public String prepareExportGroups(TableExportCriteria<TableModelRowWithObject<Space>> criteria)
+    public String prepareExportSpaces(TableExportCriteria<TableModelRowWithObject<Space>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -638,7 +638,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public TypedTableResultSet<Space> listGroups(
+    public TypedTableResultSet<Space> listSpaces(
             DefaultResultSetConfig<String, TableModelRowWithObject<Space>> criteria)
     {
         SpacesProvider spacesProvider = new SpacesProvider(commonServer, getSessionToken());
@@ -1499,7 +1499,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public void deleteGroups(List<TechId> groupIds, String reason)
+    public void deleteSpaces(List<TechId> groupIds, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();

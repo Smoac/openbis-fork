@@ -685,9 +685,9 @@ var common = {
  //
  // Space Browser
  //
- group_browser: "Space Browser",
+ space_browser: "Space Browser",
  leader: "Head",
- add_group_title: "Add a new space",
+ add_space_title: "Add a new space",
 
  //
  // Project Browser

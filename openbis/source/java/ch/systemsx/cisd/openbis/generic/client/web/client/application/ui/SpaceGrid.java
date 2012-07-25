@@ -166,7 +166,7 @@ public class SpaceGrid extends TypedTableGrid<Space>
                 {
                     space.setDescription(descriptionField.getValue());
 
-                    viewContext.getService().updateGroup(space, registrationCallback);
+                    viewContext.getService().updateSpace(space, registrationCallback);
                 }
             };
     }
@@ -192,7 +192,7 @@ public class SpaceGrid extends TypedTableGrid<Space>
             DefaultResultSetConfig<String, TableModelRowWithObject<Space>> resultSetConfig,
             AbstractAsyncCallback<TypedTableResultSet<Space>> callback)
     {
-        viewContext.getService().listGroups(resultSetConfig, callback);
+        viewContext.getService().listSpaces(resultSetConfig, callback);
     }
 
     @Override
@@ -200,7 +200,7 @@ public class SpaceGrid extends TypedTableGrid<Space>
             TableExportCriteria<TableModelRowWithObject<Space>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        viewContext.getService().prepareExportGroups(exportCriteria, callback);
+        viewContext.getService().prepareExportSpaces(exportCriteria, callback);
     }
 
     @Override
@@ -235,7 +235,7 @@ public class SpaceGrid extends TypedTableGrid<Space>
             {
                 list.add(new TechId(tableModelRowWithObject.getObjectOrNull().getId()));
             }
-            viewContext.getCommonService().deleteGroups(list, reason.getValue(), deletionCallback);
+            viewContext.getCommonService().deleteSpaces(list, reason.getValue(), deletionCallback);
         }
 
         @Override

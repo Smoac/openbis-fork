@@ -231,7 +231,7 @@ public final class ComponentProvider
                 @Override
                 public String getTabTitle()
                 {
-                    return getMessage(Dict.GROUP_BROWSER);
+                    return getMessage(Dict.SPACE_BROWSER);
                 }
 
                 @Override

@@ -124,8 +124,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#keepSessionAlive() */
     public void keepSessionAlive(final AsyncCallback<Boolean> asyncCallback);
 
-    /** @see ICommonClientService#listGroups(DefaultResultSetConfig) */
-    public void listGroups(DefaultResultSetConfig<String, TableModelRowWithObject<Space>> criteria,
+    /** @see ICommonClientService#listSpaces(DefaultResultSetConfig) */
+    public void listSpaces(DefaultResultSetConfig<String, TableModelRowWithObject<Space>> criteria,
             final AsyncCallback<TypedTableResultSet<Space>> asyncCallback);
 
     /** @see ICommonClientService#listScripts(ListScriptsCriteria) */
@@ -137,13 +137,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             TableExportCriteria<TableModelRowWithObject<Script>> exportCriteria,
             AsyncCallback<String> callback);
 
-    /** @see ICommonClientService#prepareExportGroups(TableExportCriteria) */
-    public void prepareExportGroups(
+    /** @see ICommonClientService#prepareExportSpaces(TableExportCriteria) */
+    public void prepareExportSpaces(
             TableExportCriteria<TableModelRowWithObject<Space>> exportCriteria,
             AsyncCallback<String> callback);
 
-    /** @see ICommonClientService#registerGroup(String, String) */
-    public void registerGroup(String groupCode, String descriptionOrNull,
+    /** @see ICommonClientService#registerSpace(String, String) */
+    public void registerSpace(String spaceCode, String descriptionOrNull,
             AsyncCallback<Void> callback);
 
     /** @see ICommonClientService#registerScript(Script) */
@@ -152,8 +152,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#updateScript(IScriptUpdates) */
     public void updateScript(final IScriptUpdates updates, final AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#updateGroup(ISpaceUpdates) */
-    public void updateGroup(final ISpaceUpdates updates, final AsyncCallback<Void> asyncCallback);
+    /** @see ICommonClientService#updateSpace(ISpaceUpdates) */
+    public void updateSpace(final ISpaceUpdates updates, final AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#listPersons(ListPersonsCriteria) */
     public void listPersons(ListPersonsCriteria criteria,
@@ -177,12 +177,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             TableExportCriteria<TableModelRowWithObject<RoleAssignment>> exportCriteria,
             AsyncCallback<String> callback);
 
-    /** @see ICommonClientService#registerGroupRole(RoleWithHierarchy, String, Grantee) */
-    public void registerGroupRole(RoleWithHierarchy role, String group, Grantee grantee,
+    /** @see ICommonClientService#registerSpaceRole(RoleWithHierarchy, String, Grantee) */
+    public void registerSpaceRole(RoleWithHierarchy role, String spaceCode, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteGroupRole(RoleWithHierarchy, String, Grantee) */
-    public void deleteGroupRole(RoleWithHierarchy role, String group, Grantee grantee,
+    /** @see ICommonClientService#deleteSpaceRole(RoleWithHierarchy, String, Grantee) */
+    public void deleteSpaceRole(RoleWithHierarchy role, String spaceCode, Grantee grantee,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#registerInstanceRole(RoleWithHierarchy, Grantee) */
@@ -607,8 +607,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void deleteProjects(List<TechId> projectIds, String reason,
             AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#deleteGroups(List, String) */
-    public void deleteGroups(List<TechId> groupIds, String reason, AsyncCallback<Void> asyncCallback);
+    /** @see ICommonClientService#deleteSpaces(List, String) */
+    public void deleteSpaces(List<TechId> spaceIds, String reason, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteScripts(List) */
     public void deleteScripts(List<TechId> scriptIds, AsyncCallback<Void> asyncCallback);
