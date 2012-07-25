@@ -77,7 +77,7 @@ public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<
                     };
     }
 
-    /** By default a starndard dataset is created. */
+    /** By default a standard dataset is created. */
     @Override
     protected DataSetInformation createDataSetInformation()
     {
