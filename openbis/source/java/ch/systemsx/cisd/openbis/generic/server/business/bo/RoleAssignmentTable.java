@@ -24,7 +24,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
@@ -108,13 +108,13 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
         if (databaseInstanceIdentifier != null)
         {
             final DatabaseInstancePE databaseInstance =
-                    GroupIdentifierHelper.getDatabaseInstance(databaseInstanceIdentifier, this);
+                    SpaceIdentifierHelper.getDatabaseInstance(databaseInstanceIdentifier, this);
             roleAssignment.setDatabaseInstance(databaseInstance);
         } else
         {
             final SpaceIdentifier groupIdentifier = newRoleAssignment.getSpaceIdentifier();
             final SpacePE group =
-                    GroupIdentifierHelper
+                    SpaceIdentifierHelper
                             .tryGetSpace(groupIdentifier, session.tryGetPerson(), this);
             if (group == null)
             {

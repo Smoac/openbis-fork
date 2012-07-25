@@ -63,7 +63,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
-import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -129,7 +129,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
         if (org.apache.commons.lang.StringUtils.isBlank(spaceIdentifier.getSpaceCode()))
         {
             final SpacePE space =
-                    GroupIdentifierHelper.tryGetSpace(spaceIdentifier, findPerson(), this);
+                    SpaceIdentifierHelper.tryGetSpace(spaceIdentifier, findPerson(), this);
             checkNotNull(spaceIdentifier, space);
             spaceIdentifier.setDatabaseInstanceCode(space.getDatabaseInstance().getCode());
             spaceIdentifier.setSpaceCode(space.getCode());

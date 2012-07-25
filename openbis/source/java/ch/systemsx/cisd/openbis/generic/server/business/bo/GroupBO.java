@@ -23,7 +23,7 @@ import org.springframework.dao.DataRetrievalFailureException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -99,7 +99,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         final GroupIdentifier groupIdentifier =
                 new GroupIdentifier(DatabaseInstanceIdentifier.HOME, groupCode);
         final DatabaseInstancePE databaseInstance =
-                GroupIdentifierHelper.getDatabaseInstance(groupIdentifier, this);
+                SpaceIdentifierHelper.getDatabaseInstance(groupIdentifier, this);
         group.setDatabaseInstance(databaseInstance);
         group.setCode(groupIdentifier.getSpaceCode());
         group.setDescription(descriptionOrNull);
@@ -115,7 +115,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
     @Override
     public void load(final GroupIdentifier groupIdentifier) throws UserFailureException
     {
-        group = GroupIdentifierHelper.tryGetSpace(groupIdentifier, session.tryGetPerson(), this);
+        group = SpaceIdentifierHelper.tryGetSpace(groupIdentifier, session.tryGetPerson(), this);
         if (group == null)
         {
             throw new UserFailureException(String.format("Space '%s' does not exist.",

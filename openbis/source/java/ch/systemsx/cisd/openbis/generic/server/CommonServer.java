@@ -96,7 +96,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
-import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -345,7 +345,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         final Session session = getSession(sessionToken);
         final DatabaseInstancePE databaseInstance =
-                GroupIdentifierHelper.getDatabaseInstance(identifier, getDAOFactory());
+                SpaceIdentifierHelper.getDatabaseInstance(identifier, getDAOFactory());
         final List<SpacePE> spaces = getDAOFactory().getSpaceDAO().listSpaces(databaseInstance);
         final SpacePE homeSpaceOrNull = session.tryGetHomeGroup();
         for (final SpacePE space : spaces)

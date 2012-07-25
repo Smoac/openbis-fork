@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.util;
 import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -89,7 +89,7 @@ public class SampleOwnerFinder
             final DatabaseInstanceIdentifier databaseInstanceIdentifier)
     {
         final DatabaseInstancePE databaseInstance =
-                GroupIdentifierHelper
+                SpaceIdentifierHelper
                         .tryGetDatabaseInstance(databaseInstanceIdentifier, daoFactory);
         if (databaseInstance == null)
         {
@@ -101,7 +101,7 @@ public class SampleOwnerFinder
     private SampleOwner tryFindAbsoluteGroupOwner(final SpaceIdentifier spaceIdentifier)
     {
         final SpacePE group =
-                GroupIdentifierHelper.tryGetSpace(spaceIdentifier, personPE, daoFactory);
+                SpaceIdentifierHelper.tryGetSpace(spaceIdentifier, personPE, daoFactory);
         if (group == null)
         {
             return null;

@@ -25,8 +25,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFacto
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -42,10 +42,10 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
  * 
  * @author Franz-Josef Elmer
  */
-public final class GroupIdentifierHelper
+public final class SpaceIdentifierHelper
 {
 
-    private GroupIdentifierHelper()
+    private SpaceIdentifierHelper()
     {
         // Can not be instantiated.
     }
@@ -61,7 +61,7 @@ public final class GroupIdentifierHelper
                 final String homeSpaceCodeOrNull)
         {
             final IDatabaseInstanceFinder instanceFinder =
-                    GroupIdentifierHelper.createCachedInstanceFinder(daoFactory);
+                    SpaceIdentifierHelper.createCachedInstanceFinder(daoFactory);
             return new SpaceIdentifierNormalizer(instanceFinder, homeSpaceCodeOrNull);
         }
 
@@ -78,13 +78,13 @@ public final class GroupIdentifierHelper
 
         public final SpaceIdentifier normalize(final SpaceIdentifier identifier)
         {
-            return GroupIdentifierHelper.normalize(identifier, homeSpaceCodeOrNull,
+            return SpaceIdentifierHelper.normalize(identifier, homeSpaceCodeOrNull,
                     databaseInstanceFinder);
         }
 
         public final SampleIdentifier normalize(final SampleIdentifier identifier)
         {
-            return GroupIdentifierHelper.normalize(identifier, homeSpaceCodeOrNull,
+            return SpaceIdentifierHelper.normalize(identifier, homeSpaceCodeOrNull,
                     databaseInstanceFinder);
         }
     }
@@ -133,7 +133,7 @@ public final class GroupIdentifierHelper
     }
 
     /**
-     * Creates database instance finder which caches all existing database instance at the begining.
+     * Creates database instance finder which caches all existing database instance at the start.
      */
     public final static IDatabaseInstanceFinder createCachedInstanceFinder(
             final IAuthorizationDAOFactory daoFactory)

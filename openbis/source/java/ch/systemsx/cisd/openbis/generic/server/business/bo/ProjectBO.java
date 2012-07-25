@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
-import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -86,7 +86,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     {
         final ProjectPE result = new ProjectPE();
         final SpacePE group =
-                GroupIdentifierHelper.tryGetSpace(projectIdentifier, session.tryGetPerson(), this);
+                SpaceIdentifierHelper.tryGetSpace(projectIdentifier, session.tryGetPerson(), this);
         result.setSpace(group);
         result.setRegistrator(findPerson());
         result.setCode(projectIdentifier.getProjectCode());
