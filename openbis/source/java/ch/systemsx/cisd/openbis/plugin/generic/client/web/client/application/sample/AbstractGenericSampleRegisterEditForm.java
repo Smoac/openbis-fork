@@ -192,6 +192,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     private Button createSaveAndUploadButton()
     {
         Button button = new Button(viewContext.getMessage(Dict.BUTTON_SAVE_AND_UPLOAD));
+        addSaveButtonConfirmationListener(button);
         button.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override
@@ -396,6 +397,22 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     protected String[] getParents()
     {
         return parentsArea.tryGetSamples();
+    }
+
+    @Override
+    protected void updateDirtyCheckAfterChange(boolean isDirty)
+    {
+        super.updateDirtyCheckAfterChange(isDirty);
+
+        String saveUploadMsg = viewContext.getMessage(Dict.BUTTON_SAVE_AND_UPLOAD);
+
+        if (isDirty)
+        {
+            saveUploadButton.setText(saveUploadMsg + "*");
+        } else
+        {
+            saveUploadButton.setText(saveUploadMsg);
+        }
     }
 
 }

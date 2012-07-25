@@ -270,6 +270,10 @@ body,div,td,.default-text {
 	margin-left: 5px;	
 }
 
+.unsaved-changes-info {
+  margin-bottom: 5px;
+}
+
 /*****************************
  * Movie buttons
  *****************************/

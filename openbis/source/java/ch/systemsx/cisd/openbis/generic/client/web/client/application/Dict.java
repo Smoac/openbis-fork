@@ -81,6 +81,18 @@ public abstract class Dict
     public static final String BREADCRUMBS_SEPARATOR = "breadcrumbs_separator";
 
     //
+    // Form
+    //
+
+    public static final String UNSAVED_FORM_CHANGES_INFO = "unsaved_form_changes_info";
+
+    public static final String SAVE_UNCHANGED_FORM_CONFIRMATION_TITLE =
+            "save_unchanged_form_confirmation_title";
+
+    public static final String SAVE_UNCHANGED_FORM_CONFIRMATION_MSG =
+            "save_unchanged_form_confirmation_msg";
+    
+    //
     // Table Modifications
     //
 

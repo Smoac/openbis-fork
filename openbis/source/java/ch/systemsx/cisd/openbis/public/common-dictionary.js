@@ -59,6 +59,15 @@ var common = {
   add_unofficial_vocabulary_term_dialog_title: "Add Ad Hoc Term",
   breadcrumbs_separator: "»",
   storage_confirmation: "Storage Confirmed",
+
+  //
+  // Form
+  // 
+  
+  unsaved_form_changes_info: "You have unsaved changes.",
+  save_unchanged_form_confirmation_title: "Confirm Save",
+  save_unchanged_form_confirmation_msg: "You haven't made any changes. Do you really want to save the form?",
+  
   //
   // Deletion
   // 

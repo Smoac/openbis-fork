@@ -88,6 +88,8 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
 
     protected InfoBox infoBox;
 
+    protected InfoBox unsavedChangesInfoBox;
+
     protected FormPanelWithSavePoint formPanel;
 
     protected final int labelWidth;
@@ -123,6 +125,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
         setBorders(false);
         setScrollMode(Scroll.AUTO);
         setId(id);
+        add(unsavedChangesInfoBox = createUnsavedChangesInfoBox());
         add(infoBox = createInfoBox());
         add(loadingInfo = createLoadingInfo());
         add(WidgetUtils.inRow(formPanel = createFormPanel(), rightPanel = createAdditionalPanel()));
@@ -142,6 +145,13 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
         Html result = new Html("Loading...");
         result.setVisible(false);
         return result;
+    }
+
+    private InfoBox createUnsavedChangesInfoBox()
+    {
+        InfoBox info = new InfoBox();
+        info.addStyleName("unsaved-changes-info");
+        return info;
     }
 
     private final static InfoBox createInfoBox()
@@ -164,12 +174,18 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
 
     protected void updateDirtyCheckAfterChange(boolean isDirty)
     {
-        String message = messageProvider.getMessage(Dict.BUTTON_SAVE);
+        String saveMsg = messageProvider.getMessage(Dict.BUTTON_SAVE);
+        String unsavedChangesMsg = messageProvider.getMessage(Dict.UNSAVED_FORM_CHANGES_INFO);
+
         if (isDirty)
         {
-            message = message + "*";
+            saveButton.setText(saveMsg + "*");
+            unsavedChangesInfoBox.displayInfo(unsavedChangesMsg);
+        } else
+        {
+            saveButton.setText(saveMsg);
+            unsavedChangesInfoBox.reset();
         }
-        saveButton.setText(message);
     }
 
     protected void resetFieldsAfterSave()
@@ -308,7 +324,12 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
 
     protected void addSaveButtonConfirmationListener()
     {
-        saveButton.addListener(Events.BeforeSelect, new Listener<BaseEvent>()
+        addSaveButtonConfirmationListener(saveButton);
+    }
+
+    protected void addSaveButtonConfirmationListener(final Button button)
+    {
+        button.addListener(Events.BeforeSelect, new Listener<BaseEvent>()
             {
                 @Override
                 public void handleEvent(BaseEvent be)
@@ -316,13 +337,15 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
                     if (formPanel.isValid() && formPanel.isDirtyForSavePoint() == false)
                     {
                         be.setCancelled(true);
-                        new ConfirmationDialog("Save Confirmation",
-                                "You haven't made any changes. Do you really want to save the form ?")
+                        new ConfirmationDialog(messageProvider
+                                .getMessage(Dict.SAVE_UNCHANGED_FORM_CONFIRMATION_TITLE),
+                                messageProvider
+                                        .getMessage(Dict.SAVE_UNCHANGED_FORM_CONFIRMATION_MSG))
                             {
                                 @Override
                                 protected void onYes()
                                 {
-                                    saveButton.fireEvent(Events.Select);
+                                    button.fireEvent(Events.Select);
                                 }
                             }.show();
                     }
