@@ -34,8 +34,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionCont
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentWithCloseConfirmationUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithCloseConfirmation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
@@ -50,7 +52,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
  * @author Izabela Adamczyk
  */
 abstract public class EntityRegistrationPanel<T extends ModelData, S extends DropDownList<T, ?>>
-        extends ContentPanel implements IDatabaseModificationObserver
+        extends ContentPanel implements IDatabaseModificationObserver,
+        IComponentWithCloseConfirmation
 {
     private final S entityTypeSelection;
 
@@ -107,15 +110,14 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
     private void onSelectionChanged(final T entityTypeModel)
     {
         final EntityType entityType = entityTypeModel.get(ModelDataPropertyNames.OBJECT);
-        if (registrationWidget == null)
-
+        if (registrationWidget == null || shouldAskForCloseConfirmation() == false)
         {
             showRegistrationForm(entityType);
             previousSelection.update(entityTypeModel);
         } else
         {
-            new ConfirmationDialog(viewContext.getMessage(Dict.CONFIRM_TITLE), viewContext
-                    .getMessage(Dict.CONFIRM_CLOSE_MSG))
+            new ConfirmationDialog(viewContext.getMessage(Dict.CONFIRM_TITLE),
+                    viewContext.getMessage(Dict.CONFIRM_CLOSE_MSG))
                 {
                     @Override
                     protected void onYes()
@@ -141,8 +143,9 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
     {
         removeAll();
         final IClientPlugin<EntityType, IIdAndCodeHolder> clientPlugin =
-                viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
-                        entityType).createClientPlugin(entityKind);
+                viewContext.getClientPluginFactoryProvider()
+                        .getClientPluginFactory(entityKind, entityType)
+                        .createClientPlugin(entityKind);
         registrationWidget =
                 clientPlugin.createRegistrationForEntityType(entityType, actionContext);
         add(registrationWidget.get());
@@ -186,5 +189,12 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         createCompositeDatabaseModificationObserver().update(observedModifications);
+    }
+
+    @Override
+    public boolean shouldAskForCloseConfirmation()
+    {
+        return ComponentWithCloseConfirmationUtil.shouldAskForCloseConfirmation(registrationWidget
+                .get());
     }
 }

@@ -144,6 +144,7 @@ var common = {
   button_choose: "Choose",
   button_cancel: "Cancel",
   button_reset: "Clear",
+  button_revert: "Revert",
   button_submit: "Submit",
   button_refresh: "Refresh",
   button_show: "Show",

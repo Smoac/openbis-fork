@@ -37,6 +37,7 @@ public abstract class ChosenEntitySetter<T> extends TriggerField<String> impleme
         setWidth(TEXT_CHOOSER_FIELD_WIDTH);
         setTriggerStyle("x-form-trigger-generate");
         setHideTrigger(false);
+        setFireChangeEventOnSetValue(true);
     }
 
     public void addChosenEntityListener(IChosenEntitiesListener<T> listener)

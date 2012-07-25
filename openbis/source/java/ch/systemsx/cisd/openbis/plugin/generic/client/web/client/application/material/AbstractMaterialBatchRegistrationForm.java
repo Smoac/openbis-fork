@@ -49,8 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 abstract class AbstractMaterialBatchRegistrationForm extends AbstractRegistrationForm
@@ -63,11 +61,11 @@ abstract class AbstractMaterialBatchRegistrationForm extends AbstractRegistratio
     {
         return GenericConstants.ID_PREFIX + sessionKey;
     }
-    
+
     protected final MaterialType materialType;
-    
+
     protected final IViewContext<IGenericClientServiceAsync> viewContext;
-    
+
     private final BasicFileFieldManager fileFieldsManager;
 
     private final BatchOperationKind batchOperationKind;
@@ -85,7 +83,7 @@ abstract class AbstractMaterialBatchRegistrationForm extends AbstractRegistratio
         fileFieldsManager.setMandatory();
         addUploadFeatures(sessionKey);
     }
-    
+
     /**
      * Adds additional fields to the form panel. File upload field will be added automatically after
      * specific fields.
@@ -93,12 +91,11 @@ abstract class AbstractMaterialBatchRegistrationForm extends AbstractRegistratio
     protected void addSpecificFormFields(FormPanel form)
     {
     }
-    
+
     /**
      * Perform registration on the service
      */
     protected abstract void save();
-
 
     @Override
     protected void submitValidForm()
@@ -111,7 +108,7 @@ abstract class AbstractMaterialBatchRegistrationForm extends AbstractRegistratio
         super.onRender(target, index);
         addFormFields();
     }
-    
+
     private final void addFormFields()
     {
         addSpecificFormFields(formPanel);
@@ -154,10 +151,11 @@ abstract class AbstractMaterialBatchRegistrationForm extends AbstractRegistratio
             });
         return result;
     }
-    
+
     void redefineSaveListeners()
     {
         saveButton.removeAllListeners();
+        addSaveButtonConfirmationListener();
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override

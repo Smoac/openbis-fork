@@ -87,7 +87,13 @@ public final class Space extends CodeWithRegistration<Space> implements IIdHolde
     @Override
     public String toString()
     {
-        return getInstance().getCode() + "/" + getCode();
+        if (getInstance() != null)
+        {
+            return getInstance().getCode() + "/" + getCode();
+        } else
+        {
+            return "/" + getCode();
+        }
     }
 
     @Override

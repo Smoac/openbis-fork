@@ -58,6 +58,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
             IIdAndCodeHolder identifiable)
     {
         super(viewContext, new ActionContext(), identifiable);
+        setRevertButtonVisible(true);
     }
 
     @Override

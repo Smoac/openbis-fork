@@ -79,6 +79,7 @@ public final class GenericSampleBatchUpdateForm extends AbstractRegistrationForm
             final SampleType sampleType)
     {
         super(viewContext.getCommonViewContext(), ID);
+        setResetButtonVisible(true);
         this.viewContext = viewContext;
         this.sampleType = sampleType;
         fileFieldsManager =
@@ -105,6 +106,7 @@ public final class GenericSampleBatchUpdateForm extends AbstractRegistrationForm
         {
             attachmentField.reset();
         }
+        updateDirtyCheckAfterSave();
     }
 
     private final void addFormFields()
@@ -144,6 +146,7 @@ public final class GenericSampleBatchUpdateForm extends AbstractRegistrationForm
     void redefineSaveListeners()
     {
         saveButton.removeAllListeners();
+        addSaveButtonConfirmationListener();
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override

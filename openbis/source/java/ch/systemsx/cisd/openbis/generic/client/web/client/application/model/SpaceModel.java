@@ -59,4 +59,25 @@ public class SpaceModel extends SimplifiedBaseModelData
     {
         return get(ModelDataPropertyNames.OBJECT);
     }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof SpaceModel == false)
+        {
+            return false;
+        }
+        final SpaceModel that = (SpaceModel) obj;
+        if (getBaseObject() == null)
+        {
+            return that.getBaseObject() == null;
+        } else
+        {
+            return getBaseObject().equals(that.getBaseObject());
+        }
+    }
 }

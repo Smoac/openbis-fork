@@ -51,6 +51,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
     protected ProjectEditForm(IViewContext<ICommonClientServiceAsync> viewContext, TechId projectId)
     {
         super(viewContext, projectId);
+        setRevertButtonVisible(true);
         this.projectId = projectId;
     }
 

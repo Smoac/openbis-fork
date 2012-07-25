@@ -54,6 +54,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
             IIdAndCodeHolder identifiable)
     {
         super(viewContext, new ActionContext(), identifiable);
+        setRevertButtonVisible(true);
     }
 
     private void loadSamplesInBackground()
@@ -78,6 +79,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
         {
             samplesArea.setSamples(result.getResultSet().getList().extractOriginalObjects());
             samplesArea.setEnabled(true);
+            updateDirtyCheck();
         }
     }
 

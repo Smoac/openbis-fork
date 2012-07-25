@@ -58,6 +58,7 @@ public final class GenericMaterialEditForm extends
             IIdAndCodeHolder identifiable, boolean editMode)
     {
         super(viewContext, identifiable, EntityKind.MATERIAL);
+        setRevertButtonVisible(true);
     }
 
     @Override

@@ -50,6 +50,7 @@ public final class VocabularyRegistrationForm extends AbstractRegistrationForm
     public VocabularyRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, ID);
+        setResetButtonVisible(true);
         this.viewContext = viewContext;
         termsSessionKey = ID + "_terms";
         this.vocabularyRegistrationFieldSet =
@@ -114,6 +115,7 @@ public final class VocabularyRegistrationForm extends AbstractRegistrationForm
     private void redefineSaveListeners()
     {
         saveButton.removeAllListeners();
+        addSaveButtonConfirmationListener();
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override

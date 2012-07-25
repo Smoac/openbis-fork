@@ -99,6 +99,7 @@ public abstract class AbstractSampleBatchRegistrationForm extends AbstractRegist
         {
             attachmentField.reset();
         }
+        updateDirtyCheckAfterSave();
     }
 
     private static String createId(String sessionKey)
@@ -133,6 +134,7 @@ public abstract class AbstractSampleBatchRegistrationForm extends AbstractRegist
     private void redefineSaveListeners()
     {
         saveButton.removeAllListeners();
+        addSaveButtonConfirmationListener();
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override

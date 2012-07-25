@@ -33,6 +33,7 @@ public class ProjectRegistrationForm extends AbstractProjectEditRegisterForm
     protected ProjectRegistrationForm(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext);
+        setResetButtonVisible(true);
     }
 
     public static DatabaseModificationAwareComponent create(

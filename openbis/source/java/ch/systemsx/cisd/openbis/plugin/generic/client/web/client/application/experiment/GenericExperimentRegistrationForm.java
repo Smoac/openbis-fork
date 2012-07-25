@@ -47,6 +47,7 @@ public final class GenericExperimentRegistrationForm extends
             final ActionContext context, final ExperimentType experimentType)
     {
         super(viewContext, context);
+        setResetButtonVisible(true);
         this.experimentType = experimentType;
     }
 
@@ -60,6 +61,7 @@ public final class GenericExperimentRegistrationForm extends
             importSamplesField.reset();
         }
         samplesArea.reset();
+        updateDirtyCheckAfterSave();
     }
 
     private final String createExperimentIdentifier()

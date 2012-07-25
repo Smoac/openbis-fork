@@ -41,6 +41,7 @@ public class AttachmentFileUploadField extends FileUploadField
     public AttachmentFileUploadField(final IMessageProvider messageProvider)
     {
         super();
+        setFireChangeEventOnSetValue(true);
         this.fileSet = new AttachmentsFileSet(messageProvider, this);
     }
 
@@ -48,7 +49,7 @@ public class AttachmentFileUploadField extends FileUploadField
     {
         return fileSet;
     }
-    
+
     public void addFieldsTo(FormPanel form, String sessionKey, IMessageProvider messageProvider)
     {
         FileUploadField fileUploadField = fileSet.getFileUploadField();
@@ -58,7 +59,7 @@ public class AttachmentFileUploadField extends FileUploadField
         form.add(fileSet.getDescriptionField());
         form.add(fileSet.getTitleField());
     }
-    
+
     public NewAttachment tryExtractAttachment()
     {
         if (StringUtils.isBlank(getFilePathValue()))

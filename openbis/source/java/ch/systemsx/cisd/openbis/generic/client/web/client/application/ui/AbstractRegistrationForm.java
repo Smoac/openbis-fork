@@ -21,7 +21,9 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -44,7 +46,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ClickableFormPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithCloseConfirmation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint.DirtyChangeEvent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
@@ -55,8 +60,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractRegistrationForm extends ContentPanel
+public abstract class AbstractRegistrationForm extends ContentPanel implements
+        IComponentWithCloseConfirmation
 {
+
     public static final int PANEL_MARGIN = 100;
 
     private static final String SESSION_KEY_PREFIX = "sessionKey_";
@@ -77,9 +84,11 @@ public abstract class AbstractRegistrationForm extends ContentPanel
 
     public static final int SECTION_WIDTH = SECTION_FIELD_WIDTH + SECTION_LABEL_WIDTH + 70;// +16
 
+    protected IMessageProvider messageProvider;
+
     protected InfoBox infoBox;
 
-    protected FormPanel formPanel;
+    protected FormPanelWithSavePoint formPanel;
 
     protected final int labelWidth;
 
@@ -95,6 +104,8 @@ public abstract class AbstractRegistrationForm extends ContentPanel
 
     private Button resetButton;
 
+    private Button revertButton;
+
     protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String id)
     {
         this(messageProvider, id, DEFAULT_LABEL_WIDTH, DEFAULT_FIELD_WIDTH);
@@ -103,6 +114,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
     protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String id,
             final int labelWidth, final int fieldWidth)
     {
+        this.messageProvider = messageProvider;
         this.labelWidth = labelWidth;
         this.fieldWidth = fieldWidth;
         setHeaderVisible(false);
@@ -113,8 +125,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         setId(id);
         add(infoBox = createInfoBox());
         add(loadingInfo = createLoadingInfo());
-        add(WidgetUtils.inRow(formPanel = createFormPanel(messageProvider), rightPanel =
-                createAdditionalPanel()));
+        add(WidgetUtils.inRow(formPanel = createFormPanel(), rightPanel = createAdditionalPanel()));
     }
 
     private LayoutContainer createAdditionalPanel()
@@ -146,14 +157,53 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         adjustFieldsSizes();
     }
 
+    protected void updateDirtyCheck()
+    {
+        updateDirtyCheckAfterChange(formPanel.isDirtyForSavePoint());
+    }
+
+    protected void updateDirtyCheckAfterChange(boolean isDirty)
+    {
+        String message = messageProvider.getMessage(Dict.BUTTON_SAVE);
+        if (isDirty)
+        {
+            message = message + "*";
+        }
+        saveButton.setText(message);
+    }
+
     protected void resetFieldsAfterSave()
     {
         resetPanel();
+        updateDirtyCheckAfterSave();
+    }
+
+    protected void updateDirtyCheckAfterSave()
+    {
+        formPanel.setSavePoint();
+        updateDirtyCheckAfterChange(false);
     }
 
     protected void resetPanel()
     {
         formPanel.reset();
+        updateDirtyCheckAfterReset();
+    }
+
+    protected void updateDirtyCheckAfterReset()
+    {
+        updateDirtyCheckAfterChange(false);
+    }
+
+    protected void revertPanel()
+    {
+        updateDirtyCheckAfterRevert();
+    }
+
+    protected void updateDirtyCheckAfterRevert()
+    {
+        formPanel.resetToSavePoint();
+        updateDirtyCheckAfterChange(false);
     }
 
     public void adjustFieldsSizes()
@@ -164,9 +214,9 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         }
     }
 
-    protected ClickableFormPanel createFormPanel(final IMessageProvider messageProvider)
+    private FormPanelWithSavePoint createFormPanel()
     {
-        final ClickableFormPanel panel = new ClickableFormPanel();
+        final FormPanelWithSavePoint panel = new FormPanelWithSavePoint();
         panel.addClickListener(new InfoBoxResetListener(infoBox));
         panel.setHeaderVisible(false);
         panel.setBodyBorder(false);
@@ -174,6 +224,15 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         panel.setLabelWidth(labelWidth);
         panel.setFieldWidth(fieldWidth);
         panel.setButtonAlign(HorizontalAlignment.RIGHT);
+        panel.addDirtyChangeListener(new Listener<DirtyChangeEvent>()
+            {
+                @Override
+                public void handleEvent(DirtyChangeEvent e)
+                {
+                    updateDirtyCheckAfterChange(e.isDirtyForSavePoint());
+                }
+            });
+
         saveButton = new Button(messageProvider.getMessage(Dict.BUTTON_SAVE));
         saveButton.setStyleAttribute("marginRight", "20px");
         saveButton.setId(getId() + SAVE_BUTTON);
@@ -193,7 +252,9 @@ public abstract class AbstractRegistrationForm extends ContentPanel
                     }
                 }
             });
+        addSaveButtonConfirmationListener();
         resetButton = new Button(messageProvider.getMessage(Dict.BUTTON_RESET));
+        resetButton.setVisible(false);
         resetButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
 
@@ -207,7 +268,25 @@ public abstract class AbstractRegistrationForm extends ContentPanel
                     resetPanel();
                 }
             });
+
+        revertButton = new Button(messageProvider.getMessage(Dict.BUTTON_REVERT));
+        revertButton.setVisible(false);
+        revertButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+
+                //
+                // SelectionListener
+                //
+
+                @Override
+                public final void componentSelected(final ButtonEvent ce)
+                {
+                    revertPanel();
+                }
+            });
+
         panel.addButton(resetButton);
+        panel.addButton(revertButton);
         panel.addButton(saveButton);
         return panel;
     }
@@ -215,6 +294,40 @@ public abstract class AbstractRegistrationForm extends ContentPanel
     protected void setUploadEnabled(boolean enabled)
     {
         saveButton.setEnabled(enabled);
+    }
+
+    protected void setResetButtonVisible(boolean visible)
+    {
+        resetButton.setVisible(visible);
+    }
+
+    protected void setRevertButtonVisible(boolean visible)
+    {
+        revertButton.setVisible(visible);
+    }
+
+    protected void addSaveButtonConfirmationListener()
+    {
+        saveButton.addListener(Events.BeforeSelect, new Listener<BaseEvent>()
+            {
+                @Override
+                public void handleEvent(BaseEvent be)
+                {
+                    if (formPanel.isValid() && formPanel.isDirtyForSavePoint() == false)
+                    {
+                        be.setCancelled(true);
+                        new ConfirmationDialog("Save Confirmation",
+                                "You haven't made any changes. Do you really want to save the form ?")
+                            {
+                                @Override
+                                protected void onYes()
+                                {
+                                    saveButton.fireEvent(Events.Select);
+                                }
+                            }.show();
+                    }
+                }
+            });
     }
 
     /**
@@ -349,6 +462,12 @@ public abstract class AbstractRegistrationForm extends ContentPanel
     {
         return messageProvider.getMessage(Dict.EDIT_TITLE,
                 messageProvider.getMessage(entityKindDictKey), identifiable.getCode());
+    }
+
+    @Override
+    public boolean shouldAskForCloseConfirmation()
+    {
+        return formPanel.isDirtyForSavePoint();
     }
 
 }

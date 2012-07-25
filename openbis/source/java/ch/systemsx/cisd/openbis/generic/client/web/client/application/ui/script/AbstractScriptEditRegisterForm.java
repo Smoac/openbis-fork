@@ -208,6 +208,7 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
     void redefineSaveListeners()
     {
         saveButton.removeAllListeners();
+        addSaveButtonConfirmationListener();
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override

@@ -25,7 +25,6 @@ import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
 
 /**
@@ -53,7 +52,7 @@ public class CustomImportForm extends AbstractRegistrationForm
             String customImportCode)
     {
         super(viewContext, id);
-
+        setResetButtonVisible(true);
         this.sessionKey = id + "-" + customImportCode;
         this.customImportCode = customImportCode;
         this.viewContext = viewContext;

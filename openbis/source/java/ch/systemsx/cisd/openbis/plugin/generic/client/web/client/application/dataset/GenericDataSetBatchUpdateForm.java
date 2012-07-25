@@ -75,6 +75,7 @@ public final class GenericDataSetBatchUpdateForm extends AbstractRegistrationFor
             final DataSetType dataSetType)
     {
         super(viewContext.getCommonViewContext(), ID);
+        setResetButtonVisible(true);
         this.viewContext = viewContext;
         this.dataSetType = dataSetType;
         fileFieldsManager =
@@ -92,6 +93,7 @@ public final class GenericDataSetBatchUpdateForm extends AbstractRegistrationFor
         {
             attachmentField.reset();
         }
+        updateDirtyCheckAfterSave();
     }
 
     private final void addFormFields()
@@ -127,6 +129,7 @@ public final class GenericDataSetBatchUpdateForm extends AbstractRegistrationFor
     void redefineSaveListeners()
     {
         saveButton.removeAllListeners();
+        addSaveButtonConfirmationListener();
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override

@@ -41,6 +41,7 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
             final SampleType sampleType, ActionContext actionContext)
     {
         super(viewContext, actionContext);
+        setResetButtonVisible(true);
         this.sampleType = sampleType;
     }
 
@@ -49,6 +50,7 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
     {
         codeField.reset();
         attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
+        updateDirtyCheckAfterSave();
     }
 
     // public only for tests

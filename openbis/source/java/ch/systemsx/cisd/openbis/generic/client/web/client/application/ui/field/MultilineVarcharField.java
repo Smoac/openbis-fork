@@ -49,6 +49,7 @@ public class MultilineVarcharField extends TextArea
         this.setFieldLabel(label);
         this.setValidateOnBlur(true);
         this.setAutoValidate(true);
+        this.setFireChangeEventOnSetValue(true);
         FieldUtil.setMandatoryFlag(this, mandatory);
         setHeightInLines(lines);
     }

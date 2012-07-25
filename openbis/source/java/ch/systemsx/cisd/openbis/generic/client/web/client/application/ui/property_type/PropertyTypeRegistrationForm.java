@@ -85,6 +85,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
     private PropertyTypeRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, ID, DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
+        setResetButtonVisible(true);
         this.viewContext = viewContext;
 
         this.propertyTypeCodeField = createPropertyTypeCodeField();

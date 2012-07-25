@@ -41,6 +41,7 @@ public class ScriptRegistrationForm extends AbstractScriptEditRegisterForm
             ScriptTypeSelectionWidget scriptTypeChooser, EntityKind entityKindOrNull)
     {
         super(viewContext, scriptTypeChooser, entityKindOrNull);
+        setResetButtonVisible(true);
     }
 
     @Override

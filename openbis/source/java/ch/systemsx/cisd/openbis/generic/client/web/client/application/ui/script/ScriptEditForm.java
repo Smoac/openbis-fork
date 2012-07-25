@@ -42,6 +42,7 @@ public class ScriptEditForm extends AbstractScriptEditRegisterForm
     protected ScriptEditForm(IViewContext<ICommonClientServiceAsync> viewContext, TechId scriptId)
     {
         super(viewContext, scriptId, null, null);
+        setRevertButtonVisible(true);
         this.scriptId = scriptId;
     }
 

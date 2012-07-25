@@ -149,6 +149,8 @@ public abstract class Dict
 
     public static final String BUTTON_RESET = "button_reset";
 
+    public static final String BUTTON_REVERT = "button_revert";
+
     public static final String BUTTON_SUBMIT = "button_submit";
 
     public static final String BUTTON_REFRESH = "button_refresh";

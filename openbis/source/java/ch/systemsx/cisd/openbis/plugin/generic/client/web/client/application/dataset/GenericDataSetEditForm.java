@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.application.fra
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -108,6 +109,7 @@ public final class GenericDataSetEditForm extends
             IIdAndCodeHolder identifiable)
     {
         super(viewContext, identifiable, EntityKind.DATA_SET);
+        setRevertButtonVisible(true);
         simpleId = createSimpleId(identifiable, EntityKind.DATA_SET);
     }
 
@@ -305,7 +307,14 @@ public final class GenericDataSetEditForm extends
                 DefaultResultSetConfig.createFetchAll();
         viewContext.getCommonService().listDataSetRelationships(techIdOrNull,
                 DataSetRelationshipRole.CHILD, config, new ListParentsCallback(viewContext));
-        builder.loadDataInBackground();
+        builder.loadDataInBackground(new Listener<BaseEvent>()
+            {
+                @Override
+                public void handleEvent(BaseEvent be)
+                {
+                    updateDirtyCheck();
+                }
+            });
     }
 
     private void updateFieldsVisibility()
@@ -380,6 +389,7 @@ public final class GenericDataSetEditForm extends
                     result.getResultSet().getList().extractOriginalObjects();
             List<ExternalData> dataSets = extractDataSets(rows);
             parentsArea.setDataSets(dataSets);
+            updateDirtyCheck();
             if (parentsArea.isVisible())
             {
                 parentsArea.setEnabled(true);
@@ -392,7 +402,7 @@ public final class GenericDataSetEditForm extends
 
         void updateOriginalValues(DataSetUpdateResult result);
 
-        void loadDataInBackground();
+        void loadDataInBackground(Listener<BaseEvent> listener);
 
         void fillUpdates(DataSetUpdates result);
 
@@ -454,7 +464,7 @@ public final class GenericDataSetEditForm extends
         }
 
         @Override
-        public void loadDataInBackground()
+        public void loadDataInBackground(Listener<BaseEvent> listener)
         {
             // nothing to do
         }
@@ -513,7 +523,7 @@ public final class GenericDataSetEditForm extends
         }
 
         @Override
-        public void loadDataInBackground()
+        public void loadDataInBackground(Listener<BaseEvent> listener)
         {
             // not best performance but the same solution that is done for experiments
             // only codes are needed but we extract 'full' object
@@ -521,16 +531,20 @@ public final class GenericDataSetEditForm extends
                     DefaultResultSetConfig.createFetchAll();
             viewContext.getCommonService().listDataSetRelationships(techIdOrNull,
                     DataSetRelationshipRole.CONTAINER, config,
-                    new ListContainedDataSetsCallback(viewContext));
+                    new ListContainedDataSetsCallback(viewContext, listener));
         }
 
         private class ListContainedDataSetsCallback extends
                 AbstractAsyncCallback<TypedTableResultSet<ExternalData>>
         {
 
-            public ListContainedDataSetsCallback(IViewContext<?> viewContext)
+            private Listener<BaseEvent> listener;
+
+            public ListContainedDataSetsCallback(IViewContext<?> viewContext,
+                    Listener<BaseEvent> listener)
             {
                 super(viewContext);
+                this.listener = listener;
             }
 
             @Override
@@ -539,6 +553,7 @@ public final class GenericDataSetEditForm extends
                 List<TableModelRowWithObject<ExternalData>> rows =
                         result.getResultSet().getList().extractOriginalObjects();
                 containedArea.setDataSets(extractDataSets(rows));
+                listener.handleEvent(null);
                 if (containedArea.isVisible())
                 {
                     containedArea.setEnabled(true);
@@ -596,7 +611,7 @@ public final class GenericDataSetEditForm extends
         }
 
         @Override
-        public void loadDataInBackground()
+        public void loadDataInBackground(Listener<BaseEvent> listener)
         {
             // nothing to do
         }

@@ -68,6 +68,7 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
         super(viewContext.getCommonViewContext(), SESSION_KEY);
+        setResetButtonVisible(true);
         this.viewContext = viewContext;
         this.sampleType = sampleType;
         generateCodesCheckbox =

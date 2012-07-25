@@ -98,6 +98,7 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         super(viewContext.getCommonViewContext(), SESSION_KEY);
+        setResetButtonVisible(true);
         this.viewContext = viewContext;
         experimentChooser =
                 ExperimentChooserField.create(viewContext.getMessage(Dict.EXPERIMENT), true, null,

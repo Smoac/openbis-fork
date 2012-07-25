@@ -277,10 +277,7 @@ public class MainTabPanel extends TabPanel implements IMainPanel
             add(tabItem.getComponent());
             tabItem.getComponent().addListener(AppEvents.CloseViewer, createCloseViewerListener());
             tabItem.getTabTitleUpdater().bind(this);
-            if (tabItem.isCloseConfirmationNeeded())
-            {
-                addListener(Events.BeforeClose, createBeforeCloseListener());
-            }
+            addListener(Events.BeforeClose, createBeforeCloseListener());
             addListener(Events.Close, createCloseTabListener());
             addListener(Events.Select, createActivateTabListener());
         }
@@ -361,19 +358,25 @@ public class MainTabPanel extends TabPanel implements IMainPanel
         {
             return new Listener<TabPanelEvent>()
                 {
+                    private boolean closeConfirmed = false;
+
                     @Override
                     public void handleEvent(final TabPanelEvent be)
                     {
-                        be.setCancelled(true);
-                        new ConfirmationDialog(viewContext.getMessage(Dict.CONFIRM_TITLE),
-                                viewContext.getMessage(Dict.CONFIRM_CLOSE_MSG))
-                            {
-                                @Override
-                                protected void onYes()
+                        if (tabItem.isCloseConfirmationNeeded() && closeConfirmed == false)
+                        {
+                            be.setCancelled(true);
+                            new ConfirmationDialog(viewContext.getMessage(Dict.CONFIRM_TITLE),
+                                    viewContext.getMessage(Dict.CONFIRM_CLOSE_MSG))
                                 {
-                                    MainTabItem.this.close();
-                                }
-                            }.show();
+                                    @Override
+                                    protected void onYes()
+                                    {
+                                        closeConfirmed = true;
+                                        MainTabItem.this.close();
+                                    }
+                                }.show();
+                        }
                     }
                 };
         }

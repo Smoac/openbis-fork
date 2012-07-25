@@ -38,13 +38,13 @@ public class DefaultTabItem implements ITabItem
 
     private final IDelegatedAction disposerActionOrNull;
 
-    private final boolean isCloseConfirmationNeeded;
-
     private final LastModificationStateUpdater lastModificationStateUpdaterOrNull;
 
     private final LastHistoryTokenUpdater historyTokenUpdater;
 
     private final IDelegatedAction updaterOrNull;
+
+    private final boolean isCloseConfirmationNeeded;
 
     /**
      * Creates a tab with the specified {@link Component}. The tab is unaware of database
@@ -67,7 +67,7 @@ public class DefaultTabItem implements ITabItem
     {
         return new DefaultTabItem(viewContext, title, component, updater, null, null, false);
     }
-    
+
     /**
      * Creates a tab with the specified {@link ContentPanel}. The tab is unaware of database
      * modifications and will not be automatically refreshed if changes occur.
@@ -114,7 +114,8 @@ public class DefaultTabItem implements ITabItem
     }
 
     private static DefaultTabItem create(IViewContext<?> viewContext, final String title,
-            final Component component, IDelegatedAction updaterOrNull, IDatabaseModificationObserver modificationObserver,
+            final Component component, IDelegatedAction updaterOrNull,
+            IDatabaseModificationObserver modificationObserver,
             IDelegatedAction disposerActionOrNull, boolean isCloseConfirmationNeeded)
     {
         LastModificationStateUpdater stateUpdater =
@@ -148,10 +149,7 @@ public class DefaultTabItem implements ITabItem
         this.component = component;
         this.lastModificationStateUpdaterOrNull = lastModificationStateUpdaterOrNull;
         this.disposerActionOrNull = disposerActionOrNull;
-        // TODO 2009-05-08, Tomasz Pylak: uncomment this when confirmation will be asked only in
-        // relevant moments.
-        // this.isCloseConfirmationNeeded = isCloseConfirmationNeeded;
-        this.isCloseConfirmationNeeded = false;
+        this.isCloseConfirmationNeeded = isCloseConfirmationNeeded;
     }
 
     //
@@ -172,7 +170,13 @@ public class DefaultTabItem implements ITabItem
     @Override
     public boolean isCloseConfirmationNeeded()
     {
-        return isCloseConfirmationNeeded;
+        if (isCloseConfirmationNeeded)
+        {
+            return ComponentWithCloseConfirmationUtil.shouldAskForCloseConfirmation(component);
+        } else
+        {
+            return false;
+        }
     }
 
     @Override

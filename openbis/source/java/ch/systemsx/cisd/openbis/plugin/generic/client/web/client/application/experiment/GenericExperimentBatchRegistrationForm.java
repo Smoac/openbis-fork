@@ -32,10 +32,10 @@ public final class GenericExperimentBatchRegistrationForm extends
     private static final String SESSION_KEY = "experiment-batch-registration";
 
     public GenericExperimentBatchRegistrationForm(
-            final IViewContext<IGenericClientServiceAsync> viewContext,
-            final ExperimentType type)
+            final IViewContext<IGenericClientServiceAsync> viewContext, final ExperimentType type)
     {
         super(viewContext, type, BatchOperationKind.REGISTRATION, SESSION_KEY);
+        setResetButtonVisible(true);
     }
 
     @Override

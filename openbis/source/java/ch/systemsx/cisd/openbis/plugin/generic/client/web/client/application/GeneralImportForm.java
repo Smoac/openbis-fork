@@ -74,7 +74,7 @@ public class GeneralImportForm extends AbstractRegistrationForm
             String id, String sessionKey)
     {
         super(genericViewContext, id);
-
+        setResetButtonVisible(true);
         this.sessionKey = sessionKey;
         this.genericViewContext = genericViewContext;
         setScrollMode(Scroll.AUTO);
@@ -154,6 +154,7 @@ public class GeneralImportForm extends AbstractRegistrationForm
         {
             attachmentField.reset();
         }
+        updateDirtyCheckAfterSave();
     }
 
     private final void addOnlyFormFields(boolean forceAddEmailField)
@@ -192,6 +193,7 @@ public class GeneralImportForm extends AbstractRegistrationForm
     void redefineSaveListeners()
     {
         saveButton.removeAllListeners();
+        addSaveButtonConfirmationListener();
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override

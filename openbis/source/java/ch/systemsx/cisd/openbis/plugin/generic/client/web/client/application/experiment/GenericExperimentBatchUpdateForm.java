@@ -22,8 +22,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class GenericExperimentBatchUpdateForm extends AbstractExperimentBatchRegistrationForm
@@ -31,10 +29,10 @@ public class GenericExperimentBatchUpdateForm extends AbstractExperimentBatchReg
     private static final String SESSION_KEY = "experiment-batch-update";
 
     public GenericExperimentBatchUpdateForm(
-            final IViewContext<IGenericClientServiceAsync> viewContext,
-            final ExperimentType type)
+            final IViewContext<IGenericClientServiceAsync> viewContext, final ExperimentType type)
     {
         super(viewContext, type, BatchOperationKind.UPDATE, SESSION_KEY);
+        setResetButtonVisible(true);
     }
 
     @Override

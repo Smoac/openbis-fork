@@ -168,6 +168,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     private void redefineSaveListeners()
     {
         saveButton.removeAllListeners();
+        addSaveButtonConfirmationListener();
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override

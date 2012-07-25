@@ -109,8 +109,8 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     // ID generation
     // ---------------------------------------------------------------------------------------------
     /**
-     * Creates unique id based on {@link #createSimpleId(IIdAndCodeHolder, EntityKind)} and application
-     * specific ID prefix.
+     * Creates unique id based on {@link #createSimpleId(IIdAndCodeHolder, EntityKind)} and
+     * application specific ID prefix.
      */
     public static final String createId(IIdAndCodeHolder identifiable, EntityKind entityKind)
     {
@@ -129,7 +129,8 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     /**
      * Creates unique form id for given entity.
      */
-    protected static final String createSimpleId(IIdAndCodeHolder identifiable, EntityKind entityKind)
+    protected static final String createSimpleId(IIdAndCodeHolder identifiable,
+            EntityKind entityKind)
     {
         return createSimpleId(TechId.create(identifiable), entityKind);
     }
@@ -175,8 +176,8 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     private final void createCommonFormFields()
     {
         propertiesEditor =
-                createPropertiesEditor(createId(techIdOrNull, entityKind), viewContext
-                        .getCommonViewContext());
+                createPropertiesEditor(createId(techIdOrNull, entityKind),
+                        viewContext.getCommonViewContext());
         codeField =
                 new CodeFieldWithGenerator(viewContext, viewContext.getMessage(Dict.CODE),
                         getGeneratedCodePrefix(), isAutoGenerateCode());
@@ -189,6 +190,11 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
             // we don't want to validate code during edition
             // (contained sample code has ':' inside and it is invalid)
             codeField.disable();
+        }
+
+        if (isAutoGenerateCode())
+        {
+            formPanel.addDirtyCheckIgnoredField(codeField);
         }
     }
 

@@ -26,26 +26,26 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class GenericMaterialBatchUpdateForm extends AbstractMaterialBatchRegistrationForm
 {
     private static final String PREFIX = "material-batch-update";
-    
+
     private static final String SESSION_KEY = PREFIX;
 
     private final CheckBoxField ignoreUnregisteredMaterialsCheckBox;
-    
-    public GenericMaterialBatchUpdateForm(final IViewContext<IGenericClientServiceAsync> viewContext,
+
+    public GenericMaterialBatchUpdateForm(
+            final IViewContext<IGenericClientServiceAsync> viewContext,
             final MaterialType materialType)
     {
         super(viewContext, PREFIX, BatchOperationKind.UPDATE, materialType);
+        setResetButtonVisible(true);
         ignoreUnregisteredMaterialsCheckBox =
                 new CheckBoxField(viewContext.getMessage(Dict.IGNORE_UNREGISTERED_MATERIALS), false);
     }
-    
+
     @Override
     protected void addSpecificFormFields(FormPanel form)
     {

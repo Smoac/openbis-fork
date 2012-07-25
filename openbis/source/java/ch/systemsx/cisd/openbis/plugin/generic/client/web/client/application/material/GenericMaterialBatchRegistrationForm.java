@@ -48,6 +48,7 @@ public final class GenericMaterialBatchRegistrationForm extends
             final MaterialType materialType)
     {
         super(viewContext, PREFIX, BatchOperationKind.REGISTRATION, materialType);
+        setResetButtonVisible(true);
         updateExistingCheckbox =
                 new CheckBoxField(viewContext.getMessage(Dict.UPDATE_EXISTING_ENTITIES_LABEL),
                         false);

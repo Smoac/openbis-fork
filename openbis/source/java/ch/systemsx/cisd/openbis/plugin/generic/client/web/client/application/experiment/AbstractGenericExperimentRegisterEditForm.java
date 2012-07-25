@@ -135,6 +135,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
     private void redefineSaveListeners()
     {
         saveButton.removeAllListeners();
+        addSaveButtonConfirmationListener();
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override
@@ -240,8 +241,8 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
                     if (typeSelection.tryGetSelectedSampleType() != null)
                     {
                         WindowUtils.openWindow(UrlParamsHelper.createTemplateURL(EntityKind.SAMPLE,
-                                typeSelection.tryGetSelected(), autoGenerate.getValue(), false, false, 
-                                BatchOperationKind.REGISTRATION));
+                                typeSelection.tryGetSelected(), autoGenerate.getValue(), false,
+                                false, BatchOperationKind.REGISTRATION));
                     } else
                     {
                         MessageBox.alert("Sample type not selected.",

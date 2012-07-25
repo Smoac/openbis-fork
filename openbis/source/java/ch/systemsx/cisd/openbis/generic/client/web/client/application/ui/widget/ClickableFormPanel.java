@@ -26,7 +26,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
  * 
  * @author Christian Ribeaud
  */
-public final class ClickableFormPanel extends FormPanel
+public class ClickableFormPanel extends FormPanel
 {
 
     public final void addClickListener(final ClickHandler handler)
