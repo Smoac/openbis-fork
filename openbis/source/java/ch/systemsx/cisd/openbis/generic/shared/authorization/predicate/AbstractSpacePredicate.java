@@ -89,18 +89,10 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
     }
 
     protected Status evaluate(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
-            final DatabaseInstancePE databaseInstance, final long spaceTechId)
-    {
-        final String databaseInstanceUUID = databaseInstance.getUuid();
-        return evaluate(person, allowedRoles, databaseInstanceUUID, databaseInstance.getCode(),
-                spaceTechId);
-    }
-
-    protected Status evaluate(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
-            final String databaseInstanceUUID, final String databaseInstanceCode,
             final long spaceTechId)
     {
-        if (tryFindSpace(databaseInstanceUUID, spaceTechId) == null)
+        final SpacePE space = tryFindSpace(spaceTechId);
+        if (space == null)
         {
             if (okForNonExistentSpaces)
             {
@@ -111,7 +103,8 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
             }
         }
 
-        final boolean matching = isMatching(allowedRoles, databaseInstanceUUID, spaceTechId);
+        final boolean matching =
+                isMatching(allowedRoles, space.getDatabaseInstance().getId(), spaceTechId);
         if (matching)
         {
             return Status.OK;
@@ -137,11 +130,11 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
         return null;
     }
 
-    private SpacePE tryFindSpace(final String databaseInstanceUUID, final long spaceTechId)
+    private SpacePE tryFindSpace(final long spaceTechId)
     {
         for (final SpacePE space : spaces)
         {
-            if (equalIdentifier(space, databaseInstanceUUID, spaceTechId))
+            if (equalIdentifier(space, spaceTechId))
             {
                 return space;
             }
@@ -172,18 +165,17 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
     }
 
     private boolean isMatching(final List<RoleWithIdentifier> allowedRoles,
-            final String databaseInstanceUUID, final long spaceTechId)
+            final long databaseTechId, final long spaceTechId)
     {
         for (final RoleWithIdentifier role : allowedRoles)
         {
             final RoleLevel roleLevel = role.getRoleLevel();
             if (roleLevel.equals(RoleLevel.SPACE)
-                    && equalIdentifier(role.getAssignedSpace(), databaseInstanceUUID,
-                            spaceTechId))
+                    && equalIdentifier(role.getAssignedSpace(), spaceTechId))
             {
                 return true;
             } else if (roleLevel.equals(RoleLevel.INSTANCE)
-                    && role.getAssignedDatabaseInstance().getUuid().equals(databaseInstanceUUID))
+                    && role.getAssignedDatabaseInstance().getId() == databaseTechId)
             {
                 // permissions on the database instance level allow to access all spaces in this
                 // instance
@@ -200,11 +192,9 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
                 && space.getDatabaseInstance().getUuid().equals(databaseInstanceUUID);
     }
 
-    private boolean equalIdentifier(final SpacePE space, final String databaseInstanceUUID,
-            final long spaceTechId)
+    private boolean equalIdentifier(final SpacePE space, final long spaceTechId)
     {
-        return (space.getId() == spaceTechId)
-                && space.getDatabaseInstance().getUuid().equals(databaseInstanceUUID);
+        return (space.getId() == spaceTechId);
     }
 
     protected Status evaluateSpace(final PersonPE person,

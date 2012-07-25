@@ -127,8 +127,7 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
                 continue; // Shared samples will return a spaceId of null (or 0 in EoDSQL).
             }
             final Status status =
-                    evaluate(person, allowedRoles, authorizationDataProvider
-                            .getHomeDatabaseInstance(), spaceId);
+                    evaluate(person, allowedRoles, spaceId);
             if (Status.OK.equals(status) == false)
             {
                 return status;

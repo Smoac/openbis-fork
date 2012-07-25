@@ -69,7 +69,7 @@ public class ScreeningPlateListReadOnlyPredicate extends
                 permIds.add(plate.getPermId());
                 hasPermId = true;
             }
-            
+
             final String spaceCodeOrNull =
                     SpaceCodeHelper.tryGetSpaceCode(person, plate.tryGetSpaceCode());
             if (spaceCodeOrNull == null && hasPermId == false)
@@ -96,8 +96,7 @@ public class ScreeningPlateListReadOnlyPredicate extends
                     continue; // Shared samples will return a spaceId of null (or 0 in EoDSQL).
                 }
                 final Status status =
-                        evaluate(person, allowedRoles, authorizationDataProvider
-                                .getHomeDatabaseInstance(), spaceId);
+                        evaluate(person, allowedRoles, spaceId);
                 if (Status.OK.equals(status) == false)
                 {
                     return status;
