@@ -286,6 +286,13 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     }
 
     @Override
+    protected void revertPanel()
+    {
+        super.revertPanel();
+        attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
+    }
+
+    @Override
     protected String getGeneratedCodePrefix()
     {
         // for samples prefix is taken from sample type property

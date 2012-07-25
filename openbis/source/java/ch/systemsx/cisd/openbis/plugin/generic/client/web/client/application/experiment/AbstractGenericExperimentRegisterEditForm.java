@@ -228,6 +228,13 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
         attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
     }
 
+    @Override
+    protected void revertPanel()
+    {
+        super.revertPanel();
+        attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
+    }
+
     private static LabelField createTemplateField(String label,
             final SampleTypeSelectionWidget typeSelection, final CheckBox autoGenerate)
     {

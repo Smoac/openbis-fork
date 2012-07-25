@@ -194,7 +194,13 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
     @Override
     public boolean shouldAskForCloseConfirmation()
     {
-        return ComponentWithCloseConfirmationUtil.shouldAskForCloseConfirmation(registrationWidget
-                .get());
+        if (registrationWidget != null)
+        {
+            return ComponentWithCloseConfirmationUtil
+                    .shouldAskForCloseConfirmation(registrationWidget.get());
+        } else
+        {
+            return false;
+        }
     }
 }

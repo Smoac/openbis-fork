@@ -32,6 +32,7 @@ import com.extjs.gxt.ui.client.util.Util;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Container;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.MultiField;
 
 /**
  * @author pkupczyk
@@ -54,9 +55,28 @@ public class FormPanelWithSavePoint extends ClickableFormPanel
         addListener(Events.Add, new Listener<ContainerEvent>()
             {
                 @Override
-                public void handleEvent(ContainerEvent e)
+                public void handleEvent(ContainerEvent ce)
                 {
-                    addDirtyCheckField(e.getItem());
+                    List<Field<?>> fields = new ArrayList<Field<?>>();
+                    getDirtyCheckFields(ce.getItem(), fields);
+
+                    for (Field<?> field : fields)
+                    {
+                        field.addListener(Events.Change, new Listener<FieldEvent>()
+                            {
+                                @Override
+                                public void handleEvent(FieldEvent fe)
+                                {
+                                    DirtyChangeEvent dirtyChangedEvent =
+                                            new DirtyChangeEvent(FormPanelWithSavePoint.this);
+
+                                    for (Listener<DirtyChangeEvent> dirtyChangeListener : dirtyChangeListeners)
+                                    {
+                                        dirtyChangeListener.handleEvent(dirtyChangedEvent);
+                                    }
+                                }
+                            });
+                    }
                 }
             });
     }
@@ -64,7 +84,8 @@ public class FormPanelWithSavePoint extends ClickableFormPanel
     public void setSavePoint()
     {
         dirtyCheckSavePointValues.clear();
-        for (Field field : getFields())
+
+        for (Field field : getDirtyCheckFields())
         {
             setSavePointValue(field);
         }
@@ -79,7 +100,7 @@ public class FormPanelWithSavePoint extends ClickableFormPanel
 
     public void resetToSavePoint()
     {
-        for (Field field : getFields())
+        for (Field field : getDirtyCheckFields())
         {
             field.setValue(getSavePointValue(field));
         }
@@ -101,31 +122,31 @@ public class FormPanelWithSavePoint extends ClickableFormPanel
         }
     }
 
-    private void addDirtyCheckField(Component component)
+    private List<Field<?>> getDirtyCheckFields()
     {
-        if (component instanceof Field<?>)
-        {
-            Field<?> field = (Field<?>) component;
-            field.addListener(Events.Change, new Listener<FieldEvent>()
-                {
-                    @Override
-                    public void handleEvent(FieldEvent e)
-                    {
-                        DirtyChangeEvent dirtyChangedEvent =
-                                new DirtyChangeEvent(FormPanelWithSavePoint.this);
+        List<Field<?>> fields = new ArrayList<Field<?>>();
+        getDirtyCheckFields(this, fields);
+        return fields;
+    }
 
-                        for (Listener<DirtyChangeEvent> dirtyChangeListener : dirtyChangeListeners)
-                        {
-                            dirtyChangeListener.handleEvent(dirtyChangedEvent);
-                        }
-                    }
-                });
+    private void getDirtyCheckFields(Component component, List<Field<?>> fields)
+    {
+        if (component instanceof MultiField<?>)
+        {
+            MultiField<?> multifield = (MultiField<?>) component;
+            for (Component item : multifield.getAll())
+            {
+                getDirtyCheckFields(item, fields);
+            }
+        } else if (component instanceof Field<?>)
+        {
+            fields.add((Field<?>) component);
         } else if (component instanceof Container<?>)
         {
             Container<Component> container = (Container<Component>) component;
             for (Component item : container.getItems())
             {
-                addDirtyCheckField(item);
+                getDirtyCheckFields(item, fields);
             }
         }
     }
@@ -137,7 +158,7 @@ public class FormPanelWithSavePoint extends ClickableFormPanel
 
     public boolean isDirtyForSavePoint()
     {
-        for (Field<?> field : getFields())
+        for (Field<?> field : getDirtyCheckFields())
         {
             if (dirtyCheckIgnoredFields.contains(field) == false)
             {
