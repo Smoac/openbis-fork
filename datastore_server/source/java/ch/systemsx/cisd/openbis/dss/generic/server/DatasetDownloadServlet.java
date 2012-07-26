@@ -464,8 +464,11 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
                     directoryRenderer.printDirectory(name, normalizedRelativePath);
                 } else
                 {
+                    Integer checksumOrNull =
+                            childNode.isChecksumCRC32Precalculated() ? childNode.getChecksumCRC32()
+                                    : null;
                     directoryRenderer.printFile(name, normalizedRelativePath,
-                            childNode.getFileLength());
+                            childNode.getFileLength(), checksumOrNull);
                 }
             }
             directoryRenderer.printFooter();

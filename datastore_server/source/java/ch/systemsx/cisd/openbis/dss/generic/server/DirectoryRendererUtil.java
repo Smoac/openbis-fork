@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,30 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import org.apache.commons.io.FileUtils;
+
+import ch.systemsx.cisd.common.io.IOUtilities;
+
 /**
- * Interface of a renderer of a directory.
- * 
- * @author Franz-Josef Elmer
+ * @author pkupczyk
  */
-public interface IDirectoryRenderer extends IWriterInjector
+public class DirectoryRendererUtil
 {
-    public void printHeader();
 
-    public void printLinkToParentDirectory(String relativePath);
+    public static String renderFileSize(long size)
+    {
+        return FileUtils.byteCountToDisplaySize(size);
+    }
 
-    public void printDirectory(String name, String relativePath);
-
-    public void printFile(String name, String relativePath, long size, Integer checksumOrNull);
-
-    public void printFooter();
+    public static String renderCRC32Checksum(Integer checksumOrNull)
+    {
+        if (checksumOrNull == null)
+        {
+            return "-";
+        } else
+        {
+            return IOUtilities.crc32ToString(checksumOrNull);
+        }
+    }
 
 }

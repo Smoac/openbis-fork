@@ -20,7 +20,6 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -50,7 +49,7 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
 
     private static final Template ROW_TEMPLATE =
             new Template(
-                    "<tr><td class='td_file'><a href='${path}?mode=simpleHtml${sessionId}'>${name}</td><td>${size}</td></tr>");
+                    "<tr><td class='td_file'><a href='${path}?mode=simpleHtml${sessionId}'>${name}</td><td>${size}</td><td>${checksum}</td></tr>");
 
     private static final Template HEADER_TEMPLATE = new Template("<html><head>" + CSS
             + "</head><body>" + "<table> " + "${folder}" + "");
@@ -97,27 +96,31 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
     @Override
     public void printLinkToParentDirectory(final String aRelativePath)
     {
-        printRow("..", aRelativePath, "");
+        printRow("..", aRelativePath, "", "");
     }
 
     @Override
     public void printDirectory(final String name, final String aRelativePath)
     {
-        printRow(name, aRelativePath, "");
+        printRow(name, aRelativePath, "", "");
     }
 
     @Override
-    public void printFile(final String name, final String aRelativePath, final long size)
+    public void printFile(final String name, final String aRelativePath, final long size,
+            final Integer checksumOrNull)
     {
-        printRow(name, aRelativePath, renderFileSize(size));
+        printRow(name, aRelativePath, DirectoryRendererUtil.renderFileSize(size),
+                DirectoryRendererUtil.renderCRC32Checksum(checksumOrNull));
     }
 
-    private void printRow(final String name, final String aRelativePath, final String fileSize)
+    private void printRow(final String name, final String aRelativePath, final String fileSize,
+            final String checksum)
     {
         final Template template = ROW_TEMPLATE.createFreshCopy();
         template.bind("path", urlPrefix + encodeURL(aRelativePath));
         template.bind("name", name);
         template.bind("size", fileSize);
+        template.bind("checksum", checksum);
         template.bind("sessionId", Utils.createUrlParameterForSessionId("&", sessionIdOrNull));
         writer.println(template.createText());
     }
@@ -131,11 +134,6 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
-    }
-
-    private final static String renderFileSize(final long size)
-    {
-        return FileUtils.byteCountToDisplaySize(size);
     }
 
     @Override

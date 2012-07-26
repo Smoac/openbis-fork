@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.PrintWriter;
 
-import org.apache.commons.io.FileUtils;
-
 /**
  * Factory for rendering file system view in plain text.
  * 
@@ -73,9 +71,10 @@ public class PlainTextRendererFactory implements IRendererFactory
         }
 
         @Override
-        public void printFile(String name, String relativePath, long size)
+        public void printFile(String name, String relativePath, long size, Integer checksumOrNull)
         {
-            writer.format("%s\t%s\n", name, FileUtils.byteCountToDisplaySize(size));
+            writer.format("%s\t%s\t%s\n", name, DirectoryRendererUtil.renderFileSize(size),
+                    DirectoryRendererUtil.renderCRC32Checksum(checksumOrNull));
         }
 
         @Override
