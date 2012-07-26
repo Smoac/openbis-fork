@@ -21,14 +21,16 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
-import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IImagingDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.openbis.dss.etl.jython.ImagingDataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandlerUtils;
 import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDatasetFactory;
+import ch.systemsx.cisd.openbis.dss.etl.jython.v2.ImagingDataSetRegistrationTransactionV2Delegate;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.IPluginScriptRunnerFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.JythonBasedDbModifyingAggregationServiceReportingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -80,8 +82,7 @@ public class ScreeningJythonBasedDbModifyingAggregationServiceReportingPlugin ex
                         @SuppressWarnings("unchecked")
                         @Override
                         protected DataSetRegistrationTransaction<DataSetInformation> createTransaction(
-                                File rollBackStackParentFolder,
-                                File workingDirectory,
+                                File rollBackStackParentFolder, File workingDirectory,
                                 File stagingDirectory,
                                 IDataSetRegistrationDetailsFactory<DataSetInformation> factory)
                         {
@@ -93,5 +94,13 @@ public class ScreeningJythonBasedDbModifyingAggregationServiceReportingPlugin ex
                         }
                     };
         return service;
+    }
+
+    @Override
+    protected IImagingDataSetRegistrationTransactionV2 createTransaction(
+            DataSetRegistrationService<DataSetInformation> service)
+    {
+        return new ImagingDataSetRegistrationTransactionV2Delegate(
+                (ImagingDataSetRegistrationTransaction) service.transaction());
     }
 }
