@@ -80,11 +80,7 @@ public class PlateDimensionParser
     {
         final String[] tokens = plateGeometryString.split("_");
         final String sizeToken = tokens[tokens.length - 1];
-        String[] dims = sizeToken.split("X");
-        if (dims.length != 2)
-        {
-            dims = sizeToken.split("x");
-        }
+        final String[] dims = sizeToken.toUpperCase().split("X");
         if (dims.length != 2)
         {
             return null;
