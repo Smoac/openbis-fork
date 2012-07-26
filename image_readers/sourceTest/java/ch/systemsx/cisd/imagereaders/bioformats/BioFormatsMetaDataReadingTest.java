@@ -105,7 +105,6 @@ public class BioFormatsMetaDataReadingTest extends ImageReaderTestCase
                 + "camera-chip-offset-x: 0\n"
                 + "camera-chip-offset-y: 0\n"
                 + "exposure time 0 (ms): 10.0\n"
-                + "exposure time 1 (ms): 10.0\n"
                 + "gamma: 1\n"
                 + "gray-calibration-curve-fit-algorithm: 4\n"
                 + "gray-calibration-max: -1\n"
@@ -136,7 +135,6 @@ public class BioFormatsMetaDataReadingTest extends ImageReaderTestCase
                 + "threshold-low: 0\n"
                 + "threshold-state: ThresholdOff\n"
                 + "timestamp 0: 1290354772986\n"
-                + "timestamp 1: 1290354772986\n"
                 + "wavelength: 624\n" + "z-position: 11145.7\n" + "zoom-percent: 50\n";
     }
 
