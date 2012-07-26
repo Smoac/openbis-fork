@@ -48,7 +48,7 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         return new File(rootDir, "incoming-rich-test");
     }
 
-    @Test(groups = "broken")
+    @Test
     public void testRichImport() throws Exception
     {
 
@@ -79,7 +79,8 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
             String content = FileUtilities.loadExactToString(f);
             if (content.contains("post_metadata_registration rich"))
             {
-                assertTrue(content.contains("rich_email_text")); // check the content introduced
+                assertTrue(content, content.contains("rich_email_text")); // check the content
+                                                                          // introduced
                                                                  // with the persistent map
                 return; // assert ok
             }

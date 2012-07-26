@@ -15,7 +15,7 @@ def sendMail(context, subject, message):
 
 def post_metadata_registration(context):
     content = "post_metadata_registration rich %s " % context.getPersistentMap().get("email_text")
-    sendMail(context, "Subject", "post_metadata_registration rich")
+    sendMail(context, "Subject", content)
 
 def create_space_if_needed(transaction):
     space = transaction.getSpace(SPACE_CODE)
@@ -63,4 +63,4 @@ def process(transaction):
     # register samples
     createSamples(transaction)
 
-    transaction.getRegistrationContext.getPersistentMap().put("email_text", "rich_email_text")
+    transaction.getRegistrationContext().getPersistentMap().put("email_text", "rich_email_text")
