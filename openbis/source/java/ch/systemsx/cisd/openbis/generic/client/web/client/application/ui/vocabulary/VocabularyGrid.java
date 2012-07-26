@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyGridColumnIDs;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -302,8 +303,18 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
                     FieldUtil.setValueWithUnescaping(descriptionField, vocabulary.getDescription());
                     addField(descriptionField);
 
+                    String urlTemplate = vocabulary.getURLTemplate();
+                    if (urlTemplate != null)
+                    {
+                        urlTemplate =
+                                urlTemplate
+                                        .replaceAll(
+                                                BasicConstant.DEPRECATED_VOCABULARY_URL_TEMPLATE_TERM_PATTERN,
+                                                BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PATTERN);
+                    }
+
                     urlTemplateField = createURLTemplateField();
-                    FieldUtil.setValueWithUnescaping(urlTemplateField, vocabulary.getURLTemplate());
+                    FieldUtil.setValueWithUnescaping(urlTemplateField, urlTemplate);
                     addField(urlTemplateField);
 
                     chosenFromList = createChosenFromListCheckbox();
