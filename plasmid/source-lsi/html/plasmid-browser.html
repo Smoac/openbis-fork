@@ -13,6 +13,9 @@
 	<script type="text/javascript" src="infra.js"></script>
 	<!-- To speed development, cache the requests -->
 	<!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
+	
+<meta http-equiv="content-script-type" content="text/javascript">
+	
 <script>
 
 /// The openbisServer we use for our data
@@ -317,15 +320,15 @@ function filelist(plasmid, dataset, files) {
 
 
 			if (/\.jpg$/.test(pathInDataSet)) {
-				var jpgFile = downloadUrl + pathInDataSet;
-				console.log(jpgFile)
+				var jpgFile = downloadUrl;
 				inspector.append("img")
 					.attr("src", jpgFile)
 					.attr("width", inspectorsWidth - 20)
 				  .attr("height", "auto");
     	}  
 			
-
+			
+  	 
 			
 			if (/\.svg$/.test(pathInDataSet)) {
 					// Retrieve the svg file and inject it into the DOM
@@ -716,7 +719,7 @@ function ShowHide(divId)
     </div>	
 -->	
 		
-	
+
     
 		<div id="vis">
 		<div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
