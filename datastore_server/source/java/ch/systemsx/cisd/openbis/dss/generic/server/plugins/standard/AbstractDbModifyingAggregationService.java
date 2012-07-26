@@ -145,8 +145,7 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
         try
         {
             DataSetRegistrationService<T> service = createRegistrationService(parameters);
-            IDataSetRegistrationTransactionV2 transaction =
-                    new DataSetRegistrationTransactionV2Delegate(service.transaction());
+            IDataSetRegistrationTransactionV2 transaction = createTransaction(service);
 
             TableModel tableModel = process(transaction, parameters, context);
 
@@ -157,6 +156,15 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
             logInvocationError(parameters, e);
             return errorTableModel(parameters, e);
         }
+    }
+
+    /**
+     * Create a transaction, wrapped in a delegate. Subclasses may override.
+     */
+    protected IDataSetRegistrationTransactionV2 createTransaction(
+            DataSetRegistrationService<T> service)
+    {
+        return new DataSetRegistrationTransactionV2Delegate(service.transaction());
     }
 
     /**
