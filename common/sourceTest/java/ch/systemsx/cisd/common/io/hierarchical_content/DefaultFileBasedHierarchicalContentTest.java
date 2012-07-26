@@ -252,6 +252,35 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
     }
 
     @Test
+    public void testIsChecksumCRC32Precalculated()
+    {
+        final DefaultFileBasedHierarchicalContent rootContent = createContent(rootDir);
+
+        final List<File> existingFiles =
+                Arrays.asList(file1, file2, subDir, subFile1, subFile2, subFile3, subSubFile);
+
+        context.checking(new Expectations()
+            {
+                {
+                    for (File existingFile : existingFiles)
+                    {
+                        one(hierarchicalContentFactory).asHierarchicalContentNode(rootContent,
+                                existingFile);
+                        will(returnValue(createDummyFileBasedNode(rootDir, existingFile)));
+                    }
+                }
+            });
+        for (File existingFile : existingFiles)
+        {
+            String relativePath = FileUtilities.getRelativeFilePath(rootDir, existingFile);
+            IHierarchicalContentNode fileNode = rootContent.getNode(relativePath);
+            assertFalse(fileNode.isChecksumCRC32Precalculated());
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testGetNodeInsideHDF5Container() throws IOExceptionUnchecked,
             UnsupportedOperationException, IOException
     {
@@ -625,7 +654,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
                 {
                     return file;
                 }
-                
+
                 @Override
                 public File tryGetFile()
                 {
