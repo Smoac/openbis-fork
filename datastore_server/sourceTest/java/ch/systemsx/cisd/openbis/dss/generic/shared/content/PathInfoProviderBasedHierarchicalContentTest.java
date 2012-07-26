@@ -226,6 +226,43 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
     }
 
     @Test
+    public void testIsChecksumCRC32Precalculated()
+    {
+        final IHierarchicalContent rootContent = createContent(rootDir);
+
+        final List<File> existingFiles =
+                Arrays.asList(file1, file2, subDir, subFile1, subFile2, subFile3, subSubFile);
+
+        context.checking(new Expectations()
+            {
+                {
+                    int counter = 0;
+                    for (File existingFile : existingFiles)
+                    {
+                        final String relativePath =
+                                FileUtilities.getRelativeFilePath(rootDir, existingFile);
+                        one(pathInfoProvider).tryGetPathInfoByRelativePath(relativePath);
+                        will(returnValue(createDummyFileBasedPath(rootDir, existingFile, ++counter)));
+                    }
+                }
+            });
+        for (File existingFile : existingFiles)
+        {
+            String relativePath = FileUtilities.getRelativeFilePath(rootDir, existingFile);
+            IHierarchicalContentNode fileNode = rootContent.getNode(relativePath);
+            if (fileNode.isDirectory())
+            {
+                assertFalse(fileNode.isChecksumCRC32Precalculated());
+            } else
+            {
+                assertTrue(fileNode.isChecksumCRC32Precalculated());
+            }
+        }
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testGetNodeOfNonExistingFileFails()
     {
         final IHierarchicalContent rootContent = createContent(rootDir);

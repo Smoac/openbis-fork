@@ -54,6 +54,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 @Test(groups = "slow")
 public class DssComponentTest extends SystemTestCase
 {
+    // If the pathinfo-db feeding task post-registration task in the service.properties is
+    // configured to compute checksums for data sets, set this to true. Otherwise set to false.
+    private static final boolean ARE_CHECKSUMS_COMPUTED = false;
+
     private static final Comparator<FileInfoDssDTO> FILE_INFO_COMPARATOR =
             new Comparator<FileInfoDssDTO>()
                 {
@@ -247,8 +251,17 @@ public class DssComponentTest extends SystemTestCase
         FileInfoDssDTO[] files = ds.listFiles(path, false);
         Arrays.sort(files, FILE_INFO_COMPARATOR);
         assertEquals(2, files.length);
-        assertEquals(fileInfoString(path, "1.data", 5), files[0].toString());
-        assertEquals(fileInfoString(path, "2.data", 7), files[1].toString());
+        assertEquals(fileInfoString(path, "1.data", 5, "f7eabd5f"), files[0].toString());
+        assertEquals(fileInfoString(path, "2.data", 7, "02c0db4e"), files[1].toString());
+        if (ARE_CHECKSUMS_COMPUTED)
+        {
+            assertNotNull(files[0].tryGetCrc32Checksum());
+            assertNotNull(files[1].tryGetCrc32Checksum());
+        } else
+        {
+            assertNull(files[0].tryGetCrc32Checksum());
+            assertNull(files[1].tryGetCrc32Checksum());
+        }
 
         files = ds.listFiles("/", true);
         Arrays.sort(files, FILE_INFO_COMPARATOR);
@@ -256,22 +269,45 @@ public class DssComponentTest extends SystemTestCase
         assertEquals(fileInfoString("original", -1), files[0].toString());
         assertEquals(fileInfoString("original/my-data", -1), files[1].toString());
         assertEquals(fileInfoString("original/my-data/data", -1), files[2].toString());
-        assertEquals(fileInfoString("original/my-data/data-set.properties", 28),
+        assertEquals(fileInfoString("original/my-data/data-set.properties", 28, "5f5e699f"),
                 files[3].toString());
-        assertEquals(fileInfoString("original/my-data/data.log", 11), files[4].toString());
-        assertEquals(fileInfoString("original/my-data/data/1.data", 5), files[5].toString());
-        assertEquals(fileInfoString("original/my-data/data/2.data", 7), files[6].toString());
+        assertEquals(fileInfoString("original/my-data/data.log", 11, "0d4a1185"),
+                files[4].toString());
+        assertEquals(fileInfoString("original/my-data/data/1.data", 5, "f7eabd5f"),
+                files[5].toString());
+        assertEquals(fileInfoString("original/my-data/data/2.data", 7, "02c0db4e"),
+                files[6].toString());
     }
 
-    private static String fileInfoString(String startPath, String pathInListing, long length)
+    private static String fileInfoString(String startPath, String pathInListing, long length,
+            String checksum)
     {
-        return String.format("FileInfoDssDTO[%s/%s,%s,%d]", startPath, pathInListing,
-                pathInListing, length);
+        if (ARE_CHECKSUMS_COMPUTED)
+        {
+            return String.format("FileInfoDssDTO[%s/%s,%s,%d,%s]", startPath, pathInListing,
+                    pathInListing, length, checksum);
+        } else
+        {
+            return String.format("FileInfoDssDTO[%s/%s,%s,%d]", startPath, pathInListing,
+                    pathInListing, length);
+        }
     }
 
     private static String fileInfoString(String pathInListing, long length)
     {
         return String.format("FileInfoDssDTO[%s,%s,%d]", pathInListing, pathInListing, length);
+    }
+
+    private static String fileInfoString(String pathInListing, long length, String checksum)
+    {
+        if (ARE_CHECKSUMS_COMPUTED)
+        {
+            return String.format("FileInfoDssDTO[%s,%s,%d,%s]", pathInListing, pathInListing,
+                    length, checksum);
+        } else
+        {
+            return String.format("FileInfoDssDTO[%s,%s,%d]", pathInListing, pathInListing, length);
+        }
     }
 
     @Test(dependsOnMethods = "testPutDataSet")
