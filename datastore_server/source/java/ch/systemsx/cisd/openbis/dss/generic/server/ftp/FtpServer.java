@@ -122,27 +122,30 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
 
     private void start() throws Exception
     {
-        String startingMessage =
-                String.format("Starting %sFTP server on port %d ...", "%s", config.getPort());
         if (config.isSftpMode())
         {
             sshServer = createSftpServer();
-            operationLog.info(String.format(startingMessage, "S"));
+            operationLog.info(String.format("Starting SFTP server on port %d ...",
+                    config.getSftpPort()));
             sshServer.start();
             operationLog.info("SFTP server started.");
         }
-        server = creatFtpServer();
-        operationLog.info(String.format(startingMessage, ""));
-        server.start();
-        operationLog.info("FTP server started.");
+        if (config.isFtpMode())
+        {
+            server = createFtpServer();
+            operationLog.info(String.format("Starting FTP server on port %d ...",
+                    config.getFtpPort()));
+            server.start();
+            operationLog.info("FTP server started.");
+        }
     }
 
-    private org.apache.ftpserver.FtpServer creatFtpServer()
+    private org.apache.ftpserver.FtpServer createFtpServer()
     {
         FtpServerFactory serverFactory = new FtpServerFactory();
 
         ListenerFactory factory = new ListenerFactory();
-        factory.setPort(config.getPort());
+        factory.setPort(config.getFtpPort());
         if (config.isUseSSL())
         {
             SslConfigurationFactory sslConfigFactory = new SslConfigurationFactory();
@@ -227,7 +230,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
     @SuppressWarnings("unchecked")
     private List<NamedFactory<Command>> creatSubsystemFactories()
     {
-        return Arrays.<NamedFactory<Command>>asList(new SftpSubsystem.Factory());
+        return Arrays.<NamedFactory<Command>> asList(new SftpSubsystem.Factory());
     }
 
     /**
@@ -276,13 +279,13 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             return new org.apache.sshd.server.FileSystemView()
                 {
                     private Cache cache = new Cache(SystemTimeProvider.SYSTEM_TIME_PROVIDER);
-                    
+
                     @Override
                     public SshFile getFile(SshFile baseDir, String file)
                     {
                         throw new UnsupportedOperationException();
                     }
-                    
+
                     @Override
                     public SshFile getFile(String file)
                     {
@@ -294,13 +297,17 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             throw new IOException(ex.getMessage());
         }
     }
-    
+
     private static final class FileView implements SshFile
     {
         private final DSSFileSystemView fileView;
+
         private final String path;
+
         private final List<InputStream> inputStreams = new ArrayList<InputStream>();
+
         private FtpFile file;
+
         private final Cache cache;
 
         FileView(DSSFileSystemView fileView, String path, Cache cache)
@@ -309,7 +316,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             this.path = path;
             this.cache = cache;
         }
-        
+
         private FtpFile getFile()
         {
             if (file == null)
@@ -450,7 +457,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
         {
             throw new UnsupportedOperationException();
         }
-        
+
         @Override
         public InputStream createInputStream(long offset) throws IOException
         {
@@ -475,7 +482,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             return "openBIS";
         }
     }
-    
+
     private static final class KeystoreBasedKeyPairProvider extends AbstractKeyPairProvider
     {
         private final KeyPair[] keyPairs;
@@ -486,7 +493,8 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             String keyStorePassword = config.getKeyStorePassword();
             String keyPassword = config.getKeyPassword();
             KeyStore keystore = loadKeystore(keyStoreFile, keyStorePassword);
-            X509ExtendedKeyManager keyManager = getKeyManager(keystore, keyStorePassword, keyPassword);
+            X509ExtendedKeyManager keyManager =
+                    getKeyManager(keystore, keyStorePassword, keyPassword);
             List<KeyPair> list = new ArrayList<KeyPair>();
             try
             {
@@ -503,7 +511,8 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
                     }
                 }
                 keyPairs = list.toArray(new KeyPair[list.size()]);
-                operationLog.info(keyPairs.length + " key pairs loaded from keystore " + keyStoreFile);
+                operationLog.info(keyPairs.length + " key pairs loaded from keystore "
+                        + keyStoreFile);
             } catch (Exception ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -528,11 +537,12 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             } catch (Exception e)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(e);
-            }finally{
+            } finally
+            {
                 IOUtils.closeQuietly(stream);
             }
         }
-        
+
         private X509ExtendedKeyManager getKeyManager(KeyStore keystore, String keyStorePassword,
                 String keyPassword)
         {
@@ -540,7 +550,8 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             {
                 String defaultAlgorithm = KeyManagerFactory.getDefaultAlgorithm();
                 KeyManagerFactory factory = KeyManagerFactory.getInstance(defaultAlgorithm);
-                char[] password = (keyPassword == null ? keyStorePassword : keyPassword).toCharArray();
+                char[] password =
+                        (keyPassword == null ? keyStorePassword : keyPassword).toCharArray();
                 factory.init(keystore, password);
                 KeyManager[] keyManagers = factory.getKeyManagers();
                 if (keyManagers.length != 1)
@@ -560,7 +571,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
-            
+
         }
     }
 }

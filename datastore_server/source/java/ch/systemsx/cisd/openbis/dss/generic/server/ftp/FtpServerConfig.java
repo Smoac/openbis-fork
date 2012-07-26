@@ -45,7 +45,9 @@ public class FtpServerConfig
     
     final static String SFTP_PORT_KEY = PREFIX + "sftp-port";
 
-    final static String PORT_KEY = PREFIX + "port";
+    final static String LEGACY_FTP_PORT_KEY = PREFIX + "port";
+
+    final static String FTP_PORT_KEY = PREFIX + "ftp-port";
 
     final static String USE_SSL_KEY = PREFIX + "use-ssl";
 
@@ -67,8 +69,6 @@ public class FtpServerConfig
     
     final static String SHOW_PARENTS_AND_CHILDREN_KEY = PREFIX + "dataset.show-parents-and-children";
 
-    private static final int DEFAULT_PORT = 2121;
-
     private static final int DEFAULT_ACTIVE_PORT = 2122;
 
     private static final boolean DEFAULT_USE_SSL = true;
@@ -83,7 +83,9 @@ public class FtpServerConfig
 
     private boolean startServer;
 
-    private int port;
+    private int ftpPort;
+    
+    private boolean ftpMode;
 
     private boolean activeModeEnabled;
 
@@ -129,7 +131,12 @@ public class FtpServerConfig
     {
         sftpPort = PropertyUtils.getInt(props, SFTP_PORT_KEY, 0);
         sftpMode = sftpPort > 0;
-        port = PropertyUtils.getPosInt(props, PORT_KEY, DEFAULT_PORT);
+        ftpPort = PropertyUtils.getPosInt(props, FTP_PORT_KEY, 0);
+        if (ftpPort == 0)
+        {
+            ftpPort = PropertyUtils.getPosInt(props, LEGACY_FTP_PORT_KEY, 0);
+        }
+        ftpMode = ftpPort > 0;
         useSSL = PropertyUtils.getBoolean(props, USE_SSL_KEY, DEFAULT_USE_SSL);
         if (sftpMode || useSSL)
         {
@@ -194,9 +201,14 @@ public class FtpServerConfig
         return startServer;
     }
 
-    public int getPort()
+    public boolean isFtpMode()
     {
-        return port;
+        return ftpMode;
+    }
+    
+    public int getFtpPort()
+    {
+        return ftpPort;
     }
 
     public boolean isUseSSL()
@@ -254,13 +266,16 @@ public class FtpServerConfig
      */
     public void logStartupInfo()
     {
-        operationLog.info("FTP Server port: " + port);
-        operationLog.info("FTP Server using SSL: " + useSSL);
-        operationLog.info("FTP Server passive ports: " + passivePortsRange);
-        operationLog.info("FTP Server enable active mode: " + activeModeEnabled);
-        if (activeModeEnabled)
+        if (ftpMode)
         {
-            operationLog.info("FTP Server active mode port: " + activePort);
+            operationLog.info("FTP Server port: " + ftpPort);
+            operationLog.info("FTP Server using SSL: " + useSSL);
+            operationLog.info("FTP Server passive ports: " + passivePortsRange);
+            operationLog.info("FTP Server enable active mode: " + activeModeEnabled);
+            if (activeModeEnabled)
+            {
+                operationLog.info("FTP Server active mode port: " + activePort);
+            }
         }
         if (sftpMode)
         {
