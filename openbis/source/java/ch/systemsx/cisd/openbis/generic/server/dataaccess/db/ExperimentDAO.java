@@ -362,8 +362,9 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
 
         scheduleDynamicPropertiesEvaluation(Collections.singletonList(experiment));
 
-        // BIS-128: with scheduling dynamic properties evaluation we assure that the sample index is
-        // reindexed.
+        // Moving the experiment to other space affects the index data of attached samples, and also
+        // might affect dynamic properties of attached samples.
+        // Thus we trigger here dynamic properties evaluation, that in turn triggers reindexing.
         scheduleDynamicPropertiesEvaluation(getDynamicPropertyEvaluatorScheduler(), SamplePE.class,
                 experiment.getSamples());
     }
