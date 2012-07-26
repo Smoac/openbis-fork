@@ -151,7 +151,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
                     ExternalData dataSet = service.tryGetDataSet(dataSetCode);
                     if (dataSet == null)
                     {
-                        operationLog.error("Data set " + dataSetCode + " unknown by openBIS.");
+                        operationLog.error("Data set " + dataSetCode + " unknown to openBIS.");
                         return;
                     }
                     if (false == dataSet.isContainer())
