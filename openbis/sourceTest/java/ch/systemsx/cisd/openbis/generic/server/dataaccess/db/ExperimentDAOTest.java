@@ -394,7 +394,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP12", "SIRNA_HCS");
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, getTestPerson());
 
-        assertEquals(1, threadOperations.size());
+        assertEquals(2, threadOperations.size());
         assertEquals(asDynamicPropertyEvaluationOperation(experiment), threadOperations.get(0));
 
         List<ExperimentPE> experimentsAfter = daoFactory.getExperimentDAO().listExperiments();
@@ -424,7 +424,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, getTestPerson());
 
-        assertEquals(1, threadOperations.size());
+        assertEquals(2, threadOperations.size());
         assertEquals(asDynamicPropertyEvaluationOperation(experiment), threadOperations.get(0));
 
         List<ExperimentPE> experimentsAfter = daoFactory.getExperimentDAO().listExperiments();
@@ -492,16 +492,16 @@ public class ExperimentDAOTest extends AbstractDAOTest
         ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP13", "SIRNA_HCS");
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, getTestPerson());
 
-        assertEquals(1, threadOperations.size());
+        assertEquals(2, threadOperations.size());
         assertEquals(asDynamicPropertyEvaluationOperation(experiment), threadOperations.get(0));
 
         ExperimentPE experiment2 =
                 createExperiment("CISD", "CISD", "NEMO", "EXP12", "COMPOUND_HCS");
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment2, getTestPerson());
 
-        assertEquals(2, threadOperations.size());
+        assertEquals(4, threadOperations.size());
         assertEquals(asDynamicPropertyEvaluationOperation(experiment), threadOperations.get(0));
-        assertEquals(asDynamicPropertyEvaluationOperation(experiment2), threadOperations.get(1));
+        assertEquals(asDynamicPropertyEvaluationOperation(experiment2), threadOperations.get(2));
 
         List<ExperimentPE> experimentsAfter = daoFactory.getExperimentDAO().listExperiments();
         Collections.sort(experimentsAfter);
