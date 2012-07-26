@@ -120,6 +120,13 @@ abstract class AbstractProjectEditRegisterForm extends AbstractRegistrationForm
         attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
     }
 
+    @Override
+    protected void revertPanel()
+    {
+        super.revertPanel();
+        attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
+    }
+
     private final void addFormFields()
     {
         formPanel.add(projectCodeField);
