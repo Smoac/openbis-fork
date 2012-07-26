@@ -104,6 +104,14 @@ public class DataSetUploadForm extends AbstractRegistrationForm
 
         connectedWithSampleCheckbox = new CheckBoxField("Connected with Sample", false);
         connectedWithSampleCheckbox.setValue(true);
+        connectedWithSampleCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
+            {
+                @Override
+                public void handleEvent(FieldEvent be)
+                {
+                    updateFieldsVisibility();
+                }
+            });
         formPanel.add(connectedWithSampleCheckbox);
 
         // both sample and experiment choosers are mandatory but only one will be shown
@@ -120,14 +128,6 @@ public class DataSetUploadForm extends AbstractRegistrationForm
                 new DataSetParentsArea(viewContext, createSimpleId(sampleIdentifierOrNull)));
         parentsArea.setMaxLength(1500);
 
-        connectedWithSampleCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
-            {
-                @Override
-                public void handleEvent(FieldEvent be)
-                {
-                    updateFieldsVisibility();
-                }
-            });
         updateFieldsVisibility();
 
         formPanel

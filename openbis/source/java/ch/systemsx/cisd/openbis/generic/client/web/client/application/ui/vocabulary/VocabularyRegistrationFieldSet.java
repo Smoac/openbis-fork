@@ -303,7 +303,8 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             result.add(fromFile);
             FieldUtil.setValueWithoutEvents(result, freeText);
             result.setLabelSeparator("");
-            result.addListener(Events.Change, new Listener<BaseEvent>()
+
+            Listener<BaseEvent> listener = new Listener<BaseEvent>()
                 {
                     @Override
                     public void handleEvent(BaseEvent be)
@@ -312,7 +313,11 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
                         FieldUtil.setValueWithoutEvents(chosenFromListCheckbox, useFreeText);
                         updateSection();
                     }
-                });
+                };
+
+            freeText.addListener(Events.Change, listener);
+            fromFile.addListener(Events.Change, listener);
+
             return result;
         }
 

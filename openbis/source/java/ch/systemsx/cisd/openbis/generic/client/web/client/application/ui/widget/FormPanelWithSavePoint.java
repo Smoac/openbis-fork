@@ -160,7 +160,7 @@ public class FormPanelWithSavePoint extends ClickableFormPanel
     {
         for (Field<?> field : getDirtyCheckFields())
         {
-            if (dirtyCheckIgnoredFields.contains(field) == false)
+            if (dirtyCheckIgnoredFields.contains(field) == false && field.isVisible())
             {
                 Object currentValue = field.getValue();
                 Object savePointValue = getSavePointValue(field);
