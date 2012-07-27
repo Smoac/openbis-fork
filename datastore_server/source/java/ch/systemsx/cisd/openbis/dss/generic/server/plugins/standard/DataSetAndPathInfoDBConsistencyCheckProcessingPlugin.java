@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IProcessingPluginTask
 {
 
-    private static final Logger log = LogFactory.getLogger(LogCategory.OPERATION,
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetAndPathInfoDBConsistencyCheckProcessingPlugin.class);
 
     private transient IHierarchicalContentProvider fileProvider;
@@ -67,6 +67,21 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
     public DataSetAndPathInfoDBConsistencyCheckProcessingPlugin(Properties properties,
             File storeRoot)
     {
+    }
+
+    /**
+     * A package visible constructor for testing purposes.
+     * 
+     * @param properties The configuration properties.
+     * @param storeRoot The root of the dss store.
+     * @param fileProvider The hierarchical content provider that references the file system.
+     * @param pathInfoProvider The hierarchical content provider that references the path-info db.
+     */
+    DataSetAndPathInfoDBConsistencyCheckProcessingPlugin(Properties properties, File storeRoot,
+            IHierarchicalContentProvider fileProvider, IHierarchicalContentProvider pathInfoProvider)
+    {
+        this.fileProvider = fileProvider;
+        this.pathInfoProvider = pathInfoProvider;
     }
 
     @Override
@@ -105,7 +120,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
 
             } catch (Exception e)
             {
-                log.error(
+                operationLog.error(
                         "Couldn't check consistency of the file system and the path info database for a data set: "
                                 + dataset.getDataSetCode(), e);
                 status.addDatasetStatus(
@@ -418,8 +433,8 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
         public String getDescription()
         {
             return "'" + getPath() + "' CRC32 checksum in the file system = "
-                    + IOUtilities.crc32ToString(checksumInFS)
-                    + " but in the path info database = " + IOUtilities.crc32ToString(checksumInDB);
+                    + IOUtilities.crc32ToString(checksumInFS) + " but in the path info database = "
+                    + IOUtilities.crc32ToString(checksumInDB);
         }
 
     }
