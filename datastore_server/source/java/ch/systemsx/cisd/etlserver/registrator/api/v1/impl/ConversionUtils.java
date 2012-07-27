@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewDataSet;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
@@ -74,6 +76,26 @@ public class ConversionUtils
         newExperiment.setProperties(properties);
 
         return newExperiment;
+    }
+
+    public static ExperimentUpdatesDTO convertToExperimentUpdateDTO(
+            ExperimentUpdatable apiExperiment)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =
+                apiExperiment.getExperiment();
+        
+        ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
+
+        updates.setVersion(experiment.getModificationDate());
+        updates.setExperimentId(new TechId(experiment.getId()));
+        updates.setAttachments(Collections.<NewAttachment> emptySet());
+        updates.setProjectIdentifier(new ProjectIdentifierFactory(experiment.getProject()
+                .getIdentifier()).createIdentifier());
+
+        updates.setProperties(experiment.getProperties());
+        updates.setVersion(experiment.getModificationDate());
+
+        return updates;
     }
 
     public static NewSample convertToNewSample(Sample apiSample)

@@ -125,7 +125,7 @@ public interface IDataSetRegistrationTransaction
     /**
      * Get an experiment from the openBIS AS for the purpose of modifying it.
      */
-    IExperiment getExperimentForUpdate(String experimentIdentifierString);
+    IExperimentUpdatable getExperimentForUpdate(String experimentIdentifierString);
 
     /**
      * Create a new experiment to register with the openBIS AS. The experiment will have a permId.

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -79,6 +80,7 @@ public class DefaultEntityOperationService<T extends DataSetInformation> impleme
         List<NewSpace> spaceRegistrations = details.getSpaceRegistrations();
         List<NewProject> projectRegistrations = details.getProjectRegistrations();
         List<NewExperiment> experimentRegistrations = details.getExperimentRegistrations();
+        List<ExperimentUpdatesDTO> experimentUpdates = details.getExperimentUpdates();
         List<SampleUpdatesDTO> sampleUpdates = details.getSampleUpdates();
         List<NewSample> sampleRegistrations = details.getSampleRegistrations();
         Map<String, List<NewMaterial>> materialRegistrations = details.getMaterialRegistrations();
@@ -94,7 +96,8 @@ public class DefaultEntityOperationService<T extends DataSetInformation> impleme
 
         return new ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails(
                 details.getRegistrationId(), details.tryUserIdOrNull(), spaceRegistrations,
-                projectRegistrations, experimentRegistrations, sampleUpdates, sampleRegistrations,
+                projectRegistrations, experimentRegistrations, experimentUpdates, sampleUpdates,
+                sampleRegistrations,
                 materialRegistrations, materialUpdates, dataSetRegistrations, dataSetUpdates);
     }
 

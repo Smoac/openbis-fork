@@ -40,6 +40,7 @@ import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
@@ -66,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
@@ -154,6 +156,9 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                 new ArrayList<DataSetUpdatable>();
 
         private final List<Experiment> experimentsToBeRegistered = new ArrayList<Experiment>();
+
+        private final List<ExperimentUpdatable> experimentsToBeUpdated =
+                new ArrayList<ExperimentUpdatable>();
 
         private final List<Space> spacesToBeRegistered = new ArrayList<Space>();
 
@@ -542,9 +547,22 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             return sample;
         }
 
-        public IExperiment getExperimentForUpdate(String experimentIdentifierString)
+        public IExperimentUpdatable getExperimentForUpdate(String experimentIdentifierString)
         {
-            throw new NotImplementedException();
+            ExperimentIdentifier identifier =
+                    ExperimentIdentifierFactory.parse(experimentIdentifierString);
+
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experimentOrNull =
+                    openBisService.tryToGetExperiment(identifier);
+
+            ExperimentUpdatable result = null;
+            if (experimentOrNull != null)
+            {
+                result = new ExperimentUpdatable(experimentOrNull);
+                experimentsToBeUpdated.add(result);
+            }
+
+            return result;
         }
 
         public IExperiment createNewExperiment(String experimentIdentifierString,
@@ -842,14 +860,12 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             List<NewSpace> spaceRegistrations = convertSpacesToBeRegistered();
             List<NewProject> projectRegistrations = convertProjectsToBeRegistered();
             List<NewExperiment> experimentRegistrations = convertExperimentsToBeRegistered();
+            List<ExperimentUpdatesDTO> experimentUpdates = convertExperimentsToBeUpdated();
             List<SampleUpdatesDTO> sampleUpdates = convertSamplesToBeUpdated();
             List<NewSample> sampleRegistrations = convertSamplesToBeRegistered();
             Map<String, List<NewMaterial>> materialRegistrations = convertMaterialsToBeRegistered();
             List<MaterialUpdateDTO> materialUpdates = convertMaterialsToBeUpdated();
             List<DataSetBatchUpdatesDTO> dataSetUpdates = convertDataSetsToBeUpdated();
-
-            // experiment updates not yet supported
-            List<ExperimentUpdatesDTO> experimentUpdates = new ArrayList<ExperimentUpdatesDTO>();
 
             AtomicEntityOperationDetails<T> registrationDetails =
                     new AtomicEntityOperationDetails<T>(registrationId, getUserId(),
@@ -886,6 +902,16 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             for (Experiment apiExperiment : experimentsToBeRegistered)
             {
                 result.add(ConversionUtils.convertToNewExperiment(apiExperiment));
+            }
+            return result;
+        }
+
+        private List<ExperimentUpdatesDTO> convertExperimentsToBeUpdated()
+        {
+            List<ExperimentUpdatesDTO> result = new ArrayList<ExperimentUpdatesDTO>();
+            for (ExperimentUpdatable experiment : experimentsToBeUpdated)
+            {
+                result.add(ConversionUtils.convertToExperimentUpdateDTO(experiment));
             }
             return result;
         }

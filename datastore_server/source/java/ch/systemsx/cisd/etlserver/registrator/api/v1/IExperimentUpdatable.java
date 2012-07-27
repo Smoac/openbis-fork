@@ -16,17 +16,19 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 
 
 /**
- * Interface to specify an experiment to be created. 
+ * Interface to specify an experiment to be modified.
  * 
- * @author Chandrasekhar Ramakrishnan
+ * @author Jakub Straszewski
  */
-public interface IExperiment extends IExperimentUpdatable
+public interface IExperimentUpdatable extends IExperimentImmutable
 {
     /**
-     * Set the experiment type for this experiment.
+     * Set the value for a property.
      */
-    void setExperimentType(String experimentType);
+    void setPropertyValue(String propertyCode, String propertyValue);
+
 }

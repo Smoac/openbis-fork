@@ -25,6 +25,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
@@ -121,7 +122,7 @@ public interface IDataSetRegistrationTransactionV2
     /**
      * Get an experiment from the openBIS AS for the purpose of modifying it.
      */
-    IExperiment getExperimentForUpdate(String experimentIdentifierString);
+    IExperimentUpdatable getExperimentForUpdate(String experimentIdentifierString);
 
     /**
      * Create a new experiment to register with the openBIS AS. The experiment will have a permId.

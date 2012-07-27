@@ -22,14 +22,13 @@ import java.util.List;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
  * Implementation of {@link IExperiment}.
  * 
  * @author Franz-Josef Elmer
  */
-class Experiment extends ExperimentImmutable implements IExperiment
+class Experiment extends ExperimentUpdatable implements IExperiment
 {
     public Experiment(String identifier, String permID)
     {
@@ -46,12 +45,6 @@ class Experiment extends ExperimentImmutable implements IExperiment
     public boolean isExistingExperiment()
     {
         return false;
-    }
-
-    @Override
-    public void setPropertyValue(String propertyCode, String propertyValue)
-    {
-        EntityHelper.createOrUpdateProperty(getExperiment(), propertyCode, propertyValue);
     }
 
     @Override

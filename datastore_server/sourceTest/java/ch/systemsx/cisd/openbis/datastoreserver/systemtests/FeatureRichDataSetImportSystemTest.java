@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
@@ -70,6 +71,19 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         assertEmailHasBeenSentFromHook();
 
         assertMaterialUpdated(openBISService);
+
+        assertExperimentUpdated(openBISService);
+    }
+
+    private void assertExperimentUpdated(IEncapsulatedOpenBISService openBISService)
+    {
+        Experiment experiment =
+                openBISService.tryToGetExperiment(new ExperimentIdentifier(null, "CISD", "NEMO",
+                        "EXP1"));
+
+        IEntityProperty property = experiment.getProperties().get(0);
+        assertEquals("DESCRIPTION", property.getPropertyType().getCode());
+        assertEquals("modified experiment description", property.getValue());
     }
 
     private void assertEmailHasBeenSentFromHook()

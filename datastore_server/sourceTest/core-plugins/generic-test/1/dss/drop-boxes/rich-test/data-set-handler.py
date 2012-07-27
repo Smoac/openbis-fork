@@ -51,6 +51,10 @@ def updateMaterial(transaction):
     ma = transaction.getMaterialForUpdate("AD3", "VIRUS");
     ma.setPropertyValue("DESCRIPTION", "modified description");
 
+def updateExperiment(transaction):
+    ex = transaction.getExperimentForUpdate("/CISD/NEMO/EXP1")
+    ex.setPropertyValue("DESCRIPTION", "modified experiment description")
+
 def process(transaction):
     # create experiment
     experiment = create_experiment_if_needed(transaction)
@@ -66,6 +70,9 @@ def process(transaction):
     
     # update material
     updateMaterial(transaction) 
+
+    # update existing experiment
+    updateExperiment(transaction)
 
     # register samples
     createSamples(transaction)
