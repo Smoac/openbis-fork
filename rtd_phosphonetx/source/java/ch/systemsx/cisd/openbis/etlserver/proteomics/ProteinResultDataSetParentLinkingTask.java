@@ -44,6 +44,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -142,10 +144,12 @@ public class ProteinResultDataSetParentLinkingTask implements IMaintenanceTask
         }
         service.performEntityOperations(new AtomicEntityOperationDetails(null, null, Collections
                 .<NewSpace> emptyList(), Collections.<NewProject> emptyList(), Collections
-                .<NewExperiment> emptyList(), Collections.<SampleUpdatesDTO> emptyList(),
+                .<NewExperiment> emptyList(), Collections.<ExperimentUpdatesDTO> emptyList(),
+                Collections.<SampleUpdatesDTO> emptyList(),
                 Collections.<NewSample> emptyList(), Collections
                         .<String, List<NewMaterial>> emptyMap(), Collections
-                        .<NewExternalData> emptyList(), dataSetUpdates));
+                        .<MaterialUpdateDTO> emptyList(),
+                Collections.<NewExternalData> emptyList(), dataSetUpdates));
         operationLog.info("Parent data set links for " + dataSetUpdates.size()
                 + " data sets have been updated.");
     }
