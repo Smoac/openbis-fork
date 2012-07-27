@@ -314,12 +314,13 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         List<SampleUpdatesDTO> sampleUpdates = Collections.emptyList();
         List<NewSample> sampleRegistrations = Collections.emptyList();
         Map<String, List<NewMaterial>> materialRegistrations = Collections.emptyMap();
+        List<MaterialUpdateDTO> materialUpdates = Collections.emptyList();
         List<? extends NewExternalData> dataSetRegistrations = Collections.emptyList();
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
                         projectRegistrations, experimentRegistrations, sampleUpdates,
-                        sampleRegistrations, materialRegistrations, dataSetRegistrations,
-                        dataSetUpdates, batchSizeOrNull);
+                        sampleRegistrations, materialRegistrations, materialUpdates,
+                        dataSetRegistrations, dataSetUpdates, batchSizeOrNull);
         service.performEntityOperations(sessionToken, details);
     }
 
@@ -332,13 +333,14 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
 
         List<NewSample> sampleRegistrations = Collections.emptyList();
         Map<String, List<NewMaterial>> materialRegistrations = Collections.emptyMap();
+        List<MaterialUpdateDTO> materialUpdates = Collections.emptyList();
         List<? extends NewExternalData> dataSetRegistrations = Collections.emptyList();
         List<DataSetBatchUpdatesDTO> dataSetUpdates = Collections.emptyList();
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
                         projectRegistrations, experimentRegistrations, sampleUpdates,
-                        sampleRegistrations, materialRegistrations, dataSetRegistrations,
-                        dataSetUpdates, batchSizeOrNull);
+                        sampleRegistrations, materialRegistrations, materialUpdates,
+                        dataSetRegistrations, dataSetUpdates, batchSizeOrNull);
         service.performEntityOperations(sessionToken, details);
     }
 

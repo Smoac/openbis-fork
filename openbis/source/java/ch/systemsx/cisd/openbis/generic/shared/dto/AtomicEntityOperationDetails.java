@@ -95,19 +95,18 @@ public class AtomicEntityOperationDetails implements Serializable
         this.dataSetUpdates = new ArrayList<DataSetBatchUpdatesDTO>(dataSetUpdates);
     }
 
-    // TODO: KUBA - put here the material updates as well
-
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
             List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
             List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
             List<NewSample> sampleRegistrations,
             Map<String, List<NewMaterial>> materialRegistrations,
+            List<MaterialUpdateDTO> materialUpdates,
             List<? extends NewExternalData> dataSetRegistrations,
             List<DataSetBatchUpdatesDTO> dataSetUpdates, Integer batchSizeOrNull)
     {
         this(registrationId, userIdOrNull, spaceRegistrations, projectRegistrations,
                 experimentRegistrations, sampleUpdates, sampleRegistrations, materialRegistrations,
-                new ArrayList<MaterialUpdateDTO>(), dataSetRegistrations, dataSetUpdates);
+                materialUpdates, dataSetRegistrations, dataSetUpdates);
         this.batchSizeOrNull = batchSizeOrNull;
     }
 
