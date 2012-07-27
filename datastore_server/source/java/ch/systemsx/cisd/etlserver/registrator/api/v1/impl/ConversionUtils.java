@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
@@ -355,4 +356,9 @@ public class ConversionUtils
         return newMaterial;
     }
 
+    public static MaterialUpdateDTO convertToMaterialUpdateDTO(Material material)
+    {
+        return new MaterialUpdateDTO(new TechId(material.getMaterial().getId()), material
+                .getMaterial().getProperties(), material.getMaterial().getModificationDate());
+    }
 }

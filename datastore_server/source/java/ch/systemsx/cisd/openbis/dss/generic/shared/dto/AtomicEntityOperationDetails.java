@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -62,6 +63,8 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
 
     private final Map<String /* material type */, List<NewMaterial>> materialRegistrations;
 
+    private final List<MaterialUpdateDTO> materialUpdates;
+
     private final List<DataSetRegistrationInformation<T>> dataSetRegistrations;
 
     private final List<DataSetBatchUpdatesDTO> dataSetUpdates;
@@ -72,6 +75,7 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
             List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
             List<NewSample> sampleRegistrations,
             Map<String, List<NewMaterial>> materialRegistrations,
+            List<MaterialUpdateDTO> materialUpdates,
             List<DataSetRegistrationInformation<T>> dataSetRegistrations,
             List<DataSetBatchUpdatesDTO> dataSetUpdates)
     {
@@ -87,6 +91,7 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
         this.dataSetRegistrations =
                 new ArrayList<DataSetRegistrationInformation<T>>(dataSetRegistrations);
         this.dataSetUpdates = new ArrayList<DataSetBatchUpdatesDTO>(dataSetUpdates);
+        this.materialUpdates = materialUpdates;
     }
 
     public TechId getRegistrationId()
@@ -144,4 +149,8 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
         return materialRegistrations;
     }
 
+    public List<MaterialUpdateDTO> getMaterialUpdates()
+    {
+        return materialUpdates;
+    }
 }

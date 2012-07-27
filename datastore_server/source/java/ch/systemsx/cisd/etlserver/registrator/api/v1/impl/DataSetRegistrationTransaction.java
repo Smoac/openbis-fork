@@ -382,6 +382,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
+    public IMaterial getMaterialForUpdate(String materialCode, String materialType)
+    {
+        return getStateAsLiveState().getMaterialForUpdate(materialCode, materialType);
+    }
+
+    @Override
     public IMaterial createNewMaterial(String materialCode, String materialType)
     {
         return getStateAsLiveState().createNewMaterial(materialCode, materialType);

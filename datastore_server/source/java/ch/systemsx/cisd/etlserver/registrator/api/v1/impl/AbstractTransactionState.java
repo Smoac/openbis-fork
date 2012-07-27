@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -52,8 +53,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmuta
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
@@ -161,6 +164,8 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         private final List<Sample> samplesToBeUpdated = new ArrayList<Sample>();
 
         private final List<Material> materialsToBeRegistered = new ArrayList<Material>();
+
+        private final List<Material> materialsToBeUpdated = new ArrayList<Material>();
 
         private final Map<String, DynamicTransactionQuery> queriesToCommit =
                 new HashMap<String, DynamicTransactionQuery>();
@@ -573,6 +578,24 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             return material;
         }
 
+        public IMaterial getMaterialForUpdate(String materialCode, String materialType)
+        {
+
+            MaterialIdentifier materialIdentifier =
+                    new MaterialIdentifier(materialCode, materialType);
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material materialOrNull =
+                    openBisService.tryGetMaterial(materialIdentifier);
+
+            Material result = null;
+            if (materialOrNull != null)
+            {
+                result = new Material(materialOrNull);
+                materialsToBeUpdated.add(result);
+            }
+
+            return result;
+        }
+
         public String moveFile(String src, IDataSet dst)
         {
             File srcFile = new File(src);
@@ -822,6 +845,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             List<SampleUpdatesDTO> sampleUpdates = convertSamplesToBeUpdated();
             List<NewSample> sampleRegistrations = convertSamplesToBeRegistered();
             Map<String, List<NewMaterial>> materialRegistrations = convertMaterialsToBeRegistered();
+            List<MaterialUpdateDTO> materialUpdates = convertMaterialsToBeUpdated();
             List<DataSetBatchUpdatesDTO> dataSetUpdates = convertDataSetsToBeUpdated();
 
             // experiment updates not yet supported
@@ -831,7 +855,8 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                     new AtomicEntityOperationDetails<T>(registrationId, getUserId(),
                             spaceRegistrations, projectRegistrations, experimentUpdates,
                             experimentRegistrations, sampleUpdates, sampleRegistrations,
-                            materialRegistrations, dataSetRegistrations, dataSetUpdates);
+                            materialRegistrations, materialUpdates, dataSetRegistrations,
+                            dataSetUpdates);
             return registrationDetails;
         }
 
@@ -909,6 +934,17 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                     result.put(materialType, materialsOfSameType);
                 }
                 materialsOfSameType.add(converted);
+            }
+            return result;
+        }
+
+        private List<MaterialUpdateDTO> convertMaterialsToBeUpdated()
+        {
+            List<MaterialUpdateDTO> result = new ArrayList<MaterialUpdateDTO>();
+            for (Material material : materialsToBeUpdated)
+            {
+                MaterialUpdateDTO converted = ConversionUtils.convertToMaterialUpdateDTO(material);
+                result.add(converted);
             }
             return result;
         }

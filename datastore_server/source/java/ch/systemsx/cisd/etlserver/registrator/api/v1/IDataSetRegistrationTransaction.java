@@ -173,6 +173,14 @@ public interface IDataSetRegistrationTransaction
     IMaterialImmutable getMaterial(String materialCode, String materialType);
 
     /**
+     * Get a material from the openBIS AS for the purpose of modifying it. Returns null if the
+     * material does not exist.
+     * 
+     * @return A material or null
+     */
+    IMaterial getMaterialForUpdate(String materialCode, String materialType);
+
+    /**
      * Create a new material to register with the openBIS AS.
      * 
      * @param materialCode the code of the material

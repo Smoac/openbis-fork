@@ -162,6 +162,12 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
     }
 
     @Override
+    public IMaterial getMaterialForUpdate(String materialCode, String materialType)
+    {
+        return transaction.getMaterialForUpdate(materialCode, materialType);
+    }
+
+    @Override
     public IMaterial createNewMaterial(String materialCode, String materialType)
     {
         return transaction.createNewMaterial(materialCode, materialType);
@@ -252,4 +258,5 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
     {
         return transaction.getExternalDataManagementSystem(externalDataManagementSystemCode);
     }
+
 }
