@@ -244,7 +244,7 @@ public class MaterialHelper
                 .getProperties()), existingMaterial.getModificationDate());
     }
 
-    private void updateMaterials(List<MaterialUpdateDTO> updates)
+    public void updateMaterials(List<MaterialUpdateDTO> updates)
     {
         if (updates.isEmpty())
         {

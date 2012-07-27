@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
@@ -54,6 +55,9 @@ public interface IETLEntityOperationChecker
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ETL_SERVER)
     public void assertMaterialCreationAllowed(IAuthSession session,
             Map<String, List<NewMaterial>> materials);
+
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ETL_SERVER)
+    public void assertMaterialUpdateAllowed(IAuthSession session, List<MaterialUpdateDTO> materials);
 
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })

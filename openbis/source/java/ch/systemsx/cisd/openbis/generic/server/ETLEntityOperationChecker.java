@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
@@ -46,6 +47,11 @@ public class ETLEntityOperationChecker implements IETLEntityOperationChecker
     @Override
     public void assertMaterialCreationAllowed(IAuthSession session,
             Map<String, List<NewMaterial>> materials)
+    {
+    }
+
+    @Override
+    public void assertMaterialUpdateAllowed(IAuthSession session, List<MaterialUpdateDTO> materials)
     {
     }
 

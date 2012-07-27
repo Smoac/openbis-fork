@@ -25,6 +25,7 @@ import java.util.TreeMap;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -64,6 +65,8 @@ public class AtomicEntityOperationDetails implements Serializable
 
     private final Map<String /* material type */, List<NewMaterial>> materialRegistrations;
 
+    private final List<MaterialUpdateDTO> materialUpdates;
+
     private final List<? extends NewExternalData> dataSetRegistrations;
 
     private final List<DataSetBatchUpdatesDTO> dataSetUpdates;
@@ -75,6 +78,7 @@ public class AtomicEntityOperationDetails implements Serializable
             List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
             List<NewSample> sampleRegistrations,
             Map<String, List<NewMaterial>> materialRegistrations,
+            List<MaterialUpdateDTO> materialUpdates,
             List<? extends NewExternalData> dataSetRegistrations,
             List<DataSetBatchUpdatesDTO> dataSetUpdates)
     {
@@ -87,9 +91,12 @@ public class AtomicEntityOperationDetails implements Serializable
         this.sampleUpdates = new ArrayList<SampleUpdatesDTO>(sampleUpdates);
         this.sampleRegistrations = new ArrayList<NewSample>(sampleRegistrations);
         this.materialRegistrations = new TreeMap<String, List<NewMaterial>>(materialRegistrations);
+        this.materialUpdates = new ArrayList<MaterialUpdateDTO>(materialUpdates);
         this.dataSetRegistrations = new ArrayList<NewExternalData>(dataSetRegistrations);
         this.dataSetUpdates = new ArrayList<DataSetBatchUpdatesDTO>(dataSetUpdates);
     }
+
+    // TODO: KUBA - put here the material updates as well
 
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
             List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
@@ -101,7 +108,7 @@ public class AtomicEntityOperationDetails implements Serializable
     {
         this(registrationId, userIdOrNull, spaceRegistrations, projectRegistrations,
                 experimentRegistrations, sampleUpdates, sampleRegistrations, materialRegistrations,
-                dataSetRegistrations, dataSetUpdates);
+                new ArrayList<MaterialUpdateDTO>(), dataSetRegistrations, dataSetUpdates);
         this.batchSizeOrNull = batchSizeOrNull;
     }
 
@@ -158,6 +165,11 @@ public class AtomicEntityOperationDetails implements Serializable
     public Map<String, List<NewMaterial>> getMaterialRegistrations()
     {
         return materialRegistrations;
+    }
+
+    public List<MaterialUpdateDTO> getMaterialUpdates()
+    {
+        return materialUpdates;
     }
 
     public Integer getBatchSizeOrNull()

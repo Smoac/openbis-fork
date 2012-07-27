@@ -36,6 +36,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -403,13 +404,14 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         List<SampleUpdatesDTO> sampleUpdates = Collections.emptyList();
         List<NewSample> sampleRegistrations = Arrays.asList(sampleToCreate);
         Map<String, List<NewMaterial>> materialRegistrations = Collections.emptyMap();
+        List<MaterialUpdateDTO> materialUpdates = Collections.emptyList();
         List<? extends NewExternalData> dataSetRegistrations = Collections.emptyList();
         List<DataSetBatchUpdatesDTO> dataSetUpdates = Collections.emptyList();
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
                         projectRegistrations, experimentRegistrations, sampleUpdates,
-                        sampleRegistrations, materialRegistrations, dataSetRegistrations,
-                        dataSetUpdates);
+                        sampleRegistrations, materialRegistrations, materialUpdates,
+                        dataSetRegistrations, dataSetUpdates);
         service.performEntityOperations(sessionToken, details);
     }
 

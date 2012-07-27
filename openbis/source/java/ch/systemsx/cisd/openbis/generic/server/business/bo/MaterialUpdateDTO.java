@@ -1,19 +1,23 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Describes the material update operation, currently only properties can be changed.
  * 
  * @author Tomasz Pylak
  */
-public class MaterialUpdateDTO extends AbstractHashable
+public class MaterialUpdateDTO extends AbstractHashable implements Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private final TechId materialId;
 
     private final List<IEntityProperty> properties;

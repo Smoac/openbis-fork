@@ -29,6 +29,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
@@ -109,6 +110,8 @@ public class EntityOperationTest extends SystemTestCase
 
         private final Map<String, List<NewMaterial>> materials =
                 new HashMap<String, List<NewMaterial>>();
+
+        private final List<MaterialUpdateDTO> materialUpdates = new ArrayList<MaterialUpdateDTO>();
 
         private TechId registrationID = new TechId(counter++);
 
@@ -269,7 +272,8 @@ public class EntityOperationTest extends SystemTestCase
         AtomicEntityOperationDetails create()
         {
             return new AtomicEntityOperationDetails(registrationID, userID, spaces, projects,
-                    experiments, sampleUpdates, samples, materials, dataSets, dataSetUpdates);
+                    experiments, sampleUpdates, samples, materials, materialUpdates, dataSets,
+                    dataSetUpdates);
         }
 
     }

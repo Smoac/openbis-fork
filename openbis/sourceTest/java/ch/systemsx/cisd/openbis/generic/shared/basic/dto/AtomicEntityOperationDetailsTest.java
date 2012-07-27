@@ -24,6 +24,7 @@ import java.util.Map;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
@@ -53,6 +54,9 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
         newMaterials2.add(new NewMaterial("material-three"));
         materialRegistrations.put("material-type-1", newMaterials1);
         materialRegistrations.put("material-type-2", newMaterials2);
+
+        // TODO: KUBA - put here the test for the material updates
+        List<MaterialUpdateDTO> materialUpdates = new ArrayList<MaterialUpdateDTO>();
 
         ArrayList<NewProject> projectRegistrations = new ArrayList<NewProject>();
         projectRegistrations.add(new NewProject("/SPACE/P1", "description"));
@@ -87,8 +91,8 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, null, spaceRegistrations,
                         projectRegistrations, experimentRegistrations, sampleUpdates,
-                        sampleRegistrations, materialRegistrations, dataSetRegistrations,
-                        dataSetUpdates);
+                        sampleRegistrations, materialRegistrations, materialUpdates,
+                        dataSetRegistrations, dataSetUpdates);
 
         assertEquals(
                 "AtomicEntityOperationDetails[registrationIdOrNull=<null>"

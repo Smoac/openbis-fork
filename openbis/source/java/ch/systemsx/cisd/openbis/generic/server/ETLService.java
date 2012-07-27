@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISpaceBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.experimentlister.ExperimentLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
@@ -1397,6 +1398,9 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             long dataSetsUpdated =
                     updateDataSets(sessionForEntityOperation, operationDetails, progressListener);
 
+            long materialsUpdates =
+                    updateMaterials(sessionForEntityOperation, operationDetails, progressListener);
+
             // If the id is not null, the caller wants to persist the fact that the operation was
             // invoked and completed;
             // if the id is null, the caller does not care.
@@ -1406,8 +1410,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             }
 
             return new AtomicEntityOperationResult(spacesCreated, projectsCreated,
-                    materialsCreated, experimentsCreated, samplesCreated, samplesUpdated,
-                    dataSetsCreated, dataSetsUpdated);
+                    materialsCreated, materialsUpdates, experimentsCreated, samplesCreated,
+                    samplesUpdated, dataSetsCreated, dataSetsUpdated);
         } finally
         {
             EntityOperationsInProgress.getInstance().removeRegistrationPending(registrationId);
@@ -1488,12 +1492,39 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return index;
     }
 
+    private long updateMaterials(Session session, AtomicEntityOperationDetails operationDetails,
+            IProgressListener progress)
+    {
+        MaterialHelper materialHelper =
+                new MaterialHelper(session, businessObjectFactory, getDAOFactory(),
+                        getPropertiesBatchManager());
+
+        List<MaterialUpdateDTO> allMaterialUpdates = operationDetails.getMaterialUpdates();
+
+        assertMaterialUpdateAllowed(session, allMaterialUpdates);
+
+        materialHelper.updateMaterials(allMaterialUpdates);
+
+        // in material helper call the update of materials - but this has to wait fo change of the
+        // material updates to a map
+        return allMaterialUpdates.size();
+    }
+
     protected void assertMaterialCreationAllowed(Session session,
             Map<String, List<NewMaterial>> materials)
     {
         if (materials != null && materials.isEmpty() == false)
         {
             entityOperationChecker.assertMaterialCreationAllowed(session, materials);
+        }
+    }
+
+    protected void assertMaterialUpdateAllowed(Session session,
+            List<MaterialUpdateDTO> materialUpdates)
+    {
+        if (materialUpdates != null && materialUpdates.isEmpty() == false)
+        {
+            entityOperationChecker.assertMaterialUpdateAllowed(session, materialUpdates);
         }
     }
 

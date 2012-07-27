@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
@@ -983,6 +984,9 @@ public class ETLServiceTest extends AbstractServerTestCase
                 new HashMap<String, List<NewMaterial>>();
         materialRegistrations.put(materialType.getCode(), Arrays.asList(newMaterial));
 
+        // TODO: KUBA - put here the test for the material updates
+        List<MaterialUpdateDTO> materialUpdates = new ArrayList<MaterialUpdateDTO>();
+
         final SamplePE newSamplePE = createSampleWithExperiment(experiment);
         newSamplePE.setCode("SAMPLE_CODE_NEW");
         final SampleIdentifier newSampleIdentifier = newSamplePE.getSampleIdentifier();
@@ -1010,7 +1014,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                         new ArrayList<NewProject>(), new ArrayList<NewExperiment>(),
                         Collections.singletonList(sampleUpdate),
                         Collections.singletonList(newSample), materialRegistrations,
-                        Collections.singletonList(externalData),
+                        materialUpdates, Collections.singletonList(externalData),
                         Collections.singletonList(dataSetUpdate));
 
         AtomicEntityOperationResult result =
@@ -1157,6 +1161,9 @@ public class ETLServiceTest extends AbstractServerTestCase
                 new HashMap<String, List<NewMaterial>>();
         materialRegistrations.put(materialType.getCode(), Arrays.asList(newMaterial));
 
+        // TODO: KUBA - put here the test for the material updates
+        List<MaterialUpdateDTO> materialUpdates = new ArrayList<MaterialUpdateDTO>();
+
         final SamplePE newSamplePE = createSampleWithExperiment(experiment);
         newSamplePE.setCode("SAMPLE_CODE_NEW");
         final SampleIdentifier newSampleIdentifier = newSamplePE.getSampleIdentifier();
@@ -1191,7 +1198,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                         new ArrayList<NewProject>(), new ArrayList<NewExperiment>(),
                         Collections.singletonList(sampleUpdate),
                         Collections.singletonList(newSample), materialRegistrations,
-                        Collections.singletonList(externalData),
+                        materialUpdates, Collections.singletonList(externalData),
                         Collections.singletonList(dataSetUpdate));
 
         AtomicEntityOperationResult result =

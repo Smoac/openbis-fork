@@ -17,15 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -40,6 +31,8 @@ public class AtomicEntityOperationResult implements Serializable
 
     private final long materialsCreatedCount;
 
+    private final long materialsUpdatedCount;
+
     private final long experimentsCreatedCount;
 
     private final long samplesCreatedCount;
@@ -52,29 +45,17 @@ public class AtomicEntityOperationResult implements Serializable
 
     public AtomicEntityOperationResult()
     {
-        this(Collections.<Space> emptyList(), Collections.<Project> emptyList(), Collections
-                .<Experiment> emptyList(), Collections.<Sample> emptyList(), Collections
-                .<Sample> emptyList(), Collections.<Material> emptyList(), Collections
-                .<ExternalData> emptyList(), Collections.<ExternalData> emptyList());
-    }
-
-    public AtomicEntityOperationResult(List<Space> spacesCreated, List<Project> projectsCreated,
-            List<Experiment> experimentsCreated, List<Sample> samplesUpdated,
-            List<Sample> samplesCreated, List<Material> materialsCreated,
-            List<ExternalData> dataSetsCreated, List<ExternalData> dataSetsUpdated)
-    {
-        this(spacesCreated.size(), projectsCreated.size(), materialsCreated.size(),
-                experimentsCreated.size(), samplesCreated.size(), samplesUpdated.size(),
-                dataSetsCreated.size(), dataSetsUpdated.size());
+        this(0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 
     public AtomicEntityOperationResult(long spacesCreated, long projectsCreated,
-            long materialsCreated, long experimentsCreated, long samplesCreated,
-            long samplesUpdated, long dataSetsCreated, long dataSetsUpdated)
+            long materialsCreated, long materialsUpdated, long experimentsCreated,
+            long samplesCreated, long samplesUpdated, long dataSetsCreated, long dataSetsUpdated)
     {
         this.spacesCreatedCount = spacesCreated;
         this.projectsCreatedCount = projectsCreated;
         this.materialsCreatedCount = materialsCreated;
+        this.materialsUpdatedCount = materialsUpdated;
         this.experimentsCreatedCount = experimentsCreated;
         this.samplesCreatedCount = samplesCreated;
         this.samplesUpdatedCount = samplesUpdated;
@@ -127,5 +108,10 @@ public class AtomicEntityOperationResult implements Serializable
     public long getMaterialsCreatedCount()
     {
         return materialsCreatedCount;
+    }
+
+    public long getMaterialsUpdateCount()
+    {
+        return materialsUpdatedCount;
     }
 }
