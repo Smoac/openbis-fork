@@ -984,7 +984,6 @@ public class ETLServiceTest extends AbstractServerTestCase
                 new HashMap<String, List<NewMaterial>>();
         materialRegistrations.put(materialType.getCode(), Arrays.asList(newMaterial));
 
-        // TODO: KUBA - put here the test for the material updates
         List<MaterialUpdateDTO> materialUpdates = new ArrayList<MaterialUpdateDTO>();
 
         final SamplePE newSamplePE = createSampleWithExperiment(experiment);
@@ -1161,7 +1160,6 @@ public class ETLServiceTest extends AbstractServerTestCase
                 new HashMap<String, List<NewMaterial>>();
         materialRegistrations.put(materialType.getCode(), Arrays.asList(newMaterial));
 
-        // TODO: KUBA - put here the test for the material updates
         List<MaterialUpdateDTO> materialUpdates = new ArrayList<MaterialUpdateDTO>();
 
         final SamplePE newSamplePE = createSampleWithExperiment(experiment);
@@ -1243,13 +1241,6 @@ public class ETLServiceTest extends AbstractServerTestCase
 
         assertEquals(2, sample.size());
         context.assertIsSatisfied();
-    }
-
-    public void testDataSetCofirmation()
-    {
-        // TODO:kuba
-        // call etlservice method setStorageConfirmed
-        // make sure the method setstorageConfirmed was claled on the databo object
     }
 
     private SearchCriteria createSearchCriteriaForSample()

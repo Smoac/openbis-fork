@@ -55,7 +55,6 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
         materialRegistrations.put("material-type-1", newMaterials1);
         materialRegistrations.put("material-type-2", newMaterials2);
 
-        // TODO: KUBA - put here the test for the material updates
         List<MaterialUpdateDTO> materialUpdates = new ArrayList<MaterialUpdateDTO>();
 
         ArrayList<NewProject> projectRegistrations = new ArrayList<NewProject>();
