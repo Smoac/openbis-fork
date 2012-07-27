@@ -35,7 +35,7 @@ public class DirectoryRendererUtil
     {
         if (checksumOrNull == null)
         {
-            return "-";
+            return "";
         } else
         {
             return IOUtilities.crc32ToString(checksumOrNull);
