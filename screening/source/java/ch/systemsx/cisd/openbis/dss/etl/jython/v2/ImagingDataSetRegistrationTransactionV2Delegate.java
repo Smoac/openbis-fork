@@ -30,6 +30,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
@@ -174,7 +175,7 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     }
 
     @Override
-    public IExperiment getExperimentForUpdate(String experimentIdentifierString)
+    public IExperimentUpdatable getExperimentForUpdate(String experimentIdentifierString)
     {
         return transaction.getExperimentForUpdate(experimentIdentifierString);
     }
@@ -214,6 +215,12 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     public IMaterialImmutable getMaterial(String materialCode, String materialType)
     {
         return transaction.getMaterial(materialCode, materialType);
+    }
+
+    @Override
+    public IMaterial getMaterialForUpdate(String materialCode, String materialType)
+    {
+        return transaction.getMaterialForUpdate(materialCode, materialType);
     }
 
     @Override
