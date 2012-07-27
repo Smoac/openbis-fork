@@ -116,6 +116,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                     childIsDirectory();
                     getChildFileLength();
                     childIsChecksumPrecalculated();
+                    closeContent();
                     sendEmail();
                 }
 
@@ -125,6 +126,12 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                             "File system and path info DB consistency check report",
                             "Data sets checked:\n\nds-1\n\nDifferences found:\n\nNone", null, null,
                             new EMailAddress("a@bc.de"));
+                }
+
+                protected void closeContent()
+                {
+                    oneOf(fileContent).close();
+                    oneOf(pathInfoContent).close();
                 }
 
                 protected void childIsChecksumPrecalculated()
@@ -145,7 +152,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                 {
                     exactly(2).of(fileChildNode).isDirectory();
                     will(returnValue(false));
-                    exactly(2).of(pathInfoChildNode).isDirectory();
+                    exactly(1).of(pathInfoChildNode).isDirectory();
                     will(returnValue(false));
                 }
 
@@ -214,5 +221,6 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                 }
             });
         plugin.process(Arrays.asList(ds1), processingContext);
+        context.assertIsSatisfied();
     }
 }

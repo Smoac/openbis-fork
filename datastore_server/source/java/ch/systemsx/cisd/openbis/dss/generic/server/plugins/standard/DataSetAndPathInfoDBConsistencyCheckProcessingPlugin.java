@@ -94,12 +94,12 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
 
         for (DatasetDescription dataset : datasets)
         {
+            IHierarchicalContent fileContent = null;
+            IHierarchicalContent pathInfoContent = null;
             try
             {
-                IHierarchicalContent fileContent =
-                        getFileProvider().asContent(dataset.getDataSetCode());
-                IHierarchicalContent pathInfoContent =
-                        getPathInfoProvider().asContent(dataset.getDataSetCode());
+                fileContent = getFileProvider().asContent(dataset.getDataSetCode());
+                pathInfoContent = getPathInfoProvider().asContent(dataset.getDataSetCode());
 
                 List<Difference> datasetDifferences = new ArrayList<Difference>();
 
@@ -128,6 +128,16 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
                         Status.createError("Couldn't check consistency of the file system and the path info database for a data set: "
                                 + dataset.getDataSetCode()
                                 + " because of the following exception: " + e.getMessage()));
+            } finally
+            {
+                if (null != fileContent)
+                {
+                    fileContent.close();
+                }
+                if (null != pathInfoContent)
+                {
+                    pathInfoContent.close();
+                }
             }
         }
 
