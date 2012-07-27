@@ -24,10 +24,10 @@ import java.util.Map;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;

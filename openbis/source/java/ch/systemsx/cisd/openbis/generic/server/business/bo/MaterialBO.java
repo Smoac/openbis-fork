@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -155,7 +156,6 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
         event.setRegistrator(registrator);
         return event;
     }
-
 
     @Override
     public void updateManagedProperty(IManagedProperty managedProperty)

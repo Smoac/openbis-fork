@@ -33,7 +33,6 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
@@ -68,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -444,7 +444,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         final String spaceCode = "CISD";
         final String sample1Code = "SAMPLE1";
         final String[] samples =
-                { sample1Code };
+            { sample1Code };
         final ExperimentPE experimentPE =
                 createExperiment(experimentTypeCode, experimentCode, spaceCode);
         final NewExperiment newExperiment =
@@ -479,7 +479,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples, null);
 
                     one(propertiesBatchManager).manageProperties(sampleTypePE, newSamples, null);
-                    
+
                     one(genericBusinessObjectFactory).createSampleBO(SESSION);
                     will(returnValue(sampleBO));
                     one(sampleBO).loadBySampleIdentifier(
@@ -489,14 +489,14 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                 }
             });
-        
+
         createServer().registerExperiment(SESSION_TOKEN, newExperiment,
                 Collections.<NewAttachment> emptyList());
-        
+
         assertEquals("/" + spaceCode, newSample1.getDefaultSpaceIdentifier());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public final void testRegisterMaterials()
     {

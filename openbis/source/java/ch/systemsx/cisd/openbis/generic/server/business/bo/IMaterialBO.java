@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 
 /**
  * A generic material <i>Business Object</i>.
@@ -36,7 +37,7 @@ public interface IMaterialBO extends IEntityBusinessObject
      * Loads the material by a given identifier.
      */
     public void loadByMaterialIdentifier(MaterialIdentifier identifier);
-    
+
     /** Adds properties */
     public void enrichWithProperties();
 

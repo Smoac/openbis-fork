@@ -61,7 +61,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTy
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ISpaceBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -71,10 +70,10 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IScriptBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISpaceBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.DynamicPropertyEvaluator;
@@ -218,6 +217,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -1864,8 +1864,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         if ((entityKind.equals(EntityKind.SAMPLE) || entityKind.equals(EntityKind.DATA_SET) || entityKind
-                .equals(EntityKind.MATERIAL))
-                && EntityType.isDefinedInFileEntityTypeCode(type))
+                .equals(EntityKind.MATERIAL)) && EntityType.isDefinedInFileEntityTypeCode(type))
         {
             types.addAll(getDAOFactory().getEntityTypeDAO(
                     DtoConverters.convertEntityKind(entityKind)).listEntityTypes());
