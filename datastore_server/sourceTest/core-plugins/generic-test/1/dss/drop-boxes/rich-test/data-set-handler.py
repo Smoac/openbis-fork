@@ -47,6 +47,10 @@ def createMaterials(transaction):
 def createSamples(transaction):
     sample = transaction.createNewSample('/RICH_SPACE/SAMPLE123', 'DYNAMIC_PLATE')
 
+def updateMaterial(transaction):
+    ma = transaction.getMaterialForUpdate("AD3", "VIRUS");
+    ma.setPropertyValue("DESCRIPTION", "modified description");
+
 def process(transaction):
     # create experiment
     experiment = create_experiment_if_needed(transaction)
@@ -60,6 +64,9 @@ def process(transaction):
     # register many materials
     createMaterials(transaction)
     
+    # update material
+    updateMaterial(transaction) 
+
     # register samples
     createSamples(transaction)
 

@@ -68,6 +68,8 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         assert100MaterialsCreated(openBISService);
 
         assertEmailHasBeenSentFromHook();
+
+        assertMaterialUpdated(openBISService);
     }
 
     private void assertEmailHasBeenSentFromHook()
@@ -81,7 +83,7 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
             {
                 assertTrue(content, content.contains("rich_email_text")); // check the content
                                                                           // introduced
-                                                                 // with the persistent map
+                // with the persistent map
                 return; // assert ok
             }
         }
@@ -138,6 +140,26 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
             assertEquals(expectedGeneSymbol, property.getValue());
         }
 
+    }
+
+    private void assertMaterialUpdated(IEncapsulatedOpenBISService openBISService)
+    {
+        LinkedList<MaterialIdentifier> ids = new LinkedList<MaterialIdentifier>();
+        MaterialIdentifier ident = MaterialIdentifier.tryParseIdentifier("AD3 (VIRUS)");
+        ids.add(ident);
+
+        ListMaterialCriteria criteria = ListMaterialCriteria.createFromMaterialIdentifiers(ids);
+
+        List<Material> materials = openBISService.listMaterials(criteria, true);
+
+        assertEquals(1, materials.size());
+
+        for (Material m : materials)
+        {
+            IEntityProperty property = m.getProperties().get(0);
+            assertEquals("DESCRIPTION", property.getPropertyType().getCode());
+            assertEquals("modified description", property.getValue());
+        }
     }
 
     private void assertLinkedDataSetImported(IEncapsulatedOpenBISService openBISService)
