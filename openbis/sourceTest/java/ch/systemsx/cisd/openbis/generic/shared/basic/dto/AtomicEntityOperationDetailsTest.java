@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -65,6 +66,8 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
         experimentRegistrations.add(new NewExperiment("/SPACE/PROJECT/EXP-ID1", "EXP-TYPE"));
         experimentRegistrations.add(new NewExperiment("/SPACE/PROJECT/EXP-ID2", "EXP-TYPE"));
 
+        List<ExperimentUpdatesDTO> experimentUpdates = new ArrayList<ExperimentUpdatesDTO>();
+
         ArrayList<SampleUpdatesDTO> sampleUpdates = new ArrayList<SampleUpdatesDTO>();
 
         ArrayList<NewSample> sampleRegistrations = new ArrayList<NewSample>();
@@ -89,8 +92,8 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
 
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, null, spaceRegistrations,
-                        projectRegistrations, experimentRegistrations, sampleUpdates,
-                        sampleRegistrations, materialRegistrations, materialUpdates,
+                        projectRegistrations, experimentRegistrations, experimentUpdates,
+                        sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
                         dataSetRegistrations, dataSetUpdates);
 
         assertEquals(

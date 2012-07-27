@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -98,6 +99,9 @@ public class EntityOperationTest extends SystemTestCase
         private final List<NewProject> projects = new ArrayList<NewProject>();
 
         private final List<NewExperiment> experiments = new ArrayList<NewExperiment>();
+
+        private final List<ExperimentUpdatesDTO> experimentUpdates =
+                new ArrayList<ExperimentUpdatesDTO>();
 
         private final List<NewSample> samples = new ArrayList<NewSample>();
 
@@ -272,8 +276,8 @@ public class EntityOperationTest extends SystemTestCase
         AtomicEntityOperationDetails create()
         {
             return new AtomicEntityOperationDetails(registrationID, userID, spaces, projects,
-                    experiments, sampleUpdates, samples, materials, materialUpdates, dataSets,
-                    dataSetUpdates);
+                    experiments, experimentUpdates, sampleUpdates, samples, materials,
+                    materialUpdates, dataSets, dataSetUpdates);
         }
 
     }

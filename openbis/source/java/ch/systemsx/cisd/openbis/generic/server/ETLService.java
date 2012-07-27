@@ -149,6 +149,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityOperationsLogEntryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
@@ -1386,6 +1387,9 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             long experimentsCreated =
                     createExperiments(sessionForEntityOperation, operationDetails, progressListener);
 
+            long experimentsUpdates =
+                    updateExperiments(sessionForEntityOperation, operationDetails, progressListener);
+
             long samplesCreated =
                     createSamples(sessionForEntityOperation, operationDetails, progressListener);
 
@@ -1822,6 +1826,27 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             progress.update("createExperiments", experimentRegistrations.size(), ++index);
         }
         return index;
+    }
+
+    private void updateExperiment(Session session, ExperimentUpdatesDTO updates)
+    {
+        final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        experimentBO.update(updates);
+        experimentBO.save();
+    }
+
+    private long updateExperiments(Session session, AtomicEntityOperationDetails operationDetails,
+            IProgressListener progress)
+    {
+        List<ExperimentUpdatesDTO> updates = operationDetails.getExperimentUpdates();
+
+        for (ExperimentUpdatesDTO update : updates)
+        {
+            entityOperationChecker.assertExperimentUpdateAllowed(session, update);
+            updateExperiment(session, update);
+        }
+
+        return updates.size();
     }
 
     private IDataBO registerDataSetInternal(final Session session,

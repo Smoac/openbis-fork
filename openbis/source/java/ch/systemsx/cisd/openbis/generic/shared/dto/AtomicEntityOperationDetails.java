@@ -74,7 +74,8 @@ public class AtomicEntityOperationDetails implements Serializable
 
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
             List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
-            List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
+            List<NewExperiment> experimentRegistrations,
+            List<ExperimentUpdatesDTO> experimentUpdates, List<SampleUpdatesDTO> sampleUpdates,
             List<NewSample> sampleRegistrations,
             Map<String, List<NewMaterial>> materialRegistrations,
             List<MaterialUpdateDTO> materialUpdates,
@@ -85,7 +86,7 @@ public class AtomicEntityOperationDetails implements Serializable
         this.userIdOrNull = userIdOrNull;
         this.spaceRegistrations = new ArrayList<NewSpace>(spaceRegistrations);
         this.projectRegistrations = new ArrayList<NewProject>(projectRegistrations);
-        this.experimentUpdates = new ArrayList<ExperimentUpdatesDTO>();
+        this.experimentUpdates = new ArrayList<ExperimentUpdatesDTO>(experimentUpdates);
         this.experimentRegistrations = new ArrayList<NewExperiment>(experimentRegistrations);
         this.sampleUpdates = new ArrayList<SampleUpdatesDTO>(sampleUpdates);
         this.sampleRegistrations = new ArrayList<NewSample>(sampleRegistrations);
@@ -97,7 +98,8 @@ public class AtomicEntityOperationDetails implements Serializable
 
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
             List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
-            List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
+            List<NewExperiment> experimentRegistrations,
+            List<ExperimentUpdatesDTO> experimentUpdates, List<SampleUpdatesDTO> sampleUpdates,
             List<NewSample> sampleRegistrations,
             Map<String, List<NewMaterial>> materialRegistrations,
             List<MaterialUpdateDTO> materialUpdates,
@@ -105,8 +107,8 @@ public class AtomicEntityOperationDetails implements Serializable
             List<DataSetBatchUpdatesDTO> dataSetUpdates, Integer batchSizeOrNull)
     {
         this(registrationId, userIdOrNull, spaceRegistrations, projectRegistrations,
-                experimentRegistrations, sampleUpdates, sampleRegistrations, materialRegistrations,
-                materialUpdates, dataSetRegistrations, dataSetUpdates);
+                experimentRegistrations, experimentUpdates, sampleUpdates, sampleRegistrations,
+                materialRegistrations, materialUpdates, dataSetRegistrations, dataSetUpdates);
         this.batchSizeOrNull = batchSizeOrNull;
     }
 

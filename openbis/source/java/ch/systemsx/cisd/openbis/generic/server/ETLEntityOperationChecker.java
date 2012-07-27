@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -98,6 +99,12 @@ public class ETLEntityOperationChecker implements IETLEntityOperationChecker
     @Override
     public void assertDataSetUpdateAllowed(IAuthSession session,
             List<DataSetBatchUpdatesDTO> dataSets)
+    {
+    }
+
+    @Override
+    public void assertExperimentUpdateAllowed(IAuthSession session,
+            ExperimentUpdatesDTO experimentUpdates)
     {
     }
 

@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -310,7 +311,8 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         List<NewSpace> spaceRegistrations = Collections.emptyList();
         List<NewProject> projectRegistrations = Collections.emptyList();
         List<NewExperiment> experimentRegistrations = Collections.emptyList();
-
+        List<ExperimentUpdatesDTO> experimentUpdates =
+                Collections.<ExperimentUpdatesDTO> emptyList();
         List<SampleUpdatesDTO> sampleUpdates = Collections.emptyList();
         List<NewSample> sampleRegistrations = Collections.emptyList();
         Map<String, List<NewMaterial>> materialRegistrations = Collections.emptyMap();
@@ -318,8 +320,8 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         List<? extends NewExternalData> dataSetRegistrations = Collections.emptyList();
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
-                        projectRegistrations, experimentRegistrations, sampleUpdates,
-                        sampleRegistrations, materialRegistrations, materialUpdates,
+                        projectRegistrations, experimentRegistrations, experimentUpdates,
+                        sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
                         dataSetRegistrations, dataSetUpdates, batchSizeOrNull);
         service.performEntityOperations(sessionToken, details);
     }
@@ -330,6 +332,8 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         List<NewSpace> spaceRegistrations = Collections.emptyList();
         List<NewProject> projectRegistrations = Collections.emptyList();
         List<NewExperiment> experimentRegistrations = Collections.emptyList();
+        List<ExperimentUpdatesDTO> experimentUpdates =
+                Collections.<ExperimentUpdatesDTO> emptyList();
 
         List<NewSample> sampleRegistrations = Collections.emptyList();
         Map<String, List<NewMaterial>> materialRegistrations = Collections.emptyMap();
@@ -338,8 +342,8 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         List<DataSetBatchUpdatesDTO> dataSetUpdates = Collections.emptyList();
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
-                        projectRegistrations, experimentRegistrations, sampleUpdates,
-                        sampleRegistrations, materialRegistrations, materialUpdates,
+                        projectRegistrations, experimentRegistrations, experimentUpdates,
+                        sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
                         dataSetRegistrations, dataSetUpdates, batchSizeOrNull);
         service.performEntityOperations(sessionToken, details);
     }
@@ -402,7 +406,8 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         List<NewSpace> spaceRegistrations = Collections.emptyList();
         List<NewProject> projectRegistrations = Collections.emptyList();
         List<NewExperiment> experimentRegistrations = Collections.emptyList();
-
+        List<ExperimentUpdatesDTO> experimentUpdates =
+                Collections.<ExperimentUpdatesDTO> emptyList();
         List<SampleUpdatesDTO> sampleUpdates = Collections.emptyList();
         List<NewSample> sampleRegistrations = Arrays.asList(sampleToCreate);
         Map<String, List<NewMaterial>> materialRegistrations = Collections.emptyMap();
@@ -411,8 +416,8 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         List<DataSetBatchUpdatesDTO> dataSetUpdates = Collections.emptyList();
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
-                        projectRegistrations, experimentRegistrations, sampleUpdates,
-                        sampleRegistrations, materialRegistrations, materialUpdates,
+                        projectRegistrations, experimentRegistrations, experimentUpdates,
+                        sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
                         dataSetRegistrations, dataSetUpdates);
         service.performEntityOperations(sessionToken, details);
     }

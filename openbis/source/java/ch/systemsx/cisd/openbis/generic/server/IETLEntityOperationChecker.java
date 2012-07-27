@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetUpdatesCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExternalDataPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewProjectPredicate;
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -72,6 +74,13 @@ public interface IETLEntityOperationChecker
     public void assertExperimentCreationAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = NewExperimentPredicate.class)
             List<NewExperiment> newExperiments);
+
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("UPDATE_EXPERIMENTS_VIA_DSS")
+    public void assertExperimentUpdateAllowed(IAuthSession session,
+            @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class)
+            ExperimentUpdatesDTO experimentUpdates);
 
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ETL_SERVER)
     public void assertInstanceSampleCreationAllowed(IAuthSession session,

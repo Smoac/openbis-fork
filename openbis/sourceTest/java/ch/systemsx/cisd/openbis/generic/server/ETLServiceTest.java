@@ -84,6 +84,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -969,6 +970,8 @@ public class ETLServiceTest extends AbstractServerTestCase
         final Date version = new Date();
         final Collection<NewAttachment> attachments = Collections.<NewAttachment> emptyList();
 
+        List<ExperimentUpdatesDTO> experimentUpdates = new ArrayList<ExperimentUpdatesDTO>();
+
         final SampleUpdatesDTO sampleUpdate =
                 new SampleUpdatesDTO(CommonTestUtils.TECH_ID, null, null, attachments, version,
                         sampleIdentifier, null, null);
@@ -1011,7 +1014,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, null, new ArrayList<NewSpace>(),
                         new ArrayList<NewProject>(), new ArrayList<NewExperiment>(),
-                        Collections.singletonList(sampleUpdate),
+                        experimentUpdates, Collections.singletonList(sampleUpdate),
                         Collections.singletonList(newSample), materialRegistrations,
                         materialUpdates, Collections.singletonList(externalData),
                         Collections.singletonList(dataSetUpdate));
@@ -1194,6 +1197,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(new TechId(1), null, new ArrayList<NewSpace>(),
                         new ArrayList<NewProject>(), new ArrayList<NewExperiment>(),
+                        new ArrayList<ExperimentUpdatesDTO>(),
                         Collections.singletonList(sampleUpdate),
                         Collections.singletonList(newSample), materialRegistrations,
                         materialUpdates, Collections.singletonList(externalData),
