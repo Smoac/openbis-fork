@@ -231,9 +231,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         authenticationLog.info(prefix + ": login   ...FAILED");
     }
 
-    private void logSessionExpired(final FullSession<T> fullSession)
+    private void logSessionExpired(final T session)
     {
-        final T session = fullSession.getSession();
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("%sExpiring session '%s' for user '%s' "
@@ -290,6 +289,11 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     @Override
     public T getSession(final String sessionToken) throws InvalidSessionException
     {
+        return getSession(sessionToken, true);
+    }
+    
+    private T getSession(final String sessionToken, boolean checkAndTouch) throws InvalidSessionException
+    {
         checkIfNotBlank(sessionToken, "sessionToken");
 
         synchronized (sessions)
@@ -305,7 +309,6 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 }
                 throw new InvalidSessionException(msg);
             }
-            final String user = getUserName(splittedToken);
             final FullSession<T> session = sessions.get(sessionToken);
             if (session == null)
             {
@@ -328,28 +331,22 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 }
                 throw new InvalidSessionException(msg);
             }
-            if (doSessionExpiration(session))
+            if (checkAndTouch && doSessionExpiration(session))
             {
-                logSessionExpired(session);
-                sessions.remove(user);
+                closeSession(session.getSession(), false);
             }
-            if (isSessionUnavailable(session))
+            if (checkAndTouch && isSessionUnavailable(session))
             {
                 throw new InvalidSessionException(
                         "Session no longer available. Please login again.");
             }
             // This is where we know for sure we have a session.
-            session.touch();
+            if (checkAndTouch)
+            {
+                session.touch();
+            }
             return session.getSession();
         }
-    }
-
-    // take all tokens till the third token counting from the back
-    private static String getUserName(String[] splittedSessionToken)
-    {
-        int exclusiveEndIndex = splittedSessionToken.length - 1;
-        return StringUtils
-                .join(splittedSessionToken, SESSION_TOKEN_SEPARATOR, 0, exclusiveEndIndex);
     }
 
     @Override
@@ -408,9 +405,25 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     {
         synchronized (sessions)
         {
-            final T session = getSession(sessionToken);
-            sessions.remove(sessionToken);
-            logLogout(session);
+            final T session = getSession(sessionToken, false);
+            closeSession(session, true);
+        }
+    }
+
+    private void closeSession(final T session, final boolean regularLogout)
+            throws InvalidSessionException
+    {
+        synchronized (sessions)
+        {
+            session.cleanup();
+            sessions.remove(session.getSessionToken());
+            if (regularLogout)
+            {
+                logLogout(session);
+            } else
+            {
+                logSessionExpired(session);
+            }
         }
     }
 

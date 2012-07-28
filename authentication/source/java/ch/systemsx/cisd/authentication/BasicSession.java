@@ -127,6 +127,13 @@ public class BasicSession implements Serializable
         return sessionExpirationTime;
     }
 
+    /**
+     * Called when the session is closed. Can perform additional cleanup tasks.
+     */
+    public void cleanup()
+    {
+    }
+    
     @Deprecated
     public void setSessionToken(String sessionToken)
     {
