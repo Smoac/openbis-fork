@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.time.DateFormatUtils;
 
 import ch.systemsx.cisd.authentication.BasicSession;
@@ -32,6 +35,14 @@ public final class Session extends BasicSession implements IAuthSession
 
     final private static long serialVersionUID = 1L;
 
+    public interface ISessionCleaner
+    {
+        /**
+         * Method called at the end of a session to perform some sort of cleanup.
+         */
+        public void cleanup();
+    }
+
     /**
      * The {@link PersonPE} represented by this <code>Session</code> or <code>null</code> if it is
      * not defined.
@@ -42,6 +53,8 @@ public final class Session extends BasicSession implements IAuthSession
      * The base URL that the web server is reachable at.
      */
     private String baseIndexURL;
+
+    private final Set<ISessionCleaner> cleanupListeners = new LinkedHashSet<ISessionCleaner>();
 
     @Deprecated
     public Session()
@@ -59,6 +72,16 @@ public final class Session extends BasicSession implements IAuthSession
             long sessionStart, int expirationTime)
     {
         super(sessionToken, userName, principal, remoteHost, sessionStart, expirationTime);
+    }
+
+    @Override
+    public void cleanup()
+    {
+        super.cleanup();
+        for (ISessionCleaner cleaner : cleanupListeners)
+        {
+            cleaner.cleanup();
+        }
     }
 
     public final void setPerson(final PersonPE person)
@@ -123,6 +146,22 @@ public final class Session extends BasicSession implements IAuthSession
     public String getUserName()
     {
         return personOrNull == null ? super.getUserName() : personOrNull.getUserId();
+    }
+
+    /**
+     * Adds a new listener for session cleanup.
+     */
+    public void addCleanupListener(ISessionCleaner sessionCleaner)
+    {
+        cleanupListeners.add(sessionCleaner);
+    }
+
+    /**
+     * Removes a registered listener for session cleanup.
+     */
+    public void removeCleanupListener(ISessionCleaner sessionCleaner)
+    {
+        cleanupListeners.remove(sessionCleaner);
     }
 
     //
