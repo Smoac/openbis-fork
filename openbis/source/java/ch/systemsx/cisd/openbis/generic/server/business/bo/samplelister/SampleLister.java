@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationShipSkeleton;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipSkeleton;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleSkeleton;
 
 /**
@@ -104,16 +104,16 @@ public class SampleLister implements ISampleLister
     }
 
     @Override
-    public List<SampleRelationShipSkeleton> listSampleRelationShipsBy(
-            IValidator<SampleRelationShipSkeleton> criteria)
+    public List<SampleRelationshipSkeleton> listSampleRelationshipsBy(
+            IValidator<SampleRelationshipSkeleton> criteria)
     {
         DataIterator<SampleRelationRecord> records =
                 dao.getQuery().getSampleRelationshipSkeletons();
-        List<SampleRelationShipSkeleton> result = new ArrayList<SampleRelationShipSkeleton>();
+        List<SampleRelationshipSkeleton> result = new ArrayList<SampleRelationshipSkeleton>();
         for (SampleRelationRecord record : records)
         {
-            SampleRelationShipSkeleton skeleton = new SampleRelationShipSkeleton();
-            skeleton.setRelationShipTypeID(record.relationship_id);
+            SampleRelationshipSkeleton skeleton = new SampleRelationshipSkeleton();
+            skeleton.setRelationshipTypeID(record.relationship_id);
             skeleton.setParentSampleID(record.sample_id_parent);
             skeleton.setChildSampleID(record.sample_id_child);
             if (criteria.isValid(skeleton))

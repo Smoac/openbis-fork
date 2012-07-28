@@ -24,7 +24,7 @@ import java.util.Set;
 import ch.systemsx.cisd.common.collections.IValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationShipSkeleton;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipSkeleton;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleSkeleton;
 
 /**
@@ -63,8 +63,8 @@ public interface ISampleLister
      *             getParentToChildrenIdsMap/getChildToParentsIdsMap.
      */
     @Deprecated
-    public List<SampleRelationShipSkeleton> listSampleRelationShipsBy(
-            IValidator<SampleRelationShipSkeleton> criteria);
+    public List<SampleRelationshipSkeleton> listSampleRelationshipsBy(
+            IValidator<SampleRelationshipSkeleton> criteria);
 
     /** Returns a map from child id to set of parents ids for specified children. */
     public Map<Long, Set<Long>> getChildToParentsIdsMap(Collection<Long> childrenIds);

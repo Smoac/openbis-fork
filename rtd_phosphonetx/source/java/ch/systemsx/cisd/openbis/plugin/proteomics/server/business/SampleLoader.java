@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationShipSkeleton;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipSkeleton;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleSkeleton;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -111,18 +111,18 @@ public class SampleLoader implements ISampleLoader
                 sampleLister
                         .getRelationshipTypeID(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
         @SuppressWarnings("deprecation")
-        List<SampleRelationShipSkeleton> relationshipSkeletons =
-                sampleLister.listSampleRelationShipsBy(new IValidator<SampleRelationShipSkeleton>()
+        List<SampleRelationshipSkeleton> relationshipSkeletons =
+                sampleLister.listSampleRelationshipsBy(new IValidator<SampleRelationshipSkeleton>()
                     {
                         @Override
-                        public boolean isValid(SampleRelationShipSkeleton skeleton)
+                        public boolean isValid(SampleRelationshipSkeleton skeleton)
                         {
-                            return skeleton.getRelationShipTypeID() == relationshipTypeID
+                            return skeleton.getRelationshipTypeID() == relationshipTypeID
                                     && sampleIDs.contains(skeleton.getChildSampleID());
                         }
                     });
         Set<Long> filteredSampleIDs = new HashSet<Long>();
-        for (SampleRelationShipSkeleton sampleRelationShipSkeleton : relationshipSkeletons)
+        for (SampleRelationshipSkeleton sampleRelationShipSkeleton : relationshipSkeletons)
         {
             filteredSampleIDs.add(sampleRelationShipSkeleton.getChildSampleID());
         }

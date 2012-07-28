@@ -17,17 +17,17 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 /**
- *  Only primary and foreign keys of a sample relationship in the database.
- *
+ * Only primary and foreign keys of a sample relationship in the database.
+ * 
  * @author Franz-Josef Elmer
  */
-public class SampleRelationShipSkeleton
+public class SampleRelationshipSkeleton
 {
     private long parentSampleID;
-    
+
     private long childSampleID;
-    
-    private long relationShipTypeID;
+
+    private long relationshipTypeID;
 
     public final long getParentSampleID()
     {
@@ -49,13 +49,13 @@ public class SampleRelationShipSkeleton
         this.childSampleID = childSampleID;
     }
 
-    public final long getRelationShipTypeID()
+    public final long getRelationshipTypeID()
     {
-        return relationShipTypeID;
+        return relationshipTypeID;
     }
 
-    public final void setRelationShipTypeID(long relationShipTypeID)
+    public final void setRelationshipTypeID(long relationShipTypeID)
     {
-        this.relationShipTypeID = relationShipTypeID;
+        this.relationshipTypeID = relationShipTypeID;
     }
 }
