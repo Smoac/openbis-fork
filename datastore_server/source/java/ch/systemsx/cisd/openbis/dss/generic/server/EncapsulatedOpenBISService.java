@@ -562,6 +562,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
+    public void checkSession(String sessionToken)
+    {
+        service.checkSession(sessionToken);
+    }
+
+    @Override
     public List<String> generateCodes(String prefix, int size)
     {
         return service.generateCodes(session.getSessionToken(), prefix, size);

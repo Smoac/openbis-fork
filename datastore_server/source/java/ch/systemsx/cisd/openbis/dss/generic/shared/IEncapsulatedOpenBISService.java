@@ -401,6 +401,12 @@ public interface IEncapsulatedOpenBISService
      */
     @ManagedAuthentication
     public SessionContextDTO tryGetSession(String sessionToken);
+    
+    /**
+     * See @{link {@link IETLLIMSService#checkSession(String)}.
+     */
+    @ManagedAuthentication
+    public void checkSession(String sessionToken);
 
     /**
      * Return a list of users who could be considered administrators. See

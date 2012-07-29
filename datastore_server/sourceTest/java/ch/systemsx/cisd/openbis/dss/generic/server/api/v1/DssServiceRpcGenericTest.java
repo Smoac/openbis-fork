@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.DatasetSessionAuthorizer;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -56,6 +58,8 @@ public class DssServiceRpcGenericTest extends AssertJUnit
     private IDssServiceRpcGeneric dssService;
 
     private IShareIdManager shareIdManager;
+    
+    private IPluginTaskInfoProvider infoProvider;
 
     private IHierarchicalContentProvider contentProvider;
 
@@ -70,6 +74,14 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         shareIdManager = context.mock(IShareIdManager.class);
+        infoProvider = context.mock(IPluginTaskInfoProvider.class);
+        context.checking(new Expectations()
+        {
+            {
+                one(infoProvider).getSessionWorkspaceRootDir();
+                will(returnValue(new File("sessionWorkspaceRoot")));
+            }
+        });
         contentProvider = context.mock(IHierarchicalContentProvider.class);
         content = context.mock(IHierarchicalContent.class);
         applicationContext.addBean("openBIS-service", service);
@@ -77,7 +89,8 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         proxyFactoryBean.setInterfaces(new Class[]
             { IDssServiceRpcGeneric.class });
         DssServiceRpcGeneric nakedDssService =
-                new DssServiceRpcGeneric(service, shareIdManager, contentProvider);
+                new DssServiceRpcGeneric(service, infoProvider, shareIdManager,
+                        contentProvider);
         proxyFactoryBean.setTarget(nakedDssService);
         proxyFactoryBean.addAdvisor(new DssServiceRpcAuthorizationAdvisor(shareIdManager));
         dssService = (IDssServiceRpcGeneric) proxyFactoryBean.getObject();
@@ -114,7 +127,7 @@ public class DssServiceRpcGenericTest extends AssertJUnit
 
                     allowing(mainNode).isChecksumCRC32Precalculated();
                     will(returnValue(false));
-                    
+
                     allowing(mainNode).getRelativePath();
                     will(returnValue(path));
 

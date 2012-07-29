@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.Properties;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoProvider;
 
 /**
@@ -28,7 +29,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoP
 @Friend(toClasses = DssPropertyParametersUtil.class)
 public class PluginUtilTest
 {
-    public static PluginTaskInfoProvider createPluginTaskProviders(File storeRoot)
+    public static IPluginTaskInfoProvider createPluginTaskProviders(File storeRoot)
     {
         Properties serviceProperties = new Properties();
         serviceProperties.put(DssPropertyParametersUtil.DSS_CODE_KEY, "dss");

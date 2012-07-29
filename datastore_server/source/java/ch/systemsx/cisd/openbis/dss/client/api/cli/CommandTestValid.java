@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -299,6 +300,24 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
                         throws IllegalStateException, EnvironmentFailureException
                 {
                     return null;
+                }
+
+                @Override
+                public void putFileToSessionWorkspace(String filePath, InputStream inputStream)
+                        throws IOExceptionUnchecked
+                {
+                }
+
+                @Override
+                public void putFileToSessionWorkspace(String directory, File file)
+                        throws IOExceptionUnchecked
+                {
+                }
+
+                @Override
+                public boolean deleteSessionWorkspaceFile(String path)
+                {
+                    return false;
                 }
 
                 @Override

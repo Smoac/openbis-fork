@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -34,6 +35,7 @@ import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.api.IRpcServiceFactory;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
@@ -55,6 +57,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptRunner;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+
+import de.schlichtherle.io.FileInputStream;
 
 /**
  * Implementation of the IDssComponent interface. It is a facade for interacting with openBIS and
@@ -221,6 +225,25 @@ public class DssComponent implements IDssComponent
     }
 
     @Override
+    public void putFileToSessionWorkspace(String filePath, InputStream inputStream)
+            throws IOExceptionUnchecked
+    {
+        state.putFileToSessionWorkspace(filePath, inputStream);
+    }
+    
+    @Override
+    public void putFileToSessionWorkspace(String directory, File file) throws IOExceptionUnchecked
+    {
+        state.putFileToSessionWorkspace(directory, file);
+    }
+
+    @Override
+    public boolean deleteSessionWorkspaceFile(String path)
+    {
+        return state.deleteSessionWorkspaceFile(path);
+    }
+
+    @Override
     public List<ValidationError> validateDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
@@ -233,6 +256,7 @@ public class DssComponent implements IDssComponent
     {
         return state.extractMetadata(newDataset, dataSetFile);
     }
+
 }
 
 /**
@@ -267,6 +291,25 @@ abstract class AbstractDssComponentState implements IDssComponent
     @Override
     public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
+    {
+        throw new IllegalStateException("Please log in");
+    }
+
+    @Override
+    public void putFileToSessionWorkspace(String filePath, InputStream inputStream)
+            throws IOExceptionUnchecked
+    {
+        throw new IllegalStateException("Please log in");
+    }
+
+    @Override
+    public void putFileToSessionWorkspace(String directory, File file) throws IOExceptionUnchecked
+    {
+        throw new IllegalStateException("Please log in");
+    }
+
+    @Override
+    public boolean deleteSessionWorkspaceFile(String path)
     {
         throw new IllegalStateException("Please log in");
     }
@@ -345,6 +388,7 @@ class UnauthenticatedState extends AbstractDssComponentState
     {
         return;
     }
+
 }
 
 /**
@@ -413,12 +457,54 @@ class AuthenticatedState extends AbstractDssComponentState
     public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
-        IDssServiceRpcGeneric dssService = getServiceForPutDataStore();
+        final IDssServiceRpcGeneric dssService = getServiceForPutDataStore();
         ConcatenatedContentInputStream fileInputStream =
                 new ConcatenatedContentInputStream(true, getContentForFileInfos(
                         dataSetFile.getPath(), newDataset.getFileInfos()));
         String code = dssService.putDataSet(sessionToken, newDataset, fileInputStream);
         return new DataSetDss(code, dssService, this);
+    }
+
+    @Override
+    public void putFileToSessionWorkspace(String filePath, InputStream inputStream)
+            throws IOExceptionUnchecked
+    {
+        final IDssServiceRpcGeneric dssService = getServiceForPutDataStore();
+        dssService.putFileToSessionWorkspace(sessionToken, filePath, inputStream);
+    }
+    
+    @Override
+    public void putFileToSessionWorkspace(String directory, File file) throws IOExceptionUnchecked
+    {
+        final IDssServiceRpcGeneric dssService = getServiceForPutDataStore();
+        final String filePath = directory + "/" + file.getName();
+        InputStream inputStream = null;
+        try
+        {
+            inputStream = new FileInputStream(file);
+            dssService.putFileToSessionWorkspace(sessionToken, filePath, inputStream);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            if (inputStream != null)
+            {
+                try
+                {
+                    inputStream.close();
+                } catch (IOException ex)
+                {
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean deleteSessionWorkspaceFile(String path)
+    {
+        final IDssServiceRpcGeneric dssService = getServiceForPutDataStore();
+        return dssService.deleteSessionWorkspaceFile(sessionToken, path);
     }
 
     private IDssServiceRpcGeneric getServiceForPutDataStore()
@@ -767,4 +853,5 @@ class AuthenticatedState extends AbstractDssComponentState
         return Arrays.asList(ValidationError.createFileValidationError(messagePrefix + ": "
                 + throwable));
     }
+
 }

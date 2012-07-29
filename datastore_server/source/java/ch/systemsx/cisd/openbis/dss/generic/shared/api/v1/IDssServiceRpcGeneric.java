@@ -144,6 +144,26 @@ public interface IDssServiceRpcGeneric extends IRpcService
             InputStream inputStream) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
+     * Upload a new file to the user's session workspace.
+     * 
+     * @param sessionToken The session token.
+     * @param filePath The file path (including the sub-directory) to upload the file to.
+     * @param inputStream An input stream on the file to upload.
+     * @throws IOExceptionUnchecked Thrown if an IOException.
+     */
+    @DataSetAccessGuard
+    public void putFileToSessionWorkspace(String sessionToken, String filePath,
+            InputStream inputStream) throws IOExceptionUnchecked;
+
+    /**
+     * Delete a file or directory in the session workspace.
+     * 
+     * @return <code>true</code> if the <var>path</var> doesn't exist anymore.
+     */
+    @DataSetAccessGuard
+    public boolean deleteSessionWorkspaceFile(String sessionToken, String path);
+    
+    /**
      * Get a path to the data set. This can be used by clients that run on the same machine as the
      * DSS for more efficient access to a data set.
      * <p>

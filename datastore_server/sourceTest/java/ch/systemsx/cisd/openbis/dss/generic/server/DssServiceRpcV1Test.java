@@ -64,6 +64,7 @@ import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.MockDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.HierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -128,6 +129,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 
     private IShareIdManager shareIdManager;
 
+    private IPluginTaskInfoProvider infoProvider;
+
     private IHierarchicalContentProvider contentProvider;
 
     private IStreamRepository streamRepository;
@@ -163,6 +166,14 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         rpcIncomingDir = new File(storeDir, "1/rpc-incoming/");
         rpcIncomingDir.mkdirs();
 
+        infoProvider = context.mock(IPluginTaskInfoProvider.class);
+        context.checking(new Expectations()
+            {
+                {
+                    one(infoProvider).getSessionWorkspaceRootDir();
+                    will(returnValue(new File("sessionWorkspaceRoot")));
+                }
+            });
         // test with DefaultFileBasedHierarchicalContentFactory to actually access files
         final IHierarchicalContentFactory fileBasedContentFactory =
                 new DefaultFileBasedHierarchicalContentFactory();
@@ -180,8 +191,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                         new TestDataSetTypeToTopLevelRegistratorMapper(dataSetRegistrator),
                         mailClient, "TEST", validator);
         rpcService =
-                new DssServiceRpcGeneric(openBisService, streamRepository, shareIdManager,
-                        contentProvider, putService);
+                new DssServiceRpcGeneric(openBisService, infoProvider, streamRepository,
+                        shareIdManager, contentProvider, putService);
         rpcService.setStoreDirectory(storeDir);
     }
 

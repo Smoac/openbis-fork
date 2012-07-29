@@ -21,6 +21,7 @@ import java.io.InputStream;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DataSetAccessGuard;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -106,6 +107,21 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
     {
         logTracking(sessionToken, "put_data_set", "DATA_SET(%s)", newDataset);
         return null;
+    }
+
+    @Override
+    @DataSetAccessGuard
+    public void putFileToSessionWorkspace(String sessionToken, String filePath,
+            InputStream inputStream) throws IOExceptionUnchecked
+    {
+        logTracking(sessionToken, "put_file_to_session_workspace", "FILE_PATH(%s)", filePath);
+    }
+
+    @Override
+    public boolean deleteSessionWorkspaceFile(String sessionToken, String path)
+    {
+        logTracking(sessionToken, "delete_session_workspace_file", "PATH(%s)", path);
+        return false;
     }
 
     @Override

@@ -626,6 +626,12 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         }
 
         @Override
+        public void putFileToSessionWorkspace(String sessionToken, String filePath,
+                InputStream inputStream) throws IOExceptionUnchecked
+        {
+        }
+        
+        @Override
         public int getMajorVersion()
         {
             return 1;
@@ -657,6 +663,13 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         {
             throw new IllegalArgumentException("Unimplemented in v1.0");
         }
+
+        @Override
+        public boolean deleteSessionWorkspaceFile(String sessionToken, String path)
+        {
+            return false;
+        }
+
     }
 
     private class MockDssServiceRpcV1_1 extends MockDssServiceRpcV1_0

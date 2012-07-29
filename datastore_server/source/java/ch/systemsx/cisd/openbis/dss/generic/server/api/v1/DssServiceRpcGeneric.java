@@ -19,11 +19,16 @@ package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -33,6 +38,8 @@ import ch.systemsx.cisd.common.utilities.HierarchicalContentUtils;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.IStreamRepository;
+import ch.systemsx.cisd.openbis.dss.generic.server.SessionWorkspaceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -43,6 +50,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.HierarchicalFileInfoDs
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 
+import de.schlichtherle.io.FileOutputStream;
+
 /**
  * Implementation of the generic RPC interface.
  * 
@@ -51,6 +60,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGenericInternal>
         implements IDssServiceRpcGenericInternal
 {
+    /**
+     * The sub-directory in the session workspace reserved for clients to drop files.
+     */
+    private static final String CLIENT_DROP_SUB_DIR = "clientDrop";
+
     /**
      * Logger with {@link LogCategory#OPERATION} with name of the concrete class, needs to be static
      * for our purpose.
@@ -61,31 +75,38 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
 
     private final PutDataSetService putService;
 
+    private final File sessionWorkspaceRootDirectory;
+
     /**
      * The designated constructor.
      */
-    public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService)
+    public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
+            IPluginTaskInfoProvider infoProvider)
     {
         // NOTE: IShareIdManager and IHierarchicalContentProvider will be lazily created by spring
-        this(openBISService, null, null);
+        this(openBISService, infoProvider, null, null);
     }
 
     DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
-            IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider)
+            IPluginTaskInfoProvider infoProvider, IShareIdManager shareIdManager,
+            IHierarchicalContentProvider contentProvider)
     {
-        this(openBISService, null, shareIdManager, contentProvider, new PutDataSetService(
-                openBISService, operationLog));
+        this(openBISService, infoProvider, null, shareIdManager, contentProvider,
+                new PutDataSetService(
+                        openBISService, operationLog));
     }
 
     /**
      * A constructor for testing.
      */
     public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
-            IStreamRepository streamRepository, IShareIdManager shareIdManager,
+            IPluginTaskInfoProvider infoProvider, IStreamRepository streamRepository,
+            IShareIdManager shareIdManager,
             IHierarchicalContentProvider contentProvider, PutDataSetService service)
     {
         super(openBISService, streamRepository, shareIdManager, contentProvider);
         putService = service;
+        this.sessionWorkspaceRootDirectory = infoProvider.getSessionWorkspaceRootDir();
         operationLog.info("[rpc] Started DSS API V1 service.");
     }
 
@@ -177,6 +198,56 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     }
 
     @Override
+    public void putFileToSessionWorkspace(String sessionToken, String filePath,
+            InputStream inputStream)
+            throws IOExceptionUnchecked
+    {
+        getOpenBISService().checkSession(sessionToken);
+        if (filePath.contains("../"))
+        {
+            throw new IOExceptionUnchecked("filePath must not contain '../'");
+        }
+        final String subDir = FilenameUtils.getFullPath(filePath);
+        final String filename = FilenameUtils.getName(filePath);
+        final File workspaceDir =
+                new SessionWorkspaceProvider(sessionWorkspaceRootDirectory, sessionToken)
+                        .getSessionWorkspace();
+        final File dir = new File(workspaceDir, FilenameUtils.concat(CLIENT_DROP_SUB_DIR, subDir));
+        dir.mkdirs();
+        final File file = new File(dir, filename);
+        OutputStream ostream = null;
+        try
+        {
+            ostream = new FileOutputStream(file);
+            IOUtils.copyLarge(inputStream, ostream);
+            ostream.close();
+        } catch (IOException ex)
+        {
+            file.delete();
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(ostream);
+        }
+    }
+
+    @Override
+    public boolean deleteSessionWorkspaceFile(String sessionToken, String path)
+    {
+        getOpenBISService().checkSession(sessionToken);
+        if (path.contains("../"))
+        {
+            throw new IOExceptionUnchecked("path must not contain '../'");
+        }
+        final File workspaceDir =
+                new SessionWorkspaceProvider(sessionWorkspaceRootDirectory, sessionToken)
+                        .getSessionWorkspace();
+        final File file = new File(workspaceDir, FilenameUtils.concat(CLIENT_DROP_SUB_DIR, path));
+        FileUtilities.deleteRecursively(file);
+        return file.exists() == false;
+    }
+
+    @Override
     public int getMajorVersion()
     {
         return 1;
@@ -185,7 +256,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     @Override
     public int getMinorVersion()
     {
-        return 4;
+        return 5;
     }
 
     /**
@@ -283,4 +354,5 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     {
         return putService.getValidationScript(dataSetTypeOrNull);
     }
+
 }

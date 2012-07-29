@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.openbis.dss.client.api.v1;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
@@ -78,10 +80,40 @@ public interface IDssComponent
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
+     * @throws IOExceptionUnchecked If the file transfer fails.
      */
     public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
-            throws IllegalStateException, EnvironmentFailureException;
+            throws IllegalStateException, EnvironmentFailureException, IOExceptionUnchecked;
 
+    /**
+     * Uploads a file to the session workspace.
+     * 
+     * @param filePath The path (directory and name) of the file to upload.
+     * @param inputStream The data of the file to upload.
+     * 
+     * @throws IOExceptionUnchecked If the file transfer fails.
+     */
+    public void putFileToSessionWorkspace(String filePath, InputStream inputStream)
+            throws IOExceptionUnchecked;
+
+    /**
+     * Uploads a file to the session workspace.
+     * 
+     * @param directory The directory in the session workspace where the file should be uploaded.
+     * @param file The file to upload.
+     * 
+     * @throws IOExceptionUnchecked If the file transfer fails.
+     */
+    public void putFileToSessionWorkspace(String directory, File file)
+            throws IOExceptionUnchecked;
+
+    /**
+     * Delete a file or directory in the session workspace.
+     * 
+     * @return <code>true</code> if the <var>path</var> doesn't exist anymore.
+     */
+    public boolean deleteSessionWorkspaceFile(String path);
+    
     /**
      * Validate a data set.
      * 

@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ManagedAuthentication;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -84,7 +84,7 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
     private final IETLLIMSService service;
 
     public OpenBISAuthenticationInterceptor(SessionTokenManager sessionTokenManager,
-            IETLLIMSService service, PluginTaskInfoProvider pluginTaskParameters,
+            IETLLIMSService service, IPluginTaskInfoProvider pluginTaskParameters,
             OpenBISSessionHolder sessionHolder)
     {
         assert sessionTokenManager != null : "Unspecified session token manager.";

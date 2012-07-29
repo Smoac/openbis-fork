@@ -112,7 +112,8 @@
     
     <bean id="dss-service-rpc-generic" 
           class="ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric">
-        <constructor-arg ref="openBIS-service" />
+        <constructor-arg ref="openBIS-service" /> 
+        <constructor-arg ref="plugin-tasks" />
         <property name="downloadUrl" value="${download-url}"/>
     </bean>
     

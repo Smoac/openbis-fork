@@ -34,7 +34,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
@@ -65,7 +65,7 @@ public class DataStoreServiceTest extends AssertJUnit
                 IDataSetCommandExecutorFactory commandExecutorFactory,
                 MailClientParameters mailClientParameters,
                 ICIFEXRPCServiceFactory cifexServiceFactory, String expectedCIFEXURL,
-                PluginTaskInfoProvider pluginTaskParameters)
+                IPluginTaskInfoProvider pluginTaskParameters)
         {
             super(sessionTokenManager, commandExecutorFactory, mailClientParameters,
                     pluginTaskParameters);
@@ -97,7 +97,7 @@ public class DataStoreServiceTest extends AssertJUnit
 
     private ICIFEXComponent cifex;
 
-    private PluginTaskInfoProvider pluginTaskParameters;
+    private IPluginTaskInfoProvider pluginTaskParameters;
 
     private IShareIdManager shareIdManager;
 
