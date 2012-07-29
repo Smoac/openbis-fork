@@ -49,8 +49,6 @@
     
     <bean id="dss-factory" class="ch.systemsx.cisd.openbis.generic.server.business.DataStoreServiceFactory"/>
 
-		<bean id="dss-user-session-cleaner" class="ch.systemsx.cisd.openbis.generic.server.util.DataStoreUserSessionCleaner" />
-
     <bean id="authentication-service"
         class="ch.systemsx.cisd.openbis.generic.server.AuthenticationServiceHolder">
         <constructor-arg ref="${authentication-service}" />
@@ -58,7 +56,10 @@
 
     <bean id="session-manager" class="ch.systemsx.cisd.authentication.DefaultSessionManager">
         <constructor-arg>
-            <bean class="ch.systemsx.cisd.openbis.generic.server.SessionFactory" />
+            <bean class="ch.systemsx.cisd.openbis.generic.server.SessionFactory">
+                <constructor-arg ref="dao-factory" />
+                <constructor-arg ref="dss-factory" />
+            </bean>
         </constructor-arg>
         <constructor-arg>
             <bean class="ch.systemsx.cisd.openbis.generic.shared.LogMessagePrefixGenerator" />
@@ -85,7 +86,6 @@
         <constructor-arg ref="dss-factory" />
         <constructor-arg ref="relationship-service" />
         <constructor-arg ref="entity-operation-checker" />
-        <constructor-arg ref="dss-user-session-cleaner" />
     </bean>
 
     <bean id="last-modification-state"

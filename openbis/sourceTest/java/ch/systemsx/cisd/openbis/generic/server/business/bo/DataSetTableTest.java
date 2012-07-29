@@ -43,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionUnknownLocationsException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEventBuilder;
-import ch.systemsx.cisd.openbis.generic.server.util.DataStoreUserSessionCleaner;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
@@ -80,8 +79,6 @@ public final class DataSetTableTest extends AbstractBOTest
 {
     private IDataStoreServiceFactory dssFactory;
 
-    private DataStoreUserSessionCleaner dssUserSessionCleaner;
-
     private DataStorePE dss1;
 
     private DataStorePE dss2;
@@ -96,8 +93,8 @@ public final class DataSetTableTest extends AbstractBOTest
 
     private final DataSetTable createDataSetTable()
     {
-        return new DataSetTable(daoFactory, dssFactory, dssUserSessionCleaner,
-                ManagerTestTool.EXAMPLE_SESSION, relationshipService);
+        return new DataSetTable(daoFactory, dssFactory, ManagerTestTool.EXAMPLE_SESSION,
+                relationshipService);
     }
 
     @BeforeMethod
@@ -106,7 +103,6 @@ public final class DataSetTableTest extends AbstractBOTest
     {
         super.beforeMethod();
         dssFactory = context.mock(IDataStoreServiceFactory.class);
-        dssUserSessionCleaner = new DataStoreUserSessionCleaner();
         dss1 = createDataStore("dss1", false);
         dss2 = createDataStore("dss2", true);
         dss3 = createDataStore("dss3", true);

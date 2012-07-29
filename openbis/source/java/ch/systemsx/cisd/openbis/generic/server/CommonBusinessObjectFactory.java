@@ -80,7 +80,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleL
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.IMasterDataScriptRegistrationRunner;
-import ch.systemsx.cisd.openbis.generic.server.util.DataStoreUserSessionCleaner;
 import ch.systemsx.cisd.openbis.generic.shared.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -95,20 +94,11 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         ICommonBusinessObjectFactory
 {
 
-    private final DataStoreUserSessionCleaner dssUserSessionCleaner;
-
     public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
             IRelationshipService relationshipService,
-            IEntityOperationChecker entityOperationChecker,
-            DataStoreUserSessionCleaner dssUserSessionCleaner)
+            IEntityOperationChecker entityOperationChecker)
     {
         super(daoFactory, dssFactory, relationshipService, entityOperationChecker);
-        this.dssUserSessionCleaner = dssUserSessionCleaner;
-    }
-
-    protected DataStoreUserSessionCleaner getDssUserSessionCleaner()
-    {
-        return dssUserSessionCleaner;
     }
 
     @Override
@@ -176,8 +166,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public final IDataSetTable createDataSetTable(final Session session)
     {
-        return new DataSetTable(getDaoFactory(), getDSSFactory(), getDssUserSessionCleaner(),
-                session, getRelationshipService());
+        return new DataSetTable(getDaoFactory(), getDSSFactory(), session, getRelationshipService());
     }
 
     @Override

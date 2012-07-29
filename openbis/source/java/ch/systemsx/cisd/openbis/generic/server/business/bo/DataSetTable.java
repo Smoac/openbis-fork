@@ -49,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDele
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEventBuilder;
-import ch.systemsx.cisd.openbis.generic.server.util.DataStoreUserSessionCleaner;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
@@ -198,15 +197,11 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
 
     private List<DataPE> dataSets;
 
-    private final DataStoreUserSessionCleaner dssUserSessionCleaner;
-
     public DataSetTable(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
-            DataStoreUserSessionCleaner dssUserSessionCleaner,
             Session session, IRelationshipService relationshipService)
     {
         super(daoFactory, session, relationshipService);
         this.dssFactory = dssFactory;
-        this.dssUserSessionCleaner = dssUserSessionCleaner;
     }
 
     //
@@ -601,7 +596,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         List<DatasetDescription> locations = loadAvailableDatasetDescriptions(datasetCodes);
         String sessionToken = dataStore.getSessionToken();
         String userSessionToken = session.getSessionToken();
-        dssUserSessionCleaner.add(session, service);
         return service.createReportFromDatasets(sessionToken, userSessionToken,
                 datastoreServiceKey, locations, tryGetLoggedUserEmail());
     }
@@ -1056,7 +1050,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
         String sessionToken = dataStore.getSessionToken();
         String userSessionToken = session.getSessionToken();
-        dssUserSessionCleaner.add(session, service);
         return service.createReportFromAggregationService(sessionToken, userSessionToken,
                 datastoreServiceKey, parameters, tryGetLoggedUserEmail());
     }

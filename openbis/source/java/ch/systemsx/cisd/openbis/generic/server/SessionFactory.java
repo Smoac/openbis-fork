@@ -18,15 +18,34 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import ch.systemsx.cisd.authentication.ISessionFactory;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session.ISessionCleaner;
 
 /**
  * Factory of {@link Session} objects.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class SessionFactory implements ISessionFactory<Session>
 {
+    private final IDataStoreDAO datastoreDAO;
+
+    private final IDataStoreServiceFactory dssFactory;
+
+    public SessionFactory()
+    {
+        this(null, null);
+    }
+
+    public SessionFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory)
+    {
+        this.datastoreDAO = (daoFactory != null) ? daoFactory.getDataStoreDAO() : null;
+        this.dssFactory = dssFactory;
+    }
 
     //
     // ISessionFactory
@@ -37,8 +56,24 @@ public final class SessionFactory implements ISessionFactory<Session>
             final Principal principal, final String remoteHost, final long sessionStart,
             final int expirationTime)
     {
-        return new Session(userName, sessionToken, principal, remoteHost, sessionStart,
-                expirationTime);
+        final Session session =
+                new Session(userName, sessionToken, principal, remoteHost, sessionStart,
+                        expirationTime);
+        if (datastoreDAO != null && dssFactory != null)
+        {
+            session.addCleanupListener(new ISessionCleaner()
+                {
+                    @Override
+                    public void cleanup()
+                    {
+                        for (DataStorePE datastore : datastoreDAO.listDataStores())
+                        {
+                            dssFactory.create(datastore.getRemoteUrl())
+                                    .cleanupSession(sessionToken);
+                        }
+                    }
+                });
+        }
+        return session;
     }
-
 }
