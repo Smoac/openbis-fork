@@ -16,8 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.authentication.ISessionFactory;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
@@ -32,6 +37,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session.ISessionCleaner;
  */
 public final class SessionFactory implements ISessionFactory<Session>
 {
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            SessionFactory.class);
+
     private final IDataStoreDAO datastoreDAO;
 
     private final IDataStoreServiceFactory dssFactory;
@@ -68,8 +76,17 @@ public final class SessionFactory implements ISessionFactory<Session>
                     {
                         for (DataStorePE datastore : datastoreDAO.listDataStores())
                         {
-                            dssFactory.create(datastore.getRemoteUrl())
-                                    .cleanupSession(sessionToken);
+                            final String remoteUrl = datastore.getRemoteUrl();
+                            if (StringUtils.isBlank(remoteUrl) == false)
+                            {
+                                dssFactory.create(remoteUrl)
+                                        .cleanupSession(sessionToken);
+                            } else
+                            {
+                                operationLog.warn("datastore remoteUrl of datastore "
+                                        + datastore.getCode()
+                                        + " is empty - skipping DSS session cleanup.");
+                            }
                         }
                     }
                 });
