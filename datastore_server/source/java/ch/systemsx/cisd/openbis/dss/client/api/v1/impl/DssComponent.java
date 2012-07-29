@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -57,8 +58,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptRunner;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
-
-import de.schlichtherle.io.FileInputStream;
 
 /**
  * Implementation of the IDssComponent interface. It is a facade for interacting with openBIS and
