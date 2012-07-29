@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.util;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -33,13 +33,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session.ISessionCleaner;
 public class DataStoreUserSessionCleaner
 {
 
-    private final Map<String, List<IDataStoreService>> sessions =
-            new HashMap<String, List<IDataStoreService>>();
+    private final Map<String, Set<IDataStoreService>> sessions =
+            new HashMap<String, Set<IDataStoreService>>();
 
     public void add(Session userSession, IDataStoreService dataStore)
     {
         final String userSessionToken = userSession.getSessionToken();
-        final List<IDataStoreService> dataStores = getOrCreateDataStores(userSessionToken);
+        final Set<IDataStoreService> dataStores = getOrCreateDataStores(userSessionToken);
+        // Note: data stores are cached by DataStoreServiceFactory, thus the set works out.
         dataStores.add(dataStore);
         userSession.addCleanupListener(new ISessionCleaner()
             {
@@ -55,12 +56,12 @@ public class DataStoreUserSessionCleaner
             });
     }
 
-    private List<IDataStoreService> getOrCreateDataStores(String userSessionToken)
+    private Set<IDataStoreService> getOrCreateDataStores(String userSessionToken)
     {
-        List<IDataStoreService> dataStores = sessions.get(userSessionToken);
+        Set<IDataStoreService> dataStores = sessions.get(userSessionToken);
         if (dataStores == null)
         {
-            dataStores = new ArrayList<IDataStoreService>();
+            dataStores = new HashSet<IDataStoreService>();
             sessions.put(userSessionToken, dataStores);
         }
         return dataStores;
