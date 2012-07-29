@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.ISessionWorkspaceProvider;
+
 /**
  * A provider for the session workspace directory.
  * 
