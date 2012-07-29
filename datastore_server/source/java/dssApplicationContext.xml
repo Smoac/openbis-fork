@@ -29,7 +29,7 @@
     
     <bean id="data-set-path-infos-provider" class="ch.systemsx.cisd.openbis.dss.generic.server.DatabaseBasedDataSetPathInfoProvider"/>
 
-  <bean id="plugin-tasks" class="ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders"
+  <bean id="plugin-tasks" class="ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoProvider"
         factory-method="create" />
 
   <bean id="etl-lims-service" class="ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService"
