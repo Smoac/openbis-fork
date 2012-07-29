@@ -236,8 +236,14 @@ public abstract class AbstractServerLogger implements IServer
     @Override
     public SessionContextDTO tryGetSession(String sessionToken)
     {
-        logAccess(sessionToken, "tryGetCurrentSession");
+        logAccess(sessionToken, "tryGetSession", "SESSION(%s)", sessionToken);
         return null;
+    }
+
+    @Override
+    public void checkSession(String sessionToken) throws InvalidSessionException
+    {
+        logAccess(sessionToken, "checkSession", "SESSION(%s)", sessionToken);
     }
 
     @Override

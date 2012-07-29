@@ -21,6 +21,7 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
@@ -69,6 +70,13 @@ public interface IServer extends ISessionProvider
 
     /** @return session for the specified token or null if session has expired */
     public SessionContextDTO tryGetSession(String sessionToken);
+
+    /**
+     * Checks that the session is valid.
+     * 
+     * @throws InvalidSessionException If the session is not valid.
+     */
+    public void checkSession(final String sessionToken) throws InvalidSessionException;
 
     /**
      * Sets the base URL (including "index.html") that the web server is reachable at for this

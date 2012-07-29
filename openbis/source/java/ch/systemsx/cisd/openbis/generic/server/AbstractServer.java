@@ -362,7 +362,8 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     // Call this when session object is not needed but you want just to
     // refresh/check the session.
-    protected void checkSession(final String sessionToken)
+    @Override
+    public void checkSession(final String sessionToken) throws InvalidSessionException
     {
         getSession(sessionToken);
     }
