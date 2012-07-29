@@ -35,6 +35,8 @@ public class AtomicEntityOperationResult implements Serializable
 
     private final long experimentsCreatedCount;
 
+    private final long experimentsUpdatedCount;
+
     private final long samplesCreatedCount;
 
     private final long samplesUpdatedCount;
@@ -45,18 +47,20 @@ public class AtomicEntityOperationResult implements Serializable
 
     public AtomicEntityOperationResult()
     {
-        this(0, 0, 0, 0, 0, 0, 0, 0, 0);
+        this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 
     public AtomicEntityOperationResult(long spacesCreated, long projectsCreated,
             long materialsCreated, long materialsUpdated, long experimentsCreated,
-            long samplesCreated, long samplesUpdated, long dataSetsCreated, long dataSetsUpdated)
+            long experimentsUpdated, long samplesCreated, long samplesUpdated,
+            long dataSetsCreated, long dataSetsUpdated)
     {
         this.spacesCreatedCount = spacesCreated;
         this.projectsCreatedCount = projectsCreated;
         this.materialsCreatedCount = materialsCreated;
         this.materialsUpdatedCount = materialsUpdated;
         this.experimentsCreatedCount = experimentsCreated;
+        this.experimentsUpdatedCount = experimentsUpdated;
         this.samplesCreatedCount = samplesCreated;
         this.samplesUpdatedCount = samplesUpdated;
         this.dataSetsCreatedCount = dataSetsCreated;
@@ -65,9 +69,7 @@ public class AtomicEntityOperationResult implements Serializable
 
     public long getExperimentsUpdatedCount()
     {
-        // There is no way to update experiments from performEntityOperations at the moment, so this
-        // is always 0
-        return 0;
+        return experimentsUpdatedCount;
     }
 
     public long getExperimentsCreatedCount()
@@ -110,7 +112,7 @@ public class AtomicEntityOperationResult implements Serializable
         return materialsCreatedCount;
     }
 
-    public long getMaterialsUpdateCount()
+    public long getMaterialsUpdatedCount()
     {
         return materialsUpdatedCount;
     }
