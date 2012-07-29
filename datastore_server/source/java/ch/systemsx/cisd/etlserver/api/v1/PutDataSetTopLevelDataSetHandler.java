@@ -108,10 +108,6 @@ class PutDataSetTopLevelDataSetHandler
         this.inputStream = inputStream;
         this.temporaryIncomingDir = service.createTemporaryIncomingDir(newDataSet.tryDataSetType());
         String dataSetFolderName = newDataSet.getDataSetFolderName();
-        // TODO, 2011-04-27, FJE: It would be better to allow null value for
-        // newDataSet.getDataSetFolderName()
-        // in order to distinguish a file data set from a folder data set. But this is a change
-        // in API which is small but non-backward compatible.
         boolean dataSetIsASingleFile =
                 NewDataSetDTO.DEFAULT_DATA_SET_FOLDER_NAME.equals(dataSetFolderName)
                         && newDataSet.getFileInfos().size() == 1;
