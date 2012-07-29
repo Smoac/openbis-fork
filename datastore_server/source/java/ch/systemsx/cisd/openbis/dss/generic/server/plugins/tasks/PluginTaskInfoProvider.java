@@ -33,13 +33,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
  * 
  * @author Tomasz Pylak
  */
-public class PluginTaskInfoProvider
+public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
 {
     public static final String STOREROOT_DIR_KEY = "storeroot-dir";
 
     private static final String SESSION_WORKSPACE_ROOT_DIR_KEY = "session-workspace-root-dir";
 
-    private static final String SESSION_WORKSPACE_ROOT_DIR_DEFAULT = "sessionWorkspace";
+    private static final String SESSION_WORKSPACE_ROOT_DIR_DEFAULT = "data/sessionWorkspace";
 
     /** name of archiver properties section */
     @Private
@@ -56,7 +56,7 @@ public class PluginTaskInfoProvider
     private final File sessionWorkspaceRootDir;
 
     /** for external injections */
-    public static PluginTaskInfoProvider create()
+    public static IPluginTaskInfoProvider create()
     {
         IServletPropertiesManager servletPropertiesManager = DataStoreServer.getConfigParameters();
         Properties properties = DssPropertyParametersUtil.loadServiceProperties();
@@ -95,6 +95,7 @@ public class PluginTaskInfoProvider
     /**
      * Returns the root directory of the data store.
      */
+    @Override
     public final File getStoreRoot()
     {
         return storeRoot;
@@ -103,21 +104,25 @@ public class PluginTaskInfoProvider
     /**
      * Returns the root directory of session workspaces.
      */
+    @Override
     public File getSessionWorkspaceRootDir()
     {
         return sessionWorkspaceRootDir;
     }
 
+    @Override
     public PluginTaskProvider<IReportingPluginTask> getReportingPluginsProvider()
     {
         return reportingPlugins;
     }
 
+    @Override
     public PluginTaskProvider<IProcessingPluginTask> getProcessingPluginsProvider()
     {
         return processingPlugins;
     }
 
+    @Override
     public ArchiverPluginFactory getArchiverPluginFactory()
     {
         return archiverTaskFactory;
@@ -129,6 +134,7 @@ public class PluginTaskInfoProvider
         reportingPlugins.check(false);
     }
 
+    @Override
     public void logConfigurations()
     {
         processingPlugins.logConfigurations();
@@ -194,6 +200,7 @@ public class PluginTaskInfoProvider
                 sectionName, false);
     }
 
+    @Override
     public DatastoreServiceDescriptions getPluginTaskDescriptions()
     {
         return new DatastoreServiceDescriptions(reportingPlugins.getPluginDescriptions(),
