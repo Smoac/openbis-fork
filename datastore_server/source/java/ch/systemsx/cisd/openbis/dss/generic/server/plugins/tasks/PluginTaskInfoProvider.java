@@ -29,9 +29,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUt
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 
 /**
+ * Info provider for plugin tasks.
+ * 
  * @author Tomasz Pylak
  */
-public class PluginTaskProviders
+public class PluginTaskInfoProvider
 {
     public static final String STOREROOT_DIR_KEY = "storeroot-dir";
 
@@ -48,14 +50,14 @@ public class PluginTaskProviders
     private final File storeRoot;
 
     /** for external injections */
-    public static PluginTaskProviders create()
+    public static PluginTaskInfoProvider create()
     {
         IServletPropertiesManager servletPropertiesManager = DataStoreServer.getConfigParameters();
         Properties properties = DssPropertyParametersUtil.loadServiceProperties();
-        String property = properties.getProperty(STOREROOT_DIR_KEY);
-        File storeRoot = new File(property);
-        PluginTaskProviders providers =
-                new PluginTaskProviders(properties, servletPropertiesManager, storeRoot);
+        final String storeRootDir = properties.getProperty(STOREROOT_DIR_KEY);
+        final File storeRoot = new File(storeRootDir);
+        final PluginTaskInfoProvider providers =
+                new PluginTaskInfoProvider(properties, servletPropertiesManager, storeRoot);
         providers.check();
         providers.logConfigurations();
         return providers;
@@ -63,7 +65,7 @@ public class PluginTaskProviders
 
     @Private
     // public only for tests
-    public PluginTaskProviders(Properties serviceProperties,
+    public PluginTaskInfoProvider(Properties serviceProperties,
             IServletPropertiesManager servletPropertiesManager, File storeRoot)
     {
         this.storeRoot = storeRoot;
@@ -77,6 +79,9 @@ public class PluginTaskProviders
         this.archiverTaskFactory = createArchiverTaskFactory(serviceProperties, datastoreCode);
     }
 
+    /**
+     * Returns the root directory of the data store.
+     */
     public final File getStoreRoot()
     {
         return storeRoot;
@@ -112,7 +117,8 @@ public class PluginTaskProviders
 
     @Private
     static PluginTaskProvider<IReportingPluginTask> createReportingPluginsFactories(
-            Properties serviceProperties, IServletPropertiesManager configParameters, String datastoreCode, File storeRoot)
+            Properties serviceProperties, IServletPropertiesManager configParameters,
+            String datastoreCode, File storeRoot)
     {
         SectionProperties[] sectionsProperties =
                 extractSectionProperties(serviceProperties, Constants.REPORTING_PLUGIN_NAMES);
@@ -121,14 +127,16 @@ public class PluginTaskProviders
         for (int i = 0; i < factories.length; i++)
         {
             factories[i] =
-                    new ReportingPluginTaskFactory(configParameters, sectionsProperties[i], datastoreCode, storeRoot);
+                    new ReportingPluginTaskFactory(configParameters, sectionsProperties[i],
+                            datastoreCode, storeRoot);
         }
         return new PluginTaskProvider<IReportingPluginTask>(factories);
     }
 
     @Private
     static PluginTaskProvider<IProcessingPluginTask> createProcessingPluginsFactories(
-            Properties serviceProperties, IServletPropertiesManager configParameters, String datastoreCode, File storeRoot)
+            Properties serviceProperties, IServletPropertiesManager configParameters,
+            String datastoreCode, File storeRoot)
     {
         SectionProperties[] sectionsProperties =
                 extractSectionProperties(serviceProperties, Constants.PROCESSING_PLUGIN_NAMES);
@@ -137,7 +145,8 @@ public class PluginTaskProviders
         for (int i = 0; i < factories.length; i++)
         {
             factories[i] =
-                    new ProcessingPluginTaskFactory(configParameters, sectionsProperties[i], datastoreCode, storeRoot);
+                    new ProcessingPluginTaskFactory(configParameters, sectionsProperties[i],
+                            datastoreCode, storeRoot);
         }
         return new PluginTaskProvider<IProcessingPluginTask>(factories);
     }

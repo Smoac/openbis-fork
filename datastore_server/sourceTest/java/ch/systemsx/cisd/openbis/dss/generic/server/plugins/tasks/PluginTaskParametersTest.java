@@ -55,12 +55,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Tests for {@link PluginTaskProviders} class.
+ * Tests for {@link PluginTaskInfoProvider} class.
  * 
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { PluginTaskProviders.class, AbstractPluginTaskFactory.class })
+    { PluginTaskInfoProvider.class, AbstractPluginTaskFactory.class })
 public class PluginTaskParametersTest extends AbstractFileSystemTestCase
 {
     private static final File STORE_ROOT = new File("../datastore_server/resource/test-data/"
@@ -206,14 +206,14 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
     private PluginTaskProvider<IReportingPluginTask> createReportingPluginsFactories(
             Properties props)
     {
-        return PluginTaskProviders.createReportingPluginsFactories(props, servletPropertiesManager,
+        return PluginTaskInfoProvider.createReportingPluginsFactories(props, servletPropertiesManager,
                 "dss", STORE_ROOT);
     }
 
     private PluginTaskProvider<IProcessingPluginTask> createProcessingPluginsFactories(
             Properties props)
     {
-        return PluginTaskProviders.createProcessingPluginsFactories(props,
+        return PluginTaskInfoProvider.createProcessingPluginsFactories(props,
                 servletPropertiesManager, "dss", STORE_ROOT);
     }
 

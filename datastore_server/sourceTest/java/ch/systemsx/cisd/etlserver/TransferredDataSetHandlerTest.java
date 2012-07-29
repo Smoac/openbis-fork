@@ -56,7 +56,7 @@ import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataActi
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -84,7 +84,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 @Friend(toClasses =
     { TransferredDataSetHandler.class, DataSetRegistrationHelper.class,
-            IdentifiedDataStrategy.class, PluginTaskProviders.class,
+            IdentifiedDataStrategy.class, PluginTaskInfoProvider.class,
             DssPropertyParametersUtil.class })
 public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestCase
 {

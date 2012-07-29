@@ -42,8 +42,8 @@ import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ArchiverPluginFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetDirectoryProvider;
@@ -82,7 +82,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     private final MailClientParameters mailClientParameters;
 
-    private final PluginTaskProviders pluginTaskParameters;
+    private final PluginTaskInfoProvider pluginTaskParameters;
 
     private IHierarchicalContentProvider hierarchicalContentProvider;
 
@@ -101,7 +101,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private PutDataSetService putService;
 
     public DataStoreService(SessionTokenManager sessionTokenManager,
-            MailClientParameters mailClientParameters, PluginTaskProviders pluginTaskParameters)
+            MailClientParameters mailClientParameters, PluginTaskInfoProvider pluginTaskParameters)
     {
         this(sessionTokenManager, new IDataSetCommandExecutorFactory()
             {
@@ -115,7 +115,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     DataStoreService(SessionTokenManager sessionTokenManager,
             IDataSetCommandExecutorFactory commandExecutorFactory,
-            MailClientParameters mailClientParameters, PluginTaskProviders pluginTaskParameters)
+            MailClientParameters mailClientParameters, PluginTaskInfoProvider pluginTaskParameters)
     {
         this.sessionTokenManager = sessionTokenManager;
         this.commandExecutorFactory = commandExecutorFactory;

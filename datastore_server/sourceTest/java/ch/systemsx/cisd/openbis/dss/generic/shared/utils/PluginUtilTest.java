@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.Properties;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoProvider;
 
 /**
  * @author Tomasz Pylak
@@ -28,10 +28,10 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvi
 @Friend(toClasses = DssPropertyParametersUtil.class)
 public class PluginUtilTest
 {
-    public static PluginTaskProviders createPluginTaskProviders(File storeRoot)
+    public static PluginTaskInfoProvider createPluginTaskProviders(File storeRoot)
     {
         Properties serviceProperties = new Properties();
         serviceProperties.put(DssPropertyParametersUtil.DSS_CODE_KEY, "dss");
-        return new PluginTaskProviders(serviceProperties, null, storeRoot);
+        return new PluginTaskInfoProvider(serviceProperties, null, storeRoot, new File("workspace"));
     }
 }
