@@ -33,6 +33,7 @@ import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
@@ -82,7 +83,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     private final MailClientParameters mailClientParameters;
 
-    private final PluginTaskInfoProvider pluginTaskParameters;
+    private final PluginTaskInfoProvider pluginTaskInfoProvider;
 
     private IHierarchicalContentProvider hierarchicalContentProvider;
 
@@ -120,7 +121,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         this.sessionTokenManager = sessionTokenManager;
         this.commandExecutorFactory = commandExecutorFactory;
         this.mailClientParameters = mailClientParameters;
-        this.pluginTaskParameters = pluginTaskParameters;
+        this.pluginTaskInfoProvider = pluginTaskParameters;
         storeRoot = pluginTaskParameters.getStoreRoot();
     }
 
@@ -320,7 +321,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
         PluginTaskProvider<IReportingPluginTask> reportingPlugins =
-                pluginTaskParameters.getReportingPluginsProvider();
+                pluginTaskInfoProvider.getReportingPluginsProvider();
         IReportingPluginTask task = reportingPlugins.getPluginInstance(serviceKey);
         IShareIdManager manager = getShareIdManager();
         try
@@ -330,10 +331,16 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 manager.lock(dataSet.getDataSetCode());
             }
             IMailClient mailClient = createEMailClient();
-            return task.createReport(datasets, new DataSetProcessingContext(
-                    getHierarchicalContentProvider(), new DataSetDirectoryProvider(storeRoot,
-                            manager), new HashMap<String, String>(), mailClient, userEmailOrNull,
-                    userSessionToken));
+            return task.createReport(
+                    datasets,
+                    new DataSetProcessingContext(
+                            getHierarchicalContentProvider(), new DataSetDirectoryProvider(
+                                    storeRoot,
+                                    manager), new SessionWorkspaceProvider(pluginTaskInfoProvider
+                                    .getSessionWorkspaceRootDir(),
+                                    userSessionToken),
+                            new HashMap<String, String>(), mailClient, userEmailOrNull,
+                            userSessionToken));
 
         } finally
         {
@@ -349,7 +356,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
         PluginTaskProvider<IProcessingPluginTask> plugins =
-                pluginTaskParameters.getProcessingPluginsProvider();
+                pluginTaskInfoProvider.getProcessingPluginsProvider();
 
         IProcessingPluginTask task = plugins.getPluginInstance(serviceKey);
         DatastoreServiceDescription pluginDescription = plugins.getPluginDescription(serviceKey);
@@ -381,7 +388,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     @Override
     public IArchiverPlugin getArchiverPlugin()
     {
-        ArchiverPluginFactory factory = pluginTaskParameters.getArchiverPluginFactory();
+        ArchiverPluginFactory factory = pluginTaskInfoProvider.getArchiverPluginFactory();
         return factory.createInstance(storeRoot);
     }
 
@@ -398,16 +405,22 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
         PluginTaskProvider<IReportingPluginTask> reportingPlugins =
-                pluginTaskParameters.getReportingPluginsProvider();
+                pluginTaskInfoProvider.getReportingPluginsProvider();
         IReportingPluginTask task = reportingPlugins.getPluginInstance(serviceKey);
         IShareIdManager manager = getShareIdManager();
         try
         {
             IMailClient mailClient = createEMailClient();
-            return task.createAggregationReport(parameters, new DataSetProcessingContext(
-                    getHierarchicalContentProvider(), new DataSetDirectoryProvider(storeRoot,
-                            manager), new HashMap<String, String>(), mailClient, userEmailOrNull,
-                    userSessionToken));
+            return task.createAggregationReport(
+                    parameters,
+                    new DataSetProcessingContext(
+                            getHierarchicalContentProvider(), new DataSetDirectoryProvider(
+                                    storeRoot,
+                                    manager), new SessionWorkspaceProvider(pluginTaskInfoProvider
+                                    .getSessionWorkspaceRootDir(),
+                                    userSessionToken),
+                            new HashMap<String, String>(), mailClient, userEmailOrNull,
+                            userSessionToken));
 
         } finally
         {
@@ -492,7 +505,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
         PluginTaskProvider<IReportingPluginTask> reportingPlugins =
-                pluginTaskParameters.getReportingPluginsProvider();
+                pluginTaskInfoProvider.getReportingPluginsProvider();
         IReportingPluginTask task = reportingPlugins.getPluginInstance(serviceKey);
         return task.createLink(dataSet);
     }
@@ -509,6 +522,17 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     {
         PutDataSetService service = getPutDataSetService();
         return service.putDataSet(sessionToken, dropboxName, customImportFile);
+    }
+
+    @Override
+    public void cleanupSession(String userSessionToken)
+    {
+        final File sessionWorkspace =
+                new File(pluginTaskInfoProvider.getSessionWorkspaceRootDir(), userSessionToken);
+        if (sessionWorkspace.exists())
+        {
+            QueueingPathRemoverService.removeRecursively(sessionWorkspace);
+        }
     }
 
     private PutDataSetService getPutDataSetService()

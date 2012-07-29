@@ -37,6 +37,10 @@ public class PluginTaskInfoProvider
 {
     public static final String STOREROOT_DIR_KEY = "storeroot-dir";
 
+    private static final String SESSION_WORKSPACE_ROOT_DIR_KEY = "session-workspace-root-dir";
+
+    private static final String SESSION_WORKSPACE_ROOT_DIR_DEFAULT = "sessionWorkspace";
+
     /** name of archiver properties section */
     @Private
     static final String ARCHIVER_SECTION_NAME = "archiver";
@@ -49,6 +53,8 @@ public class PluginTaskInfoProvider
 
     private final File storeRoot;
 
+    private final File sessionWorkspaceRootDir;
+
     /** for external injections */
     public static PluginTaskInfoProvider create()
     {
@@ -56,8 +62,13 @@ public class PluginTaskInfoProvider
         Properties properties = DssPropertyParametersUtil.loadServiceProperties();
         final String storeRootDir = properties.getProperty(STOREROOT_DIR_KEY);
         final File storeRoot = new File(storeRootDir);
-        final PluginTaskInfoProvider providers =
-                new PluginTaskInfoProvider(properties, servletPropertiesManager, storeRoot);
+        final String workspaceRootDir =
+                properties.getProperty(SESSION_WORKSPACE_ROOT_DIR_KEY,
+                        SESSION_WORKSPACE_ROOT_DIR_DEFAULT);
+        final File workspaceRoot = new File(workspaceRootDir);
+        PluginTaskInfoProvider providers =
+                new PluginTaskInfoProvider(properties, servletPropertiesManager, storeRoot,
+                        workspaceRoot);
         providers.check();
         providers.logConfigurations();
         return providers;
@@ -66,9 +77,11 @@ public class PluginTaskInfoProvider
     @Private
     // public only for tests
     public PluginTaskInfoProvider(Properties serviceProperties,
-            IServletPropertiesManager servletPropertiesManager, File storeRoot)
+            IServletPropertiesManager servletPropertiesManager, File storeRoot,
+            File sessionWorkspaceRoot)
     {
         this.storeRoot = storeRoot;
+        this.sessionWorkspaceRootDir = sessionWorkspaceRoot;
         String datastoreCode = DssPropertyParametersUtil.getDataStoreCode(serviceProperties);
         this.reportingPlugins =
                 createReportingPluginsFactories(serviceProperties, servletPropertiesManager,
@@ -85,6 +98,14 @@ public class PluginTaskInfoProvider
     public final File getStoreRoot()
     {
         return storeRoot;
+    }
+
+    /**
+     * Returns the root directory of session workspaces.
+     */
+    public File getSessionWorkspaceRootDir()
+    {
+        return sessionWorkspaceRootDir;
     }
 
     public PluginTaskProvider<IReportingPluginTask> getReportingPluginsProvider()

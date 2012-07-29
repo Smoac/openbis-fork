@@ -39,6 +39,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.DataStoreUserSessionCleaner;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionUnknownLocationsException;
@@ -79,6 +80,8 @@ public final class DataSetTableTest extends AbstractBOTest
 {
     private IDataStoreServiceFactory dssFactory;
 
+    private DataStoreUserSessionCleaner dssUserSessionCleaner;
+
     private DataStorePE dss1;
 
     private DataStorePE dss2;
@@ -93,8 +96,8 @@ public final class DataSetTableTest extends AbstractBOTest
 
     private final DataSetTable createDataSetTable()
     {
-        return new DataSetTable(daoFactory, dssFactory, ManagerTestTool.EXAMPLE_SESSION,
-                relationshipService);
+        return new DataSetTable(daoFactory, dssFactory, dssUserSessionCleaner,
+                ManagerTestTool.EXAMPLE_SESSION, relationshipService);
     }
 
     @BeforeMethod
@@ -103,6 +106,7 @@ public final class DataSetTableTest extends AbstractBOTest
     {
         super.beforeMethod();
         dssFactory = context.mock(IDataStoreServiceFactory.class);
+        dssUserSessionCleaner = new DataStoreUserSessionCleaner();
         dss1 = createDataStore("dss1", false);
         dss2 = createDataStore("dss2", true);
         dss3 = createDataStore("dss3", true);
@@ -546,8 +550,8 @@ public final class DataSetTableTest extends AbstractBOTest
         final ExternalDataPE d3Available = createDataSet("d3a", dss3, AVAILABLE);
         final ExternalDataPE d3NonAvailable = createDataSet("d3n", dss3, ARCHIVED);
         final ExternalDataPE[] allDataSets =
-                    { d2Available1, d2Available2, d2NonAvailable1, d2NonAvailable2, d3Available,
-                            d3NonAvailable, d2NonAvailable3 };
+            { d2Available1, d2Available2, d2NonAvailable1, d2NonAvailable2, d3Available,
+                    d3NonAvailable, d2NonAvailable3 };
         context.checking(new Expectations()
             {
                 {
@@ -581,8 +585,8 @@ public final class DataSetTableTest extends AbstractBOTest
         final ExternalDataPE d3Archived = createDataSet("d3a", dss3, ARCHIVED);
         final ExternalDataPE d3NonArchived = createDataSet("d3n", dss3, AVAILABLE);
         final ExternalDataPE[] allDataSets =
-                    { d2Archived1, d2Archived2, d2NonArchived1, d2NonArchived2, d3Archived,
-                            d3NonArchived, d2NonAvailable3 };
+            { d2Archived1, d2Archived2, d2NonArchived1, d2NonArchived2, d3Archived,
+                    d3NonArchived, d2NonAvailable3 };
         context.checking(new Expectations()
             {
                 {

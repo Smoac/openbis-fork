@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.openbis.dss.generic.server.ISessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 
 /**
@@ -40,6 +41,8 @@ public class DataSetProcessingContext
 
     private final String sessionTokenOrNull;
 
+    private final ISessionWorkspaceProvider sessionWorkspaceProviderOrNull;
+
     /**
      * Creates an instance for specified directory provider, parameter bindings, e-mail client, and
      * optional user e-mail address and sessionToken.
@@ -60,17 +63,41 @@ public class DataSetProcessingContext
             IDataSetDirectoryProvider directoryProvider, Map<String, String> parameterBindings,
             IMailClient mailClient, String userEmailOrNull, String sessionTokenOrNull)
     {
+        this(contentProvider, directoryProvider, null, parameterBindings, mailClient,
+                userEmailOrNull, sessionTokenOrNull);
+    }
+
+    /**
+     * Creates an instance for specified directory provider, workspace provider, parameter bindings,
+     * e-mail client, and optional user e-mail address and sessionToken.
+     */
+    public DataSetProcessingContext(IHierarchicalContentProvider contentProvider,
+            IDataSetDirectoryProvider directoryProvider,
+            ISessionWorkspaceProvider sessionWorkspaceProviderOrNull,
+            Map<String, String> parameterBindings,
+            IMailClient mailClient, String userEmailOrNull, String sessionTokenOrNull)
+    {
         this.hierarchicalContentProvider = contentProvider;
         this.directoryProvider = directoryProvider;
         this.parameterBindings = parameterBindings;
         this.mailClient = mailClient;
         this.userEmailOrNull = userEmailOrNull;
         this.sessionTokenOrNull = sessionTokenOrNull;
+        this.sessionWorkspaceProviderOrNull = sessionWorkspaceProviderOrNull;
     }
 
     public IDataSetDirectoryProvider getDirectoryProvider()
     {
         return directoryProvider;
+    }
+
+    /**
+     * Returns the session workspace provider of this context, if available and <code>null</code> if
+     * this context has no session workspace provider.
+     */
+    public ISessionWorkspaceProvider tryGetSessionWorkspaceProvider()
+    {
+        return sessionWorkspaceProviderOrNull;
     }
 
     public final Map<String, String> getParameterBindings()

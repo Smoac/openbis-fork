@@ -49,6 +49,8 @@
     
     <bean id="dss-factory" class="ch.systemsx.cisd.openbis.generic.server.business.DataStoreServiceFactory"/>
 
+		<bean id="dss-user-session-cleaner" class="ch.systemsx.cisd.openbis.generic.server.DataStoreUserSessionCleaner" />
+
     <bean id="authentication-service"
         class="ch.systemsx.cisd.openbis.generic.server.AuthenticationServiceHolder">
         <constructor-arg ref="${authentication-service}" />
@@ -83,6 +85,7 @@
         <constructor-arg ref="dss-factory" />
         <constructor-arg ref="relationship-service" />
         <constructor-arg ref="entity-operation-checker" />
+        <constructor-arg ref="dss-user-session-cleaner" />
     </bean>
 
     <bean id="last-modification-state"

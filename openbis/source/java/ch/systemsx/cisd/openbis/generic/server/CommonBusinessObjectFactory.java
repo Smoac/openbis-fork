@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GridCustomColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GridCustomFilterBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.SpaceBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
@@ -47,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTy
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ISpaceBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -57,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IScriptBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISpaceBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
@@ -69,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.RoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ScriptBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.SpaceBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.TrashBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyTermBO;
@@ -94,10 +94,20 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         ICommonBusinessObjectFactory
 {
 
+    private final DataStoreUserSessionCleaner dssUserSessionCleaner;
+
     public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
-            IRelationshipService relationshipService, IEntityOperationChecker entityOperationChecker)
+            IRelationshipService relationshipService,
+            IEntityOperationChecker entityOperationChecker,
+            DataStoreUserSessionCleaner dssUserSessionCleaner)
     {
         super(daoFactory, dssFactory, relationshipService, entityOperationChecker);
+        this.dssUserSessionCleaner = dssUserSessionCleaner;
+    }
+
+    protected DataStoreUserSessionCleaner getDssUserSessionCleaner()
+    {
+        return dssUserSessionCleaner;
     }
 
     @Override
@@ -165,7 +175,8 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public final IDataSetTable createDataSetTable(final Session session)
     {
-        return new DataSetTable(getDaoFactory(), getDSSFactory(), session, getRelationshipService());
+        return new DataSetTable(getDaoFactory(), getDSSFactory(), getDssUserSessionCleaner(),
+                session, getRelationshipService());
     }
 
     @Override

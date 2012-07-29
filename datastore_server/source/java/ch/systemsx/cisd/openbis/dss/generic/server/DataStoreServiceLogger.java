@@ -193,4 +193,10 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
         log("putDataSet", "DROPBOX_NAME(%s), CUSTOM_IMPORT_FILE(%s)", dropboxName, customImportFile);
         return null;
     }
+
+    @Override
+    public void cleanupSession(String userSessionToken)
+    {
+        log("cleanupSession", "USER_SESSION(%s)", userSessionToken);
+    }
 }

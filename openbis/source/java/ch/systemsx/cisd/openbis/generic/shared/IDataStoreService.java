@@ -39,7 +39,7 @@ public interface IDataStoreService
     /**
      * Every time this interface and related DTO's are changed, we should increment this number.
      */
-    public static final int VERSION = 7; // for release 131
+    public static final int VERSION = 8; // for release 137
 
     /**
      * Returns the version of this service.
@@ -83,7 +83,12 @@ public interface IDataStoreService
     public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalData> dataSets,
             DataSetUploadContext context) throws InvalidAuthenticationException;
 
-    /** Runs the reporting task with the specified id for provided datasets */
+    /**
+     * Runs the reporting task with the specified id for provided datasets.
+     * <p>
+     * <i> Ensure that you call {@link #cleanupSession(String)} on closing of the user sesssion
+     * <var>userSessionToken</var> so that DSS gets the chance to cleanup session files. </i>
+     */
     public TableModel createReportFromDatasets(String sessionToken, String userSessionToken,
             String serviceKey, List<DatasetDescription> datasets, String userEmailOrNull);
 
@@ -138,6 +143,9 @@ public interface IDataStoreService
 
     /**
      * Gets the link from a service that supports the IReportingPluginTask#createLink method.
+     * <p>
+     * <i> Ensure that you call {@link #cleanupSession(String)} on closing of the user sesssion
+     * <var>userSessionToken</var> so that DSS gets the chance to cleanup session files. </i>
      * 
      * @param sessionToken The sessionToken.
      * @param userSessionToken The session token of the user that initiated the processing.
@@ -152,4 +160,12 @@ public interface IDataStoreService
 
     public String putDataSet(String sessionToken, String dropboxName,
             CustomImportFile customImportFile);
+
+    /**
+     * Cleans up the user session with given <var>userSessionToken</var>.
+     * 
+     * @since 8
+     */
+    public void cleanupSession(String userSessionToken);
+
 }

@@ -43,6 +43,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.DataStoreUserSessionCleaner;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionDisallowedTypesException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionUnknownLocationsException;
@@ -197,11 +198,15 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
 
     private List<DataPE> dataSets;
 
-    public DataSetTable(final IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
-            final Session session, IRelationshipService relationshipService)
+    private final DataStoreUserSessionCleaner dssUserSessionCleaner;
+
+    public DataSetTable(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
+            DataStoreUserSessionCleaner dssUserSessionCleaner,
+            Session session, IRelationshipService relationshipService)
     {
         super(daoFactory, session, relationshipService);
         this.dssFactory = dssFactory;
+        this.dssUserSessionCleaner = dssUserSessionCleaner;
     }
 
     //
@@ -596,6 +601,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         List<DatasetDescription> locations = loadAvailableDatasetDescriptions(datasetCodes);
         String sessionToken = dataStore.getSessionToken();
         String userSessionToken = session.getSessionToken();
+        dssUserSessionCleaner.add(session, service);
         return service.createReportFromDatasets(sessionToken, userSessionToken,
                 datastoreServiceKey, locations, tryGetLoggedUserEmail());
     }
@@ -1050,6 +1056,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
         String sessionToken = dataStore.getSessionToken();
         String userSessionToken = session.getSessionToken();
+        dssUserSessionCleaner.add(session, service);
         return service.createReportFromAggregationService(sessionToken, userSessionToken,
                 datastoreServiceKey, parameters, tryGetLoggedUserEmail());
     }
