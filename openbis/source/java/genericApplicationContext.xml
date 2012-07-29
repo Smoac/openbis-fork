@@ -49,7 +49,7 @@
     
     <bean id="dss-factory" class="ch.systemsx.cisd.openbis.generic.server.business.DataStoreServiceFactory"/>
 
-		<bean id="dss-user-session-cleaner" class="ch.systemsx.cisd.openbis.generic.server.DataStoreUserSessionCleaner" />
+		<bean id="dss-user-session-cleaner" class="ch.systemsx.cisd.openbis.generic.server.util.DataStoreUserSessionCleaner" />
 
     <bean id="authentication-service"
         class="ch.systemsx.cisd.openbis.generic.server.AuthenticationServiceHolder">
