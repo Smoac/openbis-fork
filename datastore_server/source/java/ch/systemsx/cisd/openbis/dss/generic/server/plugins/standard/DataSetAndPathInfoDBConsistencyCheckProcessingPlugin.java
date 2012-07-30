@@ -176,8 +176,8 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
         // report a difference if node paths do not match
         if (fileNode.getRelativePath().equals(pathInfoNode.getRelativePath()) == false)
         {
-            differences.add(new NodeExistenceDifference(fileNode.getRelativePath(), true));
-            differences.add(new NodeExistenceDifference(pathInfoNode.getRelativePath(), false));
+            differences.add(new NodeChildrenDifference(fileNode.getRelativePath(), true));
+            differences.add(new NodeChildrenDifference(pathInfoNode.getRelativePath(), false));
         }
 
         if (fileNode.isDirectory() && pathInfoNode.isDirectory())
@@ -194,11 +194,11 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
             // report differences for nodes that exist only in one place
             for (IHierarchicalContentNode uncommonNode : children.getFileUncommonNodes())
             {
-                differences.add(new NodeExistenceDifference(uncommonNode.getRelativePath(), true));
+                differences.add(new NodeChildrenDifference(uncommonNode.getRelativePath(), true));
             }
             for (IHierarchicalContentNode uncommonNode : children.getPathInfoUncommonNodes())
             {
-                differences.add(new NodeExistenceDifference(uncommonNode.getRelativePath(), false));
+                differences.add(new NodeChildrenDifference(uncommonNode.getRelativePath(), false));
             }
 
         } else if (fileNode.isDirectory() == false && pathInfoNode.isDirectory() == false)
@@ -366,10 +366,10 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
         {
             if (existsInFS)
             {
-                return "exists in the file system but doesn't exist in the path info database";
+                return "exists in the file system but does not exist in the path info database";
             } else
             {
-                return "exists in the path info database but doesn't exist in the file system";
+                return "exists in the path info database but does not exist in the file system";
             }
         }
 
@@ -391,12 +391,42 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
         {
             if (existsInFS)
             {
-                return "'" + getPath()
-                        + "' exists on the file system but doesn't exist in the path info database";
+                return "'"
+                        + getPath()
+                        + "' exists on the file system but does not exist in the path info database";
             } else
             {
+                return "'"
+                        + getPath()
+                        + "' exists in the path info database but does not exist on the file system";
+            }
+        }
+
+    }
+
+    private class NodeChildrenDifference extends Difference
+    {
+
+        private boolean existsInFS;
+
+        public NodeChildrenDifference(String path, boolean existsInFS)
+        {
+            super(path);
+            this.existsInFS = existsInFS;
+        }
+
+        @Override
+        public String getDescription()
+        {
+            if (existsInFS)
+            {
                 return "'" + getPath()
-                        + "' exists in the path info database but doesn't exist on the file system";
+                        + "' is on the file system but is not referenced in the path info database";
+            } else
+            {
+                return "'"
+                        + getPath()
+                        + "' is referenced in the path info database but does not exist on the file system";
             }
         }
 

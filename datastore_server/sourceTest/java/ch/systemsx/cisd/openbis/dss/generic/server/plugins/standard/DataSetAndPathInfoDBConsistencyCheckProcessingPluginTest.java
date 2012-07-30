@@ -90,7 +90,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
         // add more when necessary
         public enum FailurePoint
         {
-            ROOT_NODE_EXISTS, FILE_LENGTH;
+            ROOT_NODE_EXISTS, ROOT_NODE_PATH, FILE_LENGTH;
         }
     }
 
@@ -176,6 +176,10 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
         testCase.failurePoints.add(TestCaseParameters.FailurePoint.ROOT_NODE_EXISTS);
         testCases.add(testCase);
 
+        testCase = new TestCaseParameters("Root node path");
+        testCase.failurePoints.add(TestCaseParameters.FailurePoint.ROOT_NODE_PATH);
+        testCases.add(testCase);
+
         testCase = new TestCaseParameters("File length discrepency");
         testCase.failurePoints.add(TestCaseParameters.FailurePoint.FILE_LENGTH);
         testCases.add(testCase);
@@ -243,8 +247,17 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                                         + "Differences found:\n\n"
                                         + "Data set ds-1:\n"
                                         + "- 'targets/unit-test-wd/ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest' "
-                                        + "exists in the path info database but doesn't exist on the file system\n\n";
+                                        + "exists in the path info database but does not exist on the file system\n\n";
 
+                    } else if (parameters.failurePoints
+                            .contains(TestCaseParameters.FailurePoint.ROOT_NODE_PATH))
+                    {
+                        body =
+                                "Data sets checked:\n\nds-1\n\n"
+                                        + "Differences found:\n\n"
+                                        + "Data set ds-1:\n"
+                                        + "- 'different' is referenced in the path info database but does not exist on the file system\n"
+                                        + "- 'targets/unit-test-wd/ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest' is on the file system but is not referenced in the path info database\n\n";
                     } else
                     {
                         body = "Data sets checked:\n\nds-1\n\nDifferences found:\n\nNone";
@@ -335,14 +348,28 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
 
                 protected void getRelativePath()
                 {
-                    if (false == parameters.failurePoints
+                    if (parameters.failurePoints
                             .contains(TestCaseParameters.FailurePoint.ROOT_NODE_EXISTS))
                     {
-                        oneOf(fileRootNode).getRelativePath();
+                        oneOf(pathInfoRootNode).getRelativePath();
                         will(returnValue(workingDirectory.getPath()));
+                        return;
                     }
+                    if (parameters.failurePoints
+                            .contains(TestCaseParameters.FailurePoint.ROOT_NODE_PATH))
+                    {
+                        exactly(2).of(fileRootNode).getRelativePath();
+                        will(returnValue(workingDirectory.getPath()));
+                        exactly(2).of(pathInfoRootNode).getRelativePath();
+                        will(returnValue("different"));
+                        return;
+                    }
+
+                    oneOf(fileRootNode).getRelativePath();
+                    will(returnValue(workingDirectory.getPath()));
                     oneOf(pathInfoRootNode).getRelativePath();
                     will(returnValue(workingDirectory.getPath()));
+
                 }
 
                 protected void rootNodeExists()
@@ -354,13 +381,12 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                         will(returnValue(false));
                         oneOf(pathInfoRootNode).exists();
                         will(returnValue(true));
-                    } else
-                    {
-                        oneOf(fileRootNode).exists();
-                        will(returnValue(true));
-                        oneOf(pathInfoRootNode).exists();
-                        will(returnValue(true));
+                        return;
                     }
+                    oneOf(fileRootNode).exists();
+                    will(returnValue(true));
+                    oneOf(pathInfoRootNode).exists();
+                    will(returnValue(true));
                 }
 
                 protected void getRootNode()
