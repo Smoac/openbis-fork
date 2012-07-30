@@ -127,8 +127,8 @@ public class SetSessionUserTest extends SystemTestCase
         commonServer.logout(sessionToken);
 
         logContent = logRecorder.getLogContent().split("\n");
-        assertEquals(5, logContent.length);
-        logLine = logContent[4];
+        assertEquals(6, logContent.length);
+        logLine = logContent[5];
         assertEquals("LOGOUT: Session '" + sessionToken + "' of user 'observer' has been closed.",
                 logLine);
     }
