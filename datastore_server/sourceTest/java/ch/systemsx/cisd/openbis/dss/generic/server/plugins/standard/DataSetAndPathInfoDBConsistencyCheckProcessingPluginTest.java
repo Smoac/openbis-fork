@@ -17,12 +17,16 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Properties;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
@@ -44,6 +48,65 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
     private static final String SHARE_ID = "42";
 
     private static final String USER_EMAIL = "a@bc.de";
+
+    /**
+     * An object for specifying which code paths should be tested.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    private static class TestCaseParameters implements Cloneable
+    {
+        /**
+         * short description of the test. Will be presented in the test results view
+         */
+        protected String title;
+
+        protected EnumSet<FailurePoint> failurePoints = EnumSet
+                .noneOf(TestCaseParameters.FailurePoint.class);
+
+        private TestCaseParameters(String title)
+        {
+            this.title = title;
+        }
+
+        @Override
+        public TestCaseParameters clone()
+        {
+            try
+            {
+                return (TestCaseParameters) super.clone();
+            } catch (CloneNotSupportedException e)
+            {
+                return null;
+            }
+        }
+
+        @Override
+        public String toString()
+        {
+            return title;
+        }
+
+        // add more when necessary
+        public enum FailurePoint
+        {
+            FILE_LENGTH;
+        }
+    }
+
+    private static <T> Object[][] asObjectArray(List<T> testCases)
+    {
+        Object[][] resultsList = new Object[testCases.size()][];
+
+        int index = 0;
+        for (T t : testCases)
+        {
+            resultsList[index++] = new Object[]
+                { t };
+        }
+
+        return resultsList;
+    }
 
     private DataSetAndPathInfoDBConsistencyCheckProcessingPlugin plugin;
 
@@ -94,8 +157,30 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                         workingDirectory, SHARE_ID), null, mailClient, USER_EMAIL);
     }
 
-    @Test
-    public void testNoDifferences()
+    @DataProvider(name = "oneLevelFileHierarchyTestCaseProvider")
+    public Object[][] oneLevelFileTestCases()
+    {
+        List<TestCaseParameters> testCases = oneLevelFileTestCasesList();
+        return asObjectArray(testCases);
+    }
+
+    private List<TestCaseParameters> oneLevelFileTestCasesList()
+    {
+        ArrayList<TestCaseParameters> testCases = new ArrayList<TestCaseParameters>();
+        TestCaseParameters testCase;
+
+        testCase = new TestCaseParameters("No discrepencies");
+        testCases.add(testCase);
+
+        testCase = new TestCaseParameters("File length discrepency");
+        testCase.failurePoints.add(TestCaseParameters.FailurePoint.FILE_LENGTH);
+        testCases.add(testCase);
+
+        return testCases;
+    }
+
+    @Test(dataProvider = "oneLevelFileHierarchyTestCaseProvider")
+    public void testOneLevelFileHierarchy(final TestCaseParameters parameters)
     {
         final String ds1Code = "ds-1";
         final DatasetDescription ds1 =
@@ -122,10 +207,24 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
 
                 protected void sendEmail()
                 {
-                    oneOf(mailClient).sendEmailMessage(
-                            "File system and path info DB consistency check report",
-                            "Data sets checked:\n\nds-1\n\nDifferences found:\n\nNone", null, null,
+                    String subject = "File system and path info DB consistency check report";
+                    String body = null;
+                    if (parameters.failurePoints
+                            .contains(TestCaseParameters.FailurePoint.FILE_LENGTH))
+                    {
+                        body =
+                                "Data sets checked:\n\nds-1\n\n"
+                                        + "Differences found:\n\n"
+                                        + "Data set ds-1:\n"
+                                        + "- 'data.txt' size in the file system = 1024 but in the path info database = 2100\n\n";
+                    } else
+                    {
+                        body = "Data sets checked:\n\nds-1\n\nDifferences found:\n\nNone";
+
+                    }
+                    oneOf(mailClient).sendEmailMessage(subject, body, null, null,
                             new EMailAddress("a@bc.de"));
+
                 }
 
                 protected void closeContent()
@@ -142,10 +241,20 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
 
                 protected void getChildFileLength()
                 {
-                    oneOf(fileChildNode).getFileLength();
-                    will(returnValue(1024L));
-                    oneOf(pathInfoChildNode).getFileLength();
-                    will(returnValue(1024L));
+                    if (parameters.failurePoints
+                            .contains(TestCaseParameters.FailurePoint.FILE_LENGTH))
+                    {
+                        exactly(2).of(fileChildNode).getFileLength();
+                        will(returnValue(1024L));
+                        exactly(2).of(pathInfoChildNode).getFileLength();
+                        will(returnValue(2100L));
+                    } else
+                    {
+                        oneOf(fileChildNode).getFileLength();
+                        will(returnValue(1024L));
+                        oneOf(pathInfoChildNode).getFileLength();
+                        will(returnValue(1024L));
+                    }
                 }
 
                 protected void childIsDirectory()
@@ -166,8 +275,16 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
 
                 protected void getChildRelativePath()
                 {
-                    exactly(3).of(fileChildNode).getRelativePath();
-                    will(returnValue("data.txt"));
+                    if (parameters.failurePoints
+                            .contains(TestCaseParameters.FailurePoint.FILE_LENGTH))
+                    {
+                        exactly(4).of(fileChildNode).getRelativePath();
+                        will(returnValue("data.txt"));
+                    } else
+                    {
+                        exactly(3).of(fileChildNode).getRelativePath();
+                        will(returnValue("data.txt"));
+                    }
                     exactly(3).of(pathInfoChildNode).getRelativePath();
                     will(returnValue("data.txt"));
                 }
