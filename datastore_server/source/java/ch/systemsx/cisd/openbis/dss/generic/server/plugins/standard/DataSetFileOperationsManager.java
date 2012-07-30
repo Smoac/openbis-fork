@@ -94,6 +94,8 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
 
     private final long timeoutInMillis;
 
+    private final boolean isHosted;
+
     public DataSetFileOperationsManager(Properties properties,
             IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory)
@@ -101,6 +103,8 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
         String hostFile = PropertyUtils.getMandatoryProperty(properties, DESTINATION_KEY);
         HostAwareFile hostAwareFile = HostAwareFileWithHighwaterMark.create(hostFile, -1);
         String hostOrNull = hostAwareFile.tryGetHost();
+
+        this.isHosted = hostOrNull == null;
 
         this.destination = hostAwareFile.getFile();
         long timeoutInSeconds =
@@ -340,5 +344,17 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
             throw new ExceptionWithStatus(Status.createError(CHECK_EXISTENCE_FAILED));
         }
         return destinationExists;
+    }
+
+    @Override
+    public boolean isHosted()
+    {
+        return isHosted;
+    }
+
+    @Override
+    public File getDestinationFile(DatasetDescription dataset)
+    {
+        return new File(destination, dataset.getDataSetLocation());
     }
 }

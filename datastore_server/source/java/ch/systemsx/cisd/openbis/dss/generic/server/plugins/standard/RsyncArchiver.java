@@ -50,9 +50,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  */
 public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 {
-    @Private static final String ONLY_MARK_AS_DELETED_KEY = "only-mark-as-deleted";
-    
-    @Private static final String STAGING_FOLDER = "archive-staging";
+    @Private
+    static final String ONLY_MARK_AS_DELETED_KEY = "only-mark-as-deleted";
+
+    @Private
+    static final String STAGING_FOLDER = "archive-staging";
 
     private static final long serialVersionUID = 1L;
 
@@ -145,13 +147,30 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                 temp.mkdirs();
                 try
                 {
-                    fileOperationsManager.retrieveFromDestination(temp, dataset);
-                    IHierarchicalContent retrievedContent =
-                            new DefaultFileBasedHierarchicalContentFactory().asHierarchicalContent(
-                                    temp, null);
+                    IHierarchicalContent archivedContent;
+                    // We want to perform the check if the archived content is correct
+                    // (filesizes/checksums)
+                    // For this we want to have the archived content locally. If it is not available
+                    // locally - we have to retrieve it from the archive first.
+                    if (fileOperationsManager.isHosted())
+                    {
+                        fileOperationsManager.retrieveFromDestination(temp, dataset);
+                        archivedContent =
+                                new DefaultFileBasedHierarchicalContentFactory()
+                                        .asHierarchicalContent(temp, null);
+                    } else
+                    {
+                        archivedContent =
+                                new DefaultFileBasedHierarchicalContentFactory()
+                                        .asHierarchicalContent(
+                                                fileOperationsManager.getDestinationFile(dataset),
+                                                null);
+                    }
+
                     IHierarchicalContentNode root = content.getRootNode();
-                    IHierarchicalContentNode retrievedRoot = retrievedContent.getRootNode();
-                    status = checkHierarchySizeAndChecksums(root, retrievedRoot);
+                    IHierarchicalContentNode archivedRoot = archivedContent.getRootNode();
+
+                    status = checkHierarchySizeAndChecksums(root, archivedRoot);
                 } finally
                 {
                     FileUtils.deleteQuietly(temp);
@@ -163,7 +182,8 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         return statuses;
     }
 
-    @Private static Status checkHierarchySizeAndChecksums(IHierarchicalContentNode node,
+    @Private
+    static Status checkHierarchySizeAndChecksums(IHierarchicalContentNode node,
             IHierarchicalContentNode retrievedNode)
     {
         String relativePath = node.getRelativePath();
@@ -213,6 +233,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                 return Status.createError("The file '" + relativePath + "' has in the store "
                         + fileLength + " bytes but " + fileLengthOfRetrieved + " in the archive.");
             }
+            // TODO: check the configuration if should allow checksum checking for archiver
             long checksum = node.getChecksumCRC32();
             long checksumOfRetrieved = retrievedNode.getChecksumCRC32();
             if (checksum != checksumOfRetrieved)
@@ -259,7 +280,8 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    protected DatasetProcessingStatuses doDeleteFromArchive(List<? extends IDatasetLocation> datasets)
+    protected DatasetProcessingStatuses doDeleteFromArchive(
+            List<? extends IDatasetLocation> datasets)
     {
         return delete(datasets, deleteAction);
     }
@@ -282,7 +304,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         }
         return statuses;
     }
-    
+
     @Override
     protected BooleanStatus isDataSetSynchronizedWithArchive(DatasetDescription dataset,
             ArchiverTaskContext context)
