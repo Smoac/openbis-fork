@@ -56,6 +56,9 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
     @Private
     static final String STAGING_FOLDER = "archive-staging";
 
+    @Private
+    static final String VERIFY_CHECKSUMS_KEY = "verify-checksums";
+
     private static final long serialVersionUID = 1L;
 
     private static final Comparator<IHierarchicalContentNode> NODE_COMPARATOR =
@@ -106,6 +109,8 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 
     private final DeleteAction deleteAction;
 
+    private final boolean verifyChecksums;
+
     public RsyncArchiver(Properties properties, File storeRoot)
     {
         this(properties, storeRoot, new DataSetFileOperationsManager(properties,
@@ -125,6 +130,9 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         {
             deleteAction = DeleteAction.DELETE;
         }
+
+        verifyChecksums = PropertyUtils.getBoolean(properties, VERIFY_CHECKSUMS_KEY, true);
+
     }
 
     @Override
@@ -170,7 +178,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                     IHierarchicalContentNode root = content.getRootNode();
                     IHierarchicalContentNode archivedRoot = archivedContent.getRootNode();
 
-                    status = checkHierarchySizeAndChecksums(root, archivedRoot);
+                    status = checkHierarchySizeAndChecksums(root, archivedRoot, verifyChecksums);
                 } finally
                 {
                     FileUtils.deleteQuietly(temp);
@@ -184,7 +192,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 
     @Private
     static Status checkHierarchySizeAndChecksums(IHierarchicalContentNode node,
-            IHierarchicalContentNode retrievedNode)
+            IHierarchicalContentNode retrievedNode, boolean verifyChecksums)
     {
         String relativePath = node.getRelativePath();
         String relativePathOfRetrieved = retrievedNode.getRelativePath();
@@ -218,7 +226,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
             {
                 Status status =
                         checkHierarchySizeAndChecksums(childNodes.get(i),
-                                childNodesOfRetrieved.get(i));
+                                childNodesOfRetrieved.get(i), verifyChecksums);
                 if (status.isError())
                 {
                     return status;
@@ -233,14 +241,16 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                 return Status.createError("The file '" + relativePath + "' has in the store "
                         + fileLength + " bytes but " + fileLengthOfRetrieved + " in the archive.");
             }
-            // TODO: check the configuration if should allow checksum checking for archiver
-            long checksum = node.getChecksumCRC32();
-            long checksumOfRetrieved = retrievedNode.getChecksumCRC32();
-            if (checksum != checksumOfRetrieved)
+            if (verifyChecksums)
             {
-                return Status.createError("The file '" + relativePath
-                        + "' has in the store the checksum " + renderChecksum(checksum) + " but "
-                        + renderChecksum(checksumOfRetrieved) + " in the archive.");
+                long checksum = node.getChecksumCRC32();
+                long checksumOfRetrieved = retrievedNode.getChecksumCRC32();
+                if (checksum != checksumOfRetrieved)
+                {
+                    return Status.createError("The file '" + relativePath
+                            + "' has in the store the checksum " + renderChecksum(checksum)
+                            + " but " + renderChecksum(checksumOfRetrieved) + " in the archive.");
+                }
             }
         }
         return Status.OK;
