@@ -162,7 +162,7 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
             });
         eagerShufflingTask =
                 new EagerShufflingTask(properties, new HashSet<String>(Arrays.asList("1", "2")),
-                        service, shareIdManager, spaceProvider, dataSetMover, configProvider,
+                        service, shareIdManager, spaceProvider, dataSetMover, configProvider, null,
                         logger, notifyer);
         balancer = new SimpleShuffling(properties, eagerShufflingTask);
     }
@@ -238,7 +238,7 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
 
                     one(dataSetMover).moveDataSetToAnotherShare(
                             new File(share1.getShare(), STORE_PATH + "ds3"), share3.getShare(),
-                            logger);
+                            null, logger);
                     one(logger).log(LogLevel.INFO,
                             "Data set ds3 successfully moved from share 1 to 3.");
 
@@ -248,7 +248,7 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
 
                     one(dataSetMover).moveDataSetToAnotherShare(
                             new File(share1.getShare(), STORE_PATH + "ds2"), share4.getShare(),
-                            logger);
+                            null, logger);
                     one(logger).log(LogLevel.INFO,
                             "Data set ds2 successfully moved from share 1 to 4.");
 

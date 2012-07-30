@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -32,12 +33,14 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.MockLogger;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IChecksumProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -54,11 +57,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
 {
     private static final String MOVED = "Moved";
+
     private static final String LOCK = "lock";
+
     private static final String START_DELETION = "Start deletion";
 
     private static final String DATA_STORE_CODE = "ds-code";
-    
+
     private Mockery context;
 
     private IEncapsulatedOpenBISService service;
@@ -75,6 +80,8 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
 
     private IDataSetDirectoryProvider dataSetDirectoryProvider;
 
+    private IChecksumProvider checksumProvider;
+
     private File store;
 
     @BeforeMethod
@@ -87,6 +94,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         timeProvider = context.mock(ITimeProvider.class);
         datasetLocation = context.mock(IDatasetLocation.class);
         dataSetDirectoryProvider = context.mock(IDataSetDirectoryProvider.class);
+        checksumProvider = context.mock(IChecksumProvider.class);
 
         context.checking(new Expectations()
             {
@@ -195,23 +203,26 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testMoveDataSetToAnothetShareAndDelete()
+    public void testMoveDataSetToAnothetShareAndDelete() throws IOException
     {
         File share1 = new File(workingDirectory, "store/1");
         File share1uuid01 = new File(share1, "uuid/01");
         File ds2 = new File(share1uuid01, "0b/0c/ds-2/original");
         ds2.mkdirs();
-        FileUtilities.writeToFile(new File(ds2, "read.me"), "do nothing");
+        final File readmeFile = new File(ds2, "read.me");
+        FileUtilities.writeToFile(readmeFile, "do nothing");
         final File dataSetDirInStore = new File(share1uuid01, "02/03/ds-1");
         File original = new File(dataSetDirInStore, "original");
         original.mkdirs();
-        FileUtilities.writeToFile(new File(original, "hello.txt"), "hello world");
+        final File helloFile = new File(original, "hello.txt");
+        FileUtilities.writeToFile(helloFile, "hello world");
         final File share2 = new File(workingDirectory, "store/2");
         share2.mkdirs();
         File share2uuid01 = new File(share2, "uuid/01");
         File file = new File(share2uuid01, "22/33/orig");
         file.mkdirs();
-        FileUtilities.writeToFile(new File(file, "hi.txt"), "hi");
+        final File hiFile = new File(file, "hi.txt");
+        FileUtilities.writeToFile(hiFile, "hi");
         context.checking(new Expectations()
             {
                 {
@@ -230,6 +241,9 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                     one(dataSetDirectoryProvider).getDataSetDirectory(datasetLocation);
                     will(returnValue(new File(
                             "targets/unit-test-wd/ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtilsTest/store/2/uuid/01/02/03/ds-1")));
+
+                    one(checksumProvider).getChecksum("ds-1", "original/hello.txt");
+                    will(returnValue(FileUtils.checksumCRC32(helloFile)));
                 }
             });
         assertEquals(true, dataSetDirInStore.exists());
@@ -252,7 +266,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                                         moveChannel.send(LOCK);
                                         deletionChannel.assertNextMessage(START_DELETION);
                                     }
-                                }, log);
+                                }, checksumProvider, log);
                     moveChannel.send(MOVED);
                 }
             }).start();
@@ -332,7 +346,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         assertFileNames(share2uuid01, "22");
 
         SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2, service,
-                shareIdManager, log);
+                shareIdManager, null, log);
 
         log.assertNextLogMessage("Start moving directory 'targets/unit-test-wd/ch.systemsx.cisd."
                 + "openbis.dss.generic.shared.utils.SegmentedStoreUtilsTest/store/1/uuid/01/02/03/ds-1' "
@@ -352,6 +366,38 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         assertEquals("hello world\n",
                 FileUtilities.loadToString(new File(share2uuid01, "02/03/ds-1/original/hello.txt")));
         log.assertNoMoreLogMessages();
+    }
+
+    @Test(groups = "slow", expectedExceptions = EnvironmentFailureException.class)
+    public void testMoveDataSetToAnotherShareWithDifferentChecksums() throws IOException
+    {
+        File share1 = new File(workingDirectory, "store/1");
+        File share1uuid01 = new File(share1, "uuid/01");
+        File dataSetDirInStore = new File(share1uuid01, "02/03/ds-1");
+        File original = new File(dataSetDirInStore, "original");
+        original.mkdirs();
+        final File helloFile = new File(original, "hello.txt");
+        FileUtilities.writeToFile(helloFile, "hello world");
+        File share2 = new File(workingDirectory, "store/2");
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryGetDataSet("ds-1");
+                    will(returnValue(new DataSet()));
+
+                    one(shareIdManager).lock("ds-1");
+                    one(shareIdManager).releaseLock("ds-1");
+
+                    one(checksumProvider).getChecksum("ds-1", "original/hello.txt");
+                    will(returnValue(1L));
+                }
+            });
+
+        SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2, service,
+                shareIdManager, checksumProvider, log);
+
+        fail();
     }
 
     @Test
@@ -461,4 +507,5 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         dataSet.setDataSetSize(size);
         return dataSet;
     }
+
 }

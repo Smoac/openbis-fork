@@ -40,6 +40,8 @@ import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.plugins.DataSetMover;
 import ch.systemsx.cisd.etlserver.plugins.IDataSetMover;
+import ch.systemsx.cisd.openbis.dss.generic.shared.HierarchicalContentChecksumProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IChecksumProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareFinder;
@@ -52,21 +54,30 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
  * Post registration task which move the data set to share which has enough space.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class EagerShufflingTask extends AbstractPostRegistrationTask
 {
-    @Private public static final String SHARE_FINDER_KEY = "share-finder";
-    @Private public static final String FREE_SPACE_LIMIT_KEY = "free-space-limit-in-MB-triggering-notification";
-    @Private public static final String STOP_ON_NO_SHARE_FOUND_KEY = "stop-on-no-share-found";
+    @Private
+    public static final String SHARE_FINDER_KEY = "share-finder";
+
+    @Private
+    public static final String FREE_SPACE_LIMIT_KEY =
+            "free-space-limit-in-MB-triggering-notification";
+
+    @Private
+    public static final String STOP_ON_NO_SHARE_FOUND_KEY = "stop-on-no-share-found";
+
+    @Private
+    public static final String VERIFY_CHECKSUM_KEY = "verify-checksum";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             EagerShufflingTask.class);
 
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             EagerShufflingTask.class);
-    
+
     private static SimpleDataSetInformationDTO findDataSet(List<Share> shares, String dataSetCode)
     {
         for (Share share : shares)
@@ -89,10 +100,12 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
 
     private final IDataSetMover dataSetMover;
 
+    private final IChecksumProvider checksumProvider;
+
     private final ISimpleLogger logger;
 
     private final ISimpleLogger notifyer;
-    
+
     private final File storeRoot;
 
     private final String dataStoreCode;
@@ -100,29 +113,36 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
     private final Set<String> incomingShares;
 
     private IShareFinder finder;
-    
+
     private long freeSpaceLimitTriggeringNotification;
-    
+
     private boolean stopOnNoShareFound;
-    
+
+    private boolean verifyChecksum;
+
     public EagerShufflingTask(Properties properties, IEncapsulatedOpenBISService service)
     {
         this(properties, IncomingShareIdProvider.getIdsOfIncomingShares(), service, ServiceProvider
                 .getShareIdManager(), new SimpleFreeSpaceProvider(), new DataSetMover(service,
                 ServiceProvider.getShareIdManager()), ServiceProvider.getConfigProvider(),
-                new Log4jSimpleLogger(operationLog), new Log4jSimpleLogger(notificationLog));
+                new HierarchicalContentChecksumProvider(
+                        ServiceProvider.getHierarchicalContentProvider()), new Log4jSimpleLogger(
+                        operationLog), new Log4jSimpleLogger(notificationLog));
     }
 
-    @Private public EagerShufflingTask(Properties properties, Set<String> incomingShares,
+    @Private
+    public EagerShufflingTask(Properties properties, Set<String> incomingShares,
             IEncapsulatedOpenBISService service, IShareIdManager shareIdManager,
             IFreeSpaceProvider freeSpaceProvider, IDataSetMover dataSetMover,
-            IConfigProvider configProvider, ISimpleLogger logger, ISimpleLogger notifyer)
+            IConfigProvider configProvider, IChecksumProvider checksumProvider,
+            ISimpleLogger logger, ISimpleLogger notifyer)
     {
         super(properties, service);
         this.incomingShares = incomingShares;
         this.shareIdManager = shareIdManager;
         this.freeSpaceProvider = freeSpaceProvider;
         this.dataSetMover = dataSetMover;
+        this.checksumProvider = checksumProvider;
         this.logger = logger;
         this.notifyer = notifyer;
 
@@ -140,13 +160,26 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
         finder = ClassUtils.create(IShareFinder.class, props.getProperty("class"), props);
         freeSpaceLimitTriggeringNotification =
                 FileUtils.ONE_MB * PropertyUtils.getInt(properties, FREE_SPACE_LIMIT_KEY, 0);
-        stopOnNoShareFound = PropertyUtils.getBoolean(properties, STOP_ON_NO_SHARE_FOUND_KEY, false);
+        stopOnNoShareFound =
+                PropertyUtils.getBoolean(properties, STOP_ON_NO_SHARE_FOUND_KEY, false);
+        verifyChecksum = PropertyUtils.getBoolean(properties, VERIFY_CHECKSUM_KEY, true);
     }
 
     @Override
     public boolean requiresDataStoreLock()
     {
         return true;
+    }
+
+    private IChecksumProvider getChecksumProvider()
+    {
+        if (verifyChecksum)
+        {
+            return checksumProvider;
+        } else
+        {
+            return null;
+        }
     }
 
     @Override
@@ -158,14 +191,15 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
         }
         return new Executor(dataSetCode);
     }
-    
+
     private final class Executor implements IPostRegistrationTaskExecutor
     {
         private final String dataSetCode;
 
         private SimpleDataSetInformationDTO dataSet;
+
         private Share shareWithMostFreeOrNull;
-        
+
         Executor(String dataSetCode)
         {
             this.dataSetCode = dataSetCode;
@@ -175,8 +209,8 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
         public ICleanupTask createCleanupTask()
         {
             List<Share> shares =
-                SegmentedStoreUtils.getDataSetsPerShare(storeRoot, dataStoreCode, incomingShares, 
-                        freeSpaceProvider, service, logger);
+                    SegmentedStoreUtils.getDataSetsPerShare(storeRoot, dataStoreCode,
+                            incomingShares, freeSpaceProvider, service, logger);
             dataSet = findDataSet(shares, dataSetCode);
             shareWithMostFreeOrNull = finder.tryToFindShare(dataSet, shares);
             if (shareWithMostFreeOrNull == null)
@@ -192,7 +226,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
             }
             return new CleanupTask(dataSet, storeRoot, shareWithMostFreeOrNull.getShareId());
         }
-        
+
         @Override
         public void execute()
         {
@@ -202,7 +236,8 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
                 File share = new File(storeRoot, shareIdManager.getShareId(dataSetCode));
                 dataSetMover.moveDataSetToAnotherShare(
                         new File(share, dataSet.getDataSetLocation()),
-                        shareWithMostFreeOrNull.getShare(), logger);
+                        shareWithMostFreeOrNull.getShare(), getChecksumProvider(), logger);
+
                 String shareId = shareWithMostFreeOrNull.getShareId();
                 logger.log(LogLevel.INFO, "Data set " + dataSetCode
                         + " successfully moved from share " + dataSet.getDataSetShareId() + " to "
@@ -221,16 +256,17 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
             }
         }
     }
-    
-    
+
     private static final class CleanupTask implements ICleanupTask
     {
         private static final long serialVersionUID = 1L;
 
         private final SimpleDataSetInformationDTO dataSet;
+
         private final File storeRoot;
+
         private final String newShareId;
-        
+
         CleanupTask(SimpleDataSetInformationDTO dataSet, File storeRoot, String newShareId)
         {
             this.dataSet = dataSet;

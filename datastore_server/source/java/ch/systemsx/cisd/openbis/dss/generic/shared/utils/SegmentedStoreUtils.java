@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IChecksumProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -270,10 +271,11 @@ public class SegmentedStoreUtils
      * </ol>
      * 
      * @param service to access openBIS AS.
+     * @param checksumProvider
      */
     public static void moveDataSetToAnotherShare(final File dataSetDirInStore, File share,
             IEncapsulatedOpenBISService service, final IShareIdManager shareIdManager,
-            final ISimpleLogger logger)
+            IChecksumProvider checksumProvider, final ISimpleLogger logger)
     {
         final String dataSetCode = dataSetDirInStore.getName();
         ExternalData dataSet = service.tryGetDataSet(dataSetCode);
@@ -295,7 +297,9 @@ public class SegmentedStoreUtils
             File dataSetDirInNewShare = new File(share, relativePath);
             dataSetDirInNewShare.mkdirs();
             copyToShare(dataSetDirInStore, dataSetDirInNewShare, logger);
-            long size = assertEqualSizeAndChildren(dataSetDirInStore, dataSetDirInNewShare);
+            long size =
+                    assertEqualSizeAndChildren(dataSetCode, dataSetDirInStore, dataSetDirInStore,
+                            dataSetDirInNewShare, dataSetDirInNewShare, checksumProvider);
             String shareId = share.getName();
             service.updateShareIdAndSize(dataSetCode, shareId, size);
             shareIdManager.setShareId(dataSetCode, shareId);
@@ -398,13 +402,15 @@ public class SegmentedStoreUtils
                 share.getPath(), (System.currentTimeMillis() - start) / 1000.0));
     }
 
-    private static long assertEqualSizeAndChildren(File source, File destination)
+    private static long assertEqualSizeAndChildren(String dataSetCode, File sourceRoot,
+            File source, File destinationRoot, File destination, IChecksumProvider checksumProvider)
     {
         assertSameName(source, destination);
         if (source.isFile())
         {
             assertFile(destination);
-            return assertSameSizeAndCheckSum(source, destination);
+            return assertSameSizeAndCheckSum(dataSetCode, sourceRoot, source, destinationRoot,
+                    destination, checksumProvider);
         } else
         {
             assertDirectory(destination);
@@ -414,7 +420,9 @@ public class SegmentedStoreUtils
             long sum = 0;
             for (int i = 0; i < sourceFiles.length; i++)
             {
-                sum += assertEqualSizeAndChildren(sourceFiles[i], destinationFiles[i]);
+                sum +=
+                        assertEqualSizeAndChildren(dataSetCode, sourceRoot, sourceFiles[i],
+                                destinationRoot, destinationFiles[i], checksumProvider);
             }
             return sum;
         }
@@ -432,7 +440,8 @@ public class SegmentedStoreUtils
         }
     }
 
-    private static long assertSameSizeAndCheckSum(File source, File destination)
+    private static long assertSameSizeAndCheckSum(String dataSetCode, File sourceRoot, File source,
+            File destinationRoot, File destination, IChecksumProvider checksumProvider)
     {
         long sourceSize = source.length();
         long destinationSize = destination.length();
@@ -443,23 +452,37 @@ public class SegmentedStoreUtils
                     + " but source file '" + source.getAbsolutePath() + "' has size " + sourceSize
                     + ".");
         }
-        long sourceChecksum = calculateCRC(source);
-        long destinationChecksum = calculateCRC(destination);
-        if (sourceChecksum != destinationChecksum)
+
+        if (checksumProvider != null)
         {
-            throw new EnvironmentFailureException("Destination file '"
-                    + destination.getAbsolutePath() + "' has checksum " + destinationChecksum
-                    + " but source file '" + source.getAbsolutePath() + "' has checksum "
-                    + sourceChecksum + ".");
+            try
+            {
+                long sourceChecksum =
+                        checksumProvider.getChecksum(dataSetCode,
+                                FileUtilities.getRelativeFilePath(sourceRoot, source));
+                long destinationChecksum = calculateCRC(destination);
+
+                if (sourceChecksum != destinationChecksum)
+                {
+                    throw new EnvironmentFailureException("Destination file '"
+                            + destination.getAbsolutePath() + "' has checksum "
+                            + destinationChecksum + " but source file '" + source.getAbsolutePath()
+                            + "' has checksum " + sourceChecksum + ".");
+                }
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
         }
+
         return sourceSize;
     }
 
-    private static long calculateCRC(File file)
+    private static int calculateCRC(File file)
     {
         try
         {
-            return FileUtils.checksumCRC32(file);
+            return (int) FileUtils.checksumCRC32(file);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
