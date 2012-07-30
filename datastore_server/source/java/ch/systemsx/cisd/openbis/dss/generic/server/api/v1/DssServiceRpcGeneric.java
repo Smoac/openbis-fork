@@ -61,11 +61,6 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         implements IDssServiceRpcGenericInternal
 {
     /**
-     * The sub-directory in the session workspace reserved for clients to drop files.
-     */
-    private static final String CLIENT_DROP_SUB_DIR = "clientDrop";
-
-    /**
      * Logger with {@link LogCategory#OPERATION} with name of the concrete class, needs to be static
      * for our purpose.
      */
@@ -212,7 +207,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         final File workspaceDir =
                 new SessionWorkspaceProvider(sessionWorkspaceRootDirectory, sessionToken)
                         .getSessionWorkspace();
-        final File dir = new File(workspaceDir, FilenameUtils.concat(CLIENT_DROP_SUB_DIR, subDir));
+        final File dir = new File(workspaceDir, subDir);
         dir.mkdirs();
         final File file = new File(dir, filename);
         OutputStream ostream = null;
@@ -242,7 +237,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         final File workspaceDir =
                 new SessionWorkspaceProvider(sessionWorkspaceRootDirectory, sessionToken)
                         .getSessionWorkspace();
-        final File file = new File(workspaceDir, FilenameUtils.concat(CLIENT_DROP_SUB_DIR, path));
+        final File file = new File(workspaceDir, path);
         FileUtilities.deleteRecursively(file);
         return file.exists() == false;
     }
