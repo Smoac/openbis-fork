@@ -243,7 +243,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                                         + "Differences found:\n\n"
                                         + "Data set ds-1:\n"
                                         + "- 'targets/unit-test-wd/ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest' "
-                                        + "exists in the path info database but doesn't exist in the file system\n\n";
+                                        + "exists in the path info database but doesn't exist on the file system\n\n";
 
                     } else
                     {

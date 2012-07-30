@@ -392,11 +392,11 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
             if (existsInFS)
             {
                 return "'" + getPath()
-                        + "' exists in the file system but doesn't exist in the path info database";
+                        + "' exists on the file system but doesn't exist in the path info database";
             } else
             {
                 return "'" + getPath()
-                        + "' exists in the path info database but doesn't exist in the file system";
+                        + "' exists in the path info database but doesn't exist on the file system";
             }
         }
 
