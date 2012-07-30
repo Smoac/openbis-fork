@@ -177,7 +177,9 @@ def getVocabulary(vocabularyCode):
   
 
 def getNonbilledSamples (sampleType):
-  '''Getting all RAW samples where no Invoice was sent '''
+  '''Getting all samples where no Invoice was sent 
+     @param param: Sample Type which we are looking for  
+  '''
 
   sc = SearchCriteria();
   sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, sampleType));
@@ -379,6 +381,8 @@ Main script
 
 # for now setting the format by hand
 format = "xlsx" 
+
+service = OpenbisServiceFacadeFactory.tryCreate("openBISUsername", "password", "https://my-openbis.bsse.ethz.ch:8443", 5000)
 
 foundSamples = getNonbilledSamples("ILLUMINA_SEQUENCING")
 groupByPiDict = groupByPi(foundSamples)
