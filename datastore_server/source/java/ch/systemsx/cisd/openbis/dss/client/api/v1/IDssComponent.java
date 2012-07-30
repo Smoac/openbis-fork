@@ -89,8 +89,7 @@ public interface IDssComponent
      * Uploads a file to the session workspace.
      * 
      * @param filePath The path (directory and name) of the file to upload.
-     * @param inputStream The data of the file to upload.
-     * 
+     * @param inputStream The content of the file to upload.
      * @throws IOExceptionUnchecked If the file transfer fails.
      */
     public void putFileToSessionWorkspace(String filePath, InputStream inputStream)
@@ -101,10 +100,28 @@ public interface IDssComponent
      * 
      * @param directory The directory in the session workspace where the file should be uploaded.
      * @param file The file to upload.
-     * 
-     * @throws IOExceptionUnchecked If the file transfer fails.
+     * @throws IOExceptionUnchecked If the file cannot be written.
      */
     public void putFileToSessionWorkspace(String directory, File file)
+            throws IOExceptionUnchecked;
+
+    /**
+     * Downloads a file from the session workspace.
+     * 
+     * @param filePath The path (directory and name) of the file to download.
+     * @return outputStream The content of the file to download.
+     * @throws IOExceptionUnchecked If the file does not exist, is a directory or cannot be opened.
+     */
+    public InputStream getFileFromSessionWorkspace(String filePath) throws IOExceptionUnchecked;
+
+    /**
+     * Downloads a file from the session workspace.
+     * 
+     * @param filePath The path (directory and name) of the file to download.
+     * @param localFile The local file to write the file from the session workspace to.
+     * @throws IOExceptionUnchecked If the file does not exist.
+     */
+    public void getFileFromSessionWorkspace(String filePath, File localFile)
             throws IOExceptionUnchecked;
 
     /**
@@ -113,7 +130,7 @@ public interface IDssComponent
      * @return <code>true</code> if the <var>path</var> doesn't exist anymore.
      */
     public boolean deleteSessionWorkspaceFile(String path);
-    
+
     /**
      * Validate a data set.
      * 

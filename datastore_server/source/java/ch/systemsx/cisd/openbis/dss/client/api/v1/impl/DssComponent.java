@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.springframework.remoting.RemoteAccessException;
@@ -58,6 +60,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptRunner;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+
+import de.schlichtherle.io.FileOutputStream;
 
 /**
  * Implementation of the IDssComponent interface. It is a facade for interacting with openBIS and
@@ -237,6 +241,19 @@ public class DssComponent implements IDssComponent
     }
 
     @Override
+    public InputStream getFileFromSessionWorkspace(String filePath) throws IOExceptionUnchecked
+    {
+        return state.getFileFromSessionWorkspace(filePath);
+    }
+
+    @Override
+    public void getFileFromSessionWorkspace(String filePath, File localFile)
+            throws IOExceptionUnchecked
+    {
+        state.getFileFromSessionWorkspace(filePath, localFile);
+    }
+
+    @Override
     public boolean deleteSessionWorkspaceFile(String path)
     {
         return state.deleteSessionWorkspaceFile(path);
@@ -303,6 +320,19 @@ abstract class AbstractDssComponentState implements IDssComponent
 
     @Override
     public void putFileToSessionWorkspace(String directory, File file) throws IOExceptionUnchecked
+    {
+        throw new IllegalStateException("Please log in");
+    }
+
+    @Override
+    public InputStream getFileFromSessionWorkspace(String filePath) throws IOExceptionUnchecked
+    {
+        throw new IllegalStateException("Please log in");
+    }
+
+    @Override
+    public void getFileFromSessionWorkspace(String filePath, File localFile)
+            throws IOExceptionUnchecked
     {
         throw new IllegalStateException("Please log in");
     }
@@ -477,25 +507,47 @@ class AuthenticatedState extends AbstractDssComponentState
     {
         final IDssServiceRpcGeneric dssService = getServiceForPutDataStore();
         final String filePath = directory + "/" + file.getName();
-        InputStream inputStream = null;
+        InputStream istream = null;
         try
         {
-            inputStream = new FileInputStream(file);
-            dssService.putFileToSessionWorkspace(sessionToken, filePath, inputStream);
+            istream = new FileInputStream(file);
+            dssService.putFileToSessionWorkspace(sessionToken, filePath, istream);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         } finally
         {
-            if (inputStream != null)
-            {
-                try
-                {
-                    inputStream.close();
-                } catch (IOException ex)
-                {
-                }
-            }
+            IOUtils.closeQuietly(istream);
+        }
+    }
+
+    @Override
+    public InputStream getFileFromSessionWorkspace(String filePath) throws IOExceptionUnchecked
+    {
+        final IDssServiceRpcGeneric dssService = getServiceForPutDataStore();
+        return dssService.getFileFromSessionWorkspace(sessionToken, filePath);
+    }
+
+    @Override
+    public void getFileFromSessionWorkspace(String filePath, File localFile)
+            throws IOExceptionUnchecked
+    {
+        final IDssServiceRpcGeneric dssService = getServiceForPutDataStore();
+        final InputStream istream = dssService.getFileFromSessionWorkspace(sessionToken, filePath);
+        OutputStream ostream = null;
+        try
+        {
+            ostream = new FileOutputStream(localFile);
+            IOUtils.copyLarge(istream, ostream);
+            ostream.close();
+        } catch (IOException ex)
+        {
+            localFile.delete();
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(istream);
+            IOUtils.closeQuietly(ostream);
         }
     }
 

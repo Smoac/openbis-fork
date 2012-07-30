@@ -315,6 +315,19 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
                 }
 
                 @Override
+                public InputStream getFileFromSessionWorkspace(String filePath)
+                        throws IOExceptionUnchecked
+                {
+                    return null;
+                }
+
+                @Override
+                public void getFileFromSessionWorkspace(String filePath, File localFile)
+                        throws IOExceptionUnchecked
+                {
+                }
+
+                @Override
                 public boolean deleteSessionWorkspaceFile(String path)
                 {
                     return false;

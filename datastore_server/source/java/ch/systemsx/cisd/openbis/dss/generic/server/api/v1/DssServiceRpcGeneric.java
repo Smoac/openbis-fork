@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -223,6 +225,28 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         } finally
         {
             IOUtils.closeQuietly(ostream);
+        }
+    }
+
+    @Override
+    public InputStream getFileFromSessionWorkspace(String sessionToken, String filePath)
+            throws IOExceptionUnchecked
+    {
+        getOpenBISService().checkSession(sessionToken);
+        if (filePath.contains("../"))
+        {
+            throw new IOExceptionUnchecked("filePath must not contain '../'");
+        }
+        final File workspaceDir =
+                new SessionWorkspaceProvider(sessionWorkspaceRootDirectory, sessionToken)
+                        .getSessionWorkspace();
+        final File file = new File(workspaceDir, filePath);
+        try
+        {
+            return new FileInputStream(file);
+        } catch (FileNotFoundException ex)
+        {
+            throw new IOExceptionUnchecked(ex);
         }
     }
 

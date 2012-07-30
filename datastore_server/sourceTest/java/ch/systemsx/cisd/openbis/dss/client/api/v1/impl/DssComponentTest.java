@@ -670,6 +670,13 @@ public class DssComponentTest extends AbstractFileSystemTestCase
             return false;
         }
 
+        @Override
+        public InputStream getFileFromSessionWorkspace(String sessionToken, String filePath)
+                throws IOExceptionUnchecked
+        {
+            return null;
+        }
+
     }
 
     private class MockDssServiceRpcV1_1 extends MockDssServiceRpcV1_0

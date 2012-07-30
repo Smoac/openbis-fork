@@ -118,6 +118,15 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
     }
 
     @Override
+    @DataSetAccessGuard
+    public InputStream getFileFromSessionWorkspace(String sessionToken, String filePath)
+            throws IOExceptionUnchecked
+    {
+        logAccess(sessionToken, "get_file_from_session_workspace", "FILE_PATH(%s)", filePath);
+        return null;
+    }
+
+    @Override
     public boolean deleteSessionWorkspaceFile(String sessionToken, String path)
     {
         logTracking(sessionToken, "delete_session_workspace_file", "PATH(%s)", path);
