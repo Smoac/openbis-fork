@@ -195,7 +195,8 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
     {
         checkSession(sessionToken);
 
-        List<AggregationServiceDescription> services = new ArrayList<AggregationServiceDescription>();
+        List<AggregationServiceDescription> services =
+                new ArrayList<AggregationServiceDescription>();
         List<DataStorePE> dataStores = getDAOFactory().getDataStoreDAO().listDataStores();
         for (DataStorePE dataStore : dataStores)
         {
@@ -211,6 +212,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
                     AggregationServiceDescription info = new AggregationServiceDescription();
                     info.setServiceKey(service.getKey());
                     info.setDataStoreCode(dataStore.getCode());
+                    info.setDataStoreBaseUrl(dataStore.getDownloadUrl());
                     services.add(info);
                 }
             }
@@ -219,13 +221,16 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
     }
 
     @Override
-    public QueryTableModel createReportFromAggregationService(String sessionToken, String dataStoreCode, String serviceKey, Map<String, Object> parameters)
+    public QueryTableModel createReportFromAggregationService(String sessionToken,
+            String dataStoreCode, String serviceKey, Map<String, Object> parameters)
     {
         checkSession(sessionToken);
 
         DatastoreServiceDescription description =
-                DatastoreServiceDescription.reporting(serviceKey, "", new String[0], dataStoreCode, ReportingPluginType.AGGREGATION_TABLE_MODEL);
-        return translate(commonServer.createReportFromAggregationService(sessionToken, description, parameters));
+                DatastoreServiceDescription.reporting(serviceKey, "", new String[0], dataStoreCode,
+                        ReportingPluginType.AGGREGATION_TABLE_MODEL);
+        return translate(commonServer.createReportFromAggregationService(sessionToken, description,
+                parameters));
     }
 
     @Override
@@ -237,7 +242,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
     @Override
     public int getMinorVersion()
     {
-        return 3;
+        return 4;
     }
 
     private QueryTableModel translate(TableModel result)

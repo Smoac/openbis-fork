@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
 /**
- * Public API interface to query server (version 1.2).
+ * Public API interface to query server (version 1.4).
  * 
  * @author Franz-Josef Elmer
  */
@@ -114,7 +114,7 @@ public interface IQueryApiServer extends IRpcService
      * @since 1.3
      */
     @Transactional(readOnly = true)
-    public QueryTableModel createReportFromAggregationService(String sessionToken, String dataStoreCode,
-            String serviceKey, Map<String, Object> parameters);
+    public QueryTableModel createReportFromAggregationService(String sessionToken,
+            String dataStoreCode, String serviceKey, Map<String, Object> parameters);
 
 }

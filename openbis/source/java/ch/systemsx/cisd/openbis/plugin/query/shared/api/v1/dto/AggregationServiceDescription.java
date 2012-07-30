@@ -32,16 +32,28 @@ public class AggregationServiceDescription implements Serializable
 
     private String dataStoreCode;
 
+    private String dataStoreBaseUrl;
+
     private String serviceKey;
 
     private AggregationServiceType type;
 
     /**
-     * The code of the data store the provides this service. Non-null.
+     * The code of the data store that provides this service. Non-null.
      */
     public String getDataStoreCode()
     {
         return dataStoreCode;
+    }
+
+    /**
+     * Returns the base URL of the data store that provides this service. Non-null.
+     * 
+     * @since 1.4
+     */
+    public String getDataStoreBaseUrl()
+    {
+        return dataStoreBaseUrl;
     }
 
     /**
@@ -65,6 +77,11 @@ public class AggregationServiceDescription implements Serializable
     public void setDataStoreCode(String dataStoreCode)
     {
         this.dataStoreCode = dataStoreCode;
+    }
+
+    public void setDataStoreBaseUrl(String dataStoreBaseUrl)
+    {
+        this.dataStoreBaseUrl = dataStoreBaseUrl;
     }
 
     public void setServiceKey(String key)
