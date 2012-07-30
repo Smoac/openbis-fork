@@ -177,8 +177,7 @@ public class RmiConversationTest extends SystemTestCase
         public String echo(String input, Integer delayInMillis);
 
         @Transactional
-        public String echo(String input, Integer delayInMillis,
-                IProgressListener listener);
+        public String echo(String input, Integer delayInMillis, IProgressListener listener);
 
         @Transactional
         public String echoWithoutProgress(String input, Integer delayInMillis);
@@ -197,8 +196,7 @@ public class RmiConversationTest extends SystemTestCase
         public String echoWithStoreAndProcessingException(String input);
 
         @Transactional
-        public String echoWithStoreAndProcessingException(String input,
-                IProgressListener listener);
+        public String echoWithStoreAndProcessingException(String input, IProgressListener listener);
 
         @Transactional
         public boolean exists(String code);
@@ -242,22 +240,25 @@ public class RmiConversationTest extends SystemTestCase
         }
 
         @Override
-        public String echo(String input, Integer delayInMillis,
-                IProgressListener progress)
+        public String echo(String input, Integer delayInMillis, IProgressListener progress)
         {
 
             long startTime = System.currentTimeMillis();
+            int total = 50;
+            int unit = delayInMillis / total;
+            int i = 0;
 
+            progress.update("progress", total, i);
             while (System.currentTimeMillis() - startTime < delayInMillis)
             {
                 try
                 {
-                    Thread.sleep(delayInMillis / 50);
+                    Thread.sleep(unit);
                 } catch (InterruptedException ex)
                 {
                     ex.printStackTrace();
                 }
-                progress.update("progress", 1, 1);
+                progress.update("progress", total, ++i);
 
             }
             return input;
@@ -309,8 +310,7 @@ public class RmiConversationTest extends SystemTestCase
         }
 
         @Override
-        public String echoWithStoreAndProcessingException(String input,
-                IProgressListener progress)
+        public String echoWithStoreAndProcessingException(String input, IProgressListener progress)
         {
 
             DatabaseInstancePE db = new DatabaseInstancePE();
