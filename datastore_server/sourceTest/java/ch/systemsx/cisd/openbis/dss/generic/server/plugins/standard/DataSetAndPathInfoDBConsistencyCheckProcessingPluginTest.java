@@ -90,7 +90,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
         // add more when necessary
         public enum FailurePoint
         {
-            ROOT_NODE_EXISTS, ROOT_NODE_PATH, FILE_LENGTH;
+            ROOT_NODE_EXISTS, ROOT_NODE_PATH, FILE_LENGTH, CHECKSUM;
         }
     }
 
@@ -184,6 +184,10 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
         testCase.failurePoints.add(TestCaseParameters.FailurePoint.FILE_LENGTH);
         testCases.add(testCase);
 
+        testCase = new TestCaseParameters("Checksum discrepency");
+        testCase.failurePoints.add(TestCaseParameters.FailurePoint.CHECKSUM);
+        testCases.add(testCase);
+
         return testCases;
     }
 
@@ -223,6 +227,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                     childIsDirectory();
                     getChildFileLength();
                     childIsChecksumPrecalculated();
+                    childGetChecksum();
                     closeContent();
                     sendEmail();
                 }
@@ -258,6 +263,14 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                                         + "Data set ds-1:\n"
                                         + "- 'different' is referenced in the path info database but does not exist on the file system\n"
                                         + "- 'targets/unit-test-wd/ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest' is on the file system but is not referenced in the path info database\n\n";
+                    } else if (parameters.failurePoints
+                            .contains(TestCaseParameters.FailurePoint.CHECKSUM))
+                    {
+                        body =
+                                "Data sets checked:\n\nds-1\n\n"
+                                        + "Differences found:\n\n"
+                                        + "Data set ds-1:\n"
+                                        + "- 'data.txt' CRC32 checksum in the file system = 002cc5cb but in the path info database = 000f58fc\n\n";
                     } else
                     {
                         body = "Data sets checked:\n\nds-1\n\nDifferences found:\n\nNone";
@@ -274,10 +287,31 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                     oneOf(pathInfoContent).close();
                 }
 
+                protected void childGetChecksum()
+                {
+                    if (parameters.failurePoints.contains(TestCaseParameters.FailurePoint.CHECKSUM))
+                    {
+                        exactly(2).of(fileChildNode).getChecksumCRC32();
+                        will(returnValue(2934219));
+                        exactly(2).of(pathInfoChildNode).getChecksumCRC32();
+                        will(returnValue(1005820));
+                    } else
+                    {
+                        // In this case, the checksum should not be requested at all
+                    }
+                }
+
                 protected void childIsChecksumPrecalculated()
                 {
-                    oneOf(pathInfoChildNode).isChecksumCRC32Precalculated();
-                    will(returnValue(false));
+                    if (parameters.failurePoints.contains(TestCaseParameters.FailurePoint.CHECKSUM))
+                    {
+                        oneOf(pathInfoChildNode).isChecksumCRC32Precalculated();
+                        will(returnValue(true));
+                    } else
+                    {
+                        oneOf(pathInfoChildNode).isChecksumCRC32Precalculated();
+                        will(returnValue(false));
+                    }
                 }
 
                 protected void getChildFileLength()
@@ -317,7 +351,9 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                 protected void getChildRelativePath()
                 {
                     if (parameters.failurePoints
-                            .contains(TestCaseParameters.FailurePoint.FILE_LENGTH))
+                            .contains(TestCaseParameters.FailurePoint.FILE_LENGTH)
+                            || parameters.failurePoints
+                                    .contains(TestCaseParameters.FailurePoint.CHECKSUM))
                     {
                         exactly(4).of(fileChildNode).getRelativePath();
                         will(returnValue("data.txt"));
@@ -332,6 +368,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
 
                 protected void getRootChildren()
                 {
+
                     oneOf(fileRootNode).getChildNodes();
                     will(returnValue(Arrays.asList(fileChildNode)));
                     oneOf(pathInfoRootNode).getChildNodes();
