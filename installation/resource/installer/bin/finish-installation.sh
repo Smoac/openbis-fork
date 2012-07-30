@@ -31,16 +31,3 @@ if [ -d "$DATA_TMPEXTRACT" ]; then
    done
    rm -rf "$DATA_TMPEXTRACT"
 fi
-
-APPLICATION_CONTEXT_FILE="$INSTALL_PATH/servers/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/standard-technologies-applicationContext.xml"
-if [ -f "$APPLICATION_CONTEXT_FILE" ]; then
-   tmpFile="$BASE/xxx.xml"
-   awk '/plugin-applicationContext/{gsub(/!*--/,"")}; 1' "$APPLICATION_CONTEXT_FILE" > "$tmpFile"
-   mv "$tmpFile" "$APPLICATION_CONTEXT_FILE"
-   awk '/plugin-applicationContext/{gsub(/import/,"!--import") gsub(/>/,"-->")}; 1' "$APPLICATION_CONTEXT_FILE" > "$tmpFile"
-   mv "$tmpFile" "$APPLICATION_CONTEXT_FILE"
-   for technology in $ENABLED_TECHNOLOGIES; do
-     awk -v technology=${technology/,/} 'index($0, technology){gsub(/!*--/,"")}; 1' "$APPLICATION_CONTEXT_FILE" > "$tmpFile"
-     mv "$tmpFile" "$APPLICATION_CONTEXT_FILE"
-   done
-fi
