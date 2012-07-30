@@ -216,7 +216,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                                 "Data sets checked:\n\nds-1\n\n"
                                         + "Differences found:\n\n"
                                         + "Data set ds-1:\n"
-                                        + "- 'data.txt' size in the file system = 1024 but in the path info database = 2100\n\n";
+                                        + "- 'data.txt' size in the file system = 1024 bytes but in the path info database = 2100 bytes.\n\n";
                     } else
                     {
                         body = "Data sets checked:\n\nds-1\n\nDifferences found:\n\nNone";

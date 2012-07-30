@@ -420,7 +420,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
         public String getDescription()
         {
             return "'" + getPath() + "' size in the file system = " + sizeInFS
-                    + " but in the path info database = " + sizeInDB;
+                    + " bytes but in the path info database = " + sizeInDB + " bytes.";
         }
 
     }
