@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -60,8 +61,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptRunner;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
-
-import de.schlichtherle.io.FileOutputStream;
 
 /**
  * Implementation of the IDssComponent interface. It is a facade for interacting with openBIS and
@@ -233,7 +232,7 @@ public class DssComponent implements IDssComponent
     {
         state.putFileToSessionWorkspace(filePath, inputStream);
     }
-    
+
     @Override
     public void putFileToSessionWorkspace(String directory, File file) throws IOExceptionUnchecked
     {
@@ -501,7 +500,7 @@ class AuthenticatedState extends AbstractDssComponentState
         final IDssServiceRpcGeneric dssService = getServiceForPutDataStore();
         dssService.putFileToSessionWorkspace(sessionToken, filePath, inputStream);
     }
-    
+
     @Override
     public void putFileToSessionWorkspace(String directory, File file) throws IOExceptionUnchecked
     {
