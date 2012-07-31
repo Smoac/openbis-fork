@@ -50,6 +50,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack.IRollbac
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -565,6 +566,42 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             return result;
         }
 
+        public IExperimentUpdatable makeExperimentMutable(IExperimentImmutable experiment)
+        {
+            if (experiment == null)
+            {
+                return null;
+            }
+            // Check if we already have an updatable experiment for this one
+            ExperimentUpdatable result = findExperimentLocally(experiment);
+            if (result != null)
+            {
+                return result;
+            }
+
+            if (experiment instanceof ExperimentImmutable)
+            {
+                result =
+                        new ExperimentUpdatable(((ExperimentImmutable) experiment).getExperiment());
+                experimentsToBeUpdated.add(result);
+                return result;
+            }
+
+            return null;
+        }
+
+        private ExperimentUpdatable findExperimentLocally(IExperimentImmutable experimentToFind)
+        {
+            for (ExperimentUpdatable experiment : experimentsToBeUpdated)
+            {
+                if (experiment.equals(experimentToFind))
+                {
+                    return experiment;
+                }
+            }
+            return null;
+        }
+
         public IExperiment createNewExperiment(String experimentIdentifierString,
                 String experimentTypeCode)
         {
@@ -612,6 +649,41 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             }
 
             return result;
+        }
+
+        public IMaterial makeMaterialMutable(IMaterialImmutable material)
+        {
+            if (material == null)
+            {
+                return null;
+            }
+            // Check if we already have an updatable material for this one
+            Material result = findMaterialLocally(material);
+            if (result != null)
+            {
+                return result;
+            }
+
+            if (material instanceof MaterialImmutable)
+            {
+                result = new Material(((MaterialImmutable) material).getMaterial());
+                materialsToBeUpdated.add(result);
+                return result;
+            }
+
+            return null;
+        }
+
+        private Material findMaterialLocally(IMaterialImmutable materialToFind)
+        {
+            for (Material material : materialsToBeUpdated)
+            {
+                if (material.equals(materialToFind))
+                {
+                    return material;
+                }
+            }
+            return null;
         }
 
         public String moveFile(String src, IDataSet dst)

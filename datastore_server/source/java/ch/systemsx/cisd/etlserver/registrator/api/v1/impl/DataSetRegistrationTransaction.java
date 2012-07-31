@@ -319,6 +319,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
+    public IExperimentUpdatable makeExperimentMutable(IExperimentImmutable experiment)
+    {
+        return getStateAsLiveState().makeExperimentMutable(experiment);
+    }
+
+    @Override
     public ISample createNewSample(String sampleIdentifierString, String sampleTypeCode)
     {
         return getStateAsLiveState().createNewSample(sampleIdentifierString, sampleTypeCode);
@@ -386,6 +392,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     public IMaterial getMaterialForUpdate(String materialCode, String materialType)
     {
         return getStateAsLiveState().getMaterialForUpdate(materialCode, materialType);
+    }
+
+    @Override
+    public IMaterial makeMaterialMutable(IMaterialImmutable material)
+    {
+        return getStateAsLiveState().makeMaterialMutable(material);
     }
 
     @Override

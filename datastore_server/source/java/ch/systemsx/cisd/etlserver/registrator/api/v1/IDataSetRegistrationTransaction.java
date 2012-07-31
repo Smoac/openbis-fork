@@ -128,6 +128,13 @@ public interface IDataSetRegistrationTransaction
     IExperimentUpdatable getExperimentForUpdate(String experimentIdentifierString);
 
     /**
+     * Given an immutable experiment, make it mutable.
+     * 
+     * @return An experiment
+     */
+    IExperimentUpdatable makeExperimentMutable(IExperimentImmutable experiment);
+
+    /**
      * Create a new experiment to register with the openBIS AS. The experiment will have a permId.
      * 
      * @param experimentIdentifierString The identifier for the new experiment
@@ -179,6 +186,13 @@ public interface IDataSetRegistrationTransaction
      * @return A material or null
      */
     IMaterial getMaterialForUpdate(String materialCode, String materialType);
+
+    /**
+     * Given an immutable material, make it mutable.
+     * 
+     * @return A material
+     */
+    IMaterial makeMaterialMutable(IMaterialImmutable material);
 
     /**
      * Create a new material to register with the openBIS AS.
