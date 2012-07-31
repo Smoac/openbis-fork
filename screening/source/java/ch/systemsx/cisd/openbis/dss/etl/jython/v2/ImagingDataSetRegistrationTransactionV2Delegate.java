@@ -93,7 +93,8 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
         {
             try
             {
-                featureDefinitions = CsvFeatureVectorParser.parse(featureVectorFileOrNull, properties);
+                featureDefinitions =
+                        CsvFeatureVectorParser.parse(featureVectorFileOrNull, properties);
             } catch (IOException ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -181,6 +182,12 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     }
 
     @Override
+    public IExperimentUpdatable makeExperimentMutable(IExperimentImmutable experiment)
+    {
+        return transaction.makeExperimentMutable(experiment);
+    }
+
+    @Override
     public IExperiment createNewExperiment(String experimentIdentifierString,
             String experimentTypeCode)
     {
@@ -221,6 +228,12 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     public IMaterial getMaterialForUpdate(String materialCode, String materialType)
     {
         return transaction.getMaterialForUpdate(materialCode, materialType);
+    }
+
+    @Override
+    public IMaterial makeMaterialMutable(IMaterialImmutable material)
+    {
+        return transaction.makeMaterialMutable(material);
     }
 
     @Override
