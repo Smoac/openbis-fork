@@ -19,12 +19,14 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -37,6 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
  */
 public class Sample extends SampleImmutable implements ISample
 {
+
+    private final SampleBatchUpdateDetails updateDetails;
 
     /**
      * This code is derived from
@@ -77,17 +81,29 @@ public class Sample extends SampleImmutable implements ISample
     public Sample(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample)
     {
         super(sample);
+        updateDetails = new SampleBatchUpdateDetails();
+        initializeUpdateDetails();
     }
 
     public Sample(SampleImmutable sample)
     {
-        super(sample.getSample());
+        this(sample.getSample());
     }
 
     public Sample(String sampleIdentifier, String permId)
     {
         super(buildSampleWithIdentifier(sampleIdentifier), false);
         getSample().setPermId(permId);
+        updateDetails = new SampleBatchUpdateDetails();
+        initializeUpdateDetails();
+    }
+
+    private void initializeUpdateDetails()
+    {
+        updateDetails.setExperimentUpdateRequested(false);
+        updateDetails.setContainerUpdateRequested(false);
+        updateDetails.setParentsUpdateRequested(false);
+        updateDetails.setPropertiesToUpdate(new HashSet<String>());
     }
 
     @Override
@@ -95,12 +111,15 @@ public class Sample extends SampleImmutable implements ISample
     {
         ExperimentImmutable exp = (ExperimentImmutable) experiment;
         getSample().setExperiment(exp.getExperiment());
+        updateDetails.setExperimentUpdateRequested(true);
     }
 
     @Override
     public void setPropertyValue(String propertyCode, String propertyValue)
     {
         EntityHelper.createOrUpdateProperty(getSample(), propertyCode, propertyValue);
+        Set<String> propertiesToUpdate = updateDetails.getPropertiesToUpdate();
+        propertiesToUpdate.add(propertyCode);
     }
 
     @Override
@@ -117,6 +136,7 @@ public class Sample extends SampleImmutable implements ISample
     {
         SampleImmutable containerImpl = (SampleImmutable) container;
         getSample().setContainer(containerImpl.getSample());
+        updateDetails.setContainerUpdateRequested(true);
     }
 
     @Override
@@ -130,6 +150,15 @@ public class Sample extends SampleImmutable implements ISample
         }
 
         getSample().setParents(parents);
+        updateDetails.setParentsUpdateRequested(true);
+    }
+
+    /**
+     * Package-visible accessor for use in converting the Sample to an updates DTO.
+     */
+    SampleBatchUpdateDetails getUpdateDetails()
+    {
+        return updateDetails;
     }
 
 }

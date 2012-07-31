@@ -83,7 +83,7 @@ public class ConversionUtils
     {
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =
                 apiExperiment.getExperiment();
-        
+
         ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
 
         updates.setVersion(experiment.getModificationDate());
@@ -138,11 +138,18 @@ public class ConversionUtils
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample = apiSample.getSample();
         Set<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> sampleParents =
                 sample.getParents();
-        String[] parentIdentifiers = new String[sampleParents.size()];
-        int i = 0;
-        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample parent : sampleParents)
+        String[] parentIdentifiers;
+        if (apiSample.getUpdateDetails().isParentsUpdateRequested())
         {
-            parentIdentifiers[i++] = parent.getIdentifier();
+            parentIdentifiers = new String[sampleParents.size()];
+            int i = 0;
+            for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample parent : sampleParents)
+            {
+                parentIdentifiers[i++] = parent.getIdentifier();
+            }
+        } else
+        {
+            parentIdentifiers = null;
         }
 
         List<NewAttachment> attachments = Collections.emptyList();
