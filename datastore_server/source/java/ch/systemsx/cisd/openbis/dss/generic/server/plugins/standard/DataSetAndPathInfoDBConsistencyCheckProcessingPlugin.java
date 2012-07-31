@@ -96,21 +96,15 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
         {
             IHierarchicalContent fileContent = null;
             IHierarchicalContent pathInfoContent = null;
+
             try
             {
-                fileContent = getFileProvider().asContent(dataset.getDataSetCode());
-                pathInfoContent = getPathInfoProvider().asContent(dataset.getDataSetCode());
+                fileContent = tryGetContent(getFileProvider(), dataset.getDataSetCode());
+                pathInfoContent = tryGetContent(getPathInfoProvider(), dataset.getDataSetCode());
 
                 List<Difference> datasetDifferences = new ArrayList<Difference>();
-
-                if (fileContent != null && pathInfoContent != null)
-                {
-                    compare(fileContent.getRootNode(), pathInfoContent.getRootNode(),
-                            datasetDifferences);
-                } else if (fileContent == null ^ pathInfoContent == null)
-                {
-                    datasetDifferences.add(new RootExistenceDifference(fileContent != null));
-                }
+                
+                compare(fileContent, pathInfoContent, datasetDifferences);
 
                 if (datasetDifferences.isEmpty() == false)
                 {
@@ -150,6 +144,25 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
         }
 
         return status;
+    }
+
+    private void compare(IHierarchicalContent fileContent, IHierarchicalContent pathInfoContent,
+            List<Difference> differences)
+    {
+        IHierarchicalContentNode fileRoot = tryGetRoot(fileContent);
+        IHierarchicalContentNode pathInfoRoot = tryGetRoot(pathInfoContent);
+
+        if (fileRoot != null && pathInfoRoot != null)
+        {
+            compare(fileRoot, pathInfoRoot, differences);
+        } else if (fileRoot == null ^ pathInfoRoot == null)
+        {
+            differences.add(new RootExistenceDifference(fileRoot != null));
+        } else
+        {
+            throw new IllegalArgumentException(
+                    "Data set does not exist on the file system nor in the path info database");
+        }
     }
 
     @SuppressWarnings("null")
@@ -554,6 +567,35 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
 
     }
 
+    private IHierarchicalContent tryGetContent(IHierarchicalContentProvider contentProvider,
+            String datasetCode)
+    {
+        try
+        {
+            return contentProvider.asContent(datasetCode);
+        } catch (IllegalArgumentException e)
+        {
+            return null;
+        }
+    }
+
+    private IHierarchicalContentNode tryGetRoot(IHierarchicalContent content)
+    {
+        try
+        {
+            if (content == null)
+            {
+                return null;
+            } else
+            {
+                return content.getRootNode();
+            }
+        } catch (IllegalArgumentException e)
+        {
+            return null;
+        }
+    }
+
     private IHierarchicalContentProvider getFileProvider()
     {
         if (fileProvider == null)
@@ -576,8 +618,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
 
             if (pathInfoDBFactory == null)
             {
-                throw new IllegalArgumentException(
-                        "Cannot check consistency of the file system and the path info database because the database is not configured.");
+                throw new IllegalArgumentException("Path info database is not configured.");
             } else
             {
                 pathInfoProvider =
