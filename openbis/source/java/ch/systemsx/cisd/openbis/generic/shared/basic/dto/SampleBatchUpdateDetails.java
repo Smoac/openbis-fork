@@ -68,4 +68,25 @@ public class SampleBatchUpdateDetails implements Serializable
     {
         return propertiesToUpdate;
     }
+
+    public void setExperimentUpdateRequested(boolean experimentUpdateRequested)
+    {
+        this.experimentUpdateRequested = experimentUpdateRequested;
+    }
+
+    public void setParentsUpdateRequested(boolean parentsUpdateRequested)
+    {
+        this.parentsUpdateRequested = parentsUpdateRequested;
+    }
+
+    public void setContainerUpdateRequested(boolean containerUpdateRequested)
+    {
+        this.containerUpdateRequested = containerUpdateRequested;
+    }
+
+    public void setPropertiesToUpdate(Set<String> propertiesToUpdate)
+    {
+        this.propertiesToUpdate = propertiesToUpdate;
+    }
+
 }
