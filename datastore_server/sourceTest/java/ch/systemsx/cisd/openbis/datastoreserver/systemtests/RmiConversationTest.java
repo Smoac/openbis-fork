@@ -60,7 +60,8 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
-@Test(groups = "system test")
+@Test(groups =
+    { "system test", "broken" })
 public class RmiConversationTest extends SystemTestCase
 {
     private static RmiConversationController cont;
