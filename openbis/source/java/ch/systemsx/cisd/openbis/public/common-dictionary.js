@@ -67,6 +67,9 @@ var common = {
   unsaved_form_changes_info: "You have unsaved changes.",
   save_unchanged_form_confirmation_title: "Confirm Save",
   save_unchanged_form_confirmation_msg: "You haven't made any changes. Do you really want to save the form?",
+  reset_unsaved_form_changes_confirmation_title: "Confirmation Clear",
+  revert_unsaved_form_changes_confirmation_title: "Confirmation Revert",
+  lose_unsaved_form_changes_confirmation_msg: "All unsaved changes will be lost. Are you sure?",
   
   //
   // Deletion

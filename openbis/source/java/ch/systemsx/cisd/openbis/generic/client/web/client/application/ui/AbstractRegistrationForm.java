@@ -278,7 +278,25 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
                 @Override
                 public final void componentSelected(final ButtonEvent ce)
                 {
-                    resetPanel();
+                    if (panel.isDirtyForSavePoint())
+                    {
+                        ce.setCancelled(true);
+                        new ConfirmationDialog(
+                                messageProvider
+                                        .getMessage(Dict.RESET_UNSAVED_FORM_CHANGES_CONFIRMATION_TITLE),
+                                messageProvider
+                                        .getMessage(Dict.LOSE_UNSAVED_FORM_CHANGES_CONFIRMATION_MSG))
+                            {
+                                @Override
+                                protected void onYes()
+                                {
+                                    resetPanel();
+                                }
+                            }.show();
+                    } else
+                    {
+                        resetPanel();
+                    }
                 }
             });
 
@@ -294,7 +312,25 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
                 @Override
                 public final void componentSelected(final ButtonEvent ce)
                 {
-                    revertPanel();
+                    if (panel.isDirtyForSavePoint())
+                    {
+                        ce.setCancelled(true);
+                        new ConfirmationDialog(
+                                messageProvider
+                                        .getMessage(Dict.REVERT_UNSAVED_FORM_CHANGES_CONFIRMATION_TITLE),
+                                messageProvider
+                                        .getMessage(Dict.LOSE_UNSAVED_FORM_CHANGES_CONFIRMATION_MSG))
+                            {
+                                @Override
+                                protected void onYes()
+                                {
+                                    revertPanel();
+                                }
+                            }.show();
+                    } else
+                    {
+                        revertPanel();
+                    }
                 }
             });
 

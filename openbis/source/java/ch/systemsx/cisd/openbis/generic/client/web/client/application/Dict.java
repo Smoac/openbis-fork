@@ -91,7 +91,16 @@ public abstract class Dict
 
     public static final String SAVE_UNCHANGED_FORM_CONFIRMATION_MSG =
             "save_unchanged_form_confirmation_msg";
-    
+
+    public static final String RESET_UNSAVED_FORM_CHANGES_CONFIRMATION_TITLE =
+            "reset_unsaved_form_changes_confirmation_title";
+
+    public static final String REVERT_UNSAVED_FORM_CHANGES_CONFIRMATION_TITLE =
+            "revert_unsaved_form_changes_confirmation_title";
+
+    public static final String LOSE_UNSAVED_FORM_CHANGES_CONFIRMATION_MSG =
+            "lose_unsaved_form_changes_confirmation_msg";
+
     //
     // Table Modifications
     //
