@@ -280,7 +280,13 @@
     <copy file="${lib}/jackson/jackson-core.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/jackson/jackson-databind.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/sshd/sshd-core.jar" todir="${dist.datastore_server.lib}" />
-  	
+	<copy file="${lib}/reflections/reflections.jar" todir="${dist.datastore_server.lib}" />
+	<copy file="${lib}/reflections/lib/guava-r08.jar" todir="${dist.datastore_server.lib}" />
+	<copy file="${lib}/reflections/lib/gson-1.4.jar" todir="${dist.datastore_server.lib}" />
+	<copy file="${lib}/reflections/lib/jboss-vfs-3.0.0.CR5.jar" todir="${dist.datastore_server.lib}" />
+	<copy file="${lib}/reflections/lib/xml-apis-1.0.b2.jar" todir="${dist.datastore_server.lib}" />
+	<copy file="${lib}/javassist/javassist.jar" todir="${dist.datastore_server.lib}" />
+
   	<!-- The dss_upload_gui folder is no longer needed; clean it up here (not in the task that makes the zip) -->
   	<delete dir="${dist.dss_upload_gui}" />
   </target>
