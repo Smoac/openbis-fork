@@ -103,6 +103,7 @@ public class FileInfoDssDTO implements Serializable
      * Note that the checksum will only be available when it is precomputed and available from some
      * sort of database, i.e. if it is computationally "cheap" to provide the checksum.
      */
+    @JsonProperty("crc32Checksum")
     public Integer tryGetCrc32Checksum()
     {
         return crc32Checksum;

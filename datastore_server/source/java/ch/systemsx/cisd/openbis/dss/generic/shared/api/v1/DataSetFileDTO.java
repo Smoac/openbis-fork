@@ -21,6 +21,8 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -28,16 +30,17 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
+@SuppressWarnings("unused")
 @JsonObject("DataSetFileDTO")
 public class DataSetFileDTO implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final String dataSetCode;
+    private String dataSetCode;
 
-    private final String path;
+    private String path;
 
-    private final boolean isRecursive;
+    private boolean isRecursive;
 
     public DataSetFileDTO(String dataSetCode, String path, boolean isRecursive)
     {
@@ -59,6 +62,7 @@ public class DataSetFileDTO implements Serializable
     }
 
     /** If true, this object includes sub folders */
+    @JsonProperty("isRecursive")
     public boolean isRecursive()
     {
         return isRecursive;
@@ -76,4 +80,28 @@ public class DataSetFileDTO implements Serializable
         }
         return sb.toString();
     }
+
+    //
+    // JSON-RPC
+    //
+
+    private DataSetFileDTO()
+    {
+    }
+
+    private void setDataSetCode(String dataSetCode)
+    {
+        this.dataSetCode = dataSetCode;
+    }
+
+    private void setPath(String path)
+    {
+        this.path = path;
+    }
+
+    private void setIsRecursive(boolean isRecursive)
+    {
+        this.isRecursive = isRecursive;
+    }
+
 }

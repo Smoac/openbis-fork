@@ -164,6 +164,9 @@
         <constructor-arg ref="config-provider" />
     </bean>
 
+    <bean id="objectMapper" class="ch.systemsx.cisd.openbis.generic.shared.api.json.GenericObjectMapper">
+    </bean>
+
     <!-- 
         // This discovers on-the-fly all <code>org.springframework.aop.Advisor</code> implementations.
     -->
