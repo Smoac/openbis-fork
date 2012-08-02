@@ -20,6 +20,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISessionWorkspaceProvider;
 
 /**
  * Context for processing data sets by a {@link IProcessingPluginTask}.
