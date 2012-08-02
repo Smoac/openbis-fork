@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -320,12 +319,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     private void attachParents(String[] parentCodes)
     {
         setParents(sample, parentCodes, null);
-    }
-
-    public void setGeneratedCode()
-    {
-        final String code = createCode(EntityKind.SAMPLE);
-        sample.setCode(code);
     }
 
     @Override

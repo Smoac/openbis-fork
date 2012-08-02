@@ -598,12 +598,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         experiment.setProperties(convertProperties(type, existingProperties, properties));
     }
 
-    public void setGeneratedCode()
-    {
-        final String code = createCode(EntityKind.EXPERIMENT);
-        experiment.setCode(code);
-    }
-
     @Override
     public void updateManagedProperty(IManagedProperty managedProperty)
     {

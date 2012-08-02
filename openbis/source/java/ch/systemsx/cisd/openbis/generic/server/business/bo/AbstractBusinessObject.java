@@ -171,17 +171,6 @@ abstract class AbstractBusinessObject implements IDAOFactory
     }
 
     /**
-     * @return Generated code for given <var>entityKind</var>. The code has a prefix that depends on
-     *         <var>entityKind</var> and a sufix witch is a unique number.
-     */
-    protected String createCode(EntityKind entityKind)
-    {
-        final long id = getCodeSequenceDAO().getNextCodeSequenceId();
-        final String code = String.valueOf(entityKind.name().charAt(0)) + id;
-        return code;
-    }
-
-    /**
      * Returns the perm ID of specified identifier or creates a new one if it is <code>null</code>.
      */
     protected String getOrCreatePermID(Identifier<?> identifier)
