@@ -273,6 +273,9 @@ body,div,td,.default-text {
 .unsaved-changes-info {
   margin-right: 5px;
   text-align: right;
+  font-size: 11px;
+  font-style: italic;
+  color: gray;
 }
 
 /*****************************
