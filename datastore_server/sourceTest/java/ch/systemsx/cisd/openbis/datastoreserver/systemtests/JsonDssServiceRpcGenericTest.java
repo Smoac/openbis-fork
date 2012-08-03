@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterClass;
@@ -31,6 +32,7 @@ import com.googlecode.jsonrpc4j.ProxyUtil;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.openbis.generic.shared.api.json.GenericObjectMapper;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
@@ -109,7 +111,9 @@ public class JsonDssServiceRpcGenericTest extends SystemTestCase
     {
         try
         {
-            JsonRpcHttpClient client = new JsonRpcHttpClient(new URL(DSS_URL));
+            JsonRpcHttpClient client =
+                    new JsonRpcHttpClient(new GenericObjectMapper(), new URL(DSS_URL),
+                            new HashMap<String, String>());
             return ProxyUtil.createProxy(getClass().getClassLoader(), IDssServiceRpcGeneric.class,
                     client);
         } catch (MalformedURLException ex)
