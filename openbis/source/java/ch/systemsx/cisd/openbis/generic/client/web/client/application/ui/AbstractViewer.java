@@ -19,16 +19,19 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Layout;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
@@ -40,14 +43,17 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ManagedPropertySection;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModuleInitializationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityEditorTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenExperimentBrowserTabClickListener;
@@ -55,16 +61,21 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.WebAppSortingAndCodeComparator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebApp;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebAppContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 
 /**
@@ -409,6 +420,66 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         moduleSectionManager.initialize(container, entity);
     }
 
+    protected void attachWebAppsSections(final SectionsPanel container,
+            final IEntityInformationHolderWithProperties entity, WebAppContext context)
+    {
+        List<WebApp> webApps = new ArrayList<WebApp>();
+
+        // find web applications for the given context, entity kind and entity type
+        for (final WebApp webApp : getApplicationInfo().getWebapps())
+        {
+            if (webApp.matchesContext(context)
+                    && webApp.matchesEntity(entity.getEntityKind(), entity.getEntityType()))
+            {
+                webApps.add(webApp);
+            }
+        }
+
+        // sort web applications using sorting and code properties
+        Collections.sort(webApps, new WebAppSortingAndCodeComparator());
+
+        // attach web applications to the container
+        for (final WebApp webApp : webApps)
+        {
+            DisposableTabContent webAppTab =
+                    new DisposableTabContent(webApp.getLabel(), viewContext, entity)
+                        {
+                            @Override
+                            protected IDisposableComponent createDisposableContent()
+                            {
+                                return new IDisposableComponent()
+                                    {
+
+                                        @Override
+                                        public void update(
+                                                Set<DatabaseModificationKind> observedModifications)
+                                        {
+                                        }
+
+                                        @Override
+                                        public DatabaseModificationKind[] getRelevantModifications()
+                                        {
+                                            return new DatabaseModificationKind[0];
+                                        }
+
+                                        @Override
+                                        public Component getComponent()
+                                        {
+                                            return new Text(webApp.getCode());
+                                        }
+
+                                        @Override
+                                        public void dispose()
+                                        {
+                                        }
+                                    };
+                            }
+                        };
+            webAppTab.setIds(DisplayTypeIDGenerator.WEBAPP_SECTION);
+            container.addSection(webAppTab);
+        }
+    }
+
     protected TabContent createManagedPropertySection(final String header,
             final IEntityInformationHolder entity, final IManagedProperty managedProperty)
     {
@@ -524,6 +595,16 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
                 revertButtonOrNull.setVisible(DeletionUtils.isDeleted(originalData));
             }
         }
+    }
+
+    protected IViewContext<?> getViewContext()
+    {
+        return viewContext;
+    }
+
+    protected ApplicationInfo getApplicationInfo()
+    {
+        return getViewContext().getModel().getApplicationInfo();
     }
 
 }

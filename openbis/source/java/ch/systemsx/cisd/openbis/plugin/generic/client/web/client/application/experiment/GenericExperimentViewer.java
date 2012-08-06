@@ -21,6 +21,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Widget;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentVersionsSection;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -49,14 +55,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebAppContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractEntityDataSetsSection;
-
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * The <i>generic</i> experiment viewer.
@@ -202,6 +203,8 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
                     SectionsPanel rightPanel = layoutSections(rightPanelSectionsOrNull);
                     attachManagedPropertiesSections(rightPanel, experiment);
                     attachModuleSpecificSections(rightPanel, experiment);
+                    attachWebAppsSections(rightPanel, experiment,
+                            WebAppContext.EXPERIMENT_DETAILS_VIEW);
                     add(rightPanel, createRightBorderLayoutData());
                     layout();
                 }
@@ -368,4 +371,5 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
     {
         return localViewContext.getMessage(Dict.BUTTON_DELETE_EXPERIMENT);
     }
+
 }

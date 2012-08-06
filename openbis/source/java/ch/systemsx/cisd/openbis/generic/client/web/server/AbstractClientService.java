@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.WebAppsProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -82,6 +83,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebApp;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
@@ -451,6 +453,7 @@ public abstract class AbstractClientService implements IClientService,
         applicationInfo.setEnabledTechnologies(ServerUtils.extractSet(getServiceProperties()
                 .getProperty(Constants.ENABLED_TECHNOLOGIES_KEY)));
         applicationInfo.setCustomImports(extractCustomImportProperties());
+        applicationInfo.setWebapps(extractWebAppsProperties());
         applicationInfo.setArchivingConfigured(isArchivingConfigured());
         applicationInfo.setVersion(getVersion());
         return applicationInfo;
@@ -475,6 +478,12 @@ public abstract class AbstractClientService implements IClientService,
         }
 
         return results;
+    }
+
+    private List<WebApp> extractWebAppsProperties()
+    {
+        WebAppsProperties webAppsProperties = new WebAppsProperties(getServiceProperties());
+        return webAppsProperties.getWebApps();
     }
 
     @Override

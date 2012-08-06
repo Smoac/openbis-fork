@@ -106,6 +106,8 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     MODULE_SECTION("module-section"),
 
+    WEBAPP_SECTION("webapp-section"),
+
     // -------------- Viewers (detail view)
 
     GENERIC_DATASET_VIEWER("generic_dataset_viewer"),

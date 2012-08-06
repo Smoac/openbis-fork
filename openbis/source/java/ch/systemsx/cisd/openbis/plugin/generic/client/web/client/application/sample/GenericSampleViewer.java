@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebAppContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
 
@@ -125,11 +126,6 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         setLayout(new BorderLayout());
         this.sampleId = TechId.create(identifiable);
         extendToolBar();
-    }
-
-    private IViewContext<?> getViewContext()
-    {
-        return viewContext;
     }
 
     @Override
@@ -237,6 +233,9 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         attachManagedPropertiesSections(container, generator);
 
         moduleSectionManager.initialize(container, generator);
+
+        attachWebAppsSections(container, generator, WebAppContext.SAMPLE_DETAILS_VIEW);
+
         return container;
     }
 

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -24,6 +25,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebApp;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
 /**
@@ -49,6 +51,8 @@ public final class ApplicationInfo implements IsSerializable
     private int maxResults = 100000;
 
     private List<CustomImport> customImports;
+
+    private List<WebApp> webapps;
 
     public int getMaxResults()
     {
@@ -138,4 +142,21 @@ public final class ApplicationInfo implements IsSerializable
     {
         return customImports;
     }
+
+    public void setWebapps(List<WebApp> webapps)
+    {
+        this.webapps = webapps;
+    }
+
+    public List<WebApp> getWebapps()
+    {
+        if (webapps == null)
+        {
+            return Collections.emptyList();
+        } else
+        {
+            return webapps;
+        }
+    }
+
 }

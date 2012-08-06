@@ -66,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebAppContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -110,11 +111,6 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         setLayout(new BorderLayout());
         this.datasetId = TechId.create(identifiable);
         this.processButtonHolder = new ProcessButtonHolder();
-    }
-
-    private IViewContext<?> getViewContext()
-    {
-        return viewContext;
     }
 
     abstract protected void loadDatasetInfo(TechId datasetTechId,
@@ -296,6 +292,8 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         attachManagedPropertiesSections(container, dataset);
 
         moduleSectionManager.initialize(container, dataset);
+
+        attachWebAppsSections(container, dataset, WebAppContext.DATA_SET_DETAILS_VIEW);
 
         return container;
     }

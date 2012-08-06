@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebAppContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
 
@@ -70,8 +71,6 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
     private PropertyGrid propertyGrid;
-
-    private final IViewContext<?> viewContext;
 
     protected final TechId materialId;
 
@@ -97,7 +96,6 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
     protected GenericMaterialViewer(final IViewContext<?> viewContext, final TechId materialId)
     {
         super(viewContext, createId(materialId));
-        this.viewContext = viewContext;
         this.materialId = materialId;
         setLayout(new BorderLayout());
     }
@@ -130,6 +128,7 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
         container.layout();
         attachManagedPropertiesSections(container, material);
         moduleSectionManager.initialize(container, material);
+        attachWebAppsSections(container, material, WebAppContext.MATERIAL_DETAILS_VIEW);
         return container;
     }
 

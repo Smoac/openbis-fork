@@ -157,8 +157,9 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
         reloadAllData();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
-    private final IViewContext<IPhosphoNetXClientServiceAsync> getViewContext()
+    protected final IViewContext<IPhosphoNetXClientServiceAsync> getViewContext()
     {
         return (IViewContext<IPhosphoNetXClientServiceAsync>) viewContext;
     }

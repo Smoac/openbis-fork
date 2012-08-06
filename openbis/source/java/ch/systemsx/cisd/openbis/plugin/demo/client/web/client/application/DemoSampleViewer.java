@@ -50,8 +50,9 @@ public final class DemoSampleViewer extends AbstractViewer<Sample>
         reloadAllData();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
-    private IViewContext<IDemoClientServiceAsync> getViewContext()
+    protected IViewContext<IDemoClientServiceAsync> getViewContext()
     {
         return (IViewContext<IDemoClientServiceAsync>) viewContext;
     }
