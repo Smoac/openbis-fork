@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp;
 
 import java.util.Comparator;
 

@@ -31,7 +31,6 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Layout;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
@@ -39,6 +38,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -57,6 +57,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityEditorTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenExperimentBrowserTabClickListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp.WebAppComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp.WebAppSortingAndCodeComparator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp.WebAppUrl;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -68,7 +71,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
-import ch.systemsx.cisd.openbis.generic.shared.basic.WebAppSortingAndCodeComparator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -465,7 +467,14 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
                                         @Override
                                         public Component getComponent()
                                         {
-                                            return new Text(webApp.getCode());
+                                            WebAppUrl url =
+                                                    new WebAppUrl(Window.Location.getProtocol(),
+                                                            Window.Location.getHost(),
+                                                            webApp.getCode(), getSessionId());
+                                            url.setEntityKind(entity.getEntityKind());
+                                            url.setEntityType(entity.getEntityType());
+                                            url.setEntityPermId(entity.getPermId());
+                                            return new WebAppComponent(url);
                                         }
 
                                         @Override
@@ -605,6 +614,11 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     protected ApplicationInfo getApplicationInfo()
     {
         return getViewContext().getModel().getApplicationInfo();
+    }
+
+    protected String getSessionId()
+    {
+        return getViewContext().getModel().getSessionContext().getSessionID();
     }
 
 }
