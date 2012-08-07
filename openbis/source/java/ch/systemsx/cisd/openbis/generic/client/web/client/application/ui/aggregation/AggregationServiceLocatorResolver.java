@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
  */
 public class AggregationServiceLocatorResolver extends AbstractViewLocatorResolver
 {
-    public final static String ACTION = "AGGREGATION_SERVICE";
+    final static String ACTION = "AGGREGATION_SERVICE";
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
