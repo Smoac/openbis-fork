@@ -471,10 +471,10 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
                                                     new WebAppUrl(Window.Location.getProtocol(),
                                                             Window.Location.getHost(),
                                                             webApp.getCode(), getSessionId());
-                                            url.setEntityKind(entity.getEntityKind());
-                                            url.setEntityType(entity.getEntityType());
-                                            url.setEntityIdentifier(entity.getIdentifier());
-                                            url.setEntityPermId(entity.getPermId());
+                                            url.addEntityKind(entity.getEntityKind());
+                                            url.addEntityType(entity.getEntityType());
+                                            url.addEntityIdentifier(entity.getIdentifier());
+                                            url.addEntityPermId(entity.getPermId());
                                             return new WebAppComponent(url);
                                         }
 

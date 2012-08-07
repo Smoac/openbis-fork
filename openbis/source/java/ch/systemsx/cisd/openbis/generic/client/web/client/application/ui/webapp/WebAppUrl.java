@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp;
 
-import com.google.gwt.http.client.UrlBuilder;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -29,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 public class WebAppUrl
 {
 
-    private UrlBuilder builder = new UrlBuilder();
+    private URLMethodWithParameters builder;
 
     public WebAppUrl(String openbisProtocol, String openbisHost, String webAppCode, String sessionId)
     {
@@ -50,49 +49,46 @@ public class WebAppUrl
             throw new IllegalArgumentException("Session id cannot be null");
         }
 
-        builder.setProtocol(openbisProtocol);
-        builder.setHost(openbisHost);
-        // TODO remove the hardcoded part after development is finished
-        builder.setPath("ch.systemsx.cisd.openbis.plugin.screening.OpenBIS/resources/applications/"
-                + webAppCode + "/html");
-        builder.setParameter(WebAppUrlParameter.SESSION_ID.getName(), sessionId);
+        builder =
+                new URLMethodWithParameters(openbisProtocol + "//" + openbisHost + "/" + webAppCode);
+        builder.addParameter(WebAppUrlParameter.SESSION_ID.getName(), sessionId);
     }
 
-    public void setEntityKind(EntityKind entityKind)
+    public void addEntityKind(EntityKind entityKind)
     {
         if (entityKind != null)
         {
-            builder.setParameter(WebAppUrlParameter.ENTITY_KIND.getName(), entityKind.name());
+            builder.addParameter(WebAppUrlParameter.ENTITY_KIND.getName(), entityKind.name());
         }
     }
 
-    public void setEntityType(BasicEntityType entityType)
+    public void addEntityType(BasicEntityType entityType)
     {
         if (entityType != null)
         {
-            builder.setParameter(WebAppUrlParameter.ENTITY_TYPE.getName(), entityType.getCode());
+            builder.addParameter(WebAppUrlParameter.ENTITY_TYPE.getName(), entityType.getCode());
         }
     }
 
-    public void setEntityIdentifier(String entityIdentifier)
+    public void addEntityIdentifier(String entityIdentifier)
     {
         if (entityIdentifier != null)
         {
-            builder.setParameter(WebAppUrlParameter.ENTITY_IDENTIFIER.getName(), entityIdentifier);
+            builder.addParameter(WebAppUrlParameter.ENTITY_IDENTIFIER.getName(), entityIdentifier);
         }
     }
 
-    public void setEntityPermId(String entityPermId)
+    public void addEntityPermId(String entityPermId)
     {
         if (entityPermId != null)
         {
-            builder.setParameter(WebAppUrlParameter.ENTITY_PERM_ID.getName(), entityPermId);
+            builder.addParameter(WebAppUrlParameter.ENTITY_PERM_ID.getName(), entityPermId);
         }
     }
 
     @Override
     public String toString()
     {
-        return builder.buildString();
+        return builder.toString();
     }
 }
