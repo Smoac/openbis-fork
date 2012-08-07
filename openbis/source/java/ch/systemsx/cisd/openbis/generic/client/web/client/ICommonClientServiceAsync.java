@@ -18,8 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 
 import java.util.Date;
 import java.util.List;
-
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
@@ -113,6 +112,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplaceme
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Asynchronous version of {@link ICommonClientService}.
@@ -771,6 +772,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void createReportFromTableModel(TableModel tableModel,
             AsyncCallback<TableModelReference> callback);
+
+    /**
+     * @see ICommonClientService#createReportFromAggregationService(DatastoreServiceDescription,
+     *      Map)
+     */
+    public void createReportFromAggregationService(DatastoreServiceDescription serviceDescription,
+            Map<String, Object> parameters, AsyncCallback<TableModelReference> callback);
 
     /**
      * @see ICommonClientService#listReport(IResultSetConfig)

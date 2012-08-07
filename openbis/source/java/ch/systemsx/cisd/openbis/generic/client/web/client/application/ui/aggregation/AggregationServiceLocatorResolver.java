@@ -1,16 +1,18 @@
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.aggregation;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AggregationServicePanelHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainPagePanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.AbstractViewLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.IViewLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
@@ -42,9 +44,8 @@ public class AggregationServiceLocatorResolver extends AbstractViewLocatorResolv
                 @Override
                 public ITabItem create()
                 {
-                    return DefaultTabItem.createUnaware(getTabTitle(),
-                            AggregationServicePanelHelper.createAggregationServicePanel(
-                                    viewContext, MainPagePanel.PREFIX), false, viewContext);
+                    return DefaultTabItem.createUnaware(getTabTitle(), new AggregationServicePanel(
+                            viewContext, MainPagePanel.PREFIX), false, viewContext);
                 }
 
                 @Override

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
@@ -871,6 +872,12 @@ public interface ICommonClientService extends IClientService
      */
     public TableModelReference createReportFromTableModel(TableModel tableModel)
             throws UserFailureException;
+
+    /**
+     * Execute an aggregation service to generate a report.
+     */
+    TableModelReference createReportFromAggregationService(
+            DatastoreServiceDescription serviceDescription, Map<String, Object> parameters);
 
     /**
      * Returns a list of report rows.

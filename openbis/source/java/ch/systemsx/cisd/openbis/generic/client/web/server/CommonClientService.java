@@ -1853,6 +1853,18 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
+    public TableModelReference createReportFromAggregationService(
+            DatastoreServiceDescription serviceDescription, Map<String, Object> parameters)
+    {
+        final String sessionToken = getSessionToken();
+        final TableModel tableModel =
+                commonServer.createReportFromAggregationService(sessionToken, serviceDescription,
+                        parameters);
+        String resultSetKey = saveReportInCache(tableModel);
+        return new TableModelReference(resultSetKey, tableModel.getHeader());
+    }
+
+    @Override
     public TableModelReference createReportFromTableModel(TableModel tableModel)
     {
         // WORKAROUND Need to unescape table model that was provided by the client.

@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonView
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.AggregationServiceLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.AttachmentDownloadLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.BrowserLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.GlobalSearchLocatorResolver;
@@ -44,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.Def
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ModuleInitializationController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.BasicLoginCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.aggregation.AggregationServiceLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
