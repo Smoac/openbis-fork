@@ -38,7 +38,7 @@ public class HelpPageIdentifier
     public static enum HelpPageDomain
     {
         // base domains (as in menu)
-        EXPERIMENT, SAMPLE, DATA_SET, MATERIAL, ADMINISTRATION, SEARCH,
+        EXPERIMENT, SAMPLE, DATA_SET, MATERIAL, ADMINISTRATION, SEARCH, WEB_APP,
 
         // entity types
         EXPERIMENT_TYPE(EXPERIMENT), SAMPLE_TYPE(SAMPLE), DATA_SET_TYPE(DATA_SET), MATERIAL_TYPE(

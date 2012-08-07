@@ -24,7 +24,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 public enum WebAppContext
 {
 
-    QUERIES_MENU("queries-menu"), EXPERIMENT_DETAILS_VIEW("experiment-details-view"),
+    MODULES_MENU("modules-menu"), EXPERIMENT_DETAILS_VIEW("experiment-details-view"),
     SAMPLE_DETAILS_VIEW("sample-details-view"), DATA_SET_DETAILS_VIEW("data-set-details-view"),
     MATERIAL_DETAILS_VIEW("material-details-view");
 

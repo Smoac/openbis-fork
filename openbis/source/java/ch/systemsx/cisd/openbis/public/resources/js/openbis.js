@@ -341,3 +341,39 @@ actionDeferrer.prototype.dependencyCompleted = function(key) {
 	}
 }
 
+function openbisWebAppContext(){
+	this.sessionId = this.getParameter("session-id");
+	this.entityKind = this.getParameter("entity-kind");
+	this.entityType = this.getParameter("entity-type");
+	this.entityIdentifier = this.getParameter("entity-identifier");
+	this.entityPermId = this.getParameter("entity-perm-id");
+}
+
+openbisWebAppContext.prototype.getSessionId = function(){
+	return this.sessionId;
+}
+
+openbisWebAppContext.prototype.getEntityKind = function(){
+	return this.entityKind;
+}
+
+openbisWebAppContext.prototype.getEntityType = function(){
+	return this.entityType;
+}
+
+openbisWebAppContext.prototype.getEntityIdentifier = function(){
+	return this.entityIdentifier;
+}
+
+openbisWebAppContext.prototype.getEntityPermId = function(){
+	return this.entityPermId;
+}
+
+openbisWebAppContext.prototype.getParameter = function(parameterName){
+	var match = location.search.match(RegExp("[?|&]"+parameterName+'=(.+?)(&|$)'));
+	if(match){
+		return decodeURIComponent(match[1]);
+	}else{
+		return null;
+	}
+}

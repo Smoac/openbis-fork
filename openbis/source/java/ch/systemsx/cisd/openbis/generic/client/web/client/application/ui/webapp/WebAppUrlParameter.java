@@ -25,7 +25,7 @@ public enum WebAppUrlParameter
 {
 
     SESSION_ID("session-id"), ENTITY_KIND("entity-kind"), ENTITY_TYPE("entity-type"),
-    ENTITY_PERM_ID("entity-perm-id");
+    ENTITY_IDENTIFIER("entity-identifier"), ENTITY_PERM_ID("entity-perm-id");
 
     private final String name;
 

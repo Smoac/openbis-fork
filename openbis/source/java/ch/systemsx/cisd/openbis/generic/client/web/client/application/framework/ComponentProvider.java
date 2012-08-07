@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import com.extjs.gxt.ui.client.widget.Component;
+import com.google.gwt.user.client.Window;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
@@ -63,8 +64,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.script.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.script.ScriptRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp.WebAppComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp.WebAppUrl;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.LoggingConsole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebApp;
 
 /**
  * Creates and provides GUI modules/components (such as sample browser).
@@ -1652,6 +1656,48 @@ public final class ComponentProvider
                     return null;
                 }
 
+            };
+    }
+
+    public AbstractTabItemFactory createWebApp(final WebApp webApp)
+    {
+        return new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    WebAppUrl url =
+                            new WebAppUrl(Window.Location.getProtocol(), Window.Location.getHost(),
+                                    webApp.getCode(), viewContext.getModel().getSessionContext()
+                                            .getSessionID());
+                    return createRegistrationTab(getTabTitle(),
+                            DatabaseModificationAwareComponent
+                                    .wrapUnaware(new WebAppComponent(url)));
+                }
+
+                @Override
+                public String getId()
+                {
+                    return WebAppComponent.getId(webApp.getCode());
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.WEB_APP, HelpPageAction.VIEW);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return webApp.getLabel();
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
             };
     }
 }

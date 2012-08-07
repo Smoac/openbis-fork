@@ -52,7 +52,9 @@ public class WebAppUrl
 
         builder.setProtocol(openbisProtocol);
         builder.setHost(openbisHost);
-        builder.setPath(webAppCode);
+        // TODO remove the hardcoded part after development is finished
+        builder.setPath("ch.systemsx.cisd.openbis.plugin.screening.OpenBIS/resources/applications/"
+                + webAppCode + "/html");
         builder.setParameter(WebAppUrlParameter.SESSION_ID.getName(), sessionId);
     }
 
@@ -72,6 +74,14 @@ public class WebAppUrl
         }
     }
 
+    public void setEntityIdentifier(String entityIdentifier)
+    {
+        if (entityIdentifier != null)
+        {
+            builder.setParameter(WebAppUrlParameter.ENTITY_IDENTIFIER.getName(), entityIdentifier);
+        }
+    }
+
     public void setEntityPermId(String entityPermId)
     {
         if (entityPermId != null)
@@ -85,5 +95,4 @@ public class WebAppUrl
     {
         return builder.buildString();
     }
-
 }

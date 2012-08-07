@@ -16,18 +16,27 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.modules;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModuleInitializationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp.WebAppSortingAndCodeComparator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebApp;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebAppContext;
 
 /**
  * Modules top menu.
@@ -37,10 +46,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 public class ModulesMenu extends TopMenuItem implements IModuleInitializationObserver
 {
 
-    public ModulesMenu(IMessageProvider messageProvider,
-            IClientPluginFactoryProvider clientPluginFactoryProvider)
+    private IViewContext<?> viewContext;
+
+    private ComponentProvider componentProvider;
+
+    public ModulesMenu(IViewContext<?> viewContext,
+            IClientPluginFactoryProvider clientPluginFactoryProvider,
+            ComponentProvider componentProvider)
     {
-        super(messageProvider.getMessage(Dict.MENU_MODULES));
+        super(viewContext.getMessage(Dict.MENU_MODULES));
+
+        this.viewContext = viewContext;
+        this.componentProvider = componentProvider;
 
         setId(TopMenu.ID + "_MODULES");
         Menu submenu = new Menu();
@@ -64,10 +81,42 @@ public class ModulesMenu extends TopMenuItem implements IModuleInitializationObs
                 submenu.add(menuItem);
             }
         }
-        simplifyIfNecessary(this);
-        if (submenu.getItemCount() > 0)
+    }
+
+    void addWebAppsItems()
+    {
+        List<WebApp> webApps = new ArrayList<WebApp>();
+
+        for (WebApp webApp : getViewContext().getModel().getApplicationInfo().getWebapps())
         {
-            show();
+            if (webApp.matchesContext(WebAppContext.MODULES_MENU))
+            {
+                webApps.add(webApp);
+            }
+        }
+
+        Collections.sort(webApps, new WebAppSortingAndCodeComparator());
+
+        Menu submenu = getMenu();
+        for (final WebApp webApp : webApps)
+        {
+            IActionMenuItem actionMenuItem = new IActionMenuItem()
+                {
+                    @Override
+                    public String getMenuText(IMessageProvider messageProvider)
+                    {
+                        return webApp.getLabel();
+                    }
+
+                    @Override
+                    public String getMenuId()
+                    {
+                        return TopMenu.ID + "_" + webApp.getCode();
+                    }
+                };
+
+            submenu.add(new ActionMenu(actionMenuItem, viewContext, componentProvider
+                    .createWebApp(webApp)));
         }
     }
 
@@ -92,6 +141,19 @@ public class ModulesMenu extends TopMenuItem implements IModuleInitializationObs
     public void notify(List<IModule> successfullyInitializedModules)
     {
         addModuleItems(successfullyInitializedModules);
+        addWebAppsItems();
+
+        simplifyIfNecessary(this);
+
+        if (getMenu().getItemCount() > 0)
+        {
+            show();
+        }
+    }
+
+    private IViewContext<?> getViewContext()
+    {
+        return viewContext;
     }
 
 }

@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.google.gwt.user.client.ui.Frame;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+
 /**
  * Component that displays a web application in an IFRAME.
  * 
@@ -27,8 +29,15 @@ import com.google.gwt.user.client.ui.Frame;
 public class WebAppComponent extends WidgetComponent
 {
 
+    private static final String ID_PREFIX = GenericConstants.ID_PREFIX + "webapp_";
+
     public WebAppComponent(WebAppUrl url)
     {
         super(new Frame(url.toString()));
+    }
+
+    public static String getId(String webAppCode)
+    {
+        return ID_PREFIX + webAppCode;
     }
 }

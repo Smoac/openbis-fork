@@ -473,6 +473,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
                                                             webApp.getCode(), getSessionId());
                                             url.setEntityKind(entity.getEntityKind());
                                             url.setEntityType(entity.getEntityType());
+                                            url.setEntityIdentifier(entity.getIdentifier());
                                             url.setEntityPermId(entity.getPermId());
                                             return new WebAppComponent(url);
                                         }

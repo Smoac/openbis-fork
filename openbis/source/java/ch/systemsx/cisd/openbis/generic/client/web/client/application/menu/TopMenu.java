@@ -119,7 +119,8 @@ public class TopMenu extends LayoutContainer
         toolBar.add(new BrowseMenu(viewContext, componentProvider));
         toolBar.add(new NewMenu(viewContext, componentProvider));
         toolBar.add(new ImportMenu(viewContext, componentProvider));
-        toolBar.add(new ModulesMenu(viewContext, viewContext.getClientPluginFactoryProvider()));
+        toolBar.add(new ModulesMenu(viewContext, viewContext.getClientPluginFactoryProvider(),
+                componentProvider));
         toolBar.add(new FillToolItem());
         toolBar.add(new SearchWidget(viewContext));
         toolBar.add(new SeparatorToolItem());
