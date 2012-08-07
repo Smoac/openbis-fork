@@ -106,6 +106,10 @@ openbis.prototype.restoreSession = function() {
 	this.sessionToken = readCookie('openbis');
 }
 
+openbis.prototype.useSession = function(sessionToken){
+	this.sessionToken = sessionToken;
+}
+
 openbis.prototype.isSessionActive = function(action) {
 	ajaxRequest({
 		url: this.generalInfoServiceUrl,
@@ -426,8 +430,8 @@ openbisWebAppContext.prototype.getEntityPermId = function(){
 
 openbisWebAppContext.prototype.getParameter = function(parameterName){
 	var match = location.search.match(RegExp("[?|&]"+parameterName+'=(.+?)(&|$)'));
-	if(match){
-		return decodeURIComponent(match[1]);
+	if(match && match[1]){
+		return decodeURIComponent(match[1].replace(/\+/g,' '));
 	}else{
 		return null;
 	}
