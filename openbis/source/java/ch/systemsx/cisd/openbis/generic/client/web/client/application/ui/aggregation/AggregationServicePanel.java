@@ -20,6 +20,7 @@ import java.util.HashMap;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
@@ -39,6 +40,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public class AggregationServicePanel extends ContentPanel
 {
+    private static final String SERVICE_KEY_PARAM = "serviceKey";
+
+    private static final String DSS_CODE_PARAM = "dss";
+
     private static class AggregationServiceGeneratedAction implements
             IOnReportComponentGeneratedAction
     {
@@ -58,16 +63,26 @@ public class AggregationServicePanel extends ContentPanel
         }
     };
 
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
+
+    private final ViewLocator viewLocator;
+
     public AggregationServicePanel(IViewContext<ICommonClientServiceAsync> viewContext,
-            String idPrefix)
+            String idPrefix, ViewLocator viewLocator)
     {
         super(new FitLayout());
-        setStyleAttribute("background-color", "white");
         setId(idPrefix + "aggregation_service");
-        String serviceKey = "sp-233";
+        this.viewContext = viewContext;
+        this.viewLocator = viewLocator;
+        callAggregationService();
+    }
+
+    protected void callAggregationService()
+    {
+        String serviceKey = viewLocator.getParameters().get(SERVICE_KEY_PARAM);
+        String dataStoreCode = viewLocator.getParameters().get(DSS_CODE_PARAM);
         HashMap<String, Object> parameterMap = new HashMap<String, Object>();
         parameterMap.put("name", "foo");
-        String dataStoreCode = "STANDARD";
         DatastoreServiceDescription description =
                 DatastoreServiceDescription.reporting(serviceKey, "", new String[0], dataStoreCode,
                         ReportingPluginType.AGGREGATION_TABLE_MODEL);

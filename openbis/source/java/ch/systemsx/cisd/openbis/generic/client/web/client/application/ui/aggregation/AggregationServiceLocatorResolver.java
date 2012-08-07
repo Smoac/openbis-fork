@@ -45,7 +45,7 @@ public class AggregationServiceLocatorResolver extends AbstractViewLocatorResolv
                 public ITabItem create()
                 {
                     return DefaultTabItem.createUnaware(getTabTitle(), new AggregationServicePanel(
-                            viewContext, MainPagePanel.PREFIX), false, viewContext);
+                            viewContext, MainPagePanel.PREFIX, locator), false, viewContext);
                 }
 
                 @Override
