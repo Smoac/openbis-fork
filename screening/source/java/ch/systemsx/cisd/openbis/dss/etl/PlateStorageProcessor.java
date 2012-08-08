@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageZoomLevel;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailsInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat.FileFormat;
@@ -83,8 +84,18 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
     {
         public static DatasetOwnerInformation create(DataSetInformation dataSetInformation)
         {
-            return new DatasetOwnerInformation(dataSetInformation.getDataSetCode(),
-                    dataSetInformation);
+            String datasetCode;
+
+            if (dataSetInformation instanceof FeatureVectorDataSetInformation)
+            {
+                datasetCode =
+                        ((FeatureVectorDataSetInformation) dataSetInformation)
+                                .getContainerDatasetPermId();
+            } else
+            {
+                datasetCode = dataSetInformation.getDataSetCode();
+            }
+            return new DatasetOwnerInformation(datasetCode, dataSetInformation);
         }
 
         private final Experiment experiment;

@@ -46,12 +46,14 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  * @author jakubs
  */
 
-public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<DataSetInformation> implements
-        IImagingDatasetFactory
+public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<DataSetInformation>
+        implements IImagingDatasetFactory
 {
     final IDataSetRegistrationDetailsFactory<ImageDataSetInformation> imageDatasetFactory;
 
     final IDataSetRegistrationDetailsFactory<DataSetInformation> imageContainerDatasetFactory;
+
+    final IDataSetRegistrationDetailsFactory<DataSetInformation> featureVectorContainerDatasetFactory;
 
     final IDataSetRegistrationDetailsFactory<FeatureVectorDataSetInformation> featureVectorDatasetFactory;
 
@@ -66,8 +68,8 @@ public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<
                 new JythonImageDataSetRegistrationFactory(this.registratorState,
                         this.userProvidedDataSetInformationOrNull);
         this.featureVectorDatasetFactory =
-                new ProgrammableDropboxObjectFactory<FeatureVectorDataSetInformation>(this.registratorState,
-                        this.userProvidedDataSetInformationOrNull)
+                new ProgrammableDropboxObjectFactory<FeatureVectorDataSetInformation>(
+                        this.registratorState, this.userProvidedDataSetInformationOrNull)
                     {
                         @Override
                         protected FeatureVectorDataSetInformation createDataSetInformation()
@@ -75,6 +77,10 @@ public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<
                             return new FeatureVectorDataSetInformation();
                         }
                     };
+
+        this.featureVectorContainerDatasetFactory =
+                new FeatureVectorContainerDataSetRegistrationFactory(this.registratorState,
+                        this.userProvidedDataSetInformationOrNull);
     }
 
     /** By default a standard dataset is created. */
@@ -125,7 +131,8 @@ public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<
     public String figureGeometry(
             DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails)
     {
-        IEncapsulatedOpenBISService openBisService = registratorState.getGlobalState().getOpenBisService();
+        IEncapsulatedOpenBISService openBisService =
+                registratorState.getGlobalState().getOpenBisService();
         return PlateGeometryOracle.figureGeometry(registrationDetails, openBisService);
     }
 

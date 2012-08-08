@@ -40,6 +40,8 @@ public class FeatureVectorDataSetInformation extends DataSetInformation
 
     private List<FeatureDefinition> features;
     
+    private String containerDatasetPermId;
+
     public FeatureVectorDataSetInformation()
     {
         this.features = new ArrayList<FeatureDefinition>();
@@ -82,6 +84,16 @@ public class FeatureVectorDataSetInformation extends DataSetInformation
         dto.setCode(featureCode);
         dto.setLabel(featureCode);
         return dto;
+    }
+
+    public String getContainerDatasetPermId()
+    {
+        return containerDatasetPermId;
+    }
+
+    public void setContainerDatasetPermId(String containerDatasetPermId)
+    {
+        this.containerDatasetPermId = containerDatasetPermId;
     }
 
 }

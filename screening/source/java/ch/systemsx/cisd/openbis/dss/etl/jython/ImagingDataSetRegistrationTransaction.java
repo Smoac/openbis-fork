@@ -20,11 +20,14 @@ import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.Screeni
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.MICROSCOPY_IMAGE_TYPE_SUBSTRING;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.FileBasedContentNode;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
@@ -38,7 +41,11 @@ import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.Hdf5ThumbnailGenerator;
 import ch.systemsx.cisd.openbis.dss.etl.Utils;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinition;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorContainerDataSet;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSetInformation;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageContainerDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetStructure;
@@ -48,6 +55,9 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImagingDataSetRegistrationTr
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IFeatureVectorDataSet;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.SimpleFeatureVectorDataConfig;
+import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvFeatureVectorParser;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -110,6 +120,49 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                 SimpleImageDataSetRegistrator.createImageDatasetDetails(imageDataSet,
                         incomingFolderWithImages, imageDatasetFactory);
         return createNewImageDataSet(details);
+    }
+
+    /**
+     * Creates new container dataset which contains one feature vector dataset.
+     */
+    public IFeatureVectorDataSet createNewFeatureVectorDataSet(
+            SimpleFeatureVectorDataConfig featureDataSetConfig, File featureVectorFileOrNull)
+    {
+        List<FeatureDefinition> featureDefinitions;
+        Properties properties = featureDataSetConfig.getProperties();
+        if (properties == null)
+        {
+            featureDefinitions =
+                    ((FeaturesBuilder) featureDataSetConfig.getFeaturesBuilder())
+                            .getFeatureDefinitionValuesList();
+        } else
+        {
+            try
+            {
+                featureDefinitions =
+                        CsvFeatureVectorParser.parse(featureVectorFileOrNull, properties);
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+        DataSetRegistrationDetails<FeatureVectorDataSetInformation> registrationDetails =
+                factory.createFeatureVectorRegistrationDetails(featureDefinitions);
+        @SuppressWarnings("unchecked")
+        DataSet<FeatureVectorDataSetInformation> dataSet =
+                (DataSet<FeatureVectorDataSetInformation>) createNewDataSet(registrationDetails);
+
+        FeatureVectorDataSet featureDataset =
+                new FeatureVectorDataSet(dataSet, getGlobalState().getOpenBisService());
+
+        // create container
+        FeatureVectorContainerDataSet containerDataset =
+                createFeatureVectorContainerDataSet(featureDataset);
+
+        registrationDetails.getDataSetInformation().setContainerDatasetPermId(
+                containerDataset.getDataSetCode());
+
+        return containerDataset;
     }
 
     /**
@@ -269,6 +322,22 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         return containerDataset;
     }
 
+    private FeatureVectorContainerDataSet createFeatureVectorContainerDataSet(
+            FeatureVectorDataSet mainDataset)
+    {
+        String containerDatasetTypeCode = "HCS_ANALYSIS_WELL_FEATURES_CONTAINER";
+        @SuppressWarnings("unchecked")
+        FeatureVectorContainerDataSet containerDataSet =
+                (FeatureVectorContainerDataSet) createNewDataSet(
+                        factory.featureVectorContainerDatasetFactory, containerDatasetTypeCode);
+        containerDataSet.setContainedDataSetCodes(Collections.singletonList(mainDataset
+                .getDataSetCode()));
+
+        containerDataSet.setOriginalDataSet(mainDataset);
+
+        return containerDataSet;
+    }
+
     // Copies properties and relations to datasets from the main dataset to the container and
     // resets them in the main dataset.
     private static void moveDatasetRelations(IDataSet mainDataset, IDataSet containerDataset)
@@ -398,13 +467,10 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     public String moveFile(String src, IDataSet dst, String dstInDataset)
     {
         ImageContainerDataSet imageContainerDataset = tryAsImageContainerDataset(dst);
+
         if (imageContainerDataset != null)
         {
-            String destination = dstInDataset;
-            if (destination.startsWith(originalDirName) == false)
-            {
-                destination = prependOriginalDirectory(destination).getPath();
-            }
+            String destination = getDestinationInOriginal(dstInDataset);
             DataSet<ImageDataSetInformation> originalDataset =
                     imageContainerDataset.getOriginalDataset();
             if (originalDataset == null)
@@ -416,10 +482,42 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                     .setDatasetRelativeImagesFolderPath(new File(destination));
 
             return super.moveFile(src, originalDataset, destination);
-        } else
-        {
-            return super.moveFile(src, dst, dstInDataset);
         }
+
+        FeatureVectorContainerDataSet featureContainer = tryAsFeatureVectorContainerDataset(dst);
+        if (featureContainer != null)
+        {
+            IDataSet originalDataSet = featureContainer.getOriginalDataset();
+
+            if (originalDataSet == null)
+            {
+                throw new UserFailureException(
+                        "Cannot move the files because the original dataset is missing: " + src);
+            }
+
+            return super.moveFile(src, originalDataSet, getDestinationInOriginal(dstInDataset));
+        }
+
+        return super.moveFile(src, dst, dstInDataset);
+    }
+
+    private String getDestinationInOriginal(String dstInDataset)
+    {
+        String destination = dstInDataset;
+        if (destination.startsWith(originalDirName) == false)
+        {
+            destination = prependOriginalDirectory(destination).getPath();
+        }
+        return destination;
+    }
+
+    private static FeatureVectorContainerDataSet tryAsFeatureVectorContainerDataset(IDataSet dataset)
+    {
+        if (dataset instanceof FeatureVectorContainerDataSet)
+        {
+            return (FeatureVectorContainerDataSet) dataset;
+        }
+        return null;
     }
 
     private static ImageContainerDataSet tryAsImageContainerDataset(IDataSet dataset)
