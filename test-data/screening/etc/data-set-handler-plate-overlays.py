@@ -79,7 +79,7 @@ def process(transaction):
       splittedDataSetFolderName = incoming.getName().split('.')
       plateName = splittedDataSetFolderName[0]
       imageDataset.setPlate(space, plateName)
-      newDataset = transaction.createNewImageDataSet(imageRegistrationDetails, incoming);
+      newDataset = transaction.createNewImageDataSet(imageDataset, incoming);
       if len(splittedDataSetFolderName) > 2:
           newDataset.setPropertyValue("$ANALYSIS_PROCEDURE", splittedDataSetFolderName[2])
       searchService = transaction.getSearchService()
@@ -92,4 +92,4 @@ def process(transaction):
       dataSets = searchService.searchForDataSets(searchCriteria)
       if dataSets.size() > 0:
           newDataset.setParentDatasets([dataSets[0].getDataSetCode()])
-    transaction.moveFile(incoming.getPath(), newDataset)
+      transaction.moveFile(incoming.getPath(), newDataset)
