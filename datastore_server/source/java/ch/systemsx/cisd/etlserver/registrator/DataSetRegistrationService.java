@@ -202,6 +202,15 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
      */
     protected void logDssRegistrationResult()
     {
+        boolean stillExists = incomingDataSetFile.getRealIncomingFile().exists();
+        if (false == stillExists)
+        {
+            dssRegistrationLog
+                    .log("Incoming file ["
+                            + incomingDataSetFile.getRealIncomingFile()
+                            + "] was deleted outside of openBIS after processing started. The data had already been registered in the database.");
+
+        }
         dssRegistrationLog.logDssRegistrationResult(encounteredErrors);
     }
 
