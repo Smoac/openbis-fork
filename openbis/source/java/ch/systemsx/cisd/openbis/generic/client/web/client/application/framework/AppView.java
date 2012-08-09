@@ -16,6 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SimpleModeHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
+
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
@@ -27,13 +34,6 @@ import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.google.gwt.user.client.ui.RootPanel;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SimpleModeHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
 
 /**
  * Main application view.
@@ -87,7 +87,7 @@ final class AppView extends View
         } else if (viewMode == ViewMode.NORMAL)
         {
             north = new TopMenu(viewContext, componentProvider);
-        } else if (viewMode == ViewMode.EMBEDDED)
+        } else if (viewMode == ViewMode.EMBEDDED || viewMode == ViewMode.GRID)
         {
             north = null;
         } else

@@ -1,7 +1,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.aggregation;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
@@ -44,7 +43,14 @@ public class AggregationServiceLocatorResolver extends AbstractViewLocatorResolv
                 @Override
                 public ITabItem create()
                 {
-                    return DefaultTabItem.createUnaware(getTabTitle(), new AggregationServicePanel(
+                    String tabTitle =
+                            locator.getParameters().get(AggregationServicePanel.SERVICE_KEY_PARAM);
+                    if (null == tabTitle)
+                    {
+                        tabTitle = getTabTitle();
+                    }
+
+                    return DefaultTabItem.createUnaware(tabTitle, new AggregationServicePanel(
                             viewContext, MainPagePanel.PREFIX, locator), false, viewContext);
                 }
 
@@ -63,7 +69,9 @@ public class AggregationServiceLocatorResolver extends AbstractViewLocatorResolv
                 @Override
                 public String getTabTitle()
                 {
-                    return viewContext.getMessage(Dict.APPLICATION_NAME);
+                    // No need to go through the dictionary for this, since the panel is not a
+                    // normal part of the openBIS app.
+                    return "aggregation service";
                 }
 
                 @Override

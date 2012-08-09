@@ -44,7 +44,7 @@ import com.google.gwt.user.client.ui.HTML;
  */
 public class AggregationServicePanel extends ContentPanel
 {
-    private static final String SERVICE_KEY_PARAM = "serviceKey";
+    static final String SERVICE_KEY_PARAM = "serviceKey";
 
     private static final String DSS_CODE_PARAM = "dss";
 

@@ -76,6 +76,11 @@ public class GenericViewModel
         return viewMode == ViewMode.EMBEDDED;
     }
 
+    public boolean isGridMode()
+    {
+        return viewMode == ViewMode.GRID;
+    }
+
     public boolean isDisplaySettingsSaving()
     {
         return isAnonymousLogin() == false && ViewMode.NORMAL.equals(getViewMode());

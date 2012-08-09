@@ -32,5 +32,10 @@ public enum ViewMode implements IsSerializable
      */
     EMBEDDED,
 
+    /**
+     * Grid mode is similar to embedded, but it has full-featured grid functionality.
+     */
+    GRID,
+
     NORMAL;
 }
