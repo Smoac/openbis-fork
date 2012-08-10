@@ -318,6 +318,13 @@ openbis.prototype.executeQuery = function(queryId, parameterBindings, action) {
 }
 
 openbis.prototype.createSessionWorkspaceUploader = function(uploaderContainer){
+	var uploaderSupported = window.File && window.FileReader && window.XMLHttpRequest;
+
+	if(!uploaderSupported){
+		alert("Uploader is not supported by your browser.");
+		return;
+	}
+	
 	var $this = this;
 	
 	$('head').append('<link rel="stylesheet" media="screen" type="text/css" href="../uploader/css/src/upload.css" />');
