@@ -329,6 +329,7 @@ openbis.prototype.createSessionWorkspaceUploader = function(uploaderContainer){
 		       chunk_size: 1000*1024,
 		       file_upload_url: $this.dssUrl + "/datastore_server/session_workspace_file_upload",
 		       form_upload_url: $this.dssUrl + "/datastore_server/session_workspace_form_upload",
+		       file_download_url: $this.dssUrl + "/datastore_server/session_workspace_file_download",
 		       sessionID: $this.sessionToken
 		});
 	});	

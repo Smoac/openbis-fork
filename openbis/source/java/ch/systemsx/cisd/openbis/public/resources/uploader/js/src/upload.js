@@ -191,8 +191,9 @@ var Uploader = (function() {
                             $("#progressbar-" + d.id).css("width", "100%");
                             $("#upload-" + d.id).addClass("ready");
                             $("#speed-" + d.id).html(styleSize(file.size / secs) + "/s");
+                            // pkupczyk: changed download url
                             $("#filename-" + d.id).replaceWith("<a target=\"_blank\" " +
-                                                               "href=\"" + settings.upload_dir + "/" +
+                                                               "href=\"" + settings.file_download_url + "?sessionID=" + settings.sessionID + "&filePath=" +
                                                                d.filename + "\">" + d.filename + "</a>"); 
                             $("#action-bar-" + d.id).remove();
                             delete progress[d.id];
@@ -376,10 +377,12 @@ var Uploader = (function() {
             // Einstellungen ggf. mit init()-Parametern ueberschreiben
             settings = $.extend({}, settings, opts);
             settings.smart_mode = settings.smart_mode && defaults.smart_mode;
-            $("h2 > a").attr("href", settings.upload_dir);
+            
+            // pkupczyk: we do not provide listing of uploaded files yet
+            //$("h2 > a").attr("href", settings.upload_dir);
+            
             if (settings.smart_mode) {
-                $("#filedrop-hint").html("Hochzuladende Dateien hier ablegen " +
-                                         "oder durch Klicken ausw&auml;hlen");
+                $("#filedrop-hint").html("Drag and drop the files to upload here or click 'Select files to upload' button.");
                 $(settings.file_input)
                     .bind("change", function(event) {
                         uploadFiles(event.target.files);
@@ -416,11 +419,11 @@ var Uploader = (function() {
                 );
             }
             else { // fallback mode
-                $("#filedrop-hint").html("Hochzuladende Dateien durch Klicken ausw&auml;hlen");
+                $("#filedrop-hint").html("Click 'Select files to upload' button.");
                 generateUploadForm();
             }
             $(settings.file_list_clear_button).click(clearFileList);
-            $("#filedrop-hint").append(".<br/>Upload startet sofort nach der Auswahl.");
+            $("#filedrop-hint").append("<br/>Upload starts immediately after the file selection.");
         }
     };
 })();

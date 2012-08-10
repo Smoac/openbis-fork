@@ -64,7 +64,6 @@ a:hover {
 }
 #filedrop {
     color: #000;
-    background-color: Beige;
     transition: background-color 0.25s linear;
     -moz-transition: background-color 0.25s linear;
     -o-transition: background-color 0.25s linear;
@@ -124,7 +123,6 @@ button:hover {
     background-image: -webkit-linear-gradient(bottom, rgb(220,220,220) 8%, rgb(255,255,255) 89%);
 }
 #filelist-container {
-    background-color: Beige;
     padding: 2ex 1em 3ex 1em;
 }
 #filelist {

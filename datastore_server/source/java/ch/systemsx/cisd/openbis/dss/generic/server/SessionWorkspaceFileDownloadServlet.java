@@ -135,14 +135,11 @@ public class SessionWorkspaceFileDownloadServlet extends HttpServlet
             try
             {
                 String fileName = FilenameUtils.getName(filePath);
+                response.setHeader("Content-Disposition", "inline; filename=" + fileName);
                 response.setContentType(URLConnection.guessContentTypeFromName(fileName));
                 response.setStatus(HttpServletResponse.SC_OK);
                 outputStream = response.getOutputStream();
-
-                long startTime = System.currentTimeMillis();
                 IOUtils.copyLarge(fileStream, outputStream);
-                System.err.println("Download took: " + (System.currentTimeMillis() - startTime)
-                        + " ms");
             } finally
             {
                 IOUtils.closeQuietly(fileStream);
