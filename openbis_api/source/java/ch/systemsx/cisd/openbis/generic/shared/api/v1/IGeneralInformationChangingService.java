@@ -63,4 +63,24 @@ public interface IGeneralInformationChangingService extends IRpcService
     public void addUnofficialVocabularyTerm(String sessionToken, Long vocabularyId,
             NewVocabularyTerm term);
 
+    /**
+     * Returns the custom display settings for a given custom web app.
+     * 
+     * @param webAppId The id of the custom web app to get the display settings for.
+     * 
+     * @since 1.2
+     */
+    public Map<String, String> getCustomDisplaySettings(String sessionToken, String webAppId);
+    
+    /**
+     * Sets the custom display settings for a given custom web app.
+     * 
+     * @param webAppId The id of the custom web app to set the display settings for.
+     * @param customDisplaySettings The new display settings
+     * 
+     * @since 1.2
+     */
+    public void setCustomDisplaySettings(String sessionToken, String webAppId,
+            Map<String, String> customDisplaySettings);
+
 }

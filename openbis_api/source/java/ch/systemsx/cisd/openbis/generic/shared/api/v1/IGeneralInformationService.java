@@ -454,24 +454,4 @@ public interface IGeneralInformationService extends IRpcService
      */
     public List<Material> searchForMaterials(String sessionToken, SearchCriteria searchCriteria);
     
-    /**
-     * Returns the custom display settings for a given custom web app.
-     * 
-     * @param webAppId The id of the custom web app to get the display settings for.
-     * 
-     * @since 1.19
-     */
-    public Map<String, String> getCustomDisplaySettings(String sessionToken, String webAppId);
-    
-    /**
-     * Sets the custom display settings for a given custom web app.
-     * 
-     * @param webAppId The id of the custom web app to set the display settings for.
-     * @param customDisplaySettings The new display settings
-     * 
-     * @since 1.19
-     */
-    public void setCustomDisplaySettings(String sessionToken, String webAppId,
-            Map<String, String> customDisplaySettings);
-
 }
