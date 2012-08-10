@@ -517,7 +517,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                         "Cannot move the files because the original dataset is missing: " + src);
             }
 
-            return super.moveFile(src, originalDataSet, getDestinationInOriginal(dstInDataset));
+            return super.moveFile(src, originalDataSet, dstInDataset);
         }
 
         return super.moveFile(src, dst, dstInDataset);

@@ -103,4 +103,9 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
         getRegistrationDetails().setPropertyValue(propertyCode, propertyValue);
     }
 
+    @Override
+    public File getDataSetStagingFolder()
+    {
+        return originalDataset.getDataSetStagingFolder();
+    }
 }
