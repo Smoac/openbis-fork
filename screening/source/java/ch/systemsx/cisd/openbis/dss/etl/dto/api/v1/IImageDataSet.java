@@ -37,10 +37,13 @@ public interface IImageDataSet extends IDataSet
     
     /**
      * If this method is called the contained data sets (original data set and thumbnails) will
-     * automatically linked to the sample specified by 
-     * {@link IDataSet#setSample(ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable)}.
-     * By default there will be no such links.
+     * automatically linked to the sample specified by
+     * {@link IDataSet#setSample(ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable)}
+     * . By default there will be no such links.
+     * 
+     * @deprecated this method is for backwards compatibility only
      */
+    @Deprecated
     void establishSampleLinkForContainedDataSets();
     
     /**
