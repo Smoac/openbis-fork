@@ -138,6 +138,7 @@
   <patternset id="datastore_server-api-sources">
     <include name="ch/systemsx/cisd/openbis/dss/client/api/v1/**" />
     <include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**" />
+    <include name="ch/systemsx/cisd/openbis/dss/generic/shared/*" />
   </patternset>
   
   <target name="make-query-api-doc">
