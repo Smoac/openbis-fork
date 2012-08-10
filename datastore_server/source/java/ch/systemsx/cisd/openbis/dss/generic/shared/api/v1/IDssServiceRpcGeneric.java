@@ -44,11 +44,9 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
     @DataSetAccessGuard
-    public FileInfoDssDTO[] listFilesForDataSet(
-            String sessionToken,
+    public FileInfoDssDTO[] listFilesForDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class)
-            DataSetFileDTO fileOrFolder)
-            throws IOExceptionUnchecked, IllegalArgumentException;
+            DataSetFileDTO fileOrFolder) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
@@ -61,15 +59,12 @@ public interface IDssServiceRpcGeneric extends IRpcService
      */
     @DataSetAccessGuard
     @Deprecated
-    public InputStream getFileForDataSet(
-            String sessionToken,
+    public InputStream getFileForDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class)
-            DataSetFileDTO fileOrFolder)
-            throws IOExceptionUnchecked, IllegalArgumentException;
+            DataSetFileDTO fileOrFolder) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
-     * Returns an URL from which the requested file.
-     * The URL is valid only for a short time.
+     * Returns an URL from which the requested file. The URL is valid only for a short time.
      * 
      * @param sessionToken The session token
      * @param fileOrFolder The file or folder to retrieve
@@ -78,11 +73,9 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @since 1.4
      */
     @DataSetAccessGuard
-    public String getDownloadUrlForFileForDataSet(
-            String sessionToken,
+    public String getDownloadUrlForFileForDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class)
-            DataSetFileDTO fileOrFolder)
-            throws IOExceptionUnchecked, IllegalArgumentException;
+            DataSetFileDTO fileOrFolder) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
@@ -97,8 +90,8 @@ public interface IDssServiceRpcGeneric extends IRpcService
     @DataSetAccessGuard
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class)
-            String dataSetCode,
-            String path, boolean isRecursive) throws IOExceptionUnchecked, IllegalArgumentException;
+            String dataSetCode, String path, boolean isRecursive) throws IOExceptionUnchecked,
+            IllegalArgumentException;
 
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
@@ -114,12 +107,11 @@ public interface IDssServiceRpcGeneric extends IRpcService
     @Deprecated
     public InputStream getFileForDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class)
-            String dataSetCode,
-            String path) throws IOExceptionUnchecked, IllegalArgumentException;
+            String dataSetCode, String path) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
-     * Returns an URL from which the requested file of the specified data set can be downloaded.
-     * The URL is valid only for a short time.
+     * Returns an URL from which the requested file of the specified data set can be downloaded. The
+     * URL is valid only for a short time.
      * 
      * @param sessionToken The session token
      * @param dataSetCode The data set to retrieve file from
@@ -131,8 +123,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
     @DataSetAccessGuard
     public String getDownloadUrlForFileForDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class)
-            String dataSetCode,
-            String path) throws IOExceptionUnchecked, IllegalArgumentException;
+            String dataSetCode, String path) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
      * Upload a new data set to the DSS.
@@ -147,8 +138,8 @@ public interface IDssServiceRpcGeneric extends IRpcService
     @DataSetAccessGuard
     public String putDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = NewDataSetPredicate.class)
-            NewDataSetDTO newDataset,
-            InputStream inputStream) throws IOExceptionUnchecked, IllegalArgumentException;
+            NewDataSetDTO newDataset, InputStream inputStream) throws IOExceptionUnchecked,
+            IllegalArgumentException;
 
     /**
      * Upload a new file to the user's session workspace.
@@ -156,21 +147,49 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @param sessionToken The session token.
      * @param filePath The file path (including the sub-directory) to upload the file to.
      * @param inputStream An input stream on the file to upload.
+     * @returns The number of bytes written.
      * @throws IOExceptionUnchecked Thrown if because <var>filePath</var> does not exist.
      */
-    public void putFileToSessionWorkspace(String sessionToken, String filePath,
+    public long putFileToSessionWorkspace(String sessionToken, String filePath,
             InputStream inputStream) throws IOExceptionUnchecked;
 
     /**
-     * Download a new file from the user's session workspace.
+     * Upload a file slice to the user's session workspace. If the file does not exist then it will
+     * created.
      * 
      * @param sessionToken The session token.
-     * @param filePath The file path (including the sub-directory) to upload the file to.
-     * @return The output stream containing the file content.
+     * @param filePath The file path (including the sub-directory) to upload the slice to.
+     * @param slicePosition The position the slice should be inserted at.
+     * @param sliceInputStream An input stream of the slice to be uploaded.
+     * @return The number of bytes written.
+     * @throws IOExceptionUnchecked Thrown if IOException occurs.
+     */
+    public long putFileSliceToSessionWorkspace(String sessionToken, String filePath,
+            long slicePosition, InputStream sliceInputStream) throws IOExceptionUnchecked;
+
+    /**
+     * Download a file from the user's session workspace.
+     * 
+     * @param sessionToken The session token.
+     * @param filePath The file path (including the sub-directory) to download the file from.
+     * @return The input stream containing the file content.
      * @throws IOExceptionUnchecked Thrown if an IOException occurs.
      */
     public InputStream getFileFromSessionWorkspace(String sessionToken, String filePath)
             throws IOExceptionUnchecked;
+
+    /**
+     * Download a file slice from the user's session workspace.
+     * 
+     * @param sessionToken The session token.
+     * @param filePath The file path (including the sub-directory) to download the slice from.
+     * @param slicePosition The position the slice should be downloaded from.
+     * @param sliceSize The size of the slice to be downloaded.
+     * @return The input stream containing the file slice content.
+     * @throws IOExceptionUnchecked Thrown if an IOException occurs.
+     */
+    public InputStream getFileSliceFromSessionWorkspace(String sessionToken, String filePath,
+            long slicePosition, long sliceSize) throws IOExceptionUnchecked;
 
     /**
      * Delete a file or directory in the session workspace.
@@ -199,8 +218,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
     @DataSetAccessGuard(releaseDataSetLocks = false)
     public String getPathToDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class)
-            String dataSetCode,
-            String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
+            String dataSetCode, String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
             IllegalArgumentException;
 
     /**

@@ -626,11 +626,19 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         }
 
         @Override
-        public void putFileToSessionWorkspace(String sessionToken, String filePath,
+        public long putFileToSessionWorkspace(String sessionToken, String filePath,
                 InputStream inputStream) throws IOExceptionUnchecked
         {
+            return 0;
         }
-        
+
+        @Override
+        public long putFileSliceToSessionWorkspace(String sessionToken, String filePath,
+                long slicePosition, InputStream sliceInputStream) throws IOExceptionUnchecked
+        {
+            return 0;
+        }
+
         @Override
         public int getMajorVersion()
         {
@@ -673,6 +681,13 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         @Override
         public InputStream getFileFromSessionWorkspace(String sessionToken, String filePath)
                 throws IOExceptionUnchecked
+        {
+            return null;
+        }
+
+        @Override
+        public InputStream getFileSliceFromSessionWorkspace(String sessionToken, String filePath,
+                long slicePosition, long sliceSize) throws IOExceptionUnchecked
         {
             return null;
         }

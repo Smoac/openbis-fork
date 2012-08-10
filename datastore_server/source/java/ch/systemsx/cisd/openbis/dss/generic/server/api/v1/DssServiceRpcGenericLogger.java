@@ -71,7 +71,8 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
     public String getDownloadUrlForFileForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
-        logAccess(sessionToken, "get_download_url_for_file_for_data_set", "DATA_SET(%s)", fileOrFolder);
+        logAccess(sessionToken, "get_download_url_for_file_for_data_set", "DATA_SET(%s)",
+                fileOrFolder);
         return null;
     }
 
@@ -91,13 +92,13 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
         logAccess(sessionToken, "get_file_for_data_set", "DATA_SET(%s) PATH(%s)", dataSetCode, path);
         return null;
     }
-    
 
     @Override
-    public String getDownloadUrlForFileForDataSet(String sessionToken, String dataSetCode, String path)
-            throws IOExceptionUnchecked, IllegalArgumentException
+    public String getDownloadUrlForFileForDataSet(String sessionToken, String dataSetCode,
+            String path) throws IOExceptionUnchecked, IllegalArgumentException
     {
-        logAccess(sessionToken, "get_download_url_for_file_for_data_set", "DATA_SET(%s) PATH(%s)", dataSetCode, path);
+        logAccess(sessionToken, "get_download_url_for_file_for_data_set", "DATA_SET(%s) PATH(%s)",
+                dataSetCode, path);
         return null;
     }
 
@@ -111,10 +112,20 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
 
     @Override
     @DataSetAccessGuard
-    public void putFileToSessionWorkspace(String sessionToken, String filePath,
+    public long putFileToSessionWorkspace(String sessionToken, String filePath,
             InputStream inputStream) throws IOExceptionUnchecked
     {
         logTracking(sessionToken, "put_file_to_session_workspace", "FILE_PATH(%s)", filePath);
+        return 0;
+    }
+
+    @Override
+    public long putFileSliceToSessionWorkspace(String sessionToken, String filePath,
+            long slicePosition, InputStream sliceInputStream) throws IOExceptionUnchecked
+    {
+        logTracking(sessionToken, "put_file_slice_to_session_workspace",
+                "FILE_PATH(%s) SLICE_POSITION(%s)", filePath, slicePosition);
+        return 0;
     }
 
     @Override
@@ -123,6 +134,16 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
             throws IOExceptionUnchecked
     {
         logAccess(sessionToken, "get_file_from_session_workspace", "FILE_PATH(%s)", filePath);
+        return null;
+    }
+
+    @Override
+    public InputStream getFileSliceFromSessionWorkspace(String sessionToken, String filePath,
+            long slicePosition, long sliceSize) throws IOExceptionUnchecked
+    {
+        logAccess(sessionToken, "get_file_slice_from_session_workspace",
+                "FILE_PATH(%s) SLICE_POSITION(%s) SLICE_SIZE(%s)", filePath, slicePosition,
+                sliceSize);
         return null;
     }
 

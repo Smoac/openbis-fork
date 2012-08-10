@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -51,8 +52,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.HierarchicalFileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
-
-import de.schlichtherle.io.FileOutputStream;
 
 /**
  * Implementation of the generic RPC interface.
@@ -89,8 +88,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
             IHierarchicalContentProvider contentProvider)
     {
         this(openBISService, infoProvider, null, shareIdManager, contentProvider,
-                new PutDataSetService(
-                        openBISService, operationLog));
+                new PutDataSetService(openBISService, operationLog));
     }
 
     /**
@@ -98,8 +96,8 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
      */
     public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
             IPluginTaskInfoProvider infoProvider, IStreamRepository streamRepository,
-            IShareIdManager shareIdManager,
-            IHierarchicalContentProvider contentProvider, PutDataSetService service)
+            IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider,
+            PutDataSetService service)
     {
         super(openBISService, streamRepository, shareIdManager, contentProvider);
         putService = service;
@@ -195,9 +193,8 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     }
 
     @Override
-    public void putFileToSessionWorkspace(String sessionToken, String filePath,
-            InputStream inputStream)
-            throws IOExceptionUnchecked
+    public long putFileToSessionWorkspace(String sessionToken, String filePath,
+            InputStream inputStream) throws IOExceptionUnchecked
     {
         getOpenBISService().checkSession(sessionToken);
         if (filePath.contains("../"))
@@ -216,8 +213,9 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         try
         {
             ostream = new FileOutputStream(file);
-            IOUtils.copyLarge(inputStream, ostream);
+            long size = IOUtils.copyLarge(inputStream, ostream);
             ostream.close();
+            return size;
         } catch (IOException ex)
         {
             file.delete();
@@ -226,6 +224,27 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         {
             IOUtils.closeQuietly(ostream);
         }
+    }
+
+    @Override
+    public long putFileSliceToSessionWorkspace(String sessionToken, String filePath,
+            long slicePosition, InputStream sliceInputStream) throws IOExceptionUnchecked
+    {
+        getOpenBISService().checkSession(sessionToken);
+        if (filePath.contains("../"))
+        {
+            throw new IOExceptionUnchecked("filePath must not contain '../'");
+        }
+        final String subDir = FilenameUtils.getFullPath(filePath);
+        final String filename = FilenameUtils.getName(filePath);
+        final File workspaceDir =
+                new SessionWorkspaceProvider(sessionWorkspaceRootDirectory, sessionToken)
+                        .getSessionWorkspace();
+        final File dir = new File(workspaceDir, subDir);
+        dir.mkdirs();
+        final File file = new File(dir, filename);
+
+        return FileUtilities.writeToFile(file, slicePosition, sliceInputStream);
     }
 
     @Override
@@ -248,6 +267,14 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         {
             throw new IOExceptionUnchecked(ex);
         }
+    }
+
+    @Override
+    public InputStream getFileSliceFromSessionWorkspace(String sessionToken, String filePath,
+            long slicePosition, long sliceSize) throws IOExceptionUnchecked
+    {
+        // TODO implement this method
+        return null;
     }
 
     @Override

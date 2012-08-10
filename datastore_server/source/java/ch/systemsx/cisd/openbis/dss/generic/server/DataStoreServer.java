@@ -234,6 +234,11 @@ public class DataStoreServer
         DatasetDownloadServlet.setDownloadUrl(configParams.getDownloadURL());
         servletContextHandler.addServlet(DatasetDownloadServlet.class, applicationName + "/*");
 
+        servletContextHandler.addServlet(SessionWorkspaceFileUploadServlet.class, applicationName
+                + "/session_workspace_file_upload");
+        servletContextHandler.addServlet(SessionWorkspaceFileDownloadServlet.class, applicationName
+                + "/session_workspace_file_download");
+
         initializeRpcServices(servletContextHandler, applicationContext, configParams);
         registerPluginServlets(servletContextHandler, configParams.getPluginServlets());
         registerImageOverviewServlet(servletContextHandler, configParams);
@@ -263,9 +268,11 @@ public class DataStoreServer
                 rpcV1Path);
 
         String clientSuffix = "/encapsulated_openbis_service_conversational_client";
-        String clientPath=  DataStoreApiUrlUtilities.getUrlForRpcService(clientSuffix);
-        context.addServlet(new ServletHolder(new HttpInvokerServlet(ServiceProvider.getConversationalClient(), clientPath)), clientPath);
-        
+        String clientPath = DataStoreApiUrlUtilities.getUrlForRpcService(clientSuffix);
+        context.addServlet(
+                new ServletHolder(new HttpInvokerServlet(ServiceProvider.getConversationalClient(),
+                        clientPath)), clientPath);
+
         //
         // export the API via JSON
         //

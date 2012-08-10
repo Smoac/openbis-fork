@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.filesystem;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -31,6 +32,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
@@ -184,6 +186,13 @@ public final class FileUtilities
         }
     }
 
+    public static InputStream loadToStream(final File file, long slicePosition, long sliceSize)
+            throws IOExceptionUnchecked
+    {
+        // TODO implement this method
+        return null;
+    }
+
     /**
      * Loads a file to an {@link Object}.
      * 
@@ -314,6 +323,55 @@ public final class FileUtilities
         } finally
         {
             IOUtils.closeQuietly(fileStream);
+        }
+    }
+
+    /**
+     * Writes a content of the specified input stream to the file at the specified position.
+     */
+    public static long writeToFile(final File file, final long dataPosition,
+            final InputStream dataInputStream) throws IOExceptionUnchecked
+    {
+        RandomAccessFile randomAccessFile = null;
+        BufferedInputStream dataBufferedInputStream = null;
+        byte[] dataBuffer = new byte[1024];
+
+        try
+        {
+            randomAccessFile = new RandomAccessFile(file, "rw");
+            randomAccessFile.seek(dataPosition);
+
+            dataBufferedInputStream = new BufferedInputStream(dataInputStream);
+
+            long dataSize = 0;
+            int dataPartSize = 0;
+
+            while ((dataPartSize = dataBufferedInputStream.read(dataBuffer)) != -1)
+            {
+                randomAccessFile.write(dataBuffer, 0, dataPartSize);
+                dataSize += dataPartSize;
+            }
+
+            return dataSize;
+
+        } catch (FileNotFoundException e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        } catch (IOException e)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(e);
+        } finally
+        {
+            if (randomAccessFile != null)
+            {
+                try
+                {
+                    randomAccessFile.close();
+                } catch (IOException ex)
+                {
+                }
+            }
+            IOUtils.closeQuietly(dataBufferedInputStream);
         }
     }
 
