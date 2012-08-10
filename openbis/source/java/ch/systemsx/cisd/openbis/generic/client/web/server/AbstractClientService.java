@@ -302,12 +302,14 @@ public abstract class AbstractClientService implements IClientService,
         }
     }
 
+    @SuppressWarnings("deprecation")
     private final SessionContext createSessionContext(final SessionContextDTO session)
     {
         final SessionContext sessionContext = new SessionContext();
         sessionContext.setSessionID(session.getSessionToken());
 
         DisplaySettings displaySettings = session.getDisplaySettings();
+        displaySettings.clearCustomWebAppSettings();
         sessionContext.setDisplaySettings(displaySettings);
 
         final User user = new User();

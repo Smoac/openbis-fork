@@ -660,6 +660,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         return false;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings,
             int maxEntityVisits)
@@ -672,15 +673,19 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             {
                 if (displaySettings != null)
                 {
-                    @SuppressWarnings("deprecation")
-                    List<EntityVisit> visits = displaySettings.getVisits();
-                    sortAndRemoveMultipleVisits(visits);
-                    for (int i = visits.size() - 1; i >= maxEntityVisits; i--)
+                    if (maxEntityVisits >= 0)
                     {
-                        visits.remove(i);
+                        List<EntityVisit> visits = displaySettings.getVisits();
+                        sortAndRemoveMultipleVisits(visits);
+                        for (int i = visits.size() - 1; i >= maxEntityVisits; i--)
+                        {
+                            visits.remove(i);
+                        }
                     }
+                    final DisplaySettings oldDisplaySettings = person.getDisplaySettings();
+                    displaySettings.overwriteCustomWebAppSettings(oldDisplaySettings);
+                    person.setDisplaySettings(displaySettings);
                 }
-                person.setDisplaySettings(displaySettings);
                 getDAOFactory().getPersonDAO().updatePerson(person);
             }
         } catch (InvalidSessionException e)

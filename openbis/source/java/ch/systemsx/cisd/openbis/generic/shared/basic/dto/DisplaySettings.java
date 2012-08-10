@@ -72,6 +72,8 @@ public class DisplaySettings implements Serializable
 
     private Map<String, PortletConfiguration> portletConfigurations;
 
+    private Map<String, Map<String, String>> customWebAppDisplaySettings;
+
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
     public Map<String, Serializable> getTechnologySpecificSettings()
@@ -303,5 +305,56 @@ public class DisplaySettings implements Serializable
             PortletConfiguration portletConfiguration)
     {
         configurations.put(portletConfiguration.getName(), portletConfiguration);
+    }
+
+    /**
+     * @deprecated Don't use in generic web client - will be overwritten.
+     */
+    @Deprecated
+    public synchronized Map<String, String> getCustomWebAppSettings(String webAppId)
+    {
+        if (customWebAppDisplaySettings == null)
+        {
+            customWebAppDisplaySettings = new HashMap<String, Map<String, String>>();
+        }
+        Map<String, String> settings = customWebAppDisplaySettings.get(webAppId);
+        if (settings == null)
+        {
+            settings = new HashMap<String, String>();
+            customWebAppDisplaySettings.put(webAppId, settings);
+        }
+        return settings;
+    }
+
+    /**
+     * @deprecated Don't use in generic web client - will be overwritten.
+     */
+    @Deprecated
+    public synchronized void setCustomWebAppSettings(String webAppId,
+            Map<String, String> customDisplaySettings)
+    {
+        if (customWebAppDisplaySettings == null)
+        {
+            customWebAppDisplaySettings = new HashMap<String, Map<String, String>>();
+        }
+        customWebAppDisplaySettings.put(webAppId, customDisplaySettings);
+    }
+
+    /**
+     * @deprecated Don't use in generic web client - will be overwritten.
+     */
+    @Deprecated
+    public synchronized void overwriteCustomWebAppSettings(DisplaySettings customDisplaySettings)
+    {
+        synchronized (customDisplaySettings)
+        {
+            this.customWebAppDisplaySettings = customDisplaySettings.customWebAppDisplaySettings;
+        }
+    }
+
+    @Deprecated
+    public synchronized void clearCustomWebAppSettings()
+    {
+        customWebAppDisplaySettings = null;
     }
 }
