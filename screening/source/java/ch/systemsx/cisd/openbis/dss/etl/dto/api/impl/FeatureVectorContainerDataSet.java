@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.impl;
 
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.ANALYSIS_PROCEDURE;
+
 import java.io.File;
 
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
@@ -26,6 +28,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
  * @author jakubs
@@ -61,7 +64,8 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
     @Override
     public void setAnalysisProcedure(String analysisProcedure)
     {
-        originalDataset.setAnalysisProcedure(analysisProcedure);
+        getRegistrationDetails().getDataSetInformation().getDataSetProperties()
+                .add(new NewProperty(ANALYSIS_PROCEDURE, analysisProcedure));
     }
 
     @Override
@@ -96,10 +100,7 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
     @Override
     public void setPropertyValue(String propertyCode, String propertyValue)
     {
-        if (originalDataset != null)
-        {
-            originalDataset.setPropertyValue(propertyCode, propertyValue);
-        }
+        getRegistrationDetails().setPropertyValue(propertyCode, propertyValue);
     }
 
 }

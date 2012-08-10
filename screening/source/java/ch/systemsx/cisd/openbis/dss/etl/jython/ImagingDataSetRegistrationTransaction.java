@@ -128,6 +128,36 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     public IFeatureVectorDataSet createNewFeatureVectorDataSet(
             SimpleFeatureVectorDataConfig featureDataSetConfig, File featureVectorFileOrNull)
     {
+        DataSetRegistrationDetails<FeatureVectorDataSetInformation> registrationDetails =
+                createFeatureVectorDataSetRegistrationDetails(featureDataSetConfig,
+                        featureVectorFileOrNull);
+        return createFeatureVectorDataSet(registrationDetails);
+    }
+
+    private IFeatureVectorDataSet createFeatureVectorDataSet(
+            DataSetRegistrationDetails<FeatureVectorDataSetInformation> registrationDetails)
+    {
+        @SuppressWarnings("unchecked")
+        DataSet<FeatureVectorDataSetInformation> dataSet =
+                (DataSet<FeatureVectorDataSetInformation>) super
+                        .createNewDataSet(registrationDetails);
+
+        FeatureVectorDataSet featureDataset =
+                new FeatureVectorDataSet(dataSet, getGlobalState().getOpenBisService());
+
+        // create container
+        FeatureVectorContainerDataSet containerDataset =
+                createFeatureVectorContainerDataSet(featureDataset);
+
+        registrationDetails.getDataSetInformation().setContainerDatasetPermId(
+                containerDataset.getDataSetCode());
+
+        return containerDataset;
+    }
+
+    private DataSetRegistrationDetails<FeatureVectorDataSetInformation> createFeatureVectorDataSetRegistrationDetails(
+            SimpleFeatureVectorDataConfig featureDataSetConfig, File featureVectorFileOrNull)
+    {
         List<FeatureDefinition> featureDefinitions;
         Properties properties = featureDataSetConfig.getProperties();
         if (properties == null)
@@ -148,21 +178,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         }
         DataSetRegistrationDetails<FeatureVectorDataSetInformation> registrationDetails =
                 factory.createFeatureVectorRegistrationDetails(featureDefinitions);
-        @SuppressWarnings("unchecked")
-        DataSet<FeatureVectorDataSetInformation> dataSet =
-                (DataSet<FeatureVectorDataSetInformation>) createNewDataSet(registrationDetails);
-
-        FeatureVectorDataSet featureDataset =
-                new FeatureVectorDataSet(dataSet, getGlobalState().getOpenBisService());
-
-        // create container
-        FeatureVectorContainerDataSet containerDataset =
-                createFeatureVectorContainerDataSet(featureDataset);
-
-        registrationDetails.getDataSetInformation().setContainerDatasetPermId(
-                containerDataset.getDataSetCode());
-
-        return containerDataset;
+        return registrationDetails;
     }
 
     /**
@@ -444,6 +460,11 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
             DataSetRegistrationDetails<ImageDataSetInformation> imageRegistrationDetails =
                     (DataSetRegistrationDetails<ImageDataSetInformation>) registrationDetails;
             return createNewImageDataSet(imageRegistrationDetails);
+        } else if (registrationDetails.getDataSetInformation() instanceof FeatureVectorDataSetInformation)
+        {
+            DataSetRegistrationDetails<FeatureVectorDataSetInformation> featureRegistrationDetails =
+                    (DataSetRegistrationDetails<FeatureVectorDataSetInformation>) registrationDetails;
+            return createFeatureVectorDataSet(featureRegistrationDetails);
         } else
         {
             return super.createNewDataSet(registrationDetails);

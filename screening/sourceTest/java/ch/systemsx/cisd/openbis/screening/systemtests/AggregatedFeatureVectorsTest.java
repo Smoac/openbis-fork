@@ -247,12 +247,14 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
     {
         Properties properties = new Properties();
         properties.setProperty(AnalysisSettings.KEY,
-                ScreeningConstants.DEFAULT_ANALYSIS_WELL_DATASET_TYPE + ":" + getClass().getSimpleName() + "-viewer");
+                ScreeningConstants.DEFAULT_ANALYSIS_WELL_CONTAINER_DATASET_TYPE + ":"
+                        + getClass().getSimpleName() + "-viewer");
         analysisSettingSetter.setAnalysisSettings(new AnalysisSettings(properties));
         List<DataSetType> dataSetTypes = commonServer.listDataSetTypes(sessionToken);
         for (DataSetType dataSetType : dataSetTypes)
         {
-            if (dataSetType.getCode().equals(ScreeningConstants.DEFAULT_ANALYSIS_WELL_DATASET_TYPE))
+            if (dataSetType.getCode().equals(
+                    ScreeningConstants.DEFAULT_ANALYSIS_WELL_CONTAINER_DATASET_TYPE))
             {
                 dataSetType.setMainDataSetPattern(".*csv");
                 commonServer.updateDataSetType(sessionToken, dataSetType);
