@@ -24,9 +24,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -60,6 +63,11 @@ public abstract class AbstractDatastorePlugin implements Serializable
         subDirectory = properties.getProperty(SUB_DIRECTORY_NAME, "original");
     }
 
+    @Deprecated
+    /**
+     * get directory in the dataset as a File. 
+     * @deprecated This method is deprecated as the recommended usage is with IHierarchicalContent* objects.
+     */
     protected File getDataSubDir(IDataSetDirectoryProvider provider, DatasetDescription dataset)
     {
         if (StringUtils.isBlank(subDirectory))
@@ -74,6 +82,27 @@ public abstract class AbstractDatastorePlugin implements Serializable
     protected File getDatasetDir(IDataSetDirectoryProvider provider, DatasetDescription dataset)
     {
         return provider.getDataSetDirectory(dataset);
+    }
+
+    /**
+     * get directory in the dataset as a Hierarchical Content
+     */
+    protected IHierarchicalContentNode getDataSubDir(IHierarchicalContentProvider provider,
+            DatasetDescription dataset)
+    {
+        if (StringUtils.isBlank(subDirectory))
+        {
+            return getDatasetDir(provider, dataset).getRootNode();
+        } else
+        {
+            return getDatasetDir(provider, dataset).getNode(subDirectory);
+        }
+    }
+
+    protected IHierarchicalContent getDatasetDir(IHierarchicalContentProvider provider,
+            DatasetDescription dataset)
+    {
+        return provider.asContent(dataset.getDataSetCode());
     }
 
 }

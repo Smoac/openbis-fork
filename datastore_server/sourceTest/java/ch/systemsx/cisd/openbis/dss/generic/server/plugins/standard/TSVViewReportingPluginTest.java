@@ -30,7 +30,13 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
@@ -53,22 +59,64 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
 
     private DataSetProcessingContext processingContext;
 
+
     @BeforeMethod
     public void beforeMethod()
     {
         store = new File(workingDirectory, "store");
         store.mkdirs();
-        dataSetInStore = new File(new File(store, SHARE_ID), "dataset");
+        dataSetInStore = new File(new File(store, SHARE_ID), "dataset-ds1");
         dataSetInStore.mkdirs();
         datasetDescription = new DatasetDescription();
         datasetDescription.setDataSetCode("ds1");
         datasetDescription.setMainDataSetPattern(".*");
         datasetDescription.setDataSetLocation(dataSetInStore.getName());
+        
         processingContext =
-                new DataSetProcessingContext(null,
+                new DataSetProcessingContext(getMockHierarchicalContentProvider(),
                         new MockDataSetDirectoryProvider(store, SHARE_ID), null, null, null);
     }
 
+    private IHierarchicalContentProvider getMockHierarchicalContentProvider()
+    {
+        return 
+                new IHierarchicalContentProvider()
+        {
+            private DefaultFileBasedHierarchicalContentFactory hierarchicalContentFactory =
+                    new DefaultFileBasedHierarchicalContentFactory();
+
+            @Override
+            public IHierarchicalContent asContent(File datasetDirectory)
+            {
+                return hierarchicalContentFactory.asHierarchicalContent(datasetDirectory,
+                        IDelegatedAction.DO_NOTHING);
+            }
+
+            @Override
+            public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
+            {
+                return getContent(datasetLocation.getDataSetLocation());
+            }
+
+            public IHierarchicalContent getContent(String location)
+            {
+                    return asContent(new File(new File(store, SHARE_ID), location));
+            }
+
+            @Override
+            public IHierarchicalContent asContent(ExternalData dataSet)
+            {
+                return getContent(dataSet.getCode());
+            }
+
+            @Override
+            public IHierarchicalContent asContent(String dataSetCode) throws IllegalArgumentException
+            {
+                    return getContent("dataset-" + dataSetCode);
+            }
+        };
+    }
+    
     @Test
     public void testCreateReport()
     {

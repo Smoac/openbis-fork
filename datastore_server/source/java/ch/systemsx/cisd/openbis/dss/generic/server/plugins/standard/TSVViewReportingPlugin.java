@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.AutoResolveUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -53,23 +55,26 @@ public class TSVViewReportingPlugin extends AbstractFileTableReportingPlugin
     {
         assureOnlyOneDataSetSelected(datasets);
         DatasetDescription dataset = datasets.get(0);
-        File root = getDatasetDir(context.getDirectoryProvider(), dataset);
-        File fileToOpenOrNull =
+        IHierarchicalContent root =
+                getDatasetDir(context.getHierarchicalContentProvider(), dataset);
+        IHierarchicalContentNode fileToOpenOrNull =
                 tryFindFileToOpen(dataset.getMainDataSetPattern(), dataset.getMainDataSetPath(),
                         root);
-        if (fileToOpenOrNull != null && fileToOpenOrNull.isFile() && fileToOpenOrNull.exists())
+        if (fileToOpenOrNull != null && false == fileToOpenOrNull.isDirectory()
+                && fileToOpenOrNull.exists())
         {
-            DatasetFileLines lines = loadFromFile(dataset, fileToOpenOrNull);
+            DatasetFileLines lines = loadFromFile(dataset, fileToOpenOrNull.getFile());
             return transpose ? createTransposedTableModel(lines) : createTableModel(lines);
         }
         throw UserFailureException.fromTemplate("Main TSV file could not be found.");
     }
 
-    private File tryFindFileToOpen(String pattern, String path, File root)
+    private IHierarchicalContentNode tryFindFileToOpen(String pattern, String path,
+            IHierarchicalContent root)
     {
-        List<File> patternMatchinFiles =
+        List<IHierarchicalContentNode> patternMatchinFiles =
                 AutoResolveUtils.findSomeMatchingFiles(root, path, pattern);
-        File mainDataSetFile = null;
+        IHierarchicalContentNode mainDataSetFile = null;
         if (patternMatchinFiles.size() == 1)
         {
             mainDataSetFile = patternMatchinFiles.get(0);
