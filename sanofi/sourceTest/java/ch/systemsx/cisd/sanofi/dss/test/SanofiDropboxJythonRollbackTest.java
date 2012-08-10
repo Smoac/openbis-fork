@@ -268,6 +268,9 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                     will(returnValue(ANALYSIS_DATA_SET_CODE));
 
                     one(openBisService).createPermId();
+                    will(returnValue(ANALYSIS_DATA_SET_CODE + "-container"));
+
+                    one(openBisService).createPermId();
                     will(returnValue("overlay-thumnails"));
 
                     one(openBisService).createPermId();
@@ -309,6 +312,10 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                             ANALYSIS_DATA_SET_TYPE,
                             new File(new File(stagingDirectory, ANALYSIS_DATA_SET_CODE),
                                     ANALYSIS_DATA_SET_FILE_NAME));
+
+                    one(dataSetValidator).assertValidDataSet(
+                            new DataSetType("HCS_ANALYSIS_WELL_FEATURES_CONTAINER"), null);
+
                 }
             });
     }

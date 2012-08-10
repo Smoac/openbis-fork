@@ -761,7 +761,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
     {
         List<? extends NewExternalData> dataSetsRegistered =
                 atomicatOperationDetails.recordedObject().getDataSetRegistrations();
-        assertEquals(7, dataSetsRegistered.size());
+        assertEquals(8, dataSetsRegistered.size());
 
         NewExternalData imageDataSet = find(dataSetsRegistered, IMAGE_DATA_SET_TYPE.getCode());
         assertEquals(IMAGE_DATA_SET_CODE, imageDataSet.getCode());
@@ -817,6 +817,9 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     will(returnValue(ANALYSIS_DATA_SET_CODE));
 
                     one(openBisService).createPermId();
+                    will(returnValue(ANALYSIS_DATA_SET_CODE + "-container"));
+
+                    one(openBisService).createPermId();
                     will(returnValue("overlay-thumnails"));
 
                     one(openBisService).createPermId();
@@ -858,6 +861,9 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                             ANALYSIS_DATA_SET_TYPE,
                             new File(new File(stagingDirectory, ANALYSIS_DATA_SET_CODE),
                                     ANALYSIS_DATA_SET_FILE_NAME));
+
+                    one(dataSetValidator).assertValidDataSet(
+                            new DataSetType("HCS_ANALYSIS_WELL_FEATURES_CONTAINER"), null);
 
                     allowing(openBisService).setStorageConfirmed(with(any(String.class)));
                 }
