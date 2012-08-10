@@ -160,6 +160,7 @@ var Uploader = (function() {
                     return;
                 var xhr = new XMLHttpRequest;
                 progress[id].xhr = xhr;
+                // pkupczyk: added sessionID
                 xhr.open("POST", settings.file_upload_url +
                          "?filename=" + file.name +
                          "&id=" + id +
@@ -301,6 +302,7 @@ var Uploader = (function() {
     function generateUploadForm() {
         var id = ++current_form_id;
         $("#iframe-container")
+        	// pkupczyk: added sessionID
             .append("<iframe id=\"iframe-" + id + "\"" +
                     " name=\"iframe-" + id + "\"" +
                     "></iframe>" +
@@ -359,13 +361,18 @@ var Uploader = (function() {
                 $("#pause-button").replaceWith("<img id=\"pause-button\" src=\"img/pause-button.png\" width=\"12\" height=\"12\" class=\"mini-button\">");
             }
             // Site-spezifische Einstellungen aus Konfigurationsdatei lesen
-            $.ajax("config.json", { async: false, dataType: "json" })
+            
+            /* pkupczyk: we don't need this
+             
+            $.ajax("config.json", { async: false })
                 .done(function(data) {
                     settings = $.extend({}, settings, data);
                 })
                 .error(function(jqXHR, textStatus, errorThrown) {
                     console.log([jqXHR, textStatus, errorThrown]);
                 });
+            */
+            
             // Einstellungen ggf. mit init()-Parametern ueberschreiben
             settings = $.extend({}, settings, opts);
             settings.smart_mode = settings.smart_mode && defaults.smart_mode;

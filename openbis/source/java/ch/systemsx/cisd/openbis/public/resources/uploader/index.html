@@ -1,32 +1,3 @@
-<!DOCTYPE html>
-<html lang="de" dir="ltr">
-<head>
-<title>Uploader 2.0</title>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<meta http-equiv="content-language" content="de" />
-<script charset="utf-8" type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
-<link rel="stylesheet" media="screen" type="text/css" href="css/src/upload.css" />
-<link rel="icon" type="image/png" href="img/favicon.gif">
-<script charset="utf-8" type="text/javascript" src="js/src/upload.js"></script>
-<script charset="utf-8" type="text/javascript" src="../js/openbis.js"></script>
-<script type="text/javascript">
-$(document).ready(function() {
-	
-	var o = new openbis("http://127.0.0.1:8888/openbis/openbis", "http://127.0.0.1:8889/datastore_server");
-	
-	o.login("admin","password", function(response){
-		  Uploader.init({
-			    smart_mode: true,
-		      chunk_size: 1000*1024,
-			    file_upload_url: "http://127.0.0.1:8889/datastore_server/session_workspace_file_upload",
-			    form_upload_url: "http://127.0.0.1:8889/datastore_server/session_workspace_form_upload",
-			    sessionID: response.result
-			});
-	});
-	
-});
-</script>
 <!--
 Copyright 2012 Oliver Lau, Heise Zeitschriften Verlag
 
@@ -42,8 +13,7 @@ Copyright 2012 Oliver Lau, Heise Zeitschriften Verlag
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-</head>
-<body>
+
 <h1>Dateien hochladen</h1>
 <div id="filedrop">
   <div id="filedrop-inner-box">
@@ -65,14 +35,11 @@ Copyright 2012 Oliver Lau, Heise Zeitschriften Verlag
     </form>
   </div><!-- filedrop-inner-box -->
 </div><!-- filedrop -->
-<h2><a href="#">Uploads ^^</a></h2>
+<h2><a href="#">Uploads</a></h2>
 <div id="filelist-container">
   <ul id="filelist"></ul>
   <button id="filelist-clear-button" style="display: none">Liste leeren</button>
 </div><!-- filelist-container -->
-<div id="footer">
-  Copyright &copy; 2012 <a href="mailto:ola@ct.de">Oliver Lau</a>, <a href="http://www.heise.de/" target="_blank">Heise Zeitschriften Verlag</a>. Lizenziert unter der <a href="www.apache.org/licenses/LICENSE-2.0.html" target="_blank">Apache License 2.0</a>.
-</div>
 <div style="display: none" id="secret-elements">
   <svg class="mini-button" title="Abbrechen" id="stop-button" xmlns="http://www.w3.org/2000/svg" version="1.1" width="12" height="12">
     <rect x="0" y="0" width="12" height="12" fill="#fff" />
@@ -89,5 +56,3 @@ Copyright 2012 Oliver Lau, Heise Zeitschriften Verlag
   </svg>
 </div>
 <div id="iframe-container"></div>
-</body>
-</html>

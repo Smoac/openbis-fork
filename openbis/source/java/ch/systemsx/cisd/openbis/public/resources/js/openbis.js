@@ -63,11 +63,14 @@ function eraseCookie(name) {
  * 
  * @class
  */
-function openbis(url, dssUrl) {
-	this.generalInfoServiceUrl = url + "/rmi-general-information-v1.json";
-	this.queryServiceUrl = url + "/rmi-query-v1.json";
-	this.dssUrl = dssUrl + "/rmi-dss-api-v1.json";
-	this.webInfoServiceUrl = url + "/openbis/openbis/rmi-web-information-v1.json"
+function openbis(openbisUrl, dssUrl) {
+	this.openbisUrl = openbisUrl;
+	this.dssUrl = dssUrl;
+	
+	this.generalInfoServiceUrl = openbisUrl + "/rmi-general-information-v1.json";
+	this.queryServiceUrl = openbisUrl + "/rmi-query-v1.json";
+	this.dssApiUrl = dssUrl + "/rmi-dss-api-v1.json";
+	this.webInfoServiceUrl = openbisUrl + "/openbis/openbis/rmi-web-information-v1.json"
 }
 
 
@@ -263,7 +266,7 @@ openbis.prototype.listDataSetsForSample = function(sample, restrictToDirectlyCon
  */
 openbis.prototype.listFilesForDataSet = function(dataSetCode, path, recursive, action) {
 	ajaxRequest({
-			url: this.dssUrl,
+			url: this.dssApiUrl,
 			data: { "method" : "listFilesForDataSet",
 							"params" : [ this.sessionToken, dataSetCode, path, recursive ]
 						 },
@@ -278,7 +281,7 @@ openbis.prototype.listFilesForDataSet = function(dataSetCode, path, recursive, a
  */
 openbis.prototype.getDownloadUrlForFileForDataSet = function(dataSetCode, filePath, action) {
 	ajaxRequest({
-			url: this.dssUrl,
+			url: this.dssApiUrl,
 			data: { "method" : "getDownloadUrlForFileForDataSet",
 							"params" : [ this.sessionToken, dataSetCode, filePath ]
 						 },
@@ -314,6 +317,31 @@ openbis.prototype.executeQuery = function(queryId, parameterBindings, action) {
 	});
 }
 
+openbis.prototype.createSessionWorkspaceUploader = function(uploaderContainer){
+	var $this = this;
+	
+	$('head').append('<link rel="stylesheet" media="screen" type="text/css" href="../uploader/css/src/upload.css" />');
+	$('head').append('<script charset="utf-8" type="text/javascript" src="../uploader/js/src/upload.js" />');
+	
+	$(uploaderContainer).load("../uploader/index.html", function(){
+		Uploader.init({
+		       smart_mode: true,
+		       chunk_size: 1000*1024,
+		       file_upload_url: $this.dssUrl + "/datastore_server/session_workspace_file_upload",
+		       form_upload_url: $this.dssUrl + "/datastore_server/session_workspace_form_upload",
+		       sessionID: $this.sessionToken
+		});
+	});	
+}
+
+openbis.prototype.createSessionWorkspaceDownloadUrl = function(filePath){
+	return this.dssUrl + "/datastore_server/session_workspace_file_download?sessionID=" + this.sessionToken + "&filePath=" + filePath; 
+}
+
+openbis.prototype.createSessionWorkspaceDownloadLink = function(filePath, linkText){
+	return $("<a href='" + this.createSessionWorkspaceDownloadUrl(filePath) + "'>" + (linkText ? linkText : filePath) + "</a>"); 
+}
+
 /**
  * A utility class for deferring an action until all of some kind of action has completed
  *
@@ -345,6 +373,9 @@ actionDeferrer.prototype.dependencyCompleted = function(key) {
 	}
 }
 
+/**
+ * Provides a context information for webapps that are embedded inside the OpenBIS UI.
+ */
 function openbisWebAppContext(){
 	this.sessionId = this.getParameter("session-id");
 	this.entityKind = this.getParameter("entity-kind");
