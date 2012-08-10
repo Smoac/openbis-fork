@@ -325,7 +325,8 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     private FeatureVectorContainerDataSet createFeatureVectorContainerDataSet(
             FeatureVectorDataSet mainDataset)
     {
-        String containerDatasetTypeCode = "HCS_ANALYSIS_WELL_FEATURES_CONTAINER";
+        String containerDatasetTypeCode =
+                ScreeningConstants.DEFAULT_ANALYSIS_WELL_CONTAINER_DATASET_TYPE;
         @SuppressWarnings("unchecked")
         FeatureVectorContainerDataSet containerDataSet =
                 (FeatureVectorContainerDataSet) createNewDataSet(
