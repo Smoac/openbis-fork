@@ -86,7 +86,6 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SimpleSpa
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -218,7 +217,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Override
     public int getMinorVersion()
     {
-        return 19;
+        return 18;
     }
 
     private Map<String, List<RoleAssignmentPE>> getRoleAssignmentsPerSpace()
@@ -972,29 +971,6 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material> materials =
                 commonServer.searchForMaterials(sessionToken, detailedSearchCriteria);
         return Translator.translateMaterials(materials);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @SuppressWarnings("deprecation")
-    public Map<String, String> getCustomDisplaySettings(String sessionToken, String webAppId)
-    {
-        final Session session = getSession(sessionToken);
-        return session.getPerson().getDisplaySettings().getCustomWebAppSettings(webAppId);
-    }
-
-    @Override
-    @Transactional(readOnly = false)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @SuppressWarnings("deprecation")
-    public void setCustomDisplaySettings(String sessionToken, String webAppId,
-            Map<String, String> customDisplaySettings)
-    {
-        final Session session = getSession(sessionToken);
-        final DisplaySettings displaySettings = session.getPerson().getDisplaySettings();
-        displaySettings.setCustomWebAppSettings(webAppId, customDisplaySettings);
-        saveDisplaySettings(session.getSessionToken(), null, -1);
     }
 
 }

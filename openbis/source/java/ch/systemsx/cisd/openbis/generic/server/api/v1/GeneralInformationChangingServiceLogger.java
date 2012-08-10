@@ -65,6 +65,20 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
     }
 
     @Override
+    public Map<String, String> getCustomDisplaySettings(String sessionToken, String webAppId)
+    {
+        logAccess(sessionToken, "get-custom-display-settings", "WEB_APP_ID(%s)", webAppId);
+        return null;
+    }
+
+    @Override
+    public void setCustomDisplaySettings(String sessionToken, String webAppId,
+            Map<String, String> customDisplaySettings)
+    {
+        logAccess(sessionToken, "set-custom-display-settings", "WEB_APP_ID(%s)", webAppId);
+    }
+
+    @Override
     public int getMajorVersion()
     {
         return 0;
