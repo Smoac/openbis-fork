@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
+
 /**
  * Class storing personalized display settings. This class implements {@link Serializable} not only
  * for transferring it's content remotely but also to store it in the database. Thus, CHANGES IN
@@ -311,7 +313,7 @@ public class DisplaySettings implements Serializable
      * @deprecated Don't use in generic web client - will be overwritten.
      */
     @Deprecated
-    public synchronized Map<String, String> getCustomWebAppSettings(String webAppId)
+    public synchronized WebAppSettings getCustomWebAppSettings(String webAppId)
     {
         if (customWebAppDisplaySettings == null)
         {
@@ -323,21 +325,20 @@ public class DisplaySettings implements Serializable
             settings = new HashMap<String, String>();
             customWebAppDisplaySettings.put(webAppId, settings);
         }
-        return settings;
+        return new WebAppSettings(webAppId, settings);
     }
 
     /**
      * @deprecated Don't use in generic web client - will be overwritten.
      */
     @Deprecated
-    public synchronized void setCustomWebAppSettings(String webAppId,
-            Map<String, String> customDisplaySettings)
+    public synchronized void setCustomWebAppSettings(WebAppSettings settings)
     {
         if (customWebAppDisplaySettings == null)
         {
             customWebAppDisplaySettings = new HashMap<String, Map<String, String>>();
         }
-        customWebAppDisplaySettings.put(webAppId, customDisplaySettings);
+        customWebAppDisplaySettings.put(settings.getWebAppId(), settings.getSettings());
     }
 
     /**

@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -65,17 +66,17 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
     }
 
     @Override
-    public Map<String, String> getCustomDisplaySettings(String sessionToken, String webAppId)
+    public WebAppSettings getWebAppSettings(String sessionToken, String webAppId)
     {
         logAccess(sessionToken, "get-custom-display-settings", "WEB_APP_ID(%s)", webAppId);
         return null;
     }
 
     @Override
-    public void setCustomDisplaySettings(String sessionToken, String webAppId,
-            Map<String, String> customDisplaySettings)
+    public void setWebAppSettings(String sessionToken, WebAppSettings webAppSettings)
     {
-        logAccess(sessionToken, "set-custom-display-settings", "WEB_APP_ID(%s)", webAppId);
+        logAccess(sessionToken, "set-custom-display-settings", "WEB_APP_ID(%s)",
+                webAppSettings.getWebAppId());
     }
 
     @Override

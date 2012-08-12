@@ -20,6 +20,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
@@ -64,23 +65,20 @@ public interface IGeneralInformationChangingService extends IRpcService
             NewVocabularyTerm term);
 
     /**
-     * Returns the custom display settings for a given custom web app.
+     * Returns the persistent settings for a given custom web app.
      * 
      * @param webAppId The id of the custom web app to get the display settings for.
      * 
      * @since 1.2
      */
-    public Map<String, String> getCustomDisplaySettings(String sessionToken, String webAppId);
+    public WebAppSettings getWebAppSettings(String sessionToken, String webAppId);
     
     /**
-     * Sets the custom display settings for a given custom web app.
-     * 
-     * @param webAppId The id of the custom web app to set the display settings for.
-     * @param customDisplaySettings The new display settings
+     * Sets the persistent settings for a given custom web app.
+     * @param webAppSettings The new display settings
      * 
      * @since 1.2
      */
-    public void setCustomDisplaySettings(String sessionToken, String webAppId,
-            Map<String, String> customDisplaySettings);
+    public void setWebAppSettings(String sessionToken, WebAppSettings webAppSettings);
 
 }

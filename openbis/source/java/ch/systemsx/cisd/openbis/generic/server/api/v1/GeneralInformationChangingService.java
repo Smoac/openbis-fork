@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModificatio
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -108,7 +109,7 @@ public class GeneralInformationChangingService extends
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @SuppressWarnings("deprecation")
-    public Map<String, String> getCustomDisplaySettings(String sessionToken, String webAppId)
+    public WebAppSettings getWebAppSettings(String sessionToken, String webAppId)
     {
         final Session session = getSession(sessionToken);
         return session.getPerson().getDisplaySettings().getCustomWebAppSettings(webAppId);
@@ -118,12 +119,11 @@ public class GeneralInformationChangingService extends
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @SuppressWarnings("deprecation")
-    public void setCustomDisplaySettings(String sessionToken, String webAppId,
-            Map<String, String> customDisplaySettings)
+    public void setWebAppSettings(String sessionToken, WebAppSettings webAppSettings)
     {
         final Session session = getSession(sessionToken);
         final DisplaySettings displaySettings = session.getPerson().getDisplaySettings();
-        displaySettings.setCustomWebAppSettings(webAppId, customDisplaySettings);
+        displaySettings.setCustomWebAppSettings(webAppSettings);
         saveDisplaySettings(session.getSessionToken(), null, -1);
     }
 
