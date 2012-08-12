@@ -311,7 +311,6 @@ public final class CommonServerTest extends AbstractServerTestCase
         final String user = "user";
         final String password = "password";
         final Session session = createSession(user);
-        final PersonPE systemPerson = createSystemUser();
         final PersonPE person = createPersonWithRoleAssignmentsFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
             {
@@ -321,9 +320,6 @@ public final class CommonServerTest extends AbstractServerTestCase
 
                     allowing(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(session));
-
-                    one(personDAO).listPersons();
-                    will(returnValue(Arrays.asList(systemPerson, person)));
 
                     one(personDAO).tryFindPersonByUserId(user);
                     will(returnValue(person));
