@@ -688,6 +688,10 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                     final DisplaySettings oldDisplaySettings = person.getDisplaySettings();
                     displaySettings.overwriteCustomWebAppSettings(oldDisplaySettings);
                     person.setDisplaySettings(displaySettings);
+                } else
+                {
+                    // Update serialized form of display settings.
+                    person.setDisplaySettings(person.getDisplaySettings());
                 }
                 getDAOFactory().getPersonDAO().updatePerson(person);
             }
