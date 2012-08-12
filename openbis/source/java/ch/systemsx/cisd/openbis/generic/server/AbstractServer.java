@@ -462,13 +462,12 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             return null;
         }
         final Session session = sessionManager.getSession(sessionToken);
-        final List<PersonPE> persons = daoFactory.getPersonDAO().listPersons();
-        assert persons.size() > 0 : "At least system user should be in the database";
-        // If only one user (system user), then this is the first logged user.
+        List<PersonPE> persons = null;
         PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(session.getUserName());
         final Set<RoleAssignmentPE> roles;
         if (person == null)
         {
+            persons = daoFactory.getPersonDAO().listPersons();
             final PersonPE systemUser = getSystemUser(persons);
             final DisplaySettings defaultDisplaySettings = getDefaultDisplaySettings(sessionToken);
             person = createPerson(session.getPrincipal(), systemUser, defaultDisplaySettings);
@@ -485,6 +484,10 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
         if (roles.isEmpty())
         {
+            if (persons == null)
+            {
+                persons = daoFactory.getPersonDAO().listPersons();
+            }
             if (isFirstLoggedUser(person, persons))
             {
                 grantRoleAtFirstLogin(persons, person, RoleCode.ADMIN);
