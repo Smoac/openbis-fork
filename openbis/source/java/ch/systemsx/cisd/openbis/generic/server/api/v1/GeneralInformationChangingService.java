@@ -112,7 +112,8 @@ public class GeneralInformationChangingService extends
     public WebAppSettings getWebAppSettings(String sessionToken, String webAppId)
     {
         final Session session = getSession(sessionToken);
-        return session.getPerson().getDisplaySettings().getCustomWebAppSettings(webAppId);
+        return new WebAppSettings(webAppId, session.getPerson().getDisplaySettings()
+                .getCustomWebAppSettings(webAppId));
     }
 
     @Override
@@ -123,7 +124,8 @@ public class GeneralInformationChangingService extends
     {
         final Session session = getSession(sessionToken);
         final DisplaySettings displaySettings = session.getPerson().getDisplaySettings();
-        displaySettings.setCustomWebAppSettings(webAppSettings);
+        displaySettings.setCustomWebAppSettings(webAppSettings.getWebAppId(),
+                webAppSettings.getSettings());
         saveDisplaySettings(session.getSessionToken(), null, -1);
     }
 
