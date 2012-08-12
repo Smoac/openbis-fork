@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
@@ -44,6 +45,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
  */
 public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
 {
+
+    /**
+     * Returns the persistent settings for a given custom web app.
+     * 
+     * @param webAppId The id of the custom web app to get the display settings for.
+     */
+    public WebAppSettings getWebAppSettings(String webAppId);
+    
+    /**
+     * Sets the persistent settings for a given custom web app.
+     * @param customDisplaySettings The new display settings
+     */
+    public void setWebAppSettings(WebAppSettings customDisplaySettings);
 
     /**
      * Return all samples that match the search criteria.

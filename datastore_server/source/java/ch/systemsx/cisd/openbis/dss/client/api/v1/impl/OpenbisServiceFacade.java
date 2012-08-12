@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -172,16 +173,16 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     private final IGeneralInformationChangingService changingService;
 
     private final IDssComponent dssComponent;
+    
+    private final int minorVersionChangingService;
 
-    /**
-     * ctor.
-     */
     public OpenbisServiceFacade(String sessionToken, IGeneralInformationService service,
             IGeneralInformationChangingService changingService, IDssComponent dssComponent)
     {
         this.sessionToken = sessionToken;
         this.service = service;
         this.changingService = changingService;
+        this.minorVersionChangingService = changingService.getMinorVersion();
         this.dssComponent = dssComponent;
     }
 
@@ -521,6 +522,28 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     //
     // IOpenbisServiceFacade
     //
+
+    @Override
+    public WebAppSettings getWebAppSettings(String webAppId)
+    {
+        if (minorVersionChangingService >= 2)
+        {
+            return changingService.getWebAppSettings(sessionToken, webAppId);
+        } else
+        {
+            return new WebAppSettings(webAppId, new HashMap<String, String>());
+        }
+    }
+
+    @Override
+    public void setWebAppSettings(WebAppSettings customDisplaySettings)
+    {
+        if (minorVersionChangingService >= 2)
+        {
+            changingService.setWebAppSettings(sessionToken, customDisplaySettings);
+        }
+    }
+
     @Override
     public List<Sample> searchForSamples(SearchCriteria searchCriteria)
     {
