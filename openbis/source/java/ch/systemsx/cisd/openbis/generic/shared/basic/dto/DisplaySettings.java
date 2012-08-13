@@ -34,7 +34,7 @@ import java.util.Map;
  * 
  * @author Franz-Josef Elmer
  */
-public class DisplaySettings implements Serializable
+public class DisplaySettings implements Serializable, Cloneable
 {
     private static final long serialVersionUID = 1L;
 
@@ -311,7 +311,7 @@ public class DisplaySettings implements Serializable
      * @deprecated Don't use in generic web client - will be overwritten.
      */
     @Deprecated
-    public synchronized Map<String, String> getCustomWebAppSettings(String webAppId)
+    public Map<String, String> getCustomWebAppSettings(String webAppId)
     {
         if (customWebAppDisplaySettings == null)
         {
@@ -330,7 +330,7 @@ public class DisplaySettings implements Serializable
      * @deprecated Don't use in generic web client - will be overwritten.
      */
     @Deprecated
-    public synchronized void setCustomWebAppSettings(String webAppId, Map<String, String> settings)
+    public void setCustomWebAppSettings(String webAppId, Map<String, String> settings)
     {
         if (customWebAppDisplaySettings == null)
         {
@@ -343,7 +343,7 @@ public class DisplaySettings implements Serializable
      * @deprecated Don't use in generic web client - will be overwritten.
      */
     @Deprecated
-    public synchronized void overwriteCustomWebAppSettings(DisplaySettings customDisplaySettings)
+    public void overwriteCustomWebAppSettings(DisplaySettings customDisplaySettings)
     {
         synchronized (customDisplaySettings)
         {
@@ -352,8 +352,20 @@ public class DisplaySettings implements Serializable
     }
 
     @Deprecated
-    public synchronized void clearCustomWebAppSettings()
+    public void clearCustomWebAppSettings()
     {
         customWebAppDisplaySettings = null;
+    }
+
+    @Override
+    public DisplaySettings clone()
+    {
+        try
+        {
+            return (DisplaySettings) super.clone();
+        } catch (CloneNotSupportedException ex)
+        {
+            throw new Error(ex);
+        }
     }
 }

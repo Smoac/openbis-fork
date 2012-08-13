@@ -76,6 +76,8 @@
         <constructor-arg value="true" />
     </bean>
     
+    <bean id="display-settings-provider" class="ch.systemsx.cisd.openbis.generic.server.DisplaySettingsProvider" />
+    
     <bean id="remote-host-validator" class="ch.systemsx.cisd.openbis.generic.server.WhiteListBasedRemoteHostValidator">
         <constructor-arg value="${accepted-remote-hosts-for-identity-change}"/>
     </bean>

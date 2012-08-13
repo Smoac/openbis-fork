@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -36,8 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
@@ -112,21 +113,31 @@ public class GeneralInformationChangingService extends
     public WebAppSettings getWebAppSettings(String sessionToken, String webAppId)
     {
         final Session session = getSession(sessionToken);
-        return new WebAppSettings(webAppId, session.getPerson().getDisplaySettings()
-                .getCustomWebAppSettings(webAppId));
+        return new WebAppSettings(webAppId, displaySettingsProvider.getWebAppSettings(
+                session.getPerson(), webAppId));
     }
 
     @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @SuppressWarnings("deprecation")
     public void setWebAppSettings(String sessionToken, WebAppSettings webAppSettings)
     {
-        final Session session = getSession(sessionToken);
-        final DisplaySettings displaySettings = session.getPerson().getDisplaySettings();
-        displaySettings.setCustomWebAppSettings(webAppSettings.getWebAppId(),
-                webAppSettings.getSettings());
-        saveDisplaySettings(session.getSessionToken(), null, -1);
+        try
+        {
+            final Session session = getSession(sessionToken);
+            PersonPE person = session.tryGetPerson();
+            if (person != null)
+            {
+                synchronized (displaySettingsProvider)
+                {
+                    displaySettingsProvider.replaceWebAppSettings(person, webAppSettings);
+                    getDAOFactory().getPersonDAO().updatePerson(person);
+                }
+            }
+        } catch (InvalidSessionException e)
+        {
+            // ignore the situation when session is not available
+        }
     }
 
     @Override

@@ -33,6 +33,8 @@ public final class ComponentNames
 
     public final static String SESSION_MANAGER = "session-manager";
 
+    public final static String DISPLAY_SETTINGS_PROVIDER = "display-settings-provider";
+
     public static final String LOG_INTERCEPTOR = "log-interceptor";
 
     public static final String DAO_FACTORY = "dao-factory";

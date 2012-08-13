@@ -137,6 +137,9 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     @Resource(name = ComponentNames.SESSION_MANAGER)
     protected ISessionManager<Session> sessionManager;
 
+    @Resource(name = ComponentNames.DISPLAY_SETTINGS_PROVIDER)
+    protected DisplaySettingsProvider displaySettingsProvider;
+
     @Resource(name = ComponentNames.DAO_FACTORY)
     private IDAOFactory daoFactory;
 
@@ -480,6 +483,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         if (session.tryGetPerson() == null)
         {
             session.setPerson(person);
+            displaySettingsProvider.addDisplaySettingsForPerson(person);
         }
 
         if (roles.isEmpty())
@@ -619,12 +623,12 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         return person.getUserId().startsWith(ETL_SERVER_USERNAME_PREFIX);
     }
 
-    private static SessionContextDTO asDTO(Session session)
+    private SessionContextDTO asDTO(Session session)
     {
         SessionContextDTO result = new SessionContextDTO();
         PersonPE person = session.tryGetPerson();
         assert person != null : "cannot obtain the person which is logged in";
-        result.setDisplaySettings(person.getDisplaySettings());
+        result.setDisplaySettings(displaySettingsProvider.getRegularDisplaySettings(person));
         SpacePE homeGroup = person.getHomeSpace();
         result.setHomeGroupCode(homeGroup == null ? null : homeGroup.getCode());
         result.setSessionExpirationTime(session.getSessionExpirationTime());
@@ -670,11 +674,11 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     {
         try
         {
-            final Session session = getSessionManager().getSession(sessionToken);
+            final Session session = getSession(sessionToken);
             PersonPE person = session.tryGetPerson();
             if (person != null)
             {
-                if (displaySettings != null)
+                synchronized (displaySettingsProvider)
                 {
                     if (maxEntityVisits >= 0)
                     {
@@ -685,15 +689,9 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                             visits.remove(i);
                         }
                     }
-                    final DisplaySettings oldDisplaySettings = person.getDisplaySettings();
-                    displaySettings.overwriteCustomWebAppSettings(oldDisplaySettings);
-                    person.setDisplaySettings(displaySettings);
-                } else
-                {
-                    // Update serialized form of display settings.
-                    person.setDisplaySettings(person.getDisplaySettings());
+                    displaySettingsProvider.replaceRegularDisplaySettings(person, displaySettings);
+                    getDAOFactory().getPersonDAO().updatePerson(person);
                 }
-                getDAOFactory().getPersonDAO().updatePerson(person);
             }
         } catch (InvalidSessionException e)
         {
@@ -804,6 +802,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
         HibernateUtils.initialize(person.getAllPersonRoles());
         session.setPerson(person);
+        displaySettingsProvider.addDisplaySettingsForPerson(person);
     }
 
     protected void registerSamples(final Session session,
