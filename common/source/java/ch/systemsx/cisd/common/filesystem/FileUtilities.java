@@ -186,13 +186,6 @@ public final class FileUtilities
         }
     }
 
-    public static InputStream loadToStream(final File file, long slicePosition, long sliceSize)
-            throws IOExceptionUnchecked
-    {
-        // TODO implement this method
-        return null;
-    }
-
     /**
      * Loads a file to an {@link Object}.
      * 

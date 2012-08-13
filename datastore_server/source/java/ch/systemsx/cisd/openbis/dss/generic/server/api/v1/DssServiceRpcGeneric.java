@@ -270,14 +270,6 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     }
 
     @Override
-    public InputStream getFileSliceFromSessionWorkspace(String sessionToken, String filePath,
-            long slicePosition, long sliceSize) throws IOExceptionUnchecked
-    {
-        // TODO implement this method
-        return null;
-    }
-
-    @Override
     public boolean deleteSessionWorkspaceFile(String sessionToken, String path)
     {
         getOpenBISService().checkSession(sessionToken);

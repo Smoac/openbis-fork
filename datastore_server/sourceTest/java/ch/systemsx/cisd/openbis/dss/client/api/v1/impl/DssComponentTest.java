@@ -685,13 +685,6 @@ public class DssComponentTest extends AbstractFileSystemTestCase
             return null;
         }
 
-        @Override
-        public InputStream getFileSliceFromSessionWorkspace(String sessionToken, String filePath,
-                long slicePosition, long sliceSize) throws IOExceptionUnchecked
-        {
-            return null;
-        }
-
     }
 
     private class MockDssServiceRpcV1_1 extends MockDssServiceRpcV1_0

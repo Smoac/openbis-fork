@@ -179,19 +179,6 @@ public interface IDssServiceRpcGeneric extends IRpcService
             throws IOExceptionUnchecked;
 
     /**
-     * Download a file slice from the user's session workspace.
-     * 
-     * @param sessionToken The session token.
-     * @param filePath The file path (including the sub-directory) to download the slice from.
-     * @param slicePosition The position the slice should be downloaded from.
-     * @param sliceSize The size of the slice to be downloaded.
-     * @return The input stream containing the file slice content.
-     * @throws IOExceptionUnchecked Thrown if an IOException occurs.
-     */
-    public InputStream getFileSliceFromSessionWorkspace(String sessionToken, String filePath,
-            long slicePosition, long sliceSize) throws IOExceptionUnchecked;
-
-    /**
      * Delete a file or directory in the session workspace.
      * 
      * @return <code>true</code> if the <var>path</var> doesn't exist anymore.
