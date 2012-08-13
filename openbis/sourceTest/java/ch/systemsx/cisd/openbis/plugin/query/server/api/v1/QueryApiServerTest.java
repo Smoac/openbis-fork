@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.openbis.generic.server.DisplaySettingsProvider;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -74,9 +75,11 @@ public class QueryApiServerTest extends AbstractServerTestCase
     {
         queryServer = context.mock(IQueryServer.class);
         commonServer = context.mock(ICommonServer.class);
-        queryApiServer =
+        final QueryApiServer queryApiServerInt =
                 new QueryApiServer(queryServer, commonServer, sessionManager, daoFactory,
                         propertiesBatchManager);
+        queryApiServerInt.setDisplaySettingsProvider(new DisplaySettingsProvider());
+        queryApiServer = queryApiServerInt;
     }
 
     @Test
@@ -91,14 +94,11 @@ public class QueryApiServerTest extends AbstractServerTestCase
                     one(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(SESSION));
 
-                    one(personDAO).listPersons();
                     PersonPE person = new PersonPE();
                     person.setUserId("Albert");
                     person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays
                             .asList(new RoleAssignmentPE())));
                     person.setActive(true);
-                    will(returnValue(Arrays.asList(person)));
-
                     one(personDAO).tryFindPersonByUserId(SESSION.getUserName());
                     will(returnValue(person));
 
@@ -315,7 +315,8 @@ public class QueryApiServerTest extends AbstractServerTestCase
                     one(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(new Session("u", SESSION_TOKEN, new Principal(), "", 1)));
 
-                    one(commonServer).createReportFromAggregationService(with(SESSION_TOKEN), with(descriptionMatcher), with(serviceParams));
+                    one(commonServer).createReportFromAggregationService(with(SESSION_TOKEN),
+                            with(descriptionMatcher), with(serviceParams));
                     SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
                     builder.addFullHeader("Integer", "Double", "String");
                     builder.addRow(Arrays.asList(new IntegerTableCell(42), new DoubleTableCell(
@@ -325,7 +326,8 @@ public class QueryApiServerTest extends AbstractServerTestCase
             });
 
         QueryTableModel tableModel =
-                queryApiServer.createReportFromAggregationService(SESSION_TOKEN, "DS", "S1", serviceParams);
+                queryApiServer.createReportFromAggregationService(SESSION_TOKEN, "DS", "S1",
+                        serviceParams);
 
         DatastoreServiceDescription description = descriptionMatcher.recordedObject();
         assertEquals("S1", description.getKey());
@@ -333,7 +335,8 @@ public class QueryApiServerTest extends AbstractServerTestCase
         assertEquals("DS", description.getDatastoreCode());
         assertEquals("[]", Arrays.asList(description.getDatasetTypeCodes()).toString());
         assertEquals(DataStoreServiceKind.QUERIES, description.getServiceKind());
-        assertEquals(ReportingPluginType.AGGREGATION_TABLE_MODEL, description.tryReportingPluginType());
+        assertEquals(ReportingPluginType.AGGREGATION_TABLE_MODEL,
+                description.tryReportingPluginType());
         List<QueryTableColumn> columns = tableModel.getColumns();
         assertEquals("Integer", columns.get(0).getTitle());
         assertEquals(QueryTableColumnDataType.LONG, columns.get(0).getDataType());
