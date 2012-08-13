@@ -70,7 +70,7 @@ function openbis(openbisUrl, dssUrl) {
 	this.generalInfoServiceUrl = openbisUrl + "/rmi-general-information-v1.json";
 	this.queryServiceUrl = openbisUrl + "/rmi-query-v1.json";
 	this.dssApiUrl = dssUrl + "/rmi-dss-api-v1.json";
-	this.webInfoServiceUrl = openbisUrl + "/openbis/openbis/rmi-web-information-v1.json"
+	this.webInfoServiceUrl = openbisUrl + "/rmi-web-information-v1.json"
 }
 
 
@@ -334,21 +334,32 @@ openbis.prototype.createSessionWorkspaceUploader = function(uploaderContainer){
 		Uploader.init({
 		       smart_mode: true,
 		       chunk_size: 1000*1024,
-		       file_upload_url: $this.dssUrl + "/datastore_server/session_workspace_file_upload",
-		       form_upload_url: $this.dssUrl + "/datastore_server/session_workspace_form_upload",
-		       file_download_url: $this.dssUrl + "/datastore_server/session_workspace_file_download",
+		       file_upload_url: $this.dssUrl + "/session_workspace_file_upload",
+		       form_upload_url: $this.dssUrl + "/session_workspace_form_upload",
+		       file_download_url: $this.dssUrl + "/session_workspace_file_download",
 		       sessionID: $this.sessionToken
 		});
 	});	
 }
 
 openbis.prototype.createSessionWorkspaceDownloadUrl = function(filePath){
-	return this.dssUrl + "/datastore_server/session_workspace_file_download?sessionID=" + this.sessionToken + "&filePath=" + filePath; 
+	return this.dssUrl + "/session_workspace_file_download?sessionID=" + this.sessionToken + "&filePath=" + filePath; 
 }
 
 openbis.prototype.createSessionWorkspaceDownloadLink = function(filePath, linkText){
 	return $("<a href='" + this.createSessionWorkspaceDownloadUrl(filePath) + "'>" + (linkText ? linkText : filePath) + "</a>"); 
 }
+
+openbis.prototype.deleteSessionWorkspaceFile = function(filePath, action) {
+	ajaxRequest({
+			url: this.dssApiUrl,
+			data: { "method" : "deleteSessionWorkspaceFile",
+							"params" : [ this.sessionToken, filePath ]
+						 },
+			success: action
+	});
+}
+
 
 /**
  * A utility class for deferring an action until all of some kind of action has completed
