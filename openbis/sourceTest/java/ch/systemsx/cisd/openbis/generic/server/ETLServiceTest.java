@@ -80,6 +80,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -298,15 +299,37 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private void prepareFindDatasetTypes(Expectations exp)
     {
-        exp.allowing(dataSetTypeDAO).tryToFindDataSetTypeByCode(DATA_SET_TYPE_CODE);
-        exp.will(Expectations.returnValue(new DataSetTypePE()));
-        exp.allowing(dataSetTypeDAO).tryToFindDataSetTypeByCode(UNKNOWN_DATA_SET_TYPE_CODE);
-        exp.will(Expectations.returnValue(null));
+        ArrayList<DataSetTypePE> allDataSetTypes = getAllDataSetTypes();
+
+        exp.allowing(dataSetTypeDAO).listAllEntities();
+        exp.will(Expectations.returnValue(allDataSetTypes));
+    }
+
+    protected ArrayList<DataSetTypePE> getAllDataSetTypes()
+    {
+        // Prepare the collection of data set types
+        DataSetTypePE dataSetType;
+        ArrayList<DataSetTypePE> allDataSetTypes = new ArrayList<DataSetTypePE>();
+
+        dataSetType = new DataSetTypePE();
+        dataSetType.setCode(DATA_SET_TYPE_CODE);
+        allDataSetTypes.add(dataSetType);
+
+        dataSetType = new DataSetTypePE();
+        dataSetType.setCode("dataSetTypeCode2");
+        allDataSetTypes.add(dataSetType);
+
+        dataSetType = new DataSetTypePE();
+        dataSetType.setCode("differentPrefix");
+        allDataSetTypes.add(dataSetType);
+        return allDataSetTypes;
     }
 
     @Test
     public void testRegisterDataStoreServerAgain()
     {
+        final String reportingPluginTypes = ".*";
+        final String processingPluginTypes = "dataSet.*";
         prepareGetSession();
         prepareGetVersion();
         context.checking(new Expectations()
@@ -334,20 +357,72 @@ public class ETLServiceTest extends AbstractServerTestCase
                                         if (item instanceof DataStorePE)
                                         {
                                             DataStorePE store = (DataStorePE) item;
-                                            return DSS_CODE.equals(store.getCode())
-                                                    && URL.equals(store.getRemoteUrl())
-                                                    && DOWNLOAD_URL.equals(store.getDownloadUrl())
-                                                    && DSS_SESSION_TOKEN.equals(store
-                                                            .getSessionToken());
+                                            boolean basicMatch =
+                                                    DSS_CODE.equals(store.getCode())
+                                                            && URL.equals(store.getRemoteUrl())
+                                                            && DOWNLOAD_URL.equals(store
+                                                                    .getDownloadUrl())
+                                                            && DSS_SESSION_TOKEN.equals(store
+                                                                    .getSessionToken());
+                                            // To workaround a hibernate bug, data stores are once
+                                            // registered with no services
+                                            if (false == basicMatch
+                                                    || store.getServices().isEmpty())
+                                            {
+                                                return basicMatch;
+                                            }
+
+                                            for (DataStoreServicePE service : store.getServices())
+                                            {
+                                                // Check that the types found match those specified
+                                                if (service.getKind() == DataStoreServiceKind.PROCESSING)
+                                                {
+                                                    // expect 2 matches
+                                                    if (false == isDataSetTypeMatch(service,
+                                                            processingPluginTypes, 2))
+                                                    {
+                                                        return false;
+                                                    }
+                                                }
+                                                if (service.getKind() == DataStoreServiceKind.QUERIES)
+                                                {
+                                                    // expect 3 matches
+                                                    if (false == isDataSetTypeMatch(service,
+                                                            reportingPluginTypes, 3))
+                                                    {
+                                                        return false;
+                                                    }
+                                                }
+                                            }
+
+                                            return true;
                                         }
                                         return false;
+                                    }
+
+                                    private boolean isDataSetTypeMatch(DataStoreServicePE service,
+                                            String typeRegex, int numberExpected)
+                                    {
+                                        Set<DataSetTypePE> datasetTypes = service.getDatasetTypes();
+                                        if (datasetTypes.isEmpty())
+                                        {
+                                            return false;
+                                        }
+                                        for (DataSetTypePE types : datasetTypes)
+                                        {
+                                            if (false == types.getCode().matches(typeRegex))
+                                            {
+                                                return false;
+                                            }
+                                        }
+                                        return datasetTypes.size() == numberExpected;
                                     }
 
                                 }));
                 }
             });
-
-        createService().registerDataStoreServer(SESSION_TOKEN, createDSSInfo());
+        createService().registerDataStoreServer(SESSION_TOKEN,
+                createDSSInfoWithWildcards(reportingPluginTypes, processingPluginTypes));
 
         context.assertIsSatisfied();
     }
@@ -1366,6 +1441,26 @@ public class ETLServiceTest extends AbstractServerTestCase
         return info;
     }
 
+    private DataStoreServerInfo createDSSInfoWithWildcards(String reportingPluginTypes,
+            String processingPluginTypes)
+    {
+        DataStoreServerInfo info = new DataStoreServerInfo();
+        info.setPort(PORT);
+        info.setSessionToken(DSS_SESSION_TOKEN);
+        info.setDataStoreCode(DSS_CODE);
+        info.setDownloadUrl(DOWNLOAD_URL);
+        List<DatastoreServiceDescription> reporting =
+                Arrays.asList(createDataStoreServiceForWildcardTypes(DataStoreServiceKind.QUERIES,
+                        "reporting", reportingPluginTypes));
+        List<DatastoreServiceDescription> processing =
+                Arrays.asList(createDataStoreServiceForWildcardTypes(
+                        DataStoreServiceKind.PROCESSING, "processing", processingPluginTypes));
+        DatastoreServiceDescriptions services =
+                new DatastoreServiceDescriptions(reporting, processing);
+        info.setServicesDescriptions(services);
+        return info;
+    }
+
     @SuppressWarnings("deprecation")
     private static DatastoreServiceDescription createDataStoreService(
             DataStoreServiceKind serviceKind, String key)
@@ -1373,6 +1468,15 @@ public class ETLServiceTest extends AbstractServerTestCase
         // unknown data set type codes should be silently discarded
         return new DatastoreServiceDescription(key, key, new String[]
             { DATA_SET_TYPE_CODE, UNKNOWN_DATA_SET_TYPE_CODE }, key, serviceKind);
+    }
+
+    @SuppressWarnings("deprecation")
+    private static DatastoreServiceDescription createDataStoreServiceForWildcardTypes(
+            DataStoreServiceKind serviceKind, String key, String regex)
+    {
+        // wildcards should be handled correctly
+        return new DatastoreServiceDescription(key, key, new String[]
+            { regex }, key, serviceKind);
     }
 
     private void assignRoles(PersonPE person)

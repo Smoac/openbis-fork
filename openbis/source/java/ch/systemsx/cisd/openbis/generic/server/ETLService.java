@@ -424,29 +424,31 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     /**
      * Find the data set type objects specified by the dataSetTypeCodes.
      * 
-     * @return A set of DataSetTypePE objects or null if all data set types are explicitly
-     *         specified.
+     * @return A set of DataSetTypePE objects.
      */
     private Set<DataSetTypePE> extractDatasetTypes(String[] dataSetTypeCodes,
             DatastoreServiceDescription serviceDescription)
     {
-        // "*" means accept all data set types
-        if (dataSetTypeCodes.length == 1 && "*".equals(dataSetTypeCodes[0]))
-        {
-            return null;
-        }
         Set<DataSetTypePE> dataSetTypes = new HashSet<DataSetTypePE>();
         Set<String> missingCodes = new HashSet<String>();
         IDataSetTypeDAO dataSetTypeDAO = daoFactory.getDataSetTypeDAO();
+        List<DataSetTypePE> allDataSetTypes = dataSetTypeDAO.listAllEntities();
+
         for (String dataSetTypeCode : dataSetTypeCodes)
         {
-            DataSetTypePE datasetType = dataSetTypeDAO.tryToFindDataSetTypeByCode(dataSetTypeCode);
-            if (datasetType == null)
+            boolean found = false;
+            // Try to find the specified data set type
+            for (DataSetTypePE dataSetType : allDataSetTypes)
+            {
+                if (dataSetType.getCode().matches(dataSetTypeCode))
+                {
+                    dataSetTypes.add(dataSetType);
+                    found = true;
+                }
+            }
+            if (false == found)
             {
                 missingCodes.add(dataSetTypeCode);
-            } else
-            {
-                dataSetTypes.add(datasetType);
             }
         }
         if (missingCodes.size() > 0)

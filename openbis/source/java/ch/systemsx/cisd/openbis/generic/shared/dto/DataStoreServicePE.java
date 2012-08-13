@@ -71,7 +71,7 @@ public class DataStoreServicePE implements Serializable
 
     private DataStorePE dataStore;
 
-    // which types of datasets can be processed by this plugin? If null, all types are appropriate.
+    // which types of datasets can be processed by this plugin?
     private Set<DataSetTypePE> datasetTypes;
 
     @SuppressWarnings("unused")
