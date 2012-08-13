@@ -317,6 +317,11 @@ openbis.prototype.executeQuery = function(queryId, parameterBindings, action) {
 	});
 }
 
+/**
+ * Creates a session workspace file uploader inside the specified uploaderContainer element.
+ * 
+ * @method
+ */
 openbis.prototype.createSessionWorkspaceUploader = function(uploaderContainer){
 	var uploaderSupported = window.File && window.FileReader && window.XMLHttpRequest;
 
@@ -342,14 +347,29 @@ openbis.prototype.createSessionWorkspaceUploader = function(uploaderContainer){
 	});	
 }
 
+/**
+ * Creates a session workspace download url for a file with the specified filePath.
+ * 
+ * @method
+ */
 openbis.prototype.createSessionWorkspaceDownloadUrl = function(filePath){
 	return this.dssUrl + "/session_workspace_file_download?sessionID=" + this.sessionToken + "&filePath=" + filePath; 
 }
 
+/**
+ * Create a session workspace download link for a file with the specified filePath.
+ * 
+ * @method
+ */
 openbis.prototype.createSessionWorkspaceDownloadLink = function(filePath, linkText){
 	return $("<a href='" + this.createSessionWorkspaceDownloadUrl(filePath) + "'>" + (linkText ? linkText : filePath) + "</a>"); 
 }
 
+/**
+ * Downloads a session workspace file with the specified filePath.
+ * 
+ * @method
+ */
 openbis.prototype.downloadSessionWorkspaceFile = function(filePath, action) {
 	$.ajax({
 		type: "GET",
@@ -358,6 +378,11 @@ openbis.prototype.downloadSessionWorkspaceFile = function(filePath, action) {
 	});
 }
 
+/**
+ * Deletes a session workspace file with the specified filePath.
+ * 
+ * @method
+ */
 openbis.prototype.deleteSessionWorkspaceFile = function(filePath, action) {
 	ajaxRequest({
 			url: this.dssApiUrl,
@@ -367,7 +392,6 @@ openbis.prototype.deleteSessionWorkspaceFile = function(filePath, action) {
 			success: action
 	});
 }
-
 
 /**
  * A utility class for deferring an action until all of some kind of action has completed
