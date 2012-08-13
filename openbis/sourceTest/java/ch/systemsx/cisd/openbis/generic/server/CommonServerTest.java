@@ -128,6 +128,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         server.setSampleTypeSlaveServerPlugin(sampleTypeSlaveServerPlugin);
         server.setDataSetTypeSlaveServerPlugin(dataSetTypeSlaveServerPlugin);
         server.setBaseIndexURL(SESSION_TOKEN, BASE_INDEX_URL);
+        server.setDisplaySettingsProvider(new DisplaySettingsProvider());
         return server;
     }
 
