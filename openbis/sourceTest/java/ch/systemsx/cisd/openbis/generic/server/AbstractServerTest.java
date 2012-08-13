@@ -86,6 +86,7 @@ public class AbstractServerTest extends AssertJUnit
                 }
 
             };
+        server.setDisplaySettingsProvider(new DisplaySettingsProvider());
 
         context.checking(new Expectations()
             {
