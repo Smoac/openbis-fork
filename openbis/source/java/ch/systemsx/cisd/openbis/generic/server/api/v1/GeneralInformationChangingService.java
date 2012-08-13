@@ -50,6 +50,8 @@ public class GeneralInformationChangingService extends
         AbstractServer<IGeneralInformationChangingService> implements
         IGeneralInformationChangingService
 {
+    public static final int MINOR_VERSION = 2;
+
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer server;
 
@@ -149,7 +151,7 @@ public class GeneralInformationChangingService extends
     @Override
     public int getMinorVersion()
     {
-        return 2;
+        return MINOR_VERSION;
     }
 
 }
