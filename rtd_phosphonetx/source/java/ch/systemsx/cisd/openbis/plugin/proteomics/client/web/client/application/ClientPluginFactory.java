@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DelegatedClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Gen
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
+import ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
  * @author Franz-Josef Elmer
@@ -99,7 +100,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
     {
         if (EntityKind.EXPERIMENT.equals(entityKind))
         {
-            return (IClientPlugin<T, I>) new ExperimentClientPlugin();
+            return (IClientPlugin<T, I>) new ExperimentClientPlugin(getViewContext());
         }
         throw new UnsupportedOperationException("IClientPlugin for entity kind '" + entityKind
                 + "' not implemented yet.");
@@ -109,9 +110,12 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
     // Helper classes
     //
 
-    private final class ExperimentClientPlugin extends
-            ClientPluginAdapter<ExperimentType, IIdAndCodeHolder>
+    private final class ExperimentClientPlugin extends DelegatedClientPlugin<ExperimentType>
     {
+        private ExperimentClientPlugin(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
+        {
+            super(viewContext, EntityKind.EXPERIMENT);
+        }
         //
         // IViewClientPlugin
         //

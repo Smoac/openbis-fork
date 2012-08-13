@@ -25,17 +25,16 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DelegatedClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryUsingWildcards;
@@ -745,62 +744,6 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             IMessageProvider messageProvider)
     {
         return AbstractViewer.getTitle(messageProvider, dictTitleKey, codeProvider);
-    }
-
-    /**
-     * delegates all operations to generic plugin, should be subclasssed and the needed
-     * functionality can override the default behaviour
-     */
-    private static class DelegatedClientPlugin<T extends BasicEntityType> implements
-            IClientPlugin<T, IIdAndCodeHolder>
-    {
-        private final IClientPlugin<T, IIdAndCodeHolder> delegator;
-
-        private DelegatedClientPlugin(IViewContext<?> viewContext, EntityKind entityKind)
-        {
-            this.delegator = createGenericClientFactory(viewContext).createClientPlugin(entityKind);
-        }
-
-        private static ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ClientPluginFactory createGenericClientFactory(
-                IViewContext<?> viewContext)
-        {
-            ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ClientPluginFactory clientPluginFactory =
-                    new ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ClientPluginFactory(
-                            viewContext.getCommonViewContext());
-            return clientPluginFactory;
-        }
-
-        @Override
-        public AbstractTabItemFactory createEntityViewer(
-                final IEntityInformationHolderWithPermId entity)
-        {
-            return delegator.createEntityViewer(entity);
-        }
-
-        @Override
-        public Widget createBatchRegistrationForEntityType(final T entityType)
-        {
-            return delegator.createBatchRegistrationForEntityType(entityType);
-        }
-
-        @Override
-        public Widget createBatchUpdateForEntityType(final T entityType)
-        {
-            return delegator.createBatchUpdateForEntityType(entityType);
-        }
-
-        @Override
-        public AbstractTabItemFactory createEntityEditor(final IIdAndCodeHolder identifiable)
-        {
-            return delegator.createEntityEditor(identifiable);
-        }
-
-        @Override
-        public DatabaseModificationAwareWidget createRegistrationForEntityType(T entityType,
-                ActionContext context)
-        {
-            return delegator.createRegistrationForEntityType(entityType, context);
-        }
     }
 
     @Override
