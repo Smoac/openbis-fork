@@ -836,6 +836,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                         archivingAction.getStatusToRestoreOnFailure());
                 throw UserFailureException
                         .fromTemplate(
+                                e,
                                 "Operation couldn't be performed for following datasets: %s. "
                                         + "Archiver may not be configured properly. Please contact your administrator.",
                                 CollectionUtils.abbreviate(Code.extractCodes(datasets), 10));
