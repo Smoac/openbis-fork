@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.dss.screening.server.DssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
+import ch.systemsx.cisd.openbis.generic.server.api.v1.GeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -199,6 +200,10 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
                     allowing(dssService2).getMinorVersion();
                     will(returnValue(DssServiceRpcScreening.MINOR_VERSION));
+
+                    allowing(generalInformationChangingService).getMinorVersion();
+                    will(returnValue(GeneralInformationChangingService.MINOR_VERSION));
+
                 }
             });
         context.checking(new Expectations()
