@@ -350,6 +350,14 @@ openbis.prototype.createSessionWorkspaceDownloadLink = function(filePath, linkTe
 	return $("<a href='" + this.createSessionWorkspaceDownloadUrl(filePath) + "'>" + (linkText ? linkText : filePath) + "</a>"); 
 }
 
+openbis.prototype.downloadSessionWorkspaceFile = function(filePath, action) {
+	$.ajax({
+		type: "GET",
+		url: this.createSessionWorkspaceDownloadUrl(filePath),
+		success: action
+	});
+}
+
 openbis.prototype.deleteSessionWorkspaceFile = function(filePath, action) {
 	ajaxRequest({
 			url: this.dssApiUrl,
