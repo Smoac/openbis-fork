@@ -46,13 +46,9 @@ public final class DataStoreDAOTest extends AbstractDAOTest
     public void testCreate()
     {
         DataStorePE dataStore = new DataStorePE();
-        dataStore.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
-        String code = DATA_STORE_CODE;
-        dataStore.setCode(code);
-        dataStore.setDownloadUrl(code);
-        dataStore.setRemoteUrl(code);
-        dataStore.setSessionToken(code);
-        dataStore.setServices(createDataStoreServices(code));
+        initializeDataStore(dataStore);
+        String code = dataStore.getCode();
+        dataStore.setServices(createDataStoreServices(code, getDataSetTypes()));
         daoFactory.getDataStoreDAO().createOrUpdateDataStore(dataStore);
         assertNotNull(dataStore.getId());
 
@@ -60,25 +56,49 @@ public final class DataStoreDAOTest extends AbstractDAOTest
         AssertJUnit.assertEquals(dataStore, store);
         // check if changing the registered services does not fail when the result of this test
         // method will be commited
-        dataStore.setServices(createDataStoreServices("another"));
+        dataStore.setServices(createDataStoreServices("another", getDataSetTypes()));
         daoFactory.getDataStoreDAO().createOrUpdateDataStore(dataStore);
 
         dataStore.setServices(new HashSet<DataStoreServicePE>()); // delete all services
         daoFactory.getDataStoreDAO().createOrUpdateDataStore(dataStore);
     }
 
-    private Set<DataStoreServicePE> createDataStoreServices(String prefix)
+    protected void initializeDataStore(DataStorePE dataStore)
+    {
+        dataStore.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+        String code = DATA_STORE_CODE;
+        dataStore.setCode(code);
+        dataStore.setDownloadUrl(code);
+        dataStore.setRemoteUrl(code);
+        dataStore.setSessionToken(code);
+    }
+
+    @Test
+    public void testCreateFotAllDataSetTypes()
+    {
+        DataStorePE dataStore = new DataStorePE();
+        initializeDataStore(dataStore);
+        String code = dataStore.getCode();
+        dataStore.setServices(createDataStoreServices(code, null));
+        daoFactory.getDataStoreDAO().createOrUpdateDataStore(dataStore);
+        assertNotNull(dataStore.getId());
+
+        DataStorePE store = daoFactory.getDataStoreDAO().tryToFindDataStoreByCode(code);
+        AssertJUnit.assertEquals(dataStore, store);
+    }
+
+    private Set<DataStoreServicePE> createDataStoreServices(String prefix,
+            Set<DataSetTypePE> dataSetTypes)
     {
         Set<DataStoreServicePE> services = new HashSet<DataStoreServicePE>();
         DataStoreServicePE service;
-
         for (int i = 0; i < 3; i++)
         {
             service = new DataStoreServicePE();
             service.setKey(prefix + "_key_" + i);
             service.setLabel("label");
             service.setKind(DataStoreServiceKind.PROCESSING);
-            service.setDatasetTypes(getDataSetTypes());
+            service.setDatasetTypes(dataSetTypes);
             service.setReportingPluginTypeOrNull(null);
             services.add(service);
         }
@@ -89,7 +109,7 @@ public final class DataStoreDAOTest extends AbstractDAOTest
         service.setKey(prefix + "_key_" + i++);
         service.setLabel("label");
         service.setKind(DataStoreServiceKind.QUERIES);
-        service.setDatasetTypes(getDataSetTypes());
+        service.setDatasetTypes(dataSetTypes);
         service.setReportingPluginTypeOrNull(ReportingPluginType.TABLE_MODEL);
         services.add(service);
 
@@ -98,7 +118,7 @@ public final class DataStoreDAOTest extends AbstractDAOTest
         service.setKey(prefix + "_key_" + i++);
         service.setLabel("label");
         service.setKind(DataStoreServiceKind.QUERIES);
-        service.setDatasetTypes(getDataSetTypes());
+        service.setDatasetTypes(dataSetTypes);
         service.setReportingPluginTypeOrNull(ReportingPluginType.DSS_LINK);
         services.add(service);
 

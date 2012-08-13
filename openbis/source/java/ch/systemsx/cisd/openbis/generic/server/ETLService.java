@@ -421,28 +421,39 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return services;
     }
 
-    private Set<DataSetTypePE> extractDatasetTypes(String[] datasetTypeCodes,
+    /**
+     * Find the data set type objects specified by the dataSetTypeCodes.
+     * 
+     * @return A set of DataSetTypePE objects or null if all data set types are explicitly
+     *         specified.
+     */
+    private Set<DataSetTypePE> extractDatasetTypes(String[] dataSetTypeCodes,
             DatastoreServiceDescription serviceDescription)
     {
-        Set<DataSetTypePE> datasetTypes = new HashSet<DataSetTypePE>();
+        // "*" means accept all data set types
+        if (dataSetTypeCodes.length == 1 && "*".equals(dataSetTypeCodes[0]))
+        {
+            return null;
+        }
+        Set<DataSetTypePE> dataSetTypes = new HashSet<DataSetTypePE>();
         Set<String> missingCodes = new HashSet<String>();
         IDataSetTypeDAO dataSetTypeDAO = daoFactory.getDataSetTypeDAO();
-        for (String datasetTypeCode : datasetTypeCodes)
+        for (String dataSetTypeCode : dataSetTypeCodes)
         {
-            DataSetTypePE datasetType = dataSetTypeDAO.tryToFindDataSetTypeByCode(datasetTypeCode);
+            DataSetTypePE datasetType = dataSetTypeDAO.tryToFindDataSetTypeByCode(dataSetTypeCode);
             if (datasetType == null)
             {
-                missingCodes.add(datasetTypeCode);
+                missingCodes.add(dataSetTypeCode);
             } else
             {
-                datasetTypes.add(datasetType);
+                dataSetTypes.add(datasetType);
             }
         }
         if (missingCodes.size() > 0)
         {
             notifyDataStoreServerMisconfiguration(missingCodes, serviceDescription);
         }
-        return datasetTypes;
+        return dataSetTypes;
     }
 
     private void notifyDataStoreServerMisconfiguration(Set<String> missingCodes,
