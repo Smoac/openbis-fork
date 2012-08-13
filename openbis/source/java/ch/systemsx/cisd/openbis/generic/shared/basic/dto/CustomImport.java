@@ -29,7 +29,9 @@ public class CustomImport implements Serializable
     public static enum PropertyNames
     {
         CUSTOM_IMPORTS("custom-imports"), NAME("name"), DATASTORE_CODE("dss-code"), DROPBOX_NAME(
-                "dropbox-name"), DESCRIPTION("description");
+                "dropbox-name"), DESCRIPTION("description"), TEMPLATE_ENTITY_KIND(
+                "template-entity-kind"), TEMPLATE_ENTITY_PERMID("template-entity-permid"),
+        TEMPLATE_ATTACHMENT_NAME("template-attachment-name");
 
         private final String name;
 
@@ -66,6 +68,25 @@ public class CustomImport implements Serializable
     public void setCode(String name)
     {
         this.code = name;
+    }
+
+    public String getProperty(String propertyName)
+    {
+        if (properties == null)
+        {
+            return null;
+        } else
+        {
+            String propertyValue = properties.get(propertyName);
+
+            if (propertyValue == null || propertyValue.trim().length() == 0)
+            {
+                return null;
+            } else
+            {
+                return propertyValue.trim();
+            }
+        }
     }
 
     public Map<String, String> getProperties()

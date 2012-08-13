@@ -72,8 +72,9 @@ public class CustomImportComponent extends LayoutContainer
                                 removeAll();
                                 add(toolBar);
                                 customImportForm =
-                                        new CustomImportForm(viewContext, ID, (String) se
-                                                .getSelectedItem().get(ModelDataPropertyNames.CODE));
+                                        new CustomImportForm(viewContext, ID, (CustomImport) se
+                                                .getSelectedItem().get(
+                                                        ModelDataPropertyNames.OBJECT));
                                 add(customImportForm);
                                 layout();
                             }

@@ -18,14 +18,26 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
 
 /**
  * @author Pawel Glyzewski
@@ -38,7 +50,7 @@ public class CustomImportForm extends AbstractRegistrationForm
 
     private final String sessionKey;
 
-    private final String customImportCode;
+    private final CustomImport customImport;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -49,13 +61,19 @@ public class CustomImportForm extends AbstractRegistrationForm
      * @param id
      */
     public CustomImportForm(IViewContext<ICommonClientServiceAsync> viewContext, String id,
-            String customImportCode)
+            CustomImport customImport)
     {
         super(viewContext, id);
         setResetButtonVisible(true);
-        this.sessionKey = id + "-" + customImportCode;
-        this.customImportCode = customImportCode;
+        this.sessionKey = id + "-" + customImport.getCode();
+        this.customImport = customImport;
         this.viewContext = viewContext;
+
+        Field<?> templateField = createTemplateField();
+        if (templateField != null)
+        {
+            formPanel.add(templateField);
+        }
 
         fileFieldsManager =
                 new BasicFileFieldManager(sessionKey, NUMBER_OF_FIELDS, FIELD_LABEL_TEMPLATE);
@@ -79,7 +97,7 @@ public class CustomImportForm extends AbstractRegistrationForm
                 {
                     CustomImportForm.this.viewContext.getCommonService().performCustomImport(
                             sessionKey,
-                            CustomImportForm.this.customImportCode,
+                            CustomImportForm.this.customImport.getCode(),
                             new AbstractRegistrationCallback<String>(
                                     CustomImportForm.this.viewContext)
                                 {
@@ -99,10 +117,54 @@ public class CustomImportForm extends AbstractRegistrationForm
             });
     }
 
+    private LabelField createTemplateField()
+    {
+        final String templateEntityKind =
+                customImport.getProperty(CustomImport.PropertyNames.TEMPLATE_ENTITY_KIND.getName());
+        final String templateEntityPermId =
+                customImport.getProperty(CustomImport.PropertyNames.TEMPLATE_ENTITY_PERMID
+                        .getName());
+        final String templateAttachmentName =
+                customImport.getProperty(CustomImport.PropertyNames.TEMPLATE_ATTACHMENT_NAME
+                        .getName());
+
+        if (templateEntityKind == null || AttachmentHolderKind.valueOf(templateEntityKind) == null
+                || templateEntityPermId == null || templateAttachmentName == null)
+        {
+            return null;
+        }
+
+        LabelField result =
+                new LabelField(LinkRenderer.renderAsLink(viewContext
+                        .getMessage(Dict.FILE_TEMPLATE_LABEL)));
+        result.sinkEvents(Event.ONCLICK);
+        result.addListener(Events.OnClick, new Listener<BaseEvent>()
+            {
+                @Override
+                public void handleEvent(BaseEvent be)
+                {
+                    AttachmentHolderKind attachmentHolderKind =
+                            AttachmentHolderKind.valueOf(templateEntityKind);
+
+                    if (AttachmentHolderKind.PROJECT.equals(attachmentHolderKind))
+                    {
+                        Window.alert("TODO: implement me !!!");
+                    } else
+                    {
+                        WindowUtils.openWindow(PermlinkUtilities.createAttachmentPermlinkURL(
+                                GWTUtils.getBaseIndexURL(), templateAttachmentName, null,
+                                attachmentHolderKind, templateEntityPermId));
+                    }
+                }
+            });
+        return result;
+    }
+
     @Override
     protected void submitValidForm()
     {
         CustomImportForm.this.setUploadEnabled(false);
         formPanel.submit();
     }
+
 }
