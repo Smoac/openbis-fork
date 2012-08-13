@@ -53,7 +53,7 @@ public class DisplaySettingsProvider
             settings = person.getDisplaySettings();
             displaySettingsMap.put(person.getUserId(), settings);
         }
-        settings = settings.clone();
+        settings = new DisplaySettings(settings);
         settings.clearCustomWebAppSettings();
         return settings;
     }

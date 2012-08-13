@@ -34,9 +34,13 @@ import java.util.Map;
  * 
  * @author Franz-Josef Elmer
  */
-public class DisplaySettings implements Serializable, Cloneable
+public class DisplaySettings implements Serializable
 {
     private static final long serialVersionUID = 1L;
+
+    //
+    // NOTE: if you add new fields to this class, you also need to add it to the copy constructor!
+    //
 
     private Map<String, List<ColumnSetting>> columnSettings =
             new HashMap<String, List<ColumnSetting>>();
@@ -73,6 +77,31 @@ public class DisplaySettings implements Serializable, Cloneable
     private Map<String, PortletConfiguration> portletConfigurations;
 
     private Map<String, Map<String, String>> customWebAppDisplaySettings;
+
+    public DisplaySettings()
+    {
+    }
+
+    /**
+     * Copy constructor (shallow copy).
+     */
+    public DisplaySettings(DisplaySettings other)
+    {
+        this.columnSettings = other.columnSettings;
+        this.technologySpecificSettings = other.technologySpecificSettings;
+        this.tabSettings = other.tabSettings;
+        this.dropDownSettings = other.dropDownSettings;
+        this.useWildcardSearchMode = other.useWildcardSearchMode;
+        this.debugging = other.debugging;
+        this.lastHistoryTokenOrNull = other.lastHistoryTokenOrNull;
+        this.ignoreLastHistoryToken = other.ignoreLastHistoryToken;
+        this.realNumberFormatingParameters = other.realNumberFormatingParameters;
+        this.panelCollapsedSettings = other.panelCollapsedSettings;
+        this.panelSizeSettings = other.panelSizeSettings;
+        this.visits = other.visits;
+        this.portletConfigurations = other.portletConfigurations;
+        this.customWebAppDisplaySettings = other.customWebAppDisplaySettings;
+    }
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
@@ -357,15 +386,4 @@ public class DisplaySettings implements Serializable, Cloneable
         customWebAppDisplaySettings = null;
     }
 
-    @Override
-    public DisplaySettings clone()
-    {
-        try
-        {
-            return (DisplaySettings) super.clone();
-        } catch (CloneNotSupportedException ex)
-        {
-            throw new Error(ex);
-        }
-    }
 }
