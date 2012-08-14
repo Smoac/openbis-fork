@@ -25,7 +25,6 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Window;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -143,18 +142,9 @@ public class CustomImportForm extends AbstractRegistrationForm
                 @Override
                 public void handleEvent(BaseEvent be)
                 {
-                    AttachmentHolderKind attachmentHolderKind =
-                            AttachmentHolderKind.valueOf(templateEntityKind);
-
-                    if (AttachmentHolderKind.PROJECT.equals(attachmentHolderKind))
-                    {
-                        Window.alert("TODO: implement me !!!");
-                    } else
-                    {
-                        WindowUtils.openWindow(PermlinkUtilities.createAttachmentPermlinkURL(
-                                GWTUtils.getBaseIndexURL(), templateAttachmentName, null,
-                                attachmentHolderKind, templateEntityPermId));
-                    }
+                    WindowUtils.openWindow(PermlinkUtilities.createAttachmentPermlinkURL(
+                            GWTUtils.getBaseIndexURL(), templateAttachmentName, null,
+                            AttachmentHolderKind.valueOf(templateEntityKind), templateEntityPermId));
                 }
             });
         return result;

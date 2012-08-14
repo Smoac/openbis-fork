@@ -28,6 +28,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
@@ -863,6 +864,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public ExperimentUpdateResult updateExperiment(String sessionToken, ExperimentUpdatesDTO updates)
     {
         logTracking(sessionToken, "update_experiment", "EXPERIMENT(%s)", updates.getExperimentId());
+        return null;
+    }
+
+    @Override
+    public IIdHolder getProjectIdHolder(String sessionToken, String projectPermId)
+    {
+        logAccess(sessionToken, "get_project_id_holder", "PERM_ID(%s)", projectPermId);
         return null;
     }
 

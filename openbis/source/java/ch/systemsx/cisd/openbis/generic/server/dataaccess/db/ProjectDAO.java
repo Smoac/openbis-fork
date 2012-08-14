@@ -81,6 +81,21 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
     }
 
     @Override
+    public ProjectPE tryGetByPermID(String permId)
+    {
+        final Criteria criteria = getSession().createCriteria(getEntityClass());
+        criteria.add(Restrictions.eq("permId", permId));
+        final ProjectPE projectOrNull = (ProjectPE) criteria.uniqueResult();
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String
+                    .format("Following project '%s' has been found for permId '%s'.",
+                            projectOrNull, permId));
+        }
+        return projectOrNull;
+    }
+
+    @Override
     public ProjectPE tryFindProject(final String databaseInstanceCode, final String spaceCode,
             final String projectCode)
     {

@@ -55,6 +55,13 @@ public interface IProjectBO extends IEntityBusinessObject
     public void loadByProjectIdentifier(ProjectIdentifier project);
 
     /**
+     * Loads a project given by its perm id.
+     * 
+     * @throws UserFailureException if no project found.
+     */
+    public void loadByPermId(String permId);
+
+    /**
      * Returns attachment (with content) given defined by filename and version (or latest one if
      * version is <code>null</code>.
      */

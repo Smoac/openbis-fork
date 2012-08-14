@@ -51,8 +51,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
  */
 public class ProjectPropertiesPanel extends ContentPanel
 {
-    public static final String PROPERTIES_ID_PREFIX =
-            GenericConstants.ID_PREFIX + "project-properties-section_";
+    public static final String PROPERTIES_ID_PREFIX = GenericConstants.ID_PREFIX
+            + "project-properties-section_";
 
     private final Project project;
 
@@ -72,8 +72,8 @@ public class ProjectPropertiesPanel extends ContentPanel
         final Map<String, Object> properties = createProperties(viewContext);
         final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
         propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + project.getIdentifier());
-        propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
-                .createPersonPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Person.class,
+                PropertyValueRenderers.createPersonPropertyValueRenderer(viewContext));
         propertyGrid.setProperties(properties);
         return propertyGrid;
     }
@@ -83,13 +83,14 @@ public class ProjectPropertiesPanel extends ContentPanel
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
 
         properties.put(messageProvider.getMessage(Dict.PROJECT), project.getIdentifier());
+        properties.put(messageProvider.getMessage(Dict.PERM_ID), project.getPermId());
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), project.getRegistrator());
-        properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), project
-                .getRegistrationDate());
+        properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE),
+                project.getRegistrationDate());
         // show description in multiple lines (renderer would need to be assigned to String.class)
         final String description =
-                project.getDescription() == null ? null : new MultilineHTML(project
-                        .getDescription()).toString();
+                project.getDescription() == null ? null : new MultilineHTML(
+                        project.getDescription()).toString();
         properties.put(messageProvider.getMessage(Dict.DESCRIPTION), description);
 
         return properties;

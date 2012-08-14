@@ -58,6 +58,7 @@ public final class ProjectTranslator
         }
         final Project result = new Project();
         result.setId(HibernateUtils.getId(project));
+        result.setPermId(project.getPermId());
         result.setModifier(PersonTranslator.translate(project.getModifier()));
         result.setModificationDate(project.getModificationDate());
         result.setCode(project.getCode());

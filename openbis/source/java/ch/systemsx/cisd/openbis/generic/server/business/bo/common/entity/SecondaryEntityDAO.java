@@ -34,9 +34,9 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContex
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -117,6 +117,7 @@ public class SecondaryEntityDAO
         experiment.setDeletion(createDeletion(record.del_id));
         final Project project = new Project();
         project.setId(record.p_id);
+        project.setPermId(record.p_perm_id);
         project.setCode(record.p_code);
         project.setSpace(space);
         experiment.setProject(project);

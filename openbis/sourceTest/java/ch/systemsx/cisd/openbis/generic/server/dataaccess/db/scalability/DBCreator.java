@@ -231,6 +231,7 @@ public final class DBCreator extends AbstractDAOTest
         final String code = CodeGenerator.generateDefaultCode(CreatedEntityKind.PROJECT);
         final ProjectPE project = new ProjectPE();
         project.setCode(code);
+        project.setPermId(daoFactory.getPermIdDAO().createPermId());
         project.setSpace(defaultGroup);
         project.setProjectLeader(getSystemPerson());
         project.setRegistrator(getSystemPerson());

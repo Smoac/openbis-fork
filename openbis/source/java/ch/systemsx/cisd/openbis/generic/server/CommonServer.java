@@ -101,6 +101,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IdentifierExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
@@ -1680,6 +1681,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         bo.loadByProjectIdentifier(projectIdentifier);
         final ProjectPE project = bo.getProject();
         return ProjectTranslator.translate(project);
+    }
+
+    @Override
+    public IIdHolder getProjectIdHolder(String sessionToken, String projectPermId)
+    {
+        final Session session = getSession(sessionToken);
+        final IProjectBO bo = businessObjectFactory.createProjectBO(session);
+        bo.loadByPermId(projectPermId);
+        final ProjectPE project = bo.getProject();
+        return new TechId(project.getId());
     }
 
     @Override

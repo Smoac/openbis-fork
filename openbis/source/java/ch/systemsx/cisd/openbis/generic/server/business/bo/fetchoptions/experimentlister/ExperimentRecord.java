@@ -60,6 +60,8 @@ public class ExperimentRecord
 
     public Long pr_id;
 
+    public String pr_perm_id;
+
     public String pr_code;
 
     public Date pr_registration_timestamp;

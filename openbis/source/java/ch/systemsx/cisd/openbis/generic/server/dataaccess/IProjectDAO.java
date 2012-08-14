@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  */
 public interface IProjectDAO extends IGenericDAO<ProjectPE>
 {
+
     /**
      * Lists all projects.
      */
@@ -38,6 +39,11 @@ public interface IProjectDAO extends IGenericDAO<ProjectPE>
      * Lists projects from given space.
      */
     public List<ProjectPE> listProjects(SpacePE space);
+
+    /**
+     * Returns project for given perm id or null if such a project does not exist.
+     */
+    public ProjectPE tryGetByPermID(String permId);
 
     /**
      * Returns project for given database instance code, space code and project code or null if such
@@ -50,4 +56,5 @@ public interface IProjectDAO extends IGenericDAO<ProjectPE>
      * Creates a new project.
      */
     public void createProject(ProjectPE project, final PersonPE modifier);
+
 }

@@ -39,6 +39,8 @@ public class Project extends CodeWithRegistrationAndModificationDate<Project> im
 
     private String identifier;
 
+    private String permId;
+
     private Long id;
 
     @Override
@@ -50,6 +52,16 @@ public class Project extends CodeWithRegistrationAndModificationDate<Project> im
     public void setId(Long id)
     {
         this.id = id;
+    }
+
+    public String getPermId()
+    {
+        return permId;
+    }
+
+    public void setPermId(String permId)
+    {
+        this.permId = permId;
     }
 
     private List<Attachment> attachments;

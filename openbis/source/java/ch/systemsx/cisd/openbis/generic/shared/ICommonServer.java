@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SampleVal
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SpaceValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
@@ -1046,6 +1047,13 @@ public interface ICommonServer extends IServer
     public Project getProjectInfo(String sessionToken,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             ProjectIdentifier projectIdentifier);
+
+    /**
+     * For given <var>project perm id</var> returns the corresponding {@link IIdHolder}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public IIdHolder getProjectIdHolder(String sessionToken, String projectPermId);
 
     /**
      * Returns unique code.

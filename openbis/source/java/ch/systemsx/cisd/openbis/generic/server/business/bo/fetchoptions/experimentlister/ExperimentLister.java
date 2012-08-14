@@ -278,6 +278,7 @@ public class ExperimentLister implements IExperimentLister
 
         Project project = new Project();
         project.setId(record.pr_id);
+        project.setPermId(record.pr_perm_id);
         project.setModificationDate(record.pr_modification_timestamp);
         project.setRegistrationDate(record.pr_registration_timestamp);
         project.setCode(record.pr_code);

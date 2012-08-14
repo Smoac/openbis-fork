@@ -48,11 +48,21 @@ public class AttachmentDownloadLocatorResolver extends AbstractViewLocatorResolv
             {
                 version = Integer.parseInt(versionOrNull);
             }
+
             if (attachmentHolderKind == AttachmentHolderKind.PROJECT)
             {
-                BasicProjectIdentifier projectIdentifier =
-                        ProjectLocatorResolver.extractProjectIdentifier(locator);
-                downloadProjectAttachment(projectIdentifier, fileNameOrNull, version);
+                String permIdValueOrNull =
+                        locator.getParameters().get(PermlinkUtilities.PERM_ID_PARAMETER_KEY);
+
+                if (permIdValueOrNull == null)
+                {
+                    BasicProjectIdentifier projectIdentifier =
+                            ProjectLocatorResolver.extractProjectIdentifier(locator);
+                    downloadProjectAttachment(projectIdentifier, fileNameOrNull, version);
+                } else
+                {
+                    downloadProjectAttachmentByPermId(permIdValueOrNull, fileNameOrNull, version);
+                }
             } else
             {
                 String permIdValueOrNull =
@@ -85,6 +95,13 @@ public class AttachmentDownloadLocatorResolver extends AbstractViewLocatorResolv
             final String fileName, final Integer version) throws UserFailureException
     {
         viewContext.getService().getProjectInfo(identifier,
+                new ProjectAttachmentDownloadCallback(viewContext, fileName, version));
+    }
+
+    private void downloadProjectAttachmentByPermId(String permId, final String fileName,
+            final Integer version) throws UserFailureException
+    {
+        viewContext.getService().getProjectInfoByPermId(permId,
                 new ProjectAttachmentDownloadCallback(viewContext, fileName, version));
     }
 

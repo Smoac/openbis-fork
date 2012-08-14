@@ -85,6 +85,8 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
 
     private transient Long id;
 
+    private String permId;
+
     private SpacePE space;
 
     private List<ExperimentPE> experiments = new ArrayList<ExperimentPE>();
@@ -224,6 +226,11 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
         this.id = id;
     }
 
+    public void setPermId(String permId)
+    {
+        this.permId = permId;
+    }
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PERSON_LEADER_COLUMN, updatable = false)
     public final PersonPE getProjectLeader()
@@ -319,6 +326,17 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     }
 
     @Override
+    @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
+    @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
+    @Pattern(regexp = AbstractIdAndCodeHolder.CODE_PATTERN, flags = Pattern.Flag.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
+    @Column(name = ColumnNames.PERM_ID_COLUMN, nullable = false)
+    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.PERM_ID)
+    public String getPermId()
+    {
+        return permId;
+    }
+
+    @Override
     @Column(unique = true)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
@@ -334,14 +352,6 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     public AttachmentHolderKind getAttachmentHolderKind()
     {
         return AttachmentHolderKind.PROJECT;
-    }
-
-    @Override
-    @Transient
-    public String getPermId()
-    {
-        // fake permId containing project identifier
-        return getIdentifier();
     }
 
     @Override

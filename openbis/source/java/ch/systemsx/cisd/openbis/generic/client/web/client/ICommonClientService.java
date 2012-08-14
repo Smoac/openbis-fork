@@ -777,6 +777,11 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * For given <var>project perm id</var> returns corresponding {@link Project}.
+     */
+    public Project getProjectInfoByPermId(final String projectPermId) throws UserFailureException;
+
+    /**
      * Generates unique code.
      */
     public String generateCode(final String prefix) throws UserFailureException;

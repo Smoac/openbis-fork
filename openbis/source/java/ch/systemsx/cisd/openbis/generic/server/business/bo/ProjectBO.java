@@ -89,6 +89,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
                 SpaceIdentifierHelper.tryGetSpace(projectIdentifier, session.tryGetPerson(), this);
         result.setSpace(group);
         result.setRegistrator(findPerson());
+        result.setPermId(getPermIdDAO().createPermId());
         result.setCode(projectIdentifier.getProjectCode());
         result.setDescription(description);
         if (leaderIdOrNull != null)
@@ -164,6 +165,18 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         {
             throw new UserFailureException(
                     String.format("Project '%s' does not exist.", identifier));
+        }
+        dataChanged = false;
+    }
+
+    @Override
+    public void loadByPermId(String permId)
+    {
+        project = getProjectDAO().tryGetByPermID(permId);
+        if (project == null)
+        {
+            throw new UserFailureException(String.format(
+                    "Project with PERM_ID '%s' does not exist.", permId));
         }
         dataChanged = false;
     }

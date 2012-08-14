@@ -1611,6 +1611,15 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
+    public Project getProjectInfoByPermId(String projectPermId)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        final IIdHolder holder = commonServer.getProjectIdHolder(sessionToken, projectPermId);
+        return getProjectInfo(new TechId(holder.getId()));
+    }
+
+    @Override
     public String generateCode(String prefix)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
