@@ -228,6 +228,8 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(projectDAO));
                     allowing(daoFactory).getExternalDataManagementSystemDAO();
                     will(returnValue(dataManagementSystemDAO));
+                    allowing(daoFactory).getPermIdDAO();
+                    will(returnValue(permIdDAO));
                 }
             });
     }

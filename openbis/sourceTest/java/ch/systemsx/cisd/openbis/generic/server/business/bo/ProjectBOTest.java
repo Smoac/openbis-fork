@@ -239,11 +239,19 @@ public final class ProjectBOTest extends AbstractBOTest
     {
         final ProjectBO projectBO = createProjectBO();
         prepareDefineProject();
-        projectBO.define(createProjectIdent(), null, null);
+
         context.checking(new Expectations()
             {
                 {
+                    one(permIdDAO).createPermId();
+                }
+            });
 
+        projectBO.define(createProjectIdent(), null, null);
+
+        context.checking(new Expectations()
+            {
+                {
                     one(projectDAO).createProject(projectBO.getProject(), EXAMPLE_PERSON);
                 }
             });
@@ -270,7 +278,16 @@ public final class ProjectBOTest extends AbstractBOTest
         final ProjectIdentifier projIdent = createProjectIdent();
 
         prepareDefineProject();
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(permIdDAO).createPermId();
+                }
+            });
+
         projectBO.define(projIdent, null, null);
+
         context.checking(new Expectations()
             {
                 {

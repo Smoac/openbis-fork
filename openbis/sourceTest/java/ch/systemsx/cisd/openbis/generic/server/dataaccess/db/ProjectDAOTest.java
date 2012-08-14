@@ -171,6 +171,7 @@ public class ProjectDAOTest extends AbstractDAOTest
     {
         final ProjectPE result = new ProjectPE();
         result.setCode(code);
+        result.setPermId("20120814111307034-1");
         result.setDescription(description);
         result.setSpace(group);
         result.setProjectLeader(leader);
