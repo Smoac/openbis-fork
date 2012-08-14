@@ -111,7 +111,7 @@ public class TableForUpdateExporter
         {
             if (samples.size() > 1)
             {
-                builder.append("[").append(entry.getKey()).append("]\n");
+                builder.append("[").append(entry.getKey()).append("]").append(lineSeparator);
             }
             builder.append(getTableForSamples(entry, lineSeparator));
         }
@@ -224,7 +224,7 @@ public class TableForUpdateExporter
         List<IEntityProperty> filteredProperties = new ArrayList<IEntityProperty>();
         for (IEntityProperty property : properties)
         {
-            if (property.isDynamic() == false && property.isDynamic() == false)
+            if (property.isDynamic() == false && property.isManaged() == false)
             {
                 filteredProperties.add(property);
             }

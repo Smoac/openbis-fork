@@ -26,16 +26,36 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
  * Builder for an {@link EntityProperty} instance.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class PropertyBuilder
 {
-    private final EntityProperty property = new EntityProperty();
+    private static final class ExtendedEntityProperty extends EntityProperty
+    {
+        private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+        private boolean managed;
+
+        @Override
+        public boolean isManaged()
+        {
+            return managed;
+        }
+
+        void setManaged(boolean managed)
+        {
+            this.managed = managed;
+        }
+
+    }
+
+    private final ExtendedEntityProperty property = new ExtendedEntityProperty();
 
     /**
      * Creates an instance for specified property type code which also the simple code. Data type is
@@ -49,7 +69,7 @@ public class PropertyBuilder
         property.setPropertyType(propertyType);
         type(DataTypeCode.VARCHAR);
     }
-    
+
     public PropertyBuilder type(DataTypeCode dataType)
     {
         property.getPropertyType().setDataType(new DataType(dataType));
@@ -61,7 +81,7 @@ public class PropertyBuilder
         property.getPropertyType().setLabel(label);
         return this;
     }
-    
+
     /**
      * Sets property type to internal name space and adds a '$' code prefix.
      */
@@ -72,27 +92,39 @@ public class PropertyBuilder
         propertyType.setCode("$" + propertyType.getSimpleCode());
         return this;
     }
-    
+
+    public PropertyBuilder dynamic()
+    {
+        property.setDynamic(true);
+        return this;
+    }
+
+    public PropertyBuilder managed()
+    {
+        property.setManaged(true);
+        return this;
+    }
+
     public PropertyBuilder value(String value)
     {
         property.setValue(value);
         return this;
     }
-    
+
     public PropertyBuilder value(int value)
     {
         type(DataTypeCode.INTEGER);
         property.setValue(Integer.toString(value));
         return this;
     }
-    
+
     public PropertyBuilder value(double value)
     {
         type(DataTypeCode.REAL);
         property.setValue(Double.toString(value));
         return this;
     }
-    
+
     public PropertyBuilder value(Date value)
     {
         type(DataTypeCode.TIMESTAMP);
@@ -100,30 +132,29 @@ public class PropertyBuilder
         property.setValue(formatedDate);
         return this;
     }
-    
+
     public PropertyBuilder value(MaterialBuilder builder)
     {
         return value(builder.getMaterial());
     }
-    
+
     public PropertyBuilder value(Material value)
     {
         type(DataTypeCode.MATERIAL);
         property.setMaterial(value);
         return this;
     }
-    
+
     public PropertyBuilder value(VocabularyTerm value)
     {
         type(DataTypeCode.CONTROLLEDVOCABULARY);
         property.setVocabularyTerm(value);
         return this;
     }
-    
+
     public EntityProperty getProperty()
     {
         return property;
     }
-    
-    
+
 }

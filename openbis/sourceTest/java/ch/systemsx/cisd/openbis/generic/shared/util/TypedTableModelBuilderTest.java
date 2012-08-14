@@ -37,6 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.MaterialBuilder;
 
 /**
  * @author Franz-Josef Elmer
@@ -121,7 +123,6 @@ public class TypedTableModelBuilderTest extends AssertJUnit
 
         TypedTableModel<Serializable> model = builder.getModel();
         List<TableModelColumnHeader> headers = model.getHeader();
-        System.out.println("HEADERS:" + headers);
         assertHeadersOrder(headers, "MY-USER-ALPHA", "MY-INTERN-BETA", "MY-USER-GAMMA",
                 "MY-USER-KAPPA");
         assertEquals("alpha", headers.get(0).getTitle());
@@ -145,6 +146,31 @@ public class TypedTableModelBuilderTest extends AssertJUnit
         assertEquals(2, rows.size());
     }
 
+    @Test
+    public void testAddPropertiesForUpdate()
+    {
+        TypedTableModelBuilder<Serializable> builder = new TypedTableModelBuilder<Serializable>();
+        builder.addRow(new MockSerializable());
+        IEntityProperty p1 = property("beta", "3.25", true, DataTypeCode.REAL);
+        IEntityProperty p2 = property("alpha", "hello", false, DataTypeCode.MATERIAL);
+        IEntityProperty p3 = property("gamma", "hello world", false, DataTypeCode.VARCHAR);
+        IEntityProperty p4 = property("delta", "hi", false, DataTypeCode.CONTROLLEDVOCABULARY);
+        IEntityProperty p5 =
+                property("kappa", "2012-08-14 15:11:12", false, DataTypeCode.TIMESTAMP);
+        builder.columnGroup("g").addPropertiesForUpdate(Arrays.asList(p1, p2, p3, p4, p5));
+
+        TypedTableModel<Serializable> model = builder.getModel();
+        List<TableModelColumnHeader> headers = model.getHeader();
+        assertHeadersOrder(headers, "ALPHA", "$BETA", "DELTA", "GAMMA", "KAPPA");
+        List<TableModelRowWithObject<Serializable>> rows = model.getRows();
+        assertEquals(new StringTableCell("HELLO (TEST)"), rows.get(0).getValues().get(0));
+        assertEquals(new StringTableCell("3.25"), rows.get(0).getValues().get(1));
+        assertEquals(new StringTableCell("HI"), rows.get(0).getValues().get(2));
+        assertEquals(new StringTableCell("hello world"), rows.get(0).getValues().get(3));
+        assertEquals(new StringTableCell("2012-08-14 15:11:12"), rows.get(0).getValues().get(4));
+        assertEquals(1, rows.size());
+    }
+
     private IEntityProperty property(String key, String value, boolean internalNamespace,
             DataTypeCode type)
     {
@@ -157,7 +183,20 @@ public class TypedTableModelBuilderTest extends AssertJUnit
         propertyType.setLabel(key);
         propertyType.setDataType(new DataType(type));
         property.setPropertyType(propertyType);
-        property.setValue(value);
+        if (type == DataTypeCode.CONTROLLEDVOCABULARY)
+        {
+            VocabularyTerm vocabularyTerm = new VocabularyTerm();
+            vocabularyTerm.setCode(value.toUpperCase());
+            vocabularyTerm.setLabel(value);
+            property.setVocabularyTerm(vocabularyTerm);
+        } else if (type == DataTypeCode.MATERIAL)
+        {
+            property.setMaterial(new MaterialBuilder().code(value.toUpperCase()).type("TEST")
+                    .getMaterial());
+        } else
+        {
+            property.setValue(value);
+        }
         return property;
     }
 

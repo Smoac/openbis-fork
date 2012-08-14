@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
@@ -61,6 +62,12 @@ public abstract class AbstractDataSetBuilder<T extends AbstractDataSetBuilder<?>
     public T type(String dataSetTypeCode)
     {
         dataSet.setDataSetType(new DataSetType(dataSetTypeCode));
+        return asConcreteSubclass();
+    }
+
+    public T container(ContainerDataSet container)
+    {
+        dataSet.setContainer(container);
         return asConcreteSubclass();
     }
 

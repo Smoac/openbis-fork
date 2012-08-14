@@ -23,9 +23,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -36,36 +36,36 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Builder for an instance of {@link Sample}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class SampleBuilder
 {
     private Sample sample = new Sample();
-    
+
     public SampleBuilder()
     {
         sample.setProperties(new ArrayList<IEntityProperty>());
     }
-    
+
     public SampleBuilder(String identifier)
     {
         this();
         identifier(identifier);
     }
-    
+
     public SampleBuilder id(long id)
     {
         sample.setId(id);
         return this;
     }
-    
+
     public SampleBuilder code(String code)
     {
         sample.setCode(code);
         return this;
     }
-    
+
     public SampleBuilder identifier(String identifier)
     {
         sample.setIdentifier(identifier);
@@ -91,7 +91,7 @@ public class SampleBuilder
         }
         return this;
     }
-    
+
     public SampleBuilder type(String typeCode)
     {
         SampleType sampleType = new SampleType();
@@ -104,61 +104,67 @@ public class SampleBuilder
         sample.setSampleType(sampleType);
         return this;
     }
-    
+
     public SampleBuilder markDeleted()
     {
         sample.setDeletion(new Deletion());
         return this;
     }
-    
+
     public SampleBuilder registrator(Person person)
     {
         sample.setRegistrator(person);
         return this;
     }
-    
+
     public SampleBuilder date(Date date)
     {
         sample.setRegistrationDate(date);
         return this;
     }
-    
+
     public SampleBuilder modificationDate(Date date)
     {
         sample.setModificationDate(date);
         return this;
     }
-    
+
     public SampleBuilder experiment(Experiment experiment)
     {
         sample.setExperiment(experiment);
         return this;
     }
-    
+
     public SampleBuilder permID(String permID)
     {
         sample.setPermId(permID);
         return this;
     }
-    
+
     public SampleBuilder permLink(String permLink)
     {
         sample.setPermlink(permLink);
         return this;
     }
-    
+
     public SampleBuilder childOf(Sample... parents)
     {
         sample.setParents(new LinkedHashSet<Sample>(Arrays.asList(parents)));
         return this;
     }
-    
+
     public SampleBuilder partOf(Sample container)
     {
         sample.setContainer(container);
         return this;
     }
-    
+
+    public SampleBuilder parents(Sample... parents)
+    {
+        sample.setParents(new LinkedHashSet<Sample>(Arrays.asList(parents)));
+        return this;
+    }
+
     public PropertyBuilder property(String key)
     {
         List<IEntityProperty> properties = sample.getProperties();
@@ -166,13 +172,13 @@ public class SampleBuilder
         properties.add(propertyBuilder.getProperty());
         return propertyBuilder;
     }
-    
+
     public SampleBuilder property(String key, String value)
     {
         property(key).value(value);
         return this;
     }
-    
+
     public Sample getSample()
     {
         return sample;
