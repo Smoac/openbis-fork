@@ -149,6 +149,8 @@ ALTER TABLE ONLY post_registration_dataset_queue
 ALTER TABLE ONLY projects
     ADD CONSTRAINT proj_bk_uk UNIQUE (code, space_id);
 ALTER TABLE ONLY projects
+    ADD CONSTRAINT proj_pi_uk UNIQUE (perm_id);
+ALTER TABLE ONLY projects
     ADD CONSTRAINT proj_pk PRIMARY KEY (id);
 ALTER TABLE ONLY project_relationships_history
     ADD CONSTRAINT prrelh_pk PRIMARY KEY (id);

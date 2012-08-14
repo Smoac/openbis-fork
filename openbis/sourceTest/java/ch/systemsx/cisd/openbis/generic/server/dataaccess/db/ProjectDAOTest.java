@@ -111,6 +111,7 @@ public class ProjectDAOTest extends AbstractDAOTest
         final List<ProjectPE> allProjects = daoFactory.getProjectDAO().listProjects();
         Collections.sort(allProjects);
         final ProjectPE templateProject = allProjects.get(4);
+
         assertEquals(templateProject.getCode(), TESTPROJ);
 
         ProjectPE found =
@@ -141,6 +142,20 @@ public class ProjectDAOTest extends AbstractDAOTest
 
         AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(NONEXISTENT,
                 templateProject.getSpace().getCode(), templateProject.getCode()));
+    }
+
+    @Test
+    public void testTryGetByPermID() throws Exception
+    {
+        ProjectPE found = daoFactory.getProjectDAO().tryGetByPermID("20120814110011738-105");
+        assertEquals(TEST_PROJECT, found.getCode());
+    }
+
+    @Test
+    public void testTryGetByPermIDNonexistent() throws Exception
+    {
+        ProjectPE found = daoFactory.getProjectDAO().tryGetByPermID("UNKNOWN-PERM-ID");
+        assertNull(found);
     }
 
     @Test
