@@ -24,9 +24,11 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -37,6 +39,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Windo
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 
 /**
  * @author Pawel Glyzewski
@@ -68,10 +72,13 @@ public class CustomImportForm extends AbstractRegistrationForm
         this.customImport = customImport;
         this.viewContext = viewContext;
 
-        Field<?> templateField = createTemplateField();
-        if (templateField != null)
+        if (isTemplateAvailable())
         {
-            formPanel.add(templateField);
+            MultiField<Object> multifield =
+                    new MultiField<Object>("", createTemplateField(),
+                            createEntityWithTemplateField());
+            multifield.setLabelSeparator("");
+            formPanel.add(multifield);
         }
 
         fileFieldsManager =
@@ -116,45 +123,146 @@ public class CustomImportForm extends AbstractRegistrationForm
             });
     }
 
-    private LabelField createTemplateField()
-    {
-        final String templateEntityKind =
-                customImport.getProperty(CustomImport.PropertyNames.TEMPLATE_ENTITY_KIND.getName());
-        final String templateEntityPermId =
-                customImport.getProperty(CustomImport.PropertyNames.TEMPLATE_ENTITY_PERMID
-                        .getName());
-        final String templateAttachmentName =
-                customImport.getProperty(CustomImport.PropertyNames.TEMPLATE_ATTACHMENT_NAME
-                        .getName());
-
-        if (templateEntityKind == null || AttachmentHolderKind.valueOf(templateEntityKind) == null
-                || templateEntityPermId == null || templateAttachmentName == null)
-        {
-            return null;
-        }
-
-        LabelField result =
-                new LabelField(LinkRenderer.renderAsLink(viewContext
-                        .getMessage(Dict.FILE_TEMPLATE_LABEL)));
-        result.sinkEvents(Event.ONCLICK);
-        result.addListener(Events.OnClick, new Listener<BaseEvent>()
-            {
-                @Override
-                public void handleEvent(BaseEvent be)
-                {
-                    WindowUtils.openWindow(PermlinkUtilities.createAttachmentPermlinkURL(
-                            GWTUtils.getBaseIndexURL(), templateAttachmentName, null,
-                            AttachmentHolderKind.valueOf(templateEntityKind), templateEntityPermId));
-                }
-            });
-        return result;
-    }
-
     @Override
     protected void submitValidForm()
     {
         CustomImportForm.this.setUploadEnabled(false);
         formPanel.submit();
+    }
+
+    private boolean isTemplateAvailable()
+    {
+        return getTemplateEntityKind() != null && getTemplateEntityPermId() != null
+                && getTemplateAttachmentName() != null;
+    }
+
+    private Field<?> createTemplateField()
+    {
+
+        LabelField linkToTemplate =
+                new LabelField(LinkRenderer.renderAsLink(viewContext
+                        .getMessage(Dict.FILE_TEMPLATE_LABEL)));
+        linkToTemplate.sinkEvents(Event.ONCLICK);
+        linkToTemplate.addListener(Events.OnClick, new Listener<BaseEvent>()
+            {
+                @Override
+                public void handleEvent(BaseEvent be)
+                {
+                    onLinkToTemplateClick();
+                }
+            });
+        return linkToTemplate;
+    }
+
+    private Field<?> createEntityWithTemplateField()
+    {
+        LabelField linkToEntityWithTemplate =
+                new LabelField(LinkRenderer.renderAsLink(viewContext
+                        .getMessage(Dict.ENTITY_WITH_FILE_TEMPLATE_LABEL)));
+        linkToEntityWithTemplate.sinkEvents(Event.ONCLICK);
+        linkToEntityWithTemplate.addListener(Events.OnClick, new Listener<BaseEvent>()
+            {
+                @Override
+                public void handleEvent(BaseEvent be)
+                {
+                    onLinkToEntityWithTemplateClick();
+                }
+            });
+
+        linkToEntityWithTemplate.addStyleName("entityWithTemplateField");
+        return linkToEntityWithTemplate;
+    }
+
+    private void onLinkToTemplateClick()
+    {
+
+        if (AttachmentHolderKind.PROJECT.equals(getTemplateEntityKind()))
+        {
+            viewContext.getService().getProjectInfoByPermId(getTemplateEntityPermId(),
+                    new LinkToProjectTemplateCallback(viewContext));
+        } else
+        {
+            WindowUtils.openWindow(PermlinkUtilities.createAttachmentPermlinkURL(
+                    GWTUtils.getBaseIndexURL(), getTemplateAttachmentName(), null,
+                    getTemplateEntityKind(), getTemplateEntityPermId()));
+        }
+    }
+
+    private void onLinkToEntityWithTemplateClick()
+    {
+        if (AttachmentHolderKind.PROJECT.equals(getTemplateEntityKind()))
+        {
+            viewContext.getService().getProjectInfoByPermId(getTemplateEntityPermId(),
+                    new LinkToEntityWithProjectTemplateCallback(viewContext));
+        } else
+        {
+            WindowUtils.openWindow(PermlinkUtilities.createPermlinkURL(GWTUtils.getBaseIndexURL(),
+                    EntityKind.valueOf(getTemplateEntityKind().name()), getTemplateEntityPermId()));
+        }
+    }
+
+    private class LinkToProjectTemplateCallback extends AbstractAsyncCallback<Project>
+    {
+
+        public LinkToProjectTemplateCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(Project project)
+        {
+            WindowUtils.openWindow(PermlinkUtilities.createProjectAttachmentPermlinkURL(
+                    GWTUtils.getBaseIndexURL(), getTemplateAttachmentName(), null,
+                    project.getCode(), project.getSpace().getCode()));
+        }
+    }
+
+    private class LinkToEntityWithProjectTemplateCallback extends AbstractAsyncCallback<Project>
+    {
+
+        public LinkToEntityWithProjectTemplateCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(Project project)
+        {
+            WindowUtils.openWindow(PermlinkUtilities.createProjectPermlinkURL(
+                    GWTUtils.getBaseIndexURL(), project.getCode(), project.getSpace().getCode()));
+        }
+    }
+
+    private AttachmentHolderKind getTemplateEntityKind()
+    {
+        String str =
+                customImport.getProperty(CustomImport.PropertyNames.TEMPLATE_ENTITY_KIND.getName());
+        if (str == null)
+        {
+            return null;
+        } else
+        {
+            try
+            {
+                return AttachmentHolderKind.valueOf(str);
+            } catch (IllegalArgumentException e)
+            {
+                return null;
+            }
+        }
+    }
+
+    private String getTemplateEntityPermId()
+    {
+        return customImport
+                .getProperty(CustomImport.PropertyNames.TEMPLATE_ENTITY_PERMID.getName());
+    }
+
+    private String getTemplateAttachmentName()
+    {
+        return customImport.getProperty(CustomImport.PropertyNames.TEMPLATE_ATTACHMENT_NAME
+                .getName());
     }
 
 }

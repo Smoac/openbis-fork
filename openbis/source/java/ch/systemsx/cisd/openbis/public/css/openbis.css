@@ -339,3 +339,11 @@ body,div,td,.default-text {
 .cisd-grid-outdated-cell {
   background-image: url(../images/outdated.gif);
 }
+
+/*************************
+ * Custom import
+ *************************/
+ 
+.entityWithTemplateField {
+	margin-left: 10px;	
+}

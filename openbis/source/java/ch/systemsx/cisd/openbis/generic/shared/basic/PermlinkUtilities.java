@@ -90,4 +90,16 @@ public class PermlinkUtilities
         return ulrWithParameters.toString();
     }
 
+    public final static String createProjectPermlinkURL(final String baseIndexURL,
+            final String projectCode, final String spaceCode)
+    {
+        URLMethodWithParameters ulrWithParameters = new URLMethodWithParameters(baseIndexURL);
+        ulrWithParameters.addParameter(BasicConstant.VIEW_MODE_KEY, ViewMode.SIMPLE.name());
+        ulrWithParameters.startHistoryToken();
+        ulrWithParameters.addParameter(ENTITY_KIND_PARAMETER_KEY, ProjectLocatorResolver.PROJECT);
+        ulrWithParameters.addParameter(ProjectLocatorResolver.CODE_PARAMETER_KEY, projectCode);
+        ulrWithParameters.addParameter(ProjectLocatorResolver.SPACE_PARAMETER_KEY, spaceCode);
+        return ulrWithParameters.toString();
+    }
+
 }
