@@ -832,7 +832,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                 archivingAction.execute(sessionToken, service, descriptions, userEmailOrNull);
             } catch (Exception e)
             {
-                operationLog.error("Operation failed for the following data sets failed: "
+                operationLog.error("Operation failed for the following data sets: "
                         + CollectionUtils.abbreviate(Code.extractCodes(datasets), 10), e);
                 clearPendingStatuses(datasets, iterator,
                         archivingAction.getStatusToRestoreOnFailure());
