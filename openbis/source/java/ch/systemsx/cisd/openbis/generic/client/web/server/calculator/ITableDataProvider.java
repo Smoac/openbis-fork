@@ -19,19 +19,16 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 import java.util.Collection;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.server.IBasicTableDataProvider;
+
 
 /**
  * Interface to access table data and meta data. Used by calculator classes.
  *
  * @author Franz-Josef Elmer
  */
-public interface ITableDataProvider
+public interface ITableDataProvider extends IBasicTableDataProvider
 {
-    /**
-     * Returns all rows.
-     */
-    public List<List<? extends Comparable<?>>> getRows();
-    
     /**
      * Returns the value of specified column in the list of specified row values.
      * 
@@ -43,12 +40,6 @@ public interface ITableDataProvider
      * Returns a collection of the identifiers of all columns.
      */
     public Collection<String> getAllColumnIDs();
-    
-    /**
-     * Returns a list of column titles. The order is the same as the order of row values returned
-     * by {@link #getRows()}.
-     */
-    public List<String> getAllColumnTitles();
     
     /**
      * Returns the property of specified key for specified column.

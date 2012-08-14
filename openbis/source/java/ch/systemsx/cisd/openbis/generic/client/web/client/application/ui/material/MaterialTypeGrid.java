@@ -78,7 +78,7 @@ public class MaterialTypeGrid extends AbstractEntityTypeGrid<MaterialType>
     }
 
     @Override
-    protected EntityKind getEntityKind()
+    protected EntityKind getEntityKindOrNull()
     {
         return EntityKind.MATERIAL;
     }

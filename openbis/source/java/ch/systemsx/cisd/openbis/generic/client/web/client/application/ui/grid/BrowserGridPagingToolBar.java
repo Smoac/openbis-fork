@@ -18,8 +18,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.data.LoadEvent;
@@ -328,7 +331,7 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    invoker.export(false);
+                    invoker.export(TableExportType.VISIBLE);
                 }
             });
         return button;
@@ -336,11 +339,12 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
 
     private static class ExportButtonMenu extends SplitButton
     {
+        private static final String TOOLTIP_EXPORT_PREFIX = "tooltip_export_";
+
+        private final Map<TableExportType, CheckMenuItem> exportMenuItems =
+                new HashMap<TableExportType, CheckMenuItem>();
+
         private final IMessageProvider messageProvider;
-
-        private final CheckMenuItem exportVisibleColumnsMenuItem;
-
-        private final CheckMenuItem exportAllColumnsMenuItem;
 
         public ExportButtonMenu(final IMessageProvider messageProvider,
                 final IBrowserGridActionInvoker invoker)
@@ -349,65 +353,69 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
             this.messageProvider = messageProvider;
 
             final Menu exportMenu = new Menu();
-            exportVisibleColumnsMenuItem =
-                    new CheckMenuItem(messageProvider.getMessage(Dict.EXPORT_VISIBLE_COLUMNS));
-            exportAllColumnsMenuItem =
-                    new CheckMenuItem(messageProvider.getMessage(Dict.EXPORT_ALL_COLUMNS));
-
-            exportVisibleColumnsMenuItem.setToolTip(messageProvider
-                    .getMessage(Dict.TOOLTIP_EXPORT_VISIBLE_COLUMNS));
-            exportAllColumnsMenuItem.setToolTip(messageProvider
-                    .getMessage(Dict.TOOLTIP_EXPORT_ALL_COLUMNS));
-
-            exportVisibleColumnsMenuItem.setGroup("exportType");
-            exportAllColumnsMenuItem.setGroup("exportType");
-
-            exportMenu.add(exportVisibleColumnsMenuItem);
-            exportMenu.add(exportAllColumnsMenuItem);
-
-            setMenu(exportMenu);
-
-            addSelectionListener(new SelectionListener<ButtonEvent>()
-                {
-                    @Override
-                    public void componentSelected(ButtonEvent be)
-                    {
-                        invoker.export(isExportAllColumns());
-                    }
-                });
 
             SelectionListener<MenuEvent> menuEventListener = new SelectionListener<MenuEvent>()
                 {
                     @Override
                     public void componentSelected(MenuEvent ce)
                     {
-                        boolean isExportAllColumns = isExportAllColumns();
-                        invoker.export(isExportAllColumns);
-                        setText(messageProvider.getMessage(Dict.BUTTON_EXPORT_TABLE)
-                                + (isExportAllColumns ? " All" : ""));
+                        TableExportType selectedType = getSelectedType();
+                        invoker.export(selectedType);
+                        setText(messageProvider.getMessage("button_export_"
+                                + selectedType.toString().toLowerCase()));
                         updateTooltip();
                     }
-
                 };
-            exportVisibleColumnsMenuItem.addSelectionListener(menuEventListener);
-            exportAllColumnsMenuItem.addSelectionListener(menuEventListener);
+            Set<TableExportType> types =
+                    new HashSet<TableExportType>(Arrays.asList(TableExportType.values()));
+            if (invoker.supportsExportForUpdate() == false)
+            {
+                types.remove(TableExportType.FOR_UPDATE);
+            }
+            for (TableExportType exportType : types)
+            {
+                String typeAsString = exportType.toString().toLowerCase();
+                CheckMenuItem exportMenuItem =
+                        new CheckMenuItem(messageProvider.getMessage("export_" + typeAsString));
+                exportMenuItem.setToolTip(messageProvider.getMessage(TOOLTIP_EXPORT_PREFIX
+                        + typeAsString));
+                exportMenuItem.setGroup("exportType");
+                exportMenuItem.addSelectionListener(menuEventListener);
+                exportMenuItems.put(exportType, exportMenuItem);
+                exportMenu.add(exportMenuItem);
+            }
+            setMenu(exportMenu);
+            exportMenuItems.get(TableExportType.VISIBLE).setChecked(true);
+            addSelectionListener(new SelectionListener<ButtonEvent>()
+                {
+                    @Override
+                    public void componentSelected(ButtonEvent be)
+                    {
+                        invoker.export(getSelectedType());
+                    }
+                });
 
-            // select export visible columns by default
-            exportVisibleColumnsMenuItem.setChecked(true);
         }
 
-        private boolean isExportAllColumns()
+        private TableExportType getSelectedType()
         {
-            return exportAllColumnsMenuItem.isChecked();
+            Set<Entry<TableExportType, CheckMenuItem>> entrySet = exportMenuItems.entrySet();
+            for (Entry<TableExportType, CheckMenuItem> entry : entrySet)
+            {
+                if (entry.getValue().isChecked())
+                {
+                    return entry.getKey();
+                }
+            }
+            return TableExportType.VISIBLE;
         }
 
         private void updateTooltip()
         {
-            String enabledButtonMessageKey =
-                    isExportAllColumns() ? Dict.TOOLTIP_EXPORT_ALL_COLUMNS
-                            : Dict.TOOLTIP_EXPORT_VISIBLE_COLUMNS;
-            String title = messageProvider.getMessage(enabledButtonMessageKey);
-            GWTUtils.setToolTip(this, title);
+            GWTUtils.setToolTip(
+                    ExportButtonMenu.this,
+                    messageProvider.getMessage(TOOLTIP_EXPORT_PREFIX
+                            + getSelectedType().toString().toLowerCase()));
         }
 
         @Override

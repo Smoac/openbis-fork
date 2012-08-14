@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.TableExportType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.ITestCommand;
@@ -61,7 +62,8 @@ public class ExportSamplesTestCommand extends AbstractDefaultTestCommand
         // we do not create view context earlier (e.g. in the class constructor), because we have to
         // wait until client is loaded and viewContext is available.
         IViewContext<ICommonClientServiceAsync> viewContext = getViewContext();
-        sampleBrowserGrid.export(false, new PrepareExportSamplesCallbackTest(viewContext));
+        sampleBrowserGrid.export(TableExportType.VISIBLE, new PrepareExportSamplesCallbackTest(
+                viewContext));
     }
 
     private IViewContext<ICommonClientServiceAsync> getViewContext()

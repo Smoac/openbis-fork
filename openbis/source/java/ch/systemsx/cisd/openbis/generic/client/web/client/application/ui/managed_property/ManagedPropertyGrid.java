@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.TableExportType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
@@ -209,6 +210,12 @@ public class ManagedPropertyGrid extends TypedTableGrid<ReportRowModel>
             {
 
                 @Override
+                public boolean supportsExportForUpdate()
+                {
+                    return false;
+                }
+
+                @Override
                 public void toggleFilters(boolean show)
                 {
                     delegate.toggleFilters(show);
@@ -221,9 +228,9 @@ public class ManagedPropertyGrid extends TypedTableGrid<ReportRowModel>
                 }
 
                 @Override
-                public void export(boolean allColumns)
+                public void export(TableExportType type)
                 {
-                    delegate.export(allColumns);
+                    delegate.export(type);
                 }
 
                 @Override

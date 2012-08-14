@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.IBasicTableDataProvider;
 
 /**
  * Creates list of lines with tab separated columns;
@@ -37,12 +37,12 @@ public class TSVRenderer
      * @param dataProvider Provider of headers and values
      * @param lineSeparator character used as a lineSeparator separator
      */
-    public static String createTable(ITableDataProvider dataProvider, String lineSeparator)
+    public static String createTable(IBasicTableDataProvider dataProvider, String lineSeparator)
     {
         return new TSVRenderer(lineSeparator).createTable(dataProvider);
     }
 
-    private String createTable(ITableDataProvider dataProvider)
+    private String createTable(IBasicTableDataProvider dataProvider)
     {
         StringBuffer sb = new StringBuffer();
         appendHeader(dataProvider.getAllColumnTitles(), sb);

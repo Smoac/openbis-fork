@@ -56,8 +56,6 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
 {
     protected IDelegatedAction postRegistrationCallback;
 
-    abstract protected EntityKind getEntityKind();
-
     abstract protected void register(T entityType, AsyncCallback<Void> registrationCallback);
 
     protected AbstractEntityTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext,
@@ -73,14 +71,14 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
     @Override
     public String getGridDisplayTypeID()
     {
-        return createGridDisplayTypeID("-" + getEntityKind().toString());
+        return createGridDisplayTypeID("-" + getEntityKindOrNull().toString());
     }
 
     private void extendBottomToolbar()
     {
         addEntityOperationsLabel();
 
-        final EntityKind entityKind = getEntityKind();
+        final EntityKind entityKind = getEntityKindOrNull();
         addButton(new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON),
                 new SelectionListener<ButtonEvent>()
                     {
@@ -97,7 +95,8 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
                             {
 
                                 @Override
-                                public void invoke(BaseEntityModel<TableModelRowWithObject<T>> selectedItem,
+                                public void invoke(
+                                        BaseEntityModel<TableModelRowWithObject<T>> selectedItem,
                                         boolean keyPressed)
                                 {
                                     T entityType = selectedItem.getBaseObject().getObjectOrNull();
@@ -115,7 +114,7 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
 
     protected void deleteEntityTypes(List<String> types, AsyncCallback<Void> callback)
     {
-        viewContext.getCommonService().deleteEntityTypes(getEntityKind(), types, callback);
+        viewContext.getCommonService().deleteEntityTypes(getEntityKindOrNull(), types, callback);
     }
 
     private Button createDeleteButton(final IViewContext<ICommonClientServiceAsync> context)
@@ -238,7 +237,7 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
     {
         return Arrays.asList(EntityTypeGridColumnIDs.CODE);
     }
-    
+
     @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {

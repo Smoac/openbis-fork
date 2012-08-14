@@ -78,7 +78,7 @@ public class ExperimentTypeGrid extends AbstractEntityTypeGrid<ExperimentType>
     }
 
     @Override
-    protected EntityKind getEntityKind()
+    protected EntityKind getEntityKindOrNull()
     {
         return EntityKind.EXPERIMENT;
     }

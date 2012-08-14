@@ -80,5 +80,12 @@ public interface IColumnGroup
      * type code to determine the column id. The property type label is used as column title.
      */
     public void addProperties(String idPrefix, Collection<IEntityProperty> properties);
-    
+
+    /**
+     * Adds all specified properties such that the table can be used for batch update. The original
+     * property type code determines the column id. For vocabulary terms only the code is added as
+     * value.
+     */
+    public void addPropertiesForUpdate(Collection<IEntityProperty> properties);
+
 }

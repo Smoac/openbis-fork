@@ -22,6 +22,7 @@ import java.util.Set;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 
 /**
@@ -39,6 +40,8 @@ public class TableExportCriteria<T/* exported entity */> implements IsSerializab
 
     /** @see IResultSetConfig#getFilters() */
     private GridFilters<T> filters;
+
+    private EntityKind entityKindForUpdateOrNull;
 
     // which columns should be exported
     private List<IColumnDefinition<T>> columnDefs;
@@ -58,15 +61,21 @@ public class TableExportCriteria<T/* exported entity */> implements IsSerializab
     }
 
     public TableExportCriteria(String resultSetKey, SortInfo sortInfo, GridFilters<T> filters,
-            List<IColumnDefinition<T>> columnDefs, Set<IColumnDefinition<T>> availableColumns,
-            String gridDisplayId)
+            EntityKind entityKindForUpdateOrNull, List<IColumnDefinition<T>> columnDefs,
+            Set<IColumnDefinition<T>> availableColumns, String gridDisplayId)
     {
         this.resultSetKey = resultSetKey;
         this.sortInfo = sortInfo;
         this.filters = filters;
+        this.entityKindForUpdateOrNull = entityKindForUpdateOrNull;
         this.columnDefs = columnDefs;
         this.availableColumns = availableColumns;
         this.gridDisplayId = gridDisplayId;
+    }
+
+    public EntityKind getEntityKindForUpdateOrNull()
+    {
+        return entityKindForUpdateOrNull;
     }
 
     /**

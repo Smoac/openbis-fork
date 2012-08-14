@@ -123,6 +123,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisplayTypeIDProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.PendingFetchManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.TableExportType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityEditorTabClickListener;
@@ -1191,10 +1192,17 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         final TypedTableGrid<T> delegate = this;
         return new IBrowserGridActionInvoker()
             {
+
                 @Override
-                public void export(boolean allColumns)
+                public boolean supportsExportForUpdate()
                 {
-                    delegate.export(allColumns);
+                    return delegate.supportsExportForUpdate();
+                }
+
+                @Override
+                public void export(TableExportType type)
+                {
+                    delegate.export(type);
                 }
 
                 @Override
@@ -1229,6 +1237,11 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                 }
 
             };
+    }
+
+    protected boolean supportsExportForUpdate()
+    {
+        return false;
     }
 
     protected void showFiltersBar()
@@ -1791,6 +1804,11 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         }
     }
 
+    protected EntityKind getEntityKindOrNull()
+    {
+        return null;
+    }
+
     private IDataRefreshCallback createRefreshCallback(
             IDataRefreshCallback externalRefreshCallbackOrNull)
     {
@@ -1876,9 +1894,9 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
      * 
      * @param allColumns whether all columns should be exported
      */
-    private void export(boolean allColumns)
+    private void export(TableExportType type)
     {
-        export(allColumns, new ExportEntitiesCallback(viewContext));
+        export(type, new ExportEntitiesCallback(viewContext));
     }
 
     /**
@@ -1902,10 +1920,10 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     // @Private - for tests
-    public final void export(boolean allColumns, final AbstractAsyncCallback<String> callback)
+    public final void export(TableExportType type, final AbstractAsyncCallback<String> callback)
     {
         final TableExportCriteria<TableModelRowWithObject<T>> exportCriteria =
-                createTableExportCriteria(allColumns);
+                createTableExportCriteria(type);
 
         prepareExportEntities(exportCriteria, callback);
     }
@@ -1913,23 +1931,26 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     // for visible columns
     protected final TableExportCriteria<TableModelRowWithObject<T>> createTableExportCriteria()
     {
-        return createTableExportCriteria(false);
+        return createTableExportCriteria(TableExportType.VISIBLE);
     }
 
     private final TableExportCriteria<TableModelRowWithObject<T>> createTableExportCriteria(
-            boolean allColumns)
+            TableExportType type)
     {
         assert columnDefinitions != null : "refresh before exporting!";
         assert resultSetKeyOrNull != null : "refresh before exporting, resultSetKey is null!";
 
         final List<IColumnDefinition<TableModelRowWithObject<T>>> columnDefs =
-                allColumns ? new ArrayList<IColumnDefinition<TableModelRowWithObject<T>>>(
-                        columnDefinitions) : getVisibleColumns(columnDefinitions);
+                TableExportType.VISIBLE.equals(type) ? getVisibleColumns(columnDefinitions)
+                        : new ArrayList<IColumnDefinition<TableModelRowWithObject<T>>>(
+                                columnDefinitions);
         SortInfo sortInfo = getGridSortInfo();
+        EntityKind entityKindForUpdateOrNull =
+                TableExportType.FOR_UPDATE.equals(type) ? getEntityKindOrNull() : null;
         final TableExportCriteria<TableModelRowWithObject<T>> exportCriteria =
                 new TableExportCriteria<TableModelRowWithObject<T>>(resultSetKeyOrNull, sortInfo,
-                        filterToolbar.getFilters(), columnDefs, columnDefinitions,
-                        getGridDisplayTypeID());
+                        filterToolbar.getFilters(), entityKindForUpdateOrNull, columnDefs,
+                        columnDefinitions, getGridDisplayTypeID());
         return exportCriteria;
     }
 

@@ -60,8 +60,6 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
         super(viewContext, browserId, displayTypeIDGenerator);
     }
 
-    protected abstract EntityKind getEntityKind();
-
     @Override
     protected boolean isEditable(BaseEntityModel<TableModelRowWithObject<E>> model, String columnID)
     {
@@ -83,7 +81,7 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
     protected void applyModifications(BaseEntityModel<TableModelRowWithObject<E>> model,
             List<IModification> modifications)
     {
-        final EntityKind entityKind = getEntityKind();
+        final EntityKind entityKind = getEntityKindOrNull();
         final TechId entityId = new TechId(model.getBaseObject().getId());
         final EntityPropertyUpdates updates = new EntityPropertyUpdates(entityKind, entityId);
         for (IModification modification : modifications)

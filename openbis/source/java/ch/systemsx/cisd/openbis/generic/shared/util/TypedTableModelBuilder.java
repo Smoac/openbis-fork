@@ -177,7 +177,7 @@ public class TypedTableModelBuilder<T extends Serializable>
             {
                 for (EntityTypePropertyType<?> propertyType : propertyTypes)
                 {
-                    IColumn column = addColumn(idPrefix, propertyType.getPropertyType());
+                    IColumn column = addColumn(idPrefix, propertyType.getPropertyType(), false);
                     column.property(entityType.getCode(), Boolean.TRUE.toString());
                     setEditableFlag(column, propertyType.getPropertyType());
                     setVocabulary(column, propertyType.getPropertyType().getVocabulary());
@@ -196,14 +196,18 @@ public class TypedTableModelBuilder<T extends Serializable>
         {
             for (PropertyType propertyType : propertyTypes)
             {
-                addColumn(idPrefix, propertyType);
+                addColumn(idPrefix, propertyType, false);
             }
         }
 
-        private IColumn addColumn(String idPrefix, PropertyType propertyType)
+        private IColumn addColumn(String idPrefix, PropertyType propertyType,
+                boolean useOriginalPropertyTypeCode)
         {
             String label = propertyType.getLabel();
-            String code = idPrefix + TableCellUtil.getPropertyTypeCode(propertyType);
+            String code =
+                    idPrefix
+                            + (useOriginalPropertyTypeCode ? propertyType.getCode() : TableCellUtil
+                                    .getPropertyTypeCode(propertyType));
             DataTypeCode dataType = propertyType.getDataType().getCode();
             IColumn column = column(code).withTitle(label).withDataType(dataType);
             return column;
@@ -218,20 +222,34 @@ public class TypedTableModelBuilder<T extends Serializable>
         @Override
         public void addProperties(String idPrefix, Collection<IEntityProperty> properties)
         {
+            addProperties(idPrefix, properties, false);
+        }
+
+        @Override
+        public void addPropertiesForUpdate(Collection<IEntityProperty> properties)
+        {
+            addProperties("", properties, true);
+        }
+
+        private void addProperties(String idPrefix, Collection<IEntityProperty> properties,
+                boolean forUpdate)
+        {
             for (IEntityProperty property : properties)
             {
                 PropertyType propertyType = property.getPropertyType();
-                IColumn column = addColumn(idPrefix, propertyType);
+                IColumn column = addColumn(idPrefix, propertyType, forUpdate);
                 DataTypeCode dataType = propertyType.getDataType().getCode();
                 ISerializableComparable value;
                 switch (dataType)
                 {
                     case MATERIAL:
-
                         Material material = property.getMaterial();
                         if (material == null) // if not yet calculated dynamic property
                         {
                             value = new StringTableCell("");
+                        } else if (forUpdate)
+                        {
+                            value = new StringTableCell(material.getIdentifier());
                         } else
                         {
                             value =
@@ -244,13 +262,22 @@ public class TypedTableModelBuilder<T extends Serializable>
                         if (vocabularyTerm == null) // if not yet calculated dynamic property
                         {
                             value = new StringTableCell("");
+                        } else if (forUpdate)
+                        {
+                            value = new StringTableCell(vocabularyTerm.getCode());
                         } else
                         {
                             value = new VocabularyTermTableCell(vocabularyTerm);
                         }
                         break;
                     default:
-                        value = DataTypeUtils.convertTo(dataType, property.tryGetAsString());
+                        if (forUpdate)
+                        {
+                            value = new StringTableCell(property.tryGetAsString());
+                        } else
+                        {
+                            value = DataTypeUtils.convertTo(dataType, property.tryGetAsString());
+                        }
                 }
                 setEditableFlag(column, propertyType);
                 setDynamicFlag(column, property);

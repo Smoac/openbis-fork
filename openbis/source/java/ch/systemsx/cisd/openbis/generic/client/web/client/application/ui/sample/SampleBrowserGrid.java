@@ -386,6 +386,12 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     }
 
     @Override
+    protected boolean supportsExportForUpdate()
+    {
+        return true;
+    }
+
+    @Override
     public String getGridDisplayTypeID()
     {
         ListSampleDisplayCriteria criteria = getCriteriaProvider().tryGetCriteria();
@@ -459,7 +465,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     }
 
     @Override
-    protected EntityKind getEntityKind()
+    protected EntityKind getEntityKindOrNull()
     {
         return EntityKind.SAMPLE;
     }

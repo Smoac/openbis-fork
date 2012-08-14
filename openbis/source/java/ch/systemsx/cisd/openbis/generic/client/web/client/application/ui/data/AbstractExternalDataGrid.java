@@ -49,9 +49,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listene
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DatasetImageOverviewUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -106,6 +108,21 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
                             return exp == null ? null : LinkExtractor.tryExtract(exp.getProject());
                         }
                     });
+    }
+
+    @Override
+    protected boolean supportsExportForUpdate()
+    {
+        return true;
+    }
+
+    @Override
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
+            AbstractAsyncCallback<TypedTableResultSet<ExternalData>> callback)
+    {
+        // TODO Auto-generated method stub
+
     }
 
     // adds show, show-details and invalidate buttons
@@ -181,7 +198,7 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
      */
     private ICriteriaProvider<PropertyTypesCriteria> createCriteriaProvider()
     {
-        final EntityKind entityKind = getEntityKind();
+        final EntityKind entityKind = getEntityKindOrNull();
         return new PropertyTypesCriteriaProvider(viewContext, entityKind)
             {
                 @Override
@@ -373,7 +390,7 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
     }
 
     @Override
-    protected EntityKind getEntityKind()
+    protected EntityKind getEntityKindOrNull()
     {
         return EntityKind.DATA_SET;
     }

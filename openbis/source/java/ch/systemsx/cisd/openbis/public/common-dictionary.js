@@ -160,7 +160,6 @@ var common = {
   button_submit: "Submit",
   button_refresh: "Refresh",
   button_show: "Show",
-  button_exportTable: "Export",
   button_show_details: "Show Details",
   button_browse: "Browse",
   button_view: "View",
@@ -191,10 +190,15 @@ var common = {
   
   tooltip_vocabulary_managed_internally: "This operation is not available for a vocabulary that is managed internally.",
   
-  export_all_columns: "All Columns",
-  export_visible_columns: "Visible Columns",
-  tooltip_export_all_columns: "Export the table with all (visible and hidden) columns to an Excel file",
-	tooltip_export_visible_columns: "Export the table with visible columns to an Excel file",
+  export_all: "All Columns",
+  export_visible: "Visible Columns",
+  export_for_update: "For Batch Update",
+  tooltip_export_all: "Export the table with all (visible and hidden) columns to an Excel file",
+	tooltip_export_visible: "Export the table with visible columns to an Excel file",
+  tooltip_export_for_update: "Export the table such that it can be used for Batch Update",
+  button_export_visible: "Export",
+  button_export_all: "Export All",
+  button_export_for_update: "Export For Update",
   
   //
   // LoginWidget

@@ -5,7 +5,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
  */
 public interface IBrowserGridActionInvoker
 {
-    void export(boolean allColumns);
+    boolean supportsExportForUpdate();
+
+    void export(TableExportType type);
 
     void refresh();
 

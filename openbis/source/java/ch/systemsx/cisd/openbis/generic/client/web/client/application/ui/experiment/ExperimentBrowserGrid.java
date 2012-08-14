@@ -173,6 +173,12 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
         setId(BROWSER_ID);
     }
 
+    @Override
+    protected boolean supportsExportForUpdate()
+    {
+        return true;
+    }
+
     private void linkProject()
     {
         registerListenerAndLinkGenerator(ExperimentBrowserGridColumnIDs.PROJECT,
@@ -389,7 +395,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
     }
 
     @Override
-    protected EntityKind getEntityKind()
+    protected EntityKind getEntityKindOrNull()
     {
         return EntityKind.EXPERIMENT;
     }

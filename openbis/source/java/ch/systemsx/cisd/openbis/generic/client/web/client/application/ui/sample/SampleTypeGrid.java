@@ -96,7 +96,7 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
     }
 
     @Override
-    protected EntityKind getEntityKind()
+    protected EntityKind getEntityKindOrNull()
     {
         return EntityKind.SAMPLE;
     }

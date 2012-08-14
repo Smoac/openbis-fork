@@ -99,6 +99,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SampleTypePr
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ScriptProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SpacesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.TableDataProviderFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.TableForUpdateExporter;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.VocabulariesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.VocabularyTermsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
@@ -280,6 +281,12 @@ public final class CommonClientService extends AbstractClientService implements
         getSessionToken();
         final TableExportCriteria<T> exportCriteria = getAndRemoveExportCriteria(exportDataKey);
         final GridRowModels<T> entities = fetchCachedEntities(exportCriteria);
+        EntityKind entityKindForUpdate = exportCriteria.getEntityKindForUpdateOrNull();
+        if (entityKindForUpdate != null)
+        {
+            return TableForUpdateExporter.getExportTableForUpdate(entities, entityKindForUpdate,
+                    lineSeparator);
+        }
         ITableDataProvider dataProvider =
                 TableDataProviderFactory.createDataProvider(entities,
                         exportCriteria.getColumnDefs());

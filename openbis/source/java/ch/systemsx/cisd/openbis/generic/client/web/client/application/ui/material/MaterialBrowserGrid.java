@@ -327,7 +327,7 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
     }
 
     @Override
-    protected EntityKind getEntityKind()
+    protected EntityKind getEntityKindOrNull()
     {
         return EntityKind.MATERIAL;
     }

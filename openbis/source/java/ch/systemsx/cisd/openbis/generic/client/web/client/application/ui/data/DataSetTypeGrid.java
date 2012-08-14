@@ -85,7 +85,7 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
     }
 
     @Override
-    protected EntityKind getEntityKind()
+    protected EntityKind getEntityKindOrNull()
     {
         return EntityKind.DATA_SET;
     }

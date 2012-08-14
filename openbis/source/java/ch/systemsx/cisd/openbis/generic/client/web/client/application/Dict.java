@@ -184,21 +184,13 @@ public abstract class Dict
 
     public static final String BUTTON_SHOW_DETAILS = "button_show_details";
 
-    public static final String BUTTON_EXPORT_TABLE = "button_exportTable";
+    public static final String BUTTON_EXPORT_TABLE = "button_export_visible";
 
     public static final String BUTTON_LOGIN_LABEL = "login_buttonLabel";
 
     public static final String BUTTON_LOGOUT_LABEL = "logout_buttonLabel";
 
     public static final String BUTTON_HOME_LABEL = "home_buttonLabel";
-
-    public static final String EXPORT_ALL_COLUMNS = "export_all_columns";
-
-    public static final String EXPORT_VISIBLE_COLUMNS = "export_visible_columns";
-
-    public static final String TOOLTIP_EXPORT_ALL_COLUMNS = "tooltip_export_all_columns";
-
-    public static final String TOOLTIP_EXPORT_VISIBLE_COLUMNS = "tooltip_export_visible_columns";
 
     //
     // LoginWidget
