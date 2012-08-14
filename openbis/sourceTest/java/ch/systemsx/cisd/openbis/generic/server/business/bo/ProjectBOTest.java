@@ -57,6 +57,41 @@ public final class ProjectBOTest extends AbstractBOTest
     }
 
     @Test
+    public final void testLoadByPermId()
+    {
+        final ProjectBO projectBO = createProjectBO();
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(projectDAO).tryGetByPermID("20120814110011738-105");
+                    will(returnValue(EXAMPLE_PROJECT));
+                }
+            });
+
+        projectBO.loadByPermId("20120814110011738-105");
+        ProjectPE project = projectBO.getProject();
+
+        assertEquals(EXAMPLE_PROJECT, project);
+    }
+
+    @Test(expectedExceptions = UserFailureException.class)
+    public final void testLoadByPermIdNonexistent()
+    {
+        final ProjectBO projectBO = createProjectBO();
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(projectDAO).tryGetByPermID("UNKNOWN-PERM-ID");
+                    will(returnValue(null));
+                }
+            });
+
+        projectBO.loadByPermId("UNKNOWN-PERM-ID");
+    }
+
+    @Test
     public void testDeleteProjectWithNoExperiments()
     {
         final RecordingMatcher<EventPE> eventRecorder = new RecordingMatcher<EventPE>();
