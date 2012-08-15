@@ -16,7 +16,7 @@
 	<!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
 </head>
 
-<body>
+<body >
 	<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" style="position: absolute; left: 10px; height: 100px;"/>
 	<div id="login-form-div"style="position: absolute; left: 300px; top: 200px;">
 		<h1>openBIS YeastLab</h1>
@@ -28,34 +28,33 @@
 	</div>
 
 	<div id="main">
-	  <div id = "title" style="padding-top:20px"> PLASMIDS </div>
 		<div id="button-group">	
-			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
+			<button id="logout-button" style="position: absolute; right:10px;">Logout</button>
 		</div>
-		<div id="chemical_browser"	style="position: absolute; left:10px; top:100px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a> 
-		</div>   		
-		<div id="oligo_browser"	style="position: absolute; left:10px; top:150px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/oligo-browser.html">Oligos</a>  
-		</div>		
-		<div id="plasmid_browser"	style="position: absolute; left:10px; top:200px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/plasmid-browser.html">Plasmids</a>  
-		</div>		
-		<div id="yeast_browser" style="position: absolute; left:10px; top:250px">
+		<div id="yeast_browser" style="position: absolute; left:800px; top:15px">
 		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/yeast-browser.html">Yeasts</a>  
-		</div>		
-
-		<div id="filter-button"	style="padding-left:200px; padding-top: 570px; font-weight:bold; padding-bottom:30px;">
+		</div>
+		<div id="plasmid_browser"	style="position: absolute; left:600px; top:15px">
+		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/plasmid-browser.html">Plasmids</a>  
+		</div>
+		<div id="oligo_browser"	style="position: absolute; left:400px; top:15px">
+		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/oligo-browser.html">Oligos</a>  
+		</div>
+		<div id="chemical_browser"	style="position: absolute; left:200px; top:15px">
+		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a>  
+		</div>
+		
+	<div id="filter-button"	style="padding-left:20px; padding-top:70px; font-weight:bold; padding-bottom:30px;">
 		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
 		</div> 		
 	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
 		<table>
-			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Owner</td><td><input style="width: 200px" id="owner_filter" type="text"></td></tr> 		
-			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Owner Number</td><td><input style="width: 200px" id="ownerNum_filter" type="text"></td></tr>
-				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Plasmid Name</td><td> <input style="width: 200px" id="plasmidName_filter" type="text"></td></tr> 		
-      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Backbone</td><td> <input style="width: 200px" id="backbone_filter" type="text"></td></tr> 		
-   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Bacterial Antibitioc Resistance</td><td> <input style="width: 200px" id="antibiotic_filter" type="text"></td></tr> 		
-   	  	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">(Yeast) Marker</td><td> <input style="width: 200px" id="marker_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Owner</td><td><input style="width: 200px" id="owner_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Owner Number</td><td><input style="width: 200px" id="ownerNum_filter" type="text"></td></tr>
+				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Plasmid Name</td><td> <input style="width: 200px" id="plasmidName_filter" type="text"></td></tr> 		
+      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Backbone</td><td> <input style="width: 200px" id="backbone_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Bacterial Antibitioc Resistance</td><td> <input style="width: 200px" id="antibiotic_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">(Yeast) Marker</td><td> <input style="width: 200px" id="marker_filter" type="text"></td></tr> 		
    	  </table> 		
     </div>	
 		
@@ -63,9 +62,10 @@
 	
     
 		<div id="vis">
-  	 	<div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
 		  <table id="plasmid-table" style="float: left">
-			  <tr class="plasmid-table-header"><th>Plasmid Code</th><th>Owner</th><th>Owner Number</th><th>Plasmid Name</th><th>Backbone</th><th>Bacterial Antibiotic Resistance</th><th>(Yeast) Marker</th></tr>
+			<!--   <tr class="plasmid-table-header"><th>Plasmid Code</th><th>Owner</th><th>Owner Number</th><th>Plasmid Name</th><th>Backbone</th><th>Bacterial Antibiotic Resistance</th><th>(Yeast) Marker</th></tr> -->
+				<thead></thead>
+				<tbody></tbody>
 				</table>
 			</div>
 			<span id="inspectorsContainer"></span>
@@ -171,14 +171,13 @@ function props_to_pairs1(data)
 	order1 = ["OWNER", "OWNER_NUMBER", "YEAST_STRAIN_NAME", "COMMENTS", "PROJECT",  "PLASMIDS", "YEAST_PARENTS", "PLASMID_NAME",  "BACKBONE", "BACTERIAL_ANTIBIOTIC_RESISTANCE",  "YEAST_MARKER",  "OTHER_MARKER",  "FLANKING_RESTRICTION_ENZYME",  "COMMENTS"]
 	new_list1 = []
 	for (var i in order1) {
-	  for (var j in pairs) {
+		for (var j in pairs) {
 			if (pairs[j][0] == order1[i]) {
 				new_list1.push(pairs[j]);
 				break;
 			}
 		}
 	}
-	
 	return new_list1;
 }
 
@@ -257,7 +256,6 @@ function props_to_pairs4(data)
 	}
 	return new_list4;
 }
-
 
 
 function resolveObjectReference(objectOrId) {
@@ -360,59 +358,6 @@ function initializePlasmids(result)
 	// Combine the two groups back together to produce the full collection of plasmids
 	plasmids = frpPlasmids.concat(otherPlasmids);
 }
-
-
-function initializeYeasts(result)
-{
-	// Split the yeasts into two groups, the ones that start with FRY in their sample name and the other ones.
-	      // Construct a map of all yeasts by id
-  yeastsById = {};
-
-	// Split the yeasts into two groups, the ones that start with FRP in their sample name and the other ones.
-	var fryYeasts = [], otherYeasts = [];
-	var fryRegex = /^FRY[0-9]+/;
-	fryRegex.compile(fryRegex);
-	result.forEach(function(sampleOrId) {
-		var theSample = sampleOrId;
-		function storeSamplesById(referredSample) {
-      if (isNaN(referredSample)) {
-        yeastsById[referredSample["@id"]] = referredSample;
-        if (referredSample.parents) referredSample.parents.forEach(storeSamplesById);
-        if (referredSample.children) referredSample.children.forEach(storeSamplesById);
-      }
-    } 
-	  if (isNaN(theSample)) {
-	  	storeSamplesById(theSample);
-    } else {
-	    // This is referring to an object in the yeastsById map
-	    theSample = yeastsById[sampleOrId];
-		}       
- 		if (fryRegex.test(theSample.code)) {
-			fryYeasts.push(theSample);
-		} else {
-			otherYeasts.push(theSample);
-		}
-	});
-	
-	// Sort each of the groups
-	otherYeasts.sort(function(a, b) { 
-		return (a.code < b.code) ? -1 : 1; 
-	});
-	
-	fryYeasts.sort(function(a, b) {
-		// Sort based on the FRY number
-		var fryNumberA = parseInt(a.code.substring(3));
-		var fryNumberB = parseInt(b.code.substring(3));
-		return (fryNumberA < fryNumberB) ? -1 : 1;
-	});
-	
-	
-	
-	
-	// Combine the two groups back together to produce the full collection of yeasts
-	yeasts = fryYeasts.concat(otherYeasts);
-}
-
 
 /** Set the size of the plasmid-table based on whether or not inspectors are visible */
 function resizePlasmidTable()
@@ -593,9 +538,8 @@ function updateInspectors(duration)
 			.transition()
 				.duration(duration)
 				.style("opacity", "1");		
-		
-		
-			var propsTable3 = box.append("table").attr("class", "properties");
+	
+		var propsTable3 = box.append("table").attr("class", "properties");
 	propsTable3.selectAll("tr").data(function(d) { return props_to_pairs3(d) })
 		.enter()
 			.append("tr")
@@ -621,7 +565,7 @@ function updateInspectors(duration)
 			.transition()
 				.duration(duration)
 				.style("opacity", "1");			
-			
+				
 				
 	var downloadTable = inspector.selectAll("table.downloads").data(function(d) { return [d] });
 	downloadTable
@@ -663,21 +607,71 @@ function displayReturnedSamples(data)
 		return;
 	}
 
+  function transform(attrName) {
+      d3.select("tbody").selectAll("tr").remove();
+
+// Header
+    var th = d3.select("thead").selectAll("th")
+            .data(jsonToArray(data[0]))
+          .enter().append("th")
+            .attr("onclick", function (d, i) { return "transform('" + d[0] + "');";})
+            .text(function(d) { return d[0]; })
+
+// Rows
+    var tr =  d3.select("#vis").select("#plasmid-table").select("tbody").selectAll("tr.plasmid-table-data")
+            .data(plasmids)
+          .enter().append("tr")
+            .sort(function (a, b) { return a == null || b == null ? 0 : stringCompare(a[attrName], b[attrName]); });
+
+// Cells
+    var td = tr.selectAll("td")
+            .data(function(d) { return jsonToArray(d); })
+          .enter().append("td")
+            .attr("onclick", function (d, i) { return "transform('" + d[0] + "');";})
+            .text(function(d) { return d[1]; });
+
+}
+
+function jsonKeyValueToArray(k, v) {return [k, v];}
+
+function jsonToArray(json) {
+    var ret = new Array();
+    var key;
+    for (key in json) {
+        if (json.hasOwnProperty(key)) {
+            ret.push(jsonKeyValueToArray(key, json[key]));
+        }
+    }
+    return ret;
+};
+
+
 	var selection = d3.select("#vis").select("#plasmid-table").selectAll("tr.plasmid-table-data").data(plasmids);
 		// Code under enter is run if there is no HTML element for a data element
 	
+//Headers
+
+
+//Rows	
 	selection
 		.enter()
 		.append("tr")
 		.attr("class", "plasmid-table-data")
 		.style("cursor", "pointer")
 		.on("click", inspectPlasmid)
+
+//Cells		
+	selection	
 		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.OWNER, sample.properties.OWNER_NUMBER, sample.properties.PLASMID_NAME, sample.properties.BACKBONE, sample.properties.BACTERIAL_ANTIBIOTIC_RESISTANCE,sample.properties.YEAST_MARKER]; })
 			.enter()
 			.append("td")
 			.append("div")
 			.attr("class", "plasmid-table-data-cell")
 			.text(String)
+
+
+
+
 
 }
 

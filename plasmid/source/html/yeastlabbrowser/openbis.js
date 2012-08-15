@@ -1,15 +1,13 @@
-// Comments follow the yuidoc convenions: http://developer.yahoo.com/yui/yuidoc/
-/**
- * The openBIS module provides objects for communicating with openBIS.
+/*!
+ * OpenBIS API
  *
- * @module openbis
- * @requires jquery
+ * An API for accessing openBIS. Depends on jQuery.
  */
  
 var jsonRequestData = function(params) {
 	// KE: generate unique ids ? Hardcoded "id" seems to work too for now
-	params["id"] = "1";
-	params["jsonrpc"] = "2.0";
+	params["id"] = "1"
+	params["jsonrpc"] = "2.0"
 	return JSON.stringify(params)
 }
  
@@ -17,13 +15,16 @@ var ajaxRequest = function(settings) {
 	settings.type = "POST";
 	settings.processData = false;
 	settings.dataType = "json";
+	settings.crossDomain = true;
 	settings.data = jsonRequestData(settings.data);
-	$.ajax(settings)
+	$.ajax(settings);
 }
 
-// Functions for working with cookies.
-//
-// These are from http://www.quirksmode.org/js/cookies.html
+/* 
+ * Functions for working with cookies.
+ *
+ * These are from http://www.quirksmode.org/js/cookies.html
+ */
 function createCookie(name,value,days) {
 	if (days) {
 		var date = new Date();
@@ -49,40 +50,20 @@ function eraseCookie(name) {
 	createCookie(name,"",-1);
 }
 
-/**
- * A lightweight facade for interacting with openBIS. It provides access
- * to the following openBIS APIs:
- * 
- * 	ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
- * 	ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer
- * 	ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric
- *
- * The Javascript API is not yet exhaustive in its coverage of the above APIs;
- * there are methods in the API that do not have Javascript equivelants. 
- *
- * 
- * @class
- */
 function openbis(url, dssUrl) {
-	this.generalInfoServiceUrl = url + "/rmi-general-information-v1.json";
-	this.queryServiceUrl = url + "/rmi-query-v1.json";
-	this.dssUrl = dssUrl + "/rmi-dss-api-v1.json";
-	this.webInfoServiceUrl = url + "/openbis/openbis/rmi-web-information-v1.json"
+	this.generalInfoServiceUrl = url + "/rmi-general-information-v1.json"
+	this.queryServiceUrl = url + "/rmi-query-v1.json"
+	this.dssUrl = dssUrl + "/rmi-dss-api-v1.json"
 }
 
 
-/**
- * Log into openBIS.
- *
- * @method
- */
 openbis.prototype.login = function(username, password, action) {
 	openbisObj = this
 	ajaxRequest({
 		url: this.generalInfoServiceUrl,
 		data: { "method" : "tryToAuthenticateForAllServices",
 				"params" : [ username, password ] 
-				},
+			  },
 		success: 
 			function(data) {
 				openbisObj.sessionToken = data.result;
@@ -90,7 +71,7 @@ openbis.prototype.login = function(username, password, action) {
 				action(data)
 			},
 		error: function() {
-			alert("Login failed")
+		  alert("Login failed")
 		}
 	 });
 }
@@ -104,39 +85,21 @@ openbis.prototype.restoreSession = function() {
 	this.sessionToken = readCookie('openbis');
 }
 
-openbis.prototype.isSessionActive = function(action) {
+openbis.prototype.isSessionActive = function(action) {	
 	ajaxRequest({
 		url: this.generalInfoServiceUrl,
 		data: { "method" : "isSessionActive",
 				"params" : [ this.sessionToken ] 
-				},
+			  },
 		success: action
 	 });
 }
 
-/**
- * Restore the session from a cookie and check that it is still valid.
- * 
- * @method
- */
-openbis.prototype.ifRestoredSessionActive = function(action) {
+openbis.prototype.ifRestoredSessionActive = function(action) {	
 	this.restoreSession();
 	this.isSessionActive(function(data) { if (data.result) action(data) });
 }
 
-openbis.prototype.getSessionTokenFromServer = function(action) {
-	ajaxRequest({
-		url: this.webInfoServiceUrl,
-		data: { "method" : "getSessionToken" },
-		success: action
-	 });
-}
-
-/**
- * Log out of openBIS
- * 
- * @method
- */
 openbis.prototype.logout = function(action) {
 	ajaxRequest({
 		url: this.generalInfoServiceUrl,
@@ -147,101 +110,80 @@ openbis.prototype.logout = function(action) {
 	 });
 }
 
-/**
- * See ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService.listSpacesWithProjectsAndRoleAssignments(String, String)
- * 
- * @method
- */
-openbis.prototype.listSpacesWithProjectsAndRoleAssignments = function(databaseInstanceCodeOrNull, action) {
-	ajaxRequest({
-		url: this.generalInfoServiceUrl,
-		data: { "method" : "listSpacesWithProjectsAndRoleAssignments",
-				"params" : [ this.sessionToken,  databaseInstanceCodeOrNull ] 
-			  },
-		success: action
-	});
-}
-
-/**
- * See ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService.listProjects(String)
- * 
- * @method
- */
 openbis.prototype.listProjects = function(action) {
-	ajaxRequest({
+	 ajaxRequest({
 		url: this.generalInfoServiceUrl,
 		data: { "method" : "listProjects",
 				"params" : [ this.sessionToken ] 
 			  },
 		success: action
-	});
+	 });
 }
 
-/**
- * See ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService.listExperiments(String, List<Project>, String)
- * 
- * @method
- */
 openbis.prototype.listExperiments = function(projects, experimentType, action) {
-	ajaxRequest({
+	 ajaxRequest({
 		url: this.generalInfoServiceUrl,
 		data: { "method" : "listExperiments",
 				"params" : [ this.sessionToken, projects, experimentType ] 
 			  },
 		success: action
-	});
+	 });
 }
-
-/**
- * See ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService.listSamplesForExperiment(String, String)
- * 
- * @method
- */
-openbis.prototype.listSamplesForExperiment = function(experimentIdentifier, action) {
-	ajaxRequest({
-		url: this.generalInfoServiceUrl,
-		data: { "method" : "listSamplesForExperiment",
-				"params" : [ this.sessionToken, experimentIdentifier ] 
-		},
-		success: action
-	});
-}
-
-/**
- * See ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService.searchForSamples(String, SearchCriteria)
- * 
- * @method
- */
+ 
 openbis.prototype.searchForSamples = function(searchCriteria, action) {
-	ajaxRequest({
+	 ajaxRequest({
 		url: this.generalInfoServiceUrl,
 		data: { "method" : "searchForSamples",
 				"params" : [ this.sessionToken,
 							 searchCriteria ] },
 		success: action
-	});
+	 });
 }
 
-/**
- * See ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService.searchForDataSets(String, SearchCriteria)
- * 
- * @method
- */
-openbis.prototype.searchForDataSets = function(searchCriteria, action) {
+openbis.prototype.searchForSamplesWithFetchOptions = function(searchCriteria, fetchOptions, action) {
 	ajaxRequest({
+		url: this.generalInfoServiceUrl,
+		data: { 
+				"method" : "searchForSamples",
+				"params" : [ 
+					this.sessionToken,
+					searchCriteria,
+					fetchOptions ] 
+		},
+		success: action
+	 });
+}
+
+openbis.prototype.searchForDataSets = function(searchCriteria, action) {
+	 ajaxRequest({
 		url: this.generalInfoServiceUrl,
 		data: { "method" : "searchForDataSets",
 				"params" : [ this.sessionToken,
 							 searchCriteria ] },
 		success: action
-	});
+	 });
 }
 
-/**
- * See ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService.listDataSetsForSample(String, Sample, boolean)
- * 
- * @method
- */
+ openbis.prototype.listFilesForDataSet = function(dataSetCode, path, recursive, action) {
+     ajaxRequest({
+        url: this.dssUrl,
+        data: { "method" : "listFilesForDataSet",
+                "params" : [ this.sessionToken, dataSetCode, path, recursive ]
+               },
+        success: action
+     });
+}
+
+openbis.prototype.getDownloadUrlForFileForDataSet = function(dataSetCode, filePath, action) {
+    ajaxRequest({
+        url: this.dssUrl,
+        data: { "method" : "getDownloadUrlForFileForDataSet",
+                "params" : [ this.sessionToken, dataSetCode, filePath ]
+               },
+        success: action
+    });
+}
+
 openbis.prototype.listDataSetsForSample = function(sample, restrictToDirectlyConnected, action) {
 	ajaxRequest({
 		url: this.generalInfoServiceUrl,
@@ -252,62 +194,24 @@ openbis.prototype.listDataSetsForSample = function(sample, restrictToDirectlyCon
 	});
 }
 
-/**
- * See ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric.listFilesForDataSet(String, String, String, boolean)
- * 
- * @method
- */
-openbis.prototype.listFilesForDataSet = function(dataSetCode, path, recursive, action) {
-	ajaxRequest({
-			url: this.dssUrl,
-			data: { "method" : "listFilesForDataSet",
-							"params" : [ this.sessionToken, dataSetCode, path, recursive ]
-						 },
-			success: action
-	});
-}
 
-/**
- * See ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric.getDownloadUrlForFileForDataSet(String, String, String)
- * 
- * @method
- */
-openbis.prototype.getDownloadUrlForFileForDataSet = function(dataSetCode, filePath, action) {
-	ajaxRequest({
-			url: this.dssUrl,
-			data: { "method" : "getDownloadUrlForFileForDataSet",
-							"params" : [ this.sessionToken, dataSetCode, filePath ]
-						 },
-			success: action
-	});
-}
 
-/**
- * See ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer.listQueries(String)
- * 
- * @method
- */
 openbis.prototype.listQueries = function(action) {
-	ajaxRequest({
+	 ajaxRequest({
 		url: this.queryServiceUrl,
 		data: { "method" : "listQueries",
 				"params" : [ this.sessionToken ] },
 		success: action
-	});
+	 });
 }
 
-/**
- * See ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer.executeQuery(String, long, Map<String, String>)
- * 
- * @method
- */
 openbis.prototype.executeQuery = function(queryId, parameterBindings, action) {
-	ajaxRequest({
+	 ajaxRequest({
 		url: this.queryServiceUrl,
 		data: { "method" : "executeQuery",
 				"params" : [ this.sessionToken, queryId, parameterBindings ] },
 		success: action
-	});
+	 });
 }
 
 /**
@@ -340,4 +244,3 @@ actionDeferrer.prototype.dependencyCompleted = function(key) {
 		this.pendingAction();
 	}
 }
-

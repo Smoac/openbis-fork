@@ -138,6 +138,14 @@ color:#FFFFFF;
 }
 
 
+#title{
+  font: 25px "Trebuchet MS";
+  color: #0000cc;
+  font-weight:bold;
+  text-align:center;
+  
+}
+
 #filter-button a:link
 {
 display:block;

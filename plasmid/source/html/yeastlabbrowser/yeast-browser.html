@@ -13,6 +13,10 @@
 	<script type="text/javascript" src="openbis-utils.js"></script>
 	<script type="text/javascript" src="openbis.js"></script>
 	<script type="text/javascript" src="infra.js"></script>
+	<script type="text/javascript" src="openbis-login.js"></script>
+	<script type="text/javascript" language="javascript" src="jquery.dataTables.js"></script>
+	
+	<!--<script type="text/javascript" src="/resources/js/openbis.js"></script>-->
 	<!-- To speed development, cache the requests -->
 	<!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
 <script>
@@ -111,7 +115,7 @@ function props_to_pairs1(data)
 	}
 	
 
-	order1 = ["OWNER", "OWNER_NUMBER", "YEAST_STRAIN_NAME", "COMMENTS", "PROJECT",  "PLASMIDS", "YEAST_PARENTS"]
+	order1 = ["OWNER", "OWNER_NUMBER", "YEAST_STRAIN_NAME", "COMMENTS", "PROJECT",  "PLASMIDS", "PLASMID_NAME",  "BACKBONE", "BACTERIAL_ANTIBIOTIC_RESISTANCE",  "YEAST_MARKER",  "OTHER_MARKER",  "FLANKING_RESTRICTION_ENZYME",  "COMMENTS"]
 	new_list1 = []
 	for (var i in order1) {
 		for (var j in pairs) {
@@ -122,6 +126,33 @@ function props_to_pairs1(data)
 		}
 	}
 	return new_list1;
+}
+
+
+function props_to_pairs5(data)
+{
+
+	d = data.properties;
+	
+	var pairs = [];
+	for (var prop in d) {
+		var pair = [prop, d[prop]];
+		pairs.push(pair);
+	}
+	
+
+	order5 = ["YEAST_PARENTS"]
+	new_list5 = []
+	for (var i in order5) {
+		for (var j in pairs) {
+			if (pairs[j][0] == order5[i]) {
+				new_list5.push(pairs[j]);
+				break;
+			}
+		}
+	}
+	console.log(new_list5[0])
+		return new_list5;
 }
 
 
@@ -203,13 +234,18 @@ function props_to_pairs4(data)
 
 function resolveObjectReference(objectOrId) {
   if (isNaN(objectOrId)) {
-    plasmid = objectOrId;
+    yeast = objectOrId;
+  //  plasmid =objectOrId;
   } else {
-  	plasmid = yeastsById[objectOrId];
+  	yeast = yeastsById[objectOrId];
+ // 	plasmid = plasmidsById[objectOrId];
   }
   
-  return plasmid;
+  //return yeast, plasmid;
+  return yeast;
 }
+
+
 
 function get_parents(data)
 {
@@ -308,6 +344,53 @@ function initializeYeasts(result)
 	yeasts = fryYeasts.concat(otherYeasts);
 }
 
+function initializePlasmids(result)
+{
+      // Construct a map of all plasmids by id
+  plasmidsById = {};
+
+	// Split the plasmids into two groups, the ones that start with FRP in their sample name and the other ones.
+	var frpPlasmids = [], otherPlasmids = [];
+	var frpRegex = /^FRP[0-9]+/;
+	frpRegex.compile(frpRegex);
+	result.forEach(function(sampleOrId) {
+		var theSample = sampleOrId;
+		function storeSamplesById(referredSample) {
+      if (isNaN(referredSample)) {
+        plasmidsById[referredSample["@id"]] = referredSample;
+        if (referredSample.parents) referredSample.parents.forEach(storeSamplesById);
+        if (referredSample.children) referredSample.children.forEach(storeSamplesById);
+      }
+    } 
+	  if (isNaN(theSample)) {
+	  	storeSamplesById(theSample);
+    } else {
+	    // This is referring to an object in the plasmidsById map
+	    theSample = plasmidsById[sampleOrId];
+		}       
+ 		if (frpRegex.test(theSample.code)) {
+			frpPlasmids.push(theSample);
+		} else {
+			otherPlasmids.push(theSample);
+		}
+	});
+	
+	// Sort each of the groups
+	otherPlasmids.sort(function(a, b) { 
+		return (a.code < b.code) ? -1 : 1; 
+	});
+	
+	frpPlasmids.sort(function(a, b) {
+		// Sort based on the FRP number
+		var frpNumberA = parseInt(a.code.substring(3));
+		var frpNumberB = parseInt(b.code.substring(3));
+		return (frpNumberA < frpNumberB) ? -1 : 1;
+	});
+	
+	// Combine the two groups back together to produce the full collection of plasmids
+	plasmids = frpPlasmids.concat(otherPlasmids);
+}
+
 /** Set the size of the yeast-table based on whether or not inspectors are visible */
 function resizeYeastTable()
 {
@@ -397,6 +480,21 @@ function updateInspectors(duration)
 			.transition()
 				.duration(duration)
 				.style("opacity", "1");	
+
+				
+				var propsTable5 = box.append("table").attr("class", "properties");
+	      propsTable5.selectAll("tr").data(function(d) { return props_to_pairs5(d) })
+	   	.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d }).enter()
+				.append("td")
+				.attr("class", "property")
+				.style("opacity", "0")
+				.text(function(d) { return d })
+			.transition()
+				.duration(duration)
+				.style("opacity", "1");			
+	
 				
 	var propsTableParents = box.append("table").attr("class", "properties");
 	propsTableParents.selectAll("tr").data(function(d) { return get_parents(d) })
@@ -532,7 +630,7 @@ function displayReturnedSamples(data)
 	 	.attr("class", "yeast-table-data")
 		.style("cursor", "pointer")
 		.on("click", inspectYeast)
-		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.OWNER, sample.properties.OWNER_NUMBER, sample.properties.YEAST_STRAIN_NAME, sample.properties.PROJECT, sample.properties.PLASMIDS, sample.properties.YEAST_PARENTS, sample.properties.GENETIC_BACKGROUND, sample.properties.MATING_TYPE]; })
+		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.OWNER, sample.properties.OWNER_NUMBER, sample.properties.YEAST_STRAIN_NAME, sample.properties.PROJECT, sample.properties.PLASMIDS, sample.properties.YEAST_PARENTS, sample.properties.GENETIC_BACKGROUND, sample.properties.MATING_TYPE]; })
 			.enter()
 			.append("td")
 			.append("div")
@@ -741,7 +839,8 @@ $(document).ready(function() {
 	$('#matingType_filter').keyup(function() {
 		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#yeastName_filter').val(), $('#project_filter').val(), $('#plasmids_filter').val(), $('#yeastParents_filter').val(), $('#geneticBackground_filter').val(), $('#matingType_filter').val());
 	});
-
+	
+	
 	openbisServer.ifRestoredSessionActive(function(data) { enterApp(data) });
 
 // Make the ENTER key the default button
@@ -791,45 +890,48 @@ function ShowHide(divId)
 	</div>
 
 	<div id="main">
+	  <div id = "title" style="padding-top:20px"> YEASTS </div>
 		<div id="button-group">	
-			<button id="logout-button" style="position: absolute; right:10px;">Logout</button>
+			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
 		</div>
-		<div id="yeast_browser" style="position: absolute; left:800px; top:15px">
-		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/yeast-browser.html">Yeasts</a>  
-		</div>
-		<div id="plasmid_browser"	style="position: absolute; left:600px; top:15px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/plasmid-browser.html">Plasmids</a>  
-		</div>
-		<div id="oligo_browser"	style="position: absolute; left:400px; top:15px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/oligo-browser.html">Oligos</a>  
-		</div>
-		<div id="chemical_browser"	style="position: absolute; left:200px; top:15px">
+		<div id="chemical_browser"	style="position: absolute; left:10px; top:100px">
 		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a> 
-		</div>   
+		</div>   		
+		<div id="oligo_browser"	style="position: absolute; left:10px; top:150px">
+		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/oligo-browser.html">Oligos</a>  
+		</div>		
+		<div id="plasmid_browser"	style="position: absolute; left:10px; top:200px">
+		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/plasmid-browser.html">Plasmids</a>  
+		</div>		
+		<div id="yeast_browser" style="position: absolute; left:10px; top:250px">
+		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/yeast-browser.html">Yeasts</a>  
+		</div>		
+
 		
-		<div id="filter-button"	style="padding-left:20px; padding-top:70px; font-weight:bold; padding-bottom:30px;">
+		<div id="filter-button"	style="padding-left:200px; padding-top: 570px; font-weight:bold; padding-bottom:30px;">
 		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
 		</div> 		
 	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
 		<table>
-			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Owner</td><td><input style="width: 200px" id="owner_filter" type="text"></td></tr> 		
-			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Owner Number</td><td><input style="width: 200px" id="ownerNum_filter" type="text"></td></tr>
-			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Yeast Strain Name</td><td> <input style="width: 200px" id="yeastName_filter" type="text"></td></tr> 		
-      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Project</td><td> <input style="width: 200px" id="project_filter" type="text"></td></tr> 		
-   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Plasmids</td><td> <input style="width: 200px" id="plasmids_filter" type="text"></td></tr> 		
-   	  	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Yeast Parents</td><td> <input style="width: 200px" id="yeastParents_filter" type="text"></td></tr> 		
-   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Genetic Background</td><td> <input style="width: 200px" id="geneticBackground_filter" type="text"></td></tr>		
-      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Mating Type</td><td> <input style="width: 200px" id="matingType_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Owner</td><td><input style="width: 200px" id="owner_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Owner Number</td><td><input style="width: 200px" id="ownerNum_filter" type="text"></td></tr>
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Yeast Strain Name</td><td> <input style="width: 200px" id="yeastName_filter" type="text"></td></tr> 		
+      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Project</td><td> <input style="width: 200px" id="project_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Plasmids</td><td> <input style="width: 200px" id="plasmids_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Yeast Parents</td><td> <input style="width: 200px" id="yeastParents_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Genetic Background</td><td> <input style="width: 200px" id="geneticBackground_filter" type="text"></td></tr>		
+      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Mating Type</td><td> <input style="width: 200px" id="matingType_filter" type="text"></td></tr> 		
  	</table>
  	</div>
  	
  		  
 		<div id="vis">
-  		<div style="float:left; width: 1000px;height: 500px; overflow: auto">
-		  <table id="yeast-table" >
+  	 	<div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
+		  <table id="yeast-table" cellpadding="0" cellspacing="0" border="0" class="display" width="100%">
 			  <thead >
 					<tr class="yeast-table-header"><th>Yeast Code</th><th>Owner</th><th>Owner Number</th><th>Yeast Strain Name</th><th>Project</th><th>Plasmids</th><th>Yeast Parents</th><th>Genetic Background</th><th>Mating Type</th></tr>
 				</thead> 
+				<tbody></tbody>
 			</table>
 	 		</div>
 	

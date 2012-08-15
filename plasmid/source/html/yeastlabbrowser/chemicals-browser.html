@@ -10,6 +10,7 @@
 	<script type="text/javascript" src="jquery.js"></script>
 	<script type="text/javascript" src="openbis.js"></script>
 	<script type="text/javascript" src="infra.js"></script>
+	<script type="text/javascript" src="openbis-login.js"></script>
 	<!-- To speed development, cache the requests -->
 	<!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
 <script>
@@ -315,9 +316,8 @@ function displayReturnedSamples(data)
 		.enter()
 		.append("tr")
 		.attr("class", "chemical-table-data")
-		.style("cursor", "pointer")
 		.on("click", inspectChemical)
-		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.NAME, sample.properties.SUPPLIER, sample.properties.ARTICLE_NUMBER, sample.properties.LOCAL_ID, sample.properties.STORAGE]; })
+		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.NAME, sample.properties.SUPPLIER, sample.properties.ARTICLE_NUMBER, sample.properties.LOCAL_ID, sample.properties.STORAGE]; })
 			.enter()
 			.append("td")
 			.append("div")
@@ -523,42 +523,45 @@ function ShowHide(divId)
 	</div>
 
 	<div id="main">
+	  <div id = "title" style="padding-top:20px"> CHEMICALS </div>
 		<div id="button-group">	
-			<button id="logout-button" style="position: absolute; right:10px;">Logout</button>
+			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
 		</div>
-		<div id="yeast_browser" style="position: absolute; left:800px; top:15px">
-		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/yeast-browser.html">Yeasts</a>  
-		</div>
-		<div id="plasmid_browser"	style="position: absolute; left:600px; top:15px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/plasmid-browser.html">Plasmids</a>  
-		</div>
-		<div id="oligo_browser"	style="position: absolute; left:400px; top:15px">
+		<div id="chemical_browser"	style="position: absolute; left:10px; top:100px">
+		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a> 
+		</div>   		
+		<div id="oligo_browser"	style="position: absolute; left:10px; top:150px">
 		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/oligo-browser.html">Oligos</a>  
-		</div>
-		<div id="chemical_browser"	style="position: absolute; left:200px; top:15px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a>  
-		</div>
+		</div>		
+		<div id="plasmid_browser"	style="position: absolute; left:10px; top:200px">
+		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/plasmid-browser.html">Plasmids</a>  
+		</div>		
+		<div id="yeast_browser" style="position: absolute; left:10px; top:250px">
+		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/yeast-browser.html">Yeasts</a>  
+		</div>		
 	
 	
-	<div id="filter-button"	style="padding-left:20px; padding-top:70px; font-weight:bold; padding-bottom:30px;">
+		<div id="filter-button"	style="padding-left:200px; padding-top: 570px; font-weight:bold; padding-bottom:30px;">
 		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
 		</div> 		
 	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
 		<table>
-			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Chemical Name</td><td><input style="width: 200px" id="name_filter" type="text"></td></tr> 		
-			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Supplier</td><td><input style="width: 200px" id="supplier_filter" type="text"></td></tr>
-				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Art. Number</td><td> <input style="width: 200px" id="artnum_filter" type="text"></td></tr> 		
-      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Local ID</td><td> <input style="width: 200px" id="locid_filter" type="text"></td></tr> 		
-   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Storage</td><td> <input style="width: 200px" id="storage_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Chemical Name</td><td><input style="width: 200px" id="name_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Supplier</td><td><input style="width: 200px" id="supplier_filter" type="text"></td></tr>
+				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Art. Number</td><td> <input style="width: 200px" id="artnum_filter" type="text"></td></tr> 		
+      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Local ID</td><td> <input style="width: 200px" id="locid_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Storage</td><td> <input style="width: 200px" id="storage_filter" type="text"></td></tr> 		
    	  </table> 		
     </div>	
 		
     
 		<div id="vis">
+  	 	<div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
 		  <table cellspacing="10" cellpadding="20">
 			<table id="chemical-table" style="float: left">
 			  <tr class="chemical-table-header"><th>Chemical Code</th><th>Chemical Name</th><th>Supplier</th><th>Art. Number</th><th>Local ID</th><th>Storage</th></tr>
 			</table>
+			</div>
 			<span id="inspectorsContainer"></span>
 		</div>
 	</div>

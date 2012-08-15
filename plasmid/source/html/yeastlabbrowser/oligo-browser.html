@@ -10,6 +10,7 @@
 	<script type="text/javascript" src="jquery.js"></script>
 	<script type="text/javascript" src="openbis.js"></script>
 	<script type="text/javascript" src="infra.js"></script>
+			<script type="text/javascript" src="openbis-login.js"></script>
 	<!-- To speed development, cache the requests -->
 	<!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
 <script>
@@ -349,7 +350,7 @@ function displayReturnedSamples(data)
 		.attr("class", "oligo-table-data")
 		.style("cursor", "pointer")
 		.on("click", inspectOligo)
-		.selectAll("td").data(function(sample) { return [sample.identifier, sample.properties.TARGET, sample.properties.DIRECTION,sample.properties.RESTRICTION_ENZYME, sample.properties.PROJECT]; })
+		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.TARGET, sample.properties.DIRECTION,sample.properties.RESTRICTION_ENZYME, sample.properties.PROJECT]; })
 			.enter()
 			.append("td")
 			.append("div")
@@ -555,40 +556,44 @@ function ShowHide(divId)
 	</div>
 
 	<div id="main">
+	  <div id = "title" style="padding-top:20px"> OLIGOS </div>
 		<div id="button-group">	
-			<button id="logout-button" style="position: absolute; right:10px;">Logout</button>
+			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
 		</div>
-		<div id="yeast_browser" style="position: absolute; left:800px; top:15px">
-		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/yeast-browser.html">Yeasts</a>  
-		</div>
-		<div id="plasmid_browser"	style="position: absolute; left:600px; top:15px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/plasmid-browser.html">Plasmids</a>  
-		</div>
-		<div id="oligo_browser"	style="position: absolute; left:400px; top:15px">
+		<div id="chemical_browser"	style="position: absolute; left:10px; top:100px">
+		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a> 
+		</div>   		
+		<div id="oligo_browser"	style="position: absolute; left:10px; top:150px">
 		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/oligo-browser.html">Oligos</a>  
-		</div>
-		<div id="chemical_browser"	style="position: absolute; left:200px; top:15px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a>  
-		</div>
-		
-<div id="filter-button"	style="padding-left:20px; padding-top:70px; font-weight:bold; padding-bottom:30px;">
+		</div>		
+		<div id="plasmid_browser"	style="position: absolute; left:10px; top:200px">
+		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/plasmid-browser.html">Plasmids</a>  
+		</div>		
+		<div id="yeast_browser" style="position: absolute; left:10px; top:250px">
+		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/yeast-browser.html">Yeasts</a>  
+		</div>		
+
+
+		<div id="filter-button"	style="padding-left:200px; padding-top: 570px; font-weight:bold; padding-bottom:30px;">
 		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
 		</div> 		
 	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
 		<table>
-			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Target</td><td><input style="width: 200px" id="target_filter" type="text"></td></tr> 		
-			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Direction</td><td><input style="width: 200px" id="direction_filter" type="text"></td></tr>
-				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Restriction Enzyme</td><td> <input style="width: 200px" id="enzyme_filter" type="text"></td></tr> 		
-      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Project</td><td> <input style="width: 200px" id="project_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Target</td><td><input style="width: 200px" id="target_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Direction</td><td><input style="width: 200px" id="direction_filter" type="text"></td></tr>
+				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Restriction Enzyme</td><td> <input style="width: 200px" id="enzyme_filter" type="text"></td></tr> 		
+      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Project</td><td> <input style="width: 200px" id="project_filter" type="text"></td></tr> 		
    	  </table> 		
     </div>	
 		
 		    
 		<div id="vis">
-		  <table cellspacing="10" cellpadding="20">
+  	 	<div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
 			<table id="oligo-table" style="float: left">
 			  <tr class="oligo-table-header"><th>Oligo Code</th><th>Target</th><th>Direction</th><th>Restriction Enzyme</th><th>Project</th></tr>
 			</table>
+			</div>
+			
 			<span id="inspectorsContainer"></span>
 		</div>
 	</div>
