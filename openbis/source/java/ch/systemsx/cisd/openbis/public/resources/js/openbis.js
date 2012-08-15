@@ -332,10 +332,14 @@ openbis.prototype.createSessionWorkspaceUploader = function(uploaderContainer){
 	
 	var $this = this;
 	
-	$('head').append('<link rel="stylesheet" media="screen" type="text/css" href="../uploader/css/src/upload.css" />');
-	$('head').append('<script charset="utf-8" type="text/javascript" src="../uploader/js/src/upload.js" />');
+	// figure out what is the location of the openbis.js script and assume that uploader resources are served by the same server
+	var openbisScriptLocation = $('script[src*=openbis\\.js]').attr('src');
+	var uploaderDirectoryLocation = jsFileLocation = openbisScriptLocation.replace(/js\/openbis\.js/g, 'uploader');
 	
-	$(uploaderContainer).load("../uploader/index.html", function(){
+	$('head').append('<link rel="stylesheet" media="screen" type="text/css" href="' + uploaderDirectoryLocation + '/css/src/upload.css" />');
+	$('head').append('<script charset="utf-8" type="text/javascript" src="' + uploaderDirectoryLocation + '/js/src/upload.js" />');
+	
+	$(uploaderContainer).load(uploaderDirectoryLocation + "/index.html", function(){
 		Uploader.init({
 		       smart_mode: true,
 		       chunk_size: 1000*1024,
