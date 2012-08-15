@@ -184,9 +184,6 @@ public final class SampleBOTest extends AbstractBOTest
                     set.add(samplePropertyPE);
                     will(returnValue(set));
 
-                    one(daoFactory).getPermIdDAO();
-                    will(returnValue(permIdDAO));
-
                     one(permIdDAO).createPermId();
                     will(returnValue("2009010112341234-1"));
 
@@ -309,19 +306,14 @@ public final class SampleBOTest extends AbstractBOTest
                             DILUTION_PLATE, EXAMPLE_PERSON);
                     will(returnValue(new ArrayList<SamplePropertyPE>()));
 
-                    one(daoFactory).getPermIdDAO();
-                    will(returnValue(permIdDAO));
-
                     one(permIdDAO).createPermId();
                     will(returnValue("2009010112341234-1"));
 
-                    one(relationshipService).assignSampleToContainer(
-                            with(any(IAuthSession.class)), with(any(SamplePE.class)),
-                            with(any(SamplePE.class)));
+                    one(relationshipService).assignSampleToContainer(with(any(IAuthSession.class)),
+                            with(any(SamplePE.class)), with(any(SamplePE.class)));
 
-                    one(relationshipService).addParentToSample(
-                            with(any(IAuthSession.class)), with(any(SamplePE.class)),
-                            with(any(SamplePE.class)));
+                    one(relationshipService).addParentToSample(with(any(IAuthSession.class)),
+                            with(any(SamplePE.class)), with(any(SamplePE.class)));
                 }
             });
 
@@ -571,9 +563,8 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(relationshipService).removeSampleFromContainer(
                             with(any(IAuthSession.class)), with(any(SamplePE.class)));
 
-                    one(relationshipService).addParentToSample(
-                            with(any(IAuthSession.class)), with(any(SamplePE.class)),
-                            with(any(SamplePE.class)));
+                    one(relationshipService).addParentToSample(with(any(IAuthSession.class)),
+                            with(any(SamplePE.class)), with(any(SamplePE.class)));
 
                 }
             });
@@ -706,8 +697,8 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(relationshipService).unassignSampleFromExperiment(
                             with(any(IAuthSession.class)), with(any(SamplePE.class)));
 
-                    allowing(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(
-                            with("MY_GROUP"), with(any(DatabaseInstancePE.class)));
+                    allowing(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(with("MY_GROUP"),
+                            with(any(DatabaseInstancePE.class)));
                     will(returnValue(EXAMPLE_GROUP));
 
                     allowing(sampleDAO).tryFindByCodeAndSpace(with("sampleCode"),
@@ -724,8 +715,7 @@ public final class SampleBOTest extends AbstractBOTest
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
                         .<NewAttachment> emptyList(), now, IdentifierHelper.sample(sample),
-                        container.getSampleIdentifier()
-                                .toString(), null));
+                        container.getSampleIdentifier().toString(), null));
         context.assertIsSatisfied();
     }
 
@@ -764,8 +754,8 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(relationshipService).unassignSampleFromExperiment(
                             with(any(IAuthSession.class)), with(any(SamplePE.class)));
 
-                    allowing(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(
-                            with("MY_GROUP"), with(any(DatabaseInstancePE.class)));
+                    allowing(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(with("MY_GROUP"),
+                            with(any(DatabaseInstancePE.class)));
                     will(returnValue(EXAMPLE_GROUP));
 
                     allowing(sampleDAO).tryFindByCodeAndSpace(with("sampleCode"),
@@ -780,8 +770,8 @@ public final class SampleBOTest extends AbstractBOTest
         assertNull(sample.getContainer());
         SampleBO bo = createSampleBO();
         bo.update(new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                .<NewAttachment> emptyList(), now, IdentifierHelper.sample(sample),
-                container.getSampleIdentifier().toString(), null));
+                .<NewAttachment> emptyList(), now, IdentifierHelper.sample(sample), container
+                .getSampleIdentifier().toString(), null));
         bo.save();
         context.assertIsSatisfied();
     }
@@ -888,9 +878,6 @@ public final class SampleBOTest extends AbstractBOTest
                     one(propertiesConverter).convertProperties(newSharedSample.getProperties(),
                             DILUTION_PLATE, EXAMPLE_PERSON);
                     will(returnValue(new ArrayList<SamplePropertyPE>()));
-
-                    one(daoFactory).getPermIdDAO();
-                    will(returnValue(permIdDAO));
 
                     one(permIdDAO).createPermId();
                     will(returnValue("2009010112341234-1"));
