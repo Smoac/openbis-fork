@@ -227,21 +227,21 @@ var Uploader = (function() {
         reader.onerror = function(e) {
             switch (e.target.error.code) {
             case e.target.error.NOT_FOUND_ERR:
-                alert("Datei nicht gefunden.");
+                alert("File not found.");
                 break;
             case e.target.error.NOT_READABLE_ERR:
-                alert("Datei ist nicht lesbar.");
+                alert("File not readable.");
                 break;
             case e.target.error.ABORT_ERR:
-                console.log("Lesen der Datei abgebrochen.");
+                console.log("File reading aborted.");
                 break;
             default:
-                alert("Beim Zugriff auf die Datei ist ein Fehler aufgetreten.");
+                alert("An error occurred while accessing the file.");
                 break;
             }
         };
         reader.onabort = function() {
-            alert("Lesen der Datei abgebrochen.");
+            alert("Reading of the file aborted.");
         };
         reader.readAsArrayBuffer(blob);
     }
@@ -280,7 +280,7 @@ var Uploader = (function() {
                 pause: false,
                 xhr: null
             };
-            // ersten Chunk hochladen, weitere Chunks werden via onload-Handler angestossen
+            // 1. Chunk will be uploaded, further chunks will be uploaded via onload-Handler
             var lastByte = (file.size < settings.chunk_size)? file.size : settings.chunk_size;
             var blob = makeChunk(file, 0, lastByte);
             uploadChunk(file, blob, id, 0, lastByte);
@@ -345,7 +345,7 @@ var Uploader = (function() {
 
     return {
         init: function(opts) {
-            // Pruefen, ob Browser SVG darstellen kann. Wenn nicht, PNGs verwenden.
+            // Checks whether the browser can show SVG, if not PNGs are used
             var svgSupported = (function() {
                 var svg;
                 try {
@@ -374,7 +374,7 @@ var Uploader = (function() {
                 });
             */
             
-            // Einstellungen ggf. mit init()-Parametern ueberschreiben
+            // Settings might be overwritten by init() parameters
             settings = $.extend({}, settings, opts);
             settings.smart_mode = settings.smart_mode && defaults.smart_mode;
             
