@@ -11,4 +11,20 @@
     
     <import resource="genericApplicationContext.xml"/>
     
+    <bean class="org.springframework.scheduling.timer.TimerFactoryBean">
+        <property name="scheduledTimerTasks">
+            <list>
+                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask">
+                    <property name="delay" value="0" />
+                    <property name="runnable" ref="full-text-indexer" />
+                </bean>
+                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask">
+                    <property name="delay" value="1000" />
+                    <property name="runnable" ref="dynamic-property-evaluator" />
+                </bean>
+            </list>
+        </property>
+        <property name="daemon" value="true" />
+    </bean>
+    
 </beans>

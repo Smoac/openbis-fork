@@ -11,8 +11,9 @@
             http://www.springframework.org/schema/context/spring-context-2.5.xsd
 ">
 
-    <import resource="applicationContext.xml"/>
-    
+    <import resource="genericCommonContext.xml"/>
+    <import resource="genericApplicationContext.xml"/>
+
     <bean name="bootstrap" class="ch.systemsx.cisd.common.spring.Bootstrapper">
         <property name="configLocation" value="classpath:applicationContext.xml" />
         <property name="conditionalConfigLocations">
