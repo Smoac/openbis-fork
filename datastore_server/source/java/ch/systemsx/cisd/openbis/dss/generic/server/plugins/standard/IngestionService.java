@@ -69,8 +69,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public abstract class AbstractDbModifyingAggregationService<T extends DataSetInformation> extends
-        AbstractAggregationServiceReportingPlugin implements IOmniscientEntityRegistrator<T>
+public abstract class IngestionService<T extends DataSetInformation> extends
+        AggregationService implements IOmniscientEntityRegistrator<T>
 {
 
     private static final String AGGREGATION_SERVICE_SCRATCH_DIR_NAME = "aggregation-service";
@@ -99,7 +99,7 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
      * @param properties
      * @param storeRoot
      */
-    public AbstractDbModifyingAggregationService(Properties properties, File storeRoot)
+    public IngestionService(Properties properties, File storeRoot)
     {
         this(DssPropertyParametersUtil.loadServiceProperties(), properties, storeRoot);
     }
@@ -111,7 +111,7 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
      * @param instanceProperties
      * @param storeRoot
      */
-    public AbstractDbModifyingAggregationService(Properties dssProperties,
+    public IngestionService(Properties dssProperties,
             Properties instanceProperties, File storeRoot)
     {
         this(dssProperties, instanceProperties, storeRoot, null,
@@ -127,7 +127,7 @@ public abstract class AbstractDbModifyingAggregationService<T extends DataSetInf
      * @param openBisService
      * @param mailClient
      */
-    public AbstractDbModifyingAggregationService(Properties dssProperties,
+    public IngestionService(Properties dssProperties,
             Properties instanceProperties, File storeRoot,
             IEncapsulatedOpenBISService openBisService, IMailClient mailClient)
     {

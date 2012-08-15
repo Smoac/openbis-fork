@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class ExampleAggregationServicePlugin extends AbstractAggregationServiceReportingPlugin
+public class ExampleAggregationServicePlugin extends AggregationService
 {
     private static final long serialVersionUID = 1L;
 

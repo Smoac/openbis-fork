@@ -214,7 +214,7 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
 
     private IReportingPluginTask createPlugin(String scriptFile)
     {
-        return new JythonBasedAggregationServiceReportingPlugin(new Properties(), store,
+        return new JythonAggregationService(new Properties(), store,
                 new PluginScriptRunnerFactory(new File(scriptFolder, scriptFile).getPath())
                     {
                         private static final long serialVersionUID = 1L;

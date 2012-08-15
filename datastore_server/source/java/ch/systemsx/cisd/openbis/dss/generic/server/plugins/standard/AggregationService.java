@@ -32,12 +32,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public abstract class AbstractAggregationServiceReportingPlugin extends AbstractDatastorePlugin implements
+public abstract class AggregationService extends AbstractDatastorePlugin implements
         IReportingPluginTask
 {
     private static final long serialVersionUID = 1L;
 
-    protected AbstractAggregationServiceReportingPlugin(Properties properties, File storeRoot)
+    protected AggregationService(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
     }

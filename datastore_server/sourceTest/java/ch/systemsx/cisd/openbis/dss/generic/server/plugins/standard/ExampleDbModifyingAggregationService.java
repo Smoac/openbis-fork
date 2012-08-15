@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
  * @author Chandrasekhar Ramakrishnan
  */
 public class ExampleDbModifyingAggregationService extends
-        AbstractDbModifyingAggregationService<DataSetInformation>
+        IngestionService<DataSetInformation>
 {
     private static final long serialVersionUID = 1L;
 

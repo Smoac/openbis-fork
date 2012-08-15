@@ -24,25 +24,22 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDbModifyingAggregationService;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AggregationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
- * Implementation of DbModifyingAggregationServices that are implemented in jython.
+ * Aggregation service reporting plugin based on a Jython script.
  * 
- * @author Chandrasekhar Ramakrishnan
+ * @author Franz-Josef Elmer
  */
-public class JythonBasedDbModifyingAggregationServiceReportingPlugin extends
-        AbstractDbModifyingAggregationService<DataSetInformation>
+public class JythonAggregationService extends AggregationService
 {
     private static final long serialVersionUID = 1L;
 
     private static final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
-            JythonBasedDbModifyingAggregationServiceReportingPlugin.class);
+            JythonAggregationService.class);
 
     protected static String getScriptPathProperty(Properties properties)
     {
@@ -51,23 +48,22 @@ public class JythonBasedDbModifyingAggregationServiceReportingPlugin extends
 
     private final IPluginScriptRunnerFactory scriptRunnerFactory;
 
-    public JythonBasedDbModifyingAggregationServiceReportingPlugin(Properties properties,
-            File storeRoot)
+    public JythonAggregationService(Properties properties, File storeRoot)
     {
         this(properties, storeRoot,
                 new PluginScriptRunnerFactory(getScriptPathProperty(properties)));
     }
 
-    protected JythonBasedDbModifyingAggregationServiceReportingPlugin(Properties properties,
-            File storeRoot, IPluginScriptRunnerFactory scriptRunnerFactory)
+    protected JythonAggregationService(Properties properties, File storeRoot,
+            IPluginScriptRunnerFactory scriptRunnerFactory)
     {
         super(properties, storeRoot);
         this.scriptRunnerFactory = scriptRunnerFactory;
     }
 
     @Override
-    public TableModel process(final IDataSetRegistrationTransactionV2 transaction,
-            final Map<String, Object> parameters, final DataSetProcessingContext context)
+    public TableModel createAggregationReport(final Map<String, Object> parameters,
+            final DataSetProcessingContext context)
     {
         ITableModelCreator generator = new ITableModelCreator()
             {
@@ -76,12 +72,12 @@ public class JythonBasedDbModifyingAggregationServiceReportingPlugin extends
                 {
                     operationLog.info("Aggregation report for the following parameters "
                             + "has been requested: " + parameters);
-                    IDbModifyingAggregationServiceReportingPluginScriptRunner runner =
+                    IAggregationServiceReportingPluginScriptRunner runner =
                             scriptRunnerFactory
-                                    .createDbModifyingAggregationServiceReportingPluginRunner(context);
+                                    .createAggregationServiceReportingPluginRunner(context);
                     try
                     {
-                        runner.process(transaction, parameters, builder);
+                        runner.aggregate(parameters, builder);
                     } finally
                     {
                         operationLog.info("Aggregation reporting done.");
@@ -91,5 +87,4 @@ public class JythonBasedDbModifyingAggregationServiceReportingPlugin extends
             };
         return Utils.generateTableModel(generator, scriptRunnerFactory.getScriptPath(), notifyLog);
     }
-
 }

@@ -24,23 +24,25 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractAggregationServiceReportingPlugin;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IngestionService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
- * Aggregation service reporting plugin based on a Jython script.
- *
- * @author Franz-Josef Elmer
+ * Implementation of DbModifyingAggregationServices that are implemented in jython.
+ * 
+ * @author Chandrasekhar Ramakrishnan
  */
-public class JythonBasedAggregationServiceReportingPlugin extends
-        AbstractAggregationServiceReportingPlugin
+public class JythonIngestionService extends
+        IngestionService<DataSetInformation>
 {
     private static final long serialVersionUID = 1L;
 
     private static final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
-            JythonBasedAggregationServiceReportingPlugin.class);
+            JythonIngestionService.class);
 
     protected static String getScriptPathProperty(Properties properties)
     {
@@ -49,22 +51,23 @@ public class JythonBasedAggregationServiceReportingPlugin extends
 
     private final IPluginScriptRunnerFactory scriptRunnerFactory;
 
-    public JythonBasedAggregationServiceReportingPlugin(Properties properties, File storeRoot)
+    public JythonIngestionService(Properties properties,
+            File storeRoot)
     {
         this(properties, storeRoot,
                 new PluginScriptRunnerFactory(getScriptPathProperty(properties)));
     }
 
-    protected JythonBasedAggregationServiceReportingPlugin(Properties properties, File storeRoot,
-            IPluginScriptRunnerFactory scriptRunnerFactory)
+    protected JythonIngestionService(Properties properties,
+            File storeRoot, IPluginScriptRunnerFactory scriptRunnerFactory)
     {
         super(properties, storeRoot);
         this.scriptRunnerFactory = scriptRunnerFactory;
     }
 
     @Override
-    public TableModel createAggregationReport(final Map<String, Object> parameters,
-            final DataSetProcessingContext context)
+    public TableModel process(final IDataSetRegistrationTransactionV2 transaction,
+            final Map<String, Object> parameters, final DataSetProcessingContext context)
     {
         ITableModelCreator generator = new ITableModelCreator()
             {
@@ -73,12 +76,12 @@ public class JythonBasedAggregationServiceReportingPlugin extends
                 {
                     operationLog.info("Aggregation report for the following parameters "
                             + "has been requested: " + parameters);
-                    IAggregationServiceReportingPluginScriptRunner runner =
+                    IDbModifyingAggregationServiceReportingPluginScriptRunner runner =
                             scriptRunnerFactory
-                                    .createAggregationServiceReportingPluginRunner(context);
+                                    .createDbModifyingAggregationServiceReportingPluginRunner(context);
                     try
                     {
-                        runner.aggregate(parameters, builder);
+                        runner.process(transaction, parameters, builder);
                     } finally
                     {
                         operationLog.info("Aggregation reporting done.");
@@ -88,4 +91,5 @@ public class JythonBasedAggregationServiceReportingPlugin extends
             };
         return Utils.generateTableModel(generator, scriptRunnerFactory.getScriptPath(), notifyLog);
     }
+
 }
