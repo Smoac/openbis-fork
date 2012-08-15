@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -35,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
@@ -182,9 +182,9 @@ public class CustomImportForm extends AbstractRegistrationForm
                     new LinkToProjectTemplateCallback(viewContext));
         } else
         {
-            WindowUtils.openWindow(PermlinkUtilities.createAttachmentPermlinkURL(
-                    GWTUtils.getBaseIndexURL(), getTemplateAttachmentName(), null,
-                    getTemplateEntityKind(), getTemplateEntityPermId()));
+            openUrl(PermlinkUtilities.createAttachmentPermlinkURL(GWTUtils.getBaseIndexURL(),
+                    getTemplateAttachmentName(), null, getTemplateEntityKind(),
+                    getTemplateEntityPermId()));
         }
     }
 
@@ -196,7 +196,7 @@ public class CustomImportForm extends AbstractRegistrationForm
                     new LinkToEntityWithProjectTemplateCallback(viewContext));
         } else
         {
-            WindowUtils.openWindow(PermlinkUtilities.createPermlinkURL(GWTUtils.getBaseIndexURL(),
+            openUrl(PermlinkUtilities.createPermlinkURL(GWTUtils.getBaseIndexURL(),
                     EntityKind.valueOf(getTemplateEntityKind().name()), getTemplateEntityPermId()));
         }
     }
@@ -212,7 +212,7 @@ public class CustomImportForm extends AbstractRegistrationForm
         @Override
         protected void process(Project project)
         {
-            WindowUtils.openWindow(PermlinkUtilities.createProjectAttachmentPermlinkURL(
+            openUrl(PermlinkUtilities.createProjectAttachmentPermlinkURL(
                     GWTUtils.getBaseIndexURL(), getTemplateAttachmentName(), null,
                     project.getCode(), project.getSpace().getCode()));
         }
@@ -229,8 +229,8 @@ public class CustomImportForm extends AbstractRegistrationForm
         @Override
         protected void process(Project project)
         {
-            WindowUtils.openWindow(PermlinkUtilities.createProjectPermlinkURL(
-                    GWTUtils.getBaseIndexURL(), project.getCode(), project.getSpace().getCode()));
+            openUrl(PermlinkUtilities.createProjectPermlinkURL(GWTUtils.getBaseIndexURL(),
+                    project.getCode(), project.getSpace().getCode()));
         }
     }
 
@@ -263,6 +263,11 @@ public class CustomImportForm extends AbstractRegistrationForm
     {
         return customImport.getProperty(CustomImport.PropertyNames.TEMPLATE_ATTACHMENT_NAME
                 .getName());
+    }
+
+    private void openUrl(String url)
+    {
+        Window.open(url, "_blank", "");
     }
 
 }
