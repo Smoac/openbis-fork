@@ -69,7 +69,7 @@ public class MergingImagesDownloadServlet extends AbstractImagesDownloadServlet 
     {
         Size thumbnailSize = tryGetThumbnailSize(resolution);
         return ImageChannelsUtils.getRepresentativeImageStream(datasetRoot, datasetCode, null,
-                thumbnailSize);
+                thumbnailSize, null);
     }
 
     private static Size tryGetThumbnailSize(ImageResolutionKind resolution)

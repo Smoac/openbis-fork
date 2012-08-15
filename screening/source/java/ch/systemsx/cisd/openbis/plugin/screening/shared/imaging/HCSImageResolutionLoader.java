@@ -66,7 +66,8 @@ public class HCSImageResolutionLoader implements IImageResolutionLoader
     @Override
     public List<ImageResolution> getImageResolutions()
     {
-        List<ImgImageZoomLevelDTO> zoomLevels = query.listImageZoomLevels(dataset.getId());
+        List<ImgImageZoomLevelDTO> zoomLevels =
+                query.listImageZoomLevelsWithNoTransformations(dataset.getId());
 
         if (zoomLevels == null || zoomLevels.isEmpty())
         {
@@ -85,5 +86,4 @@ public class HCSImageResolutionLoader implements IImageResolutionLoader
             return resolutions;
         }
     }
-
 }

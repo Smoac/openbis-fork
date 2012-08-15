@@ -48,6 +48,8 @@ public class AbsoluteImageReference extends AbstractImageReference
 
     private ChannelColorRGB channelColor;
 
+    private String singleChannelTransformationCodeOrNull;
+
     /**
      * @param contentNode is the original content before choosing the color component and the image
      *            ID
@@ -56,7 +58,7 @@ public class AbsoluteImageReference extends AbstractImageReference
             String imageIdOrNull, ColorComponent colorComponentOrNull,
             RequestedImageSize imageSize, ChannelColorRGB channelColor,
             ImageTransfomationFactories imageTransfomationFactories,
-            ImageLibraryInfo imageLibraryOrNull)
+            ImageLibraryInfo imageLibraryOrNull, String singleChannelTransformationCodeOrNull)
     {
         super(imageIdOrNull, colorComponentOrNull);
         assert imageSize != null : "image size is null";
@@ -68,6 +70,7 @@ public class AbsoluteImageReference extends AbstractImageReference
         this.channelColor = channelColor;
         this.imageTransfomationFactories = imageTransfomationFactories;
         this.imageLibraryOrNull = imageLibraryOrNull;
+        this.singleChannelTransformationCodeOrNull = singleChannelTransformationCodeOrNull;
     }
 
     /**
@@ -104,10 +107,10 @@ public class AbsoluteImageReference extends AbstractImageReference
         }
         return image;
     }
-    
+
     /**
-     * Returns the image size. Preferred method if only image size is needed because only the
-     * header of an image file might be read to get the size.
+     * Returns the image size. Preferred method if only image size is needed because only the header
+     * of an image file might be read to get the size.
      */
     public Size getUnchangedImageSize()
     {
@@ -133,11 +136,16 @@ public class AbsoluteImageReference extends AbstractImageReference
         return channelColor;
     }
 
+    public String tryGetSingleChannelTransformationCode()
+    {
+        return singleChannelTransformationCodeOrNull;
+    }
+
     public AbsoluteImageReference createWithoutColorComponent()
     {
         ColorComponent colorComponent = null;
         return new AbsoluteImageReference(contentNode, uniqueId, tryGetImageID(), colorComponent,
-                imageSize, channelColor, imageTransfomationFactories, imageLibraryOrNull);
-
+                imageSize, channelColor, imageTransfomationFactories, imageLibraryOrNull,
+                singleChannelTransformationCodeOrNull);
     }
 }

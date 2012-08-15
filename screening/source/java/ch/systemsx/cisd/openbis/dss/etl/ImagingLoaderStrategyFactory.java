@@ -60,18 +60,19 @@ public class ImagingLoaderStrategyFactory
                 @Override
                 public AbsoluteImageReference tryGetImage(String channelCode,
                         ImageChannelStackReference channelStackReference,
-                        RequestedImageSize imageSize)
+                        RequestedImageSize imageSize, String transformationCodeOrNull)
                 {
                     return this.imageAccessor.tryGetThumbnail(channelCode, channelStackReference,
-                            imageSize);
+                            imageSize, transformationCodeOrNull);
                 }
 
                 @Override
                 public AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
-                        Location wellLocationOrNull, RequestedImageSize imageSize)
+                        Location wellLocationOrNull, RequestedImageSize imageSize,
+                        String transformationCodeOrNull)
                 {
                     return imageAccessor.tryGetRepresentativeThumbnail(channelCode,
-                            wellLocationOrNull, imageSize);
+                            wellLocationOrNull, imageSize, transformationCodeOrNull);
                 }
 
             };
@@ -85,18 +86,19 @@ public class ImagingLoaderStrategyFactory
                 @Override
                 public AbsoluteImageReference tryGetImage(String channelCode,
                         ImageChannelStackReference channelStackReference,
-                        RequestedImageSize imageSize)
+                        RequestedImageSize imageSize, String transformationCodeOrNull)
                 {
                     return this.imageAccessor.tryGetImage(channelCode, channelStackReference,
-                            imageSize);
+                            imageSize, transformationCodeOrNull);
                 }
 
                 @Override
                 public AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
-                        Location wellLocationOrNull, RequestedImageSize imageSize)
+                        Location wellLocationOrNull, RequestedImageSize imageSize,
+                        String transformationCodeOrNull)
                 {
                     return imageAccessor.tryGetRepresentativeImage(channelCode, wellLocationOrNull,
-                            imageSize);
+                            imageSize, transformationCodeOrNull);
                 }
             };
     }

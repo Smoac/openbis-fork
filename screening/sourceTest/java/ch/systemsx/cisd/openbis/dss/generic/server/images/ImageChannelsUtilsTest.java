@@ -53,8 +53,8 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageTransformatio
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 
 /**
@@ -180,8 +180,8 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                 {
                     allowing(loader).getImageParameters();
                     ImageDatasetParameters imgParams = new ImageDatasetParameters();
-                    imgParams.setInternalChannels(Arrays.asList(new InternalImageChannel(CHANNEL, CHANNEL, null,
-                            null, new ArrayList<InternalImageTransformationInfo>())));
+                    imgParams.setInternalChannels(Arrays.asList(new InternalImageChannel(CHANNEL,
+                            CHANNEL, null, null, new ArrayList<InternalImageTransformationInfo>())));
                     will(returnValue(imgParams));
 
                     RequestedImageSize requestedSize =
@@ -189,7 +189,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                                     .createOriginal() : absoluteImageReferenceOrNull
                                     .getRequestedSize();
                     one(loader).tryGetImage(imageRef.getChannelCodes(null).get(0),
-                            imageRef.getChannelStackReference(), requestedSize);
+                            imageRef.getChannelStackReference(), requestedSize, null);
                     will(returnValue(absoluteImageReferenceOrNull));
                 }
             });
@@ -247,14 +247,14 @@ public class ImageChannelsUtilsTest extends AssertJUnit
             RequestedImageSize imageSize)
     {
         return new AbsoluteImageReference(image(fileName), "id42", null, null, imageSize,
-                new ChannelColorRGB(0, 0, 255), new ImageTransfomationFactories(), null);
+                new ChannelColorRGB(0, 0, 255), new ImageTransfomationFactories(), null, null);
     }
 
     private ImageChannelsUtils createImageChannelsUtils(Size thumbnailSizeOrNull)
     {
         return new ImageChannelsUtils(
                 ImagingLoaderStrategyFactory.createImageLoaderStrategy(loader),
-                new RequestedImageSize(thumbnailSizeOrNull, false));
+                new RequestedImageSize(thumbnailSizeOrNull, false), null);
     }
 
     public void assertPNG(IHierarchicalContentNode image)

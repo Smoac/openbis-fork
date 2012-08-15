@@ -81,17 +81,23 @@ public class ImageChannelsUtils
 
     private final RequestedImageSize imageSizeLimit;
 
+    private final String singleChannelTransformationCodeOrNull;
+
     @Private
-    ImageChannelsUtils(IImagingLoaderStrategy imageLoaderStrategy, RequestedImageSize imageSizeLimit)
+    ImageChannelsUtils(IImagingLoaderStrategy imageLoaderStrategy,
+            RequestedImageSize imageSizeLimit, String singleChannelTransformationCodeOrNull)
     {
         this.imageLoaderStrategy = imageLoaderStrategy;
         this.imageSizeLimit = imageSizeLimit;
+        this.singleChannelTransformationCodeOrNull = singleChannelTransformationCodeOrNull;
     }
 
     @Private
-    ImageChannelsUtils(IImagingLoaderStrategy imageLoaderStrategy, Size imageSizeLimitOrNull)
+    ImageChannelsUtils(IImagingLoaderStrategy imageLoaderStrategy, Size imageSizeLimitOrNull,
+            String singleChannelTransformationCodeOrNull)
     {
-        this(imageLoaderStrategy, new RequestedImageSize(imageSizeLimitOrNull, false));
+        this(imageLoaderStrategy, new RequestedImageSize(imageSizeLimitOrNull, false),
+                singleChannelTransformationCodeOrNull);
     }
 
     /**
@@ -123,7 +129,8 @@ public class ImageChannelsUtils
             // NOTE: never merges the overlays, draws each channel separately (merging looses
             // transparency and is slower)
             List<ImageWithReference> overlayImages =
-                    getSingleImagesSkipNonExisting(overlayChannels, overlaySize, contentProvider);
+                    getSingleImagesSkipNonExisting(overlayChannels, overlaySize,
+                            params.tryGetSingleChannelTransformationCode(), contentProvider);
             for (ImageWithReference overlayImage : overlayImages)
             {
                 if (image != null)
@@ -144,10 +151,12 @@ public class ImageChannelsUtils
 
     private static List<ImageWithReference> getSingleImagesSkipNonExisting(
             DatasetAcquiredImagesReference imagesReference, RequestedImageSize imageSize,
+            String singleChannelTransformationCodeOrNull,
             IHierarchicalContentProvider contentProvider)
     {
         ImageChannelsUtils utils =
-                createImageChannelsUtils(imagesReference, contentProvider, imageSize);
+                createImageChannelsUtils(imagesReference, contentProvider, imageSize,
+                        singleChannelTransformationCodeOrNull);
         boolean mergeAllChannels = utils.isMergeAllChannels(imagesReference);
         List<AbsoluteImageReference> imageContents =
                 utils.fetchImageContents(imagesReference, mergeAllChannels, true);
@@ -197,7 +206,8 @@ public class ImageChannelsUtils
             IHierarchicalContentProvider contentProvider, RequestedImageSize imageSizeLimit)
     {
         ImageChannelsUtils imageChannelsUtils =
-                createImageChannelsUtils(imageChannels, contentProvider, imageSizeLimit);
+                createImageChannelsUtils(imageChannels, contentProvider, imageSizeLimit,
+                        singleChannelTransformationCodeOrNull);
         boolean useMergedChannelsTransformation =
                 imageChannelsUtils.isMergeAllChannels(imageChannels);
         ImageTransformationParams transformationInfo =
@@ -209,12 +219,13 @@ public class ImageChannelsUtils
 
     private static ImageChannelsUtils createImageChannelsUtils(
             DatasetAcquiredImagesReference imageChannels,
-            IHierarchicalContentProvider contentProvider, RequestedImageSize imageSizeLimit)
+            IHierarchicalContentProvider contentProvider, RequestedImageSize imageSizeLimit,
+            String singleChannelTransformationCodeOrNull)
     {
         IImagingDatasetLoader imageAccessor = createImageAccessor(imageChannels, contentProvider);
         return new ImageChannelsUtils(
                 ImagingLoaderStrategyFactory.createImageLoaderStrategy(imageAccessor),
-                imageSizeLimit);
+                imageSizeLimit, singleChannelTransformationCodeOrNull);
     }
 
     @Private
@@ -249,7 +260,7 @@ public class ImageChannelsUtils
                     imagesReference.getChannelStackReference();
             AbsoluteImageReference image =
                     imageLoaderStrategy.tryGetImage(channelCode, channelStackReference,
-                            imageSizeLimit);
+                            imageSizeLimit, singleChannelTransformationCodeOrNull);
             if (image == null && skipNonExisting == false)
             {
                 throw createImageNotFoundException(channelStackReference, channelCode);
@@ -288,13 +299,14 @@ public class ImageChannelsUtils
      */
     public static ResponseContentStream getRepresentativeImageStream(
             IHierarchicalContent dataSetRoot, String datasetCode, Location wellLocationOrNull,
-            Size imageSizeLimitOrNull)
+            Size imageSizeLimitOrNull, String singleChannelTransformationCodeOrNull)
     {
         IImagingDatasetLoader imageAccessor = createDatasetLoader(dataSetRoot, datasetCode);
         List<AbsoluteImageReference> imageReferences =
                 new ImageChannelsUtils(
                         ImagingLoaderStrategyFactory.createImageLoaderStrategy(imageAccessor),
-                        imageSizeLimitOrNull).getRepresentativeImageReferences(wellLocationOrNull);
+                        imageSizeLimitOrNull, singleChannelTransformationCodeOrNull)
+                        .getRepresentativeImageReferences(wellLocationOrNull);
         BufferedImage image =
                 calculateBufferedImage(imageReferences, new ImageTransformationParams(true, true,
                         null));
@@ -354,7 +366,8 @@ public class ImageChannelsUtils
                                 : chosenChannelCode);
 
         ImageChannelsUtils imageChannelsUtils =
-                new ImageChannelsUtils(imageLoaderStrategy, imageSizeLimitOrNull);
+                new ImageChannelsUtils(imageLoaderStrategy, imageSizeLimitOrNull,
+                        singleChannelImageTransformationCodeOrNull);
         boolean mergeAllChannels = imageChannelsUtils.isMergeAllChannels(imagesReference);
         List<AbsoluteImageReference> imageContents =
                 imageChannelsUtils.fetchImageContents(imagesReference, mergeAllChannels, false);
@@ -429,7 +442,7 @@ public class ImageChannelsUtils
     {
         AbsoluteImageReference image =
                 imageLoaderStrategy.tryGetRepresentativeImage(channelCode, wellLocationOrNull,
-                        imageSizeLimit);
+                        imageSizeLimit, singleChannelTransformationCodeOrNull);
         if (image != null)
         {
             return image;
@@ -553,11 +566,13 @@ public class ImageChannelsUtils
         {
             return resultImage;
         }
-        IImageTransformerFactory channelLevelTransformationOrNull;
+        IImageTransformerFactory channelLevelTransformationOrNull = null;
         if (transformationInfo.isUseMergedChannelsTransformation())
         {
             channelLevelTransformationOrNull = transfomations.tryGetForMerged();
-        } else
+        } else if (transformationInfo.tryGetSingleChannelTransformationCode() != null
+                && (false == transformationInfo.tryGetSingleChannelTransformationCode().equals(
+                        imageReference.tryGetSingleChannelTransformationCode())))
         {
             channelLevelTransformationOrNull =
                     transfomations.tryGetForChannel(transformationInfo

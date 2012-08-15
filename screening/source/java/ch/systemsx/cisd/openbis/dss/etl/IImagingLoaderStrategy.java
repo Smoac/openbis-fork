@@ -35,7 +35,8 @@ public interface IImagingLoaderStrategy extends IImageDatasetLoader
      * @return image (with original file content, page and color)
      */
     AbsoluteImageReference tryGetImage(String channelCode,
-            ImageChannelStackReference channelStackReference, RequestedImageSize imageSize);
+            ImageChannelStackReference channelStackReference, RequestedImageSize imageSize,
+            String transformationCodeOrNull);
 
     /**
      * Finds representative image of this dataset in a given channel.
@@ -49,5 +50,6 @@ public interface IImagingLoaderStrategy extends IImageDatasetLoader
      *            required size.
      */
     AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
-            Location wellLocationOrNull, RequestedImageSize imageSize);
+            Location wellLocationOrNull, RequestedImageSize imageSize,
+            String transformationCodeOrNull);
 }

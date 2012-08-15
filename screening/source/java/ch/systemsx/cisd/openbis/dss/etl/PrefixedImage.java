@@ -30,12 +30,16 @@ public class PrefixedImage
 
     private final String pathSuffix;
 
+    private final String singleChannelTransformationCodeOrNull;
+
     private final ImgImageDTO image;
 
-    public PrefixedImage(String pathPrefix, String pathSuffix, ImgImageDTO image)
+    public PrefixedImage(String pathPrefix, String pathSuffix,
+            String singleChannelTransformationCodeOrNull, ImgImageDTO image)
     {
         this.pathPrefix = pathPrefix;
         this.pathSuffix = pathSuffix;
+        this.singleChannelTransformationCodeOrNull = singleChannelTransformationCodeOrNull;
         this.image = image;
     }
 
@@ -64,4 +68,8 @@ public class PrefixedImage
         return image.tryGetImageTransformerFactory();
     }
 
+    public String tryGetSingleChannelTransformationCode()
+    {
+        return singleChannelTransformationCodeOrNull;
+    }
 }

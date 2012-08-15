@@ -42,23 +42,22 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
 {
     private static final long CONTAINER_ID = 42L;
-    
+
     private static final class MockAbsoluteImageReference extends AbsoluteImageReference
     {
         private final int width;
+
         private final int height;
 
         public MockAbsoluteImageReference(int width, int height)
         {
             super(null, null, null, null, new RequestedImageSize(null, false), null,
-                    new ImageTransfomationFactories(), null);
+                    new ImageTransfomationFactories(), null, null);
             this.width = width;
             this.height = height;
         }
@@ -73,18 +72,29 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
             return new Size(width, height);
         }
     }
-    
+
     private BufferedAppender logRecorder;
+
     private Mockery context;
+
     private IImagingQueryDAO dao;
+
     private IEncapsulatedOpenBISService service;
+
     private IHierarchicalContentProvider contentProvider;
+
     private ImageSizeFeedingMaintenanceTask maintenanceTask;
+
     private IHierarchicalContent ds1Content;
+
     private IHierarchicalContent ds2Content;
+
     private IHierarchicalContent ds3Content;
+
     private IImagingDatasetLoader imageLoader1;
+
     private IImagingDatasetLoader imageLoader2;
+
     private IImagingDatasetLoader imageLoader3;
 
     @BeforeMethod
@@ -101,7 +111,8 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
         imageLoader1 = context.mock(IImagingDatasetLoader.class, "ds1-loader");
         imageLoader2 = context.mock(IImagingDatasetLoader.class, "ds2-loader");
         imageLoader3 = context.mock(IImagingDatasetLoader.class, "ds3-loader");
-        final Map<String, IImagingDatasetLoader> loaderMap = new HashMap<String, IImagingDatasetLoader>();
+        final Map<String, IImagingDatasetLoader> loaderMap =
+                new HashMap<String, IImagingDatasetLoader>();
         loaderMap.put("ds1", imageLoader1);
         loaderMap.put("ds2", imageLoader2);
         loaderMap.put("ds3", imageLoader3);
@@ -121,14 +132,14 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
             };
         assertEquals(true, maintenanceTask.requiresDataStoreLock());
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
         logRecorder.reset();
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testNonMatchingOrUnknownDataSets()
     {
@@ -139,25 +150,25 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
                 {
                     one(service).listDataSets();
                     will(returnValue(Arrays.asList(ds0, ds1)));
-                    
+
                     one(contentProvider).asContent(ds1.getDataSetCode());
                     will(returnValue(ds1Content));
-                    
+
                     one(dao).tryGetImageDatasetByPermId(ds1.getDataSetCode());
                     will(returnValue(null));
-                    
+
                     one(ds1Content).close();
                 }
             });
-        
+
         maintenanceTask.execute();
-        
+
         assertEquals("Scan 2 data sets.\n"
                 + "0 original image sizes and 0 thumbnail image sizes are added to the database.",
                 logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testImageDataSets()
     {
@@ -173,7 +184,8 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
                 }
             });
-        prepareListZoomLevels(ds1, ds1Content, new ImgImageZoomLevelDTO("", true, "", 1, 2, null, null, 12));
+        prepareListZoomLevels(ds1, ds1Content, new ImgImageZoomLevelDTO("", true, "", 1, 2, null,
+                null, 12));
         prepareListZoomLevels(ds2, ds2Content);
         prepareForTryFindAnyOriginal(ds2, imageLoader2, new MockAbsoluteImageReference(144, 89));
         prepareForAddZoomLevel(zoomLevelRecorder);
@@ -186,20 +198,21 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
         prepareForCommit();
 
         maintenanceTask.execute();
-        
+
         List<ImgImageZoomLevelDTO> zoomLevels = zoomLevelRecorder.getRecordedObjects();
         assertEquals("Scan 3 data sets.\n" + "Original size 144x89 added for data set ds2\n"
                 + "Thumbnail size 21x34 added for data set ds3\n"
                 + "1 original image sizes and 1 thumbnail image sizes are added to the database.",
                 logRecorder.getLogContent());
-        assertEquals("[ImgImageZoomLevelDTO{physicalDatasetPermId=ds2,isOriginal=true,"
-                + "containerDatasetId=99715,rootPath=,width=144,height=89,colorDepth=<null>,fileType=<null>,id=0}, "
-                + "ImgImageZoomLevelDTO{physicalDatasetPermId=ds3,isOriginal=false,"
-                + "containerDatasetId=99716,rootPath=,width=21,height=34,colorDepth=<null>,fileType=<null>,id=0}]",
+        assertEquals(
+                "[ImgImageZoomLevelDTO{physicalDatasetPermId=ds2,isOriginal=true,"
+                        + "containerDatasetId=99715,rootPath=,width=144,height=89,colorDepth=<null>,fileType=<null>,id=0}, "
+                        + "ImgImageZoomLevelDTO{physicalDatasetPermId=ds3,isOriginal=false,"
+                        + "containerDatasetId=99716,rootPath=,width=21,height=34,colorDepth=<null>,fileType=<null>,id=0}]",
                 zoomLevels.toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExceptionHandling()
     {
@@ -222,22 +235,22 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
         prepareForAddZoomLevel(zoomLevelRecorder);
         prepareForTryFindAnyThumbnail(ds2, imageLoader2, new MockAbsoluteImageReference(-13, 0));
         prepareForRollback();
-        
+
         maintenanceTask.execute();
-        
+
         List<ImgImageZoomLevelDTO> zoomLevels = zoomLevelRecorder.getRecordedObjects();
-        assertEquals("Scan 2 data sets.\n" + 
-        		"2 exceptions occured:\n" + 
-        		"Data set ds1: java.lang.RuntimeException: Negative width: -1\n" + 
-        		"Data set ds2: java.lang.RuntimeException: Negative width: -13\n" + 
-        		"0 original image sizes and 0 thumbnail image sizes are added to the database.",
+        assertEquals("Scan 2 data sets.\n" + "2 exceptions occured:\n"
+                + "Data set ds1: java.lang.RuntimeException: Negative width: -1\n"
+                + "Data set ds2: java.lang.RuntimeException: Negative width: -13\n"
+                + "0 original image sizes and 0 thumbnail image sizes are added to the database.",
                 logRecorder.getLogContent());
-        assertEquals("[ImgImageZoomLevelDTO{physicalDatasetPermId=ds2,isOriginal=true,"
-                + "containerDatasetId=99715,rootPath=,width=1,height=2,colorDepth=<null>,fileType=<null>,id=0}]",
+        assertEquals(
+                "[ImgImageZoomLevelDTO{physicalDatasetPermId=ds2,isOriginal=true,"
+                        + "containerDatasetId=99715,rootPath=,width=1,height=2,colorDepth=<null>,fileType=<null>,id=0}]",
                 zoomLevels.toString());
         context.assertIsSatisfied();
     }
-    
+
     private void prepareListZoomLevels(final SimpleDataSetInformationDTO dataSet,
             final IHierarchicalContent content, final ImgImageZoomLevelDTO... zoomLevels)
     {
@@ -256,8 +269,7 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
                     will(returnValue(imageDataSet));
 
                     one(dao).listImageZoomLevels(imageDataSet.getId());
-                    will(returnValue(Arrays
-                            .asList(zoomLevels)));
+                    will(returnValue(Arrays.asList(zoomLevels)));
 
                     one(content).close();
                 }
@@ -276,7 +288,6 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
             });
     }
 
-
     private void prepareForTryFindAnyThumbnail(final SimpleDataSetInformationDTO dataSet,
             final IImagingDatasetLoader loader, final AbsoluteImageReference thumbnailOrNull)
     {
@@ -288,7 +299,7 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
                 }
             });
     }
-    
+
     private void prepareForAddZoomLevel(
             final RecordingMatcher<ImgImageZoomLevelDTO> zoomLevelRecorder)
     {
@@ -309,17 +320,17 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
                 }
             });
     }
-    
+
     private void prepareForRollback()
     {
         context.checking(new Expectations()
-        {
             {
-                one(dao).rollback();
-            }
-        });
+                {
+                    one(dao).rollback();
+                }
+            });
     }
-    
+
     private SimpleDataSetInformationDTO dataSet(String code, String type)
     {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();

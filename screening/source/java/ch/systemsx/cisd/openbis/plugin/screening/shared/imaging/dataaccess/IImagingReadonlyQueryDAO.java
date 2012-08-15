@@ -248,9 +248,18 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     @Select(sql = "select * from IMAGE_ZOOM_LEVELS zoom where zoom.CONTAINER_DATASET_ID = ?{1}", fetchSize = FETCH_SIZE)
     public List<ImgImageZoomLevelDTO> listImageZoomLevels(long datasetId);
 
+    @Select(sql = "select * from IMAGE_ZOOM_LEVELS zoom where zoom.CONTAINER_DATASET_ID = ?{1} "
+            + "and ID not in (select ZOOM_LEVEL_ID from IMAGE_ZOOM_LEVEL_TRANSFORMATIONS)", fetchSize = FETCH_SIZE)
+    public List<ImgImageZoomLevelDTO> listImageZoomLevelsWithNoTransformations(long datasetId);
+
     @Select(sql = SQL_ZOOM_LEVEL_TRANSFORMATIONS_ENRICHED + " and zl.container_dataset_id = ?{1}", fetchSize = FETCH_SIZE)
     public List<ImgImageZoomLevelTransformationEnrichedDTO> listImageZoomLevelTransformations(
             long datasetId);
+
+    @Select(sql = SQL_ZOOM_LEVEL_TRANSFORMATIONS_ENRICHED
+            + " and zl.container_dataset_id = ?{1} and izlt.channel_id = ?{2} and it.code = ?{3}", fetchSize = FETCH_SIZE)
+    public List<ImgImageZoomLevelTransformationEnrichedDTO> findImageZoomLevelTransformations(
+            long datasetId, long channelId, String transformationCode);
 
     @Select(sql = "select * from IMAGE_ZOOM_LEVELS zoom where zoom.physical_dataset_perm_id = ?{1} and zoom.is_original")
     public List<ImgImageZoomLevelDTO> listOriginalImageZoomLevelsByPermId(String datasetPermId);

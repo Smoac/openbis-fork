@@ -279,8 +279,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             { 1, 2 };
         String[][] featureCodesPerDataset = new String[][]
             {
-                    { "f1", "f2" },
-                    { "f2", "f3" } };
+                { "f1", "f2" },
+                { "f2", "f3" } };
         prepareListAnalysisDatasets(dataSetIDs);
         prepareGetFeatureDefinitions(dataSetIDs, featureCodesPerDataset);
 
@@ -304,16 +304,16 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         FeatureInformation[][] featureCodesPerDataset =
                 new FeatureInformation[][]
                     {
-                            {
-                                    new FeatureInformation("f1", "Feature 1",
-                                            "The first feature."),
-                                    new FeatureInformation("f2", "Feature 2",
-                                            "The second feature.") },
-                            {
-                                    new FeatureInformation("f2", "Feature 2",
-                                            "The second feature."),
-                                    new FeatureInformation("f3", "Feature 3",
-                                            "The third feature.") } };
+                                {
+                                        new FeatureInformation("f1", "Feature 1",
+                                                "The first feature."),
+                                        new FeatureInformation("f2", "Feature 2",
+                                                "The second feature.") },
+                                {
+                                        new FeatureInformation("f2", "Feature 2",
+                                                "The second feature."),
+                                        new FeatureInformation("f3", "Feature 3",
+                                                "The third feature.") } };
         prepareListAnalysisDatasets(dataSetIDs);
         prepareGetFeatureDefinitions(dataSetIDs, featureCodesPerDataset);
 
@@ -339,12 +339,12 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         FeatureVectorDatasetReference r2 = createFeatureVectorDatasetReference(DATASET_CODE2);
         String[][] featureCodesPerDataset = new String[][]
             {
-                    { "F1", "F2" } };
+                { "F1", "F2" } };
         prepareLoadFeatures(new long[]
             { 1 }, featureCodesPerDataset);
         featureCodesPerDataset = new String[][]
             {
-                    { "F2" } };
+                { "F2" } };
         prepareLoadFeatures(new long[]
             { 2 }, featureCodesPerDataset);
 
@@ -393,17 +393,17 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     one(imageLoader).tryGetImage(
                             channel,
                             ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
-                                    new Location(1, 1)), thumbnailSize);
+                                    new Location(1, 1)), thumbnailSize, null);
                     will(returnValue(new AbsoluteImageReference(image("img1.jpg"), "img1", null,
                             null, thumbnailSize, createBlueColor(),
-                            new ImageTransfomationFactories(), null)));
+                            new ImageTransfomationFactories(), null, null)));
                     one(imageLoader).tryGetImage(
                             channel,
                             ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
-                                    new Location(2, 1)), thumbnailSize);
+                                    new Location(2, 1)), thumbnailSize, null);
                     will(returnValue(new AbsoluteImageReference(image("img1.gif"), "img1", null,
                             null, thumbnailSize, createBlueColor(),
-                            new ImageTransfomationFactories(), null)));
+                            new ImageTransfomationFactories(), null, null)));
                 }
             });
 
@@ -538,18 +538,18 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     one(imageLoader).tryGetImage(
                             CHANNEL_CODE,
                             ImageChannelStackReference.createHCSFromLocations(new Location(1, 1),
-                                    new Location(1, 1)), thumbnailSize);
+                                    new Location(1, 1)), thumbnailSize, null);
                     will(returnValue(new AbsoluteImageReference(image("img1.jpg"), "img1", null,
                             null, thumbnailSize, createBlueColor(),
-                            new ImageTransfomationFactories(), null)));
+                            new ImageTransfomationFactories(), null, null)));
 
                     one(imageLoader).tryGetImage(
                             CHANNEL_CODE,
                             ImageChannelStackReference.createHCSFromLocations(new Location(2, 1),
-                                    new Location(2, 1)), thumbnailSize);
+                                    new Location(2, 1)), thumbnailSize, null);
                     will(returnValue(new AbsoluteImageReference(image("img1.png"), "img1", null,
                             null, thumbnailSize, createBlueColor(),
-                            new ImageTransfomationFactories(), null)));
+                            new ImageTransfomationFactories(), null, null)));
 
                 }
             });
@@ -826,8 +826,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                                     new PlateFeatureValues(NativeTaggedArray
                                             .toByteArray(new MDFloatArray(new float[][]
                                                 {
-                                                        { 3.5f * dataSetId + offset },
-                                                        { 1.25f * dataSetId + offset } })));
+                                                    { 3.5f * dataSetId + offset },
+                                                    { 1.25f * dataSetId + offset } })));
                             ImgFeatureValuesDTO value =
                                     new ImgFeatureValuesDTO(0.0, 0.0, matrixValues, 0L);
                             value.setFeatureDefId(featureDefIds[featureDefIx]);

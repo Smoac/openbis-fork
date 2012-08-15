@@ -30,15 +30,17 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoa
 public interface IImagingDatasetLoader extends IImageDatasetLoader
 {
     /**
-     * @param channelCode The code fo the channel to get the image for
+     * @param channelCode The code for the channel to get the image for
      * @param imageSize required image size, specified so that an image with the closest size to the
      *            required is returned (e.g. a thumbnail version if available). Note that this
      *            method does no image resizing and the result will most probably not have the
      *            required size.
+     * @param transformationCodeOrNull if transformed images are precomputed, they will be returned
      * @return image (with original file content, page and color)
      */
     AbsoluteImageReference tryGetImage(String channelCode,
-            ImageChannelStackReference channelStackReference, RequestedImageSize imageSize);
+            ImageChannelStackReference channelStackReference, RequestedImageSize imageSize,
+            String transformationCodeOrNull);
 
     /**
      * Finds representative image of this data set. Returns <code>null</code> if no image was found.
@@ -55,9 +57,11 @@ public interface IImagingDatasetLoader extends IImageDatasetLoader
      *            required is returned (e.g. a thumbnail version if available). Note that this
      *            method does no image resizing and the result will most probably not have the
      *            required size.
+     * @param transformationCodeOrNull if transformed images are precomputed, they will be returned
      */
     AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
-            Location wellLocationOrNull, RequestedImageSize imageSize);
+            Location wellLocationOrNull, RequestedImageSize imageSize,
+            String transformationCodeOrNull);
 
     /**
      * Tries to find a representative thumbnail of this data set. Returns <code>null</code> if no
@@ -73,9 +77,11 @@ public interface IImagingDatasetLoader extends IImageDatasetLoader
      * @param wellLocationOrNull if not null the returned images are restricted to one well.
      *            Otherwise the dataset is assumed to have no container and spots.
      * @param imageSize
+     * @param transformationCodeOrNull
      */
     AbsoluteImageReference tryGetRepresentativeThumbnail(String channelCode,
-            Location wellLocationOrNull, RequestedImageSize imageSize);
+            Location wellLocationOrNull, RequestedImageSize imageSize,
+            String transformationCodeOrNull);
 
     /**
      * Returns the stored thumbnail for the given parameters, or <code>null</code>, if no thumbnail
@@ -87,8 +93,10 @@ public interface IImagingDatasetLoader extends IImageDatasetLoader
      * @param channelCode The code of the channel to get the thumbnail for.
      * @param channelStackReference Specifies well and tile of the thumbnail.
      * @param imageSize
+     * @param transformationCodeOrNull if transformed images are precomputed, they will be returned
      */
     AbsoluteImageReference tryGetThumbnail(String channelCode,
-            ImageChannelStackReference channelStackReference, RequestedImageSize imageSize);
+            ImageChannelStackReference channelStackReference, RequestedImageSize imageSize,
+            String transformationCodeOrNull);
 
 }

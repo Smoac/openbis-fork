@@ -414,11 +414,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             IImageDatasetIdentifier dataset)
     {
         ImageDatasetParameters params = imageAccessor.getImageParameters();
+
         RequestedImageSize originalOrThumbnail = RequestedImageSize.createOriginal();
         for (String channelCode : params.getChannelsCodes())
         {
             AbsoluteImageReference image =
-                    imageAccessor.tryGetRepresentativeImage(channelCode, null, originalOrThumbnail);
+                    imageAccessor.tryGetRepresentativeImage(channelCode, null, originalOrThumbnail,
+                            null);
             if (image != null)
             {
                 return image.getUnchangedImage();
@@ -434,7 +436,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         for (String channelCode : params.getChannelsCodes())
         {
             AbsoluteImageReference image =
-                    imageAccessor.tryGetRepresentativeThumbnail(channelCode, null, null);
+                    imageAccessor.tryGetRepresentativeThumbnail(channelCode, null, null, null);
             if (image != null)
             {
                 return image.getUnchangedImage();
@@ -584,9 +586,11 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         return loadImages(sessionToken, imageReferences, null, null, convertToPng);
     }
-    
+
     @Override
-    public List<String> loadImagesBase64(String sessionToken, List<PlateImageReference> imageReferences, boolean convertToPng) {
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, boolean convertToPng)
+    {
 
         InputStream stream = loadImages(sessionToken, imageReferences, convertToPng);
 
@@ -596,8 +600,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         List<String> result = new ArrayList<String>();
         try
         {
-            for (byte[] bytes = extractNextImage(imagesWriter); bytes.length > 0; bytes = extractNextImage(imagesWriter)) {
-               result.add(Base64.encodeBytes(bytes));
+            for (byte[] bytes = extractNextImage(imagesWriter); bytes.length > 0; bytes =
+                    extractNextImage(imagesWriter))
+            {
+                result.add(Base64.encodeBytes(bytes));
             }
         } catch (IOException ex)
         {
@@ -606,14 +612,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return result;
     }
 
-    
-    private byte[] extractNextImage(ConcatenatedFileOutputStreamWriter imagesWriter) throws IOException
+    private byte[] extractNextImage(ConcatenatedFileOutputStreamWriter imagesWriter)
+            throws IOException
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         imagesWriter.writeNextBlock(outputStream);
         return outputStream.toByteArray();
     }
-    
 
     @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
