@@ -240,7 +240,7 @@ public class ImageTransformationBuffer
      * @param userFriendlyLabelOrNull label of the transformation. If null a default label is
      *            assigned.
      */
-    private static ImageTransformation createRescaleGrayscaleIntensity(int blackPointIntensity,
+    public static ImageTransformation createRescaleGrayscaleIntensity(int blackPointIntensity,
             int whitePointIntensity, String userFriendlyLabelOrNull)
     {
         if (blackPointIntensity > whitePointIntensity || blackPointIntensity < 0

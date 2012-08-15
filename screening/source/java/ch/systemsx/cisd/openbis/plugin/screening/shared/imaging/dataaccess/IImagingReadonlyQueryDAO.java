@@ -238,6 +238,15 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     @Select("select * from IMAGE_DATA_SETS where PERM_ID = ?{1}")
     public ImgImageDatasetDTO tryGetImageDatasetByPermId(String datasetPermId);
 
+    @Select("select * from IMAGE_DATA_SETS where ID = ?{1}")
+    public ImgImageDatasetDTO tryGetImageDatasetById(long datasetId);
+
+    @Select("select id from IMAGE_DATA_SETS where ID > ?{1} order by id limit 1")
+    public Long tryGetNextDatasetId(long datasetId);
+
+    @Select("select count(*) > 0 from channels ch, image_transformations it where ch.ds_id = ?{1} and it.channel_id = ch.id and it.code = upper(?{2})")
+    public boolean hasDatasetDefinedTransformation(long datasetId, String transformationCode);
+
     @Select("select * from ANALYSIS_DATA_SETS where PERM_ID = ?{1}")
     public ImgAnalysisDatasetDTO tryGetAnalysisDatasetByPermId(String datasetPermId);
 

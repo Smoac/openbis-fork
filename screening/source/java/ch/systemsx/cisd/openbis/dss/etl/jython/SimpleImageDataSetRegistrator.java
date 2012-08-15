@@ -75,7 +75,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
  */
 public class SimpleImageDataSetRegistrator
 {
-    private static final String OPTIMAL_DATASET_INTENSITY_RESCALING_DESCRIPTION =
+    public static final String OPTIMAL_DATASET_INTENSITY_RESCALING_DESCRIPTION =
             "Optimal intensity rescaling for a series of images. "
                     + "It allows to compare images of one plate's dataset to each other."
                     + "At the same time it causes that the conversion to 8 bit color depth looses less information, "
@@ -556,7 +556,13 @@ public class SimpleImageDataSetRegistrator
         return normalizedCodes;
     }
 
-    private static Levels tryComputeCommonIntensityRange(IImageReader readerOrNull,
+    /**
+     * Computes common intensity range for a list of files.
+     * 
+     * @return calculated levels or null if calculation couldn't succeed because some images where
+     *         not in gray scale
+     */
+    public static Levels tryComputeCommonIntensityRange(IImageReader readerOrNull,
             List<File> imageFiles, float threshold)
     {
         String libraryName = (readerOrNull == null) ? null : readerOrNull.getLibraryName();
