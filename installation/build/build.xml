@@ -35,7 +35,7 @@
 		</antcall>
 	</target>
 	
-	<target name="dist" depends="dist-generic, dist-standard-technologies, dist-screening, dist-proteomics">
+	<target name="dist" depends="dist-standard-technologies">
 	</target>
 	
 	<target name="dist-generic" depends="compile">
