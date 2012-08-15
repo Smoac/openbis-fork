@@ -20,16 +20,16 @@ import java.io.File;
 import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.IPluginScriptRunnerFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.JythonBasedAggregationServiceReportingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.JythonAggregationService;
 
 /**
- * A version of the {@link JythonBasedAggregationServiceReportingPlugin} with extra support for
+ * A version of the {@link JythonAggregationService} with extra support for
  * screening.
  * 
  * @author Franz-Josef Elmer
  */
-public class ScreeningJythonBasedAggregationServiceReportingPlugin extends
-        JythonBasedAggregationServiceReportingPlugin
+public class ScreeningJythonAggregationService extends
+        JythonAggregationService
 {
 
     private static final long serialVersionUID = 1L;
@@ -37,7 +37,7 @@ public class ScreeningJythonBasedAggregationServiceReportingPlugin extends
     /**
      * Public constructor.
      */
-    public ScreeningJythonBasedAggregationServiceReportingPlugin(Properties properties,
+    public ScreeningJythonAggregationService(Properties properties,
             File storeRoot)
     {
         this(properties, storeRoot, new ScreeningPluginScriptRunnerFactory(
@@ -47,7 +47,7 @@ public class ScreeningJythonBasedAggregationServiceReportingPlugin extends
     /**
      * Constructor used in tests.
      */
-    protected ScreeningJythonBasedAggregationServiceReportingPlugin(Properties properties,
+    protected ScreeningJythonAggregationService(Properties properties,
             File storeRoot, IPluginScriptRunnerFactory scriptRunnerFactory)
     {
         super(properties, storeRoot, scriptRunnerFactory);

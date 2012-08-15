@@ -32,17 +32,15 @@ import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandlerUtils;
 import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDatasetFactory;
 import ch.systemsx.cisd.openbis.dss.etl.jython.v2.ImagingDataSetRegistrationTransactionV2Delegate;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.IPluginScriptRunnerFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.JythonBasedDbModifyingAggregationServiceReportingPlugin;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.JythonIngestionService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * A version of the {@link JythonBasedDbModifyingAggregationServiceReportingPlugin} with extra
- * support for screening.
+ * A version of the {@link JythonIngestionService} with extra support for screening.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ScreeningJythonBasedDbModifyingAggregationServiceReportingPlugin extends
-        JythonBasedDbModifyingAggregationServiceReportingPlugin
+public class ScreeningJythonIngestionService extends JythonIngestionService
 {
 
     private static final long serialVersionUID = 1L;
@@ -50,8 +48,7 @@ public class ScreeningJythonBasedDbModifyingAggregationServiceReportingPlugin ex
     /**
      * Public constructor.
      */
-    public ScreeningJythonBasedDbModifyingAggregationServiceReportingPlugin(Properties properties,
-            File storeRoot)
+    public ScreeningJythonIngestionService(Properties properties, File storeRoot)
     {
         this(properties, storeRoot, new ScreeningPluginScriptRunnerFactory(
                 getScriptPathProperty(properties)));
@@ -60,8 +57,8 @@ public class ScreeningJythonBasedDbModifyingAggregationServiceReportingPlugin ex
     /**
      * Constructor used in tests.
      */
-    protected ScreeningJythonBasedDbModifyingAggregationServiceReportingPlugin(
-            Properties properties, File storeRoot, IPluginScriptRunnerFactory scriptRunnerFactory)
+    protected ScreeningJythonIngestionService(Properties properties, File storeRoot,
+            IPluginScriptRunnerFactory scriptRunnerFactory)
     {
         super(properties, storeRoot, scriptRunnerFactory);
     }

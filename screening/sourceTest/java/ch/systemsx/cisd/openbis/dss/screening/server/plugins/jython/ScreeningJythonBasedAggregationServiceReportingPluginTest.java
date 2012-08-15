@@ -111,7 +111,7 @@ public class ScreeningJythonBasedAggregationServiceReportingPluginTest extends
 
     private IReportingPluginTask createPlugin(String scriptFile)
     {
-        return new ScreeningJythonBasedAggregationServiceReportingPlugin(
+        return new ScreeningJythonAggregationService(
                 new Properties(),
                 store,
                 new ScreeningPluginScriptRunnerFactory(new File(scriptFolder, scriptFile).getPath())
