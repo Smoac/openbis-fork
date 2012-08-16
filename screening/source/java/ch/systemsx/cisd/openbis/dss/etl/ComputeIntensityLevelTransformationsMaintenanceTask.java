@@ -130,8 +130,8 @@ public class ComputeIntensityLevelTransformationsMaintenanceTask implements IMai
                 Boolean.valueOf(properties.getProperty(COMPUTE_MIN_MAX_LEVELS_KEY,
                         DEFAULT_COMPUTE_MIN_MAX_LEVELS));
 
-        minLevel = Integer.valueOf(properties.getProperty(MIN_LEVEL_KEY, "-1"));
-        maxLevel = Integer.valueOf(properties.getProperty(MAX_LEVEL_KEY, "-1"));
+        minLevel = PropertyUtils.getInt(properties, MIN_LEVEL_KEY, -1);
+        maxLevel = PropertyUtils.getInt(properties, MAX_LEVEL_KEY, -1);
 
         if (false == computeMinMaxLevels)
         {
@@ -142,7 +142,8 @@ public class ComputeIntensityLevelTransformationsMaintenanceTask implements IMai
             }
         }
 
-        intensityThreshold = Float.valueOf(properties.getProperty(INTENSITY_THRESHOLD_KEY, "-1"));
+        intensityThreshold =
+                (float) PropertyUtils.getDouble(properties, INTENSITY_THRESHOLD_KEY, -1);
         if (computeMinMaxLevels && (intensityThreshold < 0 || intensityThreshold > 1))
         {
             throw new ConfigurationFailureException(
@@ -170,7 +171,7 @@ public class ComputeIntensityLevelTransformationsMaintenanceTask implements IMai
         String queueFilePath = PropertyUtils.getMandatoryProperty(properties, STATUS_FILENAME_KEY);
         queueFile = new File(queueFilePath);
 
-        batchSize = Integer.valueOf(properties.getProperty(BATCH_SIZE_KEY, "1"));
+        batchSize = PropertyUtils.getInt(properties, BATCH_SIZE_KEY, 1);
         if (batchSize < 1)
         {
             throw new ConfigurationFailureException("Batch size must be at least 1");
