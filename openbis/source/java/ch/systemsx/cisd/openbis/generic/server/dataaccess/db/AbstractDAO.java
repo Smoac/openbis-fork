@@ -103,7 +103,8 @@ public abstract class AbstractDAO extends HibernateDaoSupport
             String msg = "";
             for (ConstraintViolation v : violations)
             {
-                msg += ", " + v.getMessage();
+                Object invalidValue = v.getInvalidValue();
+                msg += ", " + String.format(v.getMessage(), invalidValue);
             }
             throw new DataIntegrityViolationException(msg.substring(2));
         }
