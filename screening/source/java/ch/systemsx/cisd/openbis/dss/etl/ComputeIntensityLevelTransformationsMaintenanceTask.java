@@ -83,6 +83,8 @@ public class ComputeIntensityLevelTransformationsMaintenanceTask implements IMai
 
     private static final String STATUS_FILENAME_KEY = "status-filename";
 
+    private static final String BATCH_SIZE_KEY = "batch-size";
+
     private boolean computeMinMaxLevels;
 
     private int minLevel;
@@ -98,6 +100,8 @@ public class ComputeIntensityLevelTransformationsMaintenanceTask implements IMai
     private String transformationDescription;
 
     private boolean isDefaultTransformation;
+
+    private int batchSize;
 
     private File queueFile;
 
@@ -165,6 +169,12 @@ public class ComputeIntensityLevelTransformationsMaintenanceTask implements IMai
 
         String queueFilePath = PropertyUtils.getMandatoryProperty(properties, STATUS_FILENAME_KEY);
         queueFile = new File(queueFilePath);
+
+        batchSize = Integer.valueOf(properties.getProperty(BATCH_SIZE_KEY, "1"));
+        if (batchSize < 1)
+        {
+            throw new ConfigurationFailureException("Batch size must be at least 1");
+        }
     }
 
     /**
@@ -175,7 +185,6 @@ public class ComputeIntensityLevelTransformationsMaintenanceTask implements IMai
     {
         PersistentExtendedBlockingQueueDecorator<Long> queue =
                 ExtendedBlockingQueueFactory.<Long> createSmartPersist(queueFile);
-
         try
         {
             executeTransformations(queue);
@@ -188,8 +197,23 @@ public class ComputeIntensityLevelTransformationsMaintenanceTask implements IMai
 
     private void executeTransformations(PersistentExtendedBlockingQueueDecorator<Long> queue)
     {
-        long lastSeenId = getLastSeenIDFromQueue(queue);
+        for (int i = 0; i < batchSize; i++)
+        {
+            boolean result = executeOnce(queue);
 
+            if (false == result)
+            {
+                return;
+            }
+        }
+    }
+
+    /**
+     * Return true if there are still potentially datasets to process.
+     */
+    private boolean executeOnce(PersistentExtendedBlockingQueueDecorator<Long> queue)
+    {
+        long lastSeenId = getLastSeenIDFromQueue(queue);
         Long nextId = dao.tryGetNextDatasetId(lastSeenId);
 
         // if this value is null, it means there are no newer datasets
@@ -200,7 +224,9 @@ public class ComputeIntensityLevelTransformationsMaintenanceTask implements IMai
                 executeTransformations(nextId);
             }
             storeLastSeenInTheQueue(queue, nextId);
+            return true;
         }
+        return false;
     }
 
     private void executeTransformations(long datasetId)
