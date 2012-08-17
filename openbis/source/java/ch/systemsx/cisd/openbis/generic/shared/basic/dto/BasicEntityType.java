@@ -29,6 +29,8 @@ public class BasicEntityType extends AbstractType
 
     private DatabaseInstance databaseInstance;
 
+    private Script validationScript;
+
     public BasicEntityType()
     {
     }
@@ -46,6 +48,16 @@ public class BasicEntityType extends AbstractType
     public final void setDatabaseInstance(final DatabaseInstance databaseInstance)
     {
         this.databaseInstance = databaseInstance;
+    }
+
+    public Script getValidationScript()
+    {
+        return validationScript;
+    }
+
+    public void setValidationScript(Script validationScript)
+    {
+        this.validationScript = validationScript;
     }
 
     @Override

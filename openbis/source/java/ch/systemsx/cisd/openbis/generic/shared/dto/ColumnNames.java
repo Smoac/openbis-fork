@@ -256,6 +256,8 @@ public final class ColumnNames
 
     public static final String SCRIPT_ID_COLUMN = "script_id";
 
+    public static final String VALIDATION_SCRIPT_ID_COLUMN = "validation_script_id";
+
     public static final String MODIFICATION_TIMESTAMP_COLUMN = "modification_timestamp";
 
     public static final String VALID_FROM_TIMESTAMP_COLUMN = "valid_from_timestamp";

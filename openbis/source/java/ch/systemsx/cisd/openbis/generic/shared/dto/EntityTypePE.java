@@ -51,6 +51,8 @@ public abstract class EntityTypePE extends AbstractTypePE
 
     private DatabaseInstancePE databaseInstance;
 
+    private ScriptPE validationScript;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
@@ -62,6 +64,18 @@ public abstract class EntityTypePE extends AbstractTypePE
     public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
     {
         this.databaseInstance = databaseInstance;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.VALIDATION_SCRIPT_ID_COLUMN, updatable = true)
+    public ScriptPE getValidationScript()
+    {
+        return validationScript;
+    }
+
+    public void setValidationScript(final ScriptPE validationScript)
+    {
+        this.validationScript = validationScript;
     }
 
     /**
