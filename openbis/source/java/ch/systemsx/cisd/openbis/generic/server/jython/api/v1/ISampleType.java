@@ -34,6 +34,8 @@ public interface ISampleType extends ISampleTypeImmutable
 
     void setGeneratedCodePrefix(String generatedCodePrefix);
 
+    void setShowParentMetadata(boolean isShowParentMetadata);
+
     /**
      * Set the description for this sample type.
      */

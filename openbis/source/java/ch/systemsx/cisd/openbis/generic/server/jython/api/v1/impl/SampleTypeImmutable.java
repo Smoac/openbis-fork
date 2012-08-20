@@ -91,6 +91,12 @@ public class SampleTypeImmutable implements ISampleTypeImmutable
     }
 
     @Override
+    public boolean isShowParentMetadata()
+    {
+        return getSampleType().isShowParentMetadata();
+    }
+
+    @Override
     public EntityKind getEntityKind()
     {
         return EntityKind.SAMPLE;

@@ -61,6 +61,11 @@ class SampleTypeWrapper extends SampleTypeImmutable implements ISampleType
     }
 
     @Override
+    public void setShowParentMetadata(boolean isShowParentMetadata)
+    {
+    }
+
+    @Override
     public void setDescription(String description)
     {
     }

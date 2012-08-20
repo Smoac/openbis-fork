@@ -72,4 +72,10 @@ public class SampleType extends SampleTypeImmutable implements ISampleType
         getSampleType().setGeneratedCodePrefix(generatedCodePrefix);
     }
 
+    @Override
+    public void setShowParentMetadata(boolean isShowParentMetadata)
+    {
+        getSampleType().setShowParentMetadata(isShowParentMetadata);
+    }
+
 }
