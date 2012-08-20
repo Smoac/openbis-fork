@@ -323,6 +323,7 @@ var common = {
   
   subcode_unique_label: "Unique Subcodes",
   auto_generate_codes_label: "Generate Codes Automatically",
+  show_parent_metadata_label: "Show Parent Metadata",
   generated_code_prefix: "Generated Code Prefix",
   listable: "Listable",
   is_listable: "Listable?",
@@ -330,6 +331,7 @@ var common = {
   show_parents: "Show Parents",
   is_show_container: "Show Container?",
   is_show_parents: "Show Parents?",
+  is_show_parent_metadata: "Show Parent Metadata?",
    
   //
   // Property Type Browser

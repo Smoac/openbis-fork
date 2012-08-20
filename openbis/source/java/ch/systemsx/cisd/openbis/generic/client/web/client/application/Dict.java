@@ -355,6 +355,8 @@ public abstract class Dict
 
     public static final String AUTO_GENERATE_CODES_LABEL = "auto_generate_codes_label";
 
+    public static final String SHOW_PARENT_METADATA_LABEL = "show_parent_metadata_label";
+
     public static final String GENERATED_CODE_PREFIX = "generated_code_prefix";
 
     public static final String LISTABLE = "listable";

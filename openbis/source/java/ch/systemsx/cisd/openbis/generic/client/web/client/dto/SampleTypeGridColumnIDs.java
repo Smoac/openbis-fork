@@ -18,16 +18,23 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 /**
  * Column IDs for sample type grid.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class SampleTypeGridColumnIDs extends EntityTypeGridColumnIDs
 {
     public static final String IS_LISTABLE = "IS_LISTABLE";
+
     public static final String IS_SHOW_CONTAINER = "IS_SHOW_CONTAINER";
+
     public static final String IS_SHOW_PARENTS = "IS_SHOW_PARENTS";
+
     public static final String SUBCODE_UNIQUE_LABEL = "SUBCODE_UNIQUE_LABEL";
+
     public static final String AUTO_GENERATE_CODES_LABEL = "AUTO_GENERATE_CODES_LABEL";
+
+    public static final String SHOW_PARENT_METADATA_LABEL = "IS_SHOW_PARENT_METADATA";
+
     public static final String GENERATED_CODE_PREFIX = "GENERATED_CODE_PREFIX";
 
 }
