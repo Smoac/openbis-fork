@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,16 +29,16 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * A map containing persistent settings for an openBIS web app.
- *
+ * 
  * @author Bernd Rinn
  */
 @JsonObject("WebAppSettings")
-public class WebAppSettings implements Serializable, Map<String, String>
+public class WebAppSettings implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
     private String webAppId;
-    
+
     private Map<String, String> settings;
 
     public WebAppSettings(String webAppId, Map<String, String> settings)
@@ -45,7 +46,13 @@ public class WebAppSettings implements Serializable, Map<String, String>
         this.webAppId = webAppId;
         this.settings = settings;
     }
-    
+
+    public WebAppSettings(String webAppId, WebAppSettings settings)
+    {
+        this.webAppId = webAppId;
+        this.settings = settings.settings;
+    }
+
     public String getWebAppId()
     {
         return webAppId;
@@ -54,78 +61,6 @@ public class WebAppSettings implements Serializable, Map<String, String>
     public Map<String, String> getSettings()
     {
         return settings;
-    }
-
-    @Override
-    public int size()
-    {
-        return settings.size();
-    }
-
-    @Override
-    public boolean isEmpty()
-    {
-        return settings.isEmpty();
-    }
-
-    @Override
-    public boolean containsKey(Object key)
-    {
-        return settings.containsKey(key);
-    }
-
-    @Override
-    public boolean containsValue(Object value)
-    {
-        return settings.containsValue(value);
-    }
-
-    @Override
-    public String get(Object key)
-    {
-        return settings.get(key);
-    }
-
-    @Override
-    public String put(String key, String value)
-    {
-        return settings.put(key, value);
-    }
-
-    @Override
-    public String remove(Object key)
-    {
-        return settings.remove(key);
-    }
-
-    @Override
-    public void putAll(Map<? extends String, ? extends String> m)
-    {
-        settings.putAll(m);
-    }
-
-    @Override
-    public void clear()
-    {
-        settings.clear();
-    }
-
-    @Override
-    public Set<String> keySet()
-    {
-        return settings.keySet();
-    }
-
-    @Override
-    public Collection<String> values()
-    {
-        return settings.values();
-    }
-
-    @Override
-    public Set<java.util.Map.Entry<String, String>> entrySet()
-    {
-        return settings.entrySet();
     }
 
     @Override
@@ -143,6 +78,7 @@ public class WebAppSettings implements Serializable, Map<String, String>
     @SuppressWarnings("unused")
     private WebAppSettings()
     {
+        this.settings = new HashMap<String, String>();
     }
 
     @SuppressWarnings("unused")
