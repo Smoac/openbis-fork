@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -277,6 +278,13 @@ public abstract class AbstractServerLogger implements IServer
             int maxEntityVisits)
     {
         logTracking(sessionToken, "save_display_settings", "");
+    }
+
+    @Override
+    public void updateDisplaySettings(String sessionToken,
+            IDisplaySettingsUpdate displaySettingsUpdate, int maxEntityVisits)
+    {
+        logTracking(sessionToken, "update_display_settings", "UPDATE (%s)", displaySettingsUpdate);
     }
 
     @Override

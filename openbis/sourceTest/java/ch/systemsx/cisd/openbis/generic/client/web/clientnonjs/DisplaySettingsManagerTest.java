@@ -35,11 +35,12 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.GridDisplaySettings;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.IDelayedUpdater;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.IDisplaySettingsDelayedUpdater;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
 
 /**
  * @author Franz-Josef Elmer
@@ -81,7 +82,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
 
     private Mockery context;
 
-    private IDelayedUpdater updater;
+    private IDisplaySettingsDelayedUpdater updater;
 
     private IDisplaySettingsGetter grid;
 
@@ -97,7 +98,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
     public void setUp()
     {
         context = new Mockery();
-        updater = context.mock(IDelayedUpdater.class);
+        updater = context.mock(IDisplaySettingsDelayedUpdater.class);
         grid = context.mock(IDisplaySettingsGetter.class);
         displaySettings = new DisplaySettings();
         webClientConfiguration = new WebClientConfiguration();
@@ -266,7 +267,8 @@ public class DisplaySettingsManagerTest extends AssertJUnit
                     allowing(grid).getSortState();
                     will(returnValue(null));
 
-                    one(updater).executeDelayed(with(any(Integer.class)));
+                    one(updater).executeDelayed(with(any(IDisplaySettingsUpdate.class)),
+                            with(any(Integer.class)));
                 }
             });
 

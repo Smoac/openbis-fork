@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
 
 /**
  * The basic <i>GWT</i> client service interface.
@@ -70,7 +71,7 @@ public interface IClientService extends RemoteService
     /**
      * Updates display settings on the server.
      */
-    public void updateDisplaySettings(DisplaySettings displaySettings);
+    public void updateDisplaySettings(IDisplaySettingsUpdate update);
 
     /**
      * Resets display settings of the logged user to the default settings.

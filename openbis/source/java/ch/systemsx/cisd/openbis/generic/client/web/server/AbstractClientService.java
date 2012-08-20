@@ -85,6 +85,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebApp;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.AllDisplaySettingsUpdate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 
@@ -636,14 +638,14 @@ public abstract class AbstractClientService implements IClientService,
     }
 
     @Override
-    public void updateDisplaySettings(DisplaySettings displaySettings)
+    public void updateDisplaySettings(IDisplaySettingsUpdate displaySettingsUpdate)
     {
         try
         {
             final String sessionToken = getSessionToken();
             IServer server = getServer();
             int maxEntityVisits = getWebClientConfiguration().getMaxEntityVisits();
-            server.saveDisplaySettings(sessionToken, displaySettings, maxEntityVisits);
+            server.updateDisplaySettings(sessionToken, displaySettingsUpdate, maxEntityVisits);
         } catch (InvalidSessionException e)
         {
             // ignored
@@ -661,7 +663,7 @@ public abstract class AbstractClientService implements IClientService,
             final String sessionToken = getSessionToken();
             IServer server = getServer();
             final DisplaySettings defaultSettings = server.getDefaultDisplaySettings(sessionToken);
-            updateDisplaySettings(defaultSettings);
+            updateDisplaySettings(new AllDisplaySettingsUpdate(defaultSettings));
             return defaultSettings;
         } catch (InvalidSessionException e)
         {

@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -94,6 +95,10 @@ public interface IServer extends ISessionProvider
     @Transactional
     public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings,
             int maxEntityVisits);
+
+    @Transactional
+    public void updateDisplaySettings(String sessionToken,
+            IDisplaySettingsUpdate displaySettingsUpdate, int maxEntityVisits);
 
     /**
      * Lists grid custom columns for a given grid id.

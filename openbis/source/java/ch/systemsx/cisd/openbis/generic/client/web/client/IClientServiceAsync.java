@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
 
 /**
  * @author Christian Ribeaud
@@ -51,8 +52,8 @@ public interface IClientServiceAsync
     /** @see IClientService#setBaseURL(String) */
     public void setBaseURL(String baseURL, AsyncCallback<SessionContext> callback);
 
-    /** @see IClientService#updateDisplaySettings(DisplaySettings) */
-    public void updateDisplaySettings(DisplaySettings displaySettings, AsyncCallback<Void> callback);
+    /** @see IClientService#updateDisplaySettings(IDisplaySettingsUpdate) */
+    public void updateDisplaySettings(IDisplaySettingsUpdate update, AsyncCallback<Void> callback);
 
     /** @see IClientService#resetDisplaySettings() */
     public void resetDisplaySettings(AsyncCallback<DisplaySettings> resetUserSettingsCallback);

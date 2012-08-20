@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.AllDisplaySettingsUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
@@ -552,7 +553,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                     one(commonServer).saveDisplaySettings(SESSION_TOKEN, displaySettings, 20);
                 }
             });
-        commonClientService.updateDisplaySettings(displaySettings);
+        commonClientService.updateDisplaySettings(new AllDisplaySettingsUpdate(displaySettings));
 
         context.assertIsSatisfied();
     }

@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -697,6 +698,36 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                     }
                     displaySettingsProvider.replaceRegularDisplaySettings(person, displaySettings);
                     getDAOFactory().getPersonDAO().updatePerson(person);
+                }
+            }
+        } catch (InvalidSessionException e)
+        {
+            // ignore the situation when session is not available
+        }
+    }
+
+    @Override
+    public void updateDisplaySettings(String sessionToken,
+            IDisplaySettingsUpdate displaySettingsUpdate, int maxEntityVisits)
+    {
+        if (displaySettingsUpdate == null)
+        {
+            throw new IllegalArgumentException("Display settings update cannot be null");
+        }
+
+        try
+        {
+            final Session session = getSession(sessionToken);
+            PersonPE person = session.tryGetPerson();
+            if (person != null)
+            {
+                synchronized (displaySettingsProvider)
+                {
+                    DisplaySettings currentDisplaySettings =
+                            displaySettingsProvider.getCurrentDisplaySettings(person);
+                    DisplaySettings newDisplaySettings =
+                            displaySettingsUpdate.update(currentDisplaySettings);
+                    saveDisplaySettings(sessionToken, newDisplaySettings, maxEntityVisits);
                 }
             }
         } catch (InvalidSessionException e)

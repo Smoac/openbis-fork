@@ -20,17 +20,18 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.IDisplaySettingsUpdater;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocatorResolverRegistry;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.CompositeMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.IProfilingTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.ProfilingTable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
 
 /**
  * The <i>generic</i> {@link IViewContext} implementation.
@@ -168,12 +169,12 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     private DisplaySettingsManager createDisplaySettingsManager(
             final DisplaySettings displaySettings, WebClientConfiguration webClientConfigurationDTO)
     {
-        IDelegatedAction settingsUpdater = new IDelegatedAction()
+        IDisplaySettingsUpdater settingsUpdater = new IDisplaySettingsUpdater()
             {
                 @Override
-                public void execute()
+                public void execute(IDisplaySettingsUpdate update)
                 {
-                    service.updateDisplaySettings(displaySettings, new VoidAsyncCallback<Void>(
+                    service.updateDisplaySettings(update, new VoidAsyncCallback<Void>(
                             CommonViewContext.this));
                 }
             };

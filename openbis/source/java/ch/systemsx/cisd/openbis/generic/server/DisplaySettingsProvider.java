@@ -44,6 +44,18 @@ public class DisplaySettingsProvider
         }
     }
 
+    public synchronized DisplaySettings getCurrentDisplaySettings(PersonPE person)
+    {
+        DisplaySettings settings = displaySettingsMap.get(person.getUserId());
+        if (settings == null)
+        {
+            settings = person.getDisplaySettings();
+            displaySettingsMap.put(person.getUserId(), settings);
+        }
+        settings = new DisplaySettings(settings);
+        return settings;
+    }
+
     @SuppressWarnings("deprecation")
     public synchronized DisplaySettings getRegularDisplaySettings(PersonPE person)
     {

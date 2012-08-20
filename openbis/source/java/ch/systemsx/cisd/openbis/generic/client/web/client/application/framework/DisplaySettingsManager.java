@@ -33,7 +33,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -43,6 +42,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingPara
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.AllDisplaySettingsUpdate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.ColumnDisplaySettingsUpdate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
 
 /**
  * Manager of {@link DisplaySettings}. The manager itself is stateless. It only changes the wrapped
@@ -58,36 +60,42 @@ public class DisplaySettingsManager
 
     private final DisplaySettings displaySettings;
 
-    private final IDelayedUpdater updater;
+    private final IDisplaySettingsDelayedUpdater updater;
 
     private final WebClientConfiguration webClientConfiguration;
+
+    public interface IDisplaySettingsUpdater
+    {
+        void execute(IDisplaySettingsUpdate update);
+    }
 
     /**
      * Private, we need this interface to make tests easier. We wrap {@link DelayedTask} which
      * requires the access to the browser.
      */
-    public interface IDelayedUpdater
+    public interface IDisplaySettingsDelayedUpdater
     {
         /** Cancels any running timers and starts a new one. */
-        void executeDelayed(int delayMs);
+        void executeDelayed(IDisplaySettingsUpdate update, int delayMs);
+
     }
 
     public DisplaySettingsManager(DisplaySettings displaySettings,
-            IDelegatedAction settingsUpdater, IViewContext<?> viewContext)
+            IDisplaySettingsUpdater settingsUpdater, IViewContext<?> viewContext)
     {
         this(displaySettings, createDelayedUpdater(settingsUpdater, viewContext), viewContext
                 .getModel().getApplicationInfo().getWebClientConfiguration());
     }
 
-    private static IDelayedUpdater createDelayedUpdater(final IDelegatedAction settingsUpdater,
-            IViewContext<?> viewContext)
+    private static IDisplaySettingsDelayedUpdater createDelayedUpdater(
+            final IDisplaySettingsUpdater settingsUpdater, IViewContext<?> viewContext)
     {
         if (viewContext.getModel().isDisplaySettingsSaving() == false)
         {
-            return new IDelayedUpdater()
+            return new IDisplaySettingsDelayedUpdater()
                 {
                     @Override
-                    public void executeDelayed(int delayMs)
+                    public void executeDelayed(IDisplaySettingsUpdate update, int delayMs)
                     {
                         // in simple view mode or anonymous login settings are temporary - don't
                         // save them at all
@@ -95,20 +103,20 @@ public class DisplaySettingsManager
                 };
         } else
         {
-            final DelayedTask delayedTask = new DelayedTask(new Listener<BaseEvent>()
+            return new IDisplaySettingsDelayedUpdater()
                 {
                     @Override
-                    public void handleEvent(BaseEvent event)
+                    public void executeDelayed(final IDisplaySettingsUpdate update,
+                            final int delayMs)
                     {
-                        settingsUpdater.execute();
-                    }
-                });
-            return new IDelayedUpdater()
-                {
-                    @Override
-                    public void executeDelayed(int delayMs)
-                    {
-                        delayedTask.delay(delayMs);
+                        new DelayedTask(new Listener<BaseEvent>()
+                            {
+                                @Override
+                                public void handleEvent(BaseEvent event)
+                                {
+                                    settingsUpdater.execute(update);
+                                }
+                            }).delay(delayMs);
                     }
                 };
         }
@@ -117,7 +125,8 @@ public class DisplaySettingsManager
     /**
      * Private, for tests only
      */
-    public DisplaySettingsManager(DisplaySettings displaySettings, final IDelayedUpdater updater,
+    public DisplaySettingsManager(DisplaySettings displaySettings,
+            final IDisplaySettingsDelayedUpdater updater,
             WebClientConfiguration webClientConfiguration)
     {
         if (displaySettings == null)
@@ -415,7 +424,8 @@ public class DisplaySettingsManager
             Object modifier)
     {
         updateActiveTabSettings(tabGroupDisplayID, selectedTabDisplayID, modifier);
-        updater.executeDelayed(QUITE_TIME_BEFORE_SETTINGS_SAVED_MS);
+        updater.executeDelayed(new AllDisplaySettingsUpdate(displaySettings),
+                QUITE_TIME_BEFORE_SETTINGS_SAVED_MS);
     }
 
     private <C> void storeSettings(String displayTypeID, ColumnModel columnModel,
@@ -424,18 +434,20 @@ public class DisplaySettingsManager
         List<ColumnSetting> columnSettings =
                 createColumnsSettings(columnModel, filteredColumnIds, sortInfo);
         updateColumnSettings(displayTypeID, columnSettings, modifier);
-        updater.executeDelayed(delayMs);
+        updater.executeDelayed(new ColumnDisplaySettingsUpdate(displayTypeID, columnSettings),
+                delayMs);
     }
 
     public void storeDropDownSettings(String dropDownSettingsID, String newValue)
     {
         updateDropDownSettings(dropDownSettingsID, newValue);
-        updater.executeDelayed(QUITE_TIME_BEFORE_SETTINGS_SAVED_MS);
+        updater.executeDelayed(new AllDisplaySettingsUpdate(displaySettings),
+                QUITE_TIME_BEFORE_SETTINGS_SAVED_MS);
     }
 
     public void storeSettings()
     {
-        updater.executeDelayed(1); // 0 not allowed
+        updater.executeDelayed(new AllDisplaySettingsUpdate(displaySettings), 1); // 0 not allowed
     }
 
     private static List<ColumnSetting> createColumnsSettings(ColumnModel columnModel,
