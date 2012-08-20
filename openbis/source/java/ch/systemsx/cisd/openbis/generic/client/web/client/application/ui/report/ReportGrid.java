@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -30,10 +31,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConf
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableGridColumnDefinition;
 
 /**
  * @author Franz-Josef Elmer
@@ -45,10 +49,11 @@ public class ReportGrid extends TypedTableGrid<ReportRowModel>
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            TableModelReference tableModelReference, IReportInformationProvider infoProvider)
+            TableModelReference tableModelReference, IReportInformationProvider infoProvider,
+            String displaySettingsId)
     {
         final ReportGrid grid =
-                new ReportGrid(viewContext, tableModelReference, infoProvider.getKey(),
+                new ReportGrid(viewContext, tableModelReference, displaySettingsId,
                         infoProvider.getDownloadURL());
         return grid.asDisposableWithoutToolbar();
     }
@@ -60,23 +65,26 @@ public class ReportGrid extends TypedTableGrid<ReportRowModel>
 
     private final String resultSetKey;
 
-    private final String reportKind;
+    private final String displaySettingsId;
+
+    private final TableModelReference tableModelReference;
 
     private ReportGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            TableModelReference tableModelReference, String reportKind, String downloadURL)
+            TableModelReference tableModelReference, String displaySettingsId, String downloadURL)
     {
         super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.DATA_SET_REPORTING_GRID);
         setDownloadURL(downloadURL);
         setId(BROWSER_ID);
+        this.tableModelReference = tableModelReference;
         this.resultSetKey = tableModelReference.getResultSetKey();
-        this.reportKind = reportKind;
+        this.displaySettingsId = displaySettingsId;
         updateDefaultRefreshButton();
     }
 
     @Override
     public String getGridDisplayTypeID()
     {
-        return createGridDisplayTypeID(reportKind);
+        return createGridDisplayTypeID(displaySettingsId);
     }
 
     @Override
@@ -88,6 +96,21 @@ public class ReportGrid extends TypedTableGrid<ReportRowModel>
         // The custom columns should be recomputed.
         resultSetConfig.setCacheConfig(ResultSetFetchConfig
                 .createFetchFromCacheAndRecompute(resultSetKey));
+
+        Set<IColumnDefinition<TableModelRowWithObject<ReportRowModel>>> availableColumns =
+                new HashSet<IColumnDefinition<TableModelRowWithObject<ReportRowModel>>>();
+
+        if (tableModelReference.getHeader() != null)
+        {
+            for (TableModelColumnHeader header : tableModelReference.getHeader())
+            {
+                availableColumns.add(new TypedTableGridColumnDefinition<ReportRowModel>(header,
+                        null, null, null));
+            }
+        }
+
+        resultSetConfig.setAvailableColumns(availableColumns);
+
         viewContext.getService().listReport(resultSetConfig, callback);
     }
 

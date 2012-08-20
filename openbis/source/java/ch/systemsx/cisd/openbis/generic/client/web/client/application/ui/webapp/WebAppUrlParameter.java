@@ -24,8 +24,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp
 public enum WebAppUrlParameter
 {
 
-    SESSION_ID("session-id"), ENTITY_KIND("entity-kind"), ENTITY_TYPE("entity-type"),
-    ENTITY_IDENTIFIER("entity-identifier"), ENTITY_PERM_ID("entity-perm-id");
+    WEBAPP_CODE("webapp-code"), SESSION_ID("session-id"), ENTITY_KIND("entity-kind"), ENTITY_TYPE(
+            "entity-type"), ENTITY_IDENTIFIER("entity-identifier"),
+    ENTITY_PERM_ID("entity-perm-id");
 
     private final String name;
 

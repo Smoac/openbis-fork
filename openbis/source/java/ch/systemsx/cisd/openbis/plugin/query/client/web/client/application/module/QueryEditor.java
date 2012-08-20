@@ -86,7 +86,9 @@ public class QueryEditor extends Dialog
 
     private static Button createCancelButton(IViewContext<?> viewContext, final Window window)
     {
-        return new Button(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_CANCEL),
+        return new Button(
+                viewContext
+                        .getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_CANCEL),
                 new SelectionListener<ButtonEvent>()
                     {
                         @Override
@@ -146,7 +148,9 @@ public class QueryEditor extends Dialog
             }
 
             add(form, new BorderLayoutData(LayoutRegion.CENTER));
-            addButton(new Button(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_SUBMIT),
+            addButton(new Button(
+                    viewContext
+                            .getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_SUBMIT),
                     new SelectionListener<ButtonEvent>()
                         {
                             @Override
@@ -216,14 +220,25 @@ public class QueryEditor extends Dialog
         setButtons("");
 
         nameField =
-                AbstractRegistrationDialog.createTextField(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.NAME), true);
+                AbstractRegistrationDialog
+                        .createTextField(
+                                viewContext
+                                        .getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.NAME),
+                                true);
         nameField.setMaxLength(200);
         descriptionField =
-                AbstractRegistrationDialog.createTextField(
-                        viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.DESCRIPTION), false);
+                AbstractRegistrationDialog
+                        .createTextField(
+                                viewContext
+                                        .getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.DESCRIPTION),
+                                false);
         descriptionField.setMaxLength(GenericConstants.DESCRIPTION_2000);
         statementField = createStatementField();
-        isPublicField = new CheckBoxField(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.IS_PUBLIC), false);
+        isPublicField =
+                new CheckBoxField(
+                        viewContext
+                                .getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.IS_PUBLIC),
+                        false);
         queryDatabaseSelectionWidget =
                 new QueryDatabaseSelectionWidget(viewContext,
                         (queryOrNull != null) ? queryOrNull.getQueryDatabase() : null);
@@ -406,7 +421,9 @@ public class QueryEditor extends Dialog
     private Button createSaveButton(final FormPanel form, final IDelegatedAction refreshAction)
     {
         final Button button =
-                new Button(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_SAVE),
+                new Button(
+                        viewContext
+                                .getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_SAVE),
                         new SelectionListener<ButtonEvent>()
                             {
                                 @Override
@@ -515,12 +532,15 @@ public class QueryEditor extends Dialog
         QueryDatabase queryDatabase = queryDatabaseSelectionWidget.tryGetSelected();
         if (sqlStatement != null && sqlStatement.length() > 0 && queryDatabase != null)
         {
+            IReportInformationProvider reportInformation =
+                    createReportInformationProvider(sqlStatement);
+
             viewContext.getService().createQueryResultsReport(
                     queryDatabase,
                     sqlStatement,
                     parameterBindings,
                     ReportGeneratedCallback.create(viewContext.getCommonViewContext(),
-                            createReportInformationProvider(sqlStatement),
+                            reportInformation, reportInformation.getKey(),
                             createDisplayQueryResultsAction()));
         }
     }

@@ -83,7 +83,8 @@ public class GenericViewModel
 
     public boolean isDisplaySettingsSaving()
     {
-        return isAnonymousLogin() == false && ViewMode.NORMAL.equals(getViewMode());
+        return isAnonymousLogin() == false
+                && (ViewMode.NORMAL.equals(getViewMode()) || ViewMode.GRID.equals(getViewMode()));
     }
 
     public void setAnonymousAllowed(boolean anonymousAllowed)

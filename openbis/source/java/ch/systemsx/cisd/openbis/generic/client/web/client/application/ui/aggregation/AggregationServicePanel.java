@@ -20,6 +20,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HTML;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
@@ -29,13 +36,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
-
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.HTML;
 
 /**
  * A panel that shows the results of an aggregation service.
@@ -47,6 +47,8 @@ public class AggregationServicePanel extends ContentPanel
     static final String SERVICE_KEY_PARAM = "serviceKey";
 
     private static final String DSS_CODE_PARAM = "dss";
+
+    private static final String DISPLAY_SETTINGS_ID = "displaySettingsId";
 
     private static class AggregationServiceGeneratedAction implements
             IOnReportComponentGeneratedAction
@@ -65,7 +67,7 @@ public class AggregationServicePanel extends ContentPanel
             layoutContainer.add(reportComponent.getComponent());
             layoutContainer.layout();
         }
-    };
+    }
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -74,6 +76,8 @@ public class AggregationServicePanel extends ContentPanel
     private final String serviceKey;
 
     private final String dataStoreCode;
+
+    private final String displaySettingsId;
 
     public AggregationServicePanel(IViewContext<ICommonClientServiceAsync> viewContext,
             String idPrefix, ViewLocator viewLocator)
@@ -84,6 +88,7 @@ public class AggregationServicePanel extends ContentPanel
         this.viewLocator = viewLocator;
         serviceKey = viewLocator.getParameters().get(SERVICE_KEY_PARAM);
         dataStoreCode = viewLocator.getParameters().get(DSS_CODE_PARAM);
+        displaySettingsId = viewLocator.getParameters().get(DISPLAY_SETTINGS_ID);
 
         if (areRequiredParametersSpecified())
         {
@@ -146,14 +151,21 @@ public class AggregationServicePanel extends ContentPanel
             {
                 continue;
             }
+            if (DISPLAY_SETTINGS_ID.equals(entry.getKey()))
+            {
+                continue;
+            }
             parameterMap.put(entry.getKey(), entry.getValue());
         }
         DatastoreServiceDescription description =
                 DatastoreServiceDescription.reporting(serviceKey, "", new String[0], dataStoreCode,
                         ReportingPluginType.AGGREGATION_TABLE_MODEL);
 
+        String notNullDisplaySettingsId =
+                displaySettingsId != null ? displaySettingsId : serviceKey;
+
         AsyncCallback<TableModelReference> callback =
-                ReportGeneratedCallback.create(viewContext, description,
+                ReportGeneratedCallback.create(viewContext, description, notNullDisplaySettingsId,
                         new AggregationServiceGeneratedAction(this));
 
         viewContext.getCommonService().createReportFromAggregationService(description,

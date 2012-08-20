@@ -1529,6 +1529,14 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     {
         int id = log("refresh (refreshColumnsDefinition=" + refreshColumnsDefinition + ")");
         pagingToolbar.updateDefaultRefreshButton(false);
+
+        SortInfo sortInfo = getGridSortInfo();
+        if (sortInfo != null)
+        {
+            pagingLoader.setSortField(sortInfo.getSortField());
+            pagingLoader.setSortDir(translate(sortInfo.getSortDir()));
+        }
+
         debug("clean cache for refresh");
         this.refreshCallback = createRefreshCallback(externalRefreshCallbackOrNull);
         if (columnDefinitions == null || refreshColumnsDefinition)
@@ -2740,6 +2748,8 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                                 customColumnsMetadataProvider
                                         .setCustomColumnsMetadata(customColumnMetadata);
                                 recreateColumnModelAndRefreshColumnsWithFilters();
+
+                                saveColumnDisplaySettings();
                             }
                             callback.onSuccess(resultSet);
                         }

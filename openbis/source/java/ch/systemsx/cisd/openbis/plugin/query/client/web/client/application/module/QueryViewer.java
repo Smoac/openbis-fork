@@ -99,9 +99,13 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
         {
             return;
         }
+
+        IReportInformationProvider reportInformation =
+                createReportInformationProvider(sqlQueryOrNull, queryIdOrNull);
+
         AsyncCallback<TableModelReference> callback =
                 ReportGeneratedCallback.create(viewContext.getCommonViewContext(),
-                        createReportInformationProvider(sqlQueryOrNull, queryIdOrNull),
+                        reportInformation, reportInformation.getKey(),
                         createDisplayQueryResultsAction());
         if (queryIdOrNull != null)
         {

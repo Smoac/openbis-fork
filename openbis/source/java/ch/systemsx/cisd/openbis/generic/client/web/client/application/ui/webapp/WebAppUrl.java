@@ -51,6 +51,7 @@ public class WebAppUrl
 
         builder =
                 new URLMethodWithParameters(openbisProtocol + "//" + openbisHost + "/" + webAppCode);
+        builder.addParameter(WebAppUrlParameter.WEBAPP_CODE.getName(), webAppCode);
         builder.addParameter(WebAppUrlParameter.SESSION_ID.getName(), sessionId);
     }
 

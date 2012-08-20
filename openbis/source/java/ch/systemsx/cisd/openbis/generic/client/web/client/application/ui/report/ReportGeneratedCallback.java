@@ -44,22 +44,25 @@ public class ReportGeneratedCallback extends AbstractAsyncCallback<TableModelRef
 
     private final IReportInformationProvider reportInformationProvider;
 
+    private final String displaySettingsId;
+
     public static AsyncCallback<TableModelReference> create(
             IViewContext<ICommonClientServiceAsync> viewContext,
-            IReportInformationProvider reportInformationProvider,
+            IReportInformationProvider reportInformationProvider, String displaySettingsId,
             IOnReportComponentGeneratedAction action)
     {
         return AsyncCallbackWithProgressBar.decorate(new ReportGeneratedCallback(viewContext,
-                reportInformationProvider, action), "Generating the report...");
+                reportInformationProvider, displaySettingsId, action), "Generating the report...");
     }
 
     private ReportGeneratedCallback(IViewContext<ICommonClientServiceAsync> viewContext,
-            IReportInformationProvider reportInformationProvider,
+            IReportInformationProvider reportInformationProvider, String displaySettingsId,
             IOnReportComponentGeneratedAction action)
     {
         super(viewContext);
         this.localViewContext = viewContext;
         this.reportInformationProvider = reportInformationProvider;
+        this.displaySettingsId = displaySettingsId;
         this.action = action;
     }
 
@@ -67,7 +70,8 @@ public class ReportGeneratedCallback extends AbstractAsyncCallback<TableModelRef
     protected void process(final TableModelReference tableModelReference)
     {
         final IDisposableComponent reportComponent =
-                ReportGrid.create(localViewContext, tableModelReference, reportInformationProvider);
+                ReportGrid.create(localViewContext, tableModelReference, reportInformationProvider,
+                        displaySettingsId);
         action.execute(reportComponent);
         if (StringUtils.isBlank(tableModelReference.tryGetMessage()) == false)
         {

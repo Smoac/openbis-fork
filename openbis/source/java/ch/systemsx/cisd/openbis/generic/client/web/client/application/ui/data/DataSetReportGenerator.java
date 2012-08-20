@@ -65,7 +65,7 @@ public class DataSetReportGenerator
             IOnReportComponentGeneratedAction action)
     {
         AsyncCallback<TableModelReference> callback =
-                ReportGeneratedCallback.create(viewContext, service, action);
+                ReportGeneratedCallback.create(viewContext, service, service.getKey(), action);
         viewContext.getService().createReportFromDatasets(service, criteria, callback);
     }
 

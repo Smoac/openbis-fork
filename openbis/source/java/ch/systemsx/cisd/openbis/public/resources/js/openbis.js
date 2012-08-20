@@ -432,11 +432,16 @@ actionDeferrer.prototype.dependencyCompleted = function(key) {
  * Provides a context information for webapps that are embedded inside the OpenBIS UI.
  */
 function openbisWebAppContext(){
+	this.webappCode = this.getParameter("webapp-code");
 	this.sessionId = this.getParameter("session-id");
 	this.entityKind = this.getParameter("entity-kind");
 	this.entityType = this.getParameter("entity-type");
 	this.entityIdentifier = this.getParameter("entity-identifier");
 	this.entityPermId = this.getParameter("entity-perm-id");
+}
+
+openbisWebAppContext.prototype.getWebappCode = function(){
+	return this.webappCode;
 }
 
 openbisWebAppContext.prototype.getSessionId = function(){
