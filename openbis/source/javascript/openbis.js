@@ -65,6 +65,7 @@ function eraseCookie(name) {
  */
 function openbis(url, dssUrl) {
 	this.generalInfoServiceUrl = url + "/rmi-general-information-v1.json";
+	this.generalInfoChangingServiceUrl = url + "/rmi-general-information-changing-v1.json";
 	this.queryServiceUrl = url + "/rmi-query-v1.json";
 	this.dssUrl = dssUrl + "/rmi-dss-api-v1.json";
 	this.webInfoServiceUrl = url + "/openbis/openbis/rmi-web-information-v1.json"
@@ -324,6 +325,30 @@ openbis.prototype.createReportFromAggregationService = function(dataStoreCode, s
 		url: this.queryServiceUrl,
 		data: { "method" : "createReportFromAggregationService",
 		params : [ this.sessionToken, dataStoreCode, serviceKey, parameters ] },
+		success: action
+	});
+}
+
+/**
+ * See ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService.getWebAppSettings(String, String)
+ */
+openbis.prototype.getWebAppSettings = function(webappId, action) {
+	ajaxRequest({
+		url: this.generalInfoChangingServiceUrl,
+		data: { "method" : "getWebAppSettings",
+		params : [ this.sessionToken, webappId ] },
+		success: action
+	});
+}
+
+/**
+ * See ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService.setWebAppSettings(String, WebAppSettings)
+ */
+openbis.prototype.setWebAppSettings = function(webappSettings, action) {
+	ajaxRequest({
+		url: this.generalInfoChangingServiceUrl,
+		data: { "method" : "setWebAppSettings",
+		params : [ this.sessionToken, webappSettings ] },
 		success: action
 	});
 }
