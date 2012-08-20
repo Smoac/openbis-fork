@@ -64,7 +64,7 @@ public final class DemoSampleViewer extends AbstractViewer<Sample>
 
     private final Widget createUI(final SampleParentWithDerived sampleGeneration)
     {
-        return GenericSampleViewer.createPropertyGrid(sampleId, sampleGeneration, getViewContext());
+        return GenericSampleViewer.createPropertyGrid(getViewContext(), sampleId);
     }
 
     /**

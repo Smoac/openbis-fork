@@ -12,4 +12,6 @@ public class BaseEntityPropertyRecord
     public Long script_id;
 
     public String script_type;
+
+    public Long ordinal;
 }

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -52,6 +53,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -59,9 +64,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebAppContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
@@ -314,30 +322,69 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         final ContentPanel panel = new ContentPanel();
         panel.setScrollMode(Scroll.AUTOY);
         panel.setHeading(getViewContext().getMessage(Dict.SAMPLE_PROPERTIES_HEADING));
-        propertyGrid = createPropertyGrid(sampleId, sampleGeneration, getViewContext());
+        propertyGrid = createPropertyGrid(getViewContext(), sampleId);
+        updateProperties(sampleGeneration);
         panel.add(propertyGrid);
 
         return panel;
     }
 
-    public static PropertyGrid createPropertyGrid(final TechId sampleId,
-            final SampleParentWithDerived sampleGeneration, final IViewContext<?> viewContext)
+    public static PropertyGrid createPropertyGrid(final IViewContext<?> viewContext,
+            final TechId sampleId)
     {
         final IMessageProvider messageProvider = viewContext;
-        final Map<String, Object> properties = createProperties(viewContext, sampleGeneration);
-        final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
+        final PropertyGrid propertyGrid = new PropertyGrid(viewContext, 0);
         propertyGrid.registerPropertyValueRenderer(SampleType.class,
                 PropertyValueRenderers.createSampleTypePropertyValueRenderer(messageProvider));
-        propertyGrid.setProperties(properties);
-        propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + sampleId);
         return propertyGrid;
     }
 
     public final void updateProperties(final SampleParentWithDerived sampleGeneration)
     {
-        final Map<String, Object> properties = createProperties(getViewContext(), sampleGeneration);
-        propertyGrid.resizeRows(properties.size());
+        propertyGrid.resizeRows(0);
+        final Map<String, Object> properties = createProperties(viewContext, sampleGeneration);
         propertyGrid.setProperties(properties);
+        propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + sampleId);
+        Sample sample = sampleGeneration.getParent();
+        SampleType sampleType = sample.getSampleType();
+        if (sampleType.isShowParentMetadata())
+        {
+            Set<Sample> parents = sample.getParents();
+            if (parents.isEmpty() == false)
+            {
+                ListSampleCriteria listCriteria =
+                        ListSampleCriteria.createForChild(new TechId(sample.getId()));
+                viewContext.getCommonService().listSamples2(
+                        new ListSampleDisplayCriteria2(listCriteria),
+                        new AbstractAsyncCallback<TypedTableResultSet<Sample>>(viewContext)
+                            {
+                                @Override
+                                protected void process(TypedTableResultSet<Sample> result)
+                                {
+                                    GridRowModels<TableModelRowWithObject<Sample>> list =
+                                            result.getResultSet().getList();
+                                    ParentsPropertiesSectionBuilder builder =
+                                            new ParentsPropertiesSectionBuilder();
+                                    for (GridRowModel<TableModelRowWithObject<Sample>> row : list)
+                                    {
+                                        Sample parent = row.getOriginalObject().getObjectOrNull();
+                                        builder.addParent(parent);
+                                    }
+                                    for (Entry<String, List<IEntityProperty>> entry : builder
+                                            .getSections().entrySet())
+                                    {
+                                        String title = entry.getKey();
+                                        List<IEntityProperty> parentProperties = entry.getValue();
+                                        Map<String, Object> props =
+                                                new LinkedHashMap<String, Object>();
+                                        PropertiesPanelUtils.addEntityProperties(viewContext,
+                                                props, parentProperties);
+                                        propertyGrid.addAdditionalProperties(title, props);
+                                    }
+                                }
+                            });
+            }
+        }
     }
 
     /**

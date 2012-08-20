@@ -126,6 +126,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
             property.setPropertyType(propertyTypes.get(val.prty_id));
             property.setScriptable(val.script_id != null);
             property.setDynamic(ScriptType.DYNAMIC_PROPERTY.name().equals(val.script_type));
+            property.setOrdinal(val.ordinal);
             entity.getProperties().add(property);
         }
 
@@ -163,6 +164,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
             }
             property.setVocabularyTerm(vocabularyTerm);
             property.setPropertyType(propertyTypes.get(val.prty_id));
+            property.setOrdinal(val.ordinal);
             entity.getProperties().add(property);
         }
 
@@ -189,6 +191,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
             }
             property.setMaterial(material);
             property.setPropertyType(propertyTypes.get(val.prty_id));
+            property.setOrdinal(val.ordinal);
             entity.getProperties().add(property);
         }
 

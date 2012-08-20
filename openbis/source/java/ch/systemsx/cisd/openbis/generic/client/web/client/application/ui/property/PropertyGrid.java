@@ -18,9 +18,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.proper
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -54,7 +55,7 @@ public final class PropertyGrid extends Grid
     private final Map<Class<?>, IPropertyValueRenderer<?>> propertyValueRenderers =
             new HashMap<Class<?>, IPropertyValueRenderer<?>>();
 
-    private Map<String, ?> properties;
+    private Map<String, Object> properties;
 
     private final IViewContext<?> viewContext;
 
@@ -162,13 +163,14 @@ public final class PropertyGrid extends Grid
     /**
      * Sets the properties that are going to be displayed here.
      */
-    public final <T> void setProperties(final Map<String, ? super T> properties)
+    public final void setProperties(final Map<String, Object> properties)
     {
         this.properties = properties;
-        fillTable();
+        assert properties != null : "Unspecified properties.";
+        addPropertiesToTable(properties, 0);
     }
 
-    public Map<String, ?> getProperties()
+    public Map<String, Object> getProperties()
     {
         return properties;
     }
@@ -180,17 +182,27 @@ public final class PropertyGrid extends Grid
         return propertyValueRenderer.getAsWidget(value);
     }
 
-    private final void fillTable()
+    public void addAdditionalProperties(String title, Map<String, Object> props)
     {
-        assert properties != null : "Unspecified properties.";
-        int row = 0;
-        for (final Iterator<String> iterator = properties.keySet().iterator(); iterator.hasNext(); row++)
+        int row = getRowCount();
+        resizeRows(row + 1 + props.size());
+        setHTML(row, 0, title);
+        Element element = getCellFormatter().getElement(row, 0);
+        element.setAttribute("colspan", "2");
+        element.setAttribute("class", "properties-sub-section");
+        addPropertiesToTable(props, row + 1);
+    }
+
+    private void addPropertiesToTable(Map<String, Object> props, int initRow)
+    {
+        int row = initRow;
+        for (Entry<String, Object> entry : props.entrySet())
         {
-            final String key = iterator.next();
-            final Object value = properties.get(key);
-            final Widget widget = getAsWidget(value);
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            Widget widget = getAsWidget(value);
             setHTML(row, 0, key);
-            setWidget(row, 1, widget);
+            setWidget(row++, 1, widget);
         }
     }
 

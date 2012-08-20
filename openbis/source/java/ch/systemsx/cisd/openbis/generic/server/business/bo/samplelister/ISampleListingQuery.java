@@ -388,7 +388,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
      * 
      * @param sampleIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, stpt.script_id, sp.value, sc.script_type "
+    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, stpt.script_id, stpt.ordinal, sp.value, sc.script_type "
             + "      FROM sample_properties sp"
             + "      JOIN sample_type_property_types stpt ON sp.stpt_id=stpt.id"
             + "      LEFT OUTER JOIN scripts sc ON stpt.script_id = sc.id"
@@ -403,7 +403,8 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
      * 
      * @param sampleIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, stpt.script_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal, cvte.is_official"
+    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, stpt.script_id, stpt.ordinal, "
+            + "           cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal as term_ordinal, cvte.is_official"
             + "      FROM sample_properties sp"
             + "      JOIN sample_type_property_types stpt ON sp.stpt_id=stpt.id"
             + "      JOIN controlled_vocabulary_terms cvte ON sp.cvte_id=cvte.id"
@@ -417,7 +418,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
      * 
      * @param sampleIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, stpt.script_id, m.id, m.code, m.maty_id"
+    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, stpt.script_id, stpt.ordinal, m.id, m.code, m.maty_id"
             + "      FROM sample_properties sp"
             + "      JOIN sample_type_property_types stpt ON sp.stpt_id=stpt.id"
             + "      JOIN materials m ON sp.mate_prop_id=m.id "
