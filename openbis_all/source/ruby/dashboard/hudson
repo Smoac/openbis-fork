@@ -12,6 +12,8 @@ require 'pp'
 # == Preferences
 #
 
+$use_ssh = true
+
 # The url for Hudson
 $hudson_url = 'http://bs-ci01.ethz.ch:8090'
 
@@ -22,17 +24,20 @@ $hudson_api_url = "#{$hudson_url}/api/json"
 # A module that implements some helpful operations
 #
 module HudsonHelpers
-
+  def HudsonHelpers.hudson_cmd(cmd)
+    return `ssh ci '#{cmd}'` if $use_ssh
+    return `#{cmd}`
+  end
   # Return summary data for all jobs
   def HudsonHelpers.jobs(silent)
-    ans = `curl -s '#{$hudson_api_url}'`
+    ans = HudsonHelpers.hudson_cmd("curl -s '#{$hudson_api_url}'")
     data = JSON.load(ans)
     return data
   end
   
   # Search and return the full data for the found objects
   def HudsonHelpers.job(job, silent)
-    ans = `curl -s '#{$hudson_url}/job/#{job}/api/json'`
+    ans = HudsonHelpers.hudson_cmd("curl -s '#{$hudson_url}/job/#{job}/api/json'")
     data = JSON.load(ans)
     return data
   end
@@ -94,7 +99,7 @@ class Help < HudsonCommand
   
   def run
     # show help
-    return "valid commands: broken, all"
+    return "valid commands: broken, all, job"
   end
 end
 
@@ -108,7 +113,7 @@ class Broken < HudsonCommand
   
   def run
     data = HudsonHelpers.jobs(@silent)
-    broken = data["jobs"].select { | each | each["color"] == "yellow" || each["color"] == "red" }
+    broken = data["jobs"].select { | each | /^yellow/.match(each["color"]) || /^red/.match(each["color"]) }
     print_jobs(broken)
     return ""
   end

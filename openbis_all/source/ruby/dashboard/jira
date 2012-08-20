@@ -34,13 +34,76 @@ require 'set'
 $jira_url = 'https://jira-bsse.ethz.ch'
 
 # The url portion for the API
-$jira_api_url = "#{$jira_url}/rest/api/2.0.alpha1"
+#$jira_api_url = "#{$jira_url}/rest/api/2.0.alpha1"
+$jira_api_url = "#{$jira_url}/rest/api/2"
 
 # Prefs path
 $jira_prefs_path = File.expand_path('~/.jira')
 
 # Cookie location
 $jira_cookie_path = File.join($jira_prefs_path, 'cookie.txt')
+
+
+# 
+# == Issue Object
+#
+class Issue
+  
+  def initialize(data)
+    @issue = data
+  end
+  
+  def key
+    return @issue["key"]
+  end
+  
+  def fields
+    return @issue["fields"]
+  end
+  
+  def implements
+    implements = nil
+    links = self.fields["issuelinks"]
+    unless links.nil?
+      links.each { | link | implements =  Issue.new(link["outwardIssue"]) if "implements" == link["type"]["outward"] && !link["outwardIssue"].nil? }
+    end
+
+    return implements
+  end
+  
+  def implemented_by
+    implementedby = []
+    links = self.fields["issuelinks"]
+    unless links.nil?
+      links.each { | link | implementedby << Issue.new(link["inwardIssue"]) if "implements" == link["type"]["outward"] && !link["inwardIssue"].nil?}
+    end
+    return implementedby
+  end
+  
+  def time
+    return 0 if self.fields["timetracking"].nil?
+    return self.fields["timetracking"]["remainingEstimateSeconds"] ? self.fields["timetracking"]["remainingEstimateSeconds"] : 0
+  end
+  
+  def status
+    return self.fields["status"] ? self.fields["status"]["name"] : nil
+  end
+  
+  def tester
+    return self.fields["customfield_10250"] ? self.fields["customfield_10250"]["name"] : nil
+  end
+  
+  def summary
+    return self.fields["summary"]
+  end
+  
+  def fix_version
+    fix_versions = self.fields["fixVersions"]
+    return "Unscheduled" if fix_versions.nil?
+    return fix_versions[0]["name"]
+  end
+end
+
 
 #
 # A module that implements some helpful operations
@@ -52,21 +115,28 @@ module JiraHelpers
     return cmd
   end
   
-  def JiraHelpers.search(query)
-    return `curl -s --get --cookie #{$jira_cookie_path} '#{$jira_api_url}/search' --data-urlencode 'jql=#{query}'`
+  def JiraHelpers.search(query, limit=nil)
+    search_cmd = "curl -s --get --cookie #{$jira_cookie_path} '#{$jira_api_url}/search' --data-urlencode 'jql=#{query}' --data-urlencode 'fields=*all,-comment'"
+    search_cmd = search_cmd + " --data-urlencode 'maxResults=#{limit}'" unless limit.nil?
+    return `#{search_cmd}`
   end
+  
+  def JiraHelpers.rank(issue, after, before=nil)
+    rank_data = {"issueKeys" => [issue], "customFieldId" => 10050 }
+    rank_data["rankAfterKey"] = after
+    rank_data["rankBeforeKey"] = before unless before.nil?    
+    rank_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' '#{$jira_url}/rest/greenhopper/1.0/rank' -d '#{JSON.generate(rank_data)}'"
+    puts rank_cmd
+    return `#{rank_cmd}`
+  end  
 
   # Search and return the full data for the found objects
   def JiraHelpers.search_full(query, silent)
     print "Retrieving issues" unless silent
     ans = JiraHelpers.search(query)
     data = JSON.load(ans)
-    full_issues = []
-    data["issues"].each do | issue |
-      print "." unless silent
-      issue_data = `curl -s --get --cookie #{$jira_cookie_path} #{issue["self"]}`
-      full_issues << JSON.load(issue_data)
-    end
+    full_issues_data = data["issues"]
+    full_issues = full_issues_data.collect { | issue_data | Issue.new(issue_data) }
     print "\n" unless silent   
     return full_issues
   end
@@ -76,25 +146,22 @@ module JiraHelpers
     print "Retrieving implementing issues" unless silent
     implementors = []
     issues.each do | issue |
-      print "." unless silent      
-      fields = issue["fields"]
-      fields["links"]["value"].each do | link | 
-        next unless "is implemented by" == link["type"]["description"]
-        implementor_link = link["issue"]
-        implementor_data = `curl -s --get --cookie #{$jira_cookie_path} #{implementor_link}`
-        implementors << JSON.load(implementor_data)  
-      end
+      print "." unless silent
+      implementors.concat issue.implemented_by
     end
-            
+        
     print "\n" unless silent   
     return implementors
   end  
   
   def JiraHelpers.session_valid?
-    ans = `curl -s --head --get --cookie #{$jira_cookie_path} '#{$jira_url }/auth/1/session'`
-    return $?.to_i == 0
+    # Just get the response code, don't care about the rest
+    ans = `curl -s -w %{http_code} -o /dev/null --head --get --cookie #{$jira_cookie_path} '#{$jira_url}/rest/auth/1/session'`
+    return false if $?.to_i != 0
+    return ans == "200"
   end
 end
+
 
 #
 # == Commands
@@ -180,9 +247,10 @@ class Login < JiraCommand
   
   def run
     # The url portion for logging in
+    # may also want to try curl -c cookie_jar -H "Content-Type: application/json" -d '{"username" : "admin", "password" : "admin"}' #{$jira_url}/jira/rest/auth/latest/session
     jira_login = 'secure/Dashboard.jspa?os_authType=basic'
     Dir.mkdir($jira_prefs_path) unless File.exists?($jira_prefs_path)
-    return `curl --head -s -u #{@jira_user} --cookie-jar #{$jira_cookie_path} '#{$jira_url}/secure/Dashboard.jspa?os_authType=basic'`
+    return `curl --head -s -u #{@jira_user} --cookie-jar #{$jira_cookie_path} '#{$jira_url}/#{jira_login}'`
   end
 end
 
@@ -230,6 +298,72 @@ class DumpIssue < LoggedInCommand
 end
 
 #
+# Prioritize an issue
+#
+
+# The REST API can be browsed using the REST endpoint browser. The particular endpoint you are looking for is a PUT request to /rest/greenhopper/1.0/rank. The request body looks # like: 
+
+# {"issueKeys":["ANERDS-102"],"rankBeforeKey":"ANERDS-94","rankAfterKey":"ANERDS-7","customFieldId":10050}
+# The issueKeys are the items to rank (there can be several), the rankBeforeKey is the issue to rank the items before and the rankAfterKey is the issue to rank these items after. # Because there may be multuple Global Rank fields in your JIRA the customFieldId is used to specify which one is used for this ranking.
+
+    # "customfield_10050": {
+    #   "required": false,
+    #   "schema": {
+    #     "type": "array",
+    #     "items": "string",
+    #     "custom": "com.pyxis.greenhopper.jira:gh-global-rank",
+    #     "customId": 10050
+    #   },
+    #   "name": "Global Rank",
+    #   "operations": ["set"]
+    # },
+class RankIssue < LoggedInCommand
+  def initialize
+    super
+    @issue = ARGV[1]
+    @after = ARGV[2]
+    @before = ARGV[3]
+  end
+  
+  def description
+    return "rank #{@issue} after #{@after} before #{@before}"
+  end
+  
+  
+  def run_logged_in
+    ans = JiraHelpers.rank(@issue, @after, @before)
+    return ans
+  end
+  
+end
+
+#
+# Shows the JSON for a search results -- useful for debugging
+#
+class DumpSearch < LoggedInCommand
+  def initialize
+    super
+    @query = ARGV[1]
+    @count = ARGV[2]
+  end
+  
+  def description
+    return "search #{@query} #{@count}"
+  end
+  
+  
+  def run_logged_in
+    @query = "project=SP AND fixVersion = S139 ORDER BY \"Global Rank\" ASC" if @query.nil?
+    @count = 1 if @count.nil?
+
+    ans = JiraHelpers.search(@query, @count)
+    data = JSON.load(ans)
+    return JSON.pretty_generate(data)
+  end
+  
+end
+
+#
 # Lists the issues in the sprint
 #
 class ListSprint < LoggedInCommand
@@ -258,22 +392,20 @@ class ListSprint < LoggedInCommand
     puts header
     time_remaining = 0.0
     full_issues.each do | issue |
-      key = issue["key"]
-      fields = issue["fields"]
-      implements = nil
-      fields["links"]["value"].each { | link | implements = link["issueKey"] if "implements" == link["type"]["description"] }
-      time = fields["timetracking"]["value"] ? fields["timetracking"]["value"]["timeestimate"] : 0
-      status = fields["status"]["value"]["name"]
-      tester = fields["customfield_10250"]["value"] ? fields["customfield_10250"]["value"]["name"] : nil
-      summary = fields["summary"]["value"]
-      row = "%8s\t%12s\t%5.1fh\t%12s\t%8s\t%s" % [key, implements, time / 60.0, status, tester, summary]
+      key = issue.key
+      implements_key = issue.implements.key unless issue.implements.nil?
+      time = issue.time
+      status = issue.status
+      tester = issue.tester
+      summary = issue.summary
+      row = "%8s\t%12s\t%5.1fh\t%12s\t%8s\t%s" % [key, implements_key, time / 3600.0, status, tester, summary]
       puts row
       
       # Tasks that are resolved can be considered to have 0 time remaining
-      time_remaining = time_remaining + time unless status == "Resolved"
+      time_remaining = time_remaining + time unless (status == "Resolved" || status == "Closed")
     end
     print " ", ("-" * 27), "\n"
-    puts "   Time Remaining : %.1fh" % (time_remaining / 60.0)
+    puts "   Time Remaining : %.1fh" % (time_remaining / 3600.0)
   end
 end
 
@@ -299,17 +431,20 @@ class PlanSprint < LoggedInCommand
     init_sp_issue_dict(sp_issues)
     
     bis_query= "project = BIS AND status not in (Resolved, Closed) AND \"Next Sprint\" = YES ORDER BY \"Global Rank\" ASC"
-    bis_issues = JiraHelpers.search_full(bis_query, @silent)    
-    print_issues_table("BIS", bis_issues)
+    bis_issues = JiraHelpers.search_full(bis_query, @silent)
+    enrich_sp_issue_dict(JiraHelpers.retrieve_implementors(bis_issues, @silent))
     
     ccs_query= "project = CCS AND status not in (Resolved, Closed) AND \"Next Sprint\" = YES ORDER BY \"Global Rank\" ASC"
     ccs_issues = JiraHelpers.search_full(ccs_query, @silent)
-    print_issues_table("CCS", ccs_issues)
+    enrich_sp_issue_dict(JiraHelpers.retrieve_implementors(ccs_issues, @silent))    
     
     swe_query= "project = SWE AND status not in (Resolved, Closed) AND \"Next Sprint\" = YES ORDER BY \"Global Rank\" ASC"
     swe_issues = JiraHelpers.search_full(swe_query, @silent)
-    print_issues_table("SWE", swe_issues)
+    enrich_sp_issue_dict(JiraHelpers.retrieve_implementors(swe_issues, @silent))
     
+    print_issues_table("BIS", bis_issues)
+    print_issues_table("CCS", ccs_issues)    
+    print_issues_table("SWE", swe_issues)    
     print_unseen_sp_issues_table(sp_issues)
 
     # Nothing to show
@@ -320,11 +455,24 @@ class PlanSprint < LoggedInCommand
   def init_sp_issue_dict(sp_issues)
     @sp_issue_dict = {}
     sp_issues.each do | issue |
-      key = issue["key"]
+      key = issue.key
       @sp_issue_dict[key] = issue
     end
     @seen_sp_issues = [].to_set
   end
+  
+  #
+  # Take those issues that are not yet resolved / closed and add them to the sp issues dict
+  #
+  def enrich_sp_issue_dict(implementors)
+    implementors.each do | issue |
+      sp = issue.key
+      next if @sp_issue_dict[sp]
+      
+      status = issue.status
+      @sp_issue_dict[sp] = issue_dict unless (status == "Resolved" || status == "Closed")
+    end 
+  end  
   
   def print_unseen_sp_issues_table(full_issues)
     puts ("=" * 12)
@@ -334,20 +482,17 @@ class PlanSprint < LoggedInCommand
     puts header
     subtotal = 0.0
     full_issues.each do | issue |
-      sp = issue["key"]
+      sp = issue.key
       next if @seen_sp_issues.include?(sp)
-      fields = issue["fields"]
-      key = nil
-      fields["links"]["value"].each { | link | key = link["issueKey"] if "implements" == link["type"]["description"] }
-      time = fields["timetracking"]["value"] ? fields["timetracking"]["value"]["timeestimate"] : 0
-      summary = fields["summary"]["value"]
-      time = 0        
-      time = fields["timetracking"]["value"]["timeestimate"] if fields["timetracking"]["value"] != nil
       
+      key = "----"
+      key = issue.implements.key unless issue.implements.nil?
+      time = issue.time
+      summary = issue.summary
       # Tasks that are resolved can be considered to have 0 time remaining
-      status = fields["status"]["value"]["name"]
+      status = issue.status
       subtotal = subtotal + time unless status == "Resolved"
-      row = "%8.1fh\t%12s\t%12s\t%5.1fh\t%s" % [subtotal / 60.0, key, sp, time / 60.0, summary]
+      row = "%8.1fh\t%12s\t%12s\t%5.1fh\t%s" % [subtotal / 3600.0, key, sp, time / 3600.0, summary]
       puts row
     end
   end
@@ -360,16 +505,17 @@ class PlanSprint < LoggedInCommand
     puts header
     subtotal = 0.0
     full_issues.each do | issue |
-      key = issue["key"]
-      fields = issue["fields"]
-      summary = fields["summary"]["value"]
+      key = issue.key
+      summary = issue.summary
+      parent = issue.fields["parent"]
+      parent = parent["key"] unless parent.nil?
+      summary = "#{parent} / #{summary}" unless parent.nil?
             
       implementedby = []
-      fields["links"]["value"].each do | link | 
-        sp = link["issueKey"]
+      issue.implemented_by.each do | sp_issue |
+        sp = sp_issue.key
         # We are only interested in links to issues in the specified sprint
-        next unless @sp_issue_dict[sp]
-        implementedby << sp if "is implemented by" == link["type"]["description"] 
+        implementedby << sp if @sp_issue_dict[sp]
       end
       
       if implementedby.length < 1
@@ -382,17 +528,24 @@ class PlanSprint < LoggedInCommand
         # print one row for each implemented by
         spissue = @sp_issue_dict[sp]
         next if spissue.nil?
-        spfields = spissue["fields"]
-        time = 0        
-        time = spfields["timetracking"]["value"]["timeestimate"] if spfields["timetracking"]["value"] != nil
+        next if @seen_sp_issues.include?(sp)
+        
+        spfields = spissue.fields
+        time = spissue.time
 
         # Tasks that are resolved can be considered to have 0 time remaining
-        status = spfields["status"]["value"]["name"]
-        subtotal = subtotal + time unless status == "Resolved"
+        fix_version = spissue.fix_version
+        issue_in_different_sprint = fix_version != @sprintNumber
+        status = spissue.status       
+        subtotal = subtotal + time unless (status == "Resolved" || status == "Closed" || issue_in_different_sprint)
         if index < 1 
-          row = "%8.1fh\t%12s\t%12s\t%5.1fh\t%s" % [subtotal / 60.0, key, sp, time / 60.0, summary]
+          issue_summary = summary
+          issue_summary =  "[#{fix_version}] #{issue_summary}" if issue_in_different_sprint
+          row = "%8.1fh\t%12s\t%12s\t%5.1fh\t%s" % [subtotal / 3600.0, key, sp, time / 3600.0, issue_summary]
         else
-          row = "%8.1fh\t%12s\t%12s\t%5.1fh\t%s" % [subtotal / 60.0, "\"", sp, time / 60.0, "\""]
+          issue_summary = "\""
+          issue_summary =  "[#{fix_version}] #{issue_summary}" if issue_in_different_sprint
+          row = "%8.1fh\t%12s\t%12s\t%5.1fh\t%s" % [subtotal / 3600.0, "\"", sp, time / 3600.0, issue_summary]
         end
         puts row
         @seen_sp_issues.add(sp)
@@ -486,6 +639,8 @@ class CustIssues < LoggedInCommand
   end  
 end
 
+
+
 def get_command
   return Help.new if ARGV.length < 1
   
@@ -493,8 +648,10 @@ def get_command
   when "login" then Login.new
   when "sprint" then ListSprint.new
   when "dump" then DumpIssue.new
+  when "search" then DumpSearch.new
   when "plan" then PlanSprint.new
 	when "cust" then CustIssues.new
+	when "rank" then RankIssue.new
   else Help.new
   end
 
