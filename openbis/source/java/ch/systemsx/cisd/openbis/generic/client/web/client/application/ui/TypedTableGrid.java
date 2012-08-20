@@ -1459,8 +1459,22 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                 @Override
                 public void execute()
                 {
-                    int id = log("execute refrish grid action");
+                    int id = log("execute refresh grid action");
                     refresh();
+                    viewContext.logStop(id);
+                }
+            };
+    }
+
+    protected final IDelegatedAction createRefreshGridSilentlyAction()
+    {
+        return new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    int id = log("execute refresh grid silently action");
+                    TypedTableGrid.this.refreshGridSilently();
                     viewContext.logStop(id);
                 }
             };
@@ -2364,7 +2378,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         @Override
         public void saveModifications()
         {
-            saveModifications(null);
+            saveModifications(TypedTableGrid.this.createRefreshGridSilentlyAction());
         }
 
         private void setAfterSaveAction(IDelegatedAction afterSaveAction)
