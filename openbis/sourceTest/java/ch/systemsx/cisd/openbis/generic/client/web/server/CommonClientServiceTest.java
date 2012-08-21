@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
@@ -73,7 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.AllDisplaySettingsUpdate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.ColumnDisplaySettingsUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -545,17 +546,15 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     @Test
     public void testUpdateDisplaySettings()
     {
-        final DisplaySettings displaySettings = new DisplaySettings();
         final IDisplaySettingsUpdate displaySettingsUpdate =
-                new AllDisplaySettingsUpdate(displaySettings);
+                new ColumnDisplaySettingsUpdate("my-type-id", new ArrayList<ColumnSetting>());
 
         context.checking(new Expectations()
             {
                 {
                     prepareGetSessionToken(this);
 
-                    one(commonServer).updateDisplaySettings(SESSION_TOKEN, displaySettingsUpdate,
-                            20);
+                    one(commonServer).updateDisplaySettings(SESSION_TOKEN, displaySettingsUpdate);
                 }
             });
 

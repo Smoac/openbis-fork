@@ -69,9 +69,14 @@ public interface IClientService extends RemoteService
     public void setBaseURL(String baseURL);
 
     /**
+     * Saves display settings on the server.
+     */
+    public void saveDisplaySettings(DisplaySettings displaySettings);
+
+    /**
      * Updates display settings on the server.
      */
-    public void updateDisplaySettings(IDisplaySettingsUpdate update);
+    public void updateDisplaySettings(IDisplaySettingsUpdate displaySettingsUpdate);
 
     /**
      * Resets display settings of the logged user to the default settings.

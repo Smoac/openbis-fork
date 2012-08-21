@@ -380,6 +380,18 @@ public class DisplaySettings implements Serializable
         }
     }
 
+    /**
+     * @deprecated Don't use in generic web client - will be overwritten.
+     */
+    @Deprecated
+    public void overwriteColumnSettings(DisplaySettings customDisplaySettings)
+    {
+        synchronized (customDisplaySettings)
+        {
+            this.columnSettings = customDisplaySettings.columnSettings;
+        }
+    }
+
     @Deprecated
     public void clearCustomWebAppSettings()
     {

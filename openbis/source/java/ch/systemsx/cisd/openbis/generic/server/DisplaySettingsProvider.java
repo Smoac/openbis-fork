@@ -78,6 +78,7 @@ public class DisplaySettingsProvider
         if (oldSettings != null)
         {
             settings.overwriteCustomWebAppSettings(oldSettings);
+            settings.overwriteColumnSettings(oldSettings);
         }
         displaySettingsMap.put(person.getUserId(), settings);
         person.setDisplaySettings(settings);

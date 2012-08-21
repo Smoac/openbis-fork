@@ -282,7 +282,7 @@ public abstract class AbstractServerLogger implements IServer
 
     @Override
     public void updateDisplaySettings(String sessionToken,
-            IDisplaySettingsUpdate displaySettingsUpdate, int maxEntityVisits)
+            IDisplaySettingsUpdate displaySettingsUpdate)
     {
         logTracking(sessionToken, "update_display_settings", "UPDATE (%s)", displaySettingsUpdate);
     }

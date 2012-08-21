@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingPara
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.AllDisplaySettingsUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.ColumnDisplaySettingsUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
 
@@ -66,6 +65,8 @@ public class DisplaySettingsManager
 
     public interface IDisplaySettingsUpdater
     {
+        void execute();
+
         void execute(IDisplaySettingsUpdate update);
     }
 
@@ -76,8 +77,9 @@ public class DisplaySettingsManager
     public interface IDisplaySettingsDelayedUpdater
     {
         /** Cancels any running timers and starts a new one. */
-        void executeDelayed(IDisplaySettingsUpdate update, int delayMs);
+        void executeDelayed(int delayMs);
 
+        void executeDelayed(IDisplaySettingsUpdate update, int delayMs);
     }
 
     public DisplaySettingsManager(DisplaySettings displaySettings,
@@ -94,17 +96,36 @@ public class DisplaySettingsManager
         {
             return new IDisplaySettingsDelayedUpdater()
                 {
+                    // in simple view mode or anonymous login settings are temporary - don't
+                    // save them at all
+
+                    @Override
+                    public void executeDelayed(int delayMs)
+                    {
+                    }
+
                     @Override
                     public void executeDelayed(IDisplaySettingsUpdate update, int delayMs)
                     {
-                        // in simple view mode or anonymous login settings are temporary - don't
-                        // save them at all
                     }
                 };
         } else
         {
             return new IDisplaySettingsDelayedUpdater()
                 {
+                    @Override
+                    public void executeDelayed(int delayMs)
+                    {
+                        new DelayedTask(new Listener<BaseEvent>()
+                            {
+                                @Override
+                                public void handleEvent(BaseEvent event)
+                                {
+                                    settingsUpdater.execute();
+                                }
+                            }).delay(delayMs);
+                    }
+
                     @Override
                     public void executeDelayed(final IDisplaySettingsUpdate update,
                             final int delayMs)
@@ -424,8 +445,7 @@ public class DisplaySettingsManager
             Object modifier)
     {
         updateActiveTabSettings(tabGroupDisplayID, selectedTabDisplayID, modifier);
-        updater.executeDelayed(new AllDisplaySettingsUpdate(displaySettings),
-                QUITE_TIME_BEFORE_SETTINGS_SAVED_MS);
+        updater.executeDelayed(QUITE_TIME_BEFORE_SETTINGS_SAVED_MS);
     }
 
     private <C> void storeSettings(String displayTypeID, ColumnModel columnModel,
@@ -441,13 +461,12 @@ public class DisplaySettingsManager
     public void storeDropDownSettings(String dropDownSettingsID, String newValue)
     {
         updateDropDownSettings(dropDownSettingsID, newValue);
-        updater.executeDelayed(new AllDisplaySettingsUpdate(displaySettings),
-                QUITE_TIME_BEFORE_SETTINGS_SAVED_MS);
+        updater.executeDelayed(QUITE_TIME_BEFORE_SETTINGS_SAVED_MS);
     }
 
     public void storeSettings()
     {
-        updater.executeDelayed(new AllDisplaySettingsUpdate(displaySettings), 1); // 0 not allowed
+        updater.executeDelayed(1); // 0 not allowed
     }
 
     private static List<ColumnSetting> createColumnsSettings(ColumnModel columnModel,

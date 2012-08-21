@@ -52,8 +52,12 @@ public interface IClientServiceAsync
     /** @see IClientService#setBaseURL(String) */
     public void setBaseURL(String baseURL, AsyncCallback<SessionContext> callback);
 
+    /** @see IClientService#saveDisplaySettings(DisplaySettings) */
+    public void saveDisplaySettings(DisplaySettings displaySettings, AsyncCallback<Void> callback);
+
     /** @see IClientService#updateDisplaySettings(IDisplaySettingsUpdate) */
-    public void updateDisplaySettings(IDisplaySettingsUpdate update, AsyncCallback<Void> callback);
+    public void updateDisplaySettings(IDisplaySettingsUpdate displaySettingsUpdate,
+            AsyncCallback<Void> callback);
 
     /** @see IClientService#resetDisplaySettings() */
     public void resetDisplaySettings(AsyncCallback<DisplaySettings> resetUserSettingsCallback);

@@ -85,7 +85,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebApp;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.AllDisplaySettingsUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
@@ -638,14 +637,31 @@ public abstract class AbstractClientService implements IClientService,
     }
 
     @Override
-    public void updateDisplaySettings(IDisplaySettingsUpdate displaySettingsUpdate)
+    public void saveDisplaySettings(DisplaySettings displaySettings)
     {
         try
         {
             final String sessionToken = getSessionToken();
             IServer server = getServer();
             int maxEntityVisits = getWebClientConfiguration().getMaxEntityVisits();
-            server.updateDisplaySettings(sessionToken, displaySettingsUpdate, maxEntityVisits);
+            server.saveDisplaySettings(sessionToken, displaySettings, maxEntityVisits);
+        } catch (InvalidSessionException e)
+        {
+            // ignored
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    @Override
+    public void updateDisplaySettings(IDisplaySettingsUpdate displaySettingsUpdate)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            IServer server = getServer();
+            server.updateDisplaySettings(sessionToken, displaySettingsUpdate);
         } catch (InvalidSessionException e)
         {
             // ignored
@@ -663,7 +679,7 @@ public abstract class AbstractClientService implements IClientService,
             final String sessionToken = getSessionToken();
             IServer server = getServer();
             final DisplaySettings defaultSettings = server.getDefaultDisplaySettings(sessionToken);
-            updateDisplaySettings(new AllDisplaySettingsUpdate(defaultSettings));
+            saveDisplaySettings(defaultSettings);
             return defaultSettings;
         } catch (InvalidSessionException e)
         {

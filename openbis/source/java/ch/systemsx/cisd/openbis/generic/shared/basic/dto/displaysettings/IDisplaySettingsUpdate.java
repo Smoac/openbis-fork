@@ -21,11 +21,16 @@ import java.io.Serializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
+ * A command that updates or creates a new display settings object.
+ * 
  * @author pkupczyk
  */
 public interface IDisplaySettingsUpdate extends Serializable
 {
 
+    /**
+     * Returns an updated or a new display settings object.
+     */
     public DisplaySettings update(DisplaySettings displaySettings);
 
 }

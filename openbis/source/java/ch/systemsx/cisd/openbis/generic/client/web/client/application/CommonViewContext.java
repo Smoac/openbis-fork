@@ -172,6 +172,13 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
         IDisplaySettingsUpdater settingsUpdater = new IDisplaySettingsUpdater()
             {
                 @Override
+                public void execute()
+                {
+                    service.saveDisplaySettings(displaySettings, new VoidAsyncCallback<Void>(
+                            CommonViewContext.this));
+                }
+
+                @Override
                 public void execute(IDisplaySettingsUpdate update)
                 {
                     service.updateDisplaySettings(update, new VoidAsyncCallback<Void>(

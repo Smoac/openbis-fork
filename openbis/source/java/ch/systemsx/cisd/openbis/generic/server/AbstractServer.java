@@ -708,7 +708,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     @Override
     public void updateDisplaySettings(String sessionToken,
-            IDisplaySettingsUpdate displaySettingsUpdate, int maxEntityVisits)
+            IDisplaySettingsUpdate displaySettingsUpdate)
     {
         if (displaySettingsUpdate == null)
         {
@@ -727,7 +727,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                             displaySettingsProvider.getCurrentDisplaySettings(person);
                     DisplaySettings newDisplaySettings =
                             displaySettingsUpdate.update(currentDisplaySettings);
-                    saveDisplaySettings(sessionToken, newDisplaySettings, maxEntityVisits);
+                    saveDisplaySettings(sessionToken, newDisplaySettings, -1);
                 }
             }
         } catch (InvalidSessionException e)

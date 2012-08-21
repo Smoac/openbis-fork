@@ -22,6 +22,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
+ * A command that updates column settings for a one specified grid.
+ * 
  * @author pkupczyk
  */
 public class ColumnDisplaySettingsUpdate implements IDisplaySettingsUpdate

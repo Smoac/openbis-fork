@@ -98,7 +98,7 @@ public interface IServer extends ISessionProvider
 
     @Transactional
     public void updateDisplaySettings(String sessionToken,
-            IDisplaySettingsUpdate displaySettingsUpdate, int maxEntityVisits);
+            IDisplaySettingsUpdate displaySettingsUpdate);
 
     /**
      * Lists grid custom columns for a given grid id.
