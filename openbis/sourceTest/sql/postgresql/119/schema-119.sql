@@ -495,10 +495,7 @@ CREATE SEQUENCE code_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-CREATE SEQUENCE EXPERIMENT_CODE_SEQ;
-CREATE SEQUENCE SAMPLE_CODE_SEQ;
-    
-SELECT pg_catalog.setval('code_seq', 7, false);
+SELECT pg_catalog.setval('code_seq', 8, true);
 CREATE TABLE controlled_vocabularies (
     id tech_id NOT NULL,
     code code NOT NULL,
@@ -812,6 +809,13 @@ CREATE TABLE events (
     identifiers text_value NOT NULL,
     CONSTRAINT evnt_et_enum_ck CHECK (((entity_type)::text = ANY (ARRAY[('ATTACHMENT'::character varying)::text, ('DATASET'::character varying)::text, ('EXPERIMENT'::character varying)::text, ('SPACE'::character varying)::text, ('MATERIAL'::character varying)::text, ('PROJECT'::character varying)::text, ('PROPERTY_TYPE'::character varying)::text, ('SAMPLE'::character varying)::text, ('VOCABULARY'::character varying)::text, ('AUTHORIZATION_GROUP'::character varying)::text])))
 );
+CREATE SEQUENCE experiment_code_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+SELECT pg_catalog.setval('experiment_code_seq', 7, true);
 CREATE TABLE experiment_properties_history (
     id tech_id NOT NULL,
     expe_id tech_id NOT NULL,
@@ -1257,6 +1261,13 @@ CREATE TABLE role_assignments (
     CONSTRAINT roas_ag_pers_arc_ck CHECK ((((ag_id_grantee IS NOT NULL) AND (pers_id_grantee IS NULL)) OR ((ag_id_grantee IS NULL) AND (pers_id_grantee IS NOT NULL)))),
     CONSTRAINT roas_dbin_space_arc_ck CHECK ((((dbin_id IS NOT NULL) AND (space_id IS NULL)) OR ((dbin_id IS NULL) AND (space_id IS NOT NULL))))
 );
+CREATE SEQUENCE sample_code_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+SELECT pg_catalog.setval('sample_code_seq', 8, true);
 CREATE TABLE sample_properties_history (
     id tech_id NOT NULL,
     samp_id tech_id NOT NULL,
