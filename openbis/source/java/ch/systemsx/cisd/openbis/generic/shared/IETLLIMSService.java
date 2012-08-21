@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabula
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -403,12 +404,20 @@ public interface IETLLIMSService extends IServer, ISessionProvider, IConversatio
     public String createPermId(final String sessionToken) throws UserFailureException;
 
     /**
-     * Draw a new unique ID. The returned value can be used as a part of a code for samples,
-     * experiments etc. which is guaranteed to be unique.
+     * Draw a new unique ID. The returned value is guaranteed to be unique.
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public long drawANewUniqueID(String sessionToken) throws UserFailureException;
+
+    /**
+     * Draw a new unique ID for the specified entity kind. The returned value is guaranteed to be
+     * unique.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public long drawANewUniqueID(String sessionToken, EntityKind entityKind)
+            throws UserFailureException;
 
     /**
      * Lists samples codes filtered by specified criteria, see {@link ListSamplesByPropertyCriteria}
@@ -597,11 +606,12 @@ public interface IETLLIMSService extends IServer, ISessionProvider, IConversatio
             SpaceIdentifier spaceId);
 
     /**
-     * Returns a list of unique codes.
+     * Returns a list of unique codes for the specified entity kind.
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public List<String> generateCodes(String sessionToken, String prefix, int number);
+    public List<String> generateCodes(String sessionToken, String prefix, EntityKind entityKind,
+            int number);
 
     /**
      * Returns a list users who could be considered administrators.

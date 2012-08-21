@@ -1060,7 +1060,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public String generateCode(String sessionToken, String prefix);
+    public String generateCode(String sessionToken, String prefix, EntityKind entityKind);
 
     /**
      * Saves changed project.

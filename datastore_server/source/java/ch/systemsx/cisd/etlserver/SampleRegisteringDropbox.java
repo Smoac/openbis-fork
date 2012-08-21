@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -213,7 +214,7 @@ public class SampleRegisteringDropbox implements IDataSetHandler
                     @Override
                     public List<String> generateCodes(int size)
                     {
-                        return service.generateCodes(samplePrefix, size);
+                        return service.generateCodes(samplePrefix, EntityKind.SAMPLE, size);
                     }
                 };
         } else

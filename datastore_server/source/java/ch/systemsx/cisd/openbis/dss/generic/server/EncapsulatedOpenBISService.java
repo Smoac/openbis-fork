@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -445,6 +446,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
+    public long drawANewUniqueID(EntityKind entityKind)
+    {
+        return service.drawANewUniqueID(session.getSessionToken(), entityKind);
+    }
+
+    @Override
     public ExternalData tryGetDataSet(String dataSetCode) throws UserFailureException
     {
         return service.tryGetDataSet(session.getSessionToken(), dataSetCode);
@@ -568,9 +575,9 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public List<String> generateCodes(String prefix, int size)
+    public List<String> generateCodes(String prefix, EntityKind entityKind, int size)
     {
-        return service.generateCodes(session.getSessionToken(), prefix, size);
+        return service.generateCodes(session.getSessionToken(), prefix, entityKind, size);
     }
 
     @Override

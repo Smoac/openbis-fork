@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.hibernate.SessionFactory;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 
@@ -28,11 +32,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
  */
 public class CodeSequenceDAO extends AbstractDAO implements ICodeSequenceDAO
 {
+    private static final Map<EntityKind, String> entityKindSequenceMap =
+            new HashMap<EntityKind, String>();
 
     protected CodeSequenceDAO(final SessionFactory sessionFactory,
             final DatabaseInstancePE databaseInstance)
     {
         super(sessionFactory, databaseInstance);
+        entityKindSequenceMap.put(EntityKind.EXPERIMENT, SequenceNames.EXPERIMENT_CODE_SEQUENCE);
+        entityKindSequenceMap.put(EntityKind.SAMPLE, SequenceNames.SAMPLE_CODE_SEQUENCE);
+        entityKindSequenceMap.put(EntityKind.DATA_SET, SequenceNames.CODE_SEQUENCE);
+        entityKindSequenceMap.put(EntityKind.MATERIAL, SequenceNames.CODE_SEQUENCE);
     }
 
     @Override
@@ -42,15 +52,8 @@ public class CodeSequenceDAO extends AbstractDAO implements ICodeSequenceDAO
     }
 
     @Override
-    public long getNextExperimentCodeSequenceId()
+    public long getNextCodeSequenceId(EntityKind entityKind)
     {
-        return getNextSequenceId(SequenceNames.EXPERIMENT_CODE_SEQUENCE);
+        return getNextSequenceId(entityKindSequenceMap.get(entityKind));
     }
-
-    @Override
-    public long getNextSampleCodeSequenceId()
-    {
-        return getNextSequenceId(SequenceNames.SAMPLE_CODE_SEQUENCE);
-    }
-
 }

@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -88,8 +89,8 @@ public interface IGenericServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public SampleParentWithDerived getSampleInfo(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId)
-            throws UserFailureException;
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
+            final TechId sampleId) throws UserFailureException;
 
     /**
      * Registers a new sample.
@@ -98,8 +99,8 @@ public interface IGenericServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public void registerSample(final String sessionToken,
-            @AuthorizationGuard(guardClass = NewSamplePredicate.class) final NewSample newSample,
-            final Collection<NewAttachment> attachments);
+            @AuthorizationGuard(guardClass = NewSamplePredicate.class)
+            final NewSample newSample, final Collection<NewAttachment> attachments);
 
     /**
      * For given {@link TechId} returns the corresponding {@link ExternalData}.
@@ -107,7 +108,8 @@ public interface IGenericServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ExternalData getDataSetInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId);
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
+            TechId datasetId);
 
     /**
      * Returns attachment described by given experiment identifier, filename and version.
@@ -115,8 +117,9 @@ public interface IGenericServer extends IServer
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AttachmentWithContent getExperimentFileAttachment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
-            String filename, Integer versionOrNull) throws UserFailureException;
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
+            TechId experimentId, String filename, Integer versionOrNull)
+            throws UserFailureException;
 
     /**
      * Registers samples of different types in batches.
@@ -125,10 +128,9 @@ public interface IGenericServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     @Capability("WRITE_SAMPLE")
-    public void registerSamples(
-            final String sessionToken,
-            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class) final List<NewSamplesWithTypes> newSamplesWithType)
-            throws UserFailureException;
+    public void registerSamples(final String sessionToken,
+            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class)
+            final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException;
 
     /**
      * Registers or updates samples of different types in batches.
@@ -137,10 +139,9 @@ public interface IGenericServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     @Capability("WRITE_SAMPLE")
-    public void registerOrUpdateSamples(
-            final String sessionToken,
-            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class) final List<NewSamplesWithTypes> newSamplesWithType)
-            throws UserFailureException;
+    public void registerOrUpdateSamples(final String sessionToken,
+            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class)
+            final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException;
 
     /**
      * Registers or updates samples and materials of different types in batches.
@@ -173,10 +174,9 @@ public interface IGenericServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     @Capability("WRITE_SAMPLE")
-    public void updateSamples(
-            final String sessionToken,
-            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class) final List<NewSamplesWithTypes> newSamplesWithType)
-            throws UserFailureException;
+    public void updateSamples(final String sessionToken,
+            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class)
+            final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException;
 
     /**
      * Registers experiment. At the same time samples may be registered or updated.
@@ -187,10 +187,10 @@ public interface IGenericServer extends IServer
         { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     @Capability("WRITE_EXPERIMENT_SAMPLE")
-    public void registerExperiment(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = NewExperimentPredicate.class) final NewExperiment experiment,
-            final Collection<NewAttachment> attachments) throws UserFailureException;
+    public void registerExperiment(String sessionToken,
+            @AuthorizationGuard(guardClass = NewExperimentPredicate.class)
+            final NewExperiment experiment, final Collection<NewAttachment> attachments)
+            throws UserFailureException;
 
     /**
      * Registers experiments in batch.
@@ -199,10 +199,9 @@ public interface IGenericServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
     @Capability("WRITE_EXPERIMENT_SAMPLE")
-    public void registerExperiments(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = NewExperimentsWithTypePredicate.class) final NewExperimentsWithType experiments)
-            throws UserFailureException;
+    public void registerExperiments(String sessionToken,
+            @AuthorizationGuard(guardClass = NewExperimentsWithTypePredicate.class)
+            final NewExperimentsWithType experiments) throws UserFailureException;
 
     /**
      * Update experiments in batch.
@@ -211,10 +210,9 @@ public interface IGenericServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
     @Capability("WRITE_EXPERIMENT_SAMPLE")
-    public void updateExperiments(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = UpdatedExperimentsWithTypePredicate.class) final UpdatedExperimentsWithType experiments)
-            throws UserFailureException;
+    public void updateExperiments(String sessionToken,
+            @AuthorizationGuard(guardClass = UpdatedExperimentsWithTypePredicate.class)
+            final UpdatedExperimentsWithType experiments) throws UserFailureException;
 
     /**
      * Registers materials in batch.
@@ -255,8 +253,8 @@ public interface IGenericServer extends IServer
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AttachmentWithContent getSampleFileAttachment(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId,
-            String fileName, Integer versionOrNull);
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
+            TechId sampleId, String fileName, Integer versionOrNull);
 
     /**
      * Returns attachment described by given project identifier, filename and version.
@@ -264,15 +262,16 @@ public interface IGenericServer extends IServer
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AttachmentWithContent getProjectFileAttachment(String sessionToken,
-            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId,
-            String fileName, Integer versionOrNull);
+            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class)
+            TechId projectId, String fileName, Integer versionOrNull);
 
     /**
      * Returns a list of unique codes.
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<String> generateCodes(String sessionToken, String prefix, int number);
+    public List<String> generateCodes(String sessionToken, String prefix, EntityKind entityKind,
+            int number);
 
     /**
      * Saves changed experiment.
@@ -282,9 +281,9 @@ public interface IGenericServer extends IServer
     @DatabaseUpdateModification(value =
         { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
     @Capability("WRITE_EXPERIMENT_SAMPLE")
-    public ExperimentUpdateResult updateExperiment(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class) ExperimentUpdatesDTO updates);
+    public ExperimentUpdateResult updateExperiment(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class)
+            ExperimentUpdatesDTO updates);
 
     /**
      * Saves changed material.
@@ -303,7 +302,8 @@ public interface IGenericServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public SampleUpdateResult updateSample(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class) SampleUpdatesDTO updates);
+            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class)
+            SampleUpdatesDTO updates);
 
     /**
      * Saves changed data set.
@@ -312,9 +312,9 @@ public interface IGenericServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     @Capability("WRITE_DATASET")
-    public DataSetUpdateResult updateDataSet(
-            String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class) DataSetUpdatesDTO updates);
+    public DataSetUpdateResult updateDataSet(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class)
+            DataSetUpdatesDTO updates);
 
     /**
      * Updates data sets of different types in batches.
@@ -323,9 +323,8 @@ public interface IGenericServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     @Capability("WRITE_DATASET")
-    public void updateDataSets(
-            final String sessionToken,
-            @AuthorizationGuard(guardClass = NewDataSetsWithTypePredicate.class) final NewDataSetsWithTypes newSamplesWithType)
-            throws UserFailureException;
+    public void updateDataSets(final String sessionToken,
+            @AuthorizationGuard(guardClass = NewDataSetsWithTypePredicate.class)
+            final NewDataSetsWithTypes newSamplesWithType) throws UserFailureException;
 
 }

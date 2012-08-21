@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
@@ -356,7 +357,8 @@ public class GenericClientService extends AbstractClientService implements IGene
                     @Override
                     public List<String> generateCodes(int size)
                     {
-                        return genericServer.generateCodes(getSessionToken(), codePrefix, size);
+                        return genericServer.generateCodes(getSessionToken(), codePrefix,
+                                EntityKind.SAMPLE, size);
                     }
                 };
         } else

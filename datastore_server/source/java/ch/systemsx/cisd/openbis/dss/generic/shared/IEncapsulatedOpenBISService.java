@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -313,10 +314,17 @@ public interface IEncapsulatedOpenBISService
     public long drawANewUniqueID();
 
     /**
-     * Creates a new unique ID which can be used to create codes which are guaranteed to be unique.
+     * Creates a new unique ID for the specified entity kind. It is guaranteed to be unique for that
+     * entity kind.
      */
     @ManagedAuthentication
-    public List<String> generateCodes(String prefix, int size);
+    public long drawANewUniqueID(EntityKind entityKind);
+    
+    /**
+     * Creates a list of specified size with new unique ID for the specified entity kind.
+     */
+    @ManagedAuthentication
+    public List<String> generateCodes(String prefix, EntityKind entityKind, int size);
 
     /**
      * Returns the version of the service.

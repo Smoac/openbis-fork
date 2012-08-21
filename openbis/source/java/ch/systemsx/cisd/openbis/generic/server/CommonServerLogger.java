@@ -929,9 +929,9 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public String generateCode(String sessionToken, String prefix)
+    public String generateCode(String sessionToken, String prefix, EntityKind entityKind)
     {
-        logAccess(sessionToken, "generate_code", "PREFIX(%s)", prefix);
+        logAccess(sessionToken, "generate_code", "PREFIX(%s) ENTITY_KIND(%s)", prefix, entityKind);
         return null;
     }
 

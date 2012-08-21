@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -116,6 +117,14 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     public long drawANewUniqueID(String sessionToken) throws UserFailureException
     {
         logTracking(sessionToken, "drawANewUniqueID", "");
+        return 0;
+    }
+
+    @Override
+    public long drawANewUniqueID(String sessionToken, EntityKind entityKind)
+            throws UserFailureException
+    {
+        logTracking(sessionToken, "drawANewUniqueID", "ENTITY_KIND(%s)", entityKind);
         return 0;
     }
 
@@ -464,9 +473,11 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public List<String> generateCodes(String sessionToken, String prefix, int number)
+    public List<String> generateCodes(String sessionToken, String prefix, EntityKind entityKind,
+            int number)
     {
-        logAccess(sessionToken, "generateCodes", "PREFIX(%s) NUMBER(%s)", prefix, number);
+        logAccess(sessionToken, "generateCodes", "PREFIX(%s) ENTITY_KIND(%s) NUMBER(%s)", prefix,
+                entityKind, number);
         return null;
     }
 

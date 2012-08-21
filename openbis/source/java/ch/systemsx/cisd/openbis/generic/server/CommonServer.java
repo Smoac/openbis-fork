@@ -1781,10 +1781,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    public String generateCode(String sessionToken, String prefix)
+    public String generateCode(String sessionToken, String prefix, EntityKind entityKind)
     {
         checkSession(sessionToken);
-        return prefix + getDAOFactory().getCodeSequenceDAO().getNextCodeSequenceId();
+        return prefix + getDAOFactory().getCodeSequenceDAO().getNextCodeSequenceId(entityKind);
     }
 
     @Override

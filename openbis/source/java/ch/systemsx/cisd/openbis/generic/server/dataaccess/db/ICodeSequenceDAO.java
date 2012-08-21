@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+
 /**
  * <i>Data Access Object</i> for code sequences.
  * 
@@ -25,7 +27,5 @@ public interface ICodeSequenceDAO
 {
     public long getNextCodeSequenceId();
 
-    public long getNextExperimentCodeSequenceId();
-
-    public long getNextSampleCodeSequenceId();
+    public long getNextCodeSequenceId(EntityKind entityKind);
 }

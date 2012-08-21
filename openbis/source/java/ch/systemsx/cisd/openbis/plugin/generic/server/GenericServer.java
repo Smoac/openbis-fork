@@ -644,13 +644,15 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
-    public List<String> generateCodes(String sessionToken, String prefix, int number)
+    public List<String> generateCodes(String sessionToken, String prefix,
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind, int number)
     {
         checkSession(sessionToken);
         ArrayList<String> result = new ArrayList<String>();
         for (int i = 0; i < number; i++)
         {
-            result.add(prefix + getDAOFactory().getCodeSequenceDAO().getNextCodeSequenceId());
+            result.add(prefix
+                    + getDAOFactory().getCodeSequenceDAO().getNextCodeSequenceId(entityKind));
         }
         return result;
     }

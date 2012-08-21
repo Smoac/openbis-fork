@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -65,7 +66,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
     public void testRegisterExperimentWithoutMissingMandatoryProperty()
     {
         logIntoCommonClientService();
-        String experimentCode = commonClientService.generateCode("EXP");
+        String experimentCode = commonClientService.generateCode("EXP", EntityKind.EXPERIMENT);
         String experimentIdentifier = "/cisd/default/" + experimentCode;
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
 
@@ -85,7 +86,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
     public void testRegisterExperiment()
     {
         logIntoCommonClientService();
-        String experimentCode = commonClientService.generateCode("EXP");
+        String experimentCode = commonClientService.generateCode("EXP", EntityKind.EXPERIMENT);
         String experimentIdentifier = "/cisd/default/" + experimentCode;
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
         newExperiment.setProperties(new IEntityProperty[]
@@ -109,7 +110,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
     public void testRegisterExperimentWithSamples()
     {
         logIntoCommonClientService();
-        String experimentCode = commonClientService.generateCode("EXP");
+        String experimentCode = commonClientService.generateCode("EXP", EntityKind.EXPERIMENT);
         String experimentIdentifier = "/cisd/default/" + experimentCode;
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
         newExperiment.setProperties(new IEntityProperty[]
@@ -139,7 +140,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
 
         String batchSamplesFileContent = "identifier\torganism\n" + "S1001\tfly\n" + "S1002\tdog\n";
         addMultiPartFile(SAMPLES_SESSION_KEY, "samples.txt", batchSamplesFileContent.getBytes());
-        String experimentCode = commonClientService.generateCode("EXP");
+        String experimentCode = commonClientService.generateCode("EXP", EntityKind.EXPERIMENT);
         String experimentIdentifier = "/cisd/default/" + experimentCode;
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
         newExperiment.setProperties(new IEntityProperty[]
@@ -186,7 +187,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         String sessionToken = logIntoCommonClientService().getSessionID();
 
         addMultiPartFile(ATTACHMENTS_SESSION_KEY, "hello.txt", "hello world".getBytes());
-        String experimentCode = commonClientService.generateCode("EXP");
+        String experimentCode = commonClientService.generateCode("EXP", EntityKind.EXPERIMENT);
         String experimentIdentifier = "/cisd/default/" + experimentCode;
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
         newExperiment.setProperties(new IEntityProperty[]
@@ -291,7 +292,8 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         // Create an experiment with samples
         String batchSamplesFileContent = "identifier\torganism\n" + "S2001\tfly\n" + "S2002\tdog\n";
         addMultiPartFile(SAMPLES_SESSION_KEY, "samples.txt", batchSamplesFileContent.getBytes());
-        String experimentCode = commonClientService.generateCode("EXP-WITH-PROJ");
+        String experimentCode =
+                commonClientService.generateCode("EXP-WITH-PROJ", EntityKind.EXPERIMENT);
         String experimentIdentifier = "/cisd/default/" + experimentCode;
         List<String> expIds = Collections.singletonList(experimentIdentifier);
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
@@ -425,7 +427,8 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         ArrayList<String> expIds = new ArrayList<String>();
         for (int i = 0; i < count; ++i)
         {
-            String experimentCode = commonClientService.generateCode("BULK-EXP");
+            String experimentCode =
+                    commonClientService.generateCode("BULK-EXP", EntityKind.EXPERIMENT);
             String experimentIdentifier = "/cisd/default/" + experimentCode;
             NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
             newExperiment.setProperties(new IEntityProperty[]

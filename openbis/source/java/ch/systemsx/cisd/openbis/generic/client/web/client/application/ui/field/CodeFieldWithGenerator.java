@@ -22,6 +22,7 @@ import com.google.gwt.user.client.Element;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * The {@link CodeField} extension "auto generate" option.
@@ -36,12 +37,15 @@ public class CodeFieldWithGenerator extends CodeField
 
     private final boolean autoGenerateCode;
 
+    private final EntityKind entityKind;
+
     public CodeFieldWithGenerator(final IViewContext<?> viewContext, final String label,
-            String codePrefix, boolean autoGenerateCode)
+            String codePrefix, EntityKind entityKind, boolean autoGenerateCode)
     {
         super(viewContext, label);
         this.viewContext = viewContext;
         this.codePrefix = codePrefix;
+        this.entityKind = entityKind;
         this.autoGenerateCode = autoGenerateCode;
         setTriggerStyle("x-form-trigger-generate");
         setHideTrigger(false);
@@ -92,7 +96,7 @@ public class CodeFieldWithGenerator extends CodeField
      */
     public void generateCode()
     {
-        viewContext.getCommonService().generateCode(codePrefix,
+        viewContext.getCommonService().generateCode(codePrefix, entityKind,
                 new GenerateCodeCallback(viewContext));
     }
 

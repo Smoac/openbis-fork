@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntit
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IdentifierExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -58,7 +59,7 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         logIntoCommonClientService();
 
         NewSample sample = new NewSample();
-        String identifier = "/cisd/" + commonClientService.generateCode("S-");
+        String identifier = "/cisd/" + commonClientService.generateCode("S-", EntityKind.SAMPLE);
         sample.setIdentifier(identifier);
         SampleType sampleType = new SampleType();
         sampleType.setCode(CELL_PLATE);

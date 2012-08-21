@@ -1620,11 +1620,11 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public String generateCode(String prefix)
+    public String generateCode(String prefix, EntityKind entityKind)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        return commonServer.generateCode(sessionToken, prefix);
+        return commonServer.generateCode(sessionToken, prefix, entityKind);
     }
 
     @Override

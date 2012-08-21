@@ -482,6 +482,15 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     @Override
+    public long drawANewUniqueID(String sessionToken,
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind)
+            throws UserFailureException
+    {
+        checkSession(sessionToken);
+        return daoFactory.getCodeSequenceDAO().getNextCodeSequenceId(entityKind);
+    }
+
+    @Override
     public List<Experiment> listExperiments(String sessionToken,
             List<ExperimentIdentifier> experimentIdentifiers,
             ExperimentFetchOptions experimentFetchOptions) throws UserFailureException
@@ -1145,13 +1154,14 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     @Override
-    public List<String> generateCodes(String sessionToken, String prefix, int number)
+    public List<String> generateCodes(String sessionToken, String prefix,
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind, int number)
     {
         checkSession(sessionToken);
         ArrayList<String> result = new ArrayList<String>();
         for (int i = 0; i < number; i++)
         {
-            result.add(prefix + daoFactory.getCodeSequenceDAO().getNextCodeSequenceId());
+            result.add(prefix + daoFactory.getCodeSequenceDAO().getNextCodeSequenceId(entityKind));
         }
         return result;
     }

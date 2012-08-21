@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ParentDataSetCodes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -89,7 +90,8 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
         }
         ProjectIdentifier projectIdentifier = new ProjectIdentifier(items[0], items[1]);
         ExperimentIdentifier experimentIdentifier =
-                new ExperimentIdentifier(projectIdentifier, "E" + service.drawANewUniqueID());
+                new ExperimentIdentifier(projectIdentifier, "E"
+                        + service.drawANewUniqueID(EntityKind.EXPERIMENT));
         NewExperiment experiment =
                 new NewExperiment(experimentIdentifier.toString(), experimentTypeCode);
         ExperimentType experimentType = service.getExperimentType(experimentTypeCode);

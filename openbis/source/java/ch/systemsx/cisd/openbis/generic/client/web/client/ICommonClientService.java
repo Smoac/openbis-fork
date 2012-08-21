@@ -784,7 +784,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Generates unique code.
      */
-    public String generateCode(final String prefix) throws UserFailureException;
+    public String generateCode(final String prefix, EntityKind entityKind)
+            throws UserFailureException;
 
     /**
      * Delete entity types.

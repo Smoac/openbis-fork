@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -152,9 +153,11 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     }
 
     @Override
-    public List<String> generateCodes(String sessionToken, String prefix, int number)
+    public List<String> generateCodes(String sessionToken, String prefix, EntityKind entityKind,
+            int number)
     {
-        logAccess(sessionToken, "generate_codes", "PREFIX(%s) NUMBER(%s)", prefix, number);
+        logAccess(sessionToken, "generate_codes", "PREFIX(%s) ENTITY_KIND(%s) NUMBER(%s)", prefix,
+                entityKind, number);
         return null;
     }
 
