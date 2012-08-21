@@ -21,6 +21,9 @@ import java.util.Set;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
 /**
+ * Interface to be implemented if a component wants to be notified of if for a list of relevant
+ * {@link DatabaseModificationKind} instances changes have been observed.
+ * 
  * @author Tomasz Pylak
  */
 public interface IDatabaseModificationObserver

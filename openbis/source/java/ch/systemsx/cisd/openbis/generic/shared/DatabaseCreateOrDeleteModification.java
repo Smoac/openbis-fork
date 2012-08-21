@@ -23,9 +23,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 
 /**
- * Used to mark methods which create or delete the database objects.
+ * Annotation used to mark methods which create or delete specified database objects. It can be used
+ * by a (GUI) client to trigger view updates. For more details see {@link LastModificationState}.
  * 
  * @author Tomasz Pylak
  */

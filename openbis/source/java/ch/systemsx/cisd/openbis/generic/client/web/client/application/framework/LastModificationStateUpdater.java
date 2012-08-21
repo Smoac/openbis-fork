@@ -22,12 +22,19 @@ import java.util.Set;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 
 /**
  * Stores last database modification state and provides a method to update the state from the
- * server. Informs a specified modification observer about relevant modifications.
+ * server. Informs a specified modification observer about relevant modifications. For more details
+ * see {@link LastModificationState}.
+ * <p>
+ * This updater is associated with {@link DefaultTabItem} where either a
+ * {@link DatabaseModificationAwareComponent} or an {@link IDisposableComponent} is the
+ * {@link IDatabaseModificationObserver} instance which will be informed if relevant modifications
+ * have been detected.
  * 
  * @author Tomasz Pylak
  */
@@ -55,7 +62,7 @@ class LastModificationStateUpdater extends AbstractAsyncCallback<LastModificatio
 
     public void update()
     {
-		reuse();
+        reuse();
         commonService.getLastModificationState(this);
     }
 
