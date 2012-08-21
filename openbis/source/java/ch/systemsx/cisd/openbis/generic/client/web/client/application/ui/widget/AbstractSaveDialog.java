@@ -93,7 +93,7 @@ abstract public class AbstractSaveDialog extends Window
         addButton(createCancelButton());
     }
 
-    protected final void addField(Widget widget)
+    public final void addField(Widget widget)
     {
         form.add(widget);
     }
