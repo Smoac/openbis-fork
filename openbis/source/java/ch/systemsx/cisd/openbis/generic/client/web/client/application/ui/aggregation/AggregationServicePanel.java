@@ -17,11 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.aggregation;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -48,14 +49,26 @@ public class AggregationServicePanel extends ContentPanel
 
     private static final String DSS_CODE_PARAM = "dss";
 
-    private static final String DISPLAY_SETTINGS_ID = "displaySettingsId";
+    private static final String GRID_SETTINGS_ID_PARAM = "gridSettingsId";
+
+    private static final String GRID_HEADER_TEXT_PARAM = "gridHeaderText";
+
+    private static final Set<String> PARAMETERS = new HashSet<String>();
+
+    static
+    {
+        PARAMETERS.add(SERVICE_KEY_PARAM);
+        PARAMETERS.add(DSS_CODE_PARAM);
+        PARAMETERS.add(GRID_SETTINGS_ID_PARAM);
+        PARAMETERS.add(GRID_HEADER_TEXT_PARAM);
+    }
 
     private static class AggregationServiceGeneratedAction implements
             IOnReportComponentGeneratedAction
     {
-        private final LayoutContainer layoutContainer;
+        private final AggregationServicePanel layoutContainer;
 
-        private AggregationServiceGeneratedAction(LayoutContainer layoutContainer)
+        private AggregationServiceGeneratedAction(AggregationServicePanel layoutContainer)
         {
             this.layoutContainer = layoutContainer;
         }
@@ -64,6 +77,10 @@ public class AggregationServicePanel extends ContentPanel
         public void execute(final IDisposableComponent reportComponent)
         {
             layoutContainer.removeAll();
+            if (layoutContainer.getGridHeaderText() != null)
+            {
+                layoutContainer.setHeading(layoutContainer.getGridHeaderText());
+            }
             layoutContainer.add(reportComponent.getComponent());
             layoutContainer.layout();
         }
@@ -77,7 +94,9 @@ public class AggregationServicePanel extends ContentPanel
 
     private final String dataStoreCode;
 
-    private final String displaySettingsId;
+    private final String gridSettingsId;
+
+    private final String gridHeaderText;
 
     public AggregationServicePanel(IViewContext<ICommonClientServiceAsync> viewContext,
             String idPrefix, ViewLocator viewLocator)
@@ -86,9 +105,11 @@ public class AggregationServicePanel extends ContentPanel
         setId(idPrefix + "aggregation_service");
         this.viewContext = viewContext;
         this.viewLocator = viewLocator;
+
         serviceKey = viewLocator.getParameters().get(SERVICE_KEY_PARAM);
         dataStoreCode = viewLocator.getParameters().get(DSS_CODE_PARAM);
-        displaySettingsId = viewLocator.getParameters().get(DISPLAY_SETTINGS_ID);
+        gridSettingsId = viewLocator.getParameters().get(GRID_SETTINGS_ID_PARAM);
+        gridHeaderText = viewLocator.getParameters().get(GRID_HEADER_TEXT_PARAM);
 
         if (areRequiredParametersSpecified())
         {
@@ -143,32 +164,36 @@ public class AggregationServicePanel extends ContentPanel
         Map<String, String> urlParameters = viewLocator.getParameters();
         for (Entry<String, String> entry : urlParameters.entrySet())
         {
-            if (SERVICE_KEY_PARAM.equals(entry.getKey()))
+            if (isAggregationServiceParameter(entry.getKey()))
             {
-                continue;
+                parameterMap.put(entry.getKey(), entry.getValue());
             }
-            if (DSS_CODE_PARAM.equals(entry.getKey()))
-            {
-                continue;
-            }
-            if (DISPLAY_SETTINGS_ID.equals(entry.getKey()))
-            {
-                continue;
-            }
-            parameterMap.put(entry.getKey(), entry.getValue());
         }
         DatastoreServiceDescription description =
                 DatastoreServiceDescription.reporting(serviceKey, "", new String[0], dataStoreCode,
                         ReportingPluginType.AGGREGATION_TABLE_MODEL);
 
-        String notNullDisplaySettingsId =
-                displaySettingsId != null ? displaySettingsId : serviceKey;
-
         AsyncCallback<TableModelReference> callback =
-                ReportGeneratedCallback.create(viewContext, description, notNullDisplaySettingsId,
+                ReportGeneratedCallback.create(viewContext, description, getGridSettingsId(),
                         new AggregationServiceGeneratedAction(this));
 
         viewContext.getCommonService().createReportFromAggregationService(description,
                 parameterMap, callback);
     }
+
+    private boolean isAggregationServiceParameter(String parameterName)
+    {
+        return PARAMETERS.contains(parameterName) == false;
+    }
+
+    public String getGridHeaderText()
+    {
+        return gridHeaderText;
+    }
+
+    public String getGridSettingsId()
+    {
+        return gridSettingsId != null ? gridSettingsId : serviceKey;
+    }
+
 }
