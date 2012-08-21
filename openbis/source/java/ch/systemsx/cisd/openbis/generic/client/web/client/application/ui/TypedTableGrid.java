@@ -690,6 +690,14 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                     {
                         ResultSetFetchConfig<String> fetchConfig =
                                 ResultSetFetchConfig.createFetchFromCache(resultSetKeyOrNull);
+
+                        SortInfo sortInfo = getGridSortInfo();
+                        if (sortInfo != null)
+                        {
+                            pagingLoader.setSortField(sortInfo.getSortField());
+                            pagingLoader.setSortDir(translate(sortInfo.getSortDir()));
+                        }
+
                         reloadData(fetchConfig);
                     }
                 }
@@ -1751,6 +1759,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                     + pendingFetchManager.tryTopPendingFetchConfig());
             return;
         }
+
         pendingFetchManager.pushPendingFetchConfig(resultSetFetchConfig);
         pagingLoader.load(0, PAGE_SIZE);
     }
