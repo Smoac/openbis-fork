@@ -278,14 +278,14 @@ public final class CommonClientService extends AbstractClientService implements
             final String lineSeparator)
     {
         // Not directly needed but this refreshes the session.
-        getSessionToken();
+        String session = getSessionToken();
         final TableExportCriteria<T> exportCriteria = getAndRemoveExportCriteria(exportDataKey);
         final GridRowModels<T> entities = fetchCachedEntities(exportCriteria);
         EntityKind entityKindForUpdate = exportCriteria.getEntityKindForUpdateOrNull();
         if (entityKindForUpdate != null)
         {
             return TableForUpdateExporter.getExportTableForUpdate(entities, entityKindForUpdate,
-                    lineSeparator);
+                    lineSeparator, commonServer, session);
         }
         ITableDataProvider dataProvider =
                 TableDataProviderFactory.createDataProvider(entities,

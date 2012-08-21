@@ -188,15 +188,22 @@ public class TypedTableModelBuilder<T extends Serializable>
         @Override
         public void addColumnsForPropertyTypes(List<PropertyType> propertyTypes)
         {
-            addColumnsForPropertyTypes(groupKey, propertyTypes);
+            addColumnsForPropertyTypes(groupKey, propertyTypes, false);
         }
 
         @Override
-        public void addColumnsForPropertyTypes(String idPrefix, List<PropertyType> propertyTypes)
+        public void addColumnsForPropertyTypesForUpdate(List<PropertyType> propertyTypes)
+        {
+            addColumnsForPropertyTypes(groupKey, propertyTypes, true);
+        }
+
+        @Override
+        public void addColumnsForPropertyTypes(String idPrefix, List<PropertyType> propertyTypes,
+                boolean forUpdate)
         {
             for (PropertyType propertyType : propertyTypes)
             {
-                addColumn(idPrefix, propertyType, false);
+                addColumn(idPrefix, propertyType, forUpdate);
             }
         }
 

@@ -62,11 +62,17 @@ public interface IColumnGroup
     public void addColumnsForPropertyTypes(List<PropertyType> propertyTypes);
 
     /**
+     * Adds a column for all given property types using the group identifier as prefix.
+     */
+    public void addColumnsForPropertyTypesForUpdate(List<PropertyType> propertyTypes);
+
+    /**
      * Adds a column for all given property types. The specified identifier prefix is used as a
      * prefix which combined with the property type code to determine the column id. The property
      * type label is used as column title.
      */
-    public void addColumnsForPropertyTypes(String idPrefix, List<PropertyType> propertyTypes);
+    public void addColumnsForPropertyTypes(String idPrefix, List<PropertyType> propertyTypes,
+            boolean forUpdate);
 
     /**
      * Adds all specified properties. The group name is used as a prefix which is combined with the

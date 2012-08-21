@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,15 +31,19 @@ import java.util.TreeMap;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.server.IBasicTableDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -53,31 +58,87 @@ public class TableForUpdateExporter
 
     @SuppressWarnings("unchecked")
     public static String getExportTableForUpdate(GridRowModels<?> rows, EntityKind entityKind,
-            String lineSeparator)
+            String lineSeparator, ICommonServer commonServer, String sessionToken)
     {
         switch (entityKind)
         {
             case EXPERIMENT:
                 return getExperimentTableForUpdate(
-                        (GridRowModels<TableModelRowWithObject<Experiment>>) rows, lineSeparator);
+                        (GridRowModels<TableModelRowWithObject<Experiment>>) rows, lineSeparator,
+                        commonServer, sessionToken);
             case SAMPLE:
                 return getSampleTableForUpdate(
-                        (GridRowModels<TableModelRowWithObject<Sample>>) rows, lineSeparator);
+                        (GridRowModels<TableModelRowWithObject<Sample>>) rows, lineSeparator,
+                        commonServer, sessionToken);
             case DATA_SET:
                 return getDataSetTableForUpdate(
-                        (GridRowModels<TableModelRowWithObject<ExternalData>>) rows, lineSeparator);
+                        (GridRowModels<TableModelRowWithObject<ExternalData>>) rows, lineSeparator,
+                        commonServer, sessionToken);
             case MATERIAL:
                 return "Export of materials for update is currently not supported.";
         }
         throw new IllegalArgumentException("Unspecified entity kind.");
     }
 
+    private static <T extends Serializable> List<PropertyType> getAllPropertyTypes(
+            GridRowModels<TableModelRowWithObject<T>> rows, List<? extends EntityType> types)
+    {
+
+        Set<PropertyType> propertyTypes = new HashSet<PropertyType>();
+
+        for (GridRowModel<TableModelRowWithObject<T>> row : rows)
+        {
+            T t = row.getOriginalObject().getObjectOrNull();
+            if (t == null)
+            {
+                continue;
+            }
+
+            for (EntityType type : types)
+            {
+                if (type.getCode().equals(getType(t).getCode()))
+                {
+                    for (EntityTypePropertyType<?> et : type.getAssignedPropertyTypes())
+                    {
+                        if (et.isDynamic() == false && et.isManaged() == false)
+                        {
+                            propertyTypes.add(et.getPropertyType());
+                        }
+                    }
+                }
+            }
+        }
+
+        return new ArrayList<PropertyType>(propertyTypes);
+    }
+
+    private static <T> EntityType getType(T t)
+    {
+        if (t instanceof Experiment)
+        {
+            return ((Experiment) t).getExperimentType();
+        } else if (t instanceof ExternalData)
+        {
+            return ((ExternalData) t).getDataSetType();
+        } else if (t instanceof Sample)
+        {
+            return ((Sample) t).getSampleType();
+        }
+
+        throw new IllegalArgumentException("Unknown data type " + t);
+    }
+
     public static String getExperimentTableForUpdate(
-            GridRowModels<TableModelRowWithObject<Experiment>> rows, String lineSeparator)
+            GridRowModels<TableModelRowWithObject<Experiment>> rows, String lineSeparator,
+            ICommonServer commonServer, String sessionToken)
     {
         TypedTableModelBuilder<Experiment> builder = new TypedTableModelBuilder<Experiment>();
         builder.addColumn(NewExperiment.IDENTIFIER_COLUMN);
         builder.addColumn("project");
+
+        builder.columnGroup("").addColumnsForPropertyTypesForUpdate(
+                getAllPropertyTypes(rows, commonServer.listExperimentTypes(sessionToken)));
+
         for (GridRowModel<TableModelRowWithObject<Experiment>> row : rows)
         {
             Experiment experiment = row.getOriginalObject().getObjectOrNull();
@@ -89,7 +150,8 @@ public class TableForUpdateExporter
     }
 
     public static String getSampleTableForUpdate(
-            GridRowModels<TableModelRowWithObject<Sample>> rows, String lineSeparator)
+            GridRowModels<TableModelRowWithObject<Sample>> rows, String lineSeparator,
+            ICommonServer commonServer, String sessionToken)
     {
         Map<String, List<Sample>> samples = new TreeMap<String, List<Sample>>();
         for (GridRowModel<TableModelRowWithObject<Sample>> row : rows)
@@ -105,6 +167,9 @@ public class TableForUpdateExporter
             sampleList.add(sample);
         }
 
+        List<PropertyType> allPropertyTypes =
+                getAllPropertyTypes(rows, commonServer.listSampleTypes(sessionToken));
+
         StringBuilder builder = new StringBuilder();
         Set<Entry<String, List<Sample>>> entrySet = samples.entrySet();
         for (Entry<String, List<Sample>> entry : entrySet)
@@ -113,19 +178,22 @@ public class TableForUpdateExporter
             {
                 builder.append("[").append(entry.getKey()).append("]").append(lineSeparator);
             }
-            builder.append(getTableForSamples(entry, lineSeparator));
+            builder.append(getTableForSamples(entry, lineSeparator, allPropertyTypes));
         }
         return builder.toString();
     }
 
     private static String getTableForSamples(Map.Entry<String, List<Sample>> entry,
-            String lineSeparator)
+            String lineSeparator, List<PropertyType> allPropertyTypes)
     {
         TypedTableModelBuilder<Sample> builder = new TypedTableModelBuilder<Sample>();
         builder.addColumn(NewSample.IDENTIFIER_COLUMN);
         builder.addColumn(NewSample.CONTAINER);
         builder.addColumn(NewSample.PARENTS);
         builder.addColumn(NewSample.EXPERIMENT);
+
+        builder.columnGroup("").addColumnsForPropertyTypesForUpdate(allPropertyTypes);
+
         List<Sample> samples = entry.getValue();
         Collections.sort(samples, new Comparator<Sample>()
             {
@@ -169,7 +237,8 @@ public class TableForUpdateExporter
     }
 
     public static String getDataSetTableForUpdate(
-            GridRowModels<TableModelRowWithObject<ExternalData>> rows, String lineSeparator)
+            GridRowModels<TableModelRowWithObject<ExternalData>> rows, String lineSeparator,
+            ICommonServer commonServer, String sessionToken)
     {
         TypedTableModelBuilder<ExternalData> builder = new TypedTableModelBuilder<ExternalData>();
         builder.addColumn(NewDataSet.CODE);
@@ -177,6 +246,10 @@ public class TableForUpdateExporter
         builder.addColumn(NewDataSet.PARENTS);
         builder.addColumn(NewDataSet.EXPERIMENT);
         builder.addColumn(NewDataSet.SAMPLE);
+
+        builder.columnGroup("").addColumnsForPropertyTypesForUpdate(
+                getAllPropertyTypes(rows, commonServer.listDataSetTypes(sessionToken)));
+
         for (GridRowModel<TableModelRowWithObject<ExternalData>> row : rows)
         {
             ExternalData dataSet = row.getOriginalObject().getObjectOrNull();

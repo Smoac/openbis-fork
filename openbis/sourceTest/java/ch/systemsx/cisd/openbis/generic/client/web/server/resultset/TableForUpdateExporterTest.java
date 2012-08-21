@@ -22,18 +22,24 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ContainerDataSetBuilder;
@@ -51,6 +57,7 @@ public class TableForUpdateExporterTest extends AssertJUnit
     @Test
     public void testExperimentExport()
     {
+
         Experiment e1 = new ExperimentBuilder().identifier("/S/P/E1").getExperiment();
         Experiment e2 =
                 new ExperimentBuilder().identifier("/S/P/E2").property("P1", "hello")
@@ -63,8 +70,19 @@ public class TableForUpdateExporterTest extends AssertJUnit
         GridRowModels<TableModelRowWithObject<Experiment>> rows =
                 createGridRowModels(e1, e2, e3.getExperiment());
 
+        Mockery context = new Mockery();
+        final ICommonServer commonServer = context.mock(ICommonServer.class);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(commonServer).listExperimentTypes(with(any(String.class)));
+                    will(returnValue(new ArrayList<ExperimentType>()));
+                }
+            });
+
         String fileContent =
-                TableForUpdateExporter.getExportTableForUpdate(rows, EntityKind.EXPERIMENT, "\n");
+                TableForUpdateExporter.getExportTableForUpdate(rows, EntityKind.EXPERIMENT, "\n",
+                        commonServer, "");
 
         assertEquals("identifier\tproject\tP1\t$P2\n" + "/S/P/E1\t\t\t\n" + "/S/P/E2\t\thello\t\n"
                 + "/S/P/E3\t\t\tALPHA (GENE)\n", fileContent);
@@ -85,8 +103,20 @@ public class TableForUpdateExporterTest extends AssertJUnit
         GridRowModels<TableModelRowWithObject<Sample>> rows =
                 createGridRowModels(s1, s2.getSample());
 
+        Mockery context = new Mockery();
+        final ICommonServer commonServer = context.mock(ICommonServer.class);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(commonServer).listSampleTypes(with(any(String.class)));
+                    will(returnValue(new ArrayList<SampleType>()));
+                }
+            });
+
         String fileContent =
-                TableForUpdateExporter.getExportTableForUpdate(rows, EntityKind.SAMPLE, "\n");
+                TableForUpdateExporter.getExportTableForUpdate(rows, EntityKind.SAMPLE, "\n",
+                        commonServer,
+                        "");
 
         assertEquals("identifier\tcontainer\tparents\texperiment\tP1\n"
                 + "/S/S1\t/S/C1\t\t/S/P/E1\t\n" + "/S/S2\t\t/S/S1,/S/S3\t\tA\n", fileContent);
@@ -103,8 +133,20 @@ public class TableForUpdateExporterTest extends AssertJUnit
         GridRowModels<TableModelRowWithObject<Sample>> rows =
                 createGridRowModels(s1, s2, s3.getSample());
 
+        Mockery context = new Mockery();
+        final ICommonServer commonServer = context.mock(ICommonServer.class);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(commonServer).listSampleTypes(with(any(String.class)));
+                    will(returnValue(new ArrayList<SampleType>()));
+                }
+            });
+
         String fileContent =
-                TableForUpdateExporter.getExportTableForUpdate(rows, EntityKind.SAMPLE, "\n");
+                TableForUpdateExporter.getExportTableForUpdate(rows, EntityKind.SAMPLE, "\n",
+                        commonServer,
+                        "");
 
         assertEquals("[T1]\n" + "identifier\tcontainer\tparents\texperiment\tP1\n"
                 + "/A/S2\t\t\t\t\n" + "/S/S1\t\t\t\thello\n" + "[T2]\n"
@@ -125,8 +167,20 @@ public class TableForUpdateExporterTest extends AssertJUnit
                         .container(new ContainerDataSetBuilder().code("ds1").getContainerDataSet())
                         .sample(new SampleBuilder("/S/S1").getSample()).getDataSet();
         GridRowModels<TableModelRowWithObject<DataSet>> rows = createGridRowModels(ds1, ds2);
+
+        Mockery context = new Mockery();
+        final ICommonServer commonServer = context.mock(ICommonServer.class);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(commonServer).listDataSetTypes(with(any(String.class)));
+                    will(returnValue(new ArrayList<DataSetType>()));
+                }
+            });
+
         String fileContent =
-                TableForUpdateExporter.getExportTableForUpdate(rows, EntityKind.DATA_SET, "\n");
+                TableForUpdateExporter.getExportTableForUpdate(rows, EntityKind.DATA_SET, "\n",
+                        commonServer, "");
 
         assertEquals("code\tcontainer\tparents\texperiment\tsample\tP1\n"
                 + "ds1\t\tds3,ds4\t/S/P/E\t\thello\n" + "ds2\tds1\t\t/S/P/E\t/S/S1\t\n",
