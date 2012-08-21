@@ -76,8 +76,7 @@ public class ParentsPropertiesSectionBuilderTest extends AssertJUnit
                 .property("question", "6 x 7").getSample());
         Map<String, List<IEntityProperty>> sections = builder.getSections();
 
-        assertEquals(
-                "{Common Parents Properties:=[answer: 42], " + "/S/S2 [B]:=[question: 6 x 7]}",
+        assertEquals("{Common Parent Properties:=[answer: 42], " + "/S/S2 [B]:=[question: 6 x 7]}",
                 sections.toString());
     }
 
@@ -103,7 +102,7 @@ public class ParentsPropertiesSectionBuilderTest extends AssertJUnit
         builder.addParent(s3.getSample());
         Map<String, List<IEntityProperty>> sections = builder.getSections();
 
-        assertEquals("{Common Parents Properties:=[answer: 42, question: 6 x 7], "
+        assertEquals("{Common Parent Properties:=[answer: 42, question: 6 x 7], "
                 + "/S/S1 [A]:=[property: 101], " + "/S/S2 [B]:=[property: 101], "
                 + "/S/S3 [C]:=[property: 101]}", sections.toString());
     }

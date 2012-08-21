@@ -106,7 +106,7 @@ class ParentsPropertiesSectionBuilder
             }
             if (commonProperties.isEmpty() == false)
             {
-                sections.put("Common Parents Properties:", commonProperties);
+                sections.put("Common Parent Properties:", commonProperties);
             }
         }
         for (Sample sample : samples)
