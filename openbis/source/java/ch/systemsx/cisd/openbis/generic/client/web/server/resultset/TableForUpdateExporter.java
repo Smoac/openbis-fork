@@ -154,21 +154,26 @@ public class TableForUpdateExporter
             ICommonServer commonServer, String sessionToken)
     {
         Map<String, List<Sample>> samples = new TreeMap<String, List<Sample>>();
+        Map<String, GridRowModels<TableModelRowWithObject<Sample>>> rowMap =
+                new TreeMap<String, GridRowModels<TableModelRowWithObject<Sample>>>();
         for (GridRowModel<TableModelRowWithObject<Sample>> row : rows)
         {
             Sample sample = row.getOriginalObject().getObjectOrNull();
             String sampleType = sample.getSampleType().getCode();
             List<Sample> sampleList = samples.get(sampleType);
+            GridRowModels<TableModelRowWithObject<Sample>> rowList = rowMap.get(sampleType);
             if (sampleList == null)
             {
                 sampleList = new ArrayList<Sample>();
                 samples.put(sampleType, sampleList);
+
+                rowList =
+                        rows.cloneWithData(new ArrayList<GridRowModel<TableModelRowWithObject<Sample>>>());
+                rowMap.put(sampleType, rowList);
             }
             sampleList.add(sample);
+            rowList.add(row);
         }
-
-        List<PropertyType> allPropertyTypes =
-                getAllPropertyTypes(rows, commonServer.listSampleTypes(sessionToken));
 
         StringBuilder builder = new StringBuilder();
         Set<Entry<String, List<Sample>>> entrySet = samples.entrySet();
@@ -178,7 +183,8 @@ public class TableForUpdateExporter
             {
                 builder.append("[").append(entry.getKey()).append("]").append(lineSeparator);
             }
-            builder.append(getTableForSamples(entry, lineSeparator, allPropertyTypes));
+            builder.append(getTableForSamples(entry, lineSeparator, getAllPropertyTypes(rowMap
+                    .get(entry.getKey()), commonServer.listSampleTypes(sessionToken))));
         }
         return builder.toString();
     }
