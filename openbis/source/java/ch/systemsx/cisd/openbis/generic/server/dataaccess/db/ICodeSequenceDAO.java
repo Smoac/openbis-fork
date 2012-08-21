@@ -16,14 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
-
 /**
- * <i>Data Access Object</i> for sequence named {@link SequenceNames#CODE_SEQUENCE}.
+ * <i>Data Access Object</i> for code sequences.
  * 
  * @author Piotr Buczek
  */
 public interface ICodeSequenceDAO
 {
     public long getNextCodeSequenceId();
+
+    public long getNextExperimentCodeSequenceId();
+
+    public long getNextSampleCodeSequenceId();
 }

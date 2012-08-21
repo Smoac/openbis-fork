@@ -41,4 +41,16 @@ public class CodeSequenceDAO extends AbstractDAO implements ICodeSequenceDAO
         return getNextSequenceId(SequenceNames.CODE_SEQUENCE);
     }
 
+    @Override
+    public long getNextExperimentCodeSequenceId()
+    {
+        return getNextSequenceId(SequenceNames.EXPERIMENT_CODE_SEQUENCE);
+    }
+
+    @Override
+    public long getNextSampleCodeSequenceId()
+    {
+        return getNextSequenceId(SequenceNames.SAMPLE_CODE_SEQUENCE);
+    }
+
 }

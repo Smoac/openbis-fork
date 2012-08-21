@@ -117,6 +117,10 @@ public final class SequenceNames
 
     public static final String CODE_SEQUENCE = "CODE_SEQ";
 
+    public static final String EXPERIMENT_CODE_SEQUENCE = "EXPERIMENT_CODE_SEQ";
+
+    public static final String SAMPLE_CODE_SEQUENCE = "SAMPLE_CODE_SEQ";
+
     public static final String AUTHORIZATION_GROUP_ID_SEQUENCE = "AUTHORIZATION_GROUP_ID_SEQ";
 
     public static final String AUTHORIZATION_GROUP_PERSON_ID_SEQUENCE =
