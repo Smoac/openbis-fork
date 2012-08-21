@@ -77,10 +77,6 @@ public class AggregationServicePanel extends ContentPanel
         public void execute(final IDisposableComponent reportComponent)
         {
             layoutContainer.removeAll();
-            if (layoutContainer.getGridHeaderText() != null)
-            {
-                layoutContainer.setHeading(layoutContainer.getGridHeaderText());
-            }
             layoutContainer.add(reportComponent.getComponent());
             layoutContainer.layout();
         }
@@ -110,6 +106,14 @@ public class AggregationServicePanel extends ContentPanel
         dataStoreCode = viewLocator.getParameters().get(DSS_CODE_PARAM);
         gridSettingsId = viewLocator.getParameters().get(GRID_SETTINGS_ID_PARAM);
         gridHeaderText = viewLocator.getParameters().get(GRID_HEADER_TEXT_PARAM);
+
+        if (getGridHeaderText() != null)
+        {
+            setHeading(getGridHeaderText());
+        } else
+        {
+            setHeaderVisible(false);
+        }
 
         if (areRequiredParametersSpecified())
         {
