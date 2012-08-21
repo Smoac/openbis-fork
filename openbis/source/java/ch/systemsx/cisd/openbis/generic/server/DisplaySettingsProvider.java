@@ -70,6 +70,14 @@ public class DisplaySettingsProvider
         return settings;
     }
 
+    public synchronized DisplaySettings replaceCurrentDisplaySettings(PersonPE person,
+            DisplaySettings settings)
+    {
+        displaySettingsMap.put(person.getUserId(), settings);
+        person.setDisplaySettings(settings);
+        return settings;
+    }
+
     @SuppressWarnings("deprecation")
     public synchronized DisplaySettings replaceRegularDisplaySettings(PersonPE person,
             DisplaySettings settings)

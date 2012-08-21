@@ -727,7 +727,9 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                             displaySettingsProvider.getCurrentDisplaySettings(person);
                     DisplaySettings newDisplaySettings =
                             displaySettingsUpdate.update(currentDisplaySettings);
-                    saveDisplaySettings(sessionToken, newDisplaySettings, -1);
+                    displaySettingsProvider.replaceCurrentDisplaySettings(person,
+                            newDisplaySettings);
+                    getDAOFactory().getPersonDAO().updatePerson(person);
                 }
             }
         } catch (InvalidSessionException e)
