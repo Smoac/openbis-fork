@@ -322,7 +322,9 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         final ContentPanel panel = new ContentPanel();
         panel.setScrollMode(Scroll.AUTOY);
         panel.setHeading(getViewContext().getMessage(Dict.SAMPLE_PROPERTIES_HEADING));
+        viewContext.log("create property section");
         propertyGrid = createPropertyGrid(getViewContext(), sampleId);
+        propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + sampleId);
         updateProperties(sampleGeneration);
         panel.add(propertyGrid);
 
@@ -344,7 +346,6 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         propertyGrid.resizeRows(0);
         final Map<String, Object> properties = createProperties(viewContext, sampleGeneration);
         propertyGrid.setProperties(properties);
-        propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + sampleId);
         Sample sample = sampleGeneration.getParent();
         SampleType sampleType = sample.getSampleType();
         if (sampleType.isShowParentMetadata())

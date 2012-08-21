@@ -167,6 +167,7 @@ public final class PropertyGrid extends Grid
     {
         this.properties = properties;
         assert properties != null : "Unspecified properties.";
+        resizeRows(properties.size());
         addPropertiesToTable(properties, 0);
     }
 

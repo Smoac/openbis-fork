@@ -106,7 +106,7 @@ class ParentsPropertiesSectionBuilder
             }
             if (commonProperties.isEmpty() == false)
             {
-                sections.put("Properties common by all parents", commonProperties);
+                sections.put("Common Parents Properties:", commonProperties);
             }
         }
         for (Sample sample : samples)
@@ -121,7 +121,8 @@ class ParentsPropertiesSectionBuilder
             }
             if (properties.isEmpty() == false)
             {
-                sections.put("Properties of " + sample.getIdentifier(), properties);
+                sections.put(sample.getIdentifier() + " [" + sample.getSampleType().getCode()
+                        + "]:", properties);
             }
         }
         return sections;

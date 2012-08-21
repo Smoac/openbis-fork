@@ -46,10 +46,10 @@ public class ParentsPropertiesSectionBuilderTest extends AssertJUnit
     {
         ParentsPropertiesSectionBuilder builder = new ParentsPropertiesSectionBuilder();
 
-        builder.addParent(new SampleBuilder("/S/S1").property("answer", "42").getSample());
+        builder.addParent(new SampleBuilder("/S/S1").type("A").property("answer", "42").getSample());
         Map<String, List<IEntityProperty>> sections = builder.getSections();
 
-        assertEquals("{Properties of /S/S1=[answer: 42]}", sections.toString());
+        assertEquals("{/S/S1 [A]:=[answer: 42]}", sections.toString());
     }
 
     @Test
@@ -57,13 +57,13 @@ public class ParentsPropertiesSectionBuilderTest extends AssertJUnit
     {
         ParentsPropertiesSectionBuilder builder = new ParentsPropertiesSectionBuilder();
 
-        builder.addParent(new SampleBuilder("/S/S1").property("answer", "43").getSample());
-        builder.addParent(new SampleBuilder("/S/S2").property("answer", "42")
+        builder.addParent(new SampleBuilder("/S/S1").type("A").property("answer", "43").getSample());
+        builder.addParent(new SampleBuilder("/S/S2").type("B").property("answer", "42")
                 .property("question", "6 x 7").getSample());
         Map<String, List<IEntityProperty>> sections = builder.getSections();
 
-        assertEquals("{Properties of /S/S1=[answer: 43], "
-                + "Properties of /S/S2=[answer: 42, question: 6 x 7]}", sections.toString());
+        assertEquals("{/S/S1 [A]:=[answer: 43], " + "/S/S2 [B]:=[answer: 42, question: 6 x 7]}",
+                sections.toString());
     }
 
     @Test
@@ -71,13 +71,14 @@ public class ParentsPropertiesSectionBuilderTest extends AssertJUnit
     {
         ParentsPropertiesSectionBuilder builder = new ParentsPropertiesSectionBuilder();
 
-        builder.addParent(new SampleBuilder("/S/S1").property("answer", "42").getSample());
-        builder.addParent(new SampleBuilder("/S/S2").property("answer", "42")
+        builder.addParent(new SampleBuilder("/S/S1").type("A").property("answer", "42").getSample());
+        builder.addParent(new SampleBuilder("/S/S2").type("B").property("answer", "42")
                 .property("question", "6 x 7").getSample());
         Map<String, List<IEntityProperty>> sections = builder.getSections();
 
-        assertEquals("{Properties common by all parents=[answer: 42], "
-                + "Properties of /S/S2=[question: 6 x 7]}", sections.toString());
+        assertEquals(
+                "{Common Parents Properties:=[answer: 42], " + "/S/S2 [B]:=[question: 6 x 7]}",
+                sections.toString());
     }
 
     @Test
@@ -86,21 +87,24 @@ public class ParentsPropertiesSectionBuilderTest extends AssertJUnit
         ParentsPropertiesSectionBuilder builder = new ParentsPropertiesSectionBuilder();
 
         SampleBuilder s1 =
-                new SampleBuilder("/S/S1").property("answer", "42").property("question", "6 x 7");
+                new SampleBuilder("/S/S1").type("A").property("answer", "42")
+                        .property("question", "6 x 7");
         s1.property("property").type(DataTypeCode.INTEGER).value(101);
         builder.addParent(s1.getSample());
         SampleBuilder s2 =
-                new SampleBuilder("/S/S2").property("question", "6 x 7").property("answer", "42");
+                new SampleBuilder("/S/S2").type("B").property("question", "6 x 7")
+                        .property("answer", "42");
         s2.property("property", "101");
         builder.addParent(s2.getSample());
         SampleBuilder s3 =
-                new SampleBuilder("/S/S3").property("question", "6 x 7").property("answer", "42");
+                new SampleBuilder("/S/S3").type("C").property("question", "6 x 7")
+                        .property("answer", "42");
         s3.property("property", "101");
         builder.addParent(s3.getSample());
         Map<String, List<IEntityProperty>> sections = builder.getSections();
 
-        assertEquals("{Properties common by all parents=[answer: 42, question: 6 x 7], "
-                + "Properties of /S/S1=[property: 101], " + "Properties of /S/S2=[property: 101], "
-                + "Properties of /S/S3=[property: 101]}", sections.toString());
+        assertEquals("{Common Parents Properties:=[answer: 42, question: 6 x 7], "
+                + "/S/S1 [A]:=[property: 101], " + "/S/S2 [B]:=[property: 101], "
+                + "/S/S3 [C]:=[property: 101]}", sections.toString());
     }
 }
