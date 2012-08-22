@@ -18,11 +18,15 @@ package ch.systemsx.cisd.common.spring;
 
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.AbstractRefreshableConfigApplicationContext;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Bootstrapper bean responsible for loading resources conditionally basing on property values.
@@ -33,6 +37,8 @@ import org.springframework.context.support.AbstractRefreshableConfigApplicationC
  */
 public class Bootstrapper implements ApplicationContextAware, InitializingBean
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, Bootstrapper.class);
+    
     private AbstractRefreshableConfigApplicationContext context;
 
     private String[] configLocations;
@@ -83,8 +89,10 @@ public class Bootstrapper implements ApplicationContextAware, InitializingBean
             }
         }
 
+        operationLog.info("Refreshing application context with " + allConfigLocations);
         context.setConfigLocations(allConfigLocations.toArray(new String[allConfigLocations.size()]));
         context.refresh();
+        operationLog.info("Refreshed application context with " + allConfigLocations);
     }
 
     private static boolean evaluateCondition(String condition)
