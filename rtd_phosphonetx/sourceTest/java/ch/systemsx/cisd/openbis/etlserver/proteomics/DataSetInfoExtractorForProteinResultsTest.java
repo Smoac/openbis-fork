@@ -42,6 +42,7 @@ import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.DataSetInfoExtractorForProteinResults;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
@@ -353,7 +354,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         context.checking(new Expectations()
             {
                 {
-                    one(service).drawANewUniqueID();
+                    one(service).drawANewUniqueID(EntityKind.EXPERIMENT);
                     will(returnValue(4711L));
                     
                     one(service).getExperimentType(experimentType);
