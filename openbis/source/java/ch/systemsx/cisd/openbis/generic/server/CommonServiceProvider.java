@@ -64,6 +64,11 @@ public class CommonServiceProvider
         return new MailClient(mailClientParameters);
     }
 
+    public static Object tryToGetBean(String beanName)
+    {
+        return applicationContext.getBean(beanName);
+    }
+
     private CommonServiceProvider()
     {
     }

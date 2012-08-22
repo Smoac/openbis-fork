@@ -41,6 +41,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 
 /**
+ * Implementation of {@link IDataStoreServiceRegistrator}.
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataStoreServiceRegistrator implements IDataStoreServiceRegistrator
@@ -90,22 +92,25 @@ public class DataStoreServiceRegistrator implements IDataStoreServiceRegistrator
             DatastoreServiceDescriptions serviceDescriptions)
     {
         Set<DataStoreServicePE> services = new HashSet<DataStoreServicePE>();
+        IDataSetTypeDAO dataSetTypeDAO = daoFactory.getDataSetTypeDAO();
+        List<DataSetTypePE> allDataSetTypes = dataSetTypeDAO.listAllEntities();
 
         Set<DataStoreServicePE> processing =
                 createDataStoreServices(serviceDescriptions.getProcessingServiceDescriptions(),
-                        DataStoreServiceKind.PROCESSING);
+                        DataStoreServiceKind.PROCESSING, allDataSetTypes);
         services.addAll(processing);
 
         Set<DataStoreServicePE> queries =
                 createDataStoreServices(serviceDescriptions.getReportingServiceDescriptions(),
-                        DataStoreServiceKind.QUERIES);
+                        DataStoreServiceKind.QUERIES, allDataSetTypes);
         services.addAll(queries);
 
         return services;
     }
 
     private Set<DataStoreServicePE> createDataStoreServices(
-            List<DatastoreServiceDescription> serviceDescriptions, DataStoreServiceKind serviceKind)
+            List<DatastoreServiceDescription> serviceDescriptions,
+            DataStoreServiceKind serviceKind, List<DataSetTypePE> allDataSetTypes)
     {
         Set<DataStoreServicePE> services = new HashSet<DataStoreServicePE>();
         for (DatastoreServiceDescription desc : serviceDescriptions)
@@ -114,7 +119,8 @@ public class DataStoreServiceRegistrator implements IDataStoreServiceRegistrator
             service.setKey(desc.getKey());
             service.setLabel(desc.getLabel());
             service.setKind(serviceKind);
-            Set<DataSetTypePE> datasetTypes = extractDatasetTypes(desc.getDatasetTypeCodes(), desc);
+            Set<DataSetTypePE> datasetTypes =
+                    extractDataSetTypes(desc.getDatasetTypeCodes(), desc, allDataSetTypes);
             service.setDatasetTypes(datasetTypes);
             service.setReportingPluginTypeOrNull(desc.tryReportingPluginType());
             services.add(service);
@@ -122,26 +128,19 @@ public class DataStoreServiceRegistrator implements IDataStoreServiceRegistrator
         return services;
     }
 
-    /**
-     * Find the data set type objects specified by the dataSetTypeCodes.
-     * 
-     * @return A set of DataSetTypePE objects.
-     */
-    private Set<DataSetTypePE> extractDatasetTypes(String[] dataSetTypeCodes,
-            DatastoreServiceDescription serviceDescription)
+    private Set<DataSetTypePE> extractDataSetTypes(String[] dataSetTypeCodePatterns,
+            DatastoreServiceDescription serviceDescription, List<DataSetTypePE> allDataSetTypes)
     {
         Set<DataSetTypePE> dataSetTypes = new HashSet<DataSetTypePE>();
         Set<String> missingCodes = new HashSet<String>();
-        IDataSetTypeDAO dataSetTypeDAO = daoFactory.getDataSetTypeDAO();
-        List<DataSetTypePE> allDataSetTypes = dataSetTypeDAO.listAllEntities();
 
-        for (String dataSetTypeCode : dataSetTypeCodes)
+        for (String pattern : dataSetTypeCodePatterns)
         {
             boolean found = false;
             // Try to find the specified data set type
             for (DataSetTypePE dataSetType : allDataSetTypes)
             {
-                if (dataSetType.getCode().matches(dataSetTypeCode))
+                if (dataSetType.getCode().matches(pattern))
                 {
                     dataSetTypes.add(dataSetType);
                     found = true;
@@ -149,7 +148,7 @@ public class DataStoreServiceRegistrator implements IDataStoreServiceRegistrator
             }
             if (false == found)
             {
-                missingCodes.add(dataSetTypeCode);
+                missingCodes.add(pattern);
             }
         }
         if (missingCodes.size() > 0)
