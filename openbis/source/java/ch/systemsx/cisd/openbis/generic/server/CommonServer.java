@@ -277,23 +277,28 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 {
     private final LastModificationState lastModificationState;
 
+    private final IDataStoreServiceRegistrator dataStoreServiceRegistrator;
+
     public CommonServer(final IAuthenticationService authenticationService,
             final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
             final ICommonBusinessObjectFactory businessObjectFactory,
+            IDataStoreServiceRegistrator dataStoreServiceRegistrator,
             final LastModificationState lastModificationState)
     {
         this(authenticationService, sessionManager, daoFactory, null, businessObjectFactory,
-                lastModificationState);
+                dataStoreServiceRegistrator, lastModificationState);
     }
 
     CommonServer(final IAuthenticationService authenticationService,
             final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager,
             final ICommonBusinessObjectFactory businessObjectFactory,
+            IDataStoreServiceRegistrator dataStoreServiceRegistrator,
             final LastModificationState lastModificationState)
     {
         super(authenticationService, sessionManager, daoFactory, propertiesBatchManager,
                 businessObjectFactory);
+        this.dataStoreServiceRegistrator = dataStoreServiceRegistrator;
         this.lastModificationState = lastModificationState;
     }
 
@@ -1246,6 +1251,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
         entityTypeBO.define(entityType);
         entityTypeBO.save();
+        dataStoreServiceRegistrator.register(entityType);
     }
 
     @Override

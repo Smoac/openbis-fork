@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -39,6 +37,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
@@ -138,6 +137,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private IETLEntityOperationChecker entityOperationChecker;
 
+    private IDataStoreServiceRegistrator dataStoreServiceRegistrator;
+
     @Override
     @BeforeMethod
     public final void setUp()
@@ -147,6 +148,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         dssfactory = context.mock(IDataStoreServiceFactory.class);
         dataStoreService = context.mock(IDataStoreService.class);
         entityOperationChecker = context.mock(IETLEntityOperationChecker.class);
+        dataStoreServiceRegistrator = context.mock(IDataStoreServiceRegistrator.class);
         MaterialConfigurationProvider.initializeForTesting(false);
     }
 
@@ -247,10 +249,16 @@ public class ETLServiceTest extends AbstractServerTestCase
     @Test
     public void testRegisterDataStoreServer()
     {
+        final DataStoreServerInfo info = createDSSInfo();
         prepareGetSession();
+        final RecordingMatcher<DataStorePE> dataStoreRecordingMatcher =
+                new RecordingMatcher<DataStorePE>();
         context.checking(new Expectations()
             {
                 {
+                    one(dataStoreServiceRegistrator).setServiceDescriptions(
+                            with(dataStoreRecordingMatcher), with(info.getServicesDescriptions()));
+
                     one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
                     will(returnValue(null));
 
@@ -260,49 +268,22 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(dataStoreService).getVersion(DSS_SESSION_TOKEN);
                     will(returnValue(IDataStoreService.VERSION));
 
-                    allowing(daoFactory).getPersistencyResources();
-                    will(returnValue(new PersistencyResources(null, null, null, null)));
-
-                    prepareFindDatasetTypes(this);
-
-                    allowing(dataStoreDAO).createOrUpdateDataStore(
-                            with(new BaseMatcher<DataStorePE>()
-                                {
-                                    @Override
-                                    public void describeTo(Description description)
-                                    {
-                                    }
-
-                                    @Override
-                                    public boolean matches(Object item)
-                                    {
-                                        if (item instanceof DataStorePE)
-                                        {
-                                            DataStorePE store = (DataStorePE) item;
-                                            return DSS_CODE.equals(store.getCode())
-                                                    && URL.equals(store.getRemoteUrl())
-                                                    && DOWNLOAD_URL.equals(store.getDownloadUrl())
-                                                    && DSS_SESSION_TOKEN.equals(store
-                                                            .getSessionToken());
-                                        }
-                                        return false;
-                                    }
-
-                                }));
+                    allowing(dataStoreDAO).createOrUpdateDataStore(with(dataStoreRecordingMatcher));
                 }
             });
 
-        createService().registerDataStoreServer(SESSION_TOKEN, createDSSInfo());
+        createService().registerDataStoreServer(SESSION_TOKEN, info);
 
+        List<DataStorePE> recordedObjects = dataStoreRecordingMatcher.getRecordedObjects();
+        DataStorePE store1 = recordedObjects.get(0);
+        assertEquals(DSS_CODE, store1.getCode());
+        assertEquals(URL, store1.getRemoteUrl());
+        assertEquals(DOWNLOAD_URL, store1.getDownloadUrl());
+        assertEquals(DSS_SESSION_TOKEN, store1.getSessionToken());
+        DataStorePE store2 = recordedObjects.get(1);
+        assertSame(store1, store2);
+        assertEquals(2, recordedObjects.size());
         context.assertIsSatisfied();
-    }
-
-    private void prepareFindDatasetTypes(Expectations exp)
-    {
-        ArrayList<DataSetTypePE> allDataSetTypes = getAllDataSetTypes();
-
-        exp.allowing(dataSetTypeDAO).listAllEntities();
-        exp.will(Expectations.returnValue(allDataSetTypes));
     }
 
     protected ArrayList<DataSetTypePE> getAllDataSetTypes()
@@ -330,101 +311,68 @@ public class ETLServiceTest extends AbstractServerTestCase
     {
         final String reportingPluginTypes = ".*";
         final String processingPluginTypes = "dataSet.*";
+        final DataStoreServerInfo info =
+                createDSSInfoWithWildcards(reportingPluginTypes, processingPluginTypes);
+        final RecordingMatcher<DataStorePE> dataStoreRecordingMatcher =
+                new RecordingMatcher<DataStorePE>();
         prepareGetSession();
-        prepareGetVersion();
         context.checking(new Expectations()
             {
                 {
+                    one(dataStoreServiceRegistrator).setServiceDescriptions(
+                            with(dataStoreRecordingMatcher), with(info.getServicesDescriptions()));
+
                     one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
                     will(returnValue(new DataStorePE()));
 
-                    prepareFindDatasetTypes(this);
+                    one(dssfactory).create(URL);
+                    will(returnValue(dataStoreService));
 
-                    allowing(daoFactory).getPersistencyResources();
-                    will(returnValue(new PersistencyResources(null, null, null, null)));
+                    one(dataStoreService).getVersion(DSS_SESSION_TOKEN);
+                    will(returnValue(IDataStoreService.VERSION));
 
-                    allowing(dataStoreDAO).createOrUpdateDataStore(
-                            with(new BaseMatcher<DataStorePE>()
-                                {
-                                    @Override
-                                    public void describeTo(Description description)
-                                    {
-                                    }
-
-                                    @Override
-                                    public boolean matches(Object item)
-                                    {
-                                        if (item instanceof DataStorePE)
-                                        {
-                                            DataStorePE store = (DataStorePE) item;
-                                            boolean basicMatch =
-                                                    DSS_CODE.equals(store.getCode())
-                                                            && URL.equals(store.getRemoteUrl())
-                                                            && DOWNLOAD_URL.equals(store
-                                                                    .getDownloadUrl())
-                                                            && DSS_SESSION_TOKEN.equals(store
-                                                                    .getSessionToken());
-                                            // To workaround a hibernate bug, data stores are once
-                                            // registered with no services
-                                            if (false == basicMatch
-                                                    || store.getServices().isEmpty())
-                                            {
-                                                return basicMatch;
-                                            }
-
-                                            for (DataStoreServicePE service : store.getServices())
-                                            {
-                                                // Check that the types found match those specified
-                                                if (service.getKind() == DataStoreServiceKind.PROCESSING)
-                                                {
-                                                    // expect 2 matches
-                                                    if (false == isDataSetTypeMatch(service,
-                                                            processingPluginTypes, 2))
-                                                    {
-                                                        return false;
-                                                    }
-                                                }
-                                                if (service.getKind() == DataStoreServiceKind.QUERIES)
-                                                {
-                                                    // expect 3 matches
-                                                    if (false == isDataSetTypeMatch(service,
-                                                            reportingPluginTypes, 3))
-                                                    {
-                                                        return false;
-                                                    }
-                                                }
-                                            }
-
-                                            return true;
-                                        }
-                                        return false;
-                                    }
-
-                                    private boolean isDataSetTypeMatch(DataStoreServicePE service,
-                                            String typeRegex, int numberExpected)
-                                    {
-                                        Set<DataSetTypePE> datasetTypes = service.getDatasetTypes();
-                                        if (datasetTypes.isEmpty())
-                                        {
-                                            return false;
-                                        }
-                                        for (DataSetTypePE types : datasetTypes)
-                                        {
-                                            if (false == types.getCode().matches(typeRegex))
-                                            {
-                                                return false;
-                                            }
-                                        }
-                                        return datasetTypes.size() == numberExpected;
-                                    }
-
-                                }));
+                    allowing(dataStoreDAO).createOrUpdateDataStore(with(dataStoreRecordingMatcher));
                 }
             });
-        createService().registerDataStoreServer(SESSION_TOKEN,
-                createDSSInfoWithWildcards(reportingPluginTypes, processingPluginTypes));
 
+        createService().registerDataStoreServer(SESSION_TOKEN, info);
+
+        List<DataStorePE> recordedObjects = dataStoreRecordingMatcher.getRecordedObjects();
+        DataStorePE store1 = recordedObjects.get(0);
+        assertEquals(DSS_CODE, store1.getCode());
+        assertEquals(URL, store1.getRemoteUrl());
+        assertEquals(DOWNLOAD_URL, store1.getDownloadUrl());
+        assertEquals(DSS_SESSION_TOKEN, store1.getSessionToken());
+        for (DataStoreServicePE service : store1.getServices())
+        {
+            // Check that the types found match those specified
+            if (service.getKind() == DataStoreServiceKind.PROCESSING)
+            {
+                // expect 2 matches
+                assertDataSetTypeMatch(service, processingPluginTypes, 2);
+            }
+            if (service.getKind() == DataStoreServiceKind.QUERIES)
+            {
+                // expect 3 matches
+                assertDataSetTypeMatch(service, reportingPluginTypes, 3);
+            }
+        }
+        DataStorePE store2 = recordedObjects.get(1);
+        assertSame(store1, store2);
+        assertEquals(2, recordedObjects.size());
         context.assertIsSatisfied();
+    }
+
+    private void assertDataSetTypeMatch(DataStoreServicePE service, String typeRegex,
+            int numberExpected)
+    {
+        Set<DataSetTypePE> datasetTypes = service.getDatasetTypes();
+        for (DataSetTypePE types : datasetTypes)
+        {
+            assertEquals("'" + types.getCode() + "' doesnot match '" + typeRegex + "'.", true,
+                    types.getCode().matches(typeRegex));
+        }
+        assertEquals(numberExpected, datasetTypes.size());
     }
 
     @Test
@@ -445,11 +393,6 @@ public class ETLServiceTest extends AbstractServerTestCase
         }
 
         context.assertIsSatisfied();
-    }
-
-    private void prepareGetVersion()
-    {
-        prepareGetVersion(VERSION);
     }
 
     private void prepareGetVersion(final int version)
@@ -1424,7 +1367,8 @@ public class ETLServiceTest extends AbstractServerTestCase
     private IETLLIMSService createService()
     {
         return new ETLService(authenticationService, sessionManager, daoFactory,
-                propertiesBatchManager, boFactory, dssfactory, null, entityOperationChecker);
+                propertiesBatchManager, boFactory, dssfactory, null, entityOperationChecker,
+                dataStoreServiceRegistrator);
     }
 
     private DataStoreServerInfo createDSSInfo()

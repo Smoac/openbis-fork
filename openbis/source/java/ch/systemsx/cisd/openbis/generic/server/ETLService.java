@@ -36,7 +36,6 @@ import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.DummyAuthenticationService;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.conversation.IConversationalRmiClient;
 import ch.systemsx.cisd.common.conversation.IProgressListener;
 import ch.systemsx.cisd.common.conversation.RmiServiceFactory;
@@ -94,9 +93,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -143,7 +140,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOrUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityOperationsLogEntryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -218,14 +214,17 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     private IETLLIMSServiceConversational etlService;
 
+    private final IDataStoreServiceRegistrator dataStoreServiceRegistrator;
+
     public ETLService(IAuthenticationService authenticationService,
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory,
             TrustedCrossOriginDomainsProvider trustedOriginDomainProvider,
-            IETLEntityOperationChecker entityOperationChecker)
+            IETLEntityOperationChecker entityOperationChecker,
+            IDataStoreServiceRegistrator dataStoreServiceRegistrator)
     {
         this(authenticationService, sessionManager, daoFactory, null, boFactory, dssFactory,
-                trustedOriginDomainProvider, entityOperationChecker);
+                trustedOriginDomainProvider, entityOperationChecker, dataStoreServiceRegistrator);
     }
 
     ETLService(IAuthenticationService authenticationService,
@@ -233,13 +232,15 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             IPropertiesBatchManager propertiesBatchManager, ICommonBusinessObjectFactory boFactory,
             IDataStoreServiceFactory dssFactory,
             TrustedCrossOriginDomainsProvider trustedOriginDomainProvider,
-            IETLEntityOperationChecker entityOperationChecker)
+            IETLEntityOperationChecker entityOperationChecker,
+            IDataStoreServiceRegistrator dataStoreServiceRegistrator)
     {
         super(authenticationService, sessionManager, daoFactory, propertiesBatchManager, boFactory);
         this.daoFactory = daoFactory;
         this.dssFactory = dssFactory;
         this.trustedOriginDomainProvider = trustedOriginDomainProvider;
         this.entityOperationChecker = entityOperationChecker;
+        this.dataStoreServiceRegistrator = dataStoreServiceRegistrator;
 
         sessionManagerForEntityOperation =
                 new DefaultSessionManager<Session>(new SessionFactory(),
@@ -332,8 +333,12 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         dataStore.setRemoteUrl(dssURL);
         dataStore.setSessionToken(dssSessionToken);
         dataStore.setArchiverConfigured(info.isArchiverConfigured());
-        setServices(dataStore, info.getServicesDescriptions(), dataStoreDAO);
+        dataStore.setServices(new HashSet<DataStoreServicePE>()); // services will be set by the
+                                                                  // dataStoreServiceRegistrator
+        // setServices(dataStore, info.getServicesDescriptions(), dataStoreDAO);
         dataStoreDAO.createOrUpdateDataStore(dataStore);
+        dataStoreServiceRegistrator.setServiceDescriptions(dataStore,
+                info.getServicesDescriptions());
     }
 
     private String checkVersion(DataStoreServerInfo info, Session session, String dssSessionToken)
@@ -366,105 +371,6 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             operationLog.info("Data Store Server (version " + dssVersion + ") registered for "
                     + dssURL);
         }
-    }
-
-    private void setServices(DataStorePE dataStore, DatastoreServiceDescriptions serviceDescs,
-            IDataStoreDAO dataStoreDAO)
-    {
-        // Clean services first and save the result.
-        // In general it should happen automatically, because services are annotated with
-        // "DELETE_ORPHANS".
-        // But hibernate does the orphans deletion at the flush time, and insertion of new services
-        // is performed before.
-        // So if it happens that services with the same keys are registered, we have a unique
-        // constraint violation. This is a recognized hibernate bug HHH-2421.
-        dataStore.setServices(new HashSet<DataStoreServicePE>());
-        dataStoreDAO.createOrUpdateDataStore(dataStore);
-
-        Set<DataStoreServicePE> dataStoreServices = createDataStoreServices(serviceDescs);
-        dataStore.setServices(dataStoreServices);
-    }
-
-    private Set<DataStoreServicePE> createDataStoreServices(
-            DatastoreServiceDescriptions serviceDescriptions)
-    {
-        Set<DataStoreServicePE> services = new HashSet<DataStoreServicePE>();
-
-        Set<DataStoreServicePE> processing =
-                createDataStoreServices(serviceDescriptions.getProcessingServiceDescriptions(),
-                        DataStoreServiceKind.PROCESSING);
-        services.addAll(processing);
-
-        Set<DataStoreServicePE> queries =
-                createDataStoreServices(serviceDescriptions.getReportingServiceDescriptions(),
-                        DataStoreServiceKind.QUERIES);
-        services.addAll(queries);
-
-        return services;
-    }
-
-    private Set<DataStoreServicePE> createDataStoreServices(
-            List<DatastoreServiceDescription> serviceDescriptions, DataStoreServiceKind serviceKind)
-    {
-        Set<DataStoreServicePE> services = new HashSet<DataStoreServicePE>();
-        for (DatastoreServiceDescription desc : serviceDescriptions)
-        {
-            DataStoreServicePE service = new DataStoreServicePE();
-            service.setKey(desc.getKey());
-            service.setLabel(desc.getLabel());
-            service.setKind(serviceKind);
-            Set<DataSetTypePE> datasetTypes = extractDatasetTypes(desc.getDatasetTypeCodes(), desc);
-            service.setDatasetTypes(datasetTypes);
-            service.setReportingPluginTypeOrNull(desc.tryReportingPluginType());
-            services.add(service);
-        }
-        return services;
-    }
-
-    /**
-     * Find the data set type objects specified by the dataSetTypeCodes.
-     * 
-     * @return A set of DataSetTypePE objects.
-     */
-    private Set<DataSetTypePE> extractDatasetTypes(String[] dataSetTypeCodes,
-            DatastoreServiceDescription serviceDescription)
-    {
-        Set<DataSetTypePE> dataSetTypes = new HashSet<DataSetTypePE>();
-        Set<String> missingCodes = new HashSet<String>();
-        IDataSetTypeDAO dataSetTypeDAO = daoFactory.getDataSetTypeDAO();
-        List<DataSetTypePE> allDataSetTypes = dataSetTypeDAO.listAllEntities();
-
-        for (String dataSetTypeCode : dataSetTypeCodes)
-        {
-            boolean found = false;
-            // Try to find the specified data set type
-            for (DataSetTypePE dataSetType : allDataSetTypes)
-            {
-                if (dataSetType.getCode().matches(dataSetTypeCode))
-                {
-                    dataSetTypes.add(dataSetType);
-                    found = true;
-                }
-            }
-            if (false == found)
-            {
-                missingCodes.add(dataSetTypeCode);
-            }
-        }
-        if (missingCodes.size() > 0)
-        {
-            notifyDataStoreServerMisconfiguration(missingCodes, serviceDescription);
-        }
-        return dataSetTypes;
-    }
-
-    private void notifyDataStoreServerMisconfiguration(Set<String> missingCodes,
-            DatastoreServiceDescription serviceDescription)
-    {
-        String missingCodesText = CollectionUtils.abbreviate(missingCodes, -1);
-        notificationLog.warn(String.format("The Datastore Server Plugin '%s' is misconfigured. "
-                + "It refers to the dataset types which do not exist in openBIS: %s",
-                serviceDescription.toString(), missingCodesText));
     }
 
     @Override

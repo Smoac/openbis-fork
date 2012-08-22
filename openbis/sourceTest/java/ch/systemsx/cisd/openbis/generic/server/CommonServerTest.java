@@ -119,12 +119,14 @@ public final class CommonServerTest extends AbstractServerTestCase
 
     private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
 
+    private IDataStoreServiceRegistrator dataStoreServiceRegistrator;
+
     private final ICommonServer createServer()
     {
         CommonServer server =
                 new CommonServer(authenticationService, sessionManager, daoFactory,
                         propertiesBatchManager, commonBusinessObjectFactory,
-                        new LastModificationState());
+                        dataStoreServiceRegistrator, new LastModificationState());
         server.setSampleTypeSlaveServerPlugin(sampleTypeSlaveServerPlugin);
         server.setDataSetTypeSlaveServerPlugin(dataSetTypeSlaveServerPlugin);
         server.setBaseIndexURL(SESSION_TOKEN, BASE_INDEX_URL);
@@ -144,6 +146,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         commonBusinessObjectFactory = context.mock(ICommonBusinessObjectFactory.class);
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
+        dataStoreServiceRegistrator = context.mock(IDataStoreServiceRegistrator.class);
     }
 
     @Test
@@ -1178,6 +1181,8 @@ public final class CommonServerTest extends AbstractServerTestCase
 
                     one(entityTypeBO).define(type);
                     one(entityTypeBO).save();
+
+                    one(dataStoreServiceRegistrator).register(type);
                 }
             });
 

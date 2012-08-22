@@ -93,6 +93,11 @@
     <bean id="last-modification-state"
           class="ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState" />
           
+    <bean id="data-store-service-registrator" 
+          class="ch.systemsx.cisd.openbis.generic.server.DataStoreServiceRegistrator">
+        <constructor-arg ref="dao-factory" />
+    </bean>
+          
     <!-- 
         // Common
     -->
@@ -102,6 +107,7 @@
         <constructor-arg ref="session-manager" />
         <constructor-arg ref="dao-factory" />
         <constructor-arg ref="common-business-object-factory" />
+        <constructor-arg ref="data-store-service-registrator" />
         <constructor-arg ref="last-modification-state" />
         <property name="userForAnonymousLogin" value="${user-for-anonymous-login}"/>
         <property name="CISDHelpdeskEmail" value="cisd.helpdesk@bsse.ethz.ch" />
@@ -158,6 +164,7 @@
         <constructor-arg ref="dss-factory" />
         <constructor-arg ref="trusted-origin-domain-provider" />
         <constructor-arg ref="etl-entity-operation-checker" />
+        <constructor-arg ref="data-store-service-registrator" />
         <property name = "etlService" ref="etl-service" />
     </bean>
     
