@@ -366,7 +366,7 @@ public final class Evaluator
         } catch (ClassCastException ex)
         {
             final ReturnType type = getType();
-            throw new EvaluatorException("Expected a result of type " + ReturnType.INTEGER
+            throw new EvaluatorException("Expected a result of type " + ReturnType.BOOLEAN
                     + ", found " + type);
         }
     }
