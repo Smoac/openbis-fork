@@ -18,7 +18,7 @@
     <bean id="exception-translator" class="ch.systemsx.cisd.openbis.generic.server.business.bo.NextExceptionFallbackExceptionTranslator" />
 
     <bean id="transaction-manager"
-        class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.OpenBISHibernateTransactionManager">
         <property name="sessionFactory" ref="hibernate-session-factory" />
         <property name="jdbcExceptionTranslator" ref="exception-translator" />
     </bean>
