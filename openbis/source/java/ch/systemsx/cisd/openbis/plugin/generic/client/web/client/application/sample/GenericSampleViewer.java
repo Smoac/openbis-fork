@@ -491,7 +491,9 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
             return new DatabaseModificationKind[]
                 {
                         DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE),
+                        DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE_TYPE),
                         DatabaseModificationKind.edit(ObjectKind.SAMPLE),
+                        DatabaseModificationKind.edit(ObjectKind.SAMPLE_TYPE),
                         DatabaseModificationKind.createOrDelete(ObjectKind.EXPERIMENT),
                         DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
                         DatabaseModificationKind

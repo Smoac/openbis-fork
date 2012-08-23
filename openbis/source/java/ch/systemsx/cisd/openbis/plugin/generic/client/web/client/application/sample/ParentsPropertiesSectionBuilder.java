@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -109,6 +110,7 @@ class ParentsPropertiesSectionBuilder
                 sections.put("Common Parent Properties:", commonProperties);
             }
         }
+        Collections.sort(samples);
         for (Sample sample : samples)
         {
             List<IEntityProperty> properties = sample.getProperties();
