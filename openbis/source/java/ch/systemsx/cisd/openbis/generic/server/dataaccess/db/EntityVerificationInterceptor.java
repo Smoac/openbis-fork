@@ -188,7 +188,7 @@ public class EntityVerificationInterceptor extends EmptyInterceptor
 
     private String entityDescription(IEntityInformationWithPropertiesHolder entity)
     {
-        return entity.getEntityKind().getLabel() + " " + entity.getCode() + " ("
+        return entity.getEntityKind().getLabel() + " " + entity.getIdentifier() + " ("
                 + entity.getEntityType().getCode() + ")";
     }
 

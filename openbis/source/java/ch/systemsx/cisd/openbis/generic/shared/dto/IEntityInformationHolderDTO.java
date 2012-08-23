@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -25,7 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Izabela Adamczyk
  */
-public interface IEntityInformationHolderDTO extends IIdAndCodeHolder, IPermIdHolder
+public interface IEntityInformationHolderDTO extends IIdAndCodeHolder, IPermIdHolder,
+        IIdentifierHolder
 {
     /**
      * Returns the entity type of this matching entity.
