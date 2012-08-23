@@ -18,18 +18,14 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ICorePluginDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
@@ -41,22 +37,9 @@ public class CorePluginDAO extends AbstractDAO implements ICorePluginDAO
 {
     private final static Class<CorePluginPE> ENTITY_CLASS = CorePluginPE.class;
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            CorePluginDAO.class);
-
     public CorePluginDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
     {
         super(sessionFactory, databaseInstance);
-    }
-
-    public void createOrUpdateDataStore(DataStorePE dataStore)
-    {
-        assert dataStore != null : "Unspecified data store";
-
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format("SAVE/UPDATE: data store '%s'.", dataStore));
-        }
     }
 
     @Override
