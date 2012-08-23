@@ -19,6 +19,7 @@
 
     <bean id="transaction-manager"
         class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.OpenBISHibernateTransactionManager">
+        <constructor-arg ref="dao-factory" />
         <property name="sessionFactory" ref="hibernate-session-factory" />
         <property name="jdbcExceptionTranslator" ref="exception-translator" />
     </bean>

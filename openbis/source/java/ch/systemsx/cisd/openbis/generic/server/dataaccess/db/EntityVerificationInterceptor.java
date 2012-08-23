@@ -26,7 +26,6 @@ import org.hibernate.Transaction;
 import org.hibernate.type.Type;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.DynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.EntityAdaptorFactory;
@@ -57,9 +56,11 @@ public class EntityVerificationInterceptor extends EmptyInterceptor
 
     private IDAOFactory daoFactory;
 
-    public EntityVerificationInterceptor(IHibernateTransactionManagerCallback callback)
+    public EntityVerificationInterceptor(IHibernateTransactionManagerCallback callback,
+            IDAOFactory daoFactory)
     {
         this.callback = callback;
+        this.daoFactory = daoFactory;
         initializeLists();
     }
 
@@ -196,7 +197,7 @@ public class EntityVerificationInterceptor extends EmptyInterceptor
     {
         EntityValidationCalculator calculator =
                 EntityValidationCalculator.create(script.getScript());
-        IDynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator(getDAOFactory(), null);
+        IDynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator(daoFactory, null);
         IEntityAdaptor adaptor = EntityAdaptorFactory.create(entity, evaluator);
         calculator.setEntity(adaptor);
         calculator.setIsNewEntity(isNewEntity);
@@ -256,15 +257,6 @@ public class EntityVerificationInterceptor extends EmptyInterceptor
         newExperiments = new HashSet<ExperimentPE>();
         newMaterials = new HashSet<MaterialPE>();
         newDatasets = new HashSet<DataPE>();
-    }
-
-    private IDAOFactory getDAOFactory()
-    {
-        if (daoFactory == null)
-        {
-            daoFactory = CommonServiceProvider.getDAOFactory();
-        }
-        return daoFactory;
     }
 
 }

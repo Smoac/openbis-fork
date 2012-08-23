@@ -27,7 +27,8 @@ import org.springframework.orm.hibernate3.HibernateTransactionManager;
 import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -42,6 +43,13 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    private IDAOFactory daoFactory;
+
+    public OpenBISHibernateTransactionManager(IDAOFactory daoFactory)
+    {
+        this.daoFactory = daoFactory;
+    }
+
     WeakHashMap<Transaction, String> rolledBackTransactions =
             new WeakHashMap<Transaction, String>();
 
@@ -55,7 +63,7 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
     @Override
     public Interceptor getEntityInterceptor() throws IllegalStateException, BeansException
     {
-        return new EntityVerificationInterceptor(this);
+        return new EntityVerificationInterceptor(this, daoFactory);
     }
 
     @Override
