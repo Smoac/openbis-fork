@@ -27,6 +27,7 @@ import org.springframework.orm.hibernate3.HibernateTransactionManager;
 import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.HibernateInterceptorsWrapper;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
@@ -44,9 +45,17 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
 
     private IDAOFactory daoFactory;
 
+    private DynamicPropertiesInterceptor dynamicPropertiesInterceptor;
+
     public OpenBISHibernateTransactionManager(IDAOFactory daoFactory)
     {
         this.daoFactory = daoFactory;
+    }
+
+    public void setDynamicPropertiesInterceptor(
+            DynamicPropertiesInterceptor dynamicPropertiesInterceptor)
+    {
+        this.dynamicPropertiesInterceptor = dynamicPropertiesInterceptor;
     }
 
     WeakHashMap<Transaction, String> rolledBackTransactions =
@@ -62,7 +71,11 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
     @Override
     public Interceptor getEntityInterceptor() throws IllegalStateException, BeansException
     {
-        return new EntityVerificationInterceptor(this, daoFactory);
+        EntityVerificationInterceptor entityVerificationInterceptor =
+                new EntityVerificationInterceptor(this, daoFactory);
+
+        return new HibernateInterceptorsWrapper(dynamicPropertiesInterceptor,
+                entityVerificationInterceptor);
     }
 
     @Override

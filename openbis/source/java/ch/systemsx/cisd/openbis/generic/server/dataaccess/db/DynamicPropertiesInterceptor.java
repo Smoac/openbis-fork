@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * 
  * @author Piotr Buczek
  */
-public class HibernateInterceptor extends EmptyInterceptor
+public class DynamicPropertiesInterceptor extends EmptyInterceptor
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

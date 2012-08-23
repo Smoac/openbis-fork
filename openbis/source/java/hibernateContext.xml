@@ -143,14 +143,7 @@
         <property name="lobHandler">
             <bean class="org.springframework.jdbc.support.lob.DefaultLobHandler" />
         </property>
-        <property name="entityInterceptor">
-            <ref bean="hibernate-interceptor" />
-        </property>
-    </bean>
 
-    <bean id="hibernate-interceptor"
-          class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateInterceptor">
-          <property name="dynamicPropertyScheduler" ref="dynamic-property-scheduler" />
     </bean>
 
     <!--
@@ -183,11 +176,5 @@
         class="ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationScheduler">
     </bean>
 
-    <bean id="dynamic-property-evaluator"
-        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluationRunnable">
-        <constructor-arg ref="hibernate-session-factory" />
-        <constructor-arg ref="dao-factory" />
-        <constructor-arg ref="full-text-index-updater" />
-        <constructor-arg ref="dynamic-property-scheduler" />
-    </bean>
+
 </beans>
