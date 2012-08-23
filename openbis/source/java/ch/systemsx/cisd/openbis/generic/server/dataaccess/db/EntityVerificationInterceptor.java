@@ -21,26 +21,46 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.hibernate.EmptyInterceptor;
+import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
 import org.hibernate.type.Type;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.DynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.IDynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.EntityAdaptorFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.EntityValidationCalculator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.api.IEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
+ * {@link Interceptor} which reacts to creation and update of entities, and calls the validation
+ * script. It is coupled with {@link OpenBISHibernateTransactionManager} with the callback object,
+ * as the only way to cancel transaction from this interceptor is to rollback hibernate transaction
+ * object. In order to fail the transaction with a {@link UserFailureException} we have to provide
+ * information
+ * 
  * @author Jakub Straszewski
  */
 public class EntityVerificationInterceptor extends EmptyInterceptor
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    private IDAOFactory daoFactory;
+
     public EntityVerificationInterceptor(IHibernateTransactionManagerCallback callback)
     {
         this.callback = callback;
-        clearLists();
+        initializeLists();
     }
 
     IHibernateTransactionManagerCallback callback;
@@ -53,11 +73,19 @@ public class EntityVerificationInterceptor extends EmptyInterceptor
 
     Set<DataPE> modifiedDatasets;
 
+    Set<SamplePE> newSamples;
+
+    Set<MaterialPE> newMaterials;
+
+    Set<ExperimentPE> newExperiments;
+
+    Set<DataPE> newDatasets;
+
     @Override
     public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames,
             Type[] types)
     {
-        modifiedEntity(entity);
+        newEntity(entity);
         return false;
     }
 
@@ -72,39 +100,171 @@ public class EntityVerificationInterceptor extends EmptyInterceptor
     @Override
     public void beforeTransactionCompletion(Transaction tx)
     {
-        // TODO: implement the validation logic
-        // callback.setRollbackOnly(tx, "The sample has been modified");
+        for (SamplePE sample : newSamples)
+        {
+            validateNewEntity(tx, sample, sample.getSampleType());
+        }
 
+        for (DataPE dataset : newDatasets)
+        {
+            validateNewEntity(tx, dataset, dataset.getDataSetType());
+        }
+
+        for (MaterialPE material : newMaterials)
+        {
+            validateNewEntity(tx, material, material.getMaterialType());
+        }
+
+        for (ExperimentPE experiment : newExperiments)
+        {
+            validateNewEntity(tx, experiment, experiment.getEntityType());
+        }
+
+        for (SamplePE sample : modifiedSamples)
+        {
+            validateModifiedEntity(tx, sample, sample.getSampleType());
+        }
+
+        for (DataPE dataset : modifiedDatasets)
+        {
+            validateModifiedEntity(tx, dataset, dataset.getDataSetType());
+        }
+
+        for (MaterialPE material : modifiedMaterials)
+        {
+            validateModifiedEntity(tx, material, material.getMaterialType());
+        }
+
+        for (ExperimentPE experiment : modifiedExperiments)
+        {
+            validateModifiedEntity(tx, experiment, experiment.getEntityType());
+        }
+    }
+
+    private void validateModifiedEntity(Transaction tx,
+            IEntityInformationWithPropertiesHolder entity, EntityTypePE entityType)
+    {
+        validateEntity(tx, entity, entityType, false);
+    }
+
+    private void validateNewEntity(Transaction tx, IEntityInformationWithPropertiesHolder entity,
+            EntityTypePE entityType)
+    {
+        validateEntity(tx, entity, entityType, true);
+    }
+
+    private void validateEntity(Transaction tx, IEntityInformationWithPropertiesHolder entity,
+            EntityTypePE entityType, boolean isNewEntity)
+    {
+        ScriptPE validationScript = entityType.getValidationScript();
+        if (validationScript != null)
+        {
+            validateEntityWithScript(tx, validationScript, entity, isNewEntity);
+        }
+    }
+
+    private void validateEntityWithScript(Transaction tx, ScriptPE script,
+            IEntityInformationWithPropertiesHolder entity, boolean isNewEntity)
+    {
+        String result = null;
+
+        try
+        {
+            result = calculate(script, entity, isNewEntity);
+        } catch (Throwable e)
+        {
+            callback.rollbackTransaction(tx, "Validation of " + entityDescription(entity)
+                    + " resulted in error. " + e.getMessage());
+            e.printStackTrace();
+        }
+        if (result != null)
+        {
+            callback.rollbackTransaction(tx, "Validation of " + entityDescription(entity)
+                    + " failed. " + result);
+        }
+
+    }
+
+    private String entityDescription(IEntityInformationWithPropertiesHolder entity)
+    {
+        return entity.getEntityKind().getLabel() + " " + entity.getCode() + " ("
+                + entity.getEntityType().getCode() + ")";
+    }
+
+    private String calculate(ScriptPE script, IEntityInformationWithPropertiesHolder entity,
+            boolean isNewEntity)
+    {
+        EntityValidationCalculator calculator =
+                EntityValidationCalculator.create(script.getScript());
+        IDynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator(getDAOFactory(), null);
+        IEntityAdaptor adaptor = EntityAdaptorFactory.create(entity, evaluator);
+        calculator.setEntity(adaptor);
+        calculator.setIsNewEntity(isNewEntity);
+        return calculator.evalAsString();
+    }
+
+    private void newEntity(Object entity)
+    {
+        if (entity instanceof SamplePE)
+        {
+            newSamples.add((SamplePE) entity);
+        } else if (entity instanceof ExperimentPE)
+        {
+            newExperiments.add((ExperimentPE) entity);
+        } else if (entity instanceof MaterialPE)
+        {
+            newMaterials.add((MaterialPE) entity);
+        } else if (entity instanceof DataPE)
+        {
+            newDatasets.add((DataPE) entity);
+        }
     }
 
     private void modifiedEntity(Object entity)
     {
         if (entity instanceof SamplePE)
         {
-            modifiedEntity((SamplePE) entity, modifiedSamples);
+            addModifiedEntityToSet((SamplePE) entity, modifiedSamples, newSamples);
         } else if (entity instanceof ExperimentPE)
         {
-            modifiedEntity((ExperimentPE) entity, modifiedExperiments);
+            addModifiedEntityToSet((ExperimentPE) entity, modifiedExperiments, newExperiments);
         } else if (entity instanceof MaterialPE)
         {
-            modifiedEntity((MaterialPE) entity, modifiedMaterials);
+            addModifiedEntityToSet((MaterialPE) entity, modifiedMaterials, newMaterials);
         } else if (entity instanceof DataPE)
         {
-            modifiedEntity((DataPE) entity, modifiedDatasets);
+            addModifiedEntityToSet((DataPE) entity, modifiedDatasets, newDatasets);
         }
     }
 
-    private <T> void modifiedEntity(T entity, Set<T> modifiedEntities)
+    private <T> void addModifiedEntityToSet(T entity, Set<T> modifiedSet, Set<T> newSet)
     {
-        modifiedEntities.add(entity);
+        if (false == newSet.contains(entity))
+        {
+            modifiedSet.add(entity);
+        }
     }
 
-    private void clearLists()
+    private void initializeLists()
     {
         modifiedSamples = new HashSet<SamplePE>();
         modifiedExperiments = new HashSet<ExperimentPE>();
         modifiedMaterials = new HashSet<MaterialPE>();
         modifiedDatasets = new HashSet<DataPE>();
+
+        newSamples = new HashSet<SamplePE>();
+        newExperiments = new HashSet<ExperimentPE>();
+        newMaterials = new HashSet<MaterialPE>();
+        newDatasets = new HashSet<DataPE>();
+    }
+
+    private IDAOFactory getDAOFactory()
+    {
+        if (daoFactory == null)
+        {
+            daoFactory = CommonServiceProvider.getDAOFactory();
+        }
+        return daoFactory;
     }
 
 }

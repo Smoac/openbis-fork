@@ -46,7 +46,7 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
             new WeakHashMap<Transaction, String>();
 
     @Override
-    public void setRollbackOnly(Transaction tx, String reason)
+    public void rollbackTransaction(Transaction tx, String reason)
     {
         tx.rollback();
         rolledBackTransactions.put(tx, reason);
@@ -117,5 +117,5 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
 
 interface IHibernateTransactionManagerCallback
 {
-    void setRollbackOnly(Transaction tx, String reason);
+    void rollbackTransaction(Transaction tx, String reason);
 }
