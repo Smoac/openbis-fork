@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;

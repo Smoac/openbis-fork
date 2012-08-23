@@ -26,12 +26,12 @@ import org.hibernate.Transaction;
 import org.hibernate.type.Type;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.DynamicPropertyEvaluator;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.IDynamicPropertyEvaluator;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.EntityAdaptorFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.EntityValidationCalculator;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;

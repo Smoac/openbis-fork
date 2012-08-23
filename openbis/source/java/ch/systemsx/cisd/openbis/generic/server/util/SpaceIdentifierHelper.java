@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;

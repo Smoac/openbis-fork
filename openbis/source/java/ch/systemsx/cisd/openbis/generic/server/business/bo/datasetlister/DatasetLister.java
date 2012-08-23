@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropert
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.AbstractLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;

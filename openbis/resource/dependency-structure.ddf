@@ -230,7 +230,7 @@ check [api-client] dependentOnlyOn [java-and-api-shared]
 # Script API
 #
 
-[dynamic-properties-api] = ${generic}.server.business.bo.dynamic_property.calculator.api.*
+[dynamic-properties-api] = ${generic}.server.dataaccess.dynamic_property.calculator.api.*
 [managed-properties-api] = ${generic}.shared.basic.dto.api.* ${generic}.shared.basic.ISerializable ${generic}.shared.managed_property.api.*
 
 [cisd] = ch.systemsx.cisd.*

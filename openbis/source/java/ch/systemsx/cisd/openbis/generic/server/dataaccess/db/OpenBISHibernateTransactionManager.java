@@ -27,7 +27,6 @@ import org.springframework.orm.hibernate3.HibernateTransactionManager;
 import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
@@ -97,7 +96,7 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
             String rollBackReason = rolledBackTransactions.get(tx);
             if (rollBackReason != null)
             {
-                throw new UserFailureException(rollBackReason);
+                throw new ch.systemsx.cisd.common.exceptions.UserFailureException(rollBackReason);
             } else
             {
                 throw ex;

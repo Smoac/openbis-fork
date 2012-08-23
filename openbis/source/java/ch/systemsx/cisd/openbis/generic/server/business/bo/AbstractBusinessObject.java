@@ -25,6 +25,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ICorePluginDAO;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityHistoryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;

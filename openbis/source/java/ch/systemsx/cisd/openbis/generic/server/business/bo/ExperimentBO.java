@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;

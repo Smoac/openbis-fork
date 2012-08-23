@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwnerFinder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -44,7 +45,8 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
 
     private final SampleOwnerFinder sampleOwnerFinder;
 
-    AbstractSampleIdentifierBusinessObject(final IDAOFactory daoFactory, final Session session, EntityKind entityKind)
+    AbstractSampleIdentifierBusinessObject(final IDAOFactory daoFactory, final Session session,
+            EntityKind entityKind)
     {
         super(daoFactory, session, entityKind);
         sampleOwnerFinder = new SampleOwnerFinder(daoFactory, findPerson());
