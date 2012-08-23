@@ -54,6 +54,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.DataSetRegistrationTransactionV2Delegate;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
+import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -69,8 +70,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public abstract class IngestionService<T extends DataSetInformation> extends
-        AggregationService implements IOmniscientEntityRegistrator<T>
+public abstract class IngestionService<T extends DataSetInformation> extends AggregationService
+        implements IOmniscientEntityRegistrator<T>
 {
 
     private static final String AGGREGATION_SERVICE_SCRATCH_DIR_NAME = "aggregation-service";
@@ -111,8 +112,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends
      * @param instanceProperties
      * @param storeRoot
      */
-    public IngestionService(Properties dssProperties,
-            Properties instanceProperties, File storeRoot)
+    public IngestionService(Properties dssProperties, Properties instanceProperties, File storeRoot)
     {
         this(dssProperties, instanceProperties, storeRoot, null,
                 getMailClientFromProperties(dssProperties));
@@ -127,9 +127,8 @@ public abstract class IngestionService<T extends DataSetInformation> extends
      * @param openBisService
      * @param mailClient
      */
-    public IngestionService(Properties dssProperties,
-            Properties instanceProperties, File storeRoot,
-            IEncapsulatedOpenBISService openBisService, IMailClient mailClient)
+    public IngestionService(Properties dssProperties, Properties instanceProperties,
+            File storeRoot, IEncapsulatedOpenBISService openBisService, IMailClient mailClient)
     {
         super(instanceProperties, storeRoot);
         this.dssProperties = dssProperties;
@@ -207,6 +206,10 @@ public abstract class IngestionService<T extends DataSetInformation> extends
 
     protected DataSetRegistrationService<T> createRegistrationService(Map<String, Object> parameters)
     {
+        // Make sure the health monitor has been initialized
+        DssRegistrationHealthMonitor.getInstance(openBisService, getGlobalState()
+                .getRecoveryStateDir());
+
         // Create a file that represents the parameters
         try
         {
