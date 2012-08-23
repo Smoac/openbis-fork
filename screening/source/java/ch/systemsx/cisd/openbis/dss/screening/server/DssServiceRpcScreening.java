@@ -126,7 +126,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 10;
+    public static final int MINOR_VERSION = 11;
 
     // this dao will hold one connection to the database
     private IImagingReadonlyQueryDAO dao;
@@ -592,32 +592,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             List<PlateImageReference> imageReferences, boolean convertToPng)
     {
 
-        InputStream stream = loadImages(sessionToken, imageReferences, convertToPng);
-
-        ConcatenatedFileOutputStreamWriter imagesWriter =
-                new ConcatenatedFileOutputStreamWriter(stream);
-
-        List<String> result = new ArrayList<String>();
-        try
-        {
-            for (byte[] bytes = extractNextImage(imagesWriter); bytes.length > 0; bytes =
-                    extractNextImage(imagesWriter))
-            {
-                result.add(Base64.encodeBytes(bytes));
-            }
-        } catch (IOException ex)
-        {
-            operationLog.error("Error reading image.", ex);
-        }
-        return result;
-    }
-
-    private byte[] extractNextImage(ConcatenatedFileOutputStreamWriter imagesWriter)
-            throws IOException
-    {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        imagesWriter.writeNextBlock(outputStream);
-        return outputStream.toByteArray();
+        return convertToBase64(loadImages(sessionToken, imageReferences, convertToPng));
     }
 
     @Override
@@ -625,6 +600,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             ImageSize thumbnailSizeOrNull)
     {
         return loadImages(sessionToken, imageReferences, tryAsSize(thumbnailSizeOrNull), null, true);
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageSize size)
+    {
+        return convertToBase64(loadImages(sessionToken, imageReferences, size));
     }
 
     @Override
@@ -637,6 +619,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 configuration.getSingleChannelImageTransformationCode(),
                 configuration.isDesiredImageFormatPng(),
                 configuration.isOpenBisImageTransformationApplied(), imageLoadersMap);
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, LoadImageConfiguration configuration)
+    {
+        return convertToBase64(loadImages(sessionToken, imageReferences, configuration));
     }
 
     @Override
@@ -665,6 +654,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                         }
                     };
         return loadImages(sessionToken, imageReferences, criterion);
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageRepresentationFormat format)
+    {
+        return convertToBase64(loadImages(sessionToken, imageReferences, format));
     }
 
     @Override
@@ -707,6 +703,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             addImageContentTo(imageContents, loader, imageReference, size, null, false, false);
         }
         return new ConcatenatedContentInputStream(true, imageContents);
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences,
+            IImageRepresentationFormatSelectionCriterion... criteria)
+    {
+        return convertToBase64(loadImages(sessionToken, imageReferences, criteria));
     }
 
     private InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
@@ -788,6 +792,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     }
 
     @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences)
+    {
+        return convertToBase64(loadImages(sessionToken, imageReferences));
+    }
+
+    @Override
     public InputStream loadImages(String sessionToken, IDatasetIdentifier dataSetIdentifier,
             List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
     {
@@ -805,6 +816,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     }
 
     @Override
+    public List<String> loadImagesBase64(String sessionToken, IDatasetIdentifier dataSetIdentifier,
+            List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
+    {
+        return convertToBase64(loadImages(sessionToken, dataSetIdentifier, wellPositions, channel,
+                thumbnailSizeOrNull));
+    }
+
+    @Override
     public InputStream loadThumbnailImages(String sessionToken,
             List<PlateImageReference> imageReferences)
     {
@@ -812,6 +831,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 getImageDatasetsMap(sessionToken, imageReferences);
 
         return loadThumbnailImages(imageReferences, imageLoadersMap);
+    }
+
+    @Override
+    public List<String> loadThumbnailImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences)
+    {
+        return convertToBase64(loadThumbnailImages(sessionToken, imageReferences));
     }
 
     @Override
@@ -840,6 +866,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     }
 
     @Override
+    public List<String> loadImagesBase64(String sessionToken, IDatasetIdentifier dataSetIdentifier,
+            String channel, ImageSize thumbnailSizeOrNull)
+    {
+        return convertToBase64(loadImages(sessionToken, dataSetIdentifier, channel,
+                thumbnailSizeOrNull));
+    }
+
+    @Override
     public InputStream loadThumbnailImages(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<String> channels)
     {
@@ -863,6 +897,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                             null, false, false)));
         }
         return new ConcatenatedContentInputStream(true, imageContents);
+    }
+
+    @Override
+    public List<String> loadThumbnailImagesBase64(String sessionToken,
+            IDatasetIdentifier dataSetIdentifier, List<String> channels)
+    {
+        return convertToBase64(loadThumbnailImages(sessionToken, dataSetIdentifier, channels));
     }
 
     @Override
@@ -1513,6 +1554,34 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         {
             return null;
         }
+    }
+
+    private List<String> convertToBase64(InputStream stream)
+    {
+        ConcatenatedFileOutputStreamWriter imagesWriter =
+                new ConcatenatedFileOutputStreamWriter(stream);
+
+        List<String> result = new ArrayList<String>();
+        try
+        {
+            for (byte[] bytes = extractNextImage(imagesWriter); bytes.length > 0; bytes =
+                    extractNextImage(imagesWriter))
+            {
+                result.add(Base64.encodeBytes(bytes));
+            }
+        } catch (IOException ex)
+        {
+            operationLog.error("Error reading image.", ex);
+        }
+        return result;
+    }
+
+    private byte[] extractNextImage(ConcatenatedFileOutputStreamWriter imagesWriter)
+            throws IOException
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        imagesWriter.writeNextBlock(outputStream);
+        return outputStream.toByteArray();
     }
 
     private boolean isImageDataset(ExternalData dataset)

@@ -117,11 +117,12 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     {
         return handleNotSupportedMethod();
     }
-    
-    
+
     @Override
-    public List<String> loadImagesBase64(String sessionToken, List<PlateImageReference> imageReferences, boolean convertToPng) {
-        return service.loadImagesBase64(sessionToken, imageReferences, convertToPng);       
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, boolean convertToPng)
+    {
+        return service.loadImagesBase64(sessionToken, imageReferences, convertToPng);
     }
 
     @Override
@@ -132,6 +133,13 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     }
 
     @Override
+    public List<String> loadThumbnailImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences)
+    {
+        return service.loadThumbnailImagesBase64(sessionToken, imageReferences);
+    }
+
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             ImageSize size)
     {
@@ -139,9 +147,23 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     }
 
     @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageSize size)
+    {
+        return service.loadImagesBase64(sessionToken, imageReferences, size);
+    }
+
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
     {
         return handleNotSupportedMethod();
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences)
+    {
+        return service.loadImagesBase64(sessionToken, imageReferences);
     }
 
     @Override
@@ -152,10 +174,26 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     }
 
     @Override
+    public List<String> loadImagesBase64(String sessionToken, IDatasetIdentifier dataSetIdentifier,
+            List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
+    {
+        return service.loadImagesBase64(sessionToken, dataSetIdentifier, wellPositions, channel,
+                thumbnailSizeOrNull);
+    }
+
+    @Override
     public InputStream loadImages(String sessionToken, IDatasetIdentifier dataSetIdentifier,
             String channel, ImageSize thumbnailSizeOrNull)
     {
         return handleNotSupportedMethod();
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken, IDatasetIdentifier dataSetIdentifier,
+            String channel, ImageSize thumbnailSizeOrNull)
+    {
+        return service.loadImagesBase64(sessionToken, dataSetIdentifier, channel,
+                thumbnailSizeOrNull);
     }
 
     @Override
@@ -166,10 +204,24 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     }
 
     @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, LoadImageConfiguration configuration)
+    {
+        return service.loadImagesBase64(sessionToken, imageReferences, configuration);
+    }
+
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             ImageRepresentationFormat format)
     {
         return handleNotSupportedMethod();
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageRepresentationFormat format)
+    {
+        return service.loadImagesBase64(sessionToken, imageReferences, format);
     }
 
     @Override
@@ -180,10 +232,25 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     }
 
     @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences,
+            IImageRepresentationFormatSelectionCriterion... criteria)
+    {
+        return service.loadImagesBase64(sessionToken, imageReferences, criteria);
+    }
+
+    @Override
     public InputStream loadThumbnailImages(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<String> channels)
     {
         return handleNotSupportedMethod();
+    }
+
+    @Override
+    public List<String> loadThumbnailImagesBase64(String sessionToken,
+            IDatasetIdentifier dataSetIdentifier, List<String> channels)
+    {
+        return service.loadThumbnailImagesBase64(sessionToken, dataSetIdentifier, channels);
     }
 
     @Override

@@ -23,13 +23,12 @@ import java.util.List;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-
-
 /**
  * Criterion based on the image size.
  * 
  * @author Franz-Josef Elmer
  */
+@SuppressWarnings("unused")
 @JsonObject("SizeCriterion")
 public class SizeCriterion implements IImageRepresentationFormatSelectionCriterion
 {
@@ -38,8 +37,8 @@ public class SizeCriterion implements IImageRepresentationFormatSelectionCriteri
     public static enum Type
     {
         /**
-         * Picks that format where the image size is the largest one which just fits into a
-         * bounding box specified by width and height.
+         * Picks that format where the image size is the largest one which just fits into a bounding
+         * box specified by width and height.
          */
         LARGEST_IN_BOUNDING_BOX()
         {
@@ -169,11 +168,11 @@ public class SizeCriterion implements IImageRepresentationFormatSelectionCriteri
         return number == null ? 0 : number.intValue();
     }
 
-    private final int width;
+    private int width;
 
-    private final int height;
+    private int height;
 
-    private final Type type;
+    private Type type;
 
     /**
      * Creates an instance for the specified image size and criterion type.
@@ -197,6 +196,44 @@ public class SizeCriterion implements IImageRepresentationFormatSelectionCriteri
                 new ArrayList<ImageRepresentationFormat>();
         type.filter(width, height, imageRepresentationFormats, filteredFormats);
         return filteredFormats;
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    private SizeCriterion()
+    {
+    }
+
+    private void setWidth(int width)
+    {
+        this.width = width;
+    }
+
+    private int getWidth()
+    {
+        return width;
+    }
+
+    private void setHeight(int height)
+    {
+        this.height = height;
+    }
+
+    private int getHeight()
+    {
+        return height;
+    }
+
+    private void setType(Type type)
+    {
+        this.type = type;
+    }
+
+    private Type getType()
+    {
+        return type;
     }
 
 }

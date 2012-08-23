@@ -122,11 +122,14 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
     }
 
     @Override
-    public List<String> loadImagesBase64(String sessionToken, List<PlateImageReference> references, boolean convertToPng) {
-        logAccess(sessionToken, "load_images_base64", "IMAGE_REFERENCES(%s) CONVERT(%s)", references);
+    public List<String> loadImagesBase64(String sessionToken, List<PlateImageReference> references,
+            boolean convertToPng)
+    {
+        logAccess(sessionToken, "load_images_base64", "IMAGE_REFERENCES(%s) CONVERT(%s)",
+                references);
         return null;
     }
-    
+
     @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             ImageSize thumbnailSizeOrNull)
@@ -137,9 +140,26 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
     }
 
     @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageSize size)
+    {
+        logAccess(sessionToken, "load_images_base64", "IMAGE_REFERENCES(%s) SIZE(%s)",
+                imageReferences, size);
+        return null;
+    }
+
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
     {
         logAccess(sessionToken, "load_images", "IMAGE_REFERENCES(%s)", imageReferences);
+        return null;
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences)
+    {
+        logAccess(sessionToken, "load_images_base64", "IMAGE_REFERENCES(%s)", imageReferences);
         return null;
     }
 
@@ -153,10 +173,29 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
     }
 
     @Override
+    public List<String> loadImagesBase64(String sessionToken, IDatasetIdentifier dataSetIdentifier,
+            List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
+    {
+        logAccess(sessionToken, "load_images_base64", "DATA_SET(%s) CHANNEL(%s) IMAGE_SIZE(%s)",
+                dataSetIdentifier, channel, thumbnailSizeOrNull);
+        return null;
+    }
+
+    @Override
     public InputStream loadImages(String sessionToken, IDatasetIdentifier dataSetIdentifier,
             String channel, ImageSize thumbnailSizeOrNull)
     {
         logAccess(sessionToken, "load_images microscopy ",
+                "DATA_SET(%s) CHANNEL(%s) IMAGE_SIZE(%s)", dataSetIdentifier, channel,
+                thumbnailSizeOrNull);
+        return null;
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken, IDatasetIdentifier dataSetIdentifier,
+            String channel, ImageSize thumbnailSizeOrNull)
+    {
+        logAccess(sessionToken, "load_images microscopy base64 ",
                 "DATA_SET(%s) CHANNEL(%s) IMAGE_SIZE(%s)", dataSetIdentifier, channel,
                 thumbnailSizeOrNull);
         return null;
@@ -241,11 +280,29 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    public List<String> loadThumbnailImagesBase64(String sessionToken,
+            IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions,
+            List<String> channels)
+    {
+        logAccess(sessionToken, "load_thumbnail_images_base64", "DATA_SET(%s) CHANNELS(%s)",
+                dataSetIdentifier, channels);
+        return null;
+    }
+
     @Override
     public InputStream loadThumbnailImages(String sessionToken,
             List<PlateImageReference> imageReferences)
     {
         logAccess(sessionToken, "load_thumbnail_images", "IMAGE_REFERENCES(%s)", imageReferences);
+        return null;
+    }
+
+    @Override
+    public List<String> loadThumbnailImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences)
+    {
+        logAccess(sessionToken, "load_thumbnail_images_base64", "IMAGE_REFERENCES(%s)",
+                imageReferences);
         return null;
     }
 
@@ -259,10 +316,28 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
     }
 
     @Override
+    public List<String> loadThumbnailImagesBase64(String sessionToken,
+            IDatasetIdentifier dataSetIdentifier, List<String> channels)
+    {
+        logAccess(sessionToken, "load_thumbnail_images microscopy base64 ",
+                "DATA_SET(%s) CHANNELS(%s)", dataSetIdentifier, channels);
+        return null;
+    }
+
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             LoadImageConfiguration configuration)
     {
         logAccess(sessionToken, "load_images", "IMAGE_REFERENCES(%s) CONFIGURATION(%s)",
+                imageReferences, configuration);
+        return null;
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, LoadImageConfiguration configuration)
+    {
+        logAccess(sessionToken, "load_images_base64", "IMAGE_REFERENCES(%s) CONFIGURATION(%s)",
                 imageReferences, configuration);
         return null;
     }
@@ -277,10 +352,29 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
     }
 
     @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageRepresentationFormat format)
+    {
+        logAccess(sessionToken, "load_images_base64", "IMAGE_REFERENCES(%s) FORMAT(%s)",
+                imageReferences, format);
+        return null;
+    }
+
+    @Override
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             IImageRepresentationFormatSelectionCriterion... criteria)
     {
         logAccess(sessionToken, "load_images", "IMAGE_REFERENCES(%s) CRITERIA(%s)",
+                imageReferences, Arrays.asList(criteria));
+        return null;
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences,
+            IImageRepresentationFormatSelectionCriterion... criteria)
+    {
+        logAccess(sessionToken, "load_images_base64", "IMAGE_REFERENCES(%s) CRITERIA(%s)",
                 imageReferences, Arrays.asList(criteria));
         return null;
     }

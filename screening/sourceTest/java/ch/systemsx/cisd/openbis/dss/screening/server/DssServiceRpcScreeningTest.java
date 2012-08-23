@@ -37,6 +37,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.googlecode.jsonrpc4j.Base64;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.base.convert.NativeTaggedArray;
 import ch.systemsx.cisd.base.image.IImageTransformer;
@@ -382,34 +384,10 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     @Test
     public void testLoadImages() throws IOException
     {
-        final String channel = CHANNEL_CODE;
-        prepareAssetDataSetIsAccessible(DATASET_CODE);
-        prepareLockDataSet(DATASET_CODE);
-        context.checking(new Expectations()
-            {
-                {
-                    RequestedImageSize thumbnailSize =
-                            new RequestedImageSize(new Size(2, 1), false);
-                    one(imageLoader).tryGetImage(
-                            channel,
-                            ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
-                                    new Location(1, 1)), thumbnailSize, null);
-                    will(returnValue(new AbsoluteImageReference(image("img1.jpg"), "img1", null,
-                            null, thumbnailSize, createBlueColor(),
-                            new ImageTransfomationFactories(), null, null)));
-                    one(imageLoader).tryGetImage(
-                            channel,
-                            ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
-                                    new Location(2, 1)), thumbnailSize, null);
-                    will(returnValue(new AbsoluteImageReference(image("img1.gif"), "img1", null,
-                            null, thumbnailSize, createBlueColor(),
-                            new ImageTransfomationFactories(), null, null)));
-                }
-            });
-
+        testLoadImagesPrepare();
         InputStream images =
                 screeningService.loadImages(SESSION_TOKEN, new DatasetIdentifier(DATASET_CODE,
-                        "url1"), Arrays.asList(new WellPosition(1, 3)), channel,
+                        "url1"), Arrays.asList(new WellPosition(1, 3)), CHANNEL_CODE,
                         new ImageSize(2, 1));
 
         ConcatenatedFileOutputStreamWriter imagesWriter =
@@ -426,6 +404,68 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testLoadImagesBase64() throws IOException
+    {
+        testLoadImagesPrepare();
+
+        InputStream images =
+                screeningService.loadImages(SESSION_TOKEN, new DatasetIdentifier(DATASET_CODE,
+                        "url1"), Arrays.asList(new WellPosition(1, 3)), CHANNEL_CODE,
+                        new ImageSize(2, 1));
+
+        ConcatenatedFileOutputStreamWriter imagesWriter =
+                new ConcatenatedFileOutputStreamWriter(images);
+
+        byte[] image1 = extractNextImageAsByteArray(imagesWriter);
+        byte[] image2 = extractNextImageAsByteArray(imagesWriter);
+
+        images.close();
+        assertTrue(testMethodInterceptor.methodInvoked);
+        context.assertIsSatisfied();
+
+        beforeMethod();
+        testLoadImagesPrepare();
+
+        List<String> imagesBase64 =
+                screeningService.loadImagesBase64(SESSION_TOKEN, new DatasetIdentifier(
+                        DATASET_CODE, "url1"), Arrays.asList(new WellPosition(1, 3)), CHANNEL_CODE,
+                        new ImageSize(2, 1));
+
+        assertEquals(imagesBase64.get(0), Base64.encodeBytes(image1));
+        assertEquals(imagesBase64.get(1), Base64.encodeBytes(image2));
+
+        assertTrue(testMethodInterceptor.methodInvoked);
+        context.assertIsSatisfied();
+    }
+
+    private void testLoadImagesPrepare()
+    {
+        prepareAssetDataSetIsAccessible(DATASET_CODE);
+        prepareLockDataSet(DATASET_CODE);
+        context.checking(new Expectations()
+            {
+                {
+                    RequestedImageSize thumbnailSize =
+                            new RequestedImageSize(new Size(2, 1), false);
+                    one(imageLoader).tryGetImage(
+                            CHANNEL_CODE,
+                            ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
+                                    new Location(1, 1)), thumbnailSize, null);
+                    will(returnValue(new AbsoluteImageReference(image("img1.jpg"), "img1", null,
+                            null, thumbnailSize, createBlueColor(),
+                            new ImageTransfomationFactories(), null, null)));
+                    one(imageLoader).tryGetImage(
+                            CHANNEL_CODE,
+                            ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
+                                    new Location(2, 1)), thumbnailSize, null);
+                    will(returnValue(new AbsoluteImageReference(image("img1.gif"), "img1", null,
+                            null, thumbnailSize, createBlueColor(),
+                            new ImageTransfomationFactories(), null, null)));
+                }
+            });
+    }
+
     private static ChannelColorRGB createBlueColor()
     {
         return new ChannelColorRGB(0, 0, 255);
@@ -438,6 +478,14 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         imagesWriter.writeNextBlock(outputStream);
         return ImageUtilTest.loadImage(new ByteArrayBasedContentNode(outputStream.toByteArray(),
                 "UNKNOWN"));
+    }
+
+    byte[] extractNextImageAsByteArray(ConcatenatedFileOutputStreamWriter imagesWriter)
+            throws IOException
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        imagesWriter.writeNextBlock(outputStream);
+        return outputStream.toByteArray();
     }
 
     @Test

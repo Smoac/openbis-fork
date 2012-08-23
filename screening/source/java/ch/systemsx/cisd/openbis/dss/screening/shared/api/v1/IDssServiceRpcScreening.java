@@ -168,16 +168,17 @@ public interface IDssServiceRpcScreening extends IRpcService
             List<PlateImageReference> imageReferences, boolean convertToPng);
 
     /**
-     * Provide images for a given list of image references (specified by data set code, well
-     * position, channel and tile). The result is list of base64 encoded strings that contain
-     * the image data. The number of strings is equal to the number of specified
-     * references and the order of string corresponds to the order of image references. If
-     * <code>convertToPng==true</code>, the images will be converted to PNG format before being
-     * shipped, otherwise they will be shipped in the format that they are stored on the server.
+     * Returns the same images as {@link IDssServiceRpcScreening#loadImages(String, List, boolean)}
+     * but the result is a list of base64 encoded strings that contain the image data.
      */
-    public List<String> loadImagesBase64(String sessionToken, List<PlateImageReference> imageReferences, boolean convertToPng);
+    @MinimalMinorVersion(11)
+    @DataSetAccessGuard
+    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken")
+    String sessionToken, @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
+    @JsonRpcParam("imageReferences")
+    List<PlateImageReference> imageReferences, @JsonRpcParam("convertToPng")
+    boolean convertToPng);
 
-    
     /**
      * Provide thumbnail images for a given list of image references (specified by data set code,
      * well position, channel and tile). The result is encoded into one stream, which consist of
@@ -197,6 +198,19 @@ public interface IDssServiceRpcScreening extends IRpcService
             List<PlateImageReference> imageReferences);
 
     /**
+     * Returns the same images as {@link IDssServiceRpcScreening#loadThumbnailImages(String, List)}
+     * but the result is a list of base64 encoded strings that contain the image data.
+     * 
+     * @since 1.11
+     */
+    @MinimalMinorVersion(11)
+    @DataSetAccessGuard
+    public List<String> loadThumbnailImagesBase64(@JsonRpcParam("sessionToken")
+    String sessionToken, @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
+    @JsonRpcParam("imageReferences")
+    List<PlateImageReference> imageReferences);
+
+    /**
      * Provide images (PNG encoded) for a given list of image references (given by data set code,
      * well position, channel and tile). The result is encoded into one stream, which consist of
      * multiple blocks in a format: (<block-size><block-of-bytes>)*, where block-size is the block
@@ -214,6 +228,21 @@ public interface IDssServiceRpcScreening extends IRpcService
             List<PlateImageReference> imageReferences, ImageSize size);
 
     /**
+     * Returns the same images as
+     * {@link IDssServiceRpcScreening#loadImages(String, List, ImageSize)} but the result is a list
+     * of base64 encoded strings that contain the image data.
+     * 
+     * @since 1.11
+     */
+    @MinimalMinorVersion(11)
+    @DataSetAccessGuard
+    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken")
+    String sessionToken, @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
+    @JsonRpcParam("imageReferences")
+    List<PlateImageReference> imageReferences, @JsonRpcParam("size")
+    ImageSize size);
+
+    /**
      * Provide images for a given list of image references (given by data set code, well position,
      * channel and tile). The result is encoded into one stream, which consist of multiple blocks in
      * a format: (<block-size><block-of-bytes>)*, where block-size is the block size in bytes
@@ -225,6 +254,19 @@ public interface IDssServiceRpcScreening extends IRpcService
     public InputStream loadImages(String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
             List<PlateImageReference> imageReferences);
+
+    /**
+     * Returns the same images as {@link IDssServiceRpcScreening#loadImages(String, List)} but the
+     * result is a list of base64 encoded strings that contain the image data.
+     * 
+     * @since 1.11
+     */
+    @MinimalMinorVersion(11)
+    @DataSetAccessGuard
+    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken")
+    String sessionToken, @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
+    @JsonRpcParam("imageReferences")
+    List<PlateImageReference> imageReferences);
 
     /**
      * Provide images for specified data set, list of well positions, channel, and optional thumb
@@ -246,6 +288,23 @@ public interface IDssServiceRpcScreening extends IRpcService
             @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
             IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions, String channel,
             ImageSize thumbnailSizeOrNull);
+
+    /**
+     * Returns the same images as
+     * {@link IDssServiceRpcScreening#loadImages(String, IDatasetIdentifier, List, String, ImageSize)}
+     * but the result is a list of base64 encoded strings that contain the image data.
+     * 
+     * @since 1.11
+     */
+    @MinimalMinorVersion(11)
+    @DataSetAccessGuard
+    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken")
+    String sessionToken, @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
+    @JsonRpcParam("dataSetIdentifier")
+    IDatasetIdentifier dataSetIdentifier, @JsonRpcParam("wellPositions")
+    List<WellPosition> wellPositions, @JsonRpcParam("channel")
+    String channel, @JsonRpcParam("thumbnailSizeOrNull")
+    ImageSize thumbnailSizeOrNull);
 
     /**
      * Provide images for specified microscopy data set, channel and optional thumb nail size.
@@ -271,6 +330,22 @@ public interface IDssServiceRpcScreening extends IRpcService
             IDatasetIdentifier dataSetIdentifier, String channel, ImageSize thumbnailSizeOrNull);
 
     /**
+     * Returns the same images as
+     * {@link IDssServiceRpcScreening#loadImages(String, IDatasetIdentifier, String, ImageSize)} but
+     * the result is a list of base64 encoded strings that contain the image data.
+     * 
+     * @since 1.11
+     */
+    @MinimalMinorVersion(11)
+    @DataSetAccessGuard
+    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken")
+    String sessionToken, @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
+    @JsonRpcParam("dataSetIdentifier")
+    IDatasetIdentifier dataSetIdentifier, @JsonRpcParam("channel")
+    String channel, @JsonRpcParam("thumbnailSizeOrNull")
+    ImageSize thumbnailSizeOrNull);
+
+    /**
      * Provide images for a given list of image references (specified by data set code, well
      * position, channel and tile). The format and properties of the returned images are configured
      * by the configuration.
@@ -291,6 +366,21 @@ public interface IDssServiceRpcScreening extends IRpcService
             List<PlateImageReference> imageReferences, LoadImageConfiguration configuration);
 
     /**
+     * Returns the same images as
+     * {@link IDssServiceRpcScreening#loadImages(String, List, LoadImageConfiguration)} but the
+     * result is a list of base64 encoded strings that contain the image data.
+     * 
+     * @since 1.11
+     */
+    @MinimalMinorVersion(11)
+    @DataSetAccessGuard
+    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken")
+    String sessionToken, @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
+    @JsonRpcParam("imageReferences")
+    List<PlateImageReference> imageReferences, @JsonRpcParam("configuration")
+    LoadImageConfiguration configuration);
+
+    /**
      * Provides images for the specified list of image references (specified by data set code, well
      * position, channel and tile) and specified image representation format. The
      * {@link ImageRepresentationFormat} argument should be an object returned by
@@ -307,6 +397,21 @@ public interface IDssServiceRpcScreening extends IRpcService
     public InputStream loadImages(String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
             List<PlateImageReference> imageReferences, ImageRepresentationFormat format);
+
+    /**
+     * Returns the same images as
+     * {@link IDssServiceRpcScreening#loadImages(String, List, ImageRepresentationFormat)} but the
+     * result is a list of base64 encoded strings that contain the image data.
+     * 
+     * @since 1.11
+     */
+    @MinimalMinorVersion(11)
+    @DataSetAccessGuard
+    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken")
+    String sessionToken, @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
+    @JsonRpcParam("imageReferences")
+    List<PlateImageReference> imageReferences, @JsonRpcParam("format")
+    ImageRepresentationFormat format);
 
     /**
      * Provides images for the specified list of image references (specified by data set code, well
@@ -329,6 +434,21 @@ public interface IDssServiceRpcScreening extends IRpcService
             IImageRepresentationFormatSelectionCriterion... criteria);
 
     /**
+     * Returns the same images as
+     * {@link IDssServiceRpcScreening#loadImages(String, List, IImageRepresentationFormatSelectionCriterion...)}
+     * but the result is a list of base64 encoded strings that contain the image data.
+     * 
+     * @since 1.11
+     */
+    @MinimalMinorVersion(11)
+    @DataSetAccessGuard
+    public List<String> loadImagesBase64(@JsonRpcParam("sessionToken")
+    String sessionToken, @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
+    @JsonRpcParam("imageReferences")
+    List<PlateImageReference> imageReferences, @JsonRpcParam("criteria")
+    IImageRepresentationFormatSelectionCriterion... criteria);
+
+    /**
      * Provide thumbnail images for specified microscopy data set. If no thumbnails are stored on
      * the server, this method will return an empty stream. Images of all tiles are delivered.
      * <p>
@@ -348,6 +468,21 @@ public interface IDssServiceRpcScreening extends IRpcService
     public InputStream loadThumbnailImages(String sessionToken,
             @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
             IDatasetIdentifier dataSetIdentifier, List<String> channels);
+
+    /**
+     * Returns the same images as
+     * {@link IDssServiceRpcScreening#loadThumbnailImages(String, IDatasetIdentifier, List)} but the
+     * result is a list of base64 encoded strings that contain the image data.
+     * 
+     * @since 1.11
+     */
+    @MinimalMinorVersion(11)
+    @DataSetAccessGuard
+    public List<String> loadThumbnailImagesBase64(@JsonRpcParam("sessionToken")
+    String sessionToken, @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
+    @JsonRpcParam("dataSetIdentifier")
+    IDatasetIdentifier dataSetIdentifier, @JsonRpcParam("channels")
+    List<String> channels);
 
     /**
      * Lists plate image references for specified data set, list of well positions and channel.
