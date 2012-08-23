@@ -98,4 +98,15 @@ public abstract class AbstractThumbnailsConfiguration implements IThumbnailsConf
     {
         return transformations.put(channelCode.toUpperCase(), transformationCode);
     }
+
+    protected String getFirstTransformationCode()
+    {
+        if (transformations.size() == 0)
+        {
+            return "";
+        } else
+        {
+            return "_" + transformations.values().iterator().next();
+        }
+    }
 }
