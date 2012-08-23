@@ -22,8 +22,8 @@ import org.hibernate.EmptyInterceptor;
 import org.hibernate.Transaction;
 import org.hibernate.type.Type;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.EntityVerificationInterceptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DynamicPropertiesInterceptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.EntityVerificationInterceptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -54,8 +54,8 @@ public class HibernateInterceptorsWrapper extends EmptyInterceptor implements Se
     public boolean onFlushDirty(Object entity, Serializable id, Object[] currentState,
             Object[] previousState, String[] propertyNames, Type[] types)
     {
-        dynamicPropertiesInterceptor.onFlushDirty(entity, id, currentState, previousState, propertyNames,
-                types);
+        dynamicPropertiesInterceptor.onFlushDirty(entity, id, currentState, previousState,
+                propertyNames, types);
         entityVerificationInterceptor.onFlushDirty(entity, id, currentState, previousState,
                 propertyNames, types);
         return false;
@@ -70,11 +70,17 @@ public class HibernateInterceptorsWrapper extends EmptyInterceptor implements Se
         return false;
     }
 
+    // This method is only overriden in dynamic property interceptor
     @Override
     public void afterTransactionCompletion(Transaction tx)
     {
         dynamicPropertiesInterceptor.afterTransactionCompletion(tx);
-        entityVerificationInterceptor.afterTransactionCompletion(tx);
     }
 
+    // This method is only overriden in entity verification interceptor
+    @Override
+    public void beforeTransactionCompletion(Transaction tx)
+    {
+        entityVerificationInterceptor.beforeTransactionCompletion(tx);
+    }
 }
