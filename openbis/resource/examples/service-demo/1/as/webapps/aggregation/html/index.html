@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+	<!-- 
+		This is a simple Test app for openBIS. It strives to be the simplest non-trivial app. It logs into the sprint server and retrieves all samples of a particular type, and shows the first 50 of them.
+	 -->
+	<title>OpenBIS Simple Test</title>
+	<link type="text/css" rel="stylesheet" href="body-style.css" />
+	<link type="text/css" rel="stylesheet" href="button.css" />
+	<script type="text/javascript" src="/openbis/resources/js/jquery.js"></script>
+	<script type="text/javascript" src="openbis.js"></script>	
+	<script type="text/javascript" src="d3.js"></script>
+	<script type="text/javascript" src="d3.layout.js"></script>
+	<script type="text/javascript" src="d3.time.js"></script>
+	<script type="text/javascript" src="openbis-login.js"></script>
+	<script type="text/javascript" src="webapp.js"></script>
+	<!-- To speed development, cache the requests -->
+	<!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
+<script>
+
+$(document).ready(function() {
+  configureLoginPage(openbisServer, enterApp);
+});
+
+</script>
+
+</head>
+<body>
+	<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" style="position: absolute; right: 10px; height: 100px;"/>
+	<div id="login-form-div">
+		<h1>openBIS My Installation</h1>
+		<form id="login-form" action="javascript:">
+			<input id="username" type="text" required="required"> 
+			<input id="password" type="password" required="required"> 
+			<button class="login-button" id="login-button" type="submit">Login</button>
+		</form>
+	</div>
+
+	<div id="main">
+		<div id="button-group">
+			<button id="logout-button">Logout</button>
+		</div>
+	</div>
+</body>
+</html>
