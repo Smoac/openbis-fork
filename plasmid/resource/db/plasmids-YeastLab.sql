@@ -1271,7 +1271,7 @@ CREATE SEQUENCE file_format_type_id_seq
 -- Name: file_format_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('file_format_type_id_seq', 6, true);
+SELECT pg_catalog.setval('file_format_type_id_seq', 7, true);
 
 
 --
@@ -2250,6 +2250,7 @@ COPY file_format_types (id, code, description, dbin_id) FROM stdin;
 4	FASTA		1
 5	XDNA		1
 6	AB1		1
+7	FA		1
 \.
 
 
