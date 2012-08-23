@@ -62,8 +62,7 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
                     + "<meta http-equiv=\"content-type\" content=\"text/html; charset=ISO-8859-1\"><title>PlasMapper - Graphic Map</title></head>\n"
                     + "<body>\n"
                     + "<embed src=\"%%FILE_NAME%%\" type=\"image/svg+xml\" pluginspage=\"http://www.adobe.com/svg/viewer/install/\" id=\"Panel\" height=\"1010\" width=\"1010\">\n"
-                    + "<br>\n"
-                    + "<a href=\"%%FILE_NAME%%\" target=\"_blank\">Download Link</a>"
+                    + "<br>\n" + "<a href=\"%%FILE_NAME%%\" target=\"_blank\">Download Link</a>"
                     + "</body></html>";
 
     private final static String PLASMAPPER_BASE_URL_KEY = "plasmapper-base-url";
@@ -165,8 +164,13 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
             nestedTransaction.storeData(typeExtractor, mailClient, incomingDataSetDirectory);
             File answer = nestedTransaction.getStoredDataDirectory();
 
-            if (typeExtractor.getDataSetType(incomingDataSetDirectory).getCode()
-                    .equals(DataSetTypeOracle.DataSetTypeInfo.SEQ_FILE.name()))
+            boolean isSeqType =
+                    typeExtractor.getDataSetType(incomingDataSetDirectory).getCode()
+                            .equals(DataSetTypeOracle.DataSetTypeInfo.SEQ_FILE.name());
+            boolean isFaExtension =
+                    "fa".equals(FilenameUtils.getExtension(incomingDataSetDirectory.getName()));
+
+            if (isSeqType && !isFaExtension)
             {
                 File originalDir = new File(answer, ORIGINAL_DIR);
                 File[] files = originalDir.listFiles();
@@ -187,8 +191,7 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
                     processor.uploadAndCopyGeneratedFile(seqFile, PlasMapperService.GRAPHIC_MAP,
                             svgFileDest);
                     processor.uploadAndCopyGeneratedFile(seqFile,
-                            PlasMapperService.GENEBANK_OUTPUT,
-                            gbFileDest);
+                            PlasMapperService.GENEBANK_OUTPUT, gbFileDest);
                 } else
                 {
                     throw new EnvironmentFailureException("Couldn't create directory '"
