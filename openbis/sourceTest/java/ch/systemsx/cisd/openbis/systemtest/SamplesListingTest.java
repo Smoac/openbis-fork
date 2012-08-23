@@ -20,7 +20,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -69,14 +68,7 @@ public class SamplesListingTest extends SystemTestCase
         assertSamples(resultSet, "/CISD/CHILD-PLATE1", "/CISD/CHILD-PLATE2",
                 "/CISD/PLATE-WITH_EXPERIMENT");
         List<Sample> samples = asList(resultSet);
-        Collections.sort(samples, new Comparator<Sample>()
-            {
-                @Override
-                public int compare(Sample s1, Sample s2)
-                {
-                    return s1.getIdentifier().compareTo(s2.getIdentifier());
-                }
-            });
+        Collections.sort(samples);
         assertEquals("[COMMENT: my plate child]", samples.get(0).getProperties().toString());
         assertEquals("/CISD/PLATE-WITH_EXPERIMENT", samples.get(0).getParents().iterator().next()
                 .getIdentifier());

@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -183,8 +182,11 @@ public class TableForUpdateExporter
             {
                 builder.append("[").append(entry.getKey()).append("]").append(lineSeparator);
             }
-            builder.append(getTableForSamples(entry, lineSeparator, getAllPropertyTypes(rowMap
-                    .get(entry.getKey()), commonServer.listSampleTypes(sessionToken))));
+            builder.append(getTableForSamples(
+                    entry,
+                    lineSeparator,
+                    getAllPropertyTypes(rowMap.get(entry.getKey()),
+                            commonServer.listSampleTypes(sessionToken))));
         }
         return builder.toString();
     }
@@ -201,14 +203,7 @@ public class TableForUpdateExporter
         builder.columnGroup("").addColumnsForPropertyTypesForUpdate(allPropertyTypes);
 
         List<Sample> samples = entry.getValue();
-        Collections.sort(samples, new Comparator<Sample>()
-            {
-                @Override
-                public int compare(Sample s1, Sample s2)
-                {
-                    return s1.getIdentifier().compareTo(s2.getIdentifier());
-                }
-            });
+        Collections.sort(samples);
         for (Sample sample : samples)
         {
             builder.addRow(sample);
