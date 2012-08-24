@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.EntityKind;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IMaterialTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScriptImmutable;
 
 /**
  * @author Kaloyan Enimanev
@@ -62,4 +63,9 @@ public class MaterialTypeImmutable implements IMaterialTypeImmutable
         return EntityKind.MATERIAL;
     }
 
+    @Override
+    public IScriptImmutable getValidationScript()
+    {
+        return new ScriptImmutable(getMaterialType().getValidationScript());
+    }
 }

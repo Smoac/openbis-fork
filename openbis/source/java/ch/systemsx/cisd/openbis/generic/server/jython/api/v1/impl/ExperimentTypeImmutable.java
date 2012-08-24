@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.EntityKind;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExperimentTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScriptImmutable;
 
 /**
  * @author Kaloyan Enimanev
@@ -61,4 +62,9 @@ public class ExperimentTypeImmutable implements IExperimentTypeImmutable
         return EntityKind.EXPERIMENT;
     }
 
+    @Override
+    public IScriptImmutable getValidationScript()
+    {
+        return new ScriptImmutable(getExperimentType().getValidationScript());
+    }
 }

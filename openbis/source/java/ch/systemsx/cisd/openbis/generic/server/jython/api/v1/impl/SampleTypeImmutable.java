@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.EntityKind;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.ISampleTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScriptImmutable;
 
 /**
  * @author Kaloyan Enimanev
@@ -100,5 +101,11 @@ public class SampleTypeImmutable implements ISampleTypeImmutable
     public EntityKind getEntityKind()
     {
         return EntityKind.SAMPLE;
+    }
+
+    @Override
+    public IScriptImmutable getValidationScript()
+    {
+        return new ScriptImmutable(getSampleType().getValidationScript());
     }
 }

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
-import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.EntityKind;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScriptImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
@@ -103,13 +102,6 @@ public class ScriptImmutable implements IScriptImmutable
     {
         // there is no code for scripts, so we take the name as code
         return script.getName();
-    }
-
-    @Override
-    public EntityKind getEntityKind()
-    {
-        // TODO Auto-generated method stub
-        return null;
     }
 
 }

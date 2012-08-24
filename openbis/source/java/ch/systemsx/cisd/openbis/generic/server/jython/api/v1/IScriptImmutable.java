@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
  * 
  * @author Manuel Kohler
  */
-public interface IScriptImmutable extends IEntityType
+public interface IScriptImmutable extends IAbstractType
 {
     /**
      * Get the entity of the script. The values can be EXPERIMENT, SAMPLE, DATA_SET, MATERIAL.

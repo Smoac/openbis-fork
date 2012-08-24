@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.EntityKind;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IDataSetTypeImmutable;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScriptImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 
 /**
@@ -97,5 +98,11 @@ public class DataSetTypeImmutable implements IDataSetTypeImmutable
     public String getMainDataSetPath()
     {
         return getDataSetType().getMainDataSetPath();
+    }
+
+    @Override
+    public IScriptImmutable getValidationScript()
+    {
+        return new ScriptImmutable(getDataSetType().getValidationScript());
     }
 }

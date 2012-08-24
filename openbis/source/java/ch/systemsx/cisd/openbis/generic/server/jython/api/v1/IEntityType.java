@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 
+
 /**
  * The superinterface for all entity types (as opposed to property types).
  * 
@@ -28,4 +29,9 @@ public interface IEntityType extends IAbstractType
      * Return the entity kind.
      */
     EntityKind getEntityKind();
+
+    /**
+     * Return the validation script for this type
+     */
+    IScriptImmutable getValidationScript();
 }
