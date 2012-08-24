@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageMetadata;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IntensityRange;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Location;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleOverviewImageDataConfig;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformationBuffer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -179,6 +180,17 @@ public class SimpleImageDataSetRegistrator
                 imageDataset.setChannels(channels, channelColorComponentsOrNull);
             }
         }
+
+        if (simpleImageConfig instanceof SimpleOverviewImageDataConfig)
+        {
+            SimpleOverviewImageDataConfig simpleOverviewImageConfig =
+                    (SimpleOverviewImageDataConfig) simpleImageConfig;
+
+            imageDataset.setContainerDatasetPermId(simpleOverviewImageConfig
+                    .getContainerDataSetCode());
+            imageDataset.setRegisterAsOverviewImageDataSet(true);
+        }
+
         setRegistrationDetails(registrationDetails, imageDataset);
         return registrationDetails;
     }
@@ -402,14 +414,14 @@ public class SimpleImageDataSetRegistrator
     // -------------------
 
     private void computeAndAppendCommonFixedIntensityRangeTransformation(
-            List<ImageFileInfo> images,
-            File incomingDir, List<Channel> channels, IImageReader readerOrNull)
+            List<ImageFileInfo> images, File incomingDir, List<Channel> channels,
+            IImageReader readerOrNull)
     {
         final List<Channel> channelsForComputation =
                 findChannelsToComputeFixedCommonIntensityRange(channels);
         final Map<String, IntensityRange> map =
                 simpleImageConfig.getFixedIntensityRangeForAllImages();
-        final IntensityRange defaultLevelsOrNull =  map.get(null);
+        final IntensityRange defaultLevelsOrNull = map.get(null);
         for (Channel channel : channelsForComputation)
         {
             final IntensityRange levelsOrNull = map.get(channel.getCode());
@@ -417,12 +429,10 @@ public class SimpleImageDataSetRegistrator
                     levelsOrNull == null ? new Levels(defaultLevelsOrNull.getBlackPoint(),
                             defaultLevelsOrNull.getWhitePoint()) : new Levels(
                             levelsOrNull.getBlackPoint(), levelsOrNull.getWhitePoint());
-            operationLog
-                    .info(String
-                            .format("Set intensity range for channel '%s' to fixed value: %s " +
-                                    "(incoming directory '%s').",
-                                    channel.getCode(), intensityRange.toString(),
-                                    incomingDir.getName()));
+            operationLog.info(String.format(
+                    "Set intensity range for channel '%s' to fixed value: %s "
+                            + "(incoming directory '%s').", channel.getCode(),
+                    intensityRange.toString(), incomingDir.getName()));
             appendCommonIntensityRangeTransformation(channel, intensityRange);
         }
     }
@@ -468,16 +478,12 @@ public class SimpleImageDataSetRegistrator
             final Levels intensityRange;
             intensityRange =
                     tryComputeCommonIntensityRange(readerOrNull, imagePaths,
-                            simpleImageConfig
-                                    .getComputeCommonIntensityRangeOfAllImagesThreshold());
+                            simpleImageConfig.getComputeCommonIntensityRangeOfAllImagesThreshold());
             if (intensityRange != null)
             {
-                operationLog
-                        .info(String
-                                .format(
-                                        "Computed intensity range for channel '%s': %s (incoming directory '%s').",
-                                        channelCode, intensityRange.toString(),
-                                        incomingDir.getName()));
+                operationLog.info(String.format(
+                        "Computed intensity range for channel '%s': %s (incoming directory '%s').",
+                        channelCode, intensityRange.toString(), incomingDir.getName()));
                 appendCommonIntensityRangeTransformation(channel, intensityRange);
             } else
             {

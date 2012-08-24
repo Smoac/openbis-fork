@@ -54,7 +54,7 @@ public class ImagingDatabaseHelper
     /**
      * Creates channels connected to the specified dataset id.
      */
-    public static ImagingChannelsMap createDatasetChannels(IImagingQueryDAO dao, long datasetId,
+    public static ImagingChannelsMap getOrCreateDatasetChannels(IImagingQueryDAO dao, long datasetId,
             List<Channel> channels)
     {
         ChannelOwner channelOwner = ChannelOwner.createDataset(datasetId);
@@ -274,8 +274,21 @@ public class ImagingDatabaseHelper
                 }
             } else
             {
-                // dataset is always a new one, so we always create new channels.
-                return createChannels(channelOwner, channels);
+                List<ImgChannelDTO> allChannels =
+                        dao.getChannelsByDatasetId(channelOwner.tryGetDatasetId());
+                if (allChannels.size() == 0)
+                {
+                    return createChannels(channelOwner, channels);
+                } else
+                {
+                    Map<String, Long> map = new HashMap<String, Long>();
+                    for (ImgChannelDTO channelDTO : allChannels)
+                    {
+
+                        addChannel(map, channelDTO);
+                    }
+                    return map;
+                }
             }
         }
 

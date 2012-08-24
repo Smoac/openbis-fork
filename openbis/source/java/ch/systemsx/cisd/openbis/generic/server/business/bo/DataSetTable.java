@@ -997,7 +997,14 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
         if (details.isContainerUpdateRequested())
         {
-            updateContainer(dataSet, dataSetUpdates.getModifiedContainerDatasetCodeOrNull());
+            if (dataSet.isContainer())
+            {
+                setContainedDataSets(dataSet,
+                        Arrays.asList(dataSetUpdates.getModifiedContainedDatasetCodesOrNull()));
+            } else
+            {
+                updateContainer(dataSet, dataSetUpdates.getModifiedContainerDatasetCodeOrNull());
+            }
         }
         if (details.isParentsUpdateRequested())
         {

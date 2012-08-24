@@ -233,6 +233,16 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     // dataset.
     public ImgImageDTO tryGetThumbnail(long channelId, Long channelStackId, long datasetId);
 
+    @Select("select * from ACQUIRED_IMAGES where CHANNEL_ID in (select ID from CHANNELS where DS_ID = (SELECT ID FROM IMAGE_DATA_SETS WHERE PERM_ID = ?{1}))"
+            + "or CHANNEL_STACK_ID in (select id from CHANNEL_STACKS where DS_ID = (SELECT ID FROM IMAGE_DATA_SETS WHERE PERM_ID = ?{1}))")
+    // lists all acquired images available for given dataset
+    public List<ImgAcquiredImageDTO> listAllAcquiredImagesForDataSet(String permId);
+
+    @Select("select * from ACQUIRED_IMAGES where CHANNEL_ID in (select ID from CHANNELS where DS_ID = ?{1})"
+            + " or CHANNEL_STACK_ID in (select id from CHANNEL_STACKS where DS_ID = ?{1})")
+    // lists all acquired images available for given dataset
+    public List<ImgAcquiredImageDTO> listAllAcquiredImagesForDataSet(long datasetId);
+
     // simple getters
 
     @Select("select * from IMAGE_DATA_SETS where PERM_ID = ?{1}")
@@ -355,6 +365,12 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
             + "join CONTAINERS c on c.id = s.cont_id          "
             + "where cs.ds_id = ?{1} and s.x = ?{2} and s.y = ?{3}")
     public List<ImgChannelStackDTO> listChannelStacks(long datasetId, int spotX, int spotY);
+
+    @Select("select cs.* from CHANNEL_STACKS cs               "
+            + "join SPOTS s on s.id = cs.spot_id              "
+            + "join CONTAINERS c on c.id = s.cont_id          "
+            + "where cs.ds_id = ?{1} and s.id = ?{2}")
+    public List<ImgChannelStackDTO> listChannelStacks(long datasetId, long spotId);
 
     @Select("select * from SPOTS where cont_id = ?{1}")
     public List<ImgSpotDTO> listSpots(long contId);

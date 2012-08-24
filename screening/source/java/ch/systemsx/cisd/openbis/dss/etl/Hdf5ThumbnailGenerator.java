@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.concurrent.FailureRecord;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.hdf5.HDF5Container;
 import ch.systemsx.cisd.common.hdf5.HDF5Container.IHDF5WriterClient;
 import ch.systemsx.cisd.common.hdf5.IHDF5ContainerWriter;
@@ -103,7 +104,8 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             File imagesParentDirectory, String thumbnailFilePath,
             ImageStorageConfiguraton imageStorageConfiguraton,
             String thumbnailPhysicalDatasetPermId,
-            ThumbnailsStorageFormat thumbnailsStorageFormatOrNull, ThumbnailsInfo thumbnailPaths)
+            ThumbnailsStorageFormat thumbnailsStorageFormatOrNull, ThumbnailsInfo thumbnailPaths,
+            boolean registerOriginalImageAsThumbnail)
     {
         if (thumbnailsStorageFormatOrNull != null)
         {
@@ -118,7 +120,8 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             Hdf5ThumbnailGenerator thumbnailsGenerator =
                     new Hdf5ThumbnailGenerator(imageDataSetStructure, imagesParentDirectory,
                             thumbnailPhysicalDatasetPermId, thumbnailsStorageFormatOrNull,
-                            imageLibrary, thumbnailPaths, operationLog);
+                            imageLibrary, thumbnailPaths, registerOriginalImageAsThumbnail,
+                            operationLog);
             container.runWriterClient(thumbnailsStorageFormatOrNull.isStoreCompressed(),
                     thumbnailsGenerator);
         }
@@ -153,10 +156,13 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
     private final Map<String, ColorComponent> channelColors = new HashMap<String, ColorComponent>();
 
+    private final boolean registerOriginalImageAsThumbnail;
+
     private Hdf5ThumbnailGenerator(ImageDataSetStructure imageDataSetStructure,
             File imagesParentDirectory, String thumbnailPhysicalDatasetPermId,
             ThumbnailsStorageFormat thumbnailsStorageFormat, ImageLibraryInfo imageLibraryOrNull,
-            ThumbnailsInfo thumbnailPathCollector, Logger operationLog)
+            ThumbnailsInfo thumbnailPathCollector, boolean registerOriginalImageAsThumbnail,
+            Logger operationLog)
     {
         this.imageDataSetStructure = imageDataSetStructure;
         this.imagesParentDirectory = imagesParentDirectory;
@@ -164,6 +170,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         this.thumbnailsStorageFormat = thumbnailsStorageFormat;
         this.imageLibraryOrNull = imageLibraryOrNull;
         this.thumbnailPathCollector = thumbnailPathCollector;
+        this.registerOriginalImageAsThumbnail = registerOriginalImageAsThumbnail;
         this.logger = operationLog;
 
         for (Channel ch : imageDataSetStructure.getChannels())
@@ -298,7 +305,11 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             ImageFileInfo img, String imageIdOrNull) throws IOException
     {
         List<ThumbnailData> thumbnailData;
-        if (thumbnailsStorageFormat.isGenerateWithImageMagic())
+
+        if (registerOriginalImageAsThumbnail)
+        {
+            thumbnailData = registerOriginalImageAsThumbnail(img);
+        } else if (thumbnailsStorageFormat.isGenerateWithImageMagic())
         {
             thumbnailData = generateThumbnailWithImageMagic(img);
         } else
@@ -306,6 +317,17 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             thumbnailData = generateThumbnailInternally(img, imageIdOrNull, bufferOutputStream);
         }
         return thumbnailData;
+    }
+
+    private List<ThumbnailData> registerOriginalImageAsThumbnail(ImageFileInfo imageFileInfo)
+    {
+        final File imageFile =
+                new File(imagesParentDirectory, imageFileInfo.getImageRelativePath());
+        Size originalSize = loadUnchangedImageDimension(imageFile, null);
+
+        return Collections.singletonList(new ThumbnailData(
+                FileUtilities.loadToByteArray(imageFile), originalSize.getWidth(), originalSize
+                        .getHeight(), imageFileInfo.getChannelCode()));
     }
 
     private List<ThumbnailData> generateThumbnailWithImageMagic(ImageFileInfo imageFileInfo)

@@ -25,7 +25,6 @@ import java.util.Map;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails.DefaultThumbnailsConfiguration;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails.IThumbnailsConfiguration;
@@ -34,7 +33,6 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails.ZoomLevelBasedThum
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ConvertToolImageTransformerFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformationBuffer;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
@@ -784,8 +782,7 @@ abstract public class SimpleImageDataConfig
         {
             fixedIntensityRangeForAllImages = new HashMap<String, IntensityRange>();
         }
-        this.fixedIntensityRangeForAllImages
-                .put(null, new IntensityRange(minLevel, maxLevel));
+        this.fixedIntensityRangeForAllImages.put(null, new IntensityRange(minLevel, maxLevel));
     }
 
     /**
@@ -793,21 +790,19 @@ abstract public class SimpleImageDataConfig
      * images. If this one is set, the automatic level computation is switched off which can give
      * big performance improvements.
      * <p>
-     * Note: If {@link #setDefaultFixedIntensityRangeForAllImages(int, int)} is called as
-     * well, then the values provided here will overwrite the default values provided there for the
-     * channel <var>channelCode</var>. Otherwise, the common intensity transformation will only be
-     * computed for the channels where the levels have been set explicitly by this method.
+     * Note: If {@link #setDefaultFixedIntensityRangeForAllImages(int, int)} is called as well, then
+     * the values provided here will overwrite the default values provided there for the channel
+     * <var>channelCode</var>. Otherwise, the common intensity transformation will only be computed
+     * for the channels where the levels have been set explicitly by this method.
      */
-    public void addFixedIntensityRangeForAllImages(
-            String channelCode, int minLevel, int maxLevel)
+    public void addFixedIntensityRangeForAllImages(String channelCode, int minLevel, int maxLevel)
     {
         if (fixedIntensityRangeForAllImages == null)
         {
             fixedIntensityRangeForAllImages = new HashMap<String, IntensityRange>();
         }
-        this.fixedIntensityRangeForAllImages.put(
-                CodeNormalizer.normalize(channelCode), new IntensityRange(minLevel,
-                        maxLevel));
+        this.fixedIntensityRangeForAllImages.put(CodeNormalizer.normalize(channelCode),
+                new IntensityRange(minLevel, maxLevel));
     }
 
     /**

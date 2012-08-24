@@ -68,6 +68,13 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     }
 
     @Override
+    public IDataSet createNewOverviewImageDataSet(SimpleImageDataConfig imageDataSet,
+            File incomingFolderWithImages)
+    {
+        return transaction.createNewOverviewImageDataSet(imageDataSet, incomingFolderWithImages);
+    }
+
+    @Override
     public IFeatureVectorDataSet createNewFeatureVectorDataSet(
             SimpleFeatureVectorDataConfig featureDataSetConfig, File featureVectorFileOrNull)
     {

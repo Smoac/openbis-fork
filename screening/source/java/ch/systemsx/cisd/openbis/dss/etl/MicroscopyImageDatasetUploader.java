@@ -46,9 +46,9 @@ public class MicroscopyImageDatasetUploader extends AbstractImageDatasetUploader
     private void upload(MicroscopyImageDatasetInfo dataset, List<AcquiredSingleImage> images,
             List<Channel> channels)
     {
-        long datasetId = createMicroscopyDataset(dataset);
+        long datasetId = getOrCreateMicroscopyDataset(dataset);
         ImagingChannelsMap channelsMap =
-                ImagingDatabaseHelper.createDatasetChannels(dao, datasetId, channels);
+                ImagingDatabaseHelper.getOrCreateDatasetChannels(dao, datasetId, channels);
 
         for (ImageZoomLevel imageZoomLevel : dataset.getImageDatasetInfo().getImageZoomLevels())
         {
@@ -84,8 +84,9 @@ public class MicroscopyImageDatasetUploader extends AbstractImageDatasetUploader
             };
     }
 
-    private long createMicroscopyDataset(MicroscopyImageDatasetInfo dataset)
+    private long getOrCreateMicroscopyDataset(MicroscopyImageDatasetInfo dataset)
     {
-        return createImageDataset(dataset.getDatasetPermId(), dataset.getImageDatasetInfo(), null);
+        return getOrCreateImageDataset(dataset.getDatasetPermId(), dataset.getImageDatasetInfo(),
+                null);
     }
 }

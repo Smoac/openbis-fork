@@ -75,5 +75,4 @@ public class ImgAcquiredImageDTO extends AbstractImageTransformerFactoryHolder
     {
         this.channelId = channelId;
     }
-
 }

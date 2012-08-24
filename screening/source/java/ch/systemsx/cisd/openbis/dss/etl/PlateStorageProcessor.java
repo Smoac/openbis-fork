@@ -189,18 +189,24 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
             List<ImageZoomLevel> zoomLevels = new ArrayList<ImageZoomLevel>();
             Integer width = null;
             Integer height = null;
+            boolean original = true;
             if (originalDataset instanceof ImageDataSetInformation)
             {
                 ImageDataSetInformation imageDataSet = (ImageDataSetInformation) originalDataset;
                 width = nullifyIfZero(imageDataSet.getMaximumImageWidth());
                 height = nullifyIfZero(imageDataSet.getMaximumImageHeight());
+                original = imageDataSet.getRegisterAsOverviewImageDataSet() == false;
             }
-            @SuppressWarnings("unchecked")
-            ImageZoomLevel originalZoomLevel =
-                    new ImageZoomLevel(originalDataset.getDataSetCode(), true,
-                            StringUtils.EMPTY_STRING, width, height, null, null,
-                            Collections.EMPTY_MAP);
-            zoomLevels.add(originalZoomLevel);
+
+            if (original)
+            {
+                @SuppressWarnings("unchecked")
+                ImageZoomLevel originalZoomLevel =
+                        new ImageZoomLevel(originalDataset.getDataSetCode(), original,
+                                StringUtils.EMPTY_STRING, width, height, null, null,
+                                Collections.EMPTY_MAP);
+                zoomLevels.add(originalZoomLevel);
+            }
             if (thumbnailsInfosOrNull != null)
             {
                 for (String permId : thumbnailsInfosOrNull.getThumbnailPhysicalDatasetsPermIds())
@@ -272,7 +278,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
     @Override
     protected void storeInDatabase(IImagingQueryDAO dao,
             ImageDatasetOwnerInformation dataSetInformation,
-            ImageFileExtractionResult extractedImages)
+            ImageFileExtractionResult extractedImages, boolean thumbnailsOnly)
     {
         checkDataSetInformation(dataSetInformation);
 
@@ -306,5 +312,4 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                         dataSetInformation.getImageZoomLevels());
         return new HCSImageDatasetInfo(info, imageDatasetInfo, storeChannelsOnExperimentLevel);
     }
-
 }

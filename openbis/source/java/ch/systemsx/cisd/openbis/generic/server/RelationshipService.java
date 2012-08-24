@@ -56,8 +56,7 @@ public class RelationshipService implements IRelationshipService
     }
 
     @Override
-    public void assignProjectToSpace(IAuthSession session, ProjectPE project,
-            SpacePE space)
+    public void assignProjectToSpace(IAuthSession session, ProjectPE project, SpacePE space)
     {
         project.setSpace(space);
         for (ExperimentPE experiment : project.getExperiments())
@@ -88,8 +87,7 @@ public class RelationshipService implements IRelationshipService
     }
 
     @Override
-    public void assignSampleToSpace(IAuthSession session, SamplePE sample,
-            SpacePE space)
+    public void assignSampleToSpace(IAuthSession session, SamplePE sample, SpacePE space)
     {
         sample.setDatabaseInstance(null);
         sample.setSpace(space);
@@ -110,8 +108,7 @@ public class RelationshipService implements IRelationshipService
     }
 
     @Override
-    public void assignDataSetToExperiment(IAuthSession session, DataPE data,
-            ExperimentPE experiment)
+    public void assignDataSetToExperiment(IAuthSession session, DataPE data, ExperimentPE experiment)
     {
         data.setExperiment(experiment);
         data.setSample(null);
@@ -125,8 +122,7 @@ public class RelationshipService implements IRelationshipService
     }
 
     @Override
-    public void addParentToSample(IAuthSession session, SamplePE sample,
-            SamplePE parent)
+    public void addParentToSample(IAuthSession session, SamplePE sample, SamplePE parent)
     {
         PersonPE actor = session.tryGetPerson();
         RelationshipTypePE relationshipType =
@@ -138,8 +134,7 @@ public class RelationshipService implements IRelationshipService
     }
 
     @Override
-    public void removeParentFromSample(IAuthSession session, SamplePE sample,
-            SamplePE parent)
+    public void removeParentFromSample(IAuthSession session, SamplePE sample, SamplePE parent)
     {
         for (SampleRelationshipPE relationship : sample.getParentRelationships())
         {
@@ -149,8 +144,8 @@ public class RelationshipService implements IRelationshipService
                 return;
             }
         }
-        throw UserFailureException.fromTemplate(ERR_SAMPLE_PARENT_RELATIONSHIP_NOT_FOUND, sample
-                .getCode(), parent.getCode());
+        throw UserFailureException.fromTemplate(ERR_SAMPLE_PARENT_RELATIONSHIP_NOT_FOUND,
+                sample.getCode(), parent.getCode());
     }
 
     @Override
@@ -192,8 +187,8 @@ public class RelationshipService implements IRelationshipService
             data.removeParentRelationship(remove);
         } else
         {
-            throw UserFailureException.fromTemplate(ERR_DATASET_PARENT_RELATIONSHIP_NOT_FOUND, data
-                    .getCode(), parent.getCode());
+            throw UserFailureException.fromTemplate(ERR_DATASET_PARENT_RELATIONSHIP_NOT_FOUND,
+                    data.getCode(), parent.getCode());
         }
     }
 
@@ -205,9 +200,9 @@ public class RelationshipService implements IRelationshipService
     }
 
     @Override
-    public void removeDataSetFromContainer(IAuthSession session, DataPE sample)
+    public void removeDataSetFromContainer(IAuthSession session, DataPE data)
     {
-        sample.getContainer().removeComponent(sample);
+        data.getContainer().removeComponent(data);
     }
 
     public void setDaoFactory(DAOFactory daoFactory)

@@ -46,7 +46,7 @@ public class MicroscopyStorageProcessor extends AbstractImageStorageProcessor
     @Override
     protected void storeInDatabase(IImagingQueryDAO dao,
             ImageDatasetOwnerInformation dataSetInformation,
-            ImageFileExtractionResult extractedImages)
+            ImageFileExtractionResult extractedImages, boolean thumbnailsOnly)
     {
         List<AcquiredSingleImage> images = extractedImages.getImages();
         MicroscopyImageDatasetInfo dataset =

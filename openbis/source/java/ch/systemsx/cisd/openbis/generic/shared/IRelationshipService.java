@@ -49,8 +49,7 @@ public interface IRelationshipService
     @Capability("ASSIGN_EXPERIMENT_TO_PROJECT")
     public void assignExperimentToProject(IAuthSession session,
             @AuthorizationGuard(guardClass = ExperimentPEPredicate.class)
-            ExperimentPE experiment,
-            @AuthorizationGuard(guardClass = ProjectPEPredicate.class)
+            ExperimentPE experiment, @AuthorizationGuard(guardClass = ProjectPEPredicate.class)
             ProjectPE project);
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -59,8 +58,7 @@ public interface IRelationshipService
     @Capability("ASSIGN_PROJECT_TO_SPACE")
     public void assignProjectToSpace(IAuthSession session,
             @AuthorizationGuard(guardClass = ProjectPEPredicate.class)
-            ProjectPE project,
-            @AuthorizationGuard(guardClass = SpacePEPredicate.class)
+            ProjectPE project, @AuthorizationGuard(guardClass = SpacePEPredicate.class)
             SpacePE space);
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -69,8 +67,7 @@ public interface IRelationshipService
     @Capability("ASSIGN_SAMPLE_TO_EXPERIMENT")
     public void assignSampleToExperiment(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class)
-            SamplePE sample,
-            @AuthorizationGuard(guardClass = ExperimentPEPredicate.class)
+            SamplePE sample, @AuthorizationGuard(guardClass = ExperimentPEPredicate.class)
             ExperimentPE experiment);
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -87,8 +84,7 @@ public interface IRelationshipService
     @Capability("UNSHARE_SAMPLE")
     public void unshareSample(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class)
-            SamplePE sample,
-            @AuthorizationGuard(guardClass = SpacePEPredicate.class)
+            SamplePE sample, @AuthorizationGuard(guardClass = SpacePEPredicate.class)
             SpacePE space);
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -97,8 +93,7 @@ public interface IRelationshipService
     @Capability("ASSIGN_SAMPLE_TO_SPACE")
     public void assignSampleToSpace(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class)
-            SamplePE sample,
-            @AuthorizationGuard(guardClass = SpacePEPredicate.class)
+            SamplePE sample, @AuthorizationGuard(guardClass = SpacePEPredicate.class)
             SpacePE space);
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -115,8 +110,7 @@ public interface IRelationshipService
     @Capability("ASSIGN_DATASET_TO_EXPERIMENT")
     public void assignDataSetToExperiment(IAuthSession session,
             @AuthorizationGuard(guardClass = DataPEPredicate.class)
-            DataPE dataSet,
-            @AuthorizationGuard(guardClass = ExperimentPEPredicate.class)
+            DataPE dataSet, @AuthorizationGuard(guardClass = ExperimentPEPredicate.class)
             ExperimentPE experiment);
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -125,8 +119,7 @@ public interface IRelationshipService
     @Capability("ASSIGN_DATASET_TO_SAMPLE")
     public void assignDataSetToSample(IAuthSession session,
             @AuthorizationGuard(guardClass = DataPEPredicate.class)
-            DataPE dataSet,
-            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
+            DataPE dataSet, @AuthorizationGuard(guardClass = SamplePEPredicate.class)
             SamplePE sample);
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -135,8 +128,7 @@ public interface IRelationshipService
     @Capability("ADD_PARENT_TO_SAMPLE")
     public void addParentToSample(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class)
-            SamplePE sample,
-            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
+            SamplePE sample, @AuthorizationGuard(guardClass = SamplePEPredicate.class)
             SamplePE parent);
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -145,8 +137,7 @@ public interface IRelationshipService
     @Capability("REMOVE_PARENT_FROM_SAMPLE")
     public void removeParentFromSample(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class)
-            SamplePE sample,
-            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
+            SamplePE sample, @AuthorizationGuard(guardClass = SamplePEPredicate.class)
             SamplePE parent);
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -155,8 +146,7 @@ public interface IRelationshipService
     @Capability("ADD_CONTAINER_TO_SAMPLE")
     public void assignSampleToContainer(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class)
-            SamplePE sample,
-            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
+            SamplePE sample, @AuthorizationGuard(guardClass = SamplePEPredicate.class)
             SamplePE container);
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -173,8 +163,7 @@ public interface IRelationshipService
     @Capability("ADD_PARENT_TO_DATASET")
     public void addParentToDataSet(IAuthSession session,
             @AuthorizationGuard(guardClass = DataPEPredicate.class)
-            DataPE data,
-            @AuthorizationGuard(guardClass = DataPEPredicate.class)
+            DataPE data, @AuthorizationGuard(guardClass = DataPEPredicate.class)
             DataPE parent);
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -183,8 +172,7 @@ public interface IRelationshipService
     @Capability("REMOVE_PARENT_FROM_DATASET")
     public void removeParentFromDataSet(IAuthSession session,
             @AuthorizationGuard(guardClass = DataPEPredicate.class)
-            DataPE data,
-            @AuthorizationGuard(guardClass = DataPEPredicate.class)
+            DataPE data, @AuthorizationGuard(guardClass = DataPEPredicate.class)
             DataPE parent);
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -193,8 +181,7 @@ public interface IRelationshipService
     @Capability("ADD_CONTAINER_TO_DATASET")
     public void assignDataSetToContainer(IAuthSession session,
             @AuthorizationGuard(guardClass = DataPEPredicate.class)
-            DataPE data,
-            @AuthorizationGuard(guardClass = DataPEPredicate.class)
+            DataPE data, @AuthorizationGuard(guardClass = DataPEPredicate.class)
             DataPE container);
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -203,6 +190,6 @@ public interface IRelationshipService
     @Capability("REMOVE_CONTAINER_FROM_DATASET")
     public void removeDataSetFromContainer(IAuthSession session,
             @AuthorizationGuard(guardClass = DataPEPredicate.class)
-            DataPE sample);
+            DataPE data);
 
 }

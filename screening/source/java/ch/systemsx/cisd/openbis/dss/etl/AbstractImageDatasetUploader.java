@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -46,6 +47,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
 abstract class AbstractImageDatasetUploader
 {
     protected final IImagingQueryDAO dao;
+
+    private static final long DUMMY_ID = 0;
 
     protected AbstractImageDatasetUploader(IImagingQueryDAO dao)
     {
@@ -103,8 +106,8 @@ abstract class AbstractImageDatasetUploader
     {
         Map<ImgChannelStackDTO, List<AcquiredImageInStack>> stackImagesMap =
                 makeStackImagesMap(images, spotProvider, datasetId);
-        dao.addChannelStacks(new ArrayList<ImgChannelStackDTO>(stackImagesMap.keySet()));
-        createImages(stackImagesMap, channelsMap);
+
+        createImages(stackImagesMap, channelsMap, datasetId);
     }
 
     private Map<ImgChannelStackDTO, List<AcquiredImageInStack>> makeStackImagesMap(
@@ -112,9 +115,13 @@ abstract class AbstractImageDatasetUploader
     {
         Map<ImgChannelStackDTO, List<AcquiredImageInStack>> map =
                 new HashMap<ImgChannelStackDTO, List<AcquiredImageInStack>>();
+
+        Set<ImgChannelStackDTO> newChannelStacks = new HashSet<ImgChannelStackDTO>();
+
         for (AcquiredSingleImage image : images)
         {
-            ImgChannelStackDTO stackDTO = makeStackDtoWithouId(image, spotProvider, datasetId);
+            ImgChannelStackDTO stackDTO =
+                    getOrCreateStackDtoWithouId(image, spotProvider, datasetId, newChannelStacks);
             List<AcquiredImageInStack> stackImages = map.get(stackDTO);
             if (stackImages == null)
             {
@@ -124,8 +131,11 @@ abstract class AbstractImageDatasetUploader
             map.put(stackDTO, stackImages);
         }
         Set<ImgChannelStackDTO> channelStacks = map.keySet();
-        setChannelStackIds(channelStacks);
+        setChannelStackIds(newChannelStacks);
         setChannelStackRepresentatives(channelStacks);
+
+        dao.addChannelStacks(newChannelStacks);
+
         return map;
     }
 
@@ -140,11 +150,14 @@ abstract class AbstractImageDatasetUploader
         }
     }
 
-    private void setChannelStackIds(Set<ImgChannelStackDTO> channelStacks)
+    private void setChannelStackIds(Collection<ImgChannelStackDTO> channelStacks)
     {
         for (ImgChannelStackDTO channelStack : channelStacks)
         {
-            channelStack.setId(dao.createChannelStackId());
+            if (channelStack.getId() == DUMMY_ID)
+            {
+                channelStack.setId(dao.createChannelStackId());
+            }
         }
     }
 
@@ -154,61 +167,125 @@ abstract class AbstractImageDatasetUploader
                 image.getThumbnailFilePathOrNull(), image.tryGetImageTransformerFactory());
     }
 
-    private ImgChannelStackDTO makeStackDtoWithouId(AcquiredSingleImage image,
-            ISpotProvider spotProvider, long datasetId)
+    private ImgChannelStackDTO getOrCreateStackDtoWithouId(AcquiredSingleImage image,
+            ISpotProvider spotProvider, long datasetId,
+            Collection<ImgChannelStackDTO> newChannelStacks)
     {
         Long spotId = spotProvider.tryGetSpotId(image);
-        int dummyId = 0;
-        return new ImgChannelStackDTO(dummyId, image.getTileRow(), image.getTileColumn(),
-                datasetId, spotId, image.tryGetTimePoint(), image.tryGetDepth(),
-                image.tryGetSeriesNumber(), false);
+
+        ImgChannelStackDTO newChannelStack =
+                new ImgChannelStackDTO(DUMMY_ID, image.getTileRow(), image.getTileColumn(),
+                        datasetId, spotId, image.tryGetTimePoint(), image.tryGetDepth(),
+                        image.tryGetSeriesNumber(), false);
+
+        List<ImgChannelStackDTO> channelStacks = dao.listChannelStacks(datasetId, spotId);
+        for (ImgChannelStackDTO channelStack : channelStacks)
+        {
+            if (newChannelStack.equals(channelStack))
+            {
+                return channelStack;
+            }
+        }
+
+        newChannelStacks.add(newChannelStack);
+        return newChannelStack;
     }
 
     private void createImages(Map<ImgChannelStackDTO, List<AcquiredImageInStack>> stackImagesMap,
-            ImagingChannelsMap channelsMap)
+            ImagingChannelsMap channelsMap, long datasetId)
     {
         ImagesToCreate imagesToCreate =
                 new ImagesToCreate(new ArrayList<ImgImageDTO>(),
-                        new ArrayList<ImgAcquiredImageDTO>());
+                        new ArrayList<ImgAcquiredImageDTO>(), new ArrayList<ImgAcquiredImageDTO>());
+
+        List<ImgAcquiredImageDTO> acquiredImages = dao.listAllAcquiredImagesForDataSet(datasetId);
+        Map<Long, List<ImgAcquiredImageDTO>> acquiredImagesInStacks =
+                new HashMap<Long, List<ImgAcquiredImageDTO>>();
+        for (ImgAcquiredImageDTO acquiredImage : acquiredImages)
+        {
+            List<ImgAcquiredImageDTO> acquiredImagesInStack =
+                    acquiredImagesInStacks.get(acquiredImage.getChannelStackId());
+            if (acquiredImagesInStack == null)
+            {
+                acquiredImagesInStack = new ArrayList<ImgAcquiredImageDTO>();
+                acquiredImagesInStacks
+                        .put(acquiredImage.getChannelStackId(), acquiredImagesInStack);
+            }
+            acquiredImagesInStack.add(acquiredImage);
+        }
+
         for (Entry<ImgChannelStackDTO, List<AcquiredImageInStack>> entry : stackImagesMap
                 .entrySet())
         {
             long stackId = entry.getKey().getId();
-            addImagesToCreate(imagesToCreate, stackId, channelsMap, entry.getValue());
+            addImagesToCreate(imagesToCreate, stackId, channelsMap, entry.getValue(),
+                    acquiredImagesInStacks.get(stackId));
         }
         dao.addImages(imagesToCreate.getImages());
         dao.addAcquiredImages(imagesToCreate.getAcquiredImages());
+        dao.updateAcquiredImagesThumbnails(imagesToCreate.getAcquiredImagesToUpdate());
     }
 
     /**
      * Because we can have millions of images, we have to create them in batches. That is why we
      * create all the DTOs first and generate ids for them before they are created in the database.
      * Then we can save everything in one go.
+     * 
+     * @param list
      */
     private void addImagesToCreate(ImagesToCreate imagesToCreate, long stackId,
-            ImagingChannelsMap channelsMap, List<AcquiredImageInStack> images)
+            ImagingChannelsMap channelsMap, List<AcquiredImageInStack> images,
+            List<ImgAcquiredImageDTO> alreadyRegisteredImages)
     {
         List<ImgImageDTO> imageDTOs = imagesToCreate.getImages();
         List<ImgAcquiredImageDTO> acquiredImageDTOs = imagesToCreate.getAcquiredImages();
         for (AcquiredImageInStack image : images)
         {
-            ImgImageDTO imageDTO = mkImageWithIdDTO(image.getImageFilePath());
-            imageDTOs.add(imageDTO);
+            long channelTechId = channelsMap.getChannelId(image.getChannelCode());
 
-            ImgImageDTO thumbnailDTO = tryMkImageWithIdDTO(image.getThumbnailPathOrNull());
-            Long thumbnailId = null;
-            if (thumbnailDTO != null)
+            ImgAcquiredImageDTO alreadyRegisteredImage = null;
+            if (alreadyRegisteredImages != null)
             {
-                thumbnailId = thumbnailDTO.getId();
-                imageDTOs.add(thumbnailDTO);
+                for (ImgAcquiredImageDTO alreadyRegisteredImageCandidate : alreadyRegisteredImages)
+                {
+                    if (alreadyRegisteredImageCandidate.getChannelId() == channelTechId)
+                    {
+                        alreadyRegisteredImage = alreadyRegisteredImageCandidate;
+                        break;
+                    }
+                }
             }
 
-            long channelTechId = channelsMap.getChannelId(image.getChannelCode());
-            ImgAcquiredImageDTO acquiredImage =
-                    mkAcquiredImage(stackId, channelTechId, imageDTO.getId(), thumbnailId,
-                            image.getImageTransformerFactoryOrNull());
+            if (alreadyRegisteredImage == null)
+            {
+                ImgImageDTO imageDTO = mkImageWithIdDTO(image.getImageFilePath());
+                imageDTOs.add(imageDTO);
 
-            acquiredImageDTOs.add(acquiredImage);
+                ImgImageDTO thumbnailDTO = tryMkImageWithIdDTO(image.getThumbnailPathOrNull());
+                Long thumbnailId = null;
+                if (thumbnailDTO != null)
+                {
+                    thumbnailId = thumbnailDTO.getId();
+                    imageDTOs.add(thumbnailDTO);
+                }
+
+                ImgAcquiredImageDTO acquiredImage =
+                        mkAcquiredImage(stackId, channelTechId, imageDTO.getId(), thumbnailId,
+                                image.getImageTransformerFactoryOrNull());
+
+                acquiredImageDTOs.add(acquiredImage);
+            } else if (alreadyRegisteredImage.getThumbnailId() == null)
+            {
+                ImgImageDTO thumbnailDTO = tryMkImageWithIdDTO(image.getThumbnailPathOrNull());
+                Long thumbnailId = null;
+                if (thumbnailDTO != null)
+                {
+                    thumbnailId = thumbnailDTO.getId();
+                    imageDTOs.add(thumbnailDTO);
+                    alreadyRegisteredImage.setThumbnailId(thumbnailId);
+                    imagesToCreate.getAcquiredImagesToUpdate().add(alreadyRegisteredImage);
+                }
+            }
         }
     }
 
@@ -218,11 +295,15 @@ abstract class AbstractImageDatasetUploader
 
         private final List<ImgAcquiredImageDTO> acquiredImages;
 
-        public ImagesToCreate(List<ImgImageDTO> images, List<ImgAcquiredImageDTO> acquiredImages)
+        private final List<ImgAcquiredImageDTO> acquiredImagesToUpdate;
+
+        public ImagesToCreate(List<ImgImageDTO> images, List<ImgAcquiredImageDTO> acquiredImages,
+                List<ImgAcquiredImageDTO> acquiredImagesToUpdate)
         {
             super();
             this.images = images;
             this.acquiredImages = acquiredImages;
+            this.acquiredImagesToUpdate = acquiredImagesToUpdate;
         }
 
         public List<ImgImageDTO> getImages()
@@ -233,6 +314,11 @@ abstract class AbstractImageDatasetUploader
         public List<ImgAcquiredImageDTO> getAcquiredImages()
         {
             return acquiredImages;
+        }
+
+        public List<ImgAcquiredImageDTO> getAcquiredImagesToUpdate()
+        {
+            return acquiredImagesToUpdate;
         }
     }
 
@@ -257,24 +343,30 @@ abstract class AbstractImageDatasetUploader
         return mkImageWithIdDTO(imageReferenceOrNull);
     }
 
-    private ImgImageDTO mkImageWithIdDTO(RelativeImageReference imageReferenceOrNull)
+    private ImgImageDTO mkImageWithIdDTO(RelativeImageReference imageReference)
     {
 
         ImgImageDTO dto =
-                new ImgImageDTO(dao.createImageId(), imageReferenceOrNull.getImageRelativePath(),
-                        imageReferenceOrNull.tryGetImageID(),
-                        imageReferenceOrNull.tryGetColorComponent());
+                new ImgImageDTO(dao.createImageId(), imageReference.getImageRelativePath(),
+                        imageReference.tryGetImageID(), imageReference.tryGetColorComponent());
         return dto;
     }
 
-    protected final long createImageDataset(String datasetPermId,
+    protected final long getOrCreateImageDataset(String datasetPermId,
             ImageDatasetInfo imageDatasetInfo, Long containerIdOrNull)
     {
-        ImgImageDatasetDTO dataset =
-                createImageDatasetDTO(datasetPermId, imageDatasetInfo, containerIdOrNull);
-        long imageContainerDatasetId = dao.addImageDataset(dataset);
+        ImgImageDatasetDTO imageDataSet = dao.tryGetImageDatasetByPermId(datasetPermId);
+        if (imageDataSet == null)
+        {
+            ImgImageDatasetDTO dataset =
+                    createImageDatasetDTO(datasetPermId, imageDatasetInfo, containerIdOrNull);
+            long imageContainerDatasetId = dao.addImageDataset(dataset);
 
-        return imageContainerDatasetId;
+            return imageContainerDatasetId;
+        } else
+        {
+            return imageDataSet.getId();
+        }
     }
 
     private static ImgImageDatasetDTO createImageDatasetDTO(String datasetPermId,

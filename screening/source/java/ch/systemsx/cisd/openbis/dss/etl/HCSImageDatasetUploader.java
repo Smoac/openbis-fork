@@ -66,11 +66,11 @@ public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
 
         Long[][] spotIds = getOrCreateSpots(contId, info, images);
         ISpotProvider spotProvider = getSpotProvider(spotIds);
-        long datasetId = createDataset(contId, info);
+        long datasetId = getOrCreateDataset(contId, info);
 
         if (info.isStoreChannelsOnExperimentLevel() == false)
         {
-            channelsMap = ImagingDatabaseHelper.createDatasetChannels(dao, datasetId, channels);
+            channelsMap = ImagingDatabaseHelper.getOrCreateDatasetChannels(dao, datasetId, channels);
         }
         assert channelsMap != null;
 
@@ -200,8 +200,9 @@ public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
         }
     }
 
-    private long createDataset(long containerId, HCSImageDatasetInfo info)
+    private long getOrCreateDataset(long containerId, HCSImageDatasetInfo info)
     {
-        return createImageDataset(info.getDatasetPermId(), info.getImageDatasetInfo(), containerId);
+        return getOrCreateImageDataset(info.getDatasetPermId(), info.getImageDatasetInfo(),
+                containerId);
     }
 }

@@ -165,7 +165,10 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
         {
             if (ScreeningUtils.isBasicHcsImageDataset(externalData))
             {
-                result.add(externalData);
+                if (externalData.tryGetContainer() == null)
+                {
+                    result.add(externalData);
+                }
             }
         }
         return result;

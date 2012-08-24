@@ -88,7 +88,7 @@ public class MicroscopyBlackboxSeriesStorageProcessor extends AbstractImageStora
     @Override
     protected void storeInDatabase(IImagingQueryDAO dao,
             ImageDatasetOwnerInformation dataSetInformation,
-            ImageFileExtractionResult extractedImages)
+            ImageFileExtractionResult extractedImages, boolean thumbnailsOnly)
     {
         List<AcquiredSingleImage> images = extractedImages.getImages();
         setSeriesNumber(images);

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v2;
 
 import java.io.File;
 
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImageDataSet;
@@ -25,7 +26,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
 
 /**
  * Extension of {@link IDataSetRegistrationTransactionV2} for screening.
- *
+ * 
  * @author Jakub Straszewski
  */
 public interface IImagingDataSetRegistrationTransactionV2 extends IDataSetRegistrationTransactionV2
@@ -36,7 +37,14 @@ public interface IImagingDataSetRegistrationTransactionV2 extends IDataSetRegist
      */
     IImageDataSet createNewImageDataSet(SimpleImageDataConfig imageDataSet,
             File incomingFolderWithImages);
-    
+
+    /**
+     * Creates a new overview image data set. See {@link SimpleImageDataConfig} documentation for
+     * configuration details.
+     */
+    IDataSet createNewOverviewImageDataSet(SimpleImageDataConfig imageDataSet,
+            File incomingFolderWithImages);
+
     /**
      * Creates a new feature vector data set based on either the {@link FeaturesBuilder} provided by
      * the specified {@link SimpleFeatureVectorDataConfig} or the specified file.

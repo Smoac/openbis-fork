@@ -34,6 +34,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
@@ -58,8 +59,13 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IFeatureVectorDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.SimpleFeatureVectorDataConfig;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvFeatureVectorParser;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
@@ -120,6 +126,16 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                 SimpleImageDataSetRegistrator.createImageDatasetDetails(imageDataSet,
                         incomingFolderWithImages, imageDatasetFactory);
         return createNewImageDataSet(details);
+    }
+
+    @Override
+    public IDataSet createNewOverviewImageDataSet(SimpleImageDataConfig imageDataSet,
+            File incomingFolderWithImages)
+    {
+        DataSetRegistrationDetails<ImageDataSetInformation> details =
+                SimpleImageDataSetRegistrator.createImageDatasetDetails(imageDataSet,
+                        incomingFolderWithImages, imageDatasetFactory);
+        return createNewOverviewImageDataSet(details);
     }
 
     /**
@@ -226,7 +242,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                 thumbnailDatasets.add(thumbnailDataset);
 
                 generateThumbnails(imageDataSetStructure, incomingDirectory, thumbnailDataset,
-                        thumbnailsStorageFormat, thumbnailsInfo);
+                        thumbnailsStorageFormat, thumbnailsInfo, false);
                 containedDataSetCodes.add(thumbnailDataset.getDataSetCode());
             }
             imageDataSetInformation.setThumbnailsInfo(thumbnailsInfo);
@@ -255,6 +271,78 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         return containerDataset;
     }
 
+    public IDataSet createNewOverviewImageDataSet(
+            DataSetRegistrationDetails<ImageDataSetInformation> imageRegistrationDetails)
+    {
+        ImageDataSetInformation imageDataSetInformation =
+                imageRegistrationDetails.getDataSetInformation();
+        ImageDataSetStructure imageDataSetStructure =
+                imageDataSetInformation.getImageDataSetStructure();
+        File incomingDirectory = imageDataSetInformation.getIncomingDirectory();
+
+        String containerCode = imageDataSetInformation.getContainerDatasetPermId();
+
+        IDataSetUpdatable container = getDataSetForUpdate(containerCode);
+
+        if (container == null || false == container.isContainerDataSet())
+        {
+            throw UserFailureException.fromTemplate("Container data set %s coudn't be found.",
+                    container);
+        }
+
+        SearchCriteria searchCriteria = new SearchCriteria();
+        SearchCriteria searchSubCriteria = new SearchCriteria();
+        searchSubCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.CODE, containerCode));
+        searchCriteria.addSubCriteria(SearchSubCriteria
+                .createDataSetContainerCriteria(searchSubCriteria));
+
+        List<IDataSetImmutable> containedDataSets =
+                getSearchService().searchForDataSets(searchCriteria);
+
+        IDataSetImmutable exampleDataSet = containedDataSets.iterator().next();
+
+        calculateBoundingBox(imageDataSetInformation, imageDataSetStructure, incomingDirectory);
+
+        imageDataSetStructure
+                .validateImageRepresentationGenerationParameters(imageDataSetInformation);
+
+        ThumbnailsInfo thumbnailsInfo = new ThumbnailsInfo();
+        List<String> containedDataSetCodes = new ArrayList<String>();
+        containedDataSetCodes.addAll(container.getContainedDataSetCodes());
+
+        @SuppressWarnings("unchecked")
+        DataSet<ImageDataSetInformation> thumbnailDataset =
+                (DataSet<ImageDataSetInformation>) super.createNewDataSet(imageRegistrationDetails);
+        thumbnailDataset.setFileFormatType(imageDataSetInformation.getFileFormatTypeCode());
+        thumbnailDataset.setMeasuredData(false);
+
+        generateThumbnails(imageDataSetStructure, incomingDirectory, thumbnailDataset,
+                createThumbnailsStorageFormat(imageDataSetInformation), thumbnailsInfo, true);
+        containedDataSetCodes.add(thumbnailDataset.getDataSetCode());
+
+        imageDataSetInformation.setThumbnailsInfo(thumbnailsInfo);
+
+        setSameDatasetOwner(exampleDataSet, thumbnailDataset);
+
+        container.setContainedDataSetCodes(containedDataSetCodes);
+
+        return thumbnailDataset;
+    }
+
+    private static ThumbnailsStorageFormat createThumbnailsStorageFormat(
+            ImageDataSetInformation imageDataSetInformation)
+    {
+        ThumbnailsStorageFormat thumbnailsStorageFormat = new ThumbnailsStorageFormat();
+
+        thumbnailsStorageFormat.setFileFormat(imageDataSetInformation.getFileFormatTypeCode());
+        thumbnailsStorageFormat.setThumbnailsFileName(String.format("thumbnails_%dx%d.h5ar",
+                imageDataSetInformation.getMaximumImageWidth(),
+                imageDataSetInformation.getMaximumImageHeight()));
+
+        return thumbnailsStorageFormat;
+    }
+
     private void calculateBoundingBox(ImageDataSetInformation imageDataSetInformation,
             ImageDataSetStructure imageDataSetStructure, File incomingDirectory)
     {
@@ -280,7 +368,8 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
 
     private void generateThumbnails(ImageDataSetStructure imageDataSetStructure,
             File incomingDirectory, IDataSet thumbnailDataset,
-            ThumbnailsStorageFormat thumbnailsStorageFormatOrNull, ThumbnailsInfo thumbnailPaths)
+            ThumbnailsStorageFormat thumbnailsStorageFormatOrNull, ThumbnailsInfo thumbnailPaths,
+            boolean registerOriginalImageAsThumbnail)
     {
         String thumbnailFile;
         if (thumbnailsStorageFormatOrNull == null)
@@ -296,7 +385,8 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
 
         Hdf5ThumbnailGenerator.tryGenerateThumbnails(imageDataSetStructure, incomingDirectory,
                 thumbnailFile, imageDataSetStructure.getImageStorageConfiguraton(),
-                thumbnailDataset.getDataSetCode(), thumbnailsStorageFormatOrNull, thumbnailPaths);
+                thumbnailDataset.getDataSetCode(), thumbnailsStorageFormatOrNull, thumbnailPaths,
+                registerOriginalImageAsThumbnail);
         enhanceWithResolution(thumbnailDataset, thumbnailPaths);
     }
 
@@ -443,7 +533,8 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         }
     }
 
-    private static void setSameDatasetOwner(IDataSet templateDataset, IDataSet destinationDataset)
+    private static void setSameDatasetOwner(IDataSetImmutable templateDataset,
+            IDataSet destinationDataset)
     {
         destinationDataset.setExperiment(templateDataset.getExperiment());
         destinationDataset.setSample(templateDataset.getSample());

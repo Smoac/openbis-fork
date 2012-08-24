@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 import java.io.File;
 
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
 
@@ -35,6 +36,9 @@ public interface IImagingDataSetRegistrationTransaction extends IDataSetRegistra
      * configuration details.
      */
     IImageDataSet createNewImageDataSet(SimpleImageDataConfig imageDataSet,
+            File incomingFolderWithImages);
+
+    IDataSet createNewOverviewImageDataSet(SimpleImageDataConfig imageDataSet,
             File incomingFolderWithImages);
 
     @Deprecated

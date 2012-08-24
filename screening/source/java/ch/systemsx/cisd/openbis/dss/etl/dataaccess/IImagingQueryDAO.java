@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
 
+import java.util.Collection;
 import java.util.List;
 
 import net.lemnik.eodsql.Select;
@@ -57,7 +58,7 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
 
     @Update(sql = "insert into CHANNEL_STACKS (ID, X, Y, Z_in_M, T_in_SEC, SERIES_NUMBER, IS_REPRESENTATIVE, DS_ID, SPOT_ID) values "
             + "(?{1.id}, ?{1.column}, ?{1.row}, ?{1.z}, ?{1.t}, ?{1.seriesNumber}, ?{1.isRepresentative}, ?{1.datasetId}, ?{1.spotId})", batchUpdate = true)
-    public void addChannelStacks(List<ImgChannelStackDTO> channelStacks);
+    public void addChannelStacks(Collection<ImgChannelStackDTO> channelStacks);
 
     @Update(sql = "insert into IMAGES (ID, PATH, IMAGE_ID, COLOR) values "
             + "(?{1.id}, ?{1.filePath}, ?{1.imageID}, ?{1.colorComponentAsString})", batchUpdate = true)
@@ -66,6 +67,9 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
     @Update(sql = "insert into ACQUIRED_IMAGES (IMG_ID, THUMBNAIL_ID, CHANNEL_STACK_ID, CHANNEL_ID, IMAGE_TRANSFORMER_FACTORY) values "
             + "(?{1.imageId}, ?{1.thumbnailId}, ?{1.channelStackId}, ?{1.channelId}, ?{1.serializedImageTransformerFactory})", batchUpdate = true)
     public void addAcquiredImages(List<ImgAcquiredImageDTO> acquiredImages);
+
+    @Update(sql = "update ACQUIRED_IMAGES set THUMBNAIL_ID = ?{1.thumbnailId} where ID = ?{1.id}", batchUpdate = true)
+    public void updateAcquiredImagesThumbnails(List<ImgAcquiredImageDTO> acquiredImages);
 
     // inserts
 

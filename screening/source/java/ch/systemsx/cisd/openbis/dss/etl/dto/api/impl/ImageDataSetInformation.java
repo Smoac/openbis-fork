@@ -49,6 +49,8 @@ public class ImageDataSetInformation extends BasicDataSetInformation
 
     private String containerDatasetPermId;
 
+    private boolean registerAsOverviewImageDataSet;
+
     private int maximumImageWidth;
 
     private int maximumImageHeight;
@@ -146,6 +148,16 @@ public class ImageDataSetInformation extends BasicDataSetInformation
             List<ChannelColorComponent> channelColorComponents)
     {
         imageDataSetStructure.setChannels(channels, channelColorComponents);
+    }
+
+    public boolean getRegisterAsOverviewImageDataSet()
+    {
+        return registerAsOverviewImageDataSet;
+    }
+
+    public void setRegisterAsOverviewImageDataSet(boolean registerAsOverviewImageDataSet)
+    {
+        this.registerAsOverviewImageDataSet = registerAsOverviewImageDataSet;
     }
 
     @Override

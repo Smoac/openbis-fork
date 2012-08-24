@@ -125,7 +125,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
      */
     abstract protected void storeInDatabase(IImagingQueryDAO dao,
             ImageDatasetOwnerInformation dataSetInformation,
-            ImageFileExtractionResult extractedImages);
+            ImageFileExtractionResult extractedImages, boolean thumbnailsOnly);
 
     /**
      * Additional image validation (e.g. are there all images that were expected?). Prints warnings
@@ -284,14 +284,24 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             File datasetRelativeImagesFolderPath =
                     extractionResultWithConfig.getExtractionResult()
                             .getDatasetRelativeImagesFolderPath();
-            processImages(plateImages, datasetRelativeImagesFolderPath, imageStorageConfiguraton);
+
+            ImageDataSetInformation imageDataSetInformation =
+                    (ImageDataSetInformation) dataSetInformation;
+
+            if (false == imageDataSetInformation.getRegisterAsOverviewImageDataSet())
+            {
+                processImages(plateImages, datasetRelativeImagesFolderPath,
+                        imageStorageConfiguraton);
+            }
 
             shouldDeleteOriginalDataOnCommit =
-                    imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5();
+                    imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5()
+                            && false == imageDataSetInformation.getRegisterAsOverviewImageDataSet();
 
             dbTransaction = processor.createQuery();
             processor.storeInDatabase(dbTransaction,
-                    extractionResultWithConfig.getImageDatasetOwner(), extractionResult);
+                    extractionResultWithConfig.getImageDatasetOwner(), extractionResult,
+                    imageDataSetInformation.getRegisterAsOverviewImageDataSet());
 
             return rootDirectory;
         }
@@ -668,9 +678,10 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         ImageDataSetStructure imageDataSetStructure = dataSetInformation.getImageDataSetStructure();
         if (imageDataSetStructure.isValid() == false)
         {
-            throw new ConfigurationFailureException("Invalid image dataset info object, check if your jython script fills all the required fields. "
-                    + "Or maybe the recognized files extensions is set incorrectly? Dataset: "
-                    + imageDataSetStructure);
+            throw new ConfigurationFailureException(
+                    "Invalid image dataset info object, check if your jython script fills all the required fields. "
+                            + "Or maybe the recognized files extensions is set incorrectly? Dataset: "
+                            + imageDataSetStructure);
         }
         Geometry tileGeometry =
                 new Geometry(imageDataSetStructure.getTileRowsNumber(),
