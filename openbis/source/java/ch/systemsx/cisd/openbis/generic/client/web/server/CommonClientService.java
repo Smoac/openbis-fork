@@ -138,6 +138,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -2335,6 +2336,14 @@ public final class CommonClientService extends AbstractClientService implements
 
     @Override
     public String evaluate(DynamicPropertyEvaluationInfo info)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        return commonServer.evaluate(sessionToken, info);
+    }
+
+    @Override
+    public String evaluate(EntityValidationEvaluationInfo info)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();

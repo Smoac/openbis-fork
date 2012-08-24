@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -42,6 +43,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
@@ -120,6 +123,8 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
 
                 private final CheckBoxField deletionDisallow;
 
+                private final ScriptChooserField scriptChooser;
+
                 {
                     descriptionField = createDescriptionField(viewContext);
                     FieldUtil
@@ -142,6 +147,14 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
 
                     DialogWithOnlineHelpUtils.addHelpButton(viewContext, this,
                             createHelpPageIdentifier());
+
+                    Script script = dataSetType.getValidationScript();
+
+                    scriptChooser =
+                            createScriptChooserField(viewContext, script != null ? script.getName()
+                                    : null, true, ScriptType.ENTITY_VALIDATION, EntityKind.DATA_SET);
+                    addField(scriptChooser);
+
                 }
 
                 @Override
@@ -151,6 +164,11 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
                     dataSetType.setDeletionDisallow(deletionDisallow.getValue());
                     dataSetType.setMainDataSetPattern(mainDataSetPatternField.getValue());
                     dataSetType.setMainDataSetPath(mainDataSetPathField.getValue());
+
+                    Script script = new Script();
+                    script.setName(scriptChooser.getValue());
+                    dataSetType.setValidationScript(script);
+
                     viewContext.getService().updateEntityType(entityKind, dataSetType,
                             registrationCallback);
                 }
@@ -179,6 +197,8 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
 
                 private CheckBoxField deletionDisallow;
 
+                private ScriptChooserField scriptChooser;
+
                 {
                     dataSetKindSelectionWidget = createContainerField();
                     addField(dataSetKindSelectionWidget);
@@ -194,6 +214,12 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
 
                     DialogWithOnlineHelpUtils.addHelpButton(viewContext, this,
                             createHelpPageIdentifier());
+
+                    scriptChooser =
+                            createScriptChooserField(viewContext, null, true,
+                                    ScriptType.ENTITY_VALIDATION, EntityKind.DATA_SET);
+                    addField(scriptChooser);
+
                 }
 
                 @Override
@@ -205,6 +231,11 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
                     dataSetType.setDataSetKind(dataSetKindSelectionWidget.getValue()
                             .getBaseObject());
                     dataSetType.setDeletionDisallow(deletionDisallow.getValue());
+
+                    Script script = new Script();
+                    script.setName(scriptChooser.getValue());
+                    dataSetType.setValidationScript(script);
+
                     DataSetTypeGrid.this.register(dataSetType, registrationCallback);
                 }
 
@@ -249,6 +280,19 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
         String label = viewContext.getMessage(Dict.DELETION_DISALLOW);
         CheckBoxField field = new CheckBoxField(label, false);
         GWTUtils.setToolTip(field, viewContext.getMessage(Dict.DELETION_DISALLOW_TOOLTIP));
+        return field;
+    }
+
+    private ScriptChooserField createScriptChooserField(
+            final IViewContext<ICommonClientServiceAsync> viewContext, String initialValue,
+            boolean visible, ScriptType scriptTypeOrNull, EntityKind entityKindOrNull)
+    {
+        ScriptChooserField field =
+                ScriptChooserField.create(viewContext.getMessage(Dict.VALIDATION_SCRIPT),
+                        false,
+                        initialValue,
+                        viewContext, scriptTypeOrNull, entityKindOrNull);
+        FieldUtil.setVisibility(visible, field);
         return field;
     }
 

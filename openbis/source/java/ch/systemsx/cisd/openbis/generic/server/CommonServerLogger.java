@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
@@ -1230,6 +1231,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     @Override
     public String evaluate(String sessionToken, DynamicPropertyEvaluationInfo info)
+    {
+        logAccess(sessionToken, "evaluate", "%s(%s)", info.getEntityKind().name(),
+                info.getEntityIdentifier());
+        return null;
+    }
+
+    @Override
+    public String evaluate(String sessionToken, EntityValidationEvaluationInfo info)
     {
         logAccess(sessionToken, "evaluate", "%s(%s)", info.getEntityKind().name(),
                 info.getEntityIdentifier());

@@ -37,4 +37,6 @@ public class SampleTypeGridColumnIDs extends EntityTypeGridColumnIDs
 
     public static final String GENERATED_CODE_PREFIX = "GENERATED_CODE_PREFIX";
 
+    public static final String VALIDATION_SCRIPT = "VALIDATION_SCRIPT";
+
 }

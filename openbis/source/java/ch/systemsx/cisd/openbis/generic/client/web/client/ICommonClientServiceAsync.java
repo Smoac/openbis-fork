@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -1007,6 +1008,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#evaluate(DynamicPropertyEvaluationInfo)
      */
     public void evaluate(DynamicPropertyEvaluationInfo dynamicPropertyEvaluationInfo,
+            AsyncCallback<String> callback);
+
+    /**
+     * @see ICommonClientService#evaluate(DynamicPropertyEvaluationInfo)
+     */
+    public void evaluate(EntityValidationEvaluationInfo entityValidationEvaluationInfo,
             AsyncCallback<String> callback);
 
     /**

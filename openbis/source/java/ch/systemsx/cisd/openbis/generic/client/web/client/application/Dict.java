@@ -371,6 +371,8 @@ public abstract class Dict
 
     public static final String IS_SHOW_PARENTS = "is_show_parents";
 
+    public static final String VALIDATION_SCRIPT = "validation_script";
+
     //
     // Property Type Browser
     //

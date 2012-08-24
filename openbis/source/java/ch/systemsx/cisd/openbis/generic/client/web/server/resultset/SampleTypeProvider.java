@@ -23,6 +23,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypeG
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypeGridColumnIDs.IS_SHOW_PARENTS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypeGridColumnIDs.SHOW_PARENT_METADATA_LABEL;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypeGridColumnIDs.SUBCODE_UNIQUE_LABEL;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleTypeGridColumnIDs.VALIDATION_SCRIPT;
 
 import java.util.List;
 
@@ -60,6 +61,7 @@ public class SampleTypeProvider extends EntityTypeProvider<SampleType>
         builder.addColumn(AUTO_GENERATE_CODES_LABEL).hideByDefault();
         builder.addColumn(SHOW_PARENT_METADATA_LABEL).hideByDefault();
         builder.addColumn(GENERATED_CODE_PREFIX).hideByDefault();
+        builder.addColumn(VALIDATION_SCRIPT).hideByDefault();
     }
 
     @Override
@@ -76,6 +78,9 @@ public class SampleTypeProvider extends EntityTypeProvider<SampleType>
         builder.column(SHOW_PARENT_METADATA_LABEL).addString(
                 SimpleYesNoRenderer.render(type.isShowParentMetadata()));
         builder.column(GENERATED_CODE_PREFIX).addString(type.getGeneratedCodePrefix());
+        builder.column(VALIDATION_SCRIPT).addString(
+                type.getValidationScript() != null ? type.getValidationScript().getName()
+                        : "");
     }
 
 }

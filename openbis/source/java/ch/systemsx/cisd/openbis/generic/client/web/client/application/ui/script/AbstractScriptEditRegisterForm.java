@@ -157,7 +157,9 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
 
     protected void onScriptTypeChanged(ScriptType scriptType)
     {
-        rightPanel.setVisible(scriptType == ScriptType.DYNAMIC_PROPERTY);
+        rightPanel.setVisible(scriptType == ScriptType.DYNAMIC_PROPERTY
+                || scriptType == ScriptType.ENTITY_VALIDATION);
+        this.scriptExecution.setScriptType(scriptType);
         scriptField.setValidator(validatorsByScriptType.get(scriptType));
     }
 
@@ -258,6 +260,8 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
                 new DynamicPropertyScriptValidator());
         validatorsByScriptType.put(ScriptType.MANAGED_PROPERTY,
                 new ManagedPropertyScriptValidator());
+        validatorsByScriptType.put(ScriptType.ENTITY_VALIDATION,
+                new EntityValidationScriptValidator());
     }
 
     private final static String NEWLINE = "\n";
@@ -289,6 +293,30 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
             }
             // validated value is valid
             return null;
+        }
+    }
+
+    /** {@link Validator} for script of type {@link ScriptType#ENTITY_VALIDATION}. */
+    private static class EntityValidationScriptValidator implements Validator
+    {
+
+        private final static String VALIDATE_DEFINITION = "def validate(";
+
+        private final static String VALIDATE_DEFINITION_NOT_FOUND_MSG =
+                "Script should contain definition of function 'validate(entity, is_new)'";
+
+        @Override
+        public String validate(Field<?> field, final String fieldValue)
+        {
+            final String[] lines = fieldValue.split(NEWLINE);
+            for (String line : lines)
+            {
+                if (line.startsWith(VALIDATE_DEFINITION))
+                {
+                    return null;
+                }
+            }
+            return VALIDATE_DEFINITION_NOT_FOUND_MSG;
         }
     }
 

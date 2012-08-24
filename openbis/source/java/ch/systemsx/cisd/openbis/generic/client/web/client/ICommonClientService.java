@@ -69,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -1106,6 +1107,11 @@ public interface ICommonClientService extends IClientService
      * Returns script evaluation result.
      */
     public String evaluate(DynamicPropertyEvaluationInfo info) throws UserFailureException;
+
+    /**
+     * Returns script evaluation result.
+     */
+    public String evaluate(EntityValidationEvaluationInfo info) throws UserFailureException;
 
     /**
      * Updates specified properties of an entity.

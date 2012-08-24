@@ -92,6 +92,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.Dynam
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
@@ -132,6 +133,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
@@ -1286,6 +1288,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             sampleTypePE.setContainerHierarchyDepth(sampleType.getContainerHierarchyDepth());
             sampleTypePE
                     .setGeneratedFromHierarchyDepth(sampleType.getGeneratedFromHierarchyDepth());
+
+            if (sampleType.getValidationScript() == null
+                    || sampleType.getValidationScript().getName() == null
+                    || sampleType.getValidationScript().getName().equals(""))
+            {
+                sampleTypePE.setValidationScript(null);
+            } else
+            {
+                ScriptPE script = getDAOFactory().getScriptDAO()
+                        .tryFindByName(sampleType.getValidationScript().getName());
+                if (script != null)
+                {
+                    sampleTypePE.setValidationScript(script);
+                }
+            }
+
         } else if (entityKind == EntityKind.DATA_SET)
         {
             DataSetTypePE dataSetTypePE = (DataSetTypePE) entityTypePE;
@@ -1295,6 +1313,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             String mainDataSetPattern = dataSetType.getMainDataSetPattern();
             EntityTypeBO.assertValidDataSetTypeMainPattern(mainDataSetPattern);
             dataSetTypePE.setMainDataSetPattern(mainDataSetPattern);
+
+            if (dataSetType.getValidationScript() == null
+                    || dataSetType.getValidationScript().getName() == null
+                    || dataSetType.getValidationScript().getName().equals(""))
+            {
+                dataSetTypePE.setValidationScript(null);
+            } else
+            {
+                ScriptPE script = getDAOFactory().getScriptDAO()
+                        .tryFindByName(dataSetType.getValidationScript().getName());
+                if (script != null)
+                {
+                    dataSetTypePE.setValidationScript(script);
+                }
+            }
+
         }
     }
 
@@ -1882,7 +1916,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         if ((entityKind.equals(EntityKind.SAMPLE) || entityKind.equals(EntityKind.DATA_SET) || entityKind
-                .equals(EntityKind.MATERIAL)) && EntityType.isDefinedInFileEntityTypeCode(type))
+                .equals(EntityKind.MATERIAL))
+                && EntityType.isDefinedInFileEntityTypeCode(type))
         {
             types.addAll(getDAOFactory().getEntityTypeDAO(
                     DtoConverters.convertEntityKind(entityKind)).listEntityTypes());
@@ -2445,6 +2480,28 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     new DynamicPropertyEvaluator(getDAOFactory(), null);
             IEntityAdaptor adaptor = EntityAdaptorFactory.create(entity, evaluator);
             calculator.setEntity(adaptor);
+            return calculator.evalAsString();
+        } catch (Throwable e)
+        {
+            // return error message if there is a problem with evaluation
+            return e.getMessage();
+        }
+    }
+
+    @Override
+    public String evaluate(String sessionToken, EntityValidationEvaluationInfo info)
+    {
+        Session session = getSession(sessionToken);
+        IEntityInformationWithPropertiesHolder entity = getEntity(info, session);
+        try
+        {
+            EntityValidationCalculator calculator =
+                    EntityValidationCalculator.create(info.getScript());
+            IDynamicPropertyEvaluator evaluator =
+                    new DynamicPropertyEvaluator(getDAOFactory(), null);
+            IEntityAdaptor adaptor = EntityAdaptorFactory.create(entity, evaluator);
+            calculator.setEntity(adaptor);
+            calculator.setIsNewEntity(info.isNew());
             return calculator.evalAsString();
         } catch (Throwable e)
         {

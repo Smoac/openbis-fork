@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -109,6 +110,20 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         sampleTypePE.setGeneratedCodePrefix(entityType.getGeneratedCodePrefix());
         sampleTypePE.setDatabaseInstance(getHomeDatabaseInstance());
 
+        if (entityType.getValidationScript() == null
+                || entityType.getValidationScript().getName() == null
+                || entityType.getValidationScript().getName().equals(""))
+        {
+            sampleTypePE.setValidationScript(null);
+        } else
+        {
+            ScriptPE script =
+                    getScriptDAO().tryFindByName(entityType.getValidationScript().getName());
+            if (script != null)
+            {
+                sampleTypePE.setValidationScript(script);
+            }
+        }
         this.entityKind = EntityKind.SAMPLE;
         this.entityTypePE = sampleTypePE;
     }
@@ -141,6 +156,21 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         dataSetTypePE.setMainDataSetPattern(mainDataSetPattern);
         dataSetTypePE.setDataSetKind(entityType.getDataSetKind().name());
         dataSetTypePE.setDeletionDisallow(entityType.isDeletionDisallow());
+
+        if (entityType.getValidationScript() == null
+                || entityType.getValidationScript().getName() == null
+                || entityType.getValidationScript().getName().equals(""))
+        {
+            dataSetTypePE.setValidationScript(null);
+        } else
+        {
+            ScriptPE script =
+                    getScriptDAO().tryFindByName(entityType.getValidationScript().getName());
+            if (script != null)
+            {
+                dataSetTypePE.setValidationScript(script);
+            }
+        }
 
         this.entityKind = EntityKind.DATA_SET;
         this.entityTypePE = dataSetTypePE;

@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -59,6 +60,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 
 /**
  * @author Izabela Adamczyk
@@ -86,9 +89,13 @@ public class ScriptExecutionFramework
 
     private final AdapterField entityLink;
 
+    private final CheckBox isNewEntity;
+
     private final MultilineHTML html;
 
     private final IValidable validable;
+
+    private ScriptType scriptType;
 
     private static class State
     {
@@ -130,6 +137,9 @@ public class ScriptExecutionFramework
                 createEntitySelectionMap(sampleChooser, experimentChooser, materialChooser,
                         datasetChooser);
         entityLink = createEntityLink();
+
+        isNewEntity = createCheckBox();
+
         html = new MultilineHTML("");
         evaluationResultPanel = createResultField(html);
         updateVisibleEntityChooser(map, entityKindChooser, entityLink);
@@ -151,9 +161,12 @@ public class ScriptExecutionFramework
         panel.add(experimentChooser.getChooserField());
         panel.add(materialChooser);
         panel.add(datasetChooser);
+        panel.add(isNewEntity);
         panel.add(entityLink);
         panel.add(createButtonsField());
         panel.add(evaluationResultPanel);
+
+        scriptType = ScriptType.DYNAMIC_PROPERTY;
     }
 
     private AdapterField createButtonsField()
@@ -286,6 +299,17 @@ public class ScriptExecutionFramework
 
     }
 
+    private CheckBox createCheckBox()
+    {
+        final CheckBox checkBox = new CheckBox();
+        checkBox.setFieldLabel("Is New Entity?");
+        checkBox.setBoxLabel("");
+        checkBox.setValue(false);
+        checkBox.setVisible(false);
+
+        return checkBox;
+    }
+
     public Widget getWidget()
     {
         FieldSet set = new FieldSet();
@@ -309,7 +333,6 @@ public class ScriptExecutionFramework
 
     private void evaluate()
     {
-
         BasicEntityDescription selectedEntityOrNull = tryGetSelectedEntity();
         if (selectedEntityOrNull != null)
         {
@@ -324,25 +347,51 @@ public class ScriptExecutionFramework
         {
             return;
         }
-        updateEvaluationResultField(viewContext.getMessage(Dict.EVALUATION_IN_PROGRESS));
-        viewContext.getCommonService().evaluate(
-                new DynamicPropertyEvaluationInfo(kind, entity, script),
-                new AbstractAsyncCallback<String>(viewContext)
-                    {
-
-                        @Override
-                        protected void process(String result)
+        if (this.scriptType == ScriptType.DYNAMIC_PROPERTY)
+        {
+            updateEvaluationResultField(viewContext.getMessage(Dict.EVALUATION_IN_PROGRESS));
+            viewContext.getCommonService().evaluate(
+                    new DynamicPropertyEvaluationInfo(kind, entity, script),
+                    new AbstractAsyncCallback<String>(viewContext)
                         {
-                            updateEvaluationResultField(result);
-                        }
 
-                        @Override
-                        public void finishOnFailure(Throwable caught)
-                        {
-                            updateEvaluationResultField("");
-                            evaluationResultPanel.setVisible(false);
-                        }
-                    });
+                            @Override
+                            protected void process(String result)
+                            {
+                                updateEvaluationResultField(result);
+                            }
+
+                            @Override
+                            public void finishOnFailure(Throwable caught)
+                            {
+                                updateEvaluationResultField("");
+                                evaluationResultPanel.setVisible(false);
+                            }
+                        });
+        } else if (this.scriptType == ScriptType.ENTITY_VALIDATION)
+        {
+            updateEvaluationResultField(viewContext.getMessage(Dict.EVALUATION_IN_PROGRESS));
+            viewContext.getCommonService()
+                    .evaluate(
+                            new EntityValidationEvaluationInfo(kind, entity,
+                                    isNewEntity.getValue(), script),
+                            new AbstractAsyncCallback<String>(viewContext)
+                                {
+
+                                    @Override
+                                    protected void process(String result)
+                                    {
+                                        updateEvaluationResultField(result);
+                                    }
+
+                                    @Override
+                                    public void finishOnFailure(Throwable caught)
+                                    {
+                                        updateEvaluationResultField("");
+                                        evaluationResultPanel.setVisible(false);
+                                    }
+                                });
+        }
     }
 
     private void updateEvaluationResultField(String result)
@@ -396,5 +445,16 @@ public class ScriptExecutionFramework
         m.put(EntityKind.MATERIAL, materialChooser);
         m.put(EntityKind.DATA_SET, datasetChooser);
         return m;
+    }
+
+    public ScriptType getScriptType()
+    {
+        return scriptType;
+    }
+
+    public void setScriptType(ScriptType scriptType)
+    {
+        this.scriptType = scriptType;
+        this.isNewEntity.setVisible(scriptType == ScriptType.ENTITY_VALIDATION);
     }
 }

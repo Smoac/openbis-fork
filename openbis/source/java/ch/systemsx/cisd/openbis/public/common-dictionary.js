@@ -332,7 +332,7 @@ var common = {
   is_show_container: "Show Container?",
   is_show_parents: "Show Parents?",
   is_show_parent_metadata: "Show Parent Metadata?",
-   
+  validation_script: "Validation Script",
   //
   // Property Type Browser
   //

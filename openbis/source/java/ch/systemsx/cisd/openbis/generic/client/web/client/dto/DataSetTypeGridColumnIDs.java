@@ -31,4 +31,6 @@ public class DataSetTypeGridColumnIDs extends EntityTypeGridColumnIDs
 
     public static final String DELETION_DISALLOW = "DELETION_DISALLOW";
 
+    public static final String VALIDATION_SCRIPT = "VALIDATION_SCRIPT";
+
 }
