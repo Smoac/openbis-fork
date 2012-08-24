@@ -62,10 +62,13 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
 
     public boolean canHandle(IManagedProperty property)
     {
-        String propertyValue = property.getValue();
-        return propertyValue.startsWith("<" + ROOT_NAME)
-                || ManagedProperty.isSpecialValue(propertyValue)
-                || StringUtils.isBlank(propertyValue);
+        return canHandle(property.getValue());
+    }
+
+    public boolean canHandle(String string)
+    {
+        return string.startsWith("<" + ROOT_NAME) || ManagedProperty.isSpecialValue(string)
+                || StringUtils.isBlank(string);
     }
 
     @Override
@@ -74,7 +77,8 @@ public class XmlStructuredPropertyConverter implements IStructuredPropertyConver
         return convertStringToElements(property.getValue());
     }
 
-    private List<IElement> convertStringToElements(String propertyValue)
+    @Override
+    public List<IElement> convertStringToElements(String propertyValue)
     {
         if (ManagedProperty.isSpecialValue(propertyValue) || StringUtils.isBlank(propertyValue))
         {

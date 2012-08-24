@@ -83,8 +83,7 @@ public class JsonStructuredPropertyConverter implements IStructuredPropertyConve
         private int level = 0;
 
         @Override
-        public void writeStartArray(JsonGenerator jg)
-                throws IOException, JsonGenerationException
+        public void writeStartArray(JsonGenerator jg) throws IOException, JsonGenerationException
         {
             if (level++ == 0)
             {
@@ -129,7 +128,12 @@ public class JsonStructuredPropertyConverter implements IStructuredPropertyConve
 
     public boolean canHandle(IManagedProperty property)
     {
-        return property.getValue().startsWith("[");
+        return canHandle(property.getValue());
+    }
+
+    public boolean canHandle(String string)
+    {
+        return string.startsWith("[");
     }
 
     @Override
@@ -138,7 +142,8 @@ public class JsonStructuredPropertyConverter implements IStructuredPropertyConve
         return convertStringToElements(property.getValue());
     }
 
-    private List<IElement> convertStringToElements(String propertyValue)
+    @Override
+    public List<IElement> convertStringToElements(String propertyValue)
     {
         if (ManagedProperty.isSpecialValue(propertyValue) || StringUtils.isBlank(propertyValue))
         {

@@ -63,6 +63,21 @@ public class XmlOrJsonStructuredPropertyConverter implements IStructuredProperty
     }
 
     @Override
+    public List<IElement> convertStringToElements(String string)
+    {
+        if (xmlConverter.canHandle(string))
+        {
+            return xmlConverter.convertStringToElements(string);
+        } else if (jsonConverter.canHandle(string))
+        {
+            return jsonConverter.convertStringToElements(string);
+        } else
+        {
+            throw new UserFailureException("Illegal managed property value '" + string + "'.");
+        }
+    }
+
+    @Override
     public String convertToString(List<IElement> elements)
     {
         return convertToXML ? xmlConverter.convertToString(elements) : jsonConverter

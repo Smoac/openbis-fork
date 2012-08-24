@@ -37,6 +37,13 @@ public interface IStructuredPropertyConverter
     List<IElement> convertToElements(IManagedProperty property);
 
     /**
+     * Converts the values of specified String object into a list of elements.
+     * 
+     * @return an empty list if the value is undefined or special.
+     */
+    List<IElement> convertStringToElements(String propertyValue);
+
+    /**
      * @return a {@link String} representation of the specified elements that can be persisted in
      *         the database.
      */
