@@ -70,4 +70,10 @@ public class DataSetType extends DataSetTypeImmutable implements IDataSetType
     {
         getDataSetType().setDeletionDisallow(deletionDisallowed);
     }
+
+    @Override
+    public void setValidationScript(ScriptImmutable validationScript)
+    {
+        getDataSetType().setValidationScript(validationScript.script);
+    }
 }

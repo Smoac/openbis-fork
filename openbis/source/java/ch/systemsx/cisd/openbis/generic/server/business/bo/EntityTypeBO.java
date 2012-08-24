@@ -71,14 +71,21 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         super(daoFactory, session);
     }
 
-    private static EntityTypePE convertGeneric(EntityType entityType, EntityKind entityKind,
+    private ScriptPE getValidationScriptPE(EntityType entityType)
+    {
+        return getScriptDAO().getByTechId(new TechId(entityType.getValidationScript().getId()));
+    }
+
+    private EntityTypePE convertGeneric(EntityType entityType, EntityKind kind,
             DatabaseInstancePE databaseInstance) throws UserFailureException
     {
-        EntityTypePE entityTypePE = EntityTypePE.createEntityTypePE(entityKind);
-        entityTypePE.setCode(entityType.getCode());
-        entityTypePE.setDescription(entityType.getDescription());
-        entityTypePE.setDatabaseInstance(databaseInstance);
-        return entityTypePE;
+        EntityTypePE typePE = EntityTypePE.createEntityTypePE(kind);
+        typePE.setCode(entityType.getCode());
+        typePE.setDescription(entityType.getDescription());
+        typePE.setDatabaseInstance(databaseInstance);
+        typePE.setValidationScript(getValidationScriptPE(entityType));
+
+        return typePE;
     }
 
     @Override
@@ -109,21 +116,8 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         sampleTypePE.setShowParentMetadata(entityType.isShowParentMetadata());
         sampleTypePE.setGeneratedCodePrefix(entityType.getGeneratedCodePrefix());
         sampleTypePE.setDatabaseInstance(getHomeDatabaseInstance());
+        sampleTypePE.setValidationScript(getValidationScriptPE(entityType));
 
-        if (entityType.getValidationScript() == null
-                || entityType.getValidationScript().getName() == null
-                || entityType.getValidationScript().getName().equals(""))
-        {
-            sampleTypePE.setValidationScript(null);
-        } else
-        {
-            ScriptPE script =
-                    getScriptDAO().tryFindByName(entityType.getValidationScript().getName());
-            if (script != null)
-            {
-                sampleTypePE.setValidationScript(script);
-            }
-        }
         this.entityKind = EntityKind.SAMPLE;
         this.entityTypePE = sampleTypePE;
     }
@@ -145,7 +139,6 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
     @Override
     public void define(DataSetType entityType)
     {
-
         DataSetTypePE dataSetTypePE = new DataSetTypePE();
         dataSetTypePE.setCode(entityType.getCode());
         dataSetTypePE.setDescription(entityType.getDescription());
@@ -156,21 +149,7 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         dataSetTypePE.setMainDataSetPattern(mainDataSetPattern);
         dataSetTypePE.setDataSetKind(entityType.getDataSetKind().name());
         dataSetTypePE.setDeletionDisallow(entityType.isDeletionDisallow());
-
-        if (entityType.getValidationScript() == null
-                || entityType.getValidationScript().getName() == null
-                || entityType.getValidationScript().getName().equals(""))
-        {
-            dataSetTypePE.setValidationScript(null);
-        } else
-        {
-            ScriptPE script =
-                    getScriptDAO().tryFindByName(entityType.getValidationScript().getName());
-            if (script != null)
-            {
-                dataSetTypePE.setValidationScript(script);
-            }
-        }
+        dataSetTypePE.setValidationScript(getValidationScriptPE(entityType));
 
         this.entityKind = EntityKind.DATA_SET;
         this.entityTypePE = dataSetTypePE;

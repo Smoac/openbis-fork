@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 /**
  * @author Kaloyan Enimanev
  */
-public interface IDataSetType extends IDataSetTypeImmutable
+public interface IDataSetType extends IDataSetTypeImmutable, IEntityTypeMutable
 {
 
     /**

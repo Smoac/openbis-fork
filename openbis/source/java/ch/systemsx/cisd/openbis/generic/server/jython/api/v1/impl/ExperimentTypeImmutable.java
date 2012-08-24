@@ -65,6 +65,6 @@ public class ExperimentTypeImmutable implements IExperimentTypeImmutable
     @Override
     public IScriptImmutable getValidationScript()
     {
-        return new ScriptImmutable(getExperimentType().getValidationScript());
+        return ScriptHelper.getScriptImmutable(getExperimentType());
     }
 }

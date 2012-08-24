@@ -70,4 +70,8 @@ class SampleTypeWrapper extends SampleTypeImmutable implements ISampleType
     {
     }
 
+    @Override
+    public void setValidationScript(ScriptImmutable validationScript)
+    {
+    }
 }

@@ -35,4 +35,9 @@ class ExperimentTypeWrapper extends ExperimentTypeImmutable implements IExperime
     {
     }
 
+    @Override
+    public void setValidationScript(ScriptImmutable validationScript)
+    {
+    }
+
 }

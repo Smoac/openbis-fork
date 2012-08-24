@@ -103,6 +103,6 @@ public class DataSetTypeImmutable implements IDataSetTypeImmutable
     @Override
     public IScriptImmutable getValidationScript()
     {
-        return new ScriptImmutable(getDataSetType().getValidationScript());
+        return ScriptHelper.getScriptImmutable(getDataSetType());
     }
 }

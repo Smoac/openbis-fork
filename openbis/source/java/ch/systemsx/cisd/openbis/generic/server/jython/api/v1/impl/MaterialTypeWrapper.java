@@ -35,4 +35,9 @@ class MaterialTypeWrapper extends MaterialTypeImmutable implements IMaterialType
     {
     }
 
+    @Override
+    public void setValidationScript(ScriptImmutable validationScript)
+    {
+    }
+
 }

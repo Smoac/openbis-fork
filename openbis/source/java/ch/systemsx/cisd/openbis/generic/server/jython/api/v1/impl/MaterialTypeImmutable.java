@@ -66,6 +66,6 @@ public class MaterialTypeImmutable implements IMaterialTypeImmutable
     @Override
     public IScriptImmutable getValidationScript()
     {
-        return new ScriptImmutable(getMaterialType().getValidationScript());
+        return ScriptHelper.getScriptImmutable(getMaterialType());
     }
 }

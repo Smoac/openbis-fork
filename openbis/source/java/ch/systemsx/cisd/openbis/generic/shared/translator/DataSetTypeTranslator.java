@@ -60,10 +60,8 @@ public class DataSetTypeTranslator
         result.setMainDataSetPattern(entityTypeOrNull.getMainDataSetPattern());
         result.setDataSetKind(DataSetKind.valueOf(entityTypeOrNull.getDataSetKind()));
         result.setDeletionDisallow(entityTypeOrNull.isDeletionDisallow());
-
         result.setValidationScript(ScriptTranslator.translate(entityTypeOrNull
                 .getValidationScript()));
-
         return result;
     }
 

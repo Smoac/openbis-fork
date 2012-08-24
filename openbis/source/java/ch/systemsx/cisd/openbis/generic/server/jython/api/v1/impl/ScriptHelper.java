@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
-import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IExperimentType;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScriptImmutable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
 /**
- * @author Kaloyan Enimanev
+ * @author Jakub Straszewski
  */
-public class ExperimentType extends ExperimentTypeImmutable implements IExperimentType
+public class ScriptHelper
 {
-    ExperimentType(String code)
+    public static IScriptImmutable getScriptImmutable(EntityType entityType)
     {
-        super(code);
-    }
-
-    @Override
-    public void setDescription(String description)
-    {
-        getExperimentType().setDescription(description);
-    }
-
-    @Override
-    public void setValidationScript(ScriptImmutable validationScript)
-    {
-        getExperimentType().setValidationScript(validationScript.script);
+        Script script = entityType.getValidationScript();
+        return (script == null) ? null : new ScriptImmutable(script);
     }
 }

@@ -78,4 +78,10 @@ public class SampleType extends SampleTypeImmutable implements ISampleType
         getSampleType().setShowParentMetadata(isShowParentMetadata);
     }
 
+    @Override
+    public void setValidationScript(ScriptImmutable validationScript)
+    {
+        getSampleType().setValidationScript(validationScript.script);
+    }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.ScriptImmutable;
+
 /**
- * @author Kaloyan Enimanev
+ * @author Jakub Straszewski
  */
-public interface IExperimentType extends IExperimentTypeImmutable, IEntityTypeMutable
+public interface IEntityTypeMutable
 {
     /**
-     * Set the description for this experiment type.
+     * Set the validation script
      */
-    public void setDescription(String description);
-
+    public void setValidationScript(ScriptImmutable validationScript);
 }

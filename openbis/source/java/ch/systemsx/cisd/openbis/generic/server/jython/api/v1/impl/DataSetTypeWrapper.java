@@ -61,4 +61,9 @@ class DataSetTypeWrapper extends DataSetTypeImmutable implements IDataSetType
     {
     }
 
+    @Override
+    public void setValidationScript(ScriptImmutable validationScript)
+    {
+    }
+
 }

@@ -106,6 +106,6 @@ public class SampleTypeImmutable implements ISampleTypeImmutable
     @Override
     public IScriptImmutable getValidationScript()
     {
-        return new ScriptImmutable(getSampleType().getValidationScript());
+        return ScriptHelper.getScriptImmutable(getSampleType());
     }
 }

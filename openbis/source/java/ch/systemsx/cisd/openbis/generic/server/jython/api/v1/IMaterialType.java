@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1;
 /**
  * @author Kaloyan Enimanev
  */
-public interface IMaterialType extends IMaterialTypeImmutable
+public interface IMaterialType extends IMaterialTypeImmutable, IEntityTypeMutable
 {
     /**
      * Set the description for this material type.

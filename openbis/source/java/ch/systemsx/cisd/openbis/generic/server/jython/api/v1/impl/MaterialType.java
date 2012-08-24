@@ -33,4 +33,10 @@ public class MaterialType extends MaterialTypeImmutable implements IMaterialType
     {
         getMaterialType().setDescription(description);
     }
+
+    @Override
+    public void setValidationScript(ScriptImmutable validationScript)
+    {
+        getMaterialType().setValidationScript(validationScript.script);
+    }
 }
