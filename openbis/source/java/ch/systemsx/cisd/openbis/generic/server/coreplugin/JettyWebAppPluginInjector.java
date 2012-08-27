@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.coreplugin;
 
+import static ch.systemsx.cisd.openbis.generic.server.coreplugin.CorePluginsInjectingPropertyPlaceholderConfigurer.PLUGIN_TYPE_WEBAPPS;
+
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -25,12 +28,16 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 
 /**
  * A class that injects web apps into jetty.
@@ -39,6 +46,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
  */
 public class JettyWebAppPluginInjector
 {
+    private static final String WEBAPP_FOLDER = "webapp";
+
     /**
      * A utility class that generates a configuration file for a Jetty context for a webapp.
      * 
@@ -109,6 +118,8 @@ public class JettyWebAppPluginInjector
 
     public static final String WEB_APP_FOLDER_PROPERTY = "webapp-folder";
 
+    private Map<String, File> webappToFoldersMap;
+
     private static Map<String, Properties> extractWebappProperties(Properties props,
             List<String> webapps)
     {
@@ -130,6 +141,31 @@ public class JettyWebAppPluginInjector
                 PropertyUtils.tryGetListInOriginalCase(props, BasicConstant.WEB_APPS_PROPERTY);
         webapps = (null == appList) ? Collections.<String> emptyList() : appList;
         webappProperties = extractWebappProperties(props, webapps);
+        webappToFoldersMap = new HashMap<String, File>();
+        String corePluginsFolder = props.getProperty("core-plugins-folder", "../../core-plugins");
+        CorePluginScanner scanner = new CorePluginScanner(corePluginsFolder, ScannerType.AS);
+        List<CorePlugin> plugins = scanner.scanForPlugins();
+        for (CorePlugin plugin : plugins)
+        {
+            File webappsFolder =
+                    new File(corePluginsFolder, CorePluginScanner.constructPath(plugin,
+                            ScannerType.AS, PLUGIN_TYPE_WEBAPPS));
+            if (webappsFolder.isDirectory())
+            {
+                File[] pluginFolders = webappsFolder.listFiles();
+                for (File folder : pluginFolders)
+                {
+                    String webappName = folder.getName();
+                    if (webappName.startsWith(".") == false)
+                    {
+                        String f =
+                                webappProperties.get(webappName).getProperty(
+                                        WEB_APP_FOLDER_PROPERTY);
+                        webappToFoldersMap.put(webappName, new File(folder, f));
+                    }
+                }
+            }
+        }
     }
 
     public void injectWebApps()
@@ -137,14 +173,29 @@ public class JettyWebAppPluginInjector
         logWebappsToInject();
 
         // Leave if there is nothing to do
-        if (webapps.size() < 1)
+        if (webapps.isEmpty())
         {
             return;
         }
         if (false == isRunningUnderJetty())
         {
-            // We are not running in Jetty. Log and then get out.
-            operationLog.error("Not running under jetty. Cannot inject webapps.");
+            List<File> targets = findInjectionTargets();
+            for (String webapp : webapps)
+            {
+                File folder = webappToFoldersMap.get(webapp);
+                String path = folder.getAbsolutePath();
+                for (File target : targets)
+                {
+                    File link = new File(target, webapp);
+                    if (link.exists() == false)
+                    {
+                        String linkPath = link.getAbsolutePath();
+                        Unix.createSymbolicLink(path, linkPath);
+                        operationLog.info("WebApp '" + webapp + "': Symbolic link " + linkPath
+                                + " -> " + path);
+                    }
+                }
+            }
             return;
         }
         if (false == ensureContextFolderExists())
@@ -157,6 +208,28 @@ public class JettyWebAppPluginInjector
         {
             injectWebapp(webapp, webappProperties.get(webapp));
         }
+    }
+
+    private List<File> findInjectionTargets()
+    {
+        List<File> list = new ArrayList<File>();
+        String jettyHome = System.getProperty("jetty.home");
+        if (jettyHome != null)
+        {
+            list.add(new File(jettyHome + "/webapps/openbis/" + WEBAPP_FOLDER));
+        } else
+        {
+            File[] files = new File("targets/www").listFiles();
+            for (File file : files)
+            {
+                File webappFolder = new File(file, WEBAPP_FOLDER);
+                if (webappFolder.isDirectory())
+                {
+                    list.add(webappFolder);
+                }
+            }
+        }
+        return list;
     }
 
     private void logWebappsToInject()

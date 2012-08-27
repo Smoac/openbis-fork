@@ -232,12 +232,11 @@ public class CorePluginsInjector
                         + "' are not enabled.");
                 continue;
             }
-            File dssFolder =
-                    new File(corePluginsFolderPath, technology + "/" + corePlugin.getVersion()
-                            + "/" + scannerType.getSubFolderName());
             for (IPluginType pluginType : pluginTypes)
             {
-                File file = new File(dssFolder, pluginType.getSubFolderName());
+                File file =
+                        new File(corePluginsFolderPath, CorePluginScanner.constructPath(corePlugin,
+                                scannerType, pluginType));
                 if (file.isDirectory())
                 {
                     File[] pluginFolders = file.listFiles(new FilenameFilter()

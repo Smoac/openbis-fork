@@ -59,6 +59,13 @@ public class CorePluginScanner implements ICorePluginResourceLoader
         }
     }
 
+    public static String constructPath(CorePlugin corePlugin, ScannerType scannerType,
+            IPluginType pluginType)
+    {
+        return corePlugin.getName() + "/" + corePlugin.getVersion() + "/"
+                + scannerType.getSubFolderName() + "/" + pluginType.getSubFolderName();
+    }
+
     private static final ISimpleLogger DEFAULT_LOGGER = new Log4jSimpleLogger(LogFactory.getLogger(
             LogCategory.OPERATION, CorePluginScanner.class));
 
