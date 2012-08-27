@@ -1274,9 +1274,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             ScriptPE script =
                     getDAOFactory().getScriptDAO().tryFindByName(
                             entityType.getValidationScript().getName());
-            if (script != null)
+
+            if (script != null && entityType.isEntityKind(script.getEntityKind()))
             {
                 entityTypePE.setValidationScript(script);
+            } else
+            {
+                entityTypePE.setValidationScript(null);
             }
         }
     }
