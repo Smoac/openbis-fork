@@ -1667,8 +1667,9 @@ public final class ComponentProvider
                 public ITabItem create()
                 {
                     WebAppUrl url =
-                            new WebAppUrl(Window.Location.getPath(), webApp.getCode(), viewContext
-                                    .getModel().getSessionContext().getSessionID());
+                            new WebAppUrl(Window.Location.getProtocol(), Window.Location.getHost(),
+                                    Window.Location.getPath(), webApp.getCode(), viewContext
+                                            .getModel().getSessionContext().getSessionID());
                     return createRegistrationTab(getTabTitle(),
                             DatabaseModificationAwareComponent
                                     .wrapUnaware(new WebAppComponent(url)));

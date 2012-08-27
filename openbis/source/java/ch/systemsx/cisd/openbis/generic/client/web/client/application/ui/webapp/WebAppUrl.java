@@ -30,8 +30,17 @@ public class WebAppUrl
 
     private URLMethodWithParameters builder;
 
-    public WebAppUrl(String applicationURL, String webAppCode, String sessionId)
+    public WebAppUrl(String openbisProtocol, String openbisHost, String applicationURL,
+            String webAppCode, String sessionId)
     {
+        if (openbisProtocol == null)
+        {
+            throw new IllegalArgumentException("OpenBIS protocol cannot be null");
+        }
+        if (openbisHost == null)
+        {
+            throw new IllegalArgumentException("OpenBIS host cannot be null");
+        }
         if (applicationURL == null)
         {
             throw new IllegalArgumentException("OpenBIS applicationURL cannot be null");
@@ -44,8 +53,9 @@ public class WebAppUrl
         {
             throw new IllegalArgumentException("Session id cannot be null");
         }
-
-        builder = new URLMethodWithParameters(applicationURL + "/webapp/" + webAppCode);
+        builder =
+                new URLMethodWithParameters(openbisProtocol + "//" + openbisHost + applicationURL
+                        + "webapp/" + webAppCode + "/#");
         builder.addParameter(WebAppUrlParameter.WEBAPP_CODE.getName(), webAppCode);
         builder.addParameter(WebAppUrlParameter.SESSION_ID.getName(), sessionId);
     }
@@ -85,6 +95,6 @@ public class WebAppUrl
     @Override
     public String toString()
     {
-        return builder.toString();
+        return builder.toString().replace("/%23?", "/#?");
     }
 }
