@@ -73,7 +73,23 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
 
     private ScriptPE getValidationScriptPE(EntityType entityType)
     {
-        return getScriptDAO().getByTechId(new TechId(entityType.getValidationScript().getId()));
+        if (entityType.getValidationScript() == null
+                || entityType.getValidationScript().getName() == null
+                || entityType.getValidationScript().getName().equals(""))
+        {
+            return null;
+        } else
+        {
+            ScriptPE script = getScriptDAO()
+                    .tryFindByName(entityType.getValidationScript().getName());
+            if (script != null)
+            {
+                return script;
+            } else
+            {
+                return null;
+            }
+        }
     }
 
     private EntityTypePE convertGeneric(EntityType entityType, EntityKind kind,

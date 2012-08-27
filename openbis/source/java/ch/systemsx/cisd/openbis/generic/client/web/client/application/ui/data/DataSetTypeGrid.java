@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DataSetKindSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEntityTypeGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddTypeDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddEntityTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptChooserField;
@@ -183,12 +183,12 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
     }
 
     @Override
-    protected Window createRegisterEntityTypeDialog(String title, DataSetType newEntityType)
+    protected Window createRegisterEntityTypeDialog(String title, DataSetType newEntityType,
+            EntityKind entityKind)
     {
-        return new AddTypeDialog<DataSetType>(viewContext, title, postRegistrationCallback,
-                newEntityType)
+        return new AddEntityTypeDialog<DataSetType>(viewContext, title, postRegistrationCallback,
+                newEntityType, entityKind)
             {
-
                 private TextField<String> mainDataSetPatternField;
 
                 private TextField<String> mainDataSetPathField;
@@ -196,8 +196,6 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
                 private DataSetKindSelectionWidget dataSetKindSelectionWidget;
 
                 private CheckBoxField deletionDisallow;
-
-                private ScriptChooserField scriptChooser;
 
                 {
                     dataSetKindSelectionWidget = createContainerField();
@@ -214,12 +212,6 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
 
                     DialogWithOnlineHelpUtils.addHelpButton(viewContext, this,
                             createHelpPageIdentifier());
-
-                    scriptChooser =
-                            createScriptChooserField(viewContext, null, true,
-                                    ScriptType.ENTITY_VALIDATION, EntityKind.DATA_SET);
-                    addField(scriptChooser);
-
                 }
 
                 @Override
@@ -231,10 +223,6 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
                     dataSetType.setDataSetKind(dataSetKindSelectionWidget.getValue()
                             .getBaseObject());
                     dataSetType.setDeletionDisallow(deletionDisallow.getValue());
-
-                    Script script = new Script();
-                    script.setName(scriptChooser.getValue());
-                    dataSetType.setValidationScript(script);
 
                     DataSetTypeGrid.this.register(dataSetType, registrationCallback);
                 }
@@ -282,18 +270,4 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
         GWTUtils.setToolTip(field, viewContext.getMessage(Dict.DELETION_DISALLOW_TOOLTIP));
         return field;
     }
-
-    private ScriptChooserField createScriptChooserField(
-            final IViewContext<ICommonClientServiceAsync> viewContext, String initialValue,
-            boolean visible, ScriptType scriptTypeOrNull, EntityKind entityKindOrNull)
-    {
-        ScriptChooserField field =
-                ScriptChooserField.create(viewContext.getMessage(Dict.VALIDATION_SCRIPT),
-                        false,
-                        initialValue,
-                        viewContext, scriptTypeOrNull, entityKindOrNull);
-        FieldUtil.setVisibility(visible, field);
-        return field;
-    }
-
 }

@@ -20,7 +20,6 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetType
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetTypeGridColumnIDs.DELETION_DISALLOW;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetTypeGridColumnIDs.MAIN_DATA_SET_PATH;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetTypeGridColumnIDs.MAIN_DATA_SET_PATTERN;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetTypeGridColumnIDs.VALIDATION_SCRIPT;
 
 import java.util.List;
 
@@ -54,7 +53,6 @@ public class DataSetTypeProvider extends EntityTypeProvider<DataSetType>
         builder.addColumn(DELETION_DISALLOW).hideByDefault();
         builder.addColumn(MAIN_DATA_SET_PATH).hideByDefault();
         builder.addColumn(MAIN_DATA_SET_PATTERN).hideByDefault();
-        builder.addColumn(VALIDATION_SCRIPT).hideByDefault();
     }
 
     @Override
@@ -65,9 +63,6 @@ public class DataSetTypeProvider extends EntityTypeProvider<DataSetType>
                 SimpleYesNoRenderer.render(type.isDeletionDisallow()));
         builder.column(MAIN_DATA_SET_PATH).addString(type.getMainDataSetPath());
         builder.column(MAIN_DATA_SET_PATTERN).addString(type.getMainDataSetPattern());
-        builder.column(VALIDATION_SCRIPT).addString(
-                type.getValidationScript() != null ? type.getValidationScript().getName()
-                        : "");
     }
 
 }

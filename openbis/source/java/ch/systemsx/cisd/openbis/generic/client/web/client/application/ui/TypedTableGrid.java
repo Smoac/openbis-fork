@@ -2395,7 +2395,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         @Override
         public void saveModifications()
         {
-            saveModifications(TypedTableGrid.this.createRefreshGridSilentlyAction());
+            saveModifications(TypedTableGrid.this.createRefreshGridAction());
         }
 
         private void setAfterSaveAction(IDelegatedAction afterSaveAction)

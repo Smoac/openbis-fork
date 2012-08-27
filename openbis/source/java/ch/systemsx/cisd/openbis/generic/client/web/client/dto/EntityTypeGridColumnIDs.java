@@ -18,12 +18,16 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 /**
  * Common column IDs for entity type grids.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class EntityTypeGridColumnIDs
 {
     public static final String CODE = "CODE";
+
     public static final String DESCRIPTION = "DESCRIPTION";
+
     public static final String DATABASE_INSTANCE = "DATABASE_INSTANCE";
+
+    public static final String VALIDATION_SCRIPT = "VALIDATION_SCRIPT";
 }

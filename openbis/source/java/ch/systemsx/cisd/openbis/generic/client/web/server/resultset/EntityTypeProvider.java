@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypeGridColumnIDs.CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypeGridColumnIDs.DATABASE_INSTANCE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypeGridColumnIDs.DESCRIPTION;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypeGridColumnIDs.VALIDATION_SCRIPT;
 
 import java.util.List;
 
@@ -29,10 +30,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
  * Abstract super class of providers of {@link EntityType} instances.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public abstract class EntityTypeProvider<T extends EntityType> extends AbstractCommonTableModelProvider<T>
+public abstract class EntityTypeProvider<T extends EntityType> extends
+        AbstractCommonTableModelProvider<T>
 {
     public EntityTypeProvider(ICommonServer commonServer, String sessionToken)
     {
@@ -47,6 +49,7 @@ public abstract class EntityTypeProvider<T extends EntityType> extends AbstractC
         builder.addColumn(CODE);
         builder.addColumn(DESCRIPTION).withDefaultWidth(300);
         builder.addColumn(DATABASE_INSTANCE).hideByDefault();
+        builder.addColumn(VALIDATION_SCRIPT).hideByDefault();
         addMoreColumns(builder);
         for (T type : types)
         {
@@ -54,17 +57,19 @@ public abstract class EntityTypeProvider<T extends EntityType> extends AbstractC
             builder.column(CODE).addString(type.getCode());
             builder.column(DESCRIPTION).addString(type.getDescription());
             builder.column(DATABASE_INSTANCE).addString(type.getDatabaseInstance().getCode());
+            builder.column(VALIDATION_SCRIPT).addString(
+                    type.getValidationScript() != null ? type.getValidationScript().getName() : "");
             addMoreCells(builder, type);
         }
         return builder.getModel();
     }
-    
+
     protected abstract List<T> listTypes();
-    
+
     protected void addMoreColumns(TypedTableModelBuilder<T> builder)
     {
     }
-    
+
     protected void addMoreCells(TypedTableModelBuilder<T> builder, T type)
     {
     }

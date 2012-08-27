@@ -19,21 +19,25 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 
 /**
  * Abstract super class of dialogs editing an entity type.
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractEditTypeDialog<T extends EntityType> extends
+public abstract class AbstractEditEntityTypeDialog<T extends EntityType> extends
         AbstractRegistrationDialog
 {
     public static final String DIALOG_ID = GenericConstants.ID_PREFIX + "edit-type-dialog";
@@ -42,11 +46,13 @@ public abstract class AbstractEditTypeDialog<T extends EntityType> extends
 
     private final DescriptionField descriptionField;
 
+    private ScriptChooserField scriptChooser;
+
     private final EntityKind entityKind;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    protected AbstractEditTypeDialog(IViewContext<ICommonClientServiceAsync> viewContext,
+    protected AbstractEditEntityTypeDialog(IViewContext<ICommonClientServiceAsync> viewContext,
             String title, IDelegatedAction postRegistrationCallback, EntityKind entityKind,
             T entityType)
     {
@@ -58,15 +64,42 @@ public abstract class AbstractEditTypeDialog<T extends EntityType> extends
         descriptionField = createDescriptionField(viewContext);
         FieldUtil.setValueWithUnescaping(descriptionField, entityType.getDescription());
         addField(descriptionField);
+
+        scriptChooser =
+                createScriptChooserField(viewContext, null, true,
+                        ScriptType.ENTITY_VALIDATION, entityKind);
+        addField(scriptChooser);
+        scriptChooser.setValue(entityType.getValidationScript() != null ? entityType
+                .getValidationScript().getName() : "");
+
     }
 
     @Override
     protected void register(AsyncCallback<Void> registrationCallback)
     {
         type.setDescription(descriptionField.getValue());
+
+        Script script = new Script();
+        script.setName(scriptChooser.getValue());
+        type.setValidationScript(script);
+
         setSpecificAttributes(type);
         viewContext.getCommonService().updateEntityType(entityKind, type, registrationCallback);
     }
 
     abstract protected void setSpecificAttributes(T entityType);
+
+    private ScriptChooserField createScriptChooserField(
+            final IViewContext<ICommonClientServiceAsync> context, String initialValue,
+            boolean visible, ScriptType scriptTypeOrNull, EntityKind entityKindOrNull)
+    {
+        ScriptChooserField field =
+                ScriptChooserField.create(context.getMessage(Dict.VALIDATION_SCRIPT),
+                        false,
+                        initialValue,
+                        context, scriptTypeOrNull, entityKindOrNull);
+        FieldUtil.setVisibility(visible, field);
+        return field;
+    }
+
 }

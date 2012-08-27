@@ -1268,7 +1268,23 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         IEntityTypeDAO entityTypeDAO =
                 getDAOFactory().getEntityTypeDAO(DtoConverters.convertEntityKind(entityKind));
         EntityTypePE entityTypePE = entityTypeDAO.tryToFindEntityTypeByCode(entityType.getCode());
+
         entityTypePE.setDescription(entityType.getDescription());
+        if (entityType.getValidationScript() == null
+                || entityType.getValidationScript().getName() == null
+                || entityType.getValidationScript().getName().equals(""))
+        {
+            entityTypePE.setValidationScript(null);
+        } else
+        {
+            ScriptPE script = getDAOFactory().getScriptDAO()
+                    .tryFindByName(entityType.getValidationScript().getName());
+            if (script != null)
+            {
+                entityTypePE.setValidationScript(script);
+            }
+        }
+
         updateSpecificEntityTypeProperties(entityKind, entityTypePE, entityType);
         entityTypeDAO.createOrUpdateEntityType(entityTypePE);
     }

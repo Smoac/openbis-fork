@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
@@ -45,6 +46,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypeGridColu
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
@@ -161,14 +164,16 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
                 viewContext.getMessage(Dict.ADD_TYPE_TITLE_TEMPLATE, entityKind.getDescription());
 
         T newEntityType = createNewEntityType();
-        return createRegisterEntityTypeDialog(title, newEntityType);
+        return createRegisterEntityTypeDialog(title, newEntityType, entityKind);
     }
 
     abstract protected T createNewEntityType();
 
-    protected Window createRegisterEntityTypeDialog(String title, T newEntityType)
+    protected Window createRegisterEntityTypeDialog(String title, T newEntityType,
+            EntityKind entityKind)
     {
-        return new AddTypeDialog<T>(viewContext, title, postRegistrationCallback, newEntityType)
+        return new AddEntityTypeDialog<T>(viewContext, title, postRegistrationCallback,
+                newEntityType, entityKind)
             {
                 @Override
                 protected void register(T entityType, AsyncCallback<Void> registrationCallback)
@@ -187,16 +192,32 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
         return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
             {
                 private final DescriptionField descriptionField;
+
+                private final ScriptChooserField scriptChooser;
+
                 {
                     descriptionField = createDescriptionField(viewContext);
                     FieldUtil.setValueWithUnescaping(descriptionField, entityType.getDescription());
                     addField(descriptionField);
+
+                    Script script = entityType.getValidationScript();
+
+                    scriptChooser =
+                            createScriptChooserField(viewContext, script != null ? script.getName()
+                                    : null, true, ScriptType.ENTITY_VALIDATION, entityKind);
+                    addField(scriptChooser);
+
                 }
 
                 @Override
                 protected void register(AsyncCallback<Void> registrationCallback)
                 {
                     entityType.setDescription(descriptionField.getValue());
+
+                    Script script = new Script();
+                    script.setName(scriptChooser.getValue());
+                    entityType.setValidationScript(script);
+
                     viewContext.getService().updateEntityType(entityKind, entityType,
                             registrationCallback);
                 }
@@ -243,6 +264,19 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
     {
         // grid is refreshed manually when a new type is added, so there can be no auto-refresh
         return new DatabaseModificationKind[] {};
+    }
+
+    protected ScriptChooserField createScriptChooserField(
+            final IViewContext<ICommonClientServiceAsync> context, String initialValue,
+            boolean visible, ScriptType scriptTypeOrNull, EntityKind entityKindOrNull)
+    {
+        ScriptChooserField field =
+                ScriptChooserField.create(context.getMessage(Dict.VALIDATION_SCRIPT),
+                        false,
+                        initialValue,
+                        context, scriptTypeOrNull, entityKindOrNull);
+        FieldUtil.setVisibility(visible, field);
+        return field;
     }
 
 }

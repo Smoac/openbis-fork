@@ -36,7 +36,4 @@ public class SampleTypeGridColumnIDs extends EntityTypeGridColumnIDs
     public static final String SHOW_PARENT_METADATA_LABEL = "IS_SHOW_PARENT_METADATA";
 
     public static final String GENERATED_CODE_PREFIX = "GENERATED_CODE_PREFIX";
-
-    public static final String VALIDATION_SCRIPT = "VALIDATION_SCRIPT";
-
 }

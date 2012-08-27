@@ -139,6 +139,9 @@ public final class ExperimentTranslator
         result.setDescription(experimentType.getDescription());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
                 .getDatabaseInstance()));
+        result.setValidationScript(ScriptTranslator.translate(experimentType
+                .getValidationScript()));
+
         result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
                 experimentType.getExperimentTypePropertyTypes(), result, cacheOrNull));
 
