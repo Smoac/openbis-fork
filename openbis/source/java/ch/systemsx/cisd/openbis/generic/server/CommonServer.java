@@ -1262,6 +1262,25 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         updateEntityType(sessionToken, EntityKind.DATA_SET, entityType);
     }
 
+    private void setValidationScript(EntityTypePE entityTypePE, EntityType entityType)
+    {
+        if (entityType.getValidationScript() == null
+                || entityType.getValidationScript().getName() == null
+                || entityType.getValidationScript().getName().equals(""))
+        {
+            entityTypePE.setValidationScript(null);
+        } else
+        {
+            ScriptPE script =
+                    getDAOFactory().getScriptDAO().tryFindByName(
+                            entityType.getValidationScript().getName());
+            if (script != null)
+            {
+                entityTypePE.setValidationScript(script);
+            }
+        }
+    }
+
     private void updateEntityType(String sessionToken, EntityKind entityKind, EntityType entityType)
     {
         checkSession(sessionToken);
@@ -1270,20 +1289,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         EntityTypePE entityTypePE = entityTypeDAO.tryToFindEntityTypeByCode(entityType.getCode());
 
         entityTypePE.setDescription(entityType.getDescription());
-        if (entityType.getValidationScript() == null
-                || entityType.getValidationScript().getName() == null
-                || entityType.getValidationScript().getName().equals(""))
-        {
-            entityTypePE.setValidationScript(null);
-        } else
-        {
-            ScriptPE script = getDAOFactory().getScriptDAO()
-                    .tryFindByName(entityType.getValidationScript().getName());
-            if (script != null)
-            {
-                entityTypePE.setValidationScript(script);
-            }
-        }
+
+        setValidationScript(entityTypePE, entityType);
 
         updateSpecificEntityTypeProperties(entityKind, entityTypePE, entityType);
         entityTypeDAO.createOrUpdateEntityType(entityTypePE);
@@ -1305,20 +1312,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             sampleTypePE
                     .setGeneratedFromHierarchyDepth(sampleType.getGeneratedFromHierarchyDepth());
 
-            if (sampleType.getValidationScript() == null
-                    || sampleType.getValidationScript().getName() == null
-                    || sampleType.getValidationScript().getName().equals(""))
-            {
-                sampleTypePE.setValidationScript(null);
-            } else
-            {
-                ScriptPE script = getDAOFactory().getScriptDAO()
-                        .tryFindByName(sampleType.getValidationScript().getName());
-                if (script != null)
-                {
-                    sampleTypePE.setValidationScript(script);
-                }
-            }
+            setValidationScript(entityTypePE, entityType);
 
         } else if (entityKind == EntityKind.DATA_SET)
         {
@@ -1330,20 +1324,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             EntityTypeBO.assertValidDataSetTypeMainPattern(mainDataSetPattern);
             dataSetTypePE.setMainDataSetPattern(mainDataSetPattern);
 
-            if (dataSetType.getValidationScript() == null
-                    || dataSetType.getValidationScript().getName() == null
-                    || dataSetType.getValidationScript().getName().equals(""))
-            {
-                dataSetTypePE.setValidationScript(null);
-            } else
-            {
-                ScriptPE script = getDAOFactory().getScriptDAO()
-                        .tryFindByName(dataSetType.getValidationScript().getName());
-                if (script != null)
-                {
-                    dataSetTypePE.setValidationScript(script);
-                }
-            }
+            setValidationScript(entityTypePE, entityType);
 
         }
     }
