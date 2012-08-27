@@ -82,7 +82,8 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         {
             ScriptPE script = getScriptDAO()
                     .tryFindByName(entityType.getValidationScript().getName());
-            if (script != null)
+
+            if (script != null && entityType.isEntityKind(script.getEntityKind()))
             {
                 return script;
             } else

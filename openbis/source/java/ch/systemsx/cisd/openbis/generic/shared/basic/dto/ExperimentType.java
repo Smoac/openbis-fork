@@ -40,4 +40,10 @@ public class ExperimentType extends EntityType
     {
         this.experimentTypePropertyTypes = experimentTypePropertyTypes;
     }
+
+    @Override
+    public boolean isEntityKind(EntityKind kind)
+    {
+        return kind == null || kind == EntityKind.EXPERIMENT;
+    }
 }

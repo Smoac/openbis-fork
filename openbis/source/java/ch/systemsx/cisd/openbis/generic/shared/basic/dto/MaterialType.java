@@ -53,4 +53,10 @@ public class MaterialType extends EntityType
         this.materialTypePropertyTypes = materialTypePropertyTypes;
     }
 
+    @Override
+    public boolean isEntityKind(EntityKind kind)
+    {
+        return kind == null || kind == EntityKind.MATERIAL;
+    }
+
 }

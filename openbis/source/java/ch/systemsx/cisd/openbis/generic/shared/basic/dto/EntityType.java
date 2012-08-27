@@ -68,4 +68,9 @@ abstract public class EntityType extends BasicEntityType
             });
         return etpts;
     }
+
+    /**
+     * return true if this entity type is of given kind, or if the kind is null
+     */
+    public abstract boolean isEntityKind(EntityKind kind);
 }

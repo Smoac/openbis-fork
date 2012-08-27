@@ -97,4 +97,10 @@ public class DataSetType extends EntityType
         this.deletionDisallow = deletionDisallow;
     }
 
+    @Override
+    public boolean isEntityKind(EntityKind kind)
+    {
+        return kind == null || kind == EntityKind.DATA_SET;
+    }
+
 }

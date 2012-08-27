@@ -260,4 +260,10 @@ public final class SampleType extends EntityType implements Serializable
                 allPropertyTypes));
     }
 
+    @Override
+    public boolean isEntityKind(EntityKind kind)
+    {
+        return kind == null || kind == EntityKind.SAMPLE;
+    }
+
 }
