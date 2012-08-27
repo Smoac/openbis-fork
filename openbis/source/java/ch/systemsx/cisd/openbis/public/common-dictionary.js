@@ -873,7 +873,7 @@ default_group: "Default Space",
 // Script Browser
 //
 add_script_title: "Add a new script",
-title_choose_script: "Choose a {0} Script",
+title_choose_script: "Choose {0} Script",
 script_browser: "Scripts",
 script_type: "Script Type",
 script_registration: "Script Registration",

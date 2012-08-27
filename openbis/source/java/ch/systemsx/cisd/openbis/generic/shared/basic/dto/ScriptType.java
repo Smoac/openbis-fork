@@ -24,7 +24,7 @@ import java.io.Serializable;
 public enum ScriptType implements Serializable
 {
     DYNAMIC_PROPERTY("Dynamic Property Evaluator"), MANAGED_PROPERTY("Managed Property Handler"),
-    ENTITY_VALIDATION("Entity validator");
+    ENTITY_VALIDATION("Entity Validator");
 
     private final String description;
 

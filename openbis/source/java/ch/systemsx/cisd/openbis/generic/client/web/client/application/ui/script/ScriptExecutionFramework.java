@@ -328,6 +328,10 @@ public class ScriptExecutionFramework
         if (kind != null)
         {
             entityKindChooser.setSimpleValue(kind.name());
+            entityKindChooser.disable();
+        } else
+        {
+            entityKindChooser.enable();
         }
     }
 
