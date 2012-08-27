@@ -468,8 +468,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
                                         public Component getComponent()
                                         {
                                             WebAppUrl url =
-                                                    new WebAppUrl(Window.Location.getProtocol(),
-                                                            Window.Location.getHost(),
+                                                    new WebAppUrl(Window.Location.getPath(),
                                                             webApp.getCode(), getSessionId());
                                             url.addEntityKind(entity.getEntityKind());
                                             url.addEntityType(entity.getEntityType());

@@ -79,5 +79,6 @@
 	<classpathentry kind="lib" path="/libraries/poi/poi-ooxml-schemas.jar"/>
 	<classpathentry kind="lib" path="/libraries/poi/poi-ooxml.jar"/>
 	<classpathentry kind="lib" path="/libraries/poi/poi.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-deploy.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

@@ -104,12 +104,16 @@ public class CorePluginsInjector
 
     public void injectCorePlugins(Properties properties)
     {
+        String corePluginsFolderPath = getCorePluginsFolder(properties, scannerType);
+        injectCorePlugins(properties, corePluginsFolderPath);
+    }
+
+    public static String getCorePluginsFolder(Properties properties, ScannerType scannerType)
+    {
         String defaultCorePluginsFolder =
                 scannerType == ScannerType.DSS ? DEFAULT_CORE_PLUGINS_FOLDER
                         : DEFAULT_AS_CORE_PLUGINS_FOLDER;
-        String corePluginsFolderPath =
-                properties.getProperty(CORE_PLUGINS_FOLDER_KEY, defaultCorePluginsFolder);
-        injectCorePlugins(properties, corePluginsFolderPath);
+        return properties.getProperty(CORE_PLUGINS_FOLDER_KEY, defaultCorePluginsFolder);
     }
 
     public void injectCorePlugins(Properties properties, String corePluginsFolderPath)

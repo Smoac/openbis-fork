@@ -370,24 +370,6 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
                         .getProperty(JettyWebAppPluginInjector.WEB_APP_FOLDER_PROPERTY);
         assertEquals(webapps.toString() + "/example-webapp/html", webappFolder);
 
-        JettyWebAppPluginInjector.ContextConfiguration configuration =
-                new JettyWebAppPluginInjector.ContextConfiguration("example-webapp",
-                        exampleWebappProperties);
-        String expectedConfiguration =
-                "<Configure class=\"org.eclipse.jetty.server.handler.ContextHandler\">\n"
-                        + "  <Call class=\"org.eclipse.jetty.util.log.Log\" name=\"debug\"><Arg>Configure [example-webapp] webapp</Arg></Call>\n"
-                        + "  <Set name=\"contextPath\">/example-webapp</Set>\n"
-                        + "  <Set name=\"resourceBase\">targets/unit-test-wd/ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjectorTest/core-plugins/screening/1/dss/webapps/example-webapp/html</Set>\n"
-                        + "  <Set name=\"handler\">\n"
-                        + "    <New class=\"org.eclipse.jetty.server.handler.ResourceHandler\">\n"
-                        + "      <Set name=\"welcomeFiles\">\n"
-                        + "        <Array type=\"String\">\n"
-                        + "          <Item>index.html</Item>\n" + "        </Array>\n"
-                        + "      </Set>\n"
-                        + "      <Set name=\"cacheControl\">max-age=3600,public</Set>\n"
-                        + "    </New>\n" + "  </Set>\n" + "</Configure>";
-        assertEquals(expectedConfiguration, configuration.getConfigurationOrNull());
-
         context.assertIsSatisfied();
     }
 
