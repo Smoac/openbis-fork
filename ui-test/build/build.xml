@@ -1,0 +1,20 @@
+<project name="ui-test" default="run-tests" basedir="..">
+	<import file="../../build_resources/ant/build-common.xml" />
+
+    <project-classpath name="ecp" classes="${classes}" />
+    <project-classpath name="eclipse.cp" classes="${targets}/classes" />
+
+	
+	<target name="clean" description="Cleans distribution directory.">
+    <delete dir="${dist}" failonerror="true" />
+    <mkdir dir="${dist}" />
+  </target>
+
+  <target name="run-tests">
+    <antcall target="build-common.run-tests">
+    	<param name="sources.test" value="source/java" />
+      <param name="test.suite" value="tests.xml" />
+    </antcall>
+  </target>
+
+</project>

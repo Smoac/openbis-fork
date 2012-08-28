@@ -1,0 +1,7 @@
+<suite name="All" verbose="2" >
+  <test name="All" annotations="JDK">
+    <packages>
+      <package name="ch.systemsx.cisd.openbis.*" />
+    </packages>
+  </test>
+</suite>
