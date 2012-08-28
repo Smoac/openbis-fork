@@ -100,7 +100,7 @@ public class JettyWebAppPluginInjector
                         Properties webappProps = webappProperties.get(webappName);
                         if (webappProps == null)
                         {
-                            return;
+                            break;
                         }
                         String f = webappProps.getProperty(WEB_APP_FOLDER_PROPERTY);
                         webappToFoldersMap.put(webappName, new File(f));
@@ -112,8 +112,7 @@ public class JettyWebAppPluginInjector
 
     public void injectWebApps()
     {
-        logWebappsToInject();
-
+        operationLog.info("Inject the following web apps: " + webapps);
         // Leave if there is nothing to do
         if (webapps.isEmpty())
         {
@@ -163,22 +162,6 @@ public class JettyWebAppPluginInjector
             }
         }
         return list;
-    }
-
-    private void logWebappsToInject()
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Found " + webapps.size());
-        if (1 == webapps.size())
-        {
-            sb.append(" webapp");
-        } else
-        {
-            sb.append(" webapps");
-        }
-        sb.append(" to inject.");
-
-        operationLog.info(sb.toString());
     }
 
 }
