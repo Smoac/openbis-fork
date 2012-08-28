@@ -55,7 +55,7 @@ public class WebAppUrl
         }
         builder =
                 new URLMethodWithParameters(openbisProtocol + "//" + openbisHost + applicationURL
-                        + "webapp/" + webAppCode + "/#");
+                        + "webapp/" + webAppCode + "/");
         builder.addParameter(WebAppUrlParameter.WEBAPP_CODE.getName(), webAppCode);
         builder.addParameter(WebAppUrlParameter.SESSION_ID.getName(), sessionId);
     }
@@ -95,6 +95,6 @@ public class WebAppUrl
     @Override
     public String toString()
     {
-        return builder.toString().replace("/%23?", "/#?");
+        return builder.toString();
     }
 }

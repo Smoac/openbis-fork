@@ -35,7 +35,7 @@ public class WebAppUrlTest
         WebAppUrl url =
                 new WebAppUrl("http:", "localhost:8888", "/openbis/", "webapp1", "mysessionid");
         assertEquals(
-                "http://localhost:8888/openbis/webapp/webapp1/#?webapp-code=webapp1&session-id=mysessionid",
+                "http://localhost:8888/openbis/webapp/webapp1/?webapp-code=webapp1&session-id=mysessionid",
                 url.toString());
     }
 
@@ -49,7 +49,7 @@ public class WebAppUrlTest
         url.addEntityIdentifier(null);
         url.addEntityPermId(null);
         assertEquals(
-                "http://localhost:8888/openbis/webapp/webapp1/#?webapp-code=webapp1&session-id=mysessionid",
+                "http://localhost:8888/openbis/webapp/webapp1/?webapp-code=webapp1&session-id=mysessionid",
                 url.toString());
     }
 
@@ -63,7 +63,7 @@ public class WebAppUrlTest
         url.addEntityIdentifier("TEST_EXPERIMENT_IDENTIFIER");
         url.addEntityPermId("TEST_EXPERIMENT_PERM_ID");
         assertEquals(
-                "http://localhost:8888/openbis/webapp/webapp1/#?webapp-code=webapp1&session-id=mysessionid&entity-kind=EXPERIMENT"
+                "http://localhost:8888/openbis/webapp/webapp1/?webapp-code=webapp1&session-id=mysessionid&entity-kind=EXPERIMENT"
                         + "&entity-type=TEST_EXPERIMENT_TYPE&entity-identifier=TEST_EXPERIMENT_IDENTIFIER"
                         + "&entity-perm-id=TEST_EXPERIMENT_PERM_ID", url.toString());
     }
@@ -78,7 +78,7 @@ public class WebAppUrlTest
         url.addEntityIdentifier("TEST/EXPERIMENT/IDENTIFIER");
         url.addEntityPermId("TEST&EXPERIMENT&PERM&ID");
         assertEquals(
-                "http://localhost:8888/openbis/webapp/%28webapp1%29/#?webapp-code=%28webapp1%29&session-id=%5Bmysessionid%5D&entity-kind=EXPERIMENT"
+                "http://localhost:8888/openbis/webapp/%28webapp1%29/?webapp-code=%28webapp1%29&session-id=%5Bmysessionid%5D&entity-kind=EXPERIMENT"
                         + "&entity-type=TEST+EXPERIMENT+TYPE&entity-identifier=TEST%2FEXPERIMENT%2FIDENTIFIER"
                         + "&entity-perm-id=TEST%26EXPERIMENT%26PERM%26ID", url.toString());
     }
