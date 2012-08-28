@@ -98,6 +98,10 @@ public class JettyWebAppPluginInjector
                     if (webappName.startsWith(".") == false)
                     {
                         Properties webappProps = webappProperties.get(webappName);
+                        if (webappProps == null)
+                        {
+                            return;
+                        }
                         String f = webappProps.getProperty(WEB_APP_FOLDER_PROPERTY);
                         webappToFoldersMap.put(webappName, new File(f));
                     }
@@ -119,6 +123,10 @@ public class JettyWebAppPluginInjector
         for (String webapp : webapps)
         {
             File folder = webappToFoldersMap.get(webapp);
+            if (folder == null)
+            {
+                continue;
+            }
             String path = folder.getAbsolutePath();
             for (File target : targets)
             {
