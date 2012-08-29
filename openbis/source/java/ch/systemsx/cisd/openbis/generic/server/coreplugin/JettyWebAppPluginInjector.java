@@ -148,15 +148,18 @@ public class JettyWebAppPluginInjector
         String jettyHome = System.getProperty("jetty.home");
         if (jettyHome != null)
         {
-            list.add(new File(jettyHome + "/webapps/openbis/" + WEBAPP_FOLDER));
+            File webappFolder = new File(jettyHome + "/webapps/openbis/" + WEBAPP_FOLDER);
+            webappFolder.mkdirs();
+            list.add(webappFolder);
         } else
         {
             File[] files = new File("targets/www").listFiles();
             for (File file : files)
             {
-                File webappFolder = new File(file, WEBAPP_FOLDER);
-                if (webappFolder.isDirectory())
+                if (file.getName().equals("WEB-INF") == false)
                 {
+                    File webappFolder = new File(file, WEBAPP_FOLDER);
+                    webappFolder.mkdirs();
                     list.add(webappFolder);
                 }
             }
