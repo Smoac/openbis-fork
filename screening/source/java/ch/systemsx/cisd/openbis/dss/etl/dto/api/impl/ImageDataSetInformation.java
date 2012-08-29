@@ -51,6 +51,8 @@ public class ImageDataSetInformation extends BasicDataSetInformation
 
     private boolean registerAsOverviewImageDataSet;
 
+    private boolean generateOverviewImagesFromRegisteredImages;
+
     private int maximumImageWidth;
 
     private int maximumImageHeight;
@@ -158,6 +160,18 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     public void setRegisterAsOverviewImageDataSet(boolean registerAsOverviewImageDataSet)
     {
         this.registerAsOverviewImageDataSet = registerAsOverviewImageDataSet;
+    }
+
+    public boolean isGenerateOverviewImagesFromRegisteredImages()
+    {
+        return generateOverviewImagesFromRegisteredImages;
+    }
+
+    public void setGenerateOverviewImagesFromRegisteredImages(
+            boolean generateOverviewImagesFromRegisteredImages)
+    {
+        this.generateOverviewImagesFromRegisteredImages =
+                generateOverviewImagesFromRegisteredImages;
     }
 
     @Override

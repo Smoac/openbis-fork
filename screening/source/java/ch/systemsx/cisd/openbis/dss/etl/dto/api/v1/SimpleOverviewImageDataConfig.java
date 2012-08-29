@@ -25,6 +25,8 @@ public class SimpleOverviewImageDataConfig extends SimpleImageDataConfig
 {
     private String containerDataSetCode;
 
+    private boolean generateOverviewImagesFromRegisteredImages;
+
     public String getContainerDataSetCode()
     {
         return containerDataSetCode;
@@ -33,5 +35,17 @@ public class SimpleOverviewImageDataConfig extends SimpleImageDataConfig
     public void setContainerDataSetCode(String containerDataSetCode)
     {
         this.containerDataSetCode = containerDataSetCode;
+    }
+
+    public boolean isGenerateOverviewImagesFromRegisteredImages()
+    {
+        return generateOverviewImagesFromRegisteredImages;
+    }
+
+    public void setGenerateOverviewImagesFromRegisteredImages(
+            boolean generateOverviewImagesFromRegisteredImages)
+    {
+        this.generateOverviewImagesFromRegisteredImages =
+                generateOverviewImagesFromRegisteredImages;
     }
 }

@@ -243,6 +243,19 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     // lists all acquired images available for given dataset
     public List<ImgAcquiredImageDTO> listAllAcquiredImagesForDataSet(long datasetId);
 
+    @Select("select ai.ID as ID, ai.IMAGE_TRANSFORMER_FACTORY as IMAGE_TRANSFORMER_FACTORY, ai.IMG_ID as IMG_ID, ai.CHANNEL_STACK_ID as CHANNEL_STACK_ID, ai.CHANNEL_ID as CHANNEL_ID, "
+            + "  s.X as SPOT_X, s.Y as SPOT_Y, i.path as IMAGE_PATH, i.IMAGE_ID as IMAGE_ID, i.color as IMAGE_COLOR, "
+            + "  th.path as THUMBNAIL_PATH, th.IMAGE_ID as THUMBNAIL_IMAGE_ID, th.color as THUMBNAIL_COLOR, "
+            + "  ch.code as CHANNEL_CODE, cs.X as X, cs.Y as Y, cs.Z_in_M as Z_in_M, cs.T_in_SEC as T_in_SEC, cs.SERIES_NUMBER as SERIES_NUMBER "
+            + "from acquired_images ai "
+            + "  join images i on ai.img_id = i.id "
+            + "  left outer join images th on ai.thumbnail_id = th.id "
+            + "  left outer join channels ch on ai.channel_id = ch.id "
+            + "  left outer join channel_stacks cs on ai.channel_stack_id = cs.id "
+            + "  left outer join spots s on cs.spot_id = s.id "
+            + "where ch.ds_id = ?{1} or cs.ds_id = ?{1}")
+    public List<ImgAcquiredImageEnrichedDTO> listAllEnrichedAcquiredImagesForDataSet(long datasetId);
+
     // simple getters
 
     @Select("select * from IMAGE_DATA_SETS where PERM_ID = ?{1}")

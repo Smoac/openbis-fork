@@ -30,6 +30,10 @@ public final class ImageFileInfo implements Serializable
 
     private ImageIdentifier imageIdentifier;
 
+    private String uniqueImageIdentifier;
+
+    private String containerDataSetCode;
+
     public ImageFileInfo(String channelCode, int tileRow, int tileColumn, String imageRelativePath)
     {
         assert channelCode != null;
@@ -40,10 +44,17 @@ public final class ImageFileInfo implements Serializable
         setTile(tileRow, tileColumn);
     }
 
-    public ImageIdentifier tryGetImageIdentifier()
+    public String tryGetUniqueStringIdentifier()
     {
-        return imageIdentifier;
+        if (imageIdentifier != null)
+        {
+            return imageIdentifier.getUniqueStringIdentifier();
+        } else if (uniqueImageIdentifier != null)
+        {
+            return uniqueImageIdentifier;
+        }
 
+        return null;
     }
 
     public Integer tryGetWellRow()
@@ -146,6 +157,21 @@ public final class ImageFileInfo implements Serializable
         this.seriesNumberOrNull = value;
     }
 
+    public void setUniqueImageIdentifier(String uniqueImageIdentifier)
+    {
+        this.uniqueImageIdentifier = uniqueImageIdentifier;
+    }
+
+    public String getContainerDataSetCode()
+    {
+        return containerDataSetCode;
+    }
+
+    public void setContainerDataSetCode(String containerDataSetCode)
+    {
+        this.containerDataSetCode = containerDataSetCode;
+    }
+
     @Override
     public String toString()
     {
@@ -154,5 +180,4 @@ public final class ImageFileInfo implements Serializable
                 + timepointOrNull + ", depth=" + depthOrNull + ", seriesNumber="
                 + seriesNumberOrNull + "]";
     }
-
 }

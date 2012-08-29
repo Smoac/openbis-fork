@@ -20,7 +20,6 @@ import java.io.Serializable;
 
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageIdentifier;
 
 /**
  * Points to one image on the file system.
@@ -37,10 +36,8 @@ public class RelativeImageFile extends AbstractHashable implements Serializable
 
     public static RelativeImageFile create(ImageFileInfo imageFileInfo)
     {
-        ImageIdentifier imageIdentifier = imageFileInfo.tryGetImageIdentifier();
-        String imageIDOrNull =
-                (imageIdentifier == null) ? null : imageIdentifier.getUniqueStringIdentifier();
-        return new RelativeImageFile(imageFileInfo.getImageRelativePath(), imageIDOrNull);
+        return new RelativeImageFile(imageFileInfo.getImageRelativePath(),
+                imageFileInfo.tryGetUniqueStringIdentifier());
     }
 
     public RelativeImageFile(String imageRelativePath, String imageIDOrNull)

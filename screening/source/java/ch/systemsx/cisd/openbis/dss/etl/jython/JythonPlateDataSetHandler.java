@@ -21,7 +21,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public class JythonPlateDataSetHandler extends JythonTopLevelDataSetHandler<DataSetInformation>
 {
-
     private final String originalDirName;
 
     public JythonPlateDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState)

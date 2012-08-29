@@ -44,7 +44,6 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.RelativeImageFile;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailsInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageIdentifier;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
@@ -472,8 +471,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
     {
         RelativeImageReference relativeImageRef =
                 new RelativeImageReference(imageInfo.getImageRelativePath(),
-                        getUniqueStringIdentifier(imageInfo.tryGetImageIdentifier()),
-                        colorComponentOrNull);
+                        imageInfo.tryGetUniqueStringIdentifier(), colorComponentOrNull);
 
         RelativeImageReference relativeThumbnailRef = null;
         if (thumbnailFilePathsOrNull != null)
@@ -497,15 +495,6 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         return new AcquiredSingleImage(wellLoc, tileLoc, channelCode, imageInfo.tryGetTimepoint(),
                 imageInfo.tryGetDepth(), imageInfo.tryGetSeriesNumber(), relativeImageRef,
                 relativeThumbnailRef);
-    }
-
-    private static String getUniqueStringIdentifier(ImageIdentifier identifier)
-    {
-        if (identifier == null)
-        {
-            return null;
-        }
-        return identifier.getUniqueStringIdentifier();
     }
 
     protected static Integer tryAsInt(String valueOrNull)

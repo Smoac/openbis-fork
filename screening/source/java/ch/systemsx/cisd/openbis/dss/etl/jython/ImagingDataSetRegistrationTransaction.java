@@ -30,6 +30,7 @@ import java.util.Properties;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.FileBasedContentNode;
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
@@ -59,6 +60,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IFeatureVectorDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.SimpleFeatureVectorDataConfig;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvFeatureVectorParser;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
@@ -242,7 +244,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                 thumbnailDatasets.add(thumbnailDataset);
 
                 generateThumbnails(imageDataSetStructure, incomingDirectory, thumbnailDataset,
-                        thumbnailsStorageFormat, thumbnailsInfo, false);
+                        thumbnailsStorageFormat, thumbnailsInfo, false, null);
                 containedDataSetCodes.add(thumbnailDataset.getDataSetCode());
             }
             imageDataSetInformation.setThumbnailsInfo(thumbnailsInfo);
@@ -271,7 +273,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         return containerDataset;
     }
 
-    public IDataSet createNewOverviewImageDataSet(
+    private IDataSet createNewOverviewImageDataSet(
             DataSetRegistrationDetails<ImageDataSetInformation> imageRegistrationDetails)
     {
         ImageDataSetInformation imageDataSetInformation =
@@ -290,6 +292,8 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                     container);
         }
 
+        calculateBoundingBox(imageDataSetInformation, imageDataSetStructure, incomingDirectory);
+
         SearchCriteria searchCriteria = new SearchCriteria();
         SearchCriteria searchSubCriteria = new SearchCriteria();
         searchSubCriteria.addMatchClause(MatchClause.createAttributeMatch(
@@ -302,8 +306,6 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
 
         IDataSetImmutable exampleDataSet = containedDataSets.iterator().next();
 
-        calculateBoundingBox(imageDataSetInformation, imageDataSetStructure, incomingDirectory);
-
         imageDataSetStructure
                 .validateImageRepresentationGenerationParameters(imageDataSetInformation);
 
@@ -311,23 +313,73 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         List<String> containedDataSetCodes = new ArrayList<String>();
         containedDataSetCodes.addAll(container.getContainedDataSetCodes());
 
-        @SuppressWarnings("unchecked")
-        DataSet<ImageDataSetInformation> thumbnailDataset =
-                (DataSet<ImageDataSetInformation>) super.createNewDataSet(imageRegistrationDetails);
-        thumbnailDataset.setFileFormatType(imageDataSetInformation.getFileFormatTypeCode());
-        thumbnailDataset.setMeasuredData(false);
+        List<IDataSet> thumbnailDatasets = new ArrayList<IDataSet>();
+        if (imageDataSetInformation.isGenerateOverviewImagesFromRegisteredImages())
+        {
+            IHierarchicalContent content =
+                    ServiceProvider.getHierarchicalContentProvider().asContent(containerCode);
+            try
+            {
+                imageDataSetStructure
+                        .validateImageRepresentationGenerationParameters(imageDataSetInformation);
 
-        generateThumbnails(imageDataSetStructure, incomingDirectory, thumbnailDataset,
-                createThumbnailsStorageFormat(imageDataSetInformation), thumbnailsInfo, true);
-        containedDataSetCodes.add(thumbnailDataset.getDataSetCode());
+                List<ThumbnailsStorageFormat> thumbnailsStorageFormatList =
+                        imageDataSetStructure.getImageStorageConfiguraton()
+                                .getThumbnailsStorageFormat();
+
+                boolean isFirst = true;
+                for (ThumbnailsStorageFormat thumbnailsStorageFormat : thumbnailsStorageFormatList)
+                {
+                    IDataSet thumbnailDataset = null;
+                    if (isFirst)
+                    {
+                        thumbnailDataset = super.createNewDataSet(imageRegistrationDetails);
+                        isFirst = false;
+                    } else
+                    {
+                        thumbnailDataset =
+                                createThumbnailDataset(imageDataSetInformation,
+                                        thumbnailsStorageFormat);
+                    }
+                    thumbnailDatasets.add(thumbnailDataset);
+
+                    generateThumbnails(imageDataSetStructure, incomingDirectory, thumbnailDataset,
+                            thumbnailsStorageFormat, thumbnailsInfo, false, content);
+                    containedDataSetCodes.add(thumbnailDataset.getDataSetCode());
+                }
+            } finally
+            {
+                if (content != null)
+                {
+                    content.close();
+                }
+            }
+        } else
+        {
+            @SuppressWarnings("unchecked")
+            DataSet<ImageDataSetInformation> thumbnailDataset =
+                    (DataSet<ImageDataSetInformation>) super
+                            .createNewDataSet(imageRegistrationDetails);
+            thumbnailDataset.setFileFormatType(imageDataSetInformation.getFileFormatTypeCode());
+            thumbnailDataset.setMeasuredData(false);
+            thumbnailDatasets.add(thumbnailDataset);
+
+            generateThumbnails(imageDataSetStructure, incomingDirectory, thumbnailDataset,
+                    createThumbnailsStorageFormat(imageDataSetInformation), thumbnailsInfo, true,
+                    null);
+            containedDataSetCodes.add(thumbnailDataset.getDataSetCode());
+        }
 
         imageDataSetInformation.setThumbnailsInfo(thumbnailsInfo);
 
-        setSameDatasetOwner(exampleDataSet, thumbnailDataset);
+        for (IDataSet thumbnailDataset : thumbnailDatasets)
+        {
+            setSameDatasetOwner(exampleDataSet, thumbnailDataset);
+        }
 
         container.setContainedDataSetCodes(containedDataSetCodes);
 
-        return thumbnailDataset;
+        return thumbnailDatasets.iterator().next();
     }
 
     private static ThumbnailsStorageFormat createThumbnailsStorageFormat(
@@ -349,15 +401,45 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         ImageLibraryInfo imageLibrary =
                 imageDataSetStructure.getImageStorageConfiguraton().tryGetImageLibrary();
         List<ImageFileInfo> images = imageDataSetStructure.getImages();
-        for (ImageFileInfo imageFileInfo : images)
+
+        if (imageDataSetInformation.isGenerateOverviewImagesFromRegisteredImages())
         {
-            File file = new File(incomingDirectory, imageFileInfo.getImageRelativePath());
-            Size size =
-                    Utils.loadUnchangedImageSize(new FileBasedContentNode(file), null, imageLibrary);
-            imageDataSetInformation.setMaximumImageWidth(Math.max(
-                    imageDataSetInformation.getMaximumImageWidth(), size.getWidth()));
-            imageDataSetInformation.setMaximumImageHeight(Math.max(
-                    imageDataSetInformation.getMaximumImageHeight(), size.getHeight()));
+            IHierarchicalContent content =
+                    ServiceProvider.getHierarchicalContentProvider().asContent(
+                            imageDataSetInformation.getContainerDatasetPermId());
+            try
+            {
+                for (ImageFileInfo imageFileInfo : images)
+                {
+                    Size size =
+                            Utils.loadUnchangedImageSize(
+                                    content.getNode(imageFileInfo.getImageRelativePath()), null,
+                                    imageLibrary);
+                    imageDataSetInformation.setMaximumImageWidth(Math.max(
+                            imageDataSetInformation.getMaximumImageWidth(), size.getWidth()));
+                    imageDataSetInformation.setMaximumImageHeight(Math.max(
+                            imageDataSetInformation.getMaximumImageHeight(), size.getHeight()));
+                }
+            } finally
+            {
+                if (content != null)
+                {
+                    content.close();
+                }
+            }
+        } else
+        {
+            for (ImageFileInfo imageFileInfo : images)
+            {
+                File file = new File(incomingDirectory, imageFileInfo.getImageRelativePath());
+                Size size =
+                        Utils.loadUnchangedImageSize(new FileBasedContentNode(file), null,
+                                imageLibrary);
+                imageDataSetInformation.setMaximumImageWidth(Math.max(
+                        imageDataSetInformation.getMaximumImageWidth(), size.getWidth()));
+                imageDataSetInformation.setMaximumImageHeight(Math.max(
+                        imageDataSetInformation.getMaximumImageHeight(), size.getHeight()));
+            }
         }
     }
 
@@ -369,7 +451,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     private void generateThumbnails(ImageDataSetStructure imageDataSetStructure,
             File incomingDirectory, IDataSet thumbnailDataset,
             ThumbnailsStorageFormat thumbnailsStorageFormatOrNull, ThumbnailsInfo thumbnailPaths,
-            boolean registerOriginalImageAsThumbnail)
+            boolean registerOriginalImageAsThumbnail, IHierarchicalContent content)
     {
         String thumbnailFile;
         if (thumbnailsStorageFormatOrNull == null)
@@ -386,7 +468,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         Hdf5ThumbnailGenerator.tryGenerateThumbnails(imageDataSetStructure, incomingDirectory,
                 thumbnailFile, imageDataSetStructure.getImageStorageConfiguraton(),
                 thumbnailDataset.getDataSetCode(), thumbnailsStorageFormatOrNull, thumbnailPaths,
-                registerOriginalImageAsThumbnail);
+                registerOriginalImageAsThumbnail, content);
         enhanceWithResolution(thumbnailDataset, thumbnailPaths);
     }
 
@@ -643,5 +725,4 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
             return null;
         }
     }
-
 }
