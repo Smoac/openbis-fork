@@ -856,7 +856,9 @@
     <{property,param} name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" /> //
   -->
   <target name="compile-module-test" description="Compile the module test mode">
-    <delete dir="${targets.www}/${module-test.path}" />
+    <delete includeEmptyDirs="true" removeNotFollowedSymlinks="true" quiet="true">
+      <fileset dir="${targets.www}/${module-test.path}"  followsymlinks="false"/> 
+    </delete>
   	<echo>GWT-sources: ${gwt.sources}</echo>
     <java classpath="${ecp}:${ecp.gwt}:${gwt.sources}"
       classname="com.google.gwt.dev.Compiler" fork="true">
@@ -887,6 +889,7 @@
     <java failonerror="true" fork="true" classpath="${ecp}:${ecp.gwt}:${gwt.sources}" classname="com.google.gwt.dev.DevMode">
       <jvmarg value="-Xmx1024M" />
       <jvmarg value="-ea" />
+      <sysproperty key="org.mortbay.util.FileResource.checkAliases" value="false"/>
       <sysproperty key="log4j.configuration" file="etc/log.xml" />
       <sysproperty key="javax.net.ssl.trustStore" file="dist/server/openBIS.keystore" />
 

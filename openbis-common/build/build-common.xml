@@ -14,7 +14,9 @@
     <target name="prepare-gwt"
             description="Cleans and prepares the GWT specific directories, forcing a GWT rebuilding.">
     	  <delete failonerror="true" dir="../${ant.project.name}/.gwt-cache" />
-    	  <delete failonerror="true" dir="${targets.www}" />
+        <delete failonerror="true" includeEmptyDirs="true" removeNotFollowedSymlinks="true" quiet="true">
+          <fileset dir="${targets.www}"  followsymlinks="false"/> 
+        </delete>
     	  <mkdir dir="${targets.www}" />
     		<mkdir dir="${targets.www.web-inf}" />
         <copy todir="${targets.www.web-inf}" overwrite="true" failonerror="true">
