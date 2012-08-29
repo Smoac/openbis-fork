@@ -273,6 +273,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         return containerDataset;
     }
 
+    @SuppressWarnings("unchecked")
     private IDataSet createNewOverviewImageDataSet(
             DataSetRegistrationDetails<ImageDataSetInformation> imageRegistrationDetails)
     {
@@ -334,12 +335,16 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                     if (isFirst)
                     {
                         thumbnailDataset = super.createNewDataSet(imageRegistrationDetails);
+                        thumbnailDataset.setFileFormatType(thumbnailsStorageFormat.getFileFormat()
+                                .getOpenBISFileType());
+                        thumbnailDataset.setMeasuredData(false);
                         isFirst = false;
                     } else
                     {
                         thumbnailDataset =
                                 createThumbnailDataset(imageDataSetInformation,
                                         thumbnailsStorageFormat);
+
                     }
                     thumbnailDatasets.add(thumbnailDataset);
 
@@ -356,7 +361,6 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
             }
         } else
         {
-            @SuppressWarnings("unchecked")
             DataSet<ImageDataSetInformation> thumbnailDataset =
                     (DataSet<ImageDataSetInformation>) super
                             .createNewDataSet(imageRegistrationDetails);
