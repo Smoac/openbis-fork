@@ -151,7 +151,7 @@ function props_to_pairs5(data)
 			}
 		}
 	}
-	console.log(new_list5[0])
+	
 		return new_list5;
 }
 
@@ -235,10 +235,10 @@ function props_to_pairs4(data)
 function resolveObjectReference(objectOrId) {
   if (isNaN(objectOrId)) {
     yeast = objectOrId;
-  //  plasmid =objectOrId;
+   // plasmid =objectOrId;
   } else {
   	yeast = yeastsById[objectOrId];
- // 	plasmid = plasmidsById[objectOrId];
+  //	plasmid = plasmidsById[objectOrId];
   }
   
   //return yeast, plasmid;
@@ -259,7 +259,6 @@ function get_parents(data)
 	  data.parents.forEach(function(parentOrId) {
       parentLabel = "PARENT "+ i;
       parent = resolveObjectReference(parentOrId);
-      console.log(parent);
       new_list5.push([parentLabel, parent ]);
 			i++;	  
 		});
@@ -278,8 +277,7 @@ function get_children(data)
 	
 	if (data.children != null) {
 		var i = 1;
-		console.log(data.children)
-	  data.children.forEach(function(childOrId) {
+		data.children.forEach(function(childOrId) {
       childLabel = "CHILD "+ i;
       child = resolveObjectReference(childOrId);
       new_list6.push([childLabel, child ]);
@@ -353,25 +351,25 @@ function initializePlasmids(result)
 	var frpPlasmids = [], otherPlasmids = [];
 	var frpRegex = /^FRP[0-9]+/;
 	frpRegex.compile(frpRegex);
-	result.forEach(function(sampleOrId) {
-		var theSample = sampleOrId;
-		function storeSamplesById(referredSample) {
-      if (isNaN(referredSample)) {
-        plasmidsById[referredSample["@id"]] = referredSample;
-        if (referredSample.parents) referredSample.parents.forEach(storeSamplesById);
-        if (referredSample.children) referredSample.children.forEach(storeSamplesById);
+	result.forEach(function(samplePOrId) {
+		var theSampleP = samplePOrId;
+		function storeSamplesPById(referredSampleP) {
+      if (isNaN(referredSampleP)) {
+        plasmidsById[referredSampleP["@id"]] = referredSampleP;
+        if (referredSampleP.parents) referredSampleP.parents.forEach(storeSamplesPById);
+        if (referredSampleP.children) referredSampleP.children.forEach(storeSamplesPById);
       }
     } 
-	  if (isNaN(theSample)) {
-	  	storeSamplesById(theSample);
+	  if (isNaN(theSampleP)) {
+	  	storeSamplesPById(theSampleP);
     } else {
 	    // This is referring to an object in the plasmidsById map
-	    theSample = plasmidsById[sampleOrId];
+	    theSampleP = plasmidsById[samplePOrId];
 		}       
- 		if (frpRegex.test(theSample.code)) {
-			frpPlasmids.push(theSample);
+ 		if (frpRegex.test(theSampleP.code)) {
+			frpPlasmids.push(theSampleP);
 		} else {
-			otherPlasmids.push(theSample);
+			otherPlasmids.push(theSampleP);
 		}
 	});
 	
@@ -397,13 +395,9 @@ function resizeYeastTable()
 	var cellWidth;
 	var areInspectorsVisible;
 	var padding = 20;
-	if (inspectedYeasts.length > 0) {
-		cellWidth = ((getAppWidth() - inspectorsWidth) / 10) - padding + "px";
-		areInspectorsVisible = true;
-	} else {
-		cellWidth = "100%";
-		areInspectorsVisible = false;
-	}
+	cellWidth = "100%";
+	areInspectorsVisible = true;
+	
 	var yeastTableTransition = d3.selectAll('div.yeast-table-data-cell');
 	yeastTableTransition.style('width', cellWidth);
 	if (areInspectorsVisible) {
@@ -511,7 +505,8 @@ function updateInspectors(duration)
 					if (null == d.identifier) {
 						return d;
 					} else { 
-					 	return d.identifier;
+					 	//return d.identifier.slice(11,50);
+					 	return d.identifier
 					} 
 				})
 			.transition()
@@ -537,7 +532,7 @@ function updateInspectors(duration)
 					if (null == d.identifier) {
 						return d;
 					} else { 
-					 	return d.identifier;
+					 	return d.identifier.slice(11,50);
 					} 
 				})
 			.transition()
@@ -621,10 +616,13 @@ function displayReturnedSamples(data)
 		return;
 	}
 
+ 
+
 	var selection = d3.select("#vis").select("#yeast-table").selectAll("tr.yeast-table-data").data(yeasts);
 		// Code under enter is run if there is no HTML element for a data element
-			
-	selection
+
+		
+selection
 	  .enter()
 		.append("tr")	  
 	 	.attr("class", "yeast-table-data")
@@ -637,7 +635,6 @@ function displayReturnedSamples(data)
 			.attr("class", "yeast-table-data-cell")
 			.text(String)
 			
-
 }
 
 
@@ -752,8 +749,9 @@ function showMatchingSamples()
 				fieldType : "ATTRIBUTE",			
 				attribute : "TYPE",
 				desiredValue : "YEAST" 
-			} ],
-		operator : "MATCH_ALL_CLAUSES"
+			}
+			],
+		operator : "MATCH_ANY_CLAUSES"
 	};
 
 	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS", "CHILDREN"], displayReturnedSamples);
@@ -908,7 +906,7 @@ function ShowHide(divId)
 		</div>		
 
 		
-		<div id="filter-button"	style="padding-left:200px; padding-top: 570px; font-weight:bold; padding-bottom:30px;">
+		<div id="filter-button"	style="padding-left:200px; padding-top: 620px; font-weight:bold; padding-bottom:30px;">
 		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
 		</div> 		
 	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
@@ -923,19 +921,23 @@ function ShowHide(divId)
       	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Mating Type</td><td> <input style="width: 200px" id="matingType_filter" type="text"></td></tr> 		
  	</table>
  	</div>
- 	
- 		  
-		<div id="vis">
-  	 	<div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
-		  <table id="yeast-table" cellpadding="0" cellspacing="0" border="0" class="display" width="100%">
+
+	    
+	    
+	    
+
+ 		<div id="vis">
+ 		   <div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
+  	 	  <table id="yeast-table" cellpadding="0" cellspacing="0" border="1" bordercolor="white" class="display" width="100%">
 			  <thead >
 					<tr class="yeast-table-header"><th>Yeast Code</th><th>Owner</th><th>Owner Number</th><th>Yeast Strain Name</th><th>Project</th><th>Plasmids</th><th>Yeast Parents</th><th>Genetic Background</th><th>Mating Type</th></tr>
 				</thead> 
 				<tbody></tbody>
 			</table>
 	 		</div>
-	
-		 
+	 		
+	 		
+	 		
 			<div id="inspectorsContainer" style="float:right "></div>
 		</div>
 	</div>
