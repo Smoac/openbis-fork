@@ -857,6 +857,9 @@
   -->
   <target name="compile-module-test" description="Compile the module test mode">
     <delete includeEmptyDirs="true" removeNotFollowedSymlinks="true" quiet="true">
+      <fileset dir="${targets.www}/${module-test.module}"  followsymlinks="false"/> 
+    </delete>
+    <delete includeEmptyDirs="true" removeNotFollowedSymlinks="true" quiet="true">
       <fileset dir="${targets.www}/${module-test.path}"  followsymlinks="false"/> 
     </delete>
   	<echo>GWT-sources: ${gwt.sources}</echo>
