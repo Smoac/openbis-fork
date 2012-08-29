@@ -30,10 +30,21 @@ public class WebAppUrlTest
 {
 
     @Test
-    public void testUrlWithoutParameters()
+    public void testApplicationUrlWithoutParameters()
     {
         WebAppUrl url =
                 new WebAppUrl("http:", "localhost:8888", "/openbis/", "webapp1", "mysessionid");
+        assertEquals(
+                "http://localhost:8888/openbis/webapp/webapp1/?webapp-code=webapp1&session-id=mysessionid",
+                url.toString());
+    }
+
+    @Test
+    public void testFileUrlWithoutParameters()
+    {
+        WebAppUrl url =
+                new WebAppUrl("http:", "localhost:8888", "/openbis/index.html", "webapp1",
+                        "mysessionid");
         assertEquals(
                 "http://localhost:8888/openbis/webapp/webapp1/?webapp-code=webapp1&session-id=mysessionid",
                 url.toString());

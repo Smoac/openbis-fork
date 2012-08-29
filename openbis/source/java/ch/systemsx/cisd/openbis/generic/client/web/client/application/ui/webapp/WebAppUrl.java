@@ -30,8 +30,8 @@ public class WebAppUrl
 
     private URLMethodWithParameters builder;
 
-    public WebAppUrl(String openbisProtocol, String openbisHost, String applicationURL,
-            String webAppCode, String sessionId)
+    public WebAppUrl(String openbisProtocol, String openbisHost, String url, String webAppCode,
+            String sessionId)
     {
         if (openbisProtocol == null)
         {
@@ -41,7 +41,7 @@ public class WebAppUrl
         {
             throw new IllegalArgumentException("OpenBIS host cannot be null");
         }
-        if (applicationURL == null)
+        if (url == null)
         {
             throw new IllegalArgumentException("OpenBIS applicationURL cannot be null");
         }
@@ -52,6 +52,12 @@ public class WebAppUrl
         if (sessionId == null)
         {
             throw new IllegalArgumentException("Session id cannot be null");
+        }
+        String applicationURL = url;
+        if (url.endsWith("/") == false)
+        {
+            int lastIndexFileDelim = url.lastIndexOf('/');
+            applicationURL = url.substring(0, lastIndexFileDelim + 1);
         }
         builder =
                 new URLMethodWithParameters(openbisProtocol + "//" + openbisHost + applicationURL
