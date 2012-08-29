@@ -347,7 +347,8 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         String imageFilePath = null;
         if (contentOrNull == null)
         {
-            imageFilePath = new File(imageFilePath, imageFileInfo.getImageRelativePath()).getPath();
+            imageFilePath =
+                    new File(imagesParentDirectory, imageFileInfo.getImageRelativePath()).getPath();
         } else
         {
             imageFilePath =
