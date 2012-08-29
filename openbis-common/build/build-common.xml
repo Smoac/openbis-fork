@@ -18,6 +18,7 @@
           <fileset dir="${targets.www}"  followsymlinks="false"/> 
         </delete>
     	  <mkdir dir="${targets.www}" />
+    	  <mkdir dir="${targets.www}/${module-test.module}" />
     		<mkdir dir="${targets.www.web-inf}" />
         <copy todir="${targets.www.web-inf}" overwrite="true" failonerror="true">
             <fileset dir="../${ant.project.name}/${server-resource}" includes="*.xml" />

@@ -190,6 +190,12 @@
 	        depends="prepare-gwt, module-test"
 	        description="Prepare, compile, and run the module test mode">
 	</target>
+  
+  <target name="prepare-gwt">
+		<antcall target="openbis.do-prepare-gwt">
+			<param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.proteomics.OpenBIS" />
+		</antcall>
+  </target>
 
 	<target name="compile-and-run-openbis-proteomics-from-eclipse"
 	        description="Compile and run the proteomics openbis from Eclipse">

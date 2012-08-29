@@ -210,6 +210,12 @@
 	-->
 	<target name="prepare-gwt-with-image-viewer" depends="prepare-gwt, jar"/>
 	
+  <target name="prepare-gwt">
+		<antcall target="openbis.do-prepare-gwt">
+			<param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
+		</antcall>
+  </target>
+
 	<target name="jar" depends="openbis.jar">
 	  <property name="dist.file.name"
 	            value="${ant.project.name}-${version.number}-r${revision.number}" />
