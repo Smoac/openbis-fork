@@ -43,13 +43,24 @@ import os
 import logging
 import re
 import sys
+import string
+import smtplib
 from ConfigParser import SafeConfigParser
 from optparse import OptionParser
 from datetime import *
 
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEBase import MIMEBase
+from email.MIMEText import MIMEText
+from email.Utils import COMMASPACE, formatdate
+from email import Encoders
+
+
 from ch.systemsx.cisd.openbis.dss.client.api.v1 import OpenbisServiceFacadeFactory
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
+
+lineending = {'win32':'\r\n', 'linux':'\n', 'mac':'\r'}
 
 def login(configMap):
   logging.info('Logging into ' + configMap['openbisServer'])
@@ -81,12 +92,25 @@ def parseOptions():
   logging.info('Parsing command line parameters')
   usage = "usage: %prog [options]"
   parser = OptionParser(usage = usage, version="%prog 1.0")
-  parser.add_option("-f", "--flowcell", dest = "flowcell",
+  parser.add_option("-f", "--flowcell",
+                  dest = "flowcell",
                   help = "The flowcell which is used to create the SampleSheet.csv",
                   metavar = "FLOWCELL")
-  parser.add_option("-m", "--mailist", dest = "maillist",
+  parser.add_option("-m", "--mailist",
+                  dest = "maillist",
+                  default=False,
+                  action='store_true',
                   help = "Generated Sample Sheet will be addtionally sent as email to the defined list of recipients",
                   metavar = "MAILLIST")
+  parser.add_option("-l", "--lineending",
+                  dest = "lineending",
+                  type='choice',
+                  action='store',
+                  choices=['win32', 'linux', 'mac',],
+                  default='win32',
+                  help = "Specify end of line separator: win32, linux, mac",
+                  metavar = "LINEENDING")
+
 
   (options, args) = parser.parse_args()
   
@@ -104,9 +128,11 @@ def readConfig():
   configMap['facilityNameShort'] = configParameters.get('GENERAL', 'facilityNameShort')
   configMap['facilityInstitution'] = configParameters.get('GENERAL', 'facilityInstitution')
   configMap['mailList'] = configParameters.get('GENERAL', 'mailList')
+  configMap['mailFrom'] = configParameters.get('GENERAL', 'mailFrom')
+  configMap['smptHost'] = configParameters.get('GENERAL', 'smptHost')
   configMap['separator'] = configParameters.get('GENERAL', 'separator')
   configMap['indexSeparator'] = configParameters.get('GENERAL', 'indexSeparator')
-
+  
   configMap['openbisUserName'] = configParameters.get('OPENBIS', 'openbisUserName')
   configMap['openbisPassword'] = configParameters.get('OPENBIS', 'openbisPassword', raw=True)
   configMap['openbisServer'] = configParameters.get('OPENBIS', 'openbisServer')
@@ -123,6 +149,9 @@ def readConfig():
   configMap['miSeqReadsSection'] = configParameters.get('ILLUMINA', 'miSeqReadsSection')
   configMap['miSeqSettingsSection'] = configParameters.get('ILLUMINA', 'miSeqSettingsSection')
   configMap['miSeqDataSection'] = configParameters.get('ILLUMINA', 'miSeqDataSection')
+  configMap['miSeqWorkflow'] = configParameters.get('ILLUMINA', 'miSeqWorkflow')
+  configMap['miSeqApplication'] = configParameters.get('ILLUMINA', 'miSeqApplication')
+  configMap['miSeqChemistry'] = configParameters.get('ILLUMINA', 'miSeqChemistry')
   
   configMap['truSeqAdapter'] = configParameters.get('ILLUMINA', 'truSeqAdapter')
   configMap['nexteraAdapter'] = configParameters.get('ILLUMINA', 'nexteraAdapter')
@@ -134,9 +163,10 @@ def getDate():
   return d.strftime("%A, %d of %B %Y")
 
 def getVocabulary(vocabularyCode):
-  ''' Returns the vocabulary terms and vocabulary labels of a vocabulary specified by the parameter
-  vocabularyCode in a dictionary'''
-
+  ''' Returns the vocabulary terms and vocabulary labels of a vocabulary in a dictionary
+      specified by the parameter vocabularyCode
+      '''
+  terms = []
   vocabularies = service.listVocabularies()
   vocabularyDict = {}
   for vocabulary in vocabularies:
@@ -148,6 +178,51 @@ def getVocabulary(vocabularyCode):
   else:
     print ('No vocabulary found for ' + vocabularyCode)
   return vocabularyDict 
+
+def sendMail(emails, files):
+  '''
+  Send out an email to the specified recipients
+  '''
+  COMMASPACE = ", "
+  listofEmails = emails.split()
+  
+  
+  msg = MIMEMultipart()
+  msg['From'] = configMap['mailFrom']
+  msg['To'] = COMMASPACE.join(listofEmails)
+  msg['Date'] = formatdate(localtime=True)
+  msg['Subject'] = "Generated SampleSheet.csv"
+  
+  msg.attach( MIMEText('my Test') )
+  
+  for f in files:
+        part = MIMEBase('application', "octet-stream")
+        part.set_payload( open(f,"rb").read() )
+        Encoders.encode_base64(part)
+        part.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(f))
+        msg.attach(part)
+
+  smtp = smtplib.SMTP(configMap['smptHost'])
+  smtp.sendmail(configMap['mailFrom'], listofEmails, msg.as_string())
+  smtp.close()
+
+
+#  TO = COMMASPACE.join(listofEmails)
+#  SUBJECT = "Generated SampleSheet.csv"
+#  FROM = configMap['mailFrom']
+#  HOST = configMap['smptHost']
+#  text = "SampleSheet"
+#  BODY = string.join((
+#        "From: %s" % FROM,
+#        "To: %s" % TO,
+#        "Subject: %s" % SUBJECT ,
+#        "",
+#        text
+#        ), "\r\n")
+#  server = smtplib.SMTP(HOST)
+#  server.sendmail(FROM, [TO], BODY)
+#  server.quit()
+
 
 def getFlowCell (illuminaFlowCellTypeName, flowCellName):
   '''
@@ -217,11 +292,13 @@ def getSampleProperties(containedSamples):
 def writeSampleSheet(sampleSheetDict, sortedSampleSheetList, fileName):
   '''
   '''
+  newline = lineending[myoptions.lineending]
+
   myFile = fileName + '_' + flowCellName + '.csv'
   try:
     with open(myFile, 'w') as sampleSheetFile:
       for listElement in sortedSampleSheetList:
-        sampleSheetFile.write(sampleSheetDict[listElement][0] + '\n')
+        sampleSheetFile.write(sampleSheetDict[listElement][0] + newline)
         
       logging.info('Writing file ' + myFile)
   except IOError:
@@ -236,6 +313,8 @@ def convertSampleToDict(foundFlowCell):
   # convert <type 'ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample'> to a python dict
   for property in fcProperties:
     flowCellDict[property] = fcProperties.get(property)
+  flowCellDict['Project'] = foundFlowCell.getExperimentIdentifierOrNull().split('/')[-1]
+  flowCellDict['Name'] = foundFlowCell.getIdentifier().split('/')[-1]
   return flowCellDict
 
 def sanitizeString(myString):
@@ -277,26 +356,103 @@ def createHiseqSampleSheet(parentDict):
   sortedSampleSheetList.sort()
   writeSampleSheet(sampleSheetDict, sortedSampleSheetList, fileName = '../SampleSheet')
 
-def createMiSeqSampleSheet(parentDict):
+
+def writeMiSeqSampleSheet(sampleSheetDict, headerList, fileName):
+  '''
+  '''
+  newline = lineending[myoptions.lineending]
+  
+  myFile = fileName + '_' + flowCellName + '.csv'
+  try:
+    with open(myFile, 'wb') as sampleSheetFile:
+      for listElement in headerList:
+        sampleSheetFile.write(listElement + newline)
+      for sample in sampleSheetDict:
+        sampleSheetFile.write(sampleSheetDict[sample][0] + newline)
+        
+      logging.info('Writing file ' + myFile)
+  except IOError:
+    logging.error('File error: ' + str(err))
+    print ('File error: ' + str(err))  
+    
+  return myFile
+
+
+
+def createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary, index2Vocabulary):
   '''
   '''
   sampleSheetDict = {}
-  miSeqSections = []
   headerList = []
   
   separator = configMap['separator']
   
-  miSeqHeaderSection = configMap['miSeqHeaderSection'].split(',')
+  miSeqHeaderSection = configMap['miSeqHeaderSection'].split(separator)
   miSeqHeaderSection.reverse()
-  headerList = [miSeqHeaderSection.pop()]
-  headerList.append(miSeqHeaderSection.pop() + separator + configMap['iemFileVersion'])
-  headerList.append(miSeqHeaderSection.pop() + separator )
+  headerList = [miSeqHeaderSection.pop().strip()]
+  headerList.append(miSeqHeaderSection.pop().strip() + separator + configMap['iemFileVersion'])
+  headerList.append(miSeqHeaderSection.pop().strip() + separator + configMap['facilityInstitution'])
+  headerList.append(miSeqHeaderSection.pop().strip() + separator + configMap['facilityName'])
+  headerList.append(miSeqHeaderSection.pop().strip() + separator + flowCellDict['Name'])
+  headerList.append(miSeqHeaderSection.pop().strip() + separator + datetime.now().strftime('%d.%m.%Y'))
+  headerList.append(miSeqHeaderSection.pop().strip() + separator + configMap['miSeqWorkflow'])
+  headerList.append(miSeqHeaderSection.pop().strip() + separator + configMap['miSeqApplication'])
+  headerList.append(miSeqHeaderSection.pop().strip() + separator + '' )
+  headerList.append(miSeqHeaderSection.pop().strip() + separator + flowCellDict['END_TYPE'] + '_' +flowCellDict['CYCLES_REQUESTED_BY_CUSTOMER'])
+  headerList.append(miSeqHeaderSection.pop().strip() + separator + configMap['miSeqChemistry'])
+  headerList.append('')
   
+  miSeqReadsSection = configMap['miSeqReadsSection'].split(separator)
+  miSeqReadsSection.reverse()
+  headerList.append(miSeqReadsSection.pop())
+  headerList.append(flowCellDict['CYCLES_REQUESTED_BY_CUSTOMER'])
+  if (flowCellDict['END_TYPE'] == 'PAIRED_END'):
+    headerList.append(flowCellDict['CYCLES_REQUESTED_BY_CUSTOMER'])
+  headerList.append('')
+
   
-  print headerList
+  miSeqSettingsSection = configMap['miSeqSettingsSection'].split(separator)
+  miSeqSettingsSection.reverse()
+  headerList.append(miSeqSettingsSection.pop())
+#  if ('nextera' in (separator + parentDict.itervalues().next()['KIT'].lower())):
+#    headerList.append(configMap['nexteraAdapter'])
+#  if ('truseq' in (separator + parentDict.itervalues().next()['KIT'].lower())):
+#    headerList.append(configMap['truSeqAdapter'])
+  headerList.append('')
   
-  print sampleSheetDict
-  print miSeqSections
+  miSeqDataSection = configMap['miSeqDataSection'].split(',')
+  miSeqDataSection.reverse()
+  headerList.append(miSeqDataSection.pop())
+  headerList.append(','.join(miSeqDataSection.pop().strip().split()))
+  
+  for key in parentDict.keys():
+    lane = parentDict[key]['LANE'][-1:]
+    # If no index then just skip this  sample
+    if configMap['index1Name'] not in parentDict[key]:
+      continue
+    
+    index1 = parentDict[key][configMap['index1Name']]
+    #index2 = parentDict[key][configMap['index2Name']]
+    
+    sampleSheetDict[lane + '_' + key] = [key + separator
+                            + sanitizeString(parentDict[key]['EXTERNAL_SAMPLE_NAME']) + separator
+                            + separator
+                            + separator
+                            + index1Vocabulary[index1] + separator
+                            + index1 + separator
+     #                       + index2Vocabulary[index2].split()[2] + separator
+      #                      + index2 + separator
+                            + separator
+                            + key + '_' + flowCellName
+                            ]
+  
+  #print headerList
+  #print sampleSheetDict
+  
+  sampleSheetFile = writeMiSeqSampleSheet(sampleSheetDict, headerList, fileName = '../SampleSheet')
+  return sampleSheetFile 
+
+
 
 '''
 Main script
@@ -325,11 +481,16 @@ cycles = flowCellDict['CYCLES_REQUESTED_BY_CUSTOMER']
 hiseqs = configMap['hiSeqNames'].split()
 miseqs = configMap['miSeqNames'].split()
 
-createHiseqSampleSheet(parentDict)
-createMiSeqSampleSheet(parentDict)
+index1Vocabulary = getVocabulary('BARCODES')
+index2Vocabulary = getVocabulary('INDEX2')
+
+#createHiseqSampleSheet(parentDict)
+SampleSheetFile = createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary, index2Vocabulary)
 
 #ncbi_tax =  parentDict['BSSE-QGF-7771']['NCBI_ORGANISM_TAXONOMY']
-ncbiVocabulary = getVocabulary('NCBI_TAXONOMY')
+
+if myoptions.maillist:
+  sendMail(configMap['mailList'], [SampleSheetFile])
 
 logout(service)
 print('DONE')
