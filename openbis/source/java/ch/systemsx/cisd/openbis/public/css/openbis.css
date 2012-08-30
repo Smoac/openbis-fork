@@ -82,10 +82,11 @@ body,div,td,.default-text {
 .property-grid {
 	table-layout: fixed;
 	border-collapse: collapse;
+	width: 100%;
 }
 
 .property-grid td {
-	border: 1px solid #ffffff;
+	border-top: 1px solid #ffffff;
 	padding: 3px 5px 3px 5px;
 	vertical-align: top;
 }
@@ -95,8 +96,9 @@ body,div,td,.default-text {
 	background-color: #dddddd;
 }
 
-.properties-sub-section {
+td.properties-sub-section {
   background-color: #fff;
+  border-top: 1px solid grey;
   font-weight: normal;
 }
 

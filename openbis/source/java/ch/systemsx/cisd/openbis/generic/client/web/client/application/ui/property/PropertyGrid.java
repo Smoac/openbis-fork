@@ -191,6 +191,7 @@ public final class PropertyGrid extends Grid
         Element element = getCellFormatter().getElement(row, 0);
         element.setAttribute("colspan", "2");
         element.setAttribute("class", "properties-sub-section");
+        getCellFormatter().getElement(row, 1).setAttribute("style", "display: none");
         addPropertiesToTable(props, row + 1);
     }
 
