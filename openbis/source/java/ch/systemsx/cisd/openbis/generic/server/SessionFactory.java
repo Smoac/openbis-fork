@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.net.ConnectException;
+
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.ISessionFactory;
@@ -23,6 +25,7 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.utilities.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
@@ -79,8 +82,21 @@ public final class SessionFactory implements ISessionFactory<Session>
                             final String remoteUrl = datastore.getRemoteUrl();
                             if (StringUtils.isBlank(remoteUrl) == false)
                             {
-                                dssFactory.create(remoteUrl)
-                                        .cleanupSession(sessionToken);
+                                try
+                                {
+                                    dssFactory.create(remoteUrl).cleanupSession(sessionToken);
+                                } catch (RuntimeException ex)
+                                {
+                                    Throwable originalCause = ExceptionUtils.getEndOfChain(ex);
+                                    if (originalCause instanceof ConnectException == false)
+                                    {
+                                        throw ex;
+                                    } else
+                                    {
+                                        operationLog.warn("Couldn't cleanup session at "
+                                                + remoteUrl + ": " + ex);
+                                    }
+                                }
                             } else
                             {
                                 operationLog.warn("datastore remoteUrl of datastore "
