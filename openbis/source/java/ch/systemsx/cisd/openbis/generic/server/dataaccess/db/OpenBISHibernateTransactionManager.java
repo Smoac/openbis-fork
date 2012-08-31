@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * The implementation of {@link HibernateTransactionManager}, that creates a new
- * EntityVerificationInterceptor for each hibernate session.
+ * EntityValidationInterceptor for each hibernate session.
  * 
  * @author Jakub Straszewski
  */
@@ -71,11 +71,11 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
     @Override
     public Interceptor getEntityInterceptor() throws IllegalStateException, BeansException
     {
-        EntityVerificationInterceptor entityVerificationInterceptor =
-                new EntityVerificationInterceptor(this, daoFactory);
+        EntityValidationInterceptor entityValidationInterceptor =
+                new EntityValidationInterceptor(this, daoFactory);
 
         return new HibernateInterceptorsWrapper(dynamicPropertiesInterceptor,
-                entityVerificationInterceptor);
+                entityValidationInterceptor);
     }
 
     @Override

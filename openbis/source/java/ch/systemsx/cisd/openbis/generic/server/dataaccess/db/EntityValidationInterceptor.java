@@ -45,13 +45,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
  * 
  * @author Jakub Straszewski
  */
-public class EntityVerificationInterceptor extends EmptyInterceptor
+public class EntityValidationInterceptor extends EmptyInterceptor
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private IDAOFactory daoFactory;
 
-    public EntityVerificationInterceptor(IHibernateTransactionManagerCallback callback,
+    public EntityValidationInterceptor(IHibernateTransactionManagerCallback callback,
             IDAOFactory daoFactory)
     {
         this.callback = callback;

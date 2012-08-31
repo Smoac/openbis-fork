@@ -43,13 +43,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * Tests that the entity verification scripts are called when creating or updating the entities
+ * Tests that the entity validation scripts are called when creating or updating the entities
  * 
  * @author Jakub Straszewski
  */
 // NOTE: we depend on transaction beeing committed as part of this test.
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-public class EntityVerificationTest extends GenericSystemTestCase
+public class EntityValidationTest extends GenericSystemTestCase
 {
     // create sample of a type, that has attached script that forbids creation
 
