@@ -139,7 +139,7 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                     ignoring(openBisService).heartbeat();
                 }
             });
-        
+
         extendJythonLibPath(getRegistrationScriptsFolderPath());
 
         atomicatOperationDetails =
@@ -176,6 +176,9 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                             SampleIdentifierFactory.parse(plate.getIdentifier());
                     allowing(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(plate));
+
+                    allowing(openBisService).tryGetDataSet(with(any(String.class)));
+                    will(returnValue(null));
 
                     allowing(openBisService)
                             .getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
