@@ -679,14 +679,14 @@ public class SimpleImageDataSetRegistrator
         return imageStruct;
     }
 
-    private Geometry extractImageFileInfos(ImageDataSetInformation dataset,
+    private Geometry extractImageFileInfos(DataSetInformation dataset,
             List<ImageFileInfo> images, List<Channel> channels)
     {
         IImagingReadonlyQueryDAO query = DssScreeningUtils.getQuery();
 
         List<ImgImageDatasetDTO> containers =
                 DssScreeningUtils.getQuery().listImageDatasetsByPermId(
-                        dataset.getContainerDatasetPermId());
+                        dataset.tryGetContainerDatasetPermId());
 
         for (ImgImageDatasetDTO container : containers)
         {

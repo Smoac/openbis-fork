@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ToStringUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
@@ -38,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
@@ -105,6 +107,10 @@ public class DataSetInformation implements Serializable
     private String uploadingUserEmailOrNull;
 
     private String uploadingUserIdOrNull;
+
+    private String containerDatasetPermIdOrNull;
+
+    private ExternalData containerDataSetOrNull;
 
     /** This constructor is for serialization. */
     public DataSetInformation()
@@ -279,6 +285,11 @@ public class DataSetInformation implements Serializable
             setSpaceCode(spaceLevel.getSpaceCode());
             setInstanceCode(spaceLevel.getDatabaseInstanceCode());
         }
+    }
+
+    public final void setSampleIdentifier(String sampleIdentifier)
+    {
+        setSampleIdentifier(SampleIdentifierFactory.parse(sampleIdentifier));
     }
 
     public final String getSampleCode()
@@ -473,6 +484,26 @@ public class DataSetInformation implements Serializable
         appendNameAndObject(buffer, "Is complete", getIsCompleteFlag());
         buffer.setLength(buffer.length() - 1);
         return buffer.toString();
+    }
+
+    public String tryGetContainerDatasetPermId()
+    {
+        return containerDatasetPermIdOrNull;
+    }
+
+    public void setContainerDatasetPermId(String containerDatasetPermIdOrNull)
+    {
+        this.containerDatasetPermIdOrNull = containerDatasetPermIdOrNull;
+    }
+
+    public ExternalData tryGetContainerDataSet()
+    {
+        return containerDataSetOrNull;
+    }
+
+    public void setContainerDataSet(ExternalData containerDataSetOrNull)
+    {
+        this.containerDataSetOrNull = containerDataSetOrNull;
     }
 
     private static String formatDate(Date productionDate)

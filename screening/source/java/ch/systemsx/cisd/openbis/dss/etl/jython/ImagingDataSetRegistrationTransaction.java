@@ -283,7 +283,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                 imageDataSetInformation.getImageDataSetStructure();
         File incomingDirectory = imageDataSetInformation.getIncomingDirectory();
 
-        String containerCode = imageDataSetInformation.getContainerDatasetPermId();
+        String containerCode = imageDataSetInformation.tryGetContainerDatasetPermId();
 
         IDataSetUpdatable container = getDataSetForUpdate(containerCode);
 
@@ -410,7 +410,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         {
             IHierarchicalContent content =
                     ServiceProvider.getHierarchicalContentProvider().asContent(
-                            imageDataSetInformation.getContainerDatasetPermId());
+                            imageDataSetInformation.tryGetContainerDatasetPermId());
             try
             {
                 for (ImageFileInfo imageFileInfo : images)
@@ -487,7 +487,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         }
     }
 
-    private IDataSet createThumbnailDataset(ImageDataSetInformation imageDataSetInformation,
+    private IDataSet createThumbnailDataset(DataSetInformation imageDataSetInformation,
             ThumbnailsStorageFormat thumbnailsStorageFormat)
     {
         String thumbnailsDatasetTypeCode = findThumbnailsDatasetTypeCode(imageDataSetInformation);
@@ -500,7 +500,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     }
 
     private ImageContainerDataSet createImageContainerDataset(IDataSet mainDataset,
-            ImageDataSetInformation imageDataSetInformation, List<String> containedDataSetCodes)
+            DataSetInformation imageDataSetInformation, List<String> containedDataSetCodes)
     {
         String containerDatasetTypeCode = findContainerDatasetTypeCode(imageDataSetInformation);
         @SuppressWarnings("unchecked")
@@ -574,7 +574,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     }
 
     private static String findContainerDatasetTypeCode(
-            ImageDataSetInformation imageDataSetInformation)
+            DataSetInformation imageDataSetInformation)
     {
         String dataSetTypeCode = imageDataSetInformation.getDataSetType().getCode().toUpperCase();
         String prefix = ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PREFIX;
@@ -597,7 +597,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     }
 
     private static String findThumbnailsDatasetTypeCode(
-            ImageDataSetInformation imageDataSetInformation)
+            DataSetInformation imageDataSetInformation)
     {
         String dataSetTypeCode = imageDataSetInformation.getDataSetType().getCode().toUpperCase();
 

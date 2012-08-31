@@ -47,8 +47,6 @@ public class ImageDataSetInformation extends BasicDataSetInformation
 
     private ThumbnailsInfo thumbnailsInfos;
 
-    private String containerDatasetPermId;
-
     private boolean registerAsOverviewImageDataSet;
 
     private boolean generateOverviewImagesFromRegisteredImages;
@@ -60,11 +58,6 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     public File getIncomingDirectory()
     {
         return incomingDirectory;
-    }
-
-    public String getContainerDatasetPermId()
-    {
-        return containerDatasetPermId;
     }
 
     /** @returns null if no thumbnails will be stored */
@@ -92,11 +85,6 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     public void setDatasetRelativeImagesFolderPath(File datasetRelativeImagesFolderPath)
     {
         this.datasetRelativeImagesFolderPath = datasetRelativeImagesFolderPath;
-    }
-
-    public void setContainerDatasetPermId(String containerDatasetPermId)
-    {
-        this.containerDatasetPermId = containerDatasetPermId;
     }
 
     public void setThumbnailsInfo(ThumbnailsInfo thumbnailsInfo)
@@ -179,7 +167,7 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     {
         final StringBuilder buffer = new StringBuilder(super.toString());
         appendNameAndObject(buffer, "images structure", imageDataSetStructure);
-        appendNameAndObject(buffer, "container dataset", containerDatasetPermId);
+        appendNameAndObject(buffer, "container dataset", tryGetContainerDatasetPermId());
         appendNameAndObject(buffer, "original dataset", this.getDataSetCode());
         if (maximumImageHeight > 0 && maximumImageWidth > 0)
         {
@@ -195,5 +183,4 @@ public class ImageDataSetInformation extends BasicDataSetInformation
         }
         return buffer.toString();
     }
-
 }

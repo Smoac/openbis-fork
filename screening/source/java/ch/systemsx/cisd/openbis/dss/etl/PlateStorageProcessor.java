@@ -38,10 +38,12 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat.FileF
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * Storage processor which stores HCS plate images in a special-purpose imaging database.
@@ -90,7 +92,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
             {
                 datasetCode =
                         ((FeatureVectorDataSetInformation) dataSetInformation)
-                                .getContainerDatasetPermId();
+                                .tryGetContainerDatasetPermId();
             } else
             {
                 datasetCode = dataSetInformation.getDataSetCode();
@@ -112,19 +114,36 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
 
         protected DatasetOwnerInformation(String dataSetCode, DataSetInformation dataSetOwner)
         {
-            this(dataSetCode, dataSetOwner.tryToGetSample(), dataSetOwner.getSampleIdentifier(),
-                    dataSetOwner.getProperties(), dataSetOwner.tryToGetExperiment(), dataSetOwner
-                            .getExperimentIdentifier());
+            this(dataSetCode, dataSetOwner.tryGetContainerDataSet(), dataSetOwner.tryToGetSample(),
+                    dataSetOwner.getSampleIdentifier(), dataSetOwner.getProperties(), dataSetOwner
+                            .tryToGetExperiment(), dataSetOwner.getExperimentIdentifier());
         }
 
-        private DatasetOwnerInformation(String dataSetCode, Sample sample,
-                SampleIdentifier sampleIdentifier, IEntityProperty[] sampleProperties,
-                Experiment experiment, ExperimentIdentifier experimentIdentifier)
+        private DatasetOwnerInformation(String dataSetCode, ExternalData containerOrNull,
+                Sample sampleOrNull, SampleIdentifier sampleIdentifier,
+                IEntityProperty[] sampleProperties, Experiment experiment,
+                ExperimentIdentifier experimentIdentifier)
         {
             this.dataSetCode = dataSetCode;
-            this.sample = sample;
-            this.sampleIdentifier = sampleIdentifier;
-            this.sampleProperties = sampleProperties;
+            if (sampleOrNull != null)
+            {
+                this.sample = sampleOrNull;
+                this.sampleIdentifier = sampleIdentifier;
+                this.sampleProperties = sampleProperties;
+            } else if (containerOrNull != null)
+            {
+                this.sample = containerOrNull.getSample();
+                this.sampleIdentifier = SampleIdentifierFactory.parse(this.sample.getIdentifier());
+                this.sampleProperties =
+                        this.sample.getProperties().toArray(
+                                new IEntityProperty[this.sample.getProperties().size()]);
+            } else
+            // shouldn't happen
+            {
+                this.sample = null;
+                this.sampleIdentifier = null;
+                this.sampleProperties = null;
+            }
             this.experiment = experiment;
             this.experimentIdentifier = experimentIdentifier;
         }
@@ -255,7 +274,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
         return validator.validateImages();
     }
 
-    private void checkDataSetInformation(final DatasetOwnerInformation dataSetInformation)
+    private void checkDataSetInformation(final ImageDatasetOwnerInformation dataSetInformation)
     {
         assert dataSetInformation != null : "Unspecified data set information";
         assert dataSetInformation.getSampleIdentifier() != null : "Unspecified sample identifier";
