@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -93,6 +94,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDyna
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator.IValidationRequestDelegate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
@@ -1917,8 +1919,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         if ((entityKind.equals(EntityKind.SAMPLE) || entityKind.equals(EntityKind.DATA_SET) || entityKind
-                .equals(EntityKind.MATERIAL))
-                && EntityType.isDefinedInFileEntityTypeCode(type))
+                .equals(EntityKind.MATERIAL)) && EntityType.isDefinedInFileEntityTypeCode(type))
         {
             types.addAll(getDAOFactory().getEntityTypeDAO(
                     DtoConverters.convertEntityKind(entityKind)).listEntityTypes());
@@ -2496,14 +2497,55 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         IEntityInformationWithPropertiesHolder entity = getEntity(info, session);
         try
         {
+            final List<String> objectsWhichValidationWouldBeForced = new LinkedList<String>();
+
+            // TODO: refactor the check for type of entity requested for validation to the code of
+            // the caller to avoid duplication beetween here and EntityValidationInterceptor
             EntityValidationCalculator calculator =
-                    EntityValidationCalculator.create(info.getScript());
+                    EntityValidationCalculator.create(info.getScript(),
+                            new IValidationRequestDelegate()
+                                {
+                                    @Override
+                                    public void requestValidation(Object o)
+                                    {
+                                        if (o == null)
+                                        {
+                                            return;
+                                        }
+                                        if (!(o instanceof IEntityInformationWithPropertiesHolder))
+                                        {
+                                            throw new IllegalArgumentException(
+                                                    "Would try to force validation if illegal object "
+                                                            + o.getClass());
+                                        }
+                                        objectsWhichValidationWouldBeForced
+                                                .add(((IEntityInformationWithPropertiesHolder) o)
+                                                        .getIdentifier());
+                                    }
+                                });
             IDynamicPropertyEvaluator evaluator =
                     new DynamicPropertyEvaluator(getDAOFactory(), null);
             IEntityAdaptor adaptor = EntityAdaptorFactory.create(entity, evaluator);
             calculator.setEntity(adaptor);
             calculator.setIsNewEntity(info.isNew());
-            return calculator.evalAsString();
+            String result = calculator.evalAsString();
+
+            if (result != null)
+            {
+                return "Validation fail: " + result;
+            } else
+            {
+                result = "Validation OK";
+                if (objectsWhichValidationWouldBeForced.size() > 0)
+                {
+                    result += "\n\nOther entities would be forced to validate:\n";
+                    for (Object o : objectsWhichValidationWouldBeForced)
+                    {
+                        result += "  " + o + "\n";
+                    }
+                }
+                return result;
+            }
         } catch (Throwable e)
         {
             // return error message if there is a problem with evaluation

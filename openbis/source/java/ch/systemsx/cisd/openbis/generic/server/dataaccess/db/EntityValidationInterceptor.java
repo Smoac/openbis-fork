@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 
 import org.hibernate.EmptyInterceptor;
@@ -31,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.Dynam
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator.IValidationRequestDelegate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -45,7 +48,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
  * 
  * @author Jakub Straszewski
  */
-public class EntityValidationInterceptor extends EmptyInterceptor
+public class EntityValidationInterceptor extends EmptyInterceptor implements
+        IValidationRequestDelegate
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -61,9 +65,21 @@ public class EntityValidationInterceptor extends EmptyInterceptor
 
     IHibernateTransactionManagerCallback callback;
 
+    /*
+     * During the transaction the new objects are inserted into the newEntities and
+     * mofidiedEntities. During the validation phase, first all new entities are validated, then the
+     * remaining, which consists of a modified entities, and the entities which were explicitly
+     * marked for validation by validation scripts. We keep the track of validated entities in the
+     * set, and keep the entities we still have to validate in entitiesToValidate.
+     */
+    // TODO: refactor - there are too many collections here
     Set<IEntityInformationWithPropertiesHolder> modifiedEntities;
 
     Set<IEntityInformationWithPropertiesHolder> newEntities;
+
+    Set<IEntityInformationWithPropertiesHolder> validatedEntities;
+
+    Queue<IEntityInformationWithPropertiesHolder> entitiesToValidate;
 
     @Override
     public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames,
@@ -71,7 +87,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor
     {
         if (entity instanceof IEntityInformationWithPropertiesHolder)
         {
-            newEntity(entity);
+            newEntity((IEntityInformationWithPropertiesHolder) entity);
         }
         return false;
     }
@@ -82,7 +98,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor
     {
         if (entity instanceof IEntityInformationWithPropertiesHolder)
         {
-            modifiedEntity(entity);
+            modifiedEntity((IEntityInformationWithPropertiesHolder) entity);
         }
         return false;
     }
@@ -90,31 +106,33 @@ public class EntityValidationInterceptor extends EmptyInterceptor
     @Override
     public void beforeTransactionCompletion(Transaction tx)
     {
-        for (IEntityInformationWithPropertiesHolder entity : newEntities)
-        {
-            validateNewEntity(tx, entity);
-        }
+        validateNewEntities(tx);
 
         for (IEntityInformationWithPropertiesHolder entity : modifiedEntities)
         {
-            validateModifiedEntity(tx, entity);
+            entitiesToValidate.add(entity);
         }
+
+        while (entitiesToValidate.size() > 0)
+        {
+            IEntityInformationWithPropertiesHolder entity = entitiesToValidate.remove();
+            validateEntity(tx, entity, false);
+        }
+
     }
 
-    private void validateModifiedEntity(Transaction tx,
-            IEntityInformationWithPropertiesHolder entity)
+    private void validateNewEntities(Transaction tx)
     {
-        validateEntity(tx, entity, false);
-    }
-
-    private void validateNewEntity(Transaction tx, IEntityInformationWithPropertiesHolder entity)
-    {
-        validateEntity(tx, entity, true);
+        for (IEntityInformationWithPropertiesHolder entity : newEntities)
+        {
+            validateEntity(tx, entity, true);
+        }
     }
 
     private void validateEntity(Transaction tx, IEntityInformationWithPropertiesHolder entity,
             boolean isNewEntity)
     {
+        validatedEntity(entity);
         ScriptPE validationScript = entity.getEntityType().getValidationScript();
         if (validationScript != null)
         {
@@ -154,7 +172,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor
             boolean isNewEntity)
     {
         EntityValidationCalculator calculator =
-                EntityValidationCalculator.create(script.getScript());
+                EntityValidationCalculator.create(script.getScript(), this);
         IDynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator(daoFactory, null);
         IEntityAdaptor adaptor = EntityAdaptorFactory.create(entity, evaluator);
         calculator.setEntity(adaptor);
@@ -162,22 +180,21 @@ public class EntityValidationInterceptor extends EmptyInterceptor
         return calculator.evalAsString();
     }
 
-    private void newEntity(Object entity)
+    private void newEntity(IEntityInformationWithPropertiesHolder entity)
     {
-        newEntities.add((IEntityInformationWithPropertiesHolder) entity);
+        newEntities.add(entity);
     }
 
-    private void modifiedEntity(Object entity)
+    private void validatedEntity(IEntityInformationWithPropertiesHolder entity)
     {
-        addModifiedEntityToSet((IEntityInformationWithPropertiesHolder) entity, modifiedEntities,
-                newEntities);
+        validatedEntities.add(entity);
     }
 
-    private <T> void addModifiedEntityToSet(T entity, Set<T> modifiedSet, Set<T> newSet)
+    private void modifiedEntity(IEntityInformationWithPropertiesHolder entity)
     {
-        if (false == newSet.contains(entity))
+        if (false == newEntities.contains(entity))
         {
-            modifiedSet.add(entity);
+            modifiedEntities.add(entity);
         }
     }
 
@@ -185,6 +202,36 @@ public class EntityValidationInterceptor extends EmptyInterceptor
     {
         modifiedEntities = new HashSet<IEntityInformationWithPropertiesHolder>();
         newEntities = new HashSet<IEntityInformationWithPropertiesHolder>();
+        validatedEntities = new HashSet<IEntityInformationWithPropertiesHolder>();
+        entitiesToValidate = new LinkedList<IEntityInformationWithPropertiesHolder>();
+    }
+
+    @Override
+    public void requestValidation(Object entity)
+    {
+        if (entity == null)
+        {
+            return;
+        }
+
+        if (false == entity instanceof IEntityInformationWithPropertiesHolder)
+        {
+            throw new IllegalArgumentException(
+                    "Trying to force the validation of an object of invalid type "
+                            + entity.getClass());
+        }
+
+        if (validatedEntities.contains(entity) || newEntities.contains(entity)
+                || modifiedEntities.contains(entity))
+        {
+            // forcing validation of entity already listed for validation
+        } else
+        {
+            // we update modified entities to know that we will validate this entity
+            modifiedEntities.add((IEntityInformationWithPropertiesHolder) entity);
+            // we add to the actual validation queue
+            entitiesToValidate.add((IEntityInformationWithPropertiesHolder) entity);
+        }
     }
 
 }
