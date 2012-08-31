@@ -709,8 +709,9 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                         imageStorageConfiguraton.tryGetImageLibrary());
 
         ImageDatasetOwnerInformation imageDatasetOwner =
-                ImageDatasetOwnerInformation.create(dataSetInformation.getContainerDatasetPermId(),
-                        dataSetInformation, thumbnailsInfo);
+                ImageDatasetOwnerInformation.create(
+                        dataSetInformation.tryGetContainerDatasetPermId(), dataSetInformation,
+                        thumbnailsInfo);
         return new ImageFileExtractionWithConfig(imageDatasetOwner, extractionResult,
                 imageStorageConfiguraton);
     }
