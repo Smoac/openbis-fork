@@ -136,7 +136,7 @@ public class EntityVerificationTest extends GenericSystemTestCase
             fail("update of sample with impossible to update type should fail");
         } catch (Exception ufe)
         {
-            assertTrue(ufe.getMessage().contains("Validation of sample"));
+            assertTrue(ufe.getMessage(), ufe.getMessage().contains("Validation of sample"));
         }
 
         // cleanup

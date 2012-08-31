@@ -33,12 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calcu
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
@@ -66,27 +61,18 @@ public class EntityVerificationInterceptor extends EmptyInterceptor
 
     IHibernateTransactionManagerCallback callback;
 
-    Set<SamplePE> modifiedSamples;
+    Set<IEntityInformationWithPropertiesHolder> modifiedEntities;
 
-    Set<MaterialPE> modifiedMaterials;
-
-    Set<ExperimentPE> modifiedExperiments;
-
-    Set<DataPE> modifiedDatasets;
-
-    Set<SamplePE> newSamples;
-
-    Set<MaterialPE> newMaterials;
-
-    Set<ExperimentPE> newExperiments;
-
-    Set<DataPE> newDatasets;
+    Set<IEntityInformationWithPropertiesHolder> newEntities;
 
     @Override
     public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames,
             Type[] types)
     {
-        newEntity(entity);
+        if (entity instanceof IEntityInformationWithPropertiesHolder)
+        {
+            newEntity(entity);
+        }
         return false;
     }
 
@@ -94,70 +80,42 @@ public class EntityVerificationInterceptor extends EmptyInterceptor
     public boolean onFlushDirty(Object entity, Serializable id, Object[] currentState,
             Object[] previousState, String[] propertyNames, Type[] types)
     {
-        modifiedEntity(entity);
+        if (entity instanceof IEntityInformationWithPropertiesHolder)
+        {
+            modifiedEntity(entity);
+        }
         return false;
     }
 
     @Override
     public void beforeTransactionCompletion(Transaction tx)
     {
-        for (SamplePE sample : newSamples)
+        for (IEntityInformationWithPropertiesHolder entity : newEntities)
         {
-            validateNewEntity(tx, sample, sample.getSampleType());
+            validateNewEntity(tx, entity);
         }
 
-        for (DataPE dataset : newDatasets)
+        for (IEntityInformationWithPropertiesHolder entity : modifiedEntities)
         {
-            validateNewEntity(tx, dataset, dataset.getDataSetType());
-        }
-
-        for (MaterialPE material : newMaterials)
-        {
-            validateNewEntity(tx, material, material.getMaterialType());
-        }
-
-        for (ExperimentPE experiment : newExperiments)
-        {
-            validateNewEntity(tx, experiment, experiment.getEntityType());
-        }
-
-        for (SamplePE sample : modifiedSamples)
-        {
-            validateModifiedEntity(tx, sample, sample.getSampleType());
-        }
-
-        for (DataPE dataset : modifiedDatasets)
-        {
-            validateModifiedEntity(tx, dataset, dataset.getDataSetType());
-        }
-
-        for (MaterialPE material : modifiedMaterials)
-        {
-            validateModifiedEntity(tx, material, material.getMaterialType());
-        }
-
-        for (ExperimentPE experiment : modifiedExperiments)
-        {
-            validateModifiedEntity(tx, experiment, experiment.getEntityType());
+            validateModifiedEntity(tx, entity);
         }
     }
 
     private void validateModifiedEntity(Transaction tx,
-            IEntityInformationWithPropertiesHolder entity, EntityTypePE entityType)
+            IEntityInformationWithPropertiesHolder entity)
     {
-        validateEntity(tx, entity, entityType, false);
+        validateEntity(tx, entity, false);
     }
 
-    private void validateNewEntity(Transaction tx, IEntityInformationWithPropertiesHolder entity,
-            EntityTypePE entityType)
+    private void validateNewEntity(Transaction tx, IEntityInformationWithPropertiesHolder entity)
     {
-        validateEntity(tx, entity, entityType, true);
+        validateEntity(tx, entity, true);
     }
 
     private void validateEntity(Transaction tx, IEntityInformationWithPropertiesHolder entity,
-            EntityTypePE entityType, boolean isNewEntity)
+            boolean isNewEntity)
     {
-        ScriptPE validationScript = entityType.getValidationScript();
+        ScriptPE validationScript = entity.getEntityType().getValidationScript();
         if (validationScript != null)
         {
             validateEntityWithScript(tx, validationScript, entity, isNewEntity);
@@ -206,36 +164,13 @@ public class EntityVerificationInterceptor extends EmptyInterceptor
 
     private void newEntity(Object entity)
     {
-        if (entity instanceof SamplePE)
-        {
-            newSamples.add((SamplePE) entity);
-        } else if (entity instanceof ExperimentPE)
-        {
-            newExperiments.add((ExperimentPE) entity);
-        } else if (entity instanceof MaterialPE)
-        {
-            newMaterials.add((MaterialPE) entity);
-        } else if (entity instanceof DataPE)
-        {
-            newDatasets.add((DataPE) entity);
-        }
+        newEntities.add((IEntityInformationWithPropertiesHolder) entity);
     }
 
     private void modifiedEntity(Object entity)
     {
-        if (entity instanceof SamplePE)
-        {
-            addModifiedEntityToSet((SamplePE) entity, modifiedSamples, newSamples);
-        } else if (entity instanceof ExperimentPE)
-        {
-            addModifiedEntityToSet((ExperimentPE) entity, modifiedExperiments, newExperiments);
-        } else if (entity instanceof MaterialPE)
-        {
-            addModifiedEntityToSet((MaterialPE) entity, modifiedMaterials, newMaterials);
-        } else if (entity instanceof DataPE)
-        {
-            addModifiedEntityToSet((DataPE) entity, modifiedDatasets, newDatasets);
-        }
+        addModifiedEntityToSet((IEntityInformationWithPropertiesHolder) entity, modifiedEntities,
+                newEntities);
     }
 
     private <T> void addModifiedEntityToSet(T entity, Set<T> modifiedSet, Set<T> newSet)
@@ -248,15 +183,8 @@ public class EntityVerificationInterceptor extends EmptyInterceptor
 
     private void initializeLists()
     {
-        modifiedSamples = new HashSet<SamplePE>();
-        modifiedExperiments = new HashSet<ExperimentPE>();
-        modifiedMaterials = new HashSet<MaterialPE>();
-        modifiedDatasets = new HashSet<DataPE>();
-
-        newSamples = new HashSet<SamplePE>();
-        newExperiments = new HashSet<ExperimentPE>();
-        newMaterials = new HashSet<MaterialPE>();
-        newDatasets = new HashSet<DataPE>();
+        modifiedEntities = new HashSet<IEntityInformationWithPropertiesHolder>();
+        newEntities = new HashSet<IEntityInformationWithPropertiesHolder>();
     }
 
 }
