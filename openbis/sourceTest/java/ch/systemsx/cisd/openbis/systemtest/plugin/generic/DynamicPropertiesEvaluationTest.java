@@ -360,8 +360,9 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                         testName, i + 1, ex.getMessage()));
                 continue; // exception thrown - retry
             }
-            break; // exception not thrown - success
+            return; // exception not thrown - success
         }
+        assertAction.execute();
     }
 
     @AfterMethod
