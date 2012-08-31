@@ -55,7 +55,7 @@ public abstract class SeleniumTest
     {
         driver = new FirefoxDriver();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        delete(new File("targets/selenium"));
+        delete(new File("targets/dist"));
     }
 
     @AfterSuite
