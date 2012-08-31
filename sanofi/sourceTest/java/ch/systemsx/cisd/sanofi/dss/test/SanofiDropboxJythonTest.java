@@ -367,6 +367,9 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     allowing(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(plate));
 
+                    allowing(openBisService).tryGetDataSet(with(any(String.class)));
+                    will(returnValue(null));
+
                     allowing(openBisService)
                             .getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
@@ -383,7 +386,6 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
             });
         setUpDataSetExpectations();
         setUpListAdministratorExpectations();
-
 
         handler.handle(markerFile);
 
@@ -519,6 +521,9 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     allowing(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(plate));
 
+                    allowing(openBisService).tryGetDataSet(with(any(String.class)));
+                    will(returnValue(null));
+
                     allowing(openBisService)
                             .getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
@@ -592,6 +597,9 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                             SampleIdentifierFactory.parse(plate.getIdentifier());
                     allowing(openBisService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(plate));
+
+                    allowing(openBisService).tryGetDataSet(with(any(String.class)));
+                    will(returnValue(null));
 
                     allowing(openBisService)
                             .getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
