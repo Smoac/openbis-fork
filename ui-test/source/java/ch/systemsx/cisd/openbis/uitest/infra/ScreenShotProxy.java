@@ -16,66 +16,64 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 
-import org.apache.commons.io.FileUtils;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-
-public class ScreenShotProxy implements InvocationHandler 
+public class ScreenShotProxy implements InvocationHandler
 {
 
     private Object obj;
 
-    public static Object newInstance(Object obj) {
+    private ScreenShotter shotter;
+
+    public static Object newInstance(Object obj, ScreenShotter shotter)
+    {
         Collection<Class<?>> interfaces = new HashSet<Class<?>>();
-        
+
         Class<?> current = obj.getClass();
-        while (current != null) {
-            for (Class<?> c : current.getInterfaces()) {
+        while (current != null)
+        {
+            for (Class<?> c : current.getInterfaces())
+            {
                 interfaces.add(c);
             }
             current = current.getSuperclass();
         }
-        
+
         return java.lang.reflect.Proxy.newProxyInstance(
-            obj.getClass().getClassLoader(),
-            interfaces.toArray(new Class<?>[0]),
-            new ScreenShotProxy(obj));
+                obj.getClass().getClassLoader(),
+                interfaces.toArray(new Class<?>[0]),
+                new ScreenShotProxy(obj, shotter));
     }
 
-    private ScreenShotProxy(Object obj) {
+    private ScreenShotProxy(Object obj, ScreenShotter shotter)
+    {
         this.obj = obj;
+        this.shotter = shotter;
     }
 
     @Override
     public Object invoke(Object proxy, Method m, Object[] args) throws Throwable
     {
         Object result;
-        try {
-            if (m.getName().equals("click") || m.getName().equals("sendKeys")) {
-                screenshot();
+        try
+        {
+            if (m.getName().equals("click") || m.getName().equals("sendKeys"))
+            {
+                shotter.screenshot();
             }
             result = m.invoke(this.obj, args);
-        } catch (InvocationTargetException e) {
+        } catch (InvocationTargetException e)
+        {
             throw e.getTargetException();
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new RuntimeException("unexpected invocation exception: " +
-                           e.getMessage());
+                    e.getMessage());
         }
-        return result;    
+        return result;
     }
-    
-    public static void screenshot() throws IOException {
-        File file = ((TakesScreenshot)SeleniumTest.driver).getScreenshotAs(OutputType.FILE);
-        FileUtils.copyFile(file, new File("/tmp/screenshot-"+ new Date().getTime()+".png"));        
-    }
-
 }

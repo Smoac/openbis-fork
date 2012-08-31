@@ -26,18 +26,24 @@ public class ScreenShotDecorator implements FieldDecorator
 {
 
     private DefaultFieldDecorator dec;
-    public ScreenShotDecorator() {
+
+    private ScreenShotter shotter;
+
+    public ScreenShotDecorator(ScreenShotter shotter)
+    {
         this.dec = new DefaultFieldDecorator(new DefaultElementLocatorFactory(SeleniumTest.driver));
+        this.shotter = shotter;
     }
-    
+
     @Override
     public Object decorate(ClassLoader loader, Field field)
     {
         Object o = this.dec.decorate(loader, field);
-        if (o == null) {
+        if (o == null)
+        {
             return null;
         }
-        return ScreenShotProxy.newInstance(o);
+        return ScreenShotProxy.newInstance(o, shotter);
     }
 
 }

@@ -19,26 +19,25 @@ package ch.systemsx.cisd.openbis.uitest.page;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-
-public class LoginPage implements Page
+public class LoginPage extends Page
 {
 
-    @FindBy(id="openbis_login_username")
+    @FindBy(id = "openbis_login_username")
     private WebElement username;
-    
-    @FindBy(id="openbis_login_password")
+
+    @FindBy(id = "openbis_login_password")
     private WebElement password;
-    
-    @FindBy(id="openbis_login_submit")
+
+    @FindBy(id = "openbis_login_submit")
     private WebElement button;
-    
-    public HomePage loginAs(String user, String pwd) {
+
+    public HomePage loginAs(String user, String pwd)
+    {
         username.sendKeys(user);
         password.sendKeys(pwd);
         button.click();
 
-        return SeleniumTest.get(HomePage.class);
+        return get(HomePage.class);
     }
-    
+
 }

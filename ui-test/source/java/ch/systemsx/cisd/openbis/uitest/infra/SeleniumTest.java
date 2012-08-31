@@ -16,27 +16,25 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
-
-import javassist.util.proxy.MethodHandler;
-import javassist.util.proxy.ProxyFactory;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.NoAlertPresentException;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
@@ -44,25 +42,20 @@ import ch.systemsx.cisd.openbis.uitest.page.SpaceBrowser;
 
 public abstract class SeleniumTest
 {
-    public static final WebDriver driver = new FirefoxDriver();
-    {
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-    }
+    public static WebDriver driver;
+
+    protected PageProxy pageProxy;
 
     protected LoginPage loginPage;
 
-    @BeforeMethod
-    public void gotoLoginPage()
-    {
-        driver.manage().deleteAllCookies();
-        driver.get("https://sprint-openbis.ethz.ch/openbis/");
-        this.loginPage = get(LoginPage.class);
-    }
+    private ScreenShotter shotter;
 
-    @AfterMethod
-    public void takeScreenShot() throws IOException
+    @BeforeSuite
+    public void initWebDriver()
     {
-        ScreenShotProxy.screenshot();
+        driver = new FirefoxDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        delete(new File("targets/selenium"));
     }
 
     @AfterSuite
@@ -71,92 +64,58 @@ public abstract class SeleniumTest
         driver.quit();
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends Page> T get(Class<T> clazz)
+    @BeforeMethod
+    public void initPageProxy(Method method)
     {
-
-        ProxyFactory factory = new ProxyFactory();
-        factory.setSuperclass(clazz);
-
-        MethodHandler handler = new MethodHandler()
-            {
-                @Override
-                public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args)
-                        throws Throwable
-                {
-                    try
-                    {
-                        return proceed.invoke(self, args);
-                    } catch (InvocationTargetException e)
-                    {
-                        if (e.getTargetException() instanceof StaleElementReferenceException)
-                        {
-                            PageFactory.initElements(new ScreenShotDecorator(), self);
-                            return proceed.invoke(self, args);
-                        } else
-                        {
-                            throw e.getTargetException();
-                        }
-                    }
-                }
-            };
-
-        T t;
-        try
-        {
-            t = (T) factory.create(new Class<?>[]
-                { WebDriver.class }, new Object[]
-                { driver }, handler);
-        } catch (IllegalArgumentException ex)
-        {
-            throw new RuntimeException(ex);
-        } catch (SecurityException ex)
-        {
-            throw new RuntimeException(ex);
-        } catch (InstantiationException ex)
-        {
-            throw new RuntimeException(ex);
-        } catch (IllegalAccessException ex)
-        {
-            throw new RuntimeException(ex);
-        } catch (InvocationTargetException ex)
-        {
-            throw new RuntimeException(ex);
-        } catch (NoSuchMethodException ex)
-        {
-            try
-            {
-                t = (T) factory.create(new Class<?>[0], new Object[0], handler);
-            } catch (IllegalArgumentException ex1)
-            {
-                throw new RuntimeException(ex1);
-            } catch (NoSuchMethodException ex1)
-            {
-                throw new RuntimeException(ex1);
-            } catch (InstantiationException ex1)
-            {
-                throw new RuntimeException(ex1);
-            } catch (IllegalAccessException ex1)
-            {
-                throw new RuntimeException(ex1);
-            } catch (InvocationTargetException ex1)
-            {
-                throw new RuntimeException(ex1);
-            }
-
-        }
-        PageFactory.initElements(new ScreenShotDecorator(), t);
-        return t;
+        this.shotter =
+                new ScreenShotter((TakesScreenshot) driver, "targets/selenium/"
+                        + this.getClass().getSimpleName() + "/" + method.getName());
+        this.pageProxy = new PageProxy(shotter);
     }
 
-    protected static WebDriver browser()
+    @BeforeMethod(dependsOnMethods = "initPageProxy")
+    public void gotoLoginPage()
+    {
+        driver.manage().deleteAllCookies();
+        driver.get("https://sprint-openbis.ethz.ch/openbis/");
+        try
+        {
+            driver.switchTo().alert().accept();
+        } catch (NoAlertPresentException e)
+        {
+        }
+        this.loginPage = get(LoginPage.class);
+    }
+
+    @AfterMethod
+    public void takeScreenShot() throws IOException
+    {
+        shotter.screenshot();
+    }
+
+    public <T extends Page> T get(Class<T> clazz)
+    {
+        return this.pageProxy.get(clazz);
+    }
+
+    protected WebDriver browser()
     {
         return driver;
     }
 
-    protected static Matcher<WebDriver> isShowing(Class<? extends Page> pageClass)
+    private void delete(File f)
     {
-        return new PageMatcher(pageClass);
+        if (f.isDirectory())
+        {
+            for (File c : f.listFiles())
+                delete(c);
+        }
+        f.delete();
+    }
+
+    protected Matcher<WebDriver> isShowing(Class<? extends Page> pageClass)
+    {
+        return new PageMatcher(pageClass, pageProxy);
     }
 
     private static class PageMatcher extends TypeSafeMatcher<WebDriver>
@@ -164,9 +123,12 @@ public abstract class SeleniumTest
 
         private Class<? extends Page> pageClass;
 
-        public PageMatcher(Class<? extends Page> pageClass)
+        private PageProxy pageProxy;
+
+        public PageMatcher(Class<? extends Page> pageClass, PageProxy pageProxy)
         {
             this.pageClass = pageClass;
+            this.pageProxy = pageProxy;
         }
 
         @Override
@@ -178,7 +140,7 @@ public abstract class SeleniumTest
         @Override
         public boolean matchesSafely(WebDriver ignore)
         {
-            Object o = get(pageClass);
+            Object o = pageProxy.get(pageClass);
             for (Field field : pageClass.getDeclaredFields())
             {
                 if ((field.getAnnotation(FindBy.class) != null)
@@ -209,7 +171,7 @@ public abstract class SeleniumTest
 
     }
 
-    protected static Matcher<SpaceBrowser> listsSpace(String spaceName)
+    protected Matcher<SpaceBrowser> listsSpace(String spaceName)
     {
         return new SpaceMatcher(spaceName);
     }

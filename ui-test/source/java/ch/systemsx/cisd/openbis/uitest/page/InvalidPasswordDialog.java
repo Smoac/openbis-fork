@@ -18,15 +18,13 @@ package ch.systemsx.cisd.openbis.uitest.page;
 
 import org.openqa.selenium.By;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Help;
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-
-public class InvalidPasswordDialog implements Page
+public class InvalidPasswordDialog extends Page
 {
-    
-    public LoginPage dismiss() {
-        Help.findElementWithText("OK", By.className("x-btn-text")).click();
-        return SeleniumTest.get(LoginPage.class);
+
+    public LoginPage dismiss()
+    {
+        findElementWithText("OK", By.className("x-btn-text")).click();
+        return get(LoginPage.class);
     }
-    
+
 }

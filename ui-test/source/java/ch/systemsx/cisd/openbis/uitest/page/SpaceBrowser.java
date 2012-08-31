@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import static ch.systemsx.cisd.openbis.uitest.infra.Help.findElementWithText;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -26,26 +24,27 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-
-public class SpaceBrowser implements Page
+public class SpaceBrowser extends Page
 {
 
-    @FindBy(className="x-grid3-col-CODE")
+    @FindBy(className = "x-grid3-col-CODE")
     private List<WebElement> spaceNames;
-    
-    public AddSpaceDialog addSpace() {
+
+    public AddSpaceDialog addSpace()
+    {
         WebElement addSpaceButton = findElementWithText("Add Space", By.className("x-btn-text"));
         addSpaceButton.click();
-        return SeleniumTest.get(AddSpaceDialog.class);
+        return get(AddSpaceDialog.class);
     }
-    
-    public Collection<String> getSpaces() {    
+
+    public Collection<String> getSpaces()
+    {
         Collection<String> spaces = new HashSet<String>();
-        for (WebElement element : spaceNames) {
+        for (WebElement element : spaceNames)
+        {
             spaces.add(element.getText());
         }
         return spaces;
     }
-    
+
 }

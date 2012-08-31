@@ -13,7 +13,7 @@ import ch.systemsx.cisd.openbis.uitest.page.SpaceBrowser;
 
 public class SpaceTest extends SeleniumTest
 {
-    @Test(enabled = false)
+    @Test
     public void newSpaceIsListedInSpaceBrowser() throws Exception
     {
         String spaceName = "selenium-spacetest-" + UUID.randomUUID();

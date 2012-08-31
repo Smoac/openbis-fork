@@ -21,23 +21,21 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
 import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
 
-import static ch.systemsx.cisd.openbis.uitest.infra.Help.findElementWithText;
-
-public class HomePage implements Page
+public class HomePage extends Page
 {
-    
+
     @NotAlwaysPresent
-    @FindBy(id="just_something_that_is_not_there")
+    @FindBy(id = "just_something_that_is_not_there")
     private WebElement nonExistent;
-    
-    @FindBy(id="openbis_search-widget_text-field-input")
+
+    @FindBy(id = "openbis_search-widget_text-field-input")
     private WebElement searchTextBox;
-    
-    public AdminMenu adminMenu() {
+
+    public AdminMenu adminMenu()
+    {
         WebElement adminMenuButton = findElementWithText("Admin", By.className("x-btn-text"));
         adminMenuButton.click();
-        return SeleniumTest.get(AdminMenu.class);
+        return get(AdminMenu.class);
     }
 }

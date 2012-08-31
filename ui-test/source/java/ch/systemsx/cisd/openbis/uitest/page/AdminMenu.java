@@ -19,17 +19,16 @@ package ch.systemsx.cisd.openbis.uitest.page;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-
-public class AdminMenu implements Page
+public class AdminMenu extends Page
 {
 
-    @FindBy(id="openbis_top-menu_ADMINISTRATION_MENU_MANAGE_GROUPS")
+    @FindBy(id = "openbis_top-menu_ADMINISTRATION_MENU_MANAGE_GROUPS")
     private WebElement spaces;
-     
-    public SpaceBrowser spaces() {
+
+    public SpaceBrowser spaces()
+    {
         spaces.click();
-        return SeleniumTest.get(SpaceBrowser.class);
+        return get(SpaceBrowser.class);
     }
-    
+
 }
