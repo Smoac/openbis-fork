@@ -68,7 +68,7 @@ public abstract class SeleniumTest
     public void initPageProxy(Method method)
     {
         this.shotter =
-                new ScreenShotter((TakesScreenshot) driver, "targets/selenium/"
+                new ScreenShotter((TakesScreenshot) driver, "targets/dist/"
                         + this.getClass().getSimpleName() + "/" + method.getName());
         this.pageProxy = new PageProxy(shotter);
     }
