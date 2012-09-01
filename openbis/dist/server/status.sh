@@ -10,7 +10,7 @@ printStatus()
   if [ "$1" == "-q" ]; then
     QUIET=1
   fi
-  if [ -f $PIDFILE ]; then
+  if [ -f $JETTY_PID_FILE ]; then
     PID=`cat $JETTY_PID_FILE`
     isPIDRunning $PID
     if [ $? -eq 0 ]; then
