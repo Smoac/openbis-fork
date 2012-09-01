@@ -7,6 +7,12 @@ source `dirname "$0"`/setup-env
 
 checkNotRoot
 
+source `dirname "$0"`/status.sh > /dev/null
+if [ $? -eq 0 ]; then
+  echo openBIS AS already running, shut it down before start a new one.
+  exit 1
+fi
+
 $JVM -DSTOP.PORT=$JETTY_STOP_PORT \
      -DSTOP.KEY=$JETTY_STOP_KEY \
      $JAVA_OPTS $JAVA_MEM_OPTS \
