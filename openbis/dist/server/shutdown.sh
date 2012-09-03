@@ -15,21 +15,22 @@ if [ -f "$JETTY_PID_FILE" ]; then
   PID=`cat $JETTY_PID_FILE`
   count=0
   while [ 1 ]; do
-	  isPIDRunning $PID
-		if [ $? -ne 0 ]; then
-			break
-		fi
-		count=$(($count+1))
-		if [ $count -eq 10 ]; then
-			break
-		fi
-		sleep 1
-	done
-	
-	isPIDRunning $PID
-	if [ $? -ne 0 ]; then
-		rm -f "$JETTY_PID_FILE"
-	else
-		echo "Failed to shutdown PID $PID." > /dev/stderr
-	fi
+    isPIDRunning $PID
+    if [ $? -ne 0 ]; then
+      break
+    fi
+    count=$(($count+1))
+    if [ $count -eq 10 ]; then
+      break
+    fi
+    sleep 1
+  done
+        
+  isPIDRunning $PID
+  if [ $? -ne 0 ]; then
+    rm -f "$JETTY_PID_FILE"
+  else
+    echo "Failed to shutdown process $PID." > /dev/stderr
+    exit 1
+  fi
 fi
