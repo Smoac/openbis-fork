@@ -311,6 +311,20 @@ openbis.prototype.executeQuery = function(queryId, parameterBindings, action) {
 }
 
 /**
+ * See ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer.createReportFromAggregationService(String, String, String, Map<String, String>)
+ * 
+ * @method
+ */
+openbis.prototype.createReportFromAggregationService = function(dataStoreCode, serviceKey, parameters, action) {
+	ajaxRequest({
+		url: this.queryServiceUrl,
+		data: { "method" : "createReportFromAggregationService",
+				"params" : [ this.sessionToken, dataStoreCode, serviceKey, parameters ] },
+		success: action
+	});
+}
+
+/**
  * A utility class for deferring an action until all of some kind of action has completed
  *
  * @argument dependencies An array of the keys for the dependencies.

@@ -61,3 +61,21 @@ openbis_basynthec.prototype.getStrains = function(dataSet)
 		return [];
 	}
 }
+
+openbis_basynthec.prototype.getStrainsPhenotypesAndPredictions = function(action){
+	this.server.createReportFromAggregationService("DSS1","chicago", null, function(response){
+		var result = [];
+		
+		if(response.result && response.result.rows){
+			$.each(response.result.rows, function(index, row){
+				result[row[0].value] = {
+					"name" : row[0].value,
+					"hasPhenotypes" : row[1].value && row[1].value.toUpperCase() == "TRUE",
+					"hasPredictions" : row[2].value && row[2].value.toUpperCase() == "TRUE"
+				}
+			});
+		}
+		
+		action(result);
+	});
+}

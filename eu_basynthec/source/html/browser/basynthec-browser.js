@@ -5,7 +5,6 @@ var curveColors = d3.scale.category10().domain([0, 9]);
 
 /**
  * Abstract superclass for the wrapper classes.
- *
  * @constructor
  */
 function AbstractThingWrapper() {
@@ -108,12 +107,29 @@ AppPresenter.prototype.switchToOD600View = function()
 	od600InspectorView.updateView();
 }
 
+/** This view is very similar to the OD600 view, but the data is also divided into two main groups:
+ * - strains for which there are phenotypes, predictions, and data in the openBIS database
+ * - strains for which there are phenotypes or predictions, but no data in the openBIS database
+ *   (in this group strains with phenotypes and predictions should be marked green; strains with 
+ *   phenotypes only should be marked blue; strains with predictions only should be yellow) 
+ * Information about the phenotypes and predictions is retrieved from UChicago strain database
+ * (http://pubseed.theseed.org/model-prod/StrainServer.cgi) and cached at the server-side in OpenBIS.
+ */
+AppPresenter.prototype.switchToOD600WithPhenotypesAndPredictionsView = function()
+{
+	this.presenterMode = presenterModeTypeStrain;
+	this.hideExplanation();
+	this.toggleDisplayedVisualizations(od600StrainWithPhenotypesAndPredictionsVis);
+	dataSetInspectorView.removeAll(250);
+	od600InspectorView.updateView();
+}
+
 /** Utility function to gracefully switch from one visualization to another */
 AppPresenter.prototype.toggleDisplayedVisualizations = function(visToShow)
 {
 	this.visualizationContainers.forEach(function(vis) {
 		if (vis == visToShow) {
-			if (od600StrainVis == vis) {
+			if (od600StrainVis == vis || od600StrainWithPhenotypesAndPredictionsVis == vis) {
 				// So that scrolling works
 				vis.style("display", "block");
 			} else {
@@ -152,12 +168,13 @@ AppPresenter.prototype.showDataSets = function(bisDataSets) {
 	};
 	
 	basynthec.dataSetList.sort(sortByTypeAndRegistration);
-	
-	model.initialize();
-	
-	this.refreshDataSetTypeTables();
-	this.refreshStrainTables();
-	this.refreshOd600StrainTables();
+
+	model.initialize(function(){
+		presenter.refreshDataSetTypeTables();
+		presenter.refreshStrainTables();
+		presenter.refreshOd600StrainTables();
+		presenter.refreshOd600StrainWithPhenotypesAndPredictionsTables();
+	});
 }
 
 AppPresenter.prototype.refreshStrainTables = function() {
@@ -179,6 +196,12 @@ AppPresenter.prototype.refreshOd600StrainTables = function() {
   this.createVis();
  	od600StrainView.updateView(1000);
 }
+
+AppPresenter.prototype.refreshOd600StrainWithPhenotypesAndPredictionsTables = function() {
+  this.createVis();
+  od600StrainWithPhenotypesAndPredictionsView.updateView(1000);
+}
+
 
 AppPresenter.prototype.createVis = function()
 {
@@ -216,7 +239,13 @@ AppPresenter.prototype.createVis = function()
 	od600StrainVis.style("overflow-y", "scroll");	
 	od600StrainView = new Od600StrainView();
 	
-	this.visualizationContainers = [dataSetTypeVis, strainVis, od600StrainVis];
+	od600StrainWithPhenotypesAndPredictionsVis = tableRoot.append("div").style("display", "none");
+	od600StrainWithPhenotypesAndPredictionsVis.style("width", w + "px");
+	od600StrainWithPhenotypesAndPredictionsVis.style("height",w + "px");
+	od600StrainWithPhenotypesAndPredictionsVis.style("overflow-y", "scroll");	
+	od600StrainWithPhenotypesAndPredictionsView = new Od600StrainWithPhenotypesAndPredictionsView();
+	
+	this.visualizationContainers = [dataSetTypeVis, strainVis, od600StrainVis, od600StrainWithPhenotypesAndPredictionsVis];
 	
 	dataSetInspectorView = new DataSetInspectorView();
 	od600InspectorView = new Od600InspectorView();
@@ -406,11 +435,12 @@ function AppModel() {
 	this.dataSetsByType = { };
 }
 
-AppModel.prototype.initialize = function() {
+AppModel.prototype.initialize = function(callback) {
 	this.initializeDataSetsByType();
 	this.initializeDataSetsByStrain();
 	this.initializeStrainGroups();
-	this.initializeOd600Model();	
+	this.initializeOd600Model();
+	this.initializeOd600WithPhenotypesAndPredictionsModel(callback);
 }
 
 /** Compute the dataSetsByType variable */
@@ -448,7 +478,7 @@ AppModel.prototype.initializeDataSetsByStrain = function() {
 AppModel.prototype.initializeStrainGroups = function() {
 	var strains = []
 	for (strainName in this.dataSetsByStrain) {
-		strains.push(strainName)
+		strains.push({name: strainName});
 	}
 	this.strainGroups = createStrainGroups(strains);
 }
@@ -477,6 +507,57 @@ AppModel.prototype.initializeOd600Model= function() {
 	});
 }
 
+AppModel.prototype.initializeOd600WithPhenotypesAndPredictionsModel = function(callback){
+	var model = this;
+	
+	basynthec.getStrainsPhenotypesAndPredictions(function(strainDataMap){
+		
+		var strainsKnownToOpenbisWithPhenotypesAndPredictions = [];
+		var strainsUnknownToOpenbisWithPhenotypesOrPredictions = [];
+		
+		for(strainName in model.dataSetsByStrain){
+			var strainData = strainDataMap[strainName];
+			var strainDatasets = model.dataSetsByStrain[strainName];
+			
+			var hasPhenotypesAndPredictions = strainData && strainData.hasPhenotypes && strainData.hasPredictions;
+		    var hasOd600Datasets = strainDatasets && strainDatasets.dataSets.some(function(dataset){
+		    	return "OD600" == dataset.dataSetTypeCode;
+		    });
+			
+			if(hasPhenotypesAndPredictions && hasOd600Datasets){
+				strainData.isKnown = true;
+				strainsKnownToOpenbisWithPhenotypesAndPredictions.push(strainData);
+			}
+		}
+		
+		for(strainName in strainDataMap){
+			var strainData = strainDataMap[strainName];
+			var strainDatasets = model.dataSetsByStrain[strainName];
+			
+			var hasPhenotypesOrPredictions = strainData && (strainData.hasPhenotypes || strainData.hasPredictions);
+			var hasDatasets = strainDatasets && strainDatasets.dataSets.length > 0;
+			
+			if(hasPhenotypesOrPredictions && !hasDatasets){
+				strainData.isKnown = false;
+				strainsUnknownToOpenbisWithPhenotypesOrPredictions.push(strainData);
+			}
+		}
+		
+		model.od600StrainsWithPhenotypesAndPredictionsGroups = [];
+		model.od600StrainsWithPhenotypesAndPredictionsGroups.push({
+			"mainGroupName" : "Known strains with phenotypes and predictions",
+			"groups" : createStrainGroups(strainsKnownToOpenbisWithPhenotypesAndPredictions)
+		});
+		model.od600StrainsWithPhenotypesAndPredictionsGroups.push({
+			"mainGroupName" : "Unknown strains with phenotypes or predictions",
+			"groups" : createStrainGroups(strainsUnknownToOpenbisWithPhenotypesOrPredictions)
+		});
+		
+		callback();
+	});
+	
+}
+
 AppModel.prototype.od600DataSets = function() {
 	return this.dataSetsByType["OD600"];
 }
@@ -485,6 +566,10 @@ AppModel.prototype.od600DataSets = function() {
  * A utility function that groups strains together based on strain name
  */ 
 function createStrainGroups(strains) {
+	if(!strains || strains.length == 0){
+		return [];
+	}
+	
 	// prefixes of strain names to be grouped togehter
 	var STRAIN_GROUP_PREFIXES = [ "JJS-DIN", "JJS-MGP" ];
 
@@ -494,19 +579,19 @@ function createStrainGroups(strains) {
 	var groups = STRAIN_GROUP_PREFIXES.map(
 			function(strainPrefix) {
 				var filtered = strains.filter(function(strain) { 
-			    return strain.indexOf(strainPrefix) >= 0
+			    return strain.name.indexOf(strainPrefix) >= 0
 			  });
 				var groupStrains = filtered.map(function(strain) {
-					return { name : strain, label : strain.substring(strainPrefix.length)};
+					return { name : strain.name, label : strain.name.substring(strainPrefix.length), data: strain};
 			  });
 				
 				return {groupName : STRAIN_GROUP_PREFIXES_DISPLAY_NAME[strainPrefix], strains : groupStrains};
 	});
 	
 	var otherStrains = strains.filter(function(strain) {
-      return false == STRAIN_GROUP_PREFIXES.some(function(prefix) { return strain.indexOf(prefix) >=0; } );
+      return false == STRAIN_GROUP_PREFIXES.some(function(prefix) { return strain.name.indexOf(prefix) >=0; } );
 	});
-	otherStrains = otherStrains.map(function(strain) { return {name:strain, label:strain}});
+	otherStrains = otherStrains.map(function(strain) { return {name:strain.name, label:strain.name, data: strain}});
 	groups.push({groupName : "Other strains", strains : otherStrains});
 	
 	var sortFunction = sortByProp("name")
@@ -645,6 +730,72 @@ Od600StrainView.prototype.updateView = function(duration)
 			.append("td")
 			.on("click", toggleOd600Inspected)
 			.text(function(d) { return d.label });
+}
+
+/**
+ * The view for the OD600 strains with phenotypes and predictions
+ *
+ * @constructor
+ */
+function Od600StrainWithPhenotypesAndPredictionsView(){
+}
+
+Od600StrainWithPhenotypesAndPredictionsView.prototype.updateView = function(duration)
+{
+	var mainGroupDiv = od600StrainWithPhenotypesAndPredictionsVis.selectAll("div.strainsMainGroup").data(model.od600StrainsWithPhenotypesAndPredictionsGroups)
+		.enter().append("div").attr("class", "strainsMainGroup");
+	
+	mainGroupDiv.append("h2").text(function(d) { return d.mainGroupName });	
+	
+	var strainDiv = mainGroupDiv.selectAll("div.strains").data(function(d){ return d.groups; })
+		.enter().append("div").attr("class", "strains");
+	
+	strainDiv.append("h3").text(function(d) { return d.groupName });
+	strainDiv.append("table").selectAll("tr").data(function(d) {
+					// Group the different sets of strains differently
+					if (d.groupName.indexOf("Other") == 0) return d.strains.reduce(groupBy(3), []);
+					if (d.groupName.indexOf("JJS-MGP") == 0) return d.strains.reduce(groupBy(10), []);
+				
+					// Group the JJS-DIn strains by runs
+					return d.strains.reduce(groupByRuns(10), []) })
+				.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d })
+				.enter()
+			.append("td")
+			.attr("class", function(d){
+				if(d.data.isKnown){
+					return "known";
+				}else{
+					return "unknown";
+				}
+			})
+			.on("click", function(d){
+				if(d.data.isKnown){
+					return toggleOd600Inspected.call(this, d);
+				}
+			})
+			.text(function(d) { return d.label })
+			.style("color", function(d){
+				if(d.data.isKnown){
+					return "black";
+				}else{
+					if(d.data.hasPhenotypes && d.data.hasPredictions){
+						return "green";
+					}else if(d.data.hasPhenotypes){
+						return "blue";
+					}else if(d.data.hasPredictions){
+						return "red";
+					}
+				}
+			});
+	
+	var legend = od600StrainWithPhenotypesAndPredictionsVis.append("div");
+	legend.append("h3").style("font-style","italic").text("Legend");
+	var legendList = legend.append("ul");
+	legendList.append("li").append("span").text("strain with phenotypes and predictions").style("color","green");
+	legendList.append("li").append("span").text("strain with phenotypes only").style("color","blue");
+	legendList.append("li").append("span").text("strain with predictions only").style("color","red");
 }
 
 /**
@@ -932,6 +1083,9 @@ function props_to_pairs(d)
 	var pairs = [];
 	
 	var dataSetStrains = basynthec.getStrains({properties:d});
+	dataSetStrains = dataSetStrains.map(function(strain){
+		return { name : strain };
+	});
 	var strainGroups = createStrainGroups(dataSetStrains);
 	
 	strainGroups.forEach(function(group) {

@@ -1,17 +1,16 @@
 body { font: 14px "Trebuchet MS", sans-serif; }
 
 h1 { font: 16px; }
+h2 {
+  font-family: "Verdana", sans-serif;
+  color: #222;
+}
 h3 { font: 12px; }
 
 .strains { padding-bottom: 10px; }
 
 .strains table { 
 	border-collapse: collapse;
-}
-
-.strains h2 {
-	font-family: "Verdana", sans-serif;
-	color: #222;
 }
 
 .strains td {
@@ -27,6 +26,10 @@ h3 { font: 12px; }
 	color: white;
 	padding: 2px;
 	cursor: pointer;
+}
+
+.strains td.unknown:hover {
+	cursor: auto;
 }
 
 .datasetsummarytable {

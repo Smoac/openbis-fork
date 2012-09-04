@@ -54,6 +54,9 @@ $(document).ready(function() {
 	$("#groupradio3").change(function(event){
 		presenter.switchToOD600View();
 	});
+	$("#groupradio4").change(function(event){
+	  presenter.switchToOD600WithPhenotypesAndPredictionsView();
+  });
 	
 	$('#login-form').submit(function() {
 		$("#login-failed").hide();
@@ -106,6 +109,7 @@ $(document).ready(function() {
 		<input type="radio" name="groupgroup" id="groupradio1" checked> <label for="groupradio1">Data Set Type</label>
 		<input type="radio" name="groupgroup" id="groupradio2"> <label for="groupradio2">Strains</label>
 		<input type="radio" name="groupgroup" id="groupradio3"> <label for="groupradio3">OD600</label>
+		<input type="radio" name="groupgroup" id="groupradio4"> <label for="groupradio4">OD600 with phenotypes and predictions</label>
 	</div>
 </div>
 
