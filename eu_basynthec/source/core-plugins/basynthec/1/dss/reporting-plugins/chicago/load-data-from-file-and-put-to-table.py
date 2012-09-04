@@ -40,5 +40,5 @@ def addDataToTable(dataList, table):
     row.setCell(FIELD_HAS_PHENOTYPES, hasPhenotypes)
 
 def aggregate(parameters, table):
-    data = loadDataFromFile('TODO_FILE_TO_FILE_WITH_SERVER_DATA')
+    data = loadDataFromFile('TODO_PATH_TO_FILE_WITH_SERVER_DATA')
     addDataToTable(data, table)
