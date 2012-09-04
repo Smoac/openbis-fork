@@ -70,8 +70,8 @@ openbis_basynthec.prototype.getStrainsPhenotypesAndPredictions = function(action
 			$.each(response.result.rows, function(index, row){
 				result[row[0].value] = {
 					"name" : row[0].value,
-					"hasPhenotypes" : row[1].value && row[1].value.toUpperCase() == "TRUE",
-					"hasPredictions" : row[2].value && row[2].value.toUpperCase() == "TRUE"
+					"hasPredictions" : row[1].value && row[1].value.toUpperCase() == "TRUE",
+					"hasPhenotypes" : row[2].value && row[2].value.toUpperCase() == "TRUE"
 				}
 			});
 		}
