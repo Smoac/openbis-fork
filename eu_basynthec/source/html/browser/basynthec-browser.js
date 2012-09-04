@@ -311,7 +311,7 @@ AppPresenter.prototype.toggleInspected = function(d, connectedNode) {
   this.updateInspectors(500);
 }
 
-AppPresenter.prototype.toggleOd600Inspected = function(d, connectedNode) {
+AppPresenter.prototype.toggleOd600Inspected = function(d) {
 	this.hideExplanation();
 
 	var lexicalParent = this;
@@ -322,13 +322,20 @@ AppPresenter.prototype.toggleOd600Inspected = function(d, connectedNode) {
 	
 	function classForNode(d) { return  (d.od600Inspected) ? "inspected" : "" };
 
-	if (d.od600Inspected) {
-		var index = od600Inspected.indexOf(d) 
-		if (index > -1)	od600Inspected.splice(index, 1);
-		d.od600Inspected = false;
+	var inspectedItem = null;
+	var inspectedIndex = null;
+	
+	$.each(od600Inspected, function(index, item){
+		if(item.name == d.name){
+			inspectedItem = item;
+			inspectedIndex = index;
+			return false;
+		}
+	});
+	
+	if (inspectedItem) {
+		od600Inspected.splice(inspectedIndex, 1);
 	} else {
-		d.od600Inspected = true;
-		d.connectedNode = connectedNode;
 		od600Inspected.push(d);
 		if (d instanceof DataSetWrapper) {
 			d.dataSets = [{ bis : d.dataSet }];
@@ -339,8 +346,9 @@ AppPresenter.prototype.toggleOd600Inspected = function(d, connectedNode) {
 		}
 	}
 	
-	d3.select(d.connectedNode).attr("class", classForNode(d))
-  this.updateInspectors(500);
+    this.updateInspectors(500);
+    od600StrainView.updateView(1);
+    od600StrainWithPhenotypesAndPredictionsView.updateView(1);
 }
 
 AppPresenter.prototype.retrieveFilesForDataSet = function(ds)
@@ -693,7 +701,13 @@ StrainView.prototype.updateView = function(duration)
 			.text(function(d) { return d.label });
 }
 
-	function toggleOd600Inspected(d) { presenter.toggleOd600Inspected(d, this) }
+function toggleOd600Inspected(d) { presenter.toggleOd600Inspected(d, this) }
+
+function isOd600Inspected(d) {
+	return od600Inspected.some(function(elem, index){
+		return elem.name == d.name;
+	});
+}
 
 /**
  * The view for the OD600 strains
@@ -707,29 +721,36 @@ function Od600StrainView() {
 Od600StrainView.prototype.updateView = function(duration)
 {
 	var strainDiv = od600StrainVis.selectAll("div.strains").data(model.od600StrainGroups)
-		.enter()
-	.append("div")
-		.attr("class", "strains");
-
-	strainDiv
-		.append("h2")
-			.text(function(d) { return d.groupName });
-	strainDiv
-		.append("table")
-			.selectAll("tr").data(function(d) { 
+	strainDiv.enter().append("div").attr("class", "strains").append("h2").text(function(d) { 
+		return d.groupName 
+	})
+	
+	var tables = strainDiv.selectAll("table").data(function(d){
+		return [d];
+	})
+	tables.enter().append("table");
+	
+	var trs = tables.selectAll("tr").data(function(d) {
 					// Group the different sets of strains differently
 					if (d.groupName.indexOf("Other") == 0) return d.strains.reduce(groupBy(3), []);
 					if (d.groupName.indexOf("JJS-MGP") == 0) return d.strains.reduce(groupBy(10), []);
 				
 					// Group the JJS-DIn strains by runs
 					return d.strains.reduce(groupByRuns(10), []) })
-				.enter()
-			.append("tr")
-			.selectAll("td").data(function(d) { return d })
-				.enter()
+    trs.enter().append("tr")
+			
+    var tds = trs.selectAll("td").data(function(d) { return d });
+	tds.enter()
 			.append("td")
 			.on("click", toggleOd600Inspected)
-			.text(function(d) { return d.label });
+			.text(function(d) { return d.label })
+	tds.attr("class", function(d){
+		if(isOd600Inspected(d)){
+			return "inspected"
+		}else{
+			return "";
+		}
+	})
 }
 
 /**
@@ -742,37 +763,38 @@ function Od600StrainWithPhenotypesAndPredictionsView(){
 
 Od600StrainWithPhenotypesAndPredictionsView.prototype.updateView = function(duration)
 {
-	var mainGroupDiv = od600StrainWithPhenotypesAndPredictionsVis.selectAll("div.strainsMainGroup").data(model.od600StrainsWithPhenotypesAndPredictionsGroups)
-		.enter().append("div").attr("class", "strainsMainGroup");
+	var mainGroupDiv = od600StrainWithPhenotypesAndPredictionsVis.selectAll("div.strainsMainGroup").data(model.od600StrainsWithPhenotypesAndPredictionsGroups);
+	mainGroupDiv.enter().append("div").attr("class", "strainsMainGroup").append("h2").text(function(d) { 
+		return d.mainGroupName 
+	});	
+
+	var strainDiv = mainGroupDiv.selectAll("div.strains").data(function(d){ 
+		return d.groups; 
+	})
+	strainDiv.enter().append("div").attr("class", "strains").append("h3").text(function(d) { 
+		return d.groupName 
+	})
 	
-	mainGroupDiv.append("h2").text(function(d) { return d.mainGroupName });	
+	var tables = strainDiv.selectAll("table").data(function(d){
+		return [d];
+	})
+	tables.enter().append("table");
 	
-	var strainDiv = mainGroupDiv.selectAll("div.strains").data(function(d){ return d.groups; })
-		.enter().append("div").attr("class", "strains");
-	
-	strainDiv.append("h3").text(function(d) { return d.groupName });
-	strainDiv.append("table").selectAll("tr").data(function(d) {
+	var trs = tables.selectAll("tr").data(function(d) {
 					// Group the different sets of strains differently
 					if (d.groupName.indexOf("Other") == 0) return d.strains.reduce(groupBy(3), []);
 					if (d.groupName.indexOf("JJS-MGP") == 0) return d.strains.reduce(groupBy(10), []);
 				
 					// Group the JJS-DIn strains by runs
 					return d.strains.reduce(groupByRuns(10), []) })
-				.enter()
-			.append("tr")
-			.selectAll("td").data(function(d) { return d })
-				.enter()
+    trs.enter().append("tr")
+			
+    var tds = trs.selectAll("td").data(function(d) { return d });
+	tds.enter()
 			.append("td")
-			.attr("class", function(d){
-				if(d.data.isKnown){
-					return "known";
-				}else{
-					return "unknown";
-				}
-			})
 			.on("click", function(d){
 				if(d.data.isKnown){
-					return toggleOd600Inspected.call(this, d);
+					return toggleOd600Inspected(d);
 				}
 			})
 			.text(function(d) { return d.label })
@@ -788,11 +810,24 @@ Od600StrainWithPhenotypesAndPredictionsView.prototype.updateView = function(dura
 						return "red";
 					}
 				}
-			});
+			})
+	tds.attr("class", function(d){
+		var classes = [];
+		
+		if(isOd600Inspected(d)){
+			classes.push("inspected");
+		}
+		if(!d.data.isKnown){
+			classes.push("unknown");
+		}
+		
+		return classes.join(" ");
+	})
 	
-	var legend = od600StrainWithPhenotypesAndPredictionsVis.append("div");
-	legend.append("h3").style("font-style","italic").text("Legend");
-	var legendList = legend.append("ul");
+	var legend = od600StrainWithPhenotypesAndPredictionsVis.selectAll("div.legend").data([model.od600StrainsWithPhenotypesAndPredictionsGroups]);
+	legend.enter().append("div").attr("class","legend").append("h3").style("font-style","italic").text("Legend");
+	var legendList = legend.selectAll("ul").data(function(d){ return [d] }).enter();
+	legendList.append("ul");
 	legendList.append("li").append("span").text("strain with phenotypes and predictions").style("color","green");
 	legendList.append("li").append("span").text("strain with phenotypes only").style("color","blue");
 	legendList.append("li").append("span").text("strain with predictions only").style("color","red");
