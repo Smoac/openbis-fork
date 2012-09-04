@@ -22,28 +22,28 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.FindBys;
 
-public class SpaceBrowser extends BrowserPage
+public class SampleTypeBrowser extends BrowserPage
 {
+
+    @FindBy(id = "add-entity-type")
+    private WebElement addSampleTypeButton;
 
     @FindBys(
         {
-                @FindBy(id = "openbis_space-browser-grid"),
+                @FindBy(id = "openbis_sample-type-browser-grid"),
                 @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-header \")]") })
     private List<WebElement> columns;
 
     @FindBys(
         {
-                @FindBy(id = "openbis_space-browser-grid"),
+                @FindBy(id = "openbis_sample-type-browser-grid"),
                 @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-col \")]") })
     private List<WebElement> data;
 
-    @FindBy(id = "openbis_space-browser_add-button")
-    private WebElement addSpaceButton;
-
-    public AddSpaceDialog addSpace()
+    public AddSampleTypeDialog add()
     {
-        addSpaceButton.click();
-        return get(AddSpaceDialog.class);
+        addSampleTypeButton.click();
+        return get(AddSampleTypeDialog.class);
     }
 
     @Override
@@ -57,4 +57,5 @@ public class SpaceBrowser extends BrowserPage
     {
         return this.data;
     }
+
 }

@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.hamcrest.Description;
@@ -33,26 +34,31 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.FindBy;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
-import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
+import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
-import ch.systemsx.cisd.openbis.uitest.page.SpaceBrowser;
 
 public abstract class SeleniumTest
 {
     public static WebDriver driver;
 
-    protected PageProxy pageProxy;
-
-    protected LoginPage loginPage;
+    private PageProxy pageProxy;
 
     private ScreenShotter shotter;
+
+    protected ApplicationRunner openbis;
 
     @BeforeSuite
     public void initWebDriver()
     {
+        System.setProperty("webdriver.firefox.bin",
+                "/Users/anttil/Desktop/Firefox 10.app/Contents/MacOS/firefox");
+
+        System.setProperty("webdriver.firefox.profile", "default");
+
         driver = new FirefoxDriver();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         delete(new File("targets/dist"));
@@ -64,27 +70,39 @@ public abstract class SeleniumTest
         driver.quit();
     }
 
-    @BeforeMethod
-    public void initPageProxy(Method method)
-    {
-        this.shotter =
-                new ScreenShotter((TakesScreenshot) driver, "targets/dist/"
-                        + this.getClass().getSimpleName() + "/" + method.getName());
-        this.pageProxy = new PageProxy(shotter);
-    }
-
-    @BeforeMethod(dependsOnMethods = "initPageProxy")
+    @BeforeClass
     public void gotoLoginPage()
     {
         driver.manage().deleteAllCookies();
-        driver.get("https://sprint-openbis.ethz.ch/openbis/");
+        // driver.get("https://sprint-openbis.ethz.ch/openbis/");
+        driver.get("http://127.0.0.1:8888/ch.systemsx.cisd.openbis.OpenBIS/index.html?gwt.codesvr=127.0.0.1:9997");
+
         try
         {
             driver.switchTo().alert().accept();
         } catch (NoAlertPresentException e)
         {
         }
-        this.loginPage = get(LoginPage.class);
+    }
+
+    @BeforeClass(dependsOnMethods = "gotoLoginPage")
+    public void initPageProxy()
+    {
+        this.shotter =
+                new ScreenShotter((TakesScreenshot) driver, "targets/dist/"
+                        + this.getClass().getSimpleName() + "/fixture");
+        this.pageProxy = new PageProxy(shotter);
+        this.openbis = new ApplicationRunner(this.pageProxy);
+    }
+
+    @BeforeMethod(alwaysRun = true)
+    public void initPageProxy(Method method)
+    {
+        this.shotter =
+                new ScreenShotter((TakesScreenshot) driver, "targets/dist/"
+                        + this.getClass().getSimpleName() + "/" + method.getName());
+        this.pageProxy = new PageProxy(shotter);
+        this.openbis = new ApplicationRunner(this.pageProxy);
     }
 
     @AfterMethod
@@ -141,71 +159,112 @@ public abstract class SeleniumTest
         public boolean matchesSafely(WebDriver ignore)
         {
             Object o = pageProxy.get(pageClass);
-            for (Field field : pageClass.getDeclaredFields())
+            while (pageClass != null)
             {
-                if ((field.getAnnotation(FindBy.class) != null)
-                        && (field.getAnnotation(NotAlwaysPresent.class) == null))
+                for (Field field : pageClass.getDeclaredFields())
                 {
-                    WebElement element;
-                    try
+                    if ((field.getAnnotation(FindBy.class) != null)
+                            && (field.getAnnotation(NotAlwaysPresent.class) == null))
                     {
-                        field.setAccessible(true);
-                        element = (WebElement) field.get(o);
-                    } catch (IllegalArgumentException ex)
-                    {
-                        ex.printStackTrace();
-                        return false;
-                    } catch (IllegalAccessException ex)
-                    {
-                        ex.printStackTrace();
-                        return false;
-                    }
-                    if (!element.isDisplayed())
-                    {
-                        return false;
+                        WebElement element;
+                        try
+                        {
+                            field.setAccessible(true);
+                            element = (WebElement) field.get(o);
+                        } catch (IllegalArgumentException ex)
+                        {
+                            ex.printStackTrace();
+                            return false;
+                        } catch (IllegalAccessException ex)
+                        {
+                            ex.printStackTrace();
+                            return false;
+                        }
+                        if (!element.isDisplayed())
+                        {
+                            return false;
+                        }
                     }
                 }
+
+                pageClass = (Class<? extends Page>) pageClass.getSuperclass();
             }
             return true;
         }
 
     }
 
-    protected Matcher<SpaceBrowser> listsSpace(String spaceName)
+    protected Matcher<Class<? extends BrowserPage>> listsSampleType(Browsable browsable)
     {
-        return new SpaceMatcher(spaceName);
+        return new ListsElementMatcher(browsable, new Opener(this.openbis)
+            {
+                @Override
+                public BrowserPage open(Class<? extends BrowserPage> pageClass)
+                {
+                    return this.openbis.browseToSampleTypeBrowser();
+                }
+
+            });
     }
 
-    private static class SpaceMatcher extends TypeSafeMatcher<SpaceBrowser>
+    protected Matcher<Class<? extends BrowserPage>> listsSpace(Browsable browsable)
     {
+        return new ListsElementMatcher(browsable, new Opener(this.openbis)
+            {
+                @Override
+                public BrowserPage open(Class<? extends BrowserPage> pageClass)
+                {
+                    return this.openbis.browseToSpaceBrowser();
+                }
 
-        private String expected;
+            });
+    }
 
-        public SpaceMatcher(String expected)
+    private abstract class Opener
+    {
+        protected ApplicationRunner openbis;
+
+        public Opener(ApplicationRunner openbis)
+        {
+            this.openbis = openbis;
+        }
+
+        public abstract BrowserPage open(Class<? extends BrowserPage> pageClass);
+
+    }
+
+    private static class ListsElementMatcher extends
+            TypeSafeMatcher<Class<? extends BrowserPage>>
+    {
+        private Browsable expected;
+
+        private Opener opener;
+
+        public ListsElementMatcher(Browsable expected, Opener opener)
         {
             this.expected = expected;
+            this.opener = opener;
         }
 
         @Override
         public void describeTo(Description description)
         {
-            description.appendText("Given list contains a space named " + expected);
+            description.appendText("SampleTypeBrowser that contains element " + this.expected);
         }
 
         @Override
-        public boolean matchesSafely(SpaceBrowser browser)
+        public boolean matchesSafely(Class<? extends BrowserPage> actual)
         {
-            for (String space : browser.getSpaces())
+            BrowserPage browser = opener.open(actual);
+
+            for (Map<String, String> row : browser.getTableContent())
             {
-                if (this.expected.equalsIgnoreCase(space))
+                if (this.expected.isRepresentedBy(row))
                 {
                     return true;
                 }
             }
             return false;
         }
-
     }
-
-    protected String PWD = "selenium4CISD";
 }

@@ -17,13 +17,22 @@
 package ch.systemsx.cisd.openbis.uitest.page;
 
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 
-public class AdminMenu extends Page
+import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
+
+public class AdminMenu extends PrivatePage
 {
 
     @FindBy(id = "openbis_top-menu_ADMINISTRATION_MENU_MANAGE_GROUPS")
     private WebElement spaces;
+
+    @FindBy(id = "ADMINISTRATION_MENU_MANAGE_TYPES")
+    private WebElement types;
+
+    @FindBy(id = "openbis_top-menu_SAMPLE_MENU_TYPES")
+    private WebElement sampleTypes;
 
     public SpaceBrowser spaces()
     {
@@ -31,4 +40,16 @@ public class AdminMenu extends Page
         return get(SpaceBrowser.class);
     }
 
+    public AdminMenu types()
+    {
+        Actions builder = new Actions(SeleniumTest.driver);
+        builder.moveToElement(types).build().perform();
+        return get(AdminMenu.class);
+    }
+
+    public SampleTypeBrowser sampleTypes()
+    {
+        sampleTypes.click();
+        return get(SampleTypeBrowser.class);
+    }
 }

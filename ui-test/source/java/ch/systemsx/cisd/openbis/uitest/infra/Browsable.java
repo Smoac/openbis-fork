@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.infra;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
+import java.util.Map;
 
-public class InvalidPasswordDialog extends Page
+/**
+ * @author anttil
+ */
+public interface Browsable
 {
 
-    @FindBy(id = "login_failed_dialog")
-    private WebElement errorDialog;
+    public boolean isRepresentedBy(Map<String, String> row);
 
-    public LoginPage dismiss()
-    {
-        findElement(errorDialog, "//button[text()=\"OK\"]").click();
-        return get(LoginPage.class);
-    }
 }

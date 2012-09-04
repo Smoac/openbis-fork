@@ -14,20 +14,33 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.infra;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-
-public class InvalidPasswordDialog extends Page
+/**
+ * @author anttil
+ */
+public enum User
 {
+    ADMIN("selenium", "selenium4CISD");
 
-    @FindBy(id = "login_failed_dialog")
-    private WebElement errorDialog;
+    private String name;
 
-    public LoginPage dismiss()
+    private String password;
+
+    private User(String name, String password)
     {
-        findElement(errorDialog, "//button[text()=\"OK\"]").click();
-        return get(LoginPage.class);
+        this.name = name;
+        this.password = password;
     }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public String getPassword()
+    {
+        return password;
+    }
+
 }

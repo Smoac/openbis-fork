@@ -20,17 +20,33 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Space;
+
 public class AddSpaceDialog extends Page
 {
 
     @FindBy(id = "openbis_dialog-code-field-input")
     private WebElement code;
 
+    @FindBy(id = "openbis_dialog-save-button")
+    private WebElement saveButton;
+
     public SpaceBrowser addSpace(String name, String description)
     {
         this.code.sendKeys(name);
-        findElementWithText("Save", By.className("x-btn-text")).click();
+        saveButton.click();
         wait(By.xpath("//div[.=\"" + name.toUpperCase() + "\"]"));
+        return get(SpaceBrowser.class);
+    }
+
+    public void fillWith(Space space)
+    {
+        this.code.sendKeys(space.getCode());
+    }
+
+    public SpaceBrowser save()
+    {
+        this.saveButton.click();
         return get(SpaceBrowser.class);
     }
 }

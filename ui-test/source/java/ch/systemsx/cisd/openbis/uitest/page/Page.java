@@ -20,6 +20,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -33,6 +37,7 @@ import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
 
 public abstract class Page
 {
+
     private PageProxy pageProxy;
 
     private ScreenShotter shotter;
@@ -68,9 +73,25 @@ public abstract class Page
         return (WebElement) ScreenShotProxy.newInstance(element, shotter);
     }
 
+    public WebElement findElement(WebElement element, String xpath)
+    {
+        return (WebElement) ScreenShotProxy.newInstance(element.findElement(By.xpath(xpath)),
+                shotter);
+    }
+
+    public Collection<WebElement> findElements(WebElement element, String xpath)
+    {
+        Collection<WebElement> elements = element.findElements(By.xpath(xpath));
+        List<WebElement> wrapped = new ArrayList<WebElement>();
+        for (WebElement e : elements)
+        {
+            wrapped.add((WebElement) ScreenShotProxy.newInstance(e, shotter));
+        }
+        return wrapped;
+    }
+
     public void wait(final By by)
     {
-
         ExpectedCondition<?> condition = new ExpectedCondition<WebElement>()
             {
                 @Override
@@ -82,5 +103,4 @@ public abstract class Page
 
         new WebDriverWait(SeleniumTest.driver, 10).until(condition);
     }
-
 }

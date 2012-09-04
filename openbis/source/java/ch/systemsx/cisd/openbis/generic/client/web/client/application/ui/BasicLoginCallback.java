@@ -30,21 +30,25 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
- * Abstract super class of 
- *
+ * Abstract super class of
+ * 
  * @author Franz-Josef Elmer
  */
 public class BasicLoginCallback extends AbstractAsyncCallback<SessionContext>
 {
     private static final int TIMER_PERIOD = 30 * 60 * 1000; // 30min
+
     private final String warningMessageKey;
 
-    public BasicLoginCallback(final IViewContext<ICommonClientServiceAsync> viewContext, String warningMessageKey)
+    public static final String LOGIN_FAILED_DIALOG_ID = "login_failed_dialog";
+
+    public BasicLoginCallback(final IViewContext<ICommonClientServiceAsync> viewContext,
+            String warningMessageKey)
     {
         super(viewContext);
         this.warningMessageKey = warningMessageKey;
     }
-    
+
     @Override
     public final void process(final SessionContext sessionContext)
     {
@@ -69,6 +73,7 @@ public class BasicLoginCallback extends AbstractAsyncCallback<SessionContext>
 
     protected void handleMissingSession()
     {
+
         MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext
                 .getMessage(warningMessageKey), new Listener<MessageBoxEvent>()
             {
@@ -82,7 +87,7 @@ public class BasicLoginCallback extends AbstractAsyncCallback<SessionContext>
                 {
                     viewContext.getPageController().reload(false);
                 }
-            });
+            }).getDialog().setId(LOGIN_FAILED_DIALOG_ID);
     }
 
     /**
@@ -91,7 +96,7 @@ public class BasicLoginCallback extends AbstractAsyncCallback<SessionContext>
     protected void cleanup()
     {
     }
-    
+
     /** tries to keep session alive until user logs out or closes browser */
     private void keepSessionAlive()
     {

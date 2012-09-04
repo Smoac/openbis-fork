@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.administration;
 
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-
-import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 
 /**
  * Types menu for managing entity types.
@@ -36,6 +36,7 @@ public class TypesMenu extends MenuItem
     public TypesMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
     {
         super(messageProvider.getMessage(Dict.MENU_TYPES));
+        setId(TopMenu.ActionMenuKind.ADMINISTRATION_MENU_MANAGE_TYPES.toString());
 
         Menu submenu = new Menu();
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_TYPES, messageProvider,

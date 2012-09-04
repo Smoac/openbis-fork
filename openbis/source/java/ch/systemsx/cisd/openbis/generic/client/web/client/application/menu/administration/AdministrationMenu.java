@@ -39,6 +39,7 @@ public class AdministrationMenu extends TopMenuItem
     public AdministrationMenu(final IViewContext<?> viewContext, ComponentProvider componentProvider)
     {
         super(viewContext.getMessage(Dict.MENU_ADMINISTRATION));
+        this.setId("admin_menu");
 
         IMessageProvider messageProvider = viewContext;
         Menu submenu = new Menu();

@@ -2,26 +2,30 @@ package ch.systemsx.cisd.openbis.uitest;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import java.util.UUID;
-
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.page.AddSpaceDialog;
-import ch.systemsx.cisd.openbis.uitest.page.HomePage;
+import ch.systemsx.cisd.openbis.uitest.infra.Space;
+import ch.systemsx.cisd.openbis.uitest.infra.User;
 import ch.systemsx.cisd.openbis.uitest.page.SpaceBrowser;
 
 public class SpaceTest extends SeleniumTest
 {
+    @BeforeClass
+    public void login()
+    {
+        openbis.login(User.ADMIN);
+    }
+
     @Test
     public void newSpaceIsListedInSpaceBrowser() throws Exception
     {
-        String spaceName = "selenium-spacetest-" + UUID.randomUUID();
+        Space space = new Space();
 
-        HomePage home = loginPage.loginAs("selenium", PWD);
-        AddSpaceDialog addSpaceDialog = home.adminMenu().spaces().addSpace();
-        SpaceBrowser spaceBrowser = addSpaceDialog.addSpace(spaceName, "description");
-        assertThat(spaceBrowser, listsSpace(spaceName));
+        openbis.createSpace(space);
+
+        assertThat(SpaceBrowser.class, listsSpace(space));
     }
 
 }

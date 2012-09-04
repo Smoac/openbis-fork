@@ -50,6 +50,7 @@ public class TopMenu extends LayoutContainer
     public static enum ActionMenuKind implements IActionMenuItem
     {
         ADMINISTRATION_MENU_MANAGE_GROUPS,
+        ADMINISTRATION_MENU_MANAGE_TYPES,
 
         AUTHORIZATION_MENU_USERS, AUTHORIZATION_MENU_ROLES,
         AUTHORIZATION_MENU_AUTHORIZATION_GROUPS,

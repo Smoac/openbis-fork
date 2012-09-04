@@ -66,6 +66,9 @@ abstract public class AbstractSaveDialog extends Window
 
     public static final String SAVE_BUTTON_ID = GenericConstants.ID_PREFIX + "dialog-save-button";
 
+    public static final String CANCEL_BUTTON_ID = GenericConstants.ID_PREFIX
+            + "dialog-cancel-button";
+
     private final IDelegatedAction postSaveCallback;
 
     private final IViewContext<?> viewContext;
@@ -110,6 +113,7 @@ abstract public class AbstractSaveDialog extends Window
                                     hide();
                                 }
                             });
+        button.setId(CANCEL_BUTTON_ID);
         return button;
     }
 

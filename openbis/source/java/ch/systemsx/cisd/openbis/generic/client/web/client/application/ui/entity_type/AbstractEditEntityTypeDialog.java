@@ -68,6 +68,7 @@ public abstract class AbstractEditEntityTypeDialog<T extends EntityType> extends
         scriptChooser =
                 createScriptChooserField(viewContext, null, true,
                         ScriptType.ENTITY_VALIDATION, entityKind);
+        scriptChooser.setId(DIALOG_ID + "-script-chooser");
         addField(scriptChooser);
         scriptChooser.setValue(entityType.getValidationScript() != null ? entityType
                 .getValidationScript().getName() : "");

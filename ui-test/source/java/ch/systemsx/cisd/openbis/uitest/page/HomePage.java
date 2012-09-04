@@ -16,13 +16,12 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
 import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
 
-public class HomePage extends Page
+public class HomePage extends PrivatePage
 {
 
     @NotAlwaysPresent
@@ -32,10 +31,4 @@ public class HomePage extends Page
     @FindBy(id = "openbis_search-widget_text-field-input")
     private WebElement searchTextBox;
 
-    public AdminMenu adminMenu()
-    {
-        WebElement adminMenuButton = findElementWithText("Admin", By.className("x-btn-text"));
-        adminMenuButton.click();
-        return get(AdminMenu.class);
-    }
 }

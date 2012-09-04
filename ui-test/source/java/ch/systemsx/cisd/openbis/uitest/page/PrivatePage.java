@@ -19,15 +19,18 @@ package ch.systemsx.cisd.openbis.uitest.page;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
-public class InvalidPasswordDialog extends Page
+/**
+ * @author anttil
+ */
+public abstract class PrivatePage extends Page
 {
+    @FindBy(id = "admin_menu")
+    private WebElement adminMenuButton;
 
-    @FindBy(id = "login_failed_dialog")
-    private WebElement errorDialog;
-
-    public LoginPage dismiss()
+    public AdminMenu adminMenu()
     {
-        findElement(errorDialog, "//button[text()=\"OK\"]").click();
-        return get(LoginPage.class);
+        adminMenuButton.click();
+        return get(AdminMenu.class);
     }
+
 }
