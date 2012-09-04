@@ -50,11 +50,11 @@ public final class Main
 {
     private static final String DATAMOVER_PID_FILE_NAME = "datamover.pid";
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, Main.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            Main.class);
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, Main.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            Main.class);
 
     private static final UncaughtExceptionHandler loggingExceptionHandler =
             new UncaughtExceptionHandler()
@@ -107,15 +107,16 @@ public final class Main
         if (parameters.tryGetManualInterventionDir() != null)
         {
             final IFileStore dummyStore =
-                    FileStoreFactory.createLocal(parameters.tryGetManualInterventionDir(),
+                    FileStoreFactory.createLocal(
+                            parameters.tryGetManualInterventionDir().getPath(),
                             "manual intervention", factory, false);
             stores.add(dummyStore);
         }
         if (parameters.tryGetExtraCopyDir() != null)
         {
             final IFileStore dummyStore =
-                    FileStoreFactory.createLocal(parameters.tryGetExtraCopyDir(), "extra-copy",
-                            factory, false);
+                    FileStoreFactory.createLocal(parameters.tryGetExtraCopyDir().getPath(),
+                            "extra-copy", factory, false);
             stores.add(dummyStore);
         }
         final IPathCopier copyProcess = factory.getCopier(false);
@@ -150,7 +151,7 @@ public final class Main
     {
         final HostAwareFileWithHighwaterMark outgoingTarget = parameters.getOutgoingTarget();
         FileUtilities.writeToFile(createDeleteOnExitFile(DataMover.OUTGOING_TARGET_LOCATION_FILE),
-                outgoingTarget.getCanonicalPath());
+                outgoingTarget.getPathDescription());
     }
 
     private final static File createDeleteOnExitFile(final String fileName)
@@ -166,7 +167,7 @@ public final class Main
         try
         {
             initLog();
-            msgStart = "Datamover parameters wrong:"; 
+            msgStart = "Datamover parameters wrong:";
             final Parameters parameters = new Parameters(args);
             msgStart = "";
             printInitialLogMessage(parameters);
@@ -180,8 +181,8 @@ public final class Main
             }
         } catch (final HighLevelException e)
         {
-            System.err.printf(msgStart + " [%s: %s]\n", e.getClass().getSimpleName(), e
-                    .getMessage());
+            System.err.printf(msgStart + " [%s: %s]\n", e.getClass().getSimpleName(),
+                    e.getMessage());
             System.exit(1);
         } catch (final RuntimeException e)
         {

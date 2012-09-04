@@ -129,13 +129,16 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         this.incomingStore = parameters.getIncomingStore(factory);
         final File sourceDirectory = bufferDirs.getCopyInProgressDir();
         this.copyInProgressStore =
-                FileStoreFactory.createLocal(sourceDirectory, "copy-in-progress", factory, false);
+                FileStoreFactory.createLocal(sourceDirectory.getPath(), "copy-in-progress",
+                        factory, false);
         this.pathMover = factory.getMover();
         this.bufferDirs = bufferDirs;
         this.storeItemFilter = createFilter(timeProvider);
         this.remotePathMover =
-                createRemotePathMover(incomingStore, FileStoreFactory.createLocal(
-                        bufferDirs.getCopyInProgressDir(), "local", factory, false));
+                createRemotePathMover(
+                        incomingStore,
+                        FileStoreFactory.createLocal(bufferDirs.getCopyInProgressDir()
+                                .getPath(), "local", factory, false));
 
     }
 

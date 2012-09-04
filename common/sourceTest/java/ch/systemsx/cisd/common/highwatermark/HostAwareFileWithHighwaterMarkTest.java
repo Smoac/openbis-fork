@@ -63,21 +63,23 @@ public final class HostAwareFileWithHighwaterMarkTest
         HostAwareFileWithHighwaterMark fileWithHighwaterMark =
                 HostAwareFileWithHighwaterMark.fromProperties(properties, filePropertyKey);
         // Default value is -1
-        assertEquals(new File(path), fileWithHighwaterMark.getFile());
+        assertEquals(new File(path), fileWithHighwaterMark.getLocalFile());
+        assertEquals("/my/path", fileWithHighwaterMark.getPath());
+        assertEquals("/my/path", fileWithHighwaterMark.getPathDescription());
         assertEquals(-1, fileWithHighwaterMark.getHighwaterMark());
         // 100Kb
         properties.setProperty(filePropertyKey + HostAwareFileWithHighwaterMark.SEP
                 + HostAwareFileWithHighwaterMark.HIGHWATER_MARK_PROPERTY_KEY, "100");
         fileWithHighwaterMark =
                 HostAwareFileWithHighwaterMark.fromProperties(properties, filePropertyKey);
-        assertEquals(new File(path), fileWithHighwaterMark.getFile());
+        assertEquals(new File(path), fileWithHighwaterMark.getLocalFile());
         assertEquals(100, fileWithHighwaterMark.getHighwaterMark());
         // Meaningless value
         properties.setProperty(filePropertyKey + HostAwareFileWithHighwaterMark.SEP
                 + HostAwareFileWithHighwaterMark.HIGHWATER_MARK_PROPERTY_KEY, "notANumber");
         fileWithHighwaterMark =
                 HostAwareFileWithHighwaterMark.fromProperties(properties, filePropertyKey);
-        assertEquals(new File(path), fileWithHighwaterMark.getFile());
+        assertEquals(new File(path), fileWithHighwaterMark.getLocalFile());
         assertEquals(-1, fileWithHighwaterMark.getHighwaterMark());
     }
 
@@ -94,8 +96,9 @@ public final class HostAwareFileWithHighwaterMarkTest
                 HostAwareFileWithHighwaterMark.fromProperties(properties, key);
         assertEquals(123L, fileWithHighwaterMark.getHighwaterMark());
         assertEquals("localhost", fileWithHighwaterMark.tryGetHost());
+        assertEquals("/my/path", fileWithHighwaterMark.getPath());
         assertNull(fileWithHighwaterMark.tryGetRsyncModule());
-        assertEquals(new File("/my/path"), fileWithHighwaterMark.getFile());
+        assertEquals("localhost:/my/path", fileWithHighwaterMark.getPathDescription());
     }
 
     @Test
@@ -107,7 +110,7 @@ public final class HostAwareFileWithHighwaterMarkTest
         assertEquals(123L, file.getHighwaterMark());
         assertNull(file.tryGetHost());
         assertNull(file.tryGetRsyncModule());
-        assertEquals(new File(hostFilePath).getCanonicalFile(), file.getFile());
+        assertEquals(new File(hostFilePath).getCanonicalFile(), file.getLocalFile());
     }
 
     @Test
@@ -123,7 +126,7 @@ public final class HostAwareFileWithHighwaterMarkTest
                 HostAwareFileWithHighwaterMark.fromProperties(properties, key);
         assertEquals(123L, fileWithHighwaterMark.getHighwaterMark());
         assertEquals("localhost", fileWithHighwaterMark.tryGetHost());
+        assertEquals("/my/path", fileWithHighwaterMark.getPath());
         assertEquals("my_module", fileWithHighwaterMark.tryGetRsyncModule());
-        assertEquals(new File("/my/path"), fileWithHighwaterMark.getFile());
     }
 }

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.highwatermark;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.concurrent.Callable;
@@ -206,7 +205,7 @@ public final class HighwaterMarkWatcher implements Runnable
             throw new EnvironmentFailureException(errorMsg);
         }
         return new HighwaterMarkState(new HostAwareFileWithHighwaterMark(file.tryGetHost(), file
-                .getFile(), file.tryGetRsyncModule(), highwaterMarkInKb), freeSpaceInKb);
+                .getPath(), file.tryGetRsyncModule(), highwaterMarkInKb), freeSpaceInKb);
     }
 
     /**
@@ -242,7 +241,7 @@ public final class HighwaterMarkWatcher implements Runnable
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug(String.format("Free space on '%s': %s, highwater mark: %s.",
-                        state.hostAwareFileWithHighwaterMark.getCanonicalPath(),
+                        state.hostAwareFileWithHighwaterMark.getPathDescription(),
                         displayKilobyteValue(state.freeSpace),
                         displayKilobyteValue(highwaterMarkInKb)));
             }
@@ -272,9 +271,9 @@ public final class HighwaterMarkWatcher implements Runnable
             this.freeSpace = freeSpace;
         }
 
-        public final File getPath()
+        public final String getPath()
         {
-            return hostAwareFileWithHighwaterMark.getFile();
+            return hostAwareFileWithHighwaterMark.getPath();
         }
 
         /** Returns the free space (in <i>kilobytes</i>). */
@@ -315,7 +314,7 @@ public final class HighwaterMarkWatcher implements Runnable
         /** Returns the canonical path. */
         public final String getPath()
         {
-            return highwaterMarkState.hostAwareFileWithHighwaterMark.getCanonicalPath();
+            return highwaterMarkState.hostAwareFileWithHighwaterMark.getPath();
         }
 
         public final long getFreeSpace()

@@ -46,7 +46,7 @@ public final class LocalBufferDirs
             final String copyInProgressDirName, final String copyCompleteDirName,
             final String readyToMoveDirName, final String tempDirName)
     {
-        final File bufferDirPath = bufferDir.getFile();
+        final File bufferDirPath = bufferDir.getLocalFile();
         this.bufferDirHighwaterMark = bufferDir.getHighwaterMark();
         this.copyInProgressDir = ensureDirectoryExists(bufferDirPath, copyInProgressDirName);
         this.copyCompleteDir = ensureDirectoryExists(bufferDirPath, copyCompleteDirName);

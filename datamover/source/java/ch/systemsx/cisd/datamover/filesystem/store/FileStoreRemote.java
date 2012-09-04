@@ -286,7 +286,7 @@ public class FileStoreRemote extends AbstractFileStore
     {
         if (itemOrNull == null)
         {
-            return getPath().getPath().replace('\\', '/');
+            return getPath().replace('\\', '/');
         } else
         {
             return StoreItem.asFile(getPath(), itemOrNull).getPath().replace('\\', '/');

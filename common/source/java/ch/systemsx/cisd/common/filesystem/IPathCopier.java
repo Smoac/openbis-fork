@@ -77,7 +77,7 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      *            no password is used when accessing the rsync server.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
-    Status copyToRemote(File sourcePath, File destinationDirectory, String destinationHostOrNull,
+    Status copyToRemote(File sourcePath, String destinationDirectory, String destinationHostOrNull,
             String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull);
 
     /**
@@ -98,7 +98,7 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      *            no password is used when accessing the rsync server.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
-    Status copyContentToRemote(File sourcePath, File destinationDirectory,
+    Status copyContentToRemote(File sourcePath, String destinationDirectory,
             String destinationHostOrNull, String rsyncModuleNameOrNull,
             String rsyncPasswordFileOrNull);
 
@@ -118,7 +118,7 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      *            no password is used when accessing the rsync server.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
-    Status copyFromRemote(File sourcePath, String sourceHost, File destinationDirectory,
+    Status copyFromRemote(String sourcePath, String sourceHost, File destinationDirectory,
             String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull);
 
     /**
@@ -138,7 +138,7 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      *            no password is used when accessing the rsync server.
      * @return The status of the operation, {@link Status#OK} if everything went OK.
      */
-    Status copyContentFromRemote(File sourcePath, String sourceHost, File destinationDirectory,
+    Status copyContentFromRemote(String sourcePath, String sourceHost, File destinationDirectory,
             String rsyncModuleNameOrNull, String rsyncPasswordFileOrNull);
 
     /**

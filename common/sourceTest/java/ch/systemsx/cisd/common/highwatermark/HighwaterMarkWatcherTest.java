@@ -202,7 +202,7 @@ public final class HighwaterMarkWatcherTest
         final long missingSpace = DEFAULT_WATERMARK - freeSpaces[i];
         assertEquals(String.format(
                 HighwaterMarkWatcher.NotificationLogChangeListener.WARNING_LOG_FORMAT, DEFAULT_PATH
-                        .getCanonicalPath(), HighwaterMarkWatcher
+                        .getPathDescription(), HighwaterMarkWatcher
                         .displayKilobyteValue(DEFAULT_WATERMARK), HighwaterMarkWatcher
                         .displayKilobyteValue(freeSpaces[i]), HighwaterMarkWatcher
                         .displayKilobyteValue(missingSpace)), logRecorder.getLogContent());
@@ -216,7 +216,7 @@ public final class HighwaterMarkWatcherTest
         highwaterMarkWatcher.setPathAndRun(DEFAULT_PATH);
         assertEquals(String.format(
                 HighwaterMarkWatcher.NotificationLogChangeListener.INFO_LOG_FORMAT, DEFAULT_PATH
-                        .getCanonicalPath(), HighwaterMarkWatcher
+                        .getPathDescription(), HighwaterMarkWatcher
                         .displayKilobyteValue(DEFAULT_WATERMARK), HighwaterMarkWatcher
                         .displayKilobyteValue(freeSpaces[i])), logRecorder.getLogContent());
         // Space still OK. Do not inform the administrator.
@@ -240,7 +240,7 @@ public final class HighwaterMarkWatcherTest
         final HighwaterMarkState highwaterMarkState =
                 highwaterMarkWatcher.getHighwaterMarkState(DEFAULT_PATH);
         assertEquals(highwaterMarkState.getFreeSpace(), freeSpace);
-        assertEquals(highwaterMarkState.getPath(), DEFAULT_PATH.getFile());
+        assertEquals(highwaterMarkState.getPath(), DEFAULT_PATH.getPath());
         assertEquals(highwaterMarkState.getHighwaterMark(), DEFAULT_WATERMARK);
         assertFalse(HighwaterMarkWatcher.isBelow(highwaterMarkState));
         context.assertIsSatisfied();

@@ -52,16 +52,16 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
 
     /**
      * @param hostOrNull the host on which given <var>file</var> is located.
-     * @param file the file path.
+     * @param path the file path.
      * @param rsyncModuleOrNull The name of the module on the rsync server or <code>null</code>, if
      *            no rsync server should be used.
      * @param highwaterMarkInKb the high water mark in <i>kilobytes</i>. <code>-1</code> means that
      *            the system will not be watching.
      */
-    public HostAwareFileWithHighwaterMark(final String hostOrNull, final File file,
+    public HostAwareFileWithHighwaterMark(final String hostOrNull, final String path,
             final String rsyncModuleOrNull, final long highwaterMarkInKb)
     {
-        super(hostOrNull, file, rsyncModuleOrNull);
+        super(hostOrNull, path, rsyncModuleOrNull);
         this.highwaterMarkInKb = highwaterMarkInKb;
     }
 
@@ -70,7 +70,7 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
      * @param highwaterMarkInKb the high water mark in <i>kilobytes</i>. <code>-1</code> means that
      *            the system will not be watching.
      */
-    public HostAwareFileWithHighwaterMark(final File path, final long highwaterMarkInKb)
+    public HostAwareFileWithHighwaterMark(final String path, final long highwaterMarkInKb)
     {
         this(null, path, null, highwaterMarkInKb);
     }
@@ -78,7 +78,7 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
     /**
      * @param path the file path.
      */
-    public HostAwareFileWithHighwaterMark(final File path)
+    public HostAwareFileWithHighwaterMark(final String path)
     {
         this(path, DEFAULT_HIGHWATER_MARK);
     }
@@ -89,7 +89,7 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
      * @param rsyncModuleOrNull The name of the module on the rsync server or <code>null</code>, if
      *            no rsync server should be used.
      */
-    public HostAwareFileWithHighwaterMark(final String hostOrNull, final File path,
+    public HostAwareFileWithHighwaterMark(final String hostOrNull, final String path,
             final String rsyncModuleOrNull)
     {
         this(hostOrNull, path, rsyncModuleOrNull, DEFAULT_HIGHWATER_MARK);
@@ -131,7 +131,7 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
     public static HostAwareFileWithHighwaterMark create(final String hostFile,
             final long highwaterMarkInKb)
     {
-        File file;
+        String path;
         String hostNameOrNull = null;
         final int index = getHostFileIndex(hostFile);
         final String rsyncModuleOrNull;
@@ -142,27 +142,27 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
             if (index2 > -1)
             {
                 rsyncModuleOrNull = hostFile.substring(index + 1, index2);
-                file = new File(hostFile.substring(index2 + 1));
+                path = hostFile.substring(index2 + 1);
             } else
             {
                 rsyncModuleOrNull = null;
-                file = new File(hostFile.substring(index + 1));
+                path = hostFile.substring(index + 1);
             }
         } else
         {
             rsyncModuleOrNull = null;
-            file = getCanonicalFile(hostFile);
+            path = getCanonicalFile(hostFile);
         }
-        return new HostAwareFileWithHighwaterMark(hostNameOrNull, file, rsyncModuleOrNull,
+        return new HostAwareFileWithHighwaterMark(hostNameOrNull, path, rsyncModuleOrNull,
                 highwaterMarkInKb);
     }
 
-    private static File getCanonicalFile(final String hostFile)
+    private static String getCanonicalFile(final String hostFile)
     {
         File file = new File(hostFile);
         try
         {
-            return file.getCanonicalFile();
+            return file.getCanonicalFile().getPath();
         } catch (IOException ex)
         {
             throw new ConfigurationFailureException("Unknown file " + file.getAbsolutePath());
@@ -184,7 +184,7 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
     @Override
     public final String toString()
     {
-        final StringBuilder builder = new StringBuilder(getCanonicalPath());
+        final StringBuilder builder = new StringBuilder(getPathDescription());
         builder.append(" ").append(
                 String.format("[high water mark: %s]", HighwaterMarkWatcher
                         .displayKilobyteValue(getHighwaterMark())));

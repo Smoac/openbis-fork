@@ -52,8 +52,8 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
  */
 public class FileStoreLocal extends AbstractFileStore implements IExtendedFileStore
 {
-    private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, FileStoreLocal.class);
+    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
+            FileStoreLocal.class);
 
     private final IPathMover mover;
 
@@ -71,7 +71,7 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         this.remover = factory.getRemover();
         this.mover = factory.getMover();
         this.highwaterMarkWatcher = createHighwaterMarkWatcher(hostAwareFileWithHighwaterMark);
-        this.lastModificationChecker = new LastModificationChecker(getPath());
+        this.lastModificationChecker = new LastModificationChecker(getLocalFile());
     }
 
     private final static HighwaterMarkWatcher createHighwaterMarkWatcher(
@@ -118,7 +118,8 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
             return BooleanStatus.createTrue();
         }
         final boolean available =
-                FileUtils.waitFor(getPath(), (int) (timeOutMillis / DateUtils.MILLIS_PER_SECOND));
+                FileUtils.waitFor(getLocalFile(),
+                        (int) (timeOutMillis / DateUtils.MILLIS_PER_SECOND));
         String unaccesibleMsg;
         if (available == false)
         {
@@ -130,7 +131,7 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         } else
         {
             unaccesibleMsg =
-                    FileUtilities.checkDirectoryFullyAccessible(getPath(), getDescription());
+                    FileUtilities.checkDirectoryFullyAccessible(getLocalFile(), getDescription());
         }
         if (unaccesibleMsg != null)
         {
@@ -206,7 +207,7 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
     @Override
     public final StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
-        final File[] files = FileUtilities.tryListFiles(getPath(), loggerOrNull);
+        final File[] files = FileUtilities.tryListFiles(getLocalFile(), loggerOrNull);
         if (files != null)
         {
             FileUtilities.sortByLastModified(files);
@@ -227,8 +228,8 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
 
     /**
      * @return <code>true</code> if the <var>simpleCopier</var> on the file system where the
-     *         <var>destinationStore</var> resides requires deleting an existing file before it
-     *         can be overwritten.
+     *         <var>destinationStore</var> resides requires deleting an existing file before it can
+     *         be overwritten.
      */
     protected final boolean requiresDeletionBeforeCreation(final IFileStore destinationStore,
             final IStoreCopier copier)
@@ -270,8 +271,7 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
             {
                 machineLog
                         .info(String
-                                .format(
-                                        "Copier on directory '%s' requires deletion before creation of existing files.",
+                                .format("Copier on directory '%s' requires deletion before creation of existing files.",
                                         destinationDirectory));
             } else
             {
@@ -289,7 +289,7 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
     @Override
     public final String toString()
     {
-        final String pathStr = getPath().getPath();
+        final String pathStr = getLocalFile().getAbsolutePath();
         return "[local fs] " + pathStr;
     }
 

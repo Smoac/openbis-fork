@@ -124,7 +124,7 @@ public final class HighwaterMarkDirectoryScanningHandlerTest
             fail = false;
         }
         assertFalse(fail);
-        final HostAwareFile file = new HostAwareFile(null, new File("temp"), null);
+        final HostAwareFile file = new HostAwareFile(null, "temp", null);
         highwaterMarkWatcher.setPath(file);
         context.checking(new Expectations()
             {

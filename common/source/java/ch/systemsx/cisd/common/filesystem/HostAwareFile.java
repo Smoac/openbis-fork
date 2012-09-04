@@ -37,16 +37,16 @@ public class HostAwareFile extends AbstractHashable implements Serializable
 
     private final String hostOrNull;
 
-    private final File path;
+    private final String path;
 
     private final String rsyncModuleOrNull;
 
     public HostAwareFile(final File path)
     {
-        this(null, path, null);
+        this(null, path.getAbsolutePath(), null);
     }
 
-    public HostAwareFile(final String hostOrNull, final File path, final String rsyncModuleOrNull)
+    public HostAwareFile(final String hostOrNull, final String path, final String rsyncModuleOrNull)
     {
         this.hostOrNull = hostOrNull;
         this.path = path;
@@ -54,7 +54,7 @@ public class HostAwareFile extends AbstractHashable implements Serializable
     }
 
     /**
-     * @return the host on which {@link #getFile()} is located on or <code>null</code>.
+     * @return the host on which {@link #getLocalFile()} is located on or <code>null</code>.
      */
     public final String tryGetHost()
     {
@@ -62,9 +62,23 @@ public class HostAwareFile extends AbstractHashable implements Serializable
     }
 
     /**
-     * Returns the file path.
+     * Returns the (local) file path.
+     * 
+     * @throws IllegalArgumentException if a host is given.
      */
-    public final File getFile()
+    public final File getLocalFile() throws IllegalArgumentException
+    {
+        if (hostOrNull != null)
+        {
+            throw new IllegalArgumentException("getLocalFile can only be called on local paths.");
+        }
+        return new File(path);
+    }
+    
+    /**
+     * Returns the (local or remote) file path.
+     */
+    public final String getPath()
     {
         return path;
     }
@@ -77,22 +91,28 @@ public class HostAwareFile extends AbstractHashable implements Serializable
     {
         return rsyncModuleOrNull;
     }
-
+    
     /** Return the canonical path of the encapsulated <code>path</code>. */
     public final String getCanonicalPath()
     {
+        return FileUtilities.getCanonicalPath(getLocalFile());
+    }
+    
+    /** Return a description of the encapsulated <code>path</code>. */
+    public final String getPathDescription()
+    {
         if (tryGetHost() == null)
         {
-            return FileUtilities.getCanonicalPath(getFile());
+            return getCanonicalPath();
         } else
         {
             if (tryGetRsyncModule() == null)
             {
-                return tryGetHost() + HOST_FILE_SEP + getFile();
+                return tryGetHost() + HOST_FILE_SEP + getPath();
             } else
             {
                 return tryGetHost() + HOST_FILE_SEP + tryGetRsyncModule() + HOST_FILE_SEP
-                        + getFile();
+                        + getPath();
             }
         }
     }

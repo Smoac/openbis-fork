@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.datamover.filesystem.store;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.testng.annotations.Test;
@@ -39,6 +38,6 @@ public final class RemoteFreeSpaceProviderTest
         final RemoteFreeSpaceProvider freeSpaceProvider =
                 new RemoteFreeSpaceProvider(sshCmdBuilder);
         System.out.println(freeSpaceProvider.freeSpaceKb(new HostAwareFile("fake-host-name",
-                new File("/"), null)));
+                "/", null)));
     }
 }

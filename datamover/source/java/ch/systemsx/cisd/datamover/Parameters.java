@@ -1027,7 +1027,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         {
             String host = null;
             String strHighwaterMark = null;
-            final File file;
+            final String path;
             final int hostFileIndex = HostAwareFileWithHighwaterMark.getHostFileIndex(value);
             final int fileHWMIndex = value.indexOf(DIRECTORY_HIGHWATERMARK_SEP);
             String rsyncModuleOrNull = null;
@@ -1039,23 +1039,23 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                 if (rsyncModuleIndex > -1)
                 {
                     rsyncModuleOrNull = value.substring(hostFileIndex + 1, rsyncModuleIndex);
-                    file = new File(value.substring(rsyncModuleIndex + 1, fileHWMIndex));
+                    path = value.substring(rsyncModuleIndex + 1, fileHWMIndex);
                 } else
                 {
-                    file = new File(value.substring(hostFileIndex + 1, fileHWMIndex));
+                    path = value.substring(hostFileIndex + 1, fileHWMIndex);
                 }
                 strHighwaterMark = value.substring(fileHWMIndex + 1);
             } else if (hostFileIndex > -1)
             {
                 host = value.substring(0, hostFileIndex);
-                file = new File(value.substring(hostFileIndex + 1));
+                path = value.substring(hostFileIndex + 1);
             } else if (fileHWMIndex > -1)
             {
-                file = new File(value.substring(0, fileHWMIndex));
+                path = value.substring(0, fileHWMIndex);
                 strHighwaterMark = value.substring(fileHWMIndex + 1);
             } else
             {
-                file = new File(value);
+                path = value;
             }
             long highwaterMark = HostAwareFileWithHighwaterMark.DEFAULT_HIGHWATER_MARK;
             if (strHighwaterMark != null)
@@ -1070,7 +1070,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                             strHighwaterMark));
                 }
             }
-            setter.addValue(new HostAwareFileWithHighwaterMark(host, file, rsyncModuleOrNull,
+            setter.addValue(new HostAwareFileWithHighwaterMark(host, path, rsyncModuleOrNull,
                     highwaterMark));
         }
 

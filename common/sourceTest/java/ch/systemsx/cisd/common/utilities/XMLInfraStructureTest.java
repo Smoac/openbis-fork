@@ -176,8 +176,9 @@ public class XMLInfraStructureTest extends AssertJUnit
             fail("Exception expected");
         } catch (Exception ex)
         {
-            assertEquals("org.xml.sax.SAXParseException: XML document structures must start "
-                    + "and end within the same entity.", ex.toString());
+            assertEquals("org.xml.sax.SAXParseException; lineNumber: 7; columnNumber: 1; "
+                    + "XML document structures must start and end within the same entity.",
+                    ex.toString());
         }
     }
 }

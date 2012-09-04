@@ -72,7 +72,7 @@ public final class IncomingProcessorTest
 
     private static final String ERROR_MARKER_FILE = ".error";
 
-    private static final File TEST_FOLDER = new File("targets/unit-test/IncomingProcessorTest");
+    private static final String TEST_FOLDER = "targets/unit-test/IncomingProcessorTest";
 
     private static final String INCOMING_DIR = "incoming";
 
@@ -144,8 +144,8 @@ public final class IncomingProcessorTest
         copier = context.mock(IPathCopier.class);
         remover = context.mock(IPathRemover.class);
 
-        FileUtilities.deleteRecursively(TEST_FOLDER);
-        TEST_FOLDER.mkdirs();
+        FileUtilities.deleteRecursively(new File(TEST_FOLDER));
+        new File(TEST_FOLDER).mkdirs();
         exampleScript = new File(TEST_FOLDER, EXAMPLE_SCRIPT_NAME);
         incomingDir = new File(TEST_FOLDER, INCOMING_DIR);
         incomingDir.mkdir();

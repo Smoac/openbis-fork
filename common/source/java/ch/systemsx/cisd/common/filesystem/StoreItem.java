@@ -51,6 +51,16 @@ public final class StoreItem
     }
 
     /**
+     * Translates given {@link StoreItem} into a {@link File}.
+     */
+    public final static File asFile(final String parentDirectory, final StoreItem item)
+    {
+        assert item != null : "Unspecified item";
+        assert parentDirectory != null : "Unspecified parent directory";
+        return new File(parentDirectory, item.getName());
+    }
+
+    /**
      * Translates given {@link File}s into {@link StoreItem}s.
      * <p>
      * Never returns <code>null</code> but could return an empty array.

@@ -49,7 +49,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
 @Friend(toClasses = FileStoreRemote.class)
 public final class FileStoreRemoteTest
 {
-    private static final File TEST_FOLDER = new File("targets/unit-test/FileStoreRemoteTest");
+    private static final String TEST_FOLDER = "targets/unit-test/FileStoreRemoteTest";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, FileStoreRemote.class);
@@ -68,8 +68,8 @@ public final class FileStoreRemoteTest
         this.fileSysOpertationFactory = context.mock(IFileSysOperationsFactory.class);
         this.loggerOrNull = context.mock(ISimpleLogger.class);
 
-        FileUtilities.deleteRecursively(TEST_FOLDER);
-        TEST_FOLDER.mkdirs();
+        FileUtilities.deleteRecursively(new File(TEST_FOLDER));
+        new File(TEST_FOLDER).mkdirs();
     }
 
     @AfterMethod
@@ -95,7 +95,7 @@ public final class FileStoreRemoteTest
     {
         IFileStore remoteStore = createRemoteStore(TEST_FOLDER);
         String fileName = "example.txt";
-        createFileModifiedAt(new File(TEST_FOLDER.getAbsoluteFile(), fileName), 0);
+        createFileModifiedAt(new File(TEST_FOLDER, fileName), 0);
 
         String curDir = new File(".").getAbsolutePath();
         System.out.println(curDir);
@@ -105,7 +105,7 @@ public final class FileStoreRemoteTest
         assertEquals(fileName, items[0].getName());
     }
 
-    private IFileStore createRemoteStore(File dir)
+    private IFileStore createRemoteStore(String dir)
     {
         ISshCommandBuilder fakeSshBuilder = createFakeSshComandBuilder();
         return new FileStoreRemote(new HostAwareFileWithHighwaterMark("fake-host", dir, null),

@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.datamover.filesystem;
 
-import java.io.File;
-
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
@@ -38,8 +36,8 @@ import ch.systemsx.cisd.datamover.filesystem.store.FileStoreRemoteMounted;
  */
 public final class FileStoreFactory
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, FileStoreFactory.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            FileStoreFactory.class);
 
     private FileStoreFactory()
     {
@@ -71,7 +69,7 @@ public final class FileStoreFactory
     /**
      * use when file store is on a local host.
      */
-    public static final IFileStore createLocal(final File readyToMoveDir, final String string,
+    public static final IFileStore createLocal(final String readyToMoveDir, final String string,
             final IFileSysOperationsFactory factory, final boolean skipAccessibilityTest)
     {
         return createLocal(new HostAwareFileWithHighwaterMark(readyToMoveDir), string, factory,
@@ -84,7 +82,7 @@ public final class FileStoreFactory
      * Use when file store is on a remote share mounted on local host
      */
     @Private
-    public static final IFileStore createRemoteHost(final File path, final String host,
+    public static final IFileStore createRemoteHost(final String path, final String host,
             final String rsyncModuleOrNull, final String kind,
             final IFileSysOperationsFactory factory)
     {
@@ -108,8 +106,8 @@ public final class FileStoreFactory
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug(String.format(
-                        "Create %s store for remote host %s, path %s, timeout: %f s.", kind, path
-                                .tryGetHost(), path.getFile().toString(),
+                        "Create %s store for remote host %s, path %s, timeout: %f s.", kind,
+                        path.tryGetHost(), path.getPath(),
                         FileStoreRemote.LONG_SSH_TIMEOUT_MILLIS / 1000.0));
             }
             return createRemoteHost(path, kind, factory, skipAccessibilityTest,
@@ -123,7 +121,7 @@ public final class FileStoreFactory
                 {
                     operationLog.debug(String.format(
                             "Create %s store for mounted path %s, timeout: %f s.", kind, path
-                                    .getFile().toString(), timoutMillis / 1000.0));
+                                    .getLocalFile().toString(), timoutMillis / 1000.0));
                 }
                 return new FileStoreRemoteMounted(path, kind, factory, skipAccessibilityTest,
                         timoutMillis);
@@ -131,9 +129,8 @@ public final class FileStoreFactory
             {
                 if (operationLog.isDebugEnabled())
                 {
-                    operationLog.debug(String.format(
-                            "Create %s store for local path %s.", kind, path
-                                    .getFile().toString()));
+                    operationLog.debug(String.format("Create %s store for local path %s.", kind,
+                            path.getLocalFile().toString()));
                 }
                 return createLocal(path, kind, factory, skipAccessibilityTest);
             }

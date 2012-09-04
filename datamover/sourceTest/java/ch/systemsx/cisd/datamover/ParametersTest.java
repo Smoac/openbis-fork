@@ -122,7 +122,7 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         Parameters parameters = parse("--" + optionName, localTempDir);
         HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark =
                 getFileWithHighwaterMark(optionName, parameters);
-        assertEquals(localTempDir, hostAwareFileWithHighwaterMark.getFile().getPath());
+        assertEquals(localTempDir, hostAwareFileWithHighwaterMark.getLocalFile().getPath());
         assertEquals(-1, hostAwareFileWithHighwaterMark.getHighwaterMark());
         // With a highwater mark value
         parameters =
@@ -130,7 +130,7 @@ public final class ParametersTest extends AbstractFileSystemTestCase
                         + HostAwareFileWithHighwaterMarkHandler.DIRECTORY_HIGHWATERMARK_SEP
                         + highwaterMark);
         hostAwareFileWithHighwaterMark = getFileWithHighwaterMark(optionName, parameters);
-        assertEquals(localTempDir, hostAwareFileWithHighwaterMark.getFile().getPath());
+        assertEquals(localTempDir, hostAwareFileWithHighwaterMark.getLocalFile().getPath());
         assertEquals(highwaterMark, hostAwareFileWithHighwaterMark.getHighwaterMark());
     }
 
@@ -139,28 +139,28 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         Parameters parameters = parse("--" + PropertyNames.OUTGOING_TARGET, "dir");
         HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark =
                 getFileWithHighwaterMark(PropertyNames.OUTGOING_TARGET, parameters);
-        assertEquals("dir", hostAwareFileWithHighwaterMark.getFile().getPath());
+        assertEquals("dir", hostAwareFileWithHighwaterMark.getLocalFile().getPath());
         assertNull(hostAwareFileWithHighwaterMark.tryGetHost());
         assertNull(hostAwareFileWithHighwaterMark.tryGetRsyncModule());
 
         parameters = parse("--" + PropertyNames.OUTGOING_TARGET, "host:dir");
         hostAwareFileWithHighwaterMark =
                 getFileWithHighwaterMark(PropertyNames.OUTGOING_TARGET, parameters);
-        assertEquals("dir", hostAwareFileWithHighwaterMark.getFile().getPath());
+        assertEquals("dir", hostAwareFileWithHighwaterMark.getLocalFile().getPath());
         assertEquals("host", hostAwareFileWithHighwaterMark.tryGetHost());
         assertNull(hostAwareFileWithHighwaterMark.tryGetRsyncModule());
 
         parameters = parse("--" + PropertyNames.OUTGOING_TARGET, "host:mod:dir");
         hostAwareFileWithHighwaterMark =
                 getFileWithHighwaterMark(PropertyNames.OUTGOING_TARGET, parameters);
-        assertEquals("dir", hostAwareFileWithHighwaterMark.getFile().getPath());
+        assertEquals("dir", hostAwareFileWithHighwaterMark.getLocalFile().getPath());
         assertEquals("host", hostAwareFileWithHighwaterMark.tryGetHost());
         assertEquals("mod", hostAwareFileWithHighwaterMark.tryGetRsyncModule());
 
         parameters = parse("--" + PropertyNames.OUTGOING_TARGET, "host:mod:dir>42");
         hostAwareFileWithHighwaterMark =
                 getFileWithHighwaterMark(PropertyNames.OUTGOING_TARGET, parameters);
-        assertEquals("dir", hostAwareFileWithHighwaterMark.getFile().getPath());
+        assertEquals("dir", hostAwareFileWithHighwaterMark.getLocalFile().getPath());
         assertEquals("host", hostAwareFileWithHighwaterMark.tryGetHost());
         assertEquals("mod", hostAwareFileWithHighwaterMark.tryGetRsyncModule());
         assertEquals(42L, hostAwareFileWithHighwaterMark.getHighwaterMark());
@@ -329,7 +329,7 @@ public final class ParametersTest extends AbstractFileSystemTestCase
                         + PropertyNames.OUTGOING_TARGET, remoteDataDir);
         assertEquals(createIncomingStore(localDataDir, null, parameters),
                 getIncomingStore(parameters));
-        assertEquals(localTempDir, parameters.getBufferDirectoryPath().getFile().getPath());
+        assertEquals(localTempDir, parameters.getBufferDirectoryPath().getLocalFile().getPath());
         assertEquals(createOutgoingStore(remoteDataDir, null, parameters),
                 getOutgoingStore(parameters));
     }
@@ -354,13 +354,13 @@ public final class ParametersTest extends AbstractFileSystemTestCase
     public void testSetLocalBufferDirWindows() throws IOException
     {
         Parameters params = parse("--buffer-dir", "C:\\data\\buffer");
-        assertEquals(new File("C:\\data\\buffer"), params.getBufferDirectoryPath().getFile());
+        assertEquals(new File("C:\\data\\buffer"), params.getBufferDirectoryPath().getLocalFile());
         params = parse("--buffer-dir", "c:\\data\\buffer");
-        assertEquals(new File("c:\\data\\buffer"), params.getBufferDirectoryPath().getFile());
+        assertEquals(new File("c:\\data\\buffer"), params.getBufferDirectoryPath().getLocalFile());
         params = parse("--buffer-dir", "\\data\\buffer");
-        assertEquals(new File("\\data\\buffer"), params.getBufferDirectoryPath().getFile());
+        assertEquals(new File("\\data\\buffer"), params.getBufferDirectoryPath().getLocalFile());
         params = parse("--buffer-dir", "c:/data/buffer");
-        assertEquals(new File("c:/data/buffer"), params.getBufferDirectoryPath().getFile());
+        assertEquals(new File("c:/data/buffer"), params.getBufferDirectoryPath().getLocalFile());
     }
 
     @Test
@@ -391,7 +391,7 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         final IFileStore outgoingStore = getOutgoingStore(parameters);
 
         assertEquals(incomingStoreExpected, incomingStore);
-        assertEquals(localTempDir, parameters.getBufferDirectoryPath().getFile().getPath());
+        assertEquals(localTempDir, parameters.getBufferDirectoryPath().getLocalFile().getPath());
         assertEquals(outgoingStoreExpected, outgoingStore);
         assertEquals(extraCopyDir, parameters.tryGetExtraCopyDir().getPath());
         assertEquals(1000 * checkIntervall, parameters.getCheckIntervalMillis());
@@ -427,13 +427,12 @@ public final class ParametersTest extends AbstractFileSystemTestCase
             final String kind, final IFileSysParameters parameters)
     {
         final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
-        final File file = new File(path);
         if (hostOrNull == null)
         {
-            return FileStoreFactory.createLocal(file, kind, factory, false);
+            return FileStoreFactory.createLocal(path, kind, factory, false);
         } else
         {
-            return FileStoreFactory.createRemoteHost(file, hostOrNull, null, kind, factory);
+            return FileStoreFactory.createRemoteHost(path, hostOrNull, null, kind, factory);
         }
     }
 }

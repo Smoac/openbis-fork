@@ -86,7 +86,7 @@ final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
     public final long freeSpaceKb(final HostAwareFile file) throws IOException
     {
         assert file != null : "Unspecified remote file.";
-        final String path = file.getFile().getPath();
+        final String path = file.getPath();
         assert StringUtils.isNotEmpty(path) : "Empty path.";
         final String dfCommand = String.format(DF_COMMAND_TEMPLATE, path);
         final List<String> command =

@@ -240,7 +240,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
     @Override
     public final String toString()
     {
-        final String pathStr = getPath().getPath();
+        final String pathStr = getLocalFile().getAbsolutePath();
         return "[mounted remote fs] " + pathStr;
     }
 

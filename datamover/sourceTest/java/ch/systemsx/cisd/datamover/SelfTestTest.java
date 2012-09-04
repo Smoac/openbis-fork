@@ -46,8 +46,8 @@ import ch.systemsx.cisd.datamover.testhelper.FileOperationsUtil;
 public class SelfTestTest
 {
 
-    private static final File unitTestRootDirectory =
-            new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory = new File("targets" + File.separator
+            + "unit-test-wd");
 
     private static final File workingDirectory = new File(unitTestRootDirectory, "SelfTestTest");
 
@@ -91,7 +91,7 @@ public class SelfTestTest
         outgoingDirectory.deleteOnExit();
     }
 
-    // 
+    //
     // Mocks.
     //
 
@@ -106,7 +106,7 @@ public class SelfTestTest
                 }
 
                 @Override
-                public Status copyFromRemote(File sourcePath, String sourceHost,
+                public Status copyFromRemote(String sourcePath, String sourceHost,
                         File destinationDirectory, String rsyncModuleNameOrNull,
                         String rsyncPasswordFileOrNull)
                 {
@@ -114,7 +114,7 @@ public class SelfTestTest
                 }
 
                 @Override
-                public Status copyToRemote(File sourcePath, File destinationDirectory,
+                public Status copyToRemote(File sourcePath, String destinationDirectory,
                         String destinationHostOrNull, String rsyncModuleNameOrNull,
                         String rsyncPasswordFileOrNull)
                 {
@@ -128,7 +128,7 @@ public class SelfTestTest
                 }
 
                 @Override
-                public Status copyContentFromRemote(File sourcePath, String sourceHost,
+                public Status copyContentFromRemote(String sourcePath, String sourceHost,
                         File destinationDirectory, String rsyncModuleNameOrNull,
                         String rsyncPasswordFileOrNull)
                 {
@@ -136,7 +136,7 @@ public class SelfTestTest
                 }
 
                 @Override
-                public Status copyContentToRemote(File sourcePath, File destinationDirectory,
+                public Status copyContentToRemote(File sourcePath, String destinationDirectory,
                         String destinationHostOrNull, String rsyncModuleNameOrNull,
                         String rsyncPasswordFileOrNull)
                 {
@@ -189,7 +189,7 @@ public class SelfTestTest
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY, "Self-test failed");
         final String outgoingHost = "unknown_remote_host";
         final IFileStore remoteHostOutgoingStore =
-                createRemoteStore(outgoingDirectory, outgoingHost, null, "outgoing");
+                createRemoteStore(outgoingDirectory.getPath(), outgoingHost, null, "outgoing");
         SelfTest.check(mockCopier, new IFileStore[]
             { remoteHostOutgoingStore }, new ISelfTestable[0]);
         appender.verifyLogHasHappened();
@@ -270,7 +270,7 @@ public class SelfTestTest
         LogMonitoringAppender.removeAppender(appender);
     }
 
-    private final IFileStore createRemoteStore(File path, String host, String rsyncModule,
+    private final IFileStore createRemoteStore(String path, String host, String rsyncModule,
             String description)
     {
         return FileStoreFactory.createRemoteHost(path, host, rsyncModule, description,
@@ -279,8 +279,8 @@ public class SelfTestTest
 
     private final static IFileStore createLocalStore(File path, String description)
     {
-        return FileStoreFactory.createLocal(path, description, FileOperationsUtil
-                .createTestFactory(), false);
+        return FileStoreFactory.createLocal(path.getPath(), description,
+                FileOperationsUtil.createTestFactory(), false);
     }
 
 }

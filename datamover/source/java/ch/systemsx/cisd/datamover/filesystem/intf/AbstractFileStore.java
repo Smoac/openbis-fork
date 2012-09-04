@@ -18,6 +18,7 @@ package ch.systemsx.cisd.datamover.filesystem.intf;
 
 import java.io.File;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -61,18 +62,25 @@ public abstract class AbstractFileStore implements IFileStore
         this.skipAccessibilityTest = skipAccessibilityTest;
     }
 
-    private final String getCanonicalPath(final File file)
+    protected final String getPath()
     {
-        if (tryGetHost() != null)
-        {
-            return file.getPath();
-        }
-        return FileUtilities.getCanonicalPath(file);
+        return hostAwareFileWithHighwaterMark.getPath();
     }
 
-    protected final File getPath()
+    protected final String getCanonicalPathIfLocal()
     {
-        return hostAwareFileWithHighwaterMark.getFile();
+        if (hostAwareFileWithHighwaterMark.tryGetHost() == null)
+        {
+            return hostAwareFileWithHighwaterMark.getCanonicalPath();
+        } else
+        {
+            return hostAwareFileWithHighwaterMark.getPath();
+        }
+    }
+
+    protected final File getLocalFile()
+    {
+        return hostAwareFileWithHighwaterMark.getLocalFile();
     }
 
     protected final String tryGetHost()
@@ -95,6 +103,11 @@ public abstract class AbstractFileStore implements IFileStore
         return new File(getPath(), item.getName());
     }
 
+    protected final String getChildPath(final StoreItem item)
+    {
+        return FilenameUtils.concat(getPath(), item.getName());
+    }
+
     // does not take into account the fact, that the destination cannot be overwritten and must be
     // deleted beforehand
     protected final IStoreCopier constructStoreCopier(final IFileStore destinationDirectory,
@@ -104,29 +117,29 @@ public abstract class AbstractFileStore implements IFileStore
         final String srcHostOrNull = tryGetHost();
         final AbstractFileStore destinationStore = (AbstractFileStore) destinationDirectory;
         final String destHostOrNull = destinationStore.tryGetHost();
-        final File destPath = destinationStore.getPath();
         return new IStoreCopier()
             {
                 @Override
                 public Status copy(final StoreItem item)
                 {
-                    final File srcItem = getChildFile(item);
                     if (srcHostOrNull == null)
                     {
+                        final File srcItem = getChildFile(item);
                         if (destHostOrNull == null)
                         {
-                            return copier.copy(srcItem, destPath);
+                            return copier.copy(srcItem, destinationStore.getLocalFile());
                         } else
                         {
-                            return copier.copyToRemote(srcItem, destPath, destHostOrNull,
-                                    destinationStore.tryGetRsyncModuleName(),
+                            return copier.copyToRemote(srcItem, destinationStore.getPath(),
+                                    destHostOrNull, destinationStore.tryGetRsyncModuleName(),
                                     DatamoverConstants.RSYNC_PASSWORD_FILE_OUTGOING);
                         }
                     } else
                     {
+                        final String srcItem = getChildPath(item);
                         assert destHostOrNull == null;
-                        return copier.copyFromRemote(srcItem, srcHostOrNull, destPath,
-                                tryGetRsyncModuleName(),
+                        return copier.copyFromRemote(srcItem, srcHostOrNull,
+                                destinationStore.getLocalFile(), tryGetRsyncModuleName(),
                                 DatamoverConstants.RSYNC_PASSWORD_FILE_INCOMING);
                     }
                 }
@@ -213,8 +226,7 @@ public abstract class AbstractFileStore implements IFileStore
         }
         final AbstractFileStore potentialChild = (AbstractFileStore) child;
         return StringUtils.equals(tryGetHost(), potentialChild.tryGetHost())
-                && getCanonicalPath(potentialChild.getPath()).startsWith(
-                        getCanonicalPath(getPath()));
+                && potentialChild.getCanonicalPathIfLocal().startsWith(getCanonicalPathIfLocal());
     }
 
     @Override
