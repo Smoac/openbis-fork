@@ -558,11 +558,11 @@ AppModel.prototype.initializeOd600WithPhenotypesAndPredictionsModel = function(c
 		
 		model.od600StrainsWithPhenotypesAndPredictionsGroups = [];
 		model.od600StrainsWithPhenotypesAndPredictionsGroups.push({
-			"mainGroupName" : "Known strains with phenotypes and predictions",
+			"mainGroupName" : "Strains with phenotypes, predictions and data in OpenBIS",
 			"groups" : createStrainGroups(strainsKnownToOpenbisWithPhenotypesAndPredictions)
 		});
 		model.od600StrainsWithPhenotypesAndPredictionsGroups.push({
-			"mainGroupName" : "Unknown strains with phenotypes or predictions",
+			"mainGroupName" : "Strains with phenotypes or predictions but no data in OpenBIS",
 			"groups" : createStrainGroups(strainsUnknownToOpenbisWithPhenotypesOrPredictions)
 		});
 		
