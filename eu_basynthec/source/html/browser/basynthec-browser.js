@@ -140,6 +140,8 @@ AppPresenter.prototype.toggleDisplayedVisualizations = function(visToShow)
 			.duration(1000)
 			.style("opacity", 1);
 		} else {
+			// change to "inline" element to eliminate jumping of two "block" elements during transition
+			vis.style("display","inline");
 			vis
 				.transition()
 			.duration(1000)
@@ -231,18 +233,21 @@ AppPresenter.prototype.createVis = function()
 	// Initially hide the strain view -- it is activated by the radio button
 	strainVis = tableRoot.append("div").style("display", "none");
 	strainVis.style("width", w + "px");
+	strainVis.style("opacity", "0");
 	strainView = new StrainView();
 	
 	od600StrainVis = tableRoot.append("div").style("display", "none");
 	od600StrainVis.style("width", w + "px");
 	od600StrainVis.style("height",w + "px");
-	od600StrainVis.style("overflow-y", "scroll");	
+	od600StrainVis.style("overflow-y", "scroll");
+	od600StrainVis.style("opacity", "0");
 	od600StrainView = new Od600StrainView();
 	
 	od600StrainWithPhenotypesAndPredictionsVis = tableRoot.append("div").style("display", "none");
 	od600StrainWithPhenotypesAndPredictionsVis.style("width", w + "px");
 	od600StrainWithPhenotypesAndPredictionsVis.style("height",w + "px");
-	od600StrainWithPhenotypesAndPredictionsVis.style("overflow-y", "scroll");	
+	od600StrainWithPhenotypesAndPredictionsVis.style("overflow-y", "scroll");
+	od600StrainWithPhenotypesAndPredictionsVis.style("opacity", "0");
 	od600StrainWithPhenotypesAndPredictionsView = new Od600StrainWithPhenotypesAndPredictionsView();
 	
 	this.visualizationContainers = [dataSetTypeVis, strainVis, od600StrainVis, od600StrainWithPhenotypesAndPredictionsVis];
@@ -826,8 +831,7 @@ Od600StrainWithPhenotypesAndPredictionsView.prototype.updateView = function(dura
 	
 	var legend = od600StrainWithPhenotypesAndPredictionsVis.selectAll("div.legend").data([model.od600StrainsWithPhenotypesAndPredictionsGroups]);
 	legend.enter().append("div").attr("class","legend").append("h3").style("font-style","italic").text("Legend");
-	var legendList = legend.selectAll("ul").data(function(d){ return [d] }).enter();
-	legendList.append("ul");
+	var legendList = legend.selectAll("ul").data(function(d){ return [d] }).enter().append("ul");
 	legendList.append("li").append("span").text("strain with phenotypes and predictions").style("color","green");
 	legendList.append("li").append("span").text("strain with phenotypes only").style("color","blue");
 	legendList.append("li").append("span").text("strain with predictions only").style("color","red");

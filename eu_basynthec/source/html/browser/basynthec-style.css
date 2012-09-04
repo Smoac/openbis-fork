@@ -167,3 +167,7 @@ table.properties td, th {
 	cursor: pointer;
 	font-weight: bold;
 }
+
+#button-group{
+	margin-bottom: 5px;
+}
