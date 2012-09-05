@@ -90,7 +90,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
 
     private final IDataSetFileOperationsExecutor executor;
 
-    private final File destination;
+    private final String destination;
 
     private final long timeoutInMillis;
 
@@ -106,7 +106,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
 
         this.isHosted = hostOrNull == null;
 
-        this.destination = hostAwareFile.getFile();
+        this.destination = hostAwareFile.getPath();
         long timeoutInSeconds =
                 PropertyUtils.getLong(properties, TIMEOUT_KEY, DEFAULT_TIMEOUT_SECONDS);
         this.timeoutInMillis = timeoutInSeconds * DateUtils.MILLIS_PER_SECOND;

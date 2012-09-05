@@ -72,7 +72,7 @@ class LocalAndRemoteCopier implements Serializable, IPostRegistrationDatasetHand
 
     private transient IDataSetFileOperationsExecutor executor;
 
-    private transient File destination;
+    private transient String destination;
 
     private String markerFilePrefix;
 
@@ -96,7 +96,7 @@ class LocalAndRemoteCopier implements Serializable, IPostRegistrationDatasetHand
                 PropertyUtils.getMandatoryProperty(properties, DataSetCopier.DESTINATION_KEY);
         HostAwareFile hostAwareFile = HostAwareFileWithHighwaterMark.create(hostFile, -1);
         String hostOrNull = hostAwareFile.tryGetHost();
-        destination = hostAwareFile.getFile();
+        destination = hostAwareFile.getPath();
         if (hostOrNull == null)
         {
             File sshExecutable = null; // don't use ssh locally
@@ -154,10 +154,11 @@ class LocalAndRemoteCopier implements Serializable, IPostRegistrationDatasetHand
         }
         try
         {
+            final File destinationLocalFile = new File(destination);
             String target = dataSetInformation.getDataSetCode();
-            File targetFolder = new File(destination, target);
+            File targetFolder = new File(destinationLocalFile, target);
             deleteTargetFolder(targetFolder);
-            executor.copyDataSetToDestination(originalData, destination);
+            executor.copyDataSetToDestination(originalData, destinationLocalFile);
             executor.renameTo(targetFolder, new File(destination, originalData.getName()));
             if (markerFilePrefix != null)
             {

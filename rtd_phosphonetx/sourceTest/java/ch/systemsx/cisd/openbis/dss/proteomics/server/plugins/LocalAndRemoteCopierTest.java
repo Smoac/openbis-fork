@@ -218,7 +218,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
                             SSH_TIMEOUT_MILLIS);
                     will(returnValue(OK_RESULT));
 
-                    one(copier).copyToRemote(dataSet, destination, "localhost", null, null);
+                    one(copier).copyToRemote(dataSet, destination.getPath(), "localhost", null, null);
                     will(returnValue(Status.OK));
 
                     one(sshExecutor).executeCommandRemotely(

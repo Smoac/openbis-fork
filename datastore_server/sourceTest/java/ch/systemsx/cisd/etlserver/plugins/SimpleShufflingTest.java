@@ -81,7 +81,7 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
         @Override
         public long freeSpaceKb(HostAwareFile path) throws IOException
         {
-            File file = path.getFile();
+            File file = path.getLocalFile();
             List<Long> list = freeSpace.get(file);
             assertNotNull("Unknown file " + file, list);
             assertFalse("Unexpected invocation for file " + file, list.isEmpty());

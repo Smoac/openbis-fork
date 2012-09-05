@@ -180,7 +180,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 + "INFO: Calculating size of " + ds1File + "\n" + "INFO: " + ds1File
                 + " contains 10 bytes (calculated in 0 msec)\n"
                 + "WARN: Data set ds5 no longer exists in share 2.\n", log.toString());
-        assertEquals(new File(store, "1"), fileMatcher.recordedObject().getFile());
+        assertEquals(new File(store, "1"), fileMatcher.recordedObject().getLocalFile());
         assertEquals(12345L * 1024, freeSpace);
         assertEquals(new File(store, "1").toString(), share1.getShare().toString());
         assertEquals("1", share1.getShareId());

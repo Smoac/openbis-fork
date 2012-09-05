@@ -163,7 +163,7 @@ public final class LocalDataSetFileOperationsExcecutor implements IDataSetFileOp
         // rsync --delete is more effective then deletion of destination directory & copy all
         String host = null; // local
         Status result =
-                copier.copyToRemote(dataSet, destination, host, rsyncModuleNameOrNull,
+                copier.copyToRemote(dataSet, destination.getPath(), host, rsyncModuleNameOrNull,
                         rsyncPasswordFileOrNull);
         if (result.isError())
         {

@@ -119,7 +119,7 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
             FileUtilities.checkPathCopier(copier, host, null, rsyncModule, rsyncPasswordFile,
                     DataSetCopier.SSH_TIMEOUT_MILLIS);
         }
-        File destination = hostAwareFile.getFile();
+        File destination = hostAwareFile.getLocalFile();
         File destinationFile = new File(destination, originalData.getName());
         String dataSetCode = dataSetInformation.getDataSetCode();
         File finalDestinationFile = new File(destination, renameToDataSetCode ? dataSetCode : originalData.getName());
@@ -148,8 +148,9 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
                             renameToDataSetCode ? dataSetCode : null);
         } else
         {
+            final String destinationRemotePath = hostAwareFile.getPath();
             status =
-                    copier.copyToRemote(originalData, destination, host, rsyncModule,
+                    copier.copyToRemote(originalData, destinationRemotePath, host, rsyncModule,
                             rsyncPasswordFile);
         }
         if (status.isError())

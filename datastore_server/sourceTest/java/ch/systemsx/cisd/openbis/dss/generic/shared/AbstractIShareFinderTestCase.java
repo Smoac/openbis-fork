@@ -62,7 +62,7 @@ public class AbstractIShareFinderTestCase extends AssertJUnit
                 @Override
                 public long freeSpaceKb(HostAwareFile path) throws IOException
                 {
-                    assertSame(file, path.getFile());
+                    assertSame(file, path.getLocalFile());
                     return freeSpace / FileUtils.ONE_KB;
                 }
             });
