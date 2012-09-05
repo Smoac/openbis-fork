@@ -18,8 +18,10 @@ package ch.systemsx.cisd.openbis.uitest.infra;
 
 import ch.systemsx.cisd.openbis.uitest.page.AddSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.AddSpaceDialog;
+import ch.systemsx.cisd.openbis.uitest.page.EditSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
 import ch.systemsx.cisd.openbis.uitest.page.PrivatePage;
+import ch.systemsx.cisd.openbis.uitest.page.SampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.SpaceBrowser;
 
@@ -50,6 +52,14 @@ public class ApplicationRunner
         dialog.save();
     }
 
+    public void update(SampleType sampleType)
+    {
+        SampleTypeBrowser sampleTypeBrowser = browseToSampleTypeBrowser();
+        EditSampleTypeDialog dialog = sampleTypeBrowser.editSampleType(sampleType);
+        dialog.fillWith(sampleType);
+        dialog.save();
+    }
+
     public void login(String userName, String password)
     {
         LoginPage loginPage = proxy.get(LoginPage.class);
@@ -62,27 +72,43 @@ public class ApplicationRunner
         loginPage.loginAs(user.getName(), user.getPassword());
     }
 
+    public void logout()
+    {
+        getMenus().user().logout();
+    }
+
     public AddSampleTypeDialog browseToAddSampleTypeDialog()
     {
-        PrivatePage p = proxy.get(PrivatePage.class);
-        return p.adminMenu().types().sampleTypes().add();
+        return getMenus().admin().types().sampleTypes().add();
     }
 
     public SampleTypeBrowser browseToSampleTypeBrowser()
     {
-        PrivatePage p = proxy.get(PrivatePage.class);
-        return p.adminMenu().types().sampleTypes();
+        return getMenus().admin().types().sampleTypes();
     }
 
     public SpaceBrowser browseToSpaceBrowser()
     {
-        PrivatePage p = proxy.get(PrivatePage.class);
-        return p.adminMenu().spaces();
+        return getMenus().admin().spaces();
     }
 
     public AddSpaceDialog browseToAddSpaceDialog()
     {
-        PrivatePage p = proxy.get(PrivatePage.class);
-        return p.adminMenu().spaces().addSpace();
+        return getMenus().admin().spaces().addSpace();
+    }
+
+    public SampleBrowser browseToSampleBrowser()
+    {
+        return getMenus().browse().samples();
+    }
+
+    public void closeAllTabs()
+    {
+        getMenus().closeTabs();
+    }
+
+    private PrivatePage getMenus()
+    {
+        return proxy.get(PrivatePage.class);
     }
 }

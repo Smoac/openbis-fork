@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra;
 
+import static org.hamcrest.CoreMatchers.not;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -32,14 +35,16 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.FindBy;
+import org.testng.annotations.AfterGroups;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.page.SampleBrowser;
 
 public abstract class SeleniumTest
 {
@@ -62,6 +67,19 @@ public abstract class SeleniumTest
         driver = new FirefoxDriver();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         delete(new File("targets/dist"));
+
+        driver.manage().deleteAllCookies();
+        driver.get("https://sprint-openbis.ethz.ch/openbis/");
+        // driver.get("http://127.0.0.1:8888/ch.systemsx.cisd.openbis.OpenBIS/index.html?gwt.codesvr=127.0.0.1:9997");
+
+        try
+        {
+            driver.switchTo().alert().accept();
+        } catch (NoAlertPresentException e)
+        {
+        }
+        this.loginAsAdmin();
+        this.logout();
     }
 
     @AfterSuite
@@ -70,42 +88,43 @@ public abstract class SeleniumTest
         driver.quit();
     }
 
-    @BeforeClass
-    public void gotoLoginPage()
+    @BeforeGroups(groups = "login-admin")
+    public void loginAsAdmin()
     {
-        driver.manage().deleteAllCookies();
-        // driver.get("https://sprint-openbis.ethz.ch/openbis/");
-        driver.get("http://127.0.0.1:8888/ch.systemsx.cisd.openbis.OpenBIS/index.html?gwt.codesvr=127.0.0.1:9997");
-
-        try
-        {
-            driver.switchTo().alert().accept();
-        } catch (NoAlertPresentException e)
-        {
-        }
+        this.openbis = new ApplicationRunner(new PageProxy(new ScreenShotter()
+            {
+                @Override
+                public void screenshot()
+                {
+                }
+            }));
+        openbis.login(User.ADMIN);
     }
 
-    @BeforeClass(dependsOnMethods = "gotoLoginPage")
-    public void initPageProxy()
+    @AfterGroups(groups = "login-admin")
+    public void logout()
     {
-        this.shotter =
-                new ScreenShotter((TakesScreenshot) driver, "targets/dist/"
-                        + this.getClass().getSimpleName() + "/fixture");
-        this.pageProxy = new PageProxy(shotter);
-        this.openbis = new ApplicationRunner(this.pageProxy);
+        this.openbis = new ApplicationRunner(new PageProxy(new ScreenShotter()
+            {
+                @Override
+                public void screenshot()
+                {
+                }
+            }));
+        openbis.logout();
     }
 
     @BeforeMethod(alwaysRun = true)
     public void initPageProxy(Method method)
     {
         this.shotter =
-                new ScreenShotter((TakesScreenshot) driver, "targets/dist/"
+                new FileScreenShotter((TakesScreenshot) driver, "targets/dist/"
                         + this.getClass().getSimpleName() + "/" + method.getName());
         this.pageProxy = new PageProxy(shotter);
         this.openbis = new ApplicationRunner(this.pageProxy);
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void takeScreenShot() throws IOException
     {
         shotter.screenshot();
@@ -155,6 +174,7 @@ public abstract class SeleniumTest
             description.appendText("Browser on page described by " + this.pageClass.getName());
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public boolean matchesSafely(WebDriver ignore)
         {
@@ -170,7 +190,12 @@ public abstract class SeleniumTest
                         try
                         {
                             field.setAccessible(true);
-                            element = (WebElement) field.get(o);
+                            Object potentialWebElement = field.get(o);
+                            if (potentialWebElement instanceof Collection)
+                            {
+                                continue;
+                            }
+                            element = (WebElement) potentialWebElement;
                         } catch (IllegalArgumentException ex)
                         {
                             ex.printStackTrace();
@@ -190,6 +215,53 @@ public abstract class SeleniumTest
                 pageClass = (Class<? extends Page>) pageClass.getSuperclass();
             }
             return true;
+        }
+
+    }
+
+    protected Matcher<Class<SampleBrowser>> showsInToolBar(SampleType sampleType)
+    {
+        return not(new SampleBrowserSampleTypeListMatcher(sampleType, openbis));
+    }
+
+    protected Matcher<Class<SampleBrowser>> doesNotShowInToolBar(SampleType sampleType)
+    {
+        return not(new SampleBrowserSampleTypeListMatcher(sampleType, openbis));
+    }
+
+    private static class SampleBrowserSampleTypeListMatcher extends
+            TypeSafeMatcher<Class<SampleBrowser>>
+    {
+
+        private SampleType sampleType;
+
+        private ApplicationRunner openbis;
+
+        public SampleBrowserSampleTypeListMatcher(SampleType sampleType, ApplicationRunner openbis)
+        {
+            this.sampleType = sampleType;
+            this.openbis = openbis;
+        }
+
+        @Override
+        public void describeTo(Description description)
+        {
+            description.appendText("Sample browser listing sample type " + sampleType.getCode()
+                    + " in sample type combo box");
+        }
+
+        @Override
+        public boolean matchesSafely(Class<SampleBrowser> item)
+        {
+            for (String sampleTypeCode : openbis.browseToSampleBrowser().getSampleTypes())
+            {
+                if (sampleTypeCode.equalsIgnoreCase(sampleType.getCode()))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
     }
@@ -256,7 +328,6 @@ public abstract class SeleniumTest
         public boolean matchesSafely(Class<? extends BrowserPage> actual)
         {
             BrowserPage browser = opener.open(actual);
-
             for (Map<String, String> row : browser.getTableContent())
             {
                 if (this.expected.isRepresentedBy(row))

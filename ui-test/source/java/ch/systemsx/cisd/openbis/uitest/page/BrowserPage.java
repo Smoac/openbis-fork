@@ -24,7 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
+
+import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
 
 /**
  * @author anttil
@@ -36,12 +39,26 @@ public abstract class BrowserPage extends PrivatePage
 
     protected abstract List<WebElement> getData();
 
+    protected List<WebElement> getVisible(List<WebElement> allElements)
+    {
+        List<WebElement> visibleElements = new ArrayList<WebElement>();
+        for (WebElement e : allElements)
+        {
+            if (e.isDisplayed())
+            {
+                visibleElements.add(e);
+            }
+        }
+        return visibleElements;
+    }
+
     public Collection<Map<String, String>> getTableContent()
     {
         List<Map<String, String>> content = new ArrayList<Map<String, String>>();
 
-        List<WebElement> columnNames = arrange(getColumns());
-        List<WebElement> gridValues = arrange(getData());
+        List<WebElement> columnNames = arrange(getVisible(getColumns()));
+        List<WebElement> gridValues = arrange(getVisible(getData()));
+
         int index = 0;
         Map<String, String> map = new HashMap<String, String>();
         for (WebElement element : gridValues)
@@ -80,5 +97,47 @@ public abstract class BrowserPage extends PrivatePage
                 }
             });
         return sorted;
+    }
+
+    @Override
+    public String toString()
+    {
+        String value = getClass().getSimpleName() + "\n";
+        int numColumns = 0;
+        for (WebElement column : getVisible(getColumns()))
+        {
+            value += column.getText() + "\t";
+            numColumns++;
+        }
+
+        int counter = 0;
+        for (WebElement cell : getVisible(getData()))
+        {
+
+            if (counter % numColumns == 0)
+            {
+                value += "\n";
+            }
+            value += "-" + cell.getText() + "-\t";
+            counter++;
+        }
+
+        return value;
+
+    }
+
+    protected String getXPath(WebElement webElement)
+    {
+        String jscript = "function getPathTo(node) {" +
+                "  var stack = [];" +
+                "  while(node.parentNode !== null) {" +
+                "    stack.unshift(node.tagName);" +
+                "    node = node.parentNode;" +
+                "  }" +
+                "  return stack.join('/');" +
+                "}" +
+                "return getPathTo(arguments[0]);";
+        return (String) ((JavascriptExecutor) SeleniumTest.driver).executeScript(jscript,
+                webElement);
     }
 }

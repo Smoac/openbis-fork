@@ -16,22 +16,15 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.FindBys;
 
-import ch.systemsx.cisd.openbis.uitest.infra.SampleType;
-
-public class SampleTypeBrowser extends BrowserPage
+public class SampleBrowser extends BrowserPage
 {
-
-    @FindBy(id = "add-entity-type")
-    private WebElement addSampleTypeButton;
-
-    @FindBy(id = "edit-entity-type")
-    private WebElement editSampleTypeButton;
 
     @FindBys(
         {
@@ -45,10 +38,22 @@ public class SampleTypeBrowser extends BrowserPage
                 @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-col \")]") })
     private List<WebElement> data;
 
-    public AddSampleTypeDialog add()
+    @FindBy(id = "openbis_sample-browser_main_add-button")
+    private WebElement addSampleButton;
+
+    @FindBys(
+        {
+                @FindBy(id = "openbis_select_group-selectsample-browser-toolbar"),
+                @FindBy(xpath = "img") })
+    private WebElement sampleTypeList;
+
+    @FindBy(className = "x-combo-list-item")
+    private List<WebElement> choices;
+
+    public AddSampleDialog addSample()
     {
-        addSampleTypeButton.click();
-        return get(AddSampleTypeDialog.class);
+        addSampleButton.click();
+        return get(AddSampleDialog.class);
     }
 
     @Override
@@ -63,17 +68,32 @@ public class SampleTypeBrowser extends BrowserPage
         return this.data;
     }
 
-    public EditSampleTypeDialog editSampleType(SampleType type)
+    public SampleBrowser selectSampleType(String sampleType)
     {
-        for (WebElement element : data)
+        sampleTypeList.click();
+        for (WebElement choice : choices)
         {
-            if (element.getText().equalsIgnoreCase(type.getCode()))
+            if (choice.getText().equals(sampleType))
             {
-                element.click();
-                editSampleTypeButton.click();
-                return get(EditSampleTypeDialog.class);
+                choice.click();
+                return get(SampleBrowser.class);
             }
         }
-        throw new IllegalArgumentException("Sample type browser does not contain " + type);
+
+        throw new RuntimeException("Sample type with name " + sampleType + " not found");
+    }
+
+    public List<String> getSampleTypes()
+    {
+        List<String> sampleTypes = new ArrayList<String>();
+
+        sampleTypeList.click();
+        for (WebElement choice : choices)
+        {
+            sampleTypes.add(choice.getText());
+        }
+        sampleTypeList.click();
+
+        return sampleTypes;
     }
 }

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
+import java.util.List;
+
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
@@ -27,10 +29,42 @@ public abstract class PrivatePage extends Page
     @FindBy(id = "admin_menu")
     private WebElement adminMenuButton;
 
-    public AdminMenu adminMenu()
+    @FindBy(id = "user_menu")
+    private WebElement userMenuButton;
+
+    @FindBy(id = "browse_menu")
+    private WebElement browseMenuButton;
+
+    @FindBy(className = "x-tab-strip-close")
+    private List<WebElement> tabCloseButtons;
+
+    public AdminMenu admin()
     {
         adminMenuButton.click();
         return get(AdminMenu.class);
+    }
+
+    public UserMenu user()
+    {
+        userMenuButton.click();
+        return get(UserMenu.class);
+    }
+
+    public BrowseMenu browse()
+    {
+        browseMenuButton.click();
+        return get(BrowseMenu.class);
+    }
+
+    public void closeTabs()
+    {
+        for (WebElement e : tabCloseButtons)
+        {
+            if (e.isDisplayed())
+            {
+                e.click();
+            }
+        }
     }
 
 }

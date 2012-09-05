@@ -111,6 +111,8 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
 
     public static final String MAIN_GRID_ID = createGridId(MAIN_BROWSER_ID);
 
+    public static final String ADD_BUTTON_ID_SUFFIX = "_add-button";
+
     public static final String EDIT_BUTTON_ID_SUFFIX = "_edit-button";
 
     public static final String SHOW_DETAILS_BUTTON_ID_SUFFIX = "_show-details-button";
@@ -583,6 +585,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                                     openSampleRegistrationTab();
                                 }
                             });
+        addButton.setId(createChildComponentId("ADD_BUTTON_ID_SUFFIX"));
         addButton(addButton);
 
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);

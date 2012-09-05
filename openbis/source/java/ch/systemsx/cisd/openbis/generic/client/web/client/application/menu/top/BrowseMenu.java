@@ -35,6 +35,7 @@ public class BrowseMenu extends TopMenuItem
     public BrowseMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
     {
         super(messageProvider.getMessage(Dict.MENU_BROWSE));
+        setId("browse_menu");
 
         Menu submenu = new Menu();
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.PROJECT_MENU_BROWSE, messageProvider,
@@ -51,5 +52,4 @@ public class BrowseMenu extends TopMenuItem
                 componentProvider.getMaterialBrowser()));
         setMenu(submenu);
     }
-
 }

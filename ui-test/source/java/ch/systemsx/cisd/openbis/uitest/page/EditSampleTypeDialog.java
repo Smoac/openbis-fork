@@ -22,16 +22,13 @@ import org.openqa.selenium.support.FindBys;
 
 import ch.systemsx.cisd.openbis.uitest.infra.SampleType;
 
-public class AddSampleTypeDialog extends Page
+public class EditSampleTypeDialog extends Page
 {
-
-    @FindBy(id = "openbis_dialog-code-field-input")
-    private WebElement code;
 
     @FindBy(id = "openbis_add-type-dialog-description-field-input")
     private WebElement description;
 
-    // @FindBy(id = "")
+    @FindBy(id = "")
     private WebElement validationScript;
 
     @FindBys(
@@ -91,25 +88,19 @@ public class AddSampleTypeDialog extends Page
         return get(SampleTypeBrowser.class);
     }
 
-    public AddSampleTypeDialog setCode(String code)
-    {
-        this.code.sendKeys(code);
-        return this;
-    }
-
-    public AddSampleTypeDialog setListable(boolean checked)
+    public EditSampleTypeDialog setListable(boolean checked)
     {
         setCheckBox(this.listable, checked);
         return this;
     }
 
-    public AddSampleTypeDialog setShowContainer(boolean checked)
+    public EditSampleTypeDialog setShowContainer(boolean checked)
     {
         setCheckBox(this.showContainer, checked);
         return this;
     }
 
-    public AddSampleTypeDialog setShowParents(boolean checked)
+    public EditSampleTypeDialog setShowParents(boolean checked)
     {
         setCheckBox(this.showParents, checked);
         return this;
@@ -125,7 +116,6 @@ public class AddSampleTypeDialog extends Page
 
     public void fillWith(SampleType sampleType)
     {
-        setCode(sampleType.getCode());
         setListable(sampleType.isListable());
         setShowContainer(sampleType.isShowContainer());
         setShowParents(sampleType.isShowParents());

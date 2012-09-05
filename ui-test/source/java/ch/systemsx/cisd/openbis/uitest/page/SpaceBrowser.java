@@ -28,13 +28,13 @@ public class SpaceBrowser extends BrowserPage
     @FindBys(
         {
                 @FindBy(id = "openbis_space-browser-grid"),
-                @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-header \")]") })
+                @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-header \")]//span") })
     private List<WebElement> columns;
 
     @FindBys(
         {
                 @FindBy(id = "openbis_space-browser-grid"),
-                @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-col \")]") })
+                @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-col \")]/div") })
     private List<WebElement> data;
 
     @FindBy(id = "openbis_space-browser_add-button")

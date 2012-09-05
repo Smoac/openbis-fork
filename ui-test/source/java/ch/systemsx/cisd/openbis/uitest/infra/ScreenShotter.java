@@ -16,37 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-
 /**
  * @author anttil
  */
-public class ScreenShotter
+public interface ScreenShotter
 {
-    private String directory;
-
-    private TakesScreenshot driver;
-
-    private int counter;
-
-    public ScreenShotter(TakesScreenshot driver, String directory)
-    {
-        this.driver = driver;
-        this.directory = directory;
-        this.counter = 1;
-    }
-
-    public void screenshot() throws IOException
-    {
-        File file = driver.getScreenshotAs(OutputType.FILE);
-        FileUtils.copyFile(file, new File(directory + "/screenshot_"
-                + String.format("%4s", counter).replace(" ", "0") + ".png"));
-        counter++;
-    }
-
+    public void screenshot();
 }

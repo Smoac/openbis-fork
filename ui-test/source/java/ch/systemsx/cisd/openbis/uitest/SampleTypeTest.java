@@ -18,31 +18,32 @@ package ch.systemsx.cisd.openbis.uitest;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.infra.SampleType;
 import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.infra.User;
 import ch.systemsx.cisd.openbis.uitest.page.AddSampleTypeDialog;
+import ch.systemsx.cisd.openbis.uitest.page.SampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.SampleTypeBrowser;
 
 /**
  * @author anttil
  */
+@Test(groups =
+    { "login-admin" })
 public class SampleTypeTest extends SeleniumTest
 {
 
-    @BeforeClass
-    public void login()
-    {
-        openbis.login(User.ADMIN);
-    }
-
     @Test
-    public void invalidSampleTypeCodeCausesValidationError()
+    public void cannotSaveSampleTypeWithInvalidCode()
     {
-        AddSampleTypeDialog dialog = openbis.browseToAddSampleTypeDialog();
+        SampleType sampleType = new SampleType().setCode("invalid code");
+
+        openbis.create(sampleType);
+
+        assertThat(browser(), isShowing(AddSampleTypeDialog.class));
+
+        get(AddSampleTypeDialog.class).cancel();
     }
 
     @Test
@@ -55,14 +56,26 @@ public class SampleTypeTest extends SeleniumTest
         assertThat(SampleTypeBrowser.class, listsSampleType(sampleType));
     }
 
-    @Test(enabled = false)
-    public void nonListableSampleTypeIsNotListedInSampleBrowserDropDownMenu()
+    @Test
+    public void nonListableSampleTypeIsNotVisibleInSampleBrowserDropDownMenu()
     {
         SampleType sampleType = new SampleType().setListable(false);
 
         openbis.create(sampleType);
 
-        // assertThat(SampleBrowser.class, doesNotListSampleType(sampleType));
+        assertThat(SampleBrowser.class, doesNotShowInToolBar(sampleType));
+    }
+
+    @Test
+    public void changingSampleTypeToBeListableMakesItVisibleInSampleBrowserDropDownMenu()
+    {
+        SampleType sampleType = new SampleType().setListable(false);
+        openbis.create(sampleType);
+
+        sampleType.setListable(true);
+        openbis.update(sampleType);
+
+        assertThat(SampleBrowser.class, showsInToolBar(sampleType));
     }
 
 }

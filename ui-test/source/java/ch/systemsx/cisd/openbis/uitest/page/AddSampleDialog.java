@@ -16,31 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 
-public class LoginPage extends Page
+public class AddSampleDialog extends Page
 {
-
-    @FindBy(id = "openbis_login_username")
-    private WebElement username;
-
-    @FindBy(id = "openbis_login_password")
-    private WebElement password;
-
-    @FindBy(id = "openbis_login_submit")
-    private WebElement button;
-
-    public HomePage loginAs(String user, String pwd)
-    {
-        username.clear();
-        password.clear();
-
-        username.sendKeys(user);
-        password.sendKeys(pwd);
-
-        button.click();
-
-        return get(HomePage.class);
-    }
 }

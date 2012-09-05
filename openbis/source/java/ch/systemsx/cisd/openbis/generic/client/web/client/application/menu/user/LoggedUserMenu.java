@@ -48,6 +48,7 @@ public final class LoggedUserMenu extends TopMenuItem
             ComponentProvider componentProvider)
     {
         super(null); // menu title is set later
+        setId("user_menu");
         this.viewContext = viewContext;
 
         Menu submenu = new Menu();
