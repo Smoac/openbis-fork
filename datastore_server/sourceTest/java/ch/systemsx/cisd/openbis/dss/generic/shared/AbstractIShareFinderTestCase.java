@@ -58,11 +58,10 @@ public class AbstractIShareFinderTestCase extends AssertJUnit
         final File file = new File(shareId);
         Share share = new Share(file, speed, new IFreeSpaceProvider()
             {
-
                 @Override
                 public long freeSpaceKb(HostAwareFile path) throws IOException
                 {
-                    assertSame(file, path.getLocalFile());
+                    assertEquals(file, path.getLocalFile());
                     return freeSpace / FileUtils.ONE_KB;
                 }
             });
