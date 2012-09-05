@@ -29,8 +29,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedCriteriaO
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdates;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdatesResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IUpdateResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityHistoryCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
@@ -1020,7 +1020,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#updateProperties(EntityPropertyUpdates)
      */
     public void updateProperties(EntityPropertyUpdates entityPropertyUpdates,
-            AsyncCallback<EntityPropertyUpdatesResult> callback);
+            AsyncCallback<IUpdateResult> callback);
 
     /** @see ICommonClientService#listDeletions(DefaultResultSetConfig) */
     public void listDeletions(

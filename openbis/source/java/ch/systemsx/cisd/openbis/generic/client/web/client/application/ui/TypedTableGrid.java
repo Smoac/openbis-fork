@@ -22,10 +22,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.GXT;
@@ -123,7 +121,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisplayTypeIDProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IModification;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ITableModificationsManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ModificationsData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.PendingFetchManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.TableExportType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterToolbar;
@@ -135,14 +133,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.Constants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdatesResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IUpdateResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
@@ -309,38 +306,11 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         }
     }
 
-    private static class Modification implements IModification
-    {
-        private final String columnID;
-
-        private final String newValueOrNull;
-
-        public Modification(String columnID, String newValueOrNull)
-        {
-            super();
-            this.columnID = columnID;
-            this.newValueOrNull =
-                    newValueOrNull == null ? null : StringEscapeUtils.unescapeHtml(newValueOrNull);
-        }
-
-        @Override
-        public String getColumnID()
-        {
-            return columnID;
-        }
-
-        @Override
-        public String tryGetNewValue()
-        {
-            return newValueOrNull;
-        }
-    }
-
     protected final IViewContext<ICommonClientServiceAsync> viewContext;
 
     protected final ICellListener<TableModelRowWithObject<T>> showEntityViewerLinkClickListener;
 
-    protected final ITableModificationsManager<BaseEntityModel<TableModelRowWithObject<T>>> tableModificationsManager;
+    protected final TableModificationsManager tableModificationsManager;
 
     // ------ private section. NOTE: it should remain unaccessible to subclasses! ---------------
 
@@ -476,6 +446,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             removeButtons(PagingToolBarButtonKind.CONFIG, PagingToolBarButtonKind.REFRESH);
         }
         setId(browserId);
+
     }
 
     public void removeButtons(PagingToolBarButtonKind... buttonKinds)
@@ -2105,6 +2076,12 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                                                 "Sorry, table cell editing is not allowed in current viewing mode",
                                                 null);
                                 event.setCancelled(true);
+                            } else if (tableModificationsManager.isSaving())
+                            {
+                                MessageBox.info("Not Allowed",
+                                        "Sorry, table cell editing is not allowed during "
+                                                + "saving of recently changed table cells.", null);
+                                event.setCancelled(true);
                             } else
                             {
                                 BaseEntityModel<TableModelRowWithObject<T>> model =
@@ -2325,81 +2302,42 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
      * implementation does nothing.
      */
     protected void applyModifications(BaseEntityModel<TableModelRowWithObject<T>> model,
-            List<IModification> modifications)
+            List<IModification> modifications, AsyncCallback<IUpdateResult> callBack)
     {
 
     }
 
-    private class TableModificationsManager implements
-            ITableModificationsManager<BaseEntityModel<TableModelRowWithObject<T>>>
+    private class TableModificationsManager
     {
-        private final Map<BaseEntityModel<TableModelRowWithObject<T>>, List<IModification>> modificationsByModel =
-                new LinkedHashMap<BaseEntityModel<TableModelRowWithObject<T>>, List<IModification>>();
+        private final ModificationsData<T> modificationsData = new ModificationsData<T>();
 
-        private final Map<BaseEntityModel<TableModelRowWithObject<T>>, String> failedModifications =
-                new HashMap<BaseEntityModel<TableModelRowWithObject<T>>, String>();
-
-        private int finishedModifications = 0;
-
-        private IDelegatedAction afterSaveActionOrNull;
-
-        //
-        // ITableModificationsManager
-        //
-
-        // @Override
-        @Override
-        public boolean isTableDirty()
+        public boolean isSaving()
         {
-            return isApplyModificationsComplete() == false;
+            return modificationsData.isSaving();
         }
 
-        @Override
+        public boolean isTableDirty()
+        {
+            return modificationsData.isApplyModificationsComplete() == false
+                    && modificationsData.isSaving() == false;
+        }
+
         public void saveModifications()
         {
-            saveModifications(new IDelegatedAction()
+            modificationsData.handleModifications(new ModificationsData.IModificationsHandler<T>()
                 {
-
                     @Override
-                    public void execute()
+                    public void applyModifications(
+                            BaseEntityModel<TableModelRowWithObject<T>> model,
+                            List<IModification> modifications)
                     {
-                        DefaultResultSetConfig<String, TableModelRowWithObject<T>> config =
-                                createPagingConfig(new BasePagingLoadConfig(),
-                                        filterToolbar.getFilters(), getGridDisplayTypeID());
-                        config.setCacheConfig(ResultSetFetchConfig
-                                .createRecomputeAndCache(resultSetKeyOrNull));
-                        final int id = TypedTableGrid.this.log("refreshing cache silently");
-                        listTableRows(config, new AbstractAsyncCallback<TypedTableResultSet<T>>(
-                                viewContext)
-                            {
-                                @Override
-                                protected void process(TypedTableResultSet<T> result)
-                                {
-                                    viewContext.logStop(id);
-                                }
-                            });
+                        AsyncCallback<IUpdateResult> callBack =
+                                createApplyModificationsCallback(model, modifications);
+                        TypedTableGrid.this.applyModifications(model, modifications, callBack);
                     }
                 });
         }
 
-        private void setAfterSaveAction(IDelegatedAction afterSaveAction)
-        {
-            this.afterSaveActionOrNull = afterSaveAction;
-        }
-
-        @Override
-        public void saveModifications(IDelegatedAction afterSaveAction)
-        {
-            setAfterSaveAction(afterSaveAction);
-            finishedModifications = 0;
-            for (Entry<BaseEntityModel<TableModelRowWithObject<T>>, List<IModification>> entry : modificationsByModel
-                    .entrySet())
-            {
-                applyModifications(entry.getKey(), entry.getValue());
-            }
-        }
-
-        @Override
         public void cancelModifications()
         {
             clearModifications();
@@ -2407,74 +2345,48 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             refresh(); // WORKAROUND remove this refresh after LMS-2397 is resolved
         }
 
-        @Override
         public void handleEditingEvent(BaseEntityModel<TableModelRowWithObject<T>> model,
                 String columnID, String newValueOrNull)
         {
-            List<IModification> modificationsForModel = modificationsByModel.get(model);
-            if (modificationsForModel == null)
-            {
-                modificationsForModel = new ArrayList<IModification>();
-                modificationsByModel.put(model, modificationsForModel);
-            }
-            modificationsForModel.add(new Modification(columnID, newValueOrNull));
+            modificationsData.addModification(model, columnID, newValueOrNull);
         }
 
-        @Override
-        public AsyncCallback<EntityPropertyUpdatesResult> createApplyModificationsCallback(
+        private AsyncCallback<IUpdateResult> createApplyModificationsCallback(
                 final BaseEntityModel<TableModelRowWithObject<T>> model,
                 final List<IModification> modifications)
         {
-            return new AbstractAsyncCallback<EntityPropertyUpdatesResult>(viewContext)
+            return new AbstractAsyncCallback<IUpdateResult>(viewContext)
                 {
                     @Override
-                    protected void process(EntityPropertyUpdatesResult result)
+                    protected void process(IUpdateResult result)
                     {
-                        finishedModifications++;
-                        String errorMessage = result.tryGetErrorMessage();
-                        if (errorMessage != null)
-                        {
-                            handleError(errorMessage);
-                        }
-                        if (isApplyModificationsComplete())
-                        {
-                            onApplyModificationsComplete(model);
-                        }
+                        processErrorMessage(result.tryGetErrorMessage());
                     }
 
                     @Override
                     public void finishOnFailure(Throwable caught)
                     {
-                        finishedModifications++;
-                        handleError(caught.getMessage());
-                        if (isApplyModificationsComplete())
+                        processErrorMessage(caught.getMessage());
+                    }
+
+                    private void processErrorMessage(String errorMessageOrNull)
+                    {
+                        modificationsData.handleResponseAfterModificationHasBeenApplied(model,
+                                errorMessageOrNull);
+                        if (modificationsData.isApplyModificationsComplete())
                         {
                             onApplyModificationsComplete(model);
                         }
                     }
-
-                    private void handleError(String errorMessage)
-                    {
-                        failedModifications.put(model, errorMessage);
-                    }
                 };
-        }
-
-        //
-
-        private boolean isApplyModificationsComplete()
-        {
-            return finishedModifications == modificationsByModel.size();
         }
 
         private void onApplyModificationsComplete(BaseEntityModel<TableModelRowWithObject<T>> model)
         {
-            if (failedModifications.size() > 0)
+            if (modificationsData.hasFailedModifications())
             {
-                String failureTitle =
-                        (failedModifications.size() == modificationsByModel.size()) ? "Operation failed"
-                                : "Operation partly failed";
-                String failureReport = createFailedModificationsReport();
+                String failureTitle = modificationsData.createFailureTitle();
+                String failureReport = modificationsData.createFailedModificationsReport();
                 MessageBox.alert(failureTitle, failureReport, null);
                 refresh();
             } else
@@ -2487,29 +2399,30 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                 grid.getStore().commitChanges(); // no need to refresh - everything should be valid
             }
             clearModifications();
-            if (afterSaveActionOrNull != null)
-            {
-                afterSaveActionOrNull.execute();
-            }
+            refreshCacheSilently();
         }
 
-        private String createFailedModificationsReport()
+        private void refreshCacheSilently()
         {
-            assert failedModifications.size() > 0;
-            StringBuilder result = new StringBuilder();
-            result.append("Modifications of " + failedModifications.size() + " entities failed:");
-            for (String error : failedModifications.values())
-            {
-                result.append("<br/>- " + error);
-            }
-            return result.toString();
+            DefaultResultSetConfig<String, TableModelRowWithObject<T>> config =
+                    createPagingConfig(new BasePagingLoadConfig(), filterToolbar.getFilters(),
+                            getGridDisplayTypeID());
+            config.setCacheConfig(ResultSetFetchConfig.createRecomputeAndCache(resultSetKeyOrNull));
+            final int id = TypedTableGrid.this.log("refreshing cache silently");
+            listTableRows(config, new AbstractAsyncCallback<TypedTableResultSet<T>>(
+                    TypedTableGrid.this.viewContext)
+                {
+                    @Override
+                    protected void process(TypedTableResultSet<T> result)
+                    {
+                        viewContext.logStop(id);
+                    }
+                });
         }
 
         private void clearModifications()
         {
-            finishedModifications = 0;
-            failedModifications.clear();
-            modificationsByModel.clear();
+            modificationsData.clearData();
             hideModificationsBar();
         }
 
@@ -2520,7 +2433,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     {
 
         public TableModificationsToolbar(final IMessageProvider messageProvider,
-                final ITableModificationsManager<?> manager)
+                final TableModificationsManager manager)
         {
             add(new Label(messageProvider.getMessage(Dict.TABLE_MODIFICATIONS)));
 

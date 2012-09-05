@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedCriteriaO
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdates;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdatesResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IUpdateResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityHistoryCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
@@ -1116,7 +1116,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Updates specified properties of an entity.
      */
-    public EntityPropertyUpdatesResult updateProperties(EntityPropertyUpdates updates)
+    public IUpdateResult updateProperties(EntityPropertyUpdates updates)
             throws UserFailureException;
 
     /**

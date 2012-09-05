@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Piotr Buczek
  */
-public class EntityPropertyUpdatesResult implements Serializable
+public class EntityPropertyUpdatesResult implements Serializable, IUpdateResult
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -41,6 +41,7 @@ public class EntityPropertyUpdatesResult implements Serializable
         this.errorMessage = errorMessage;
     }
 
+    @Override
     public String tryGetErrorMessage()
     {
         return errorMessage;

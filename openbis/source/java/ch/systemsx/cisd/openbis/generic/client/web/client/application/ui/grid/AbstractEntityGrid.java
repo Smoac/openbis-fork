@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -29,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdates;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IUpdateResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
@@ -79,7 +81,7 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
 
     @Override
     protected void applyModifications(BaseEntityModel<TableModelRowWithObject<E>> model,
-            List<IModification> modifications)
+            List<IModification> modifications, AsyncCallback<IUpdateResult> callBack)
     {
         final EntityKind entityKind = getEntityKindOrNull();
         final TechId entityId = new TechId(model.getBaseObject().getId());
@@ -91,8 +93,7 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
                             SampleGridColumnIDs.PROPERTIES_PREFIX.length());
             updates.addModifiedProperty(propertyCode, modification.tryGetNewValue());
         }
-        viewContext.getService().updateProperties(updates,
-                tableModificationsManager.createApplyModificationsCallback(model, modifications));
+        viewContext.getService().updateProperties(updates, callBack);
     }
 
     @Override
