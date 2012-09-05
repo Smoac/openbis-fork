@@ -27,7 +27,7 @@ public class ResultSetFetchConfig<K> implements IsSerializable
 {
     public enum ResultSetFetchMode implements IsSerializable
     {
-        COMPUTE_AND_CACHE, CLEAR_COMPUTE_AND_CACHE, FETCH_FROM_CACHE,
+        COMPUTE_AND_CACHE, CLEAR_COMPUTE_AND_CACHE, RECOMPUTE_AND_CACHE, FETCH_FROM_CACHE,
         FETCH_FROM_CACHE_AND_RECOMPUTE
     }
 
@@ -56,6 +56,12 @@ public class ResultSetFetchConfig<K> implements IsSerializable
     public static <K> ResultSetFetchConfig<K> createFetchFromCache(K resultSetKey)
     {
         return new ResultSetFetchConfig<K>(ResultSetFetchMode.FETCH_FROM_CACHE, resultSetKey);
+    }
+
+    /** Instruction to recompute result and to cache it for the specified key. */
+    public static <K> ResultSetFetchConfig<K> createRecomputeAndCache(K resultSetKey)
+    {
+        return new ResultSetFetchConfig<K>(ResultSetFetchMode.RECOMPUTE_AND_CACHE, resultSetKey);
     }
 
     /**

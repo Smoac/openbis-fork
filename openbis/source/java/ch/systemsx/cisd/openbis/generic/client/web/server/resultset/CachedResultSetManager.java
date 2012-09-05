@@ -716,15 +716,18 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         ResultSetFetchMode mode = cacheConfig.getMode();
         debug("getResultSet(cache config = " + cacheConfig + ")");
 
+        K dataKey = cacheConfig.tryGetResultSetKey();
         switch (mode)
         {
+            case RECOMPUTE_AND_CACHE:
+                return fetchAndCacheResultForSpecifiedKey(sessionToken, resultConfig, dataProvider,
+                        dataKey);
             case CLEAR_COMPUTE_AND_CACHE:
-                removeResultSet(cacheConfig.tryGetResultSetKey());
+                removeResultSet(dataKey);
                 //$FALL-THROUGH$ -
             case COMPUTE_AND_CACHE:
                 return fetchAndCacheResult(sessionToken, resultConfig, dataProvider);
             default:
-                K dataKey = cacheConfig.tryGetResultSetKey();
                 TableData<T> tableData = tryGetCachedTableData(dataKey);
                 if (tableData != null)
                 {
@@ -742,6 +745,13 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider)
     {
         final K dataKey = resultSetKeyProvider.createKey();
+        return fetchAndCacheResultForSpecifiedKey(sessionToken, resultConfig, dataProvider, dataKey);
+    }
+
+    private <T> IResultSet<K, T> fetchAndCacheResultForSpecifiedKey(final String sessionToken,
+            final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider,
+            final K dataKey)
+    {
         int limit = resultConfig.getLimit();
         if (limit == IResultSetConfig.NO_LIMIT)
         {

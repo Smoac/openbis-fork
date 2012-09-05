@@ -122,6 +122,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisplayTypeIDProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IModification;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ITableModificationsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.PendingFetchManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.TableExportType;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterToolbar;
@@ -305,36 +307,6 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                         specialKeyPressed);
             }
         }
-    }
-
-    /** Manager of table modifications */
-    public interface ITableModificationsManager<M extends ModelData>
-    {
-        /** @return <code>true</code> iff there are any uncommitted modifications */
-        boolean isTableDirty();
-
-        /** save all modifications made in the table to the DB */
-        void saveModifications();
-
-        /** save all modifications made in the table to the DB and call the after save action */
-        void saveModifications(IDelegatedAction afterSaveAction);
-
-        /** cancel all modifications made in the table */
-        void cancelModifications();
-
-        /** handle cell editing event */
-        void handleEditingEvent(M model, String columnID, String stringOrNull);
-
-        /** @return callback for given modifications made to specified model. */
-        AsyncCallback<EntityPropertyUpdatesResult> createApplyModificationsCallback(final M model,
-                final List<IModification> modifications);
-    }
-
-    protected interface IModification
-    {
-        String getColumnID();
-
-        String tryGetNewValue();
     }
 
     private static class Modification implements IModification
@@ -1040,22 +1012,12 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                         {
                             if (me.getButtonClicked().getItemId().equals(Dialog.YES))
                             {
-                                tableModificationsManager.saveModifications(new IDelegatedAction()
-                                    {
-                                        @Override
-                                        public void execute()
-                                        {
-                                            // ignore this callback and refresh the table
-                                            ignore();
-                                            reenableAfterFailure();
-                                            refresh();
-                                        }
-                                    });
+                                tableModificationsManager.saveModifications();
                             } else
                             {
                                 tableModificationsManager.cancelModifications();
-                                successAction.execute();
                             }
+                            successAction.execute();
                         }
                     };
                 final String title =
@@ -2395,7 +2357,29 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         @Override
         public void saveModifications()
         {
-            saveModifications(null);
+            saveModifications(new IDelegatedAction()
+                {
+
+                    @Override
+                    public void execute()
+                    {
+                        DefaultResultSetConfig<String, TableModelRowWithObject<T>> config =
+                                createPagingConfig(new BasePagingLoadConfig(),
+                                        filterToolbar.getFilters(), getGridDisplayTypeID());
+                        config.setCacheConfig(ResultSetFetchConfig
+                                .createRecomputeAndCache(resultSetKeyOrNull));
+                        final int id = TypedTableGrid.this.log("refreshing cache silently");
+                        listTableRows(config, new AbstractAsyncCallback<TypedTableResultSet<T>>(
+                                viewContext)
+                            {
+                                @Override
+                                protected void process(TypedTableResultSet<T> result)
+                                {
+                                    viewContext.logStop(id);
+                                }
+                            });
+                    }
+                });
         }
 
         private void setAfterSaveAction(IDelegatedAction afterSaveAction)
