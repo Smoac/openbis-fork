@@ -43,7 +43,7 @@ public class HostAwareFile extends AbstractHashable implements Serializable
 
     public HostAwareFile(final File path)
     {
-        this(null, path.getAbsolutePath(), null);
+        this(null, path.getPath(), null);
     }
 
     public HostAwareFile(final String hostOrNull, final String path, final String rsyncModuleOrNull)
