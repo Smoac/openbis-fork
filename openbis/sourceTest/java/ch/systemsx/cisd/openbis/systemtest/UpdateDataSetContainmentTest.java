@@ -68,6 +68,70 @@ public class UpdateDataSetContainmentTest extends BaseTest
     }
 
     @Test
+    public void dataSetWithContainerTypeCanBeContainerOfAnotherDataSet() throws Exception
+    {
+        ExternalData container = create(aDataSet().inSample(sample).asContainer());
+        ExternalData component = create(aDataSet().inSample(sample));
+
+        perform(anUpdateOf(component).withContainer(container));
+
+        assertThat(component, hasContainer(container));
+    }
+
+    @Test
+    public void dataSetWithContainerTypeCanHaveComponents() throws Exception
+    {
+        ExternalData container = create(aDataSet().inSample(sample).asContainer());
+        ExternalData component = create(aDataSet().inSample(sample));
+
+        perform(anUpdateOf(container).withComponent(component));
+
+        assertThat(component, hasContainer(container));
+    }
+
+    @Test(expectedExceptions = UserFailureException.class)
+    public void dataSetWithComponentTypeCannotBeContainerOfAnotherDataSet() throws Exception
+    {
+        ExternalData component1 = create(aDataSet().inSample(sample));
+        ExternalData component2 = create(aDataSet().inSample(sample));
+
+        perform(anUpdateOf(component1).withContainer(component2));
+    }
+
+    @Test(expectedExceptions = UserFailureException.class)
+    public void dataSetWithComponentTypeCannotHaveComponents() throws Exception
+    {
+        ExternalData component1 = create(aDataSet().inSample(sample));
+        ExternalData component2 = create(aDataSet().inSample(sample));
+
+        perform(anUpdateOf(component1).withComponent(component2));
+    }
+
+    @Test(expectedExceptions = UserFailureException.class)
+    public void dataSetCannotBeSelfContainedViaContainerRelation() throws Exception
+    {
+        ExternalData component1 = create(aDataSet().inSample(sample).asContainer());
+        ExternalData component2 = create(aDataSet().inSample(sample).asContainer());
+        ExternalData component3 = create(aDataSet().inSample(sample).asContainer());
+
+        perform(anUpdateOf(component1).withContainer(component2));
+        perform(anUpdateOf(component2).withContainer(component3));
+        perform(anUpdateOf(component3).withContainer(component1));
+    }
+
+    @Test(expectedExceptions = UserFailureException.class)
+    public void dataSetCannotBeSelfContainedViaComponentsRelation() throws Exception
+    {
+        ExternalData component1 = create(aDataSet().inSample(sample).asContainer());
+        ExternalData component2 = create(aDataSet().inSample(sample).asContainer());
+        ExternalData component3 = create(aDataSet().inSample(sample).asContainer());
+
+        perform(anUpdateOf(component1).withComponent(component2));
+        perform(anUpdateOf(component2).withComponent(component3));
+        perform(anUpdateOf(component3).withComponent(component1));
+    }
+
+    @Test
     public void containmentCanBeRemoved() throws Exception
     {
         ExternalData component = create(aDataSet().inSample(sample));
@@ -136,15 +200,13 @@ public class UpdateDataSetContainmentTest extends BaseTest
     Space unrelatedNone;
 
     @Test(dataProvider = "rolesAllowedToAddContainerToDataSet", groups = "authorization")
-    public void addingContainerToDataSetIsAllowedFor(
-            RoleWithHierarchy spaceRole,
+    public void addingContainerToDataSetIsAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         ExternalData container = create(aDataSet().inSample(sample));
         ExternalData component = create(aDataSet().inSample(sample));
         String user =
-                create(aSession()
-                        .withSpaceRole(spaceRole, sample.getSpace())
+                create(aSession().withSpaceRole(spaceRole, sample.getSpace())
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
@@ -154,15 +216,13 @@ public class UpdateDataSetContainmentTest extends BaseTest
 
     @Test(dataProvider = "rolesNotAllowedToAddContainerToDataSet", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
-    public void addingContainerToDataSetNotIsAllowedFor(
-            RoleWithHierarchy spaceRole,
+    public void addingContainerToDataSetNotIsAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         ExternalData container = create(aDataSet().inSample(sample));
         ExternalData component = create(aDataSet().inSample(sample));
         String user =
-                create(aSession()
-                        .withSpaceRole(spaceRole, sample.getSpace())
+                create(aSession().withSpaceRole(spaceRole, sample.getSpace())
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
@@ -171,8 +231,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesAllowedToAddContainerToDataSet", groups = "authorization")
-    public void removingContainerFromDataSetIsAllowedFor(
-            RoleWithHierarchy spaceRole,
+    public void removingContainerFromDataSetIsAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         ExternalData component = create(aDataSet().inSample(sample));
@@ -180,8 +239,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
                 create(aDataSet().inSample(sample).asContainer().withComponent(component));
 
         String user =
-                create(aSession()
-                        .withSpaceRole(spaceRole, sample.getSpace())
+                create(aSession().withSpaceRole(spaceRole, sample.getSpace())
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
@@ -191,16 +249,14 @@ public class UpdateDataSetContainmentTest extends BaseTest
 
     @Test(dataProvider = "rolesNotAllowedToAddContainerToDataSet", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
-    public void removingContainerFromDataSetNotIsAllowedFor(
-            RoleWithHierarchy spaceRole,
+    public void removingContainerFromDataSetNotIsAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         ExternalData component = create(aDataSet().inSample(sample));
         ExternalData container =
                 create(aDataSet().inSample(sample).asContainer().withComponent(component));
         String user =
-                create(aSession()
-                        .withSpaceRole(spaceRole, sample.getSpace())
+                create(aSession().withSpaceRole(spaceRole, sample.getSpace())
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));

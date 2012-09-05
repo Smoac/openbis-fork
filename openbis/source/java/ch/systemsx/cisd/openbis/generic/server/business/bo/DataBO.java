@@ -563,17 +563,24 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         {
             updateExperiment(data, updates.getExperimentIdentifierOrNull());
         }
+
+        setParents(data, asListOrNull(updates.getModifiedParentDatasetCodesOrNull()));
+        updateContainer(updates.getModifiedContainerDatasetCodeOrNull());
+        updateComponents(updates.getModifiedContainedDatasetCodesOrNull());
+        updateFileFormatType(data, updates.getFileFormatTypeCode());
+        updateProperties(data, updates.getProperties());
+
         if (data.getContainer() != null)
         {
             // space could be changed by change of experiment
             checkSameSpace(data.getContainer(), data);
         }
+        if (data.getContainedDataSets() != null)
+        {
+            // even if components were not changed
+            checkSameSpace(data, data.getContainedDataSets());
+        }
 
-        setParents(data, asListOrNull(updates.getModifiedParentDatasetCodesOrNull()));
-        updateComponents(updates.getModifiedContainedDatasetCodesOrNull());
-        checkSameSpace(data, data.getContainedDataSets()); // even if components were not changed
-        updateFileFormatType(data, updates.getFileFormatTypeCode());
-        updateProperties(data, updates.getProperties());
         entityPropertiesConverter.checkMandatoryProperties(data.getProperties(),
                 data.getDataSetType());
         validateAndSave();
@@ -599,6 +606,17 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("Data Set '%s'", data.getCode()));
+        }
+    }
+
+    private void updateContainer(String modifiedContainerDatasetCodeOrNull)
+    {
+        if (modifiedContainerDatasetCodeOrNull == null)
+        {
+            return; // container data set was not changed
+        } else
+        {
+            updateContainer(data, modifiedContainerDatasetCodeOrNull);
         }
     }
 

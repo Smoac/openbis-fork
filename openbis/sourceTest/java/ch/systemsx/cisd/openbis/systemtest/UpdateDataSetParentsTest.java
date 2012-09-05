@@ -154,18 +154,14 @@ public class UpdateDataSetParentsTest extends BaseTest
     Space unrelatedNone;
 
     @Test(dataProvider = "rolesAllowedToAddParentToDataSet", groups = "authorization")
-    public void addingParentToDataSetIsAllowedFor(
-            RoleWithHierarchy childSpaceRole,
-            RoleWithHierarchy parentSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void addingParentToDataSetIsAllowedFor(RoleWithHierarchy childSpaceRole,
+            RoleWithHierarchy parentSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
         ExternalData parentToBe = create(aDataSet().inSample(parentSample));
         ExternalData childToBe = create(aDataSet().inSample(childSample));
         String user =
-                create(aSession()
-                        .withSpaceRole(childSpaceRole, childSpace)
-                        .withSpaceRole(parentSpaceRole, parentSpace)
-                        .withInstanceRole(instanceRole)
+                create(aSession().withSpaceRole(childSpaceRole, childSpace)
+                        .withSpaceRole(parentSpaceRole, parentSpace).withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
@@ -174,18 +170,14 @@ public class UpdateDataSetParentsTest extends BaseTest
 
     @Test(dataProvider = "rolesNotAllowedToAddParentToDataSet", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
-    public void addingParentToDataSetNotIsAllowedFor(
-            RoleWithHierarchy childSpaceRole,
-            RoleWithHierarchy parentSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void addingParentToDataSetNotIsAllowedFor(RoleWithHierarchy childSpaceRole,
+            RoleWithHierarchy parentSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
         ExternalData parentToBe = create(aDataSet().inSample(parentSample));
         ExternalData childToBe = create(aDataSet().inSample(childSample));
         String user =
-                create(aSession()
-                        .withSpaceRole(childSpaceRole, childSpace)
-                        .withSpaceRole(parentSpaceRole, parentSpace)
-                        .withInstanceRole(instanceRole)
+                create(aSession().withSpaceRole(childSpaceRole, childSpace)
+                        .withSpaceRole(parentSpaceRole, parentSpace).withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
@@ -193,20 +185,16 @@ public class UpdateDataSetParentsTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesAllowedToRemoveParentFromDataSet", groups = "authorization")
-    public void removingParentFromDataSetIsAllowedFor(
-            RoleWithHierarchy childSpaceRole,
-            RoleWithHierarchy parentSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void removingParentFromDataSetIsAllowedFor(RoleWithHierarchy childSpaceRole,
+            RoleWithHierarchy parentSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
         ExternalData parent1 = create(aDataSet().inSample(parentSample));
         ExternalData parent2 = create(aDataSet().inSample(parentSample));
         ExternalData child = create(aDataSet().inSample(childSample).withParents(parent1, parent2));
 
         String user =
-                create(aSession()
-                        .withSpaceRole(childSpaceRole, childSpace)
-                        .withSpaceRole(parentSpaceRole, parentSpace)
-                        .withInstanceRole(instanceRole)
+                create(aSession().withSpaceRole(childSpaceRole, childSpace)
+                        .withSpaceRole(parentSpaceRole, parentSpace).withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
@@ -215,20 +203,16 @@ public class UpdateDataSetParentsTest extends BaseTest
 
     @Test(dataProvider = "rolesNotAllowedToRemoveParentFromDataSet", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
-    public void removingParentFromDataSetNotIsAllowedFor(
-            RoleWithHierarchy childSpaceRole,
-            RoleWithHierarchy parentSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void removingParentFromDataSetNotIsAllowedFor(RoleWithHierarchy childSpaceRole,
+            RoleWithHierarchy parentSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
         ExternalData parent1 = create(aDataSet().inSample(parentSample));
         ExternalData parent2 = create(aDataSet().inSample(parentSample));
         ExternalData child = create(aDataSet().inSample(childSample).withParents(parent1, parent2));
 
         String user =
-                create(aSession()
-                        .withSpaceRole(childSpaceRole, childSpace)
-                        .withSpaceRole(parentSpaceRole, parentSpace)
-                        .withInstanceRole(instanceRole)
+                create(aSession().withSpaceRole(childSpaceRole, childSpace)
+                        .withSpaceRole(parentSpaceRole, parentSpace).withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
@@ -276,13 +260,9 @@ public class UpdateDataSetParentsTest extends BaseTest
         parentSpaceDomain = new SpaceDomain(instance);
 
         updateParentsOfDataSetRule =
-                and(
-                        rule(childSpaceDomain, RoleWithHierarchy.SPACE_POWER_USER),
-                        or(
-                                rule(parentSpaceDomain, RoleWithHierarchy.SPACE_POWER_USER),
-                                rule(parentSpaceDomain, RoleWithHierarchy.SPACE_ETL_SERVER)
-                        )
-                );
+                and(rule(childSpaceDomain, RoleWithHierarchy.SPACE_POWER_USER),
+                        or(rule(parentSpaceDomain, RoleWithHierarchy.SPACE_POWER_USER),
+                                rule(parentSpaceDomain, RoleWithHierarchy.SPACE_ETL_SERVER)));
     }
 
     @DataProvider

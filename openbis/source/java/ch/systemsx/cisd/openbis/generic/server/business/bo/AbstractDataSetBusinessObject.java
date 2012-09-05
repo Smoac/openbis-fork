@@ -369,7 +369,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         {
             if (data.getContainer() != null)
             {
-                data.getContainer().removeComponent(data);
+                relationshipService.removeDataSetFromContainer(session, data);
             }
         } else
         {
@@ -387,7 +387,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
             }
 
             validateContainerContainedRelationshipGraph(container, data);
-            container.addComponent(data, findPerson());
+            relationshipService.assignDataSetToContainer(session, data, container);
         }
     }
 

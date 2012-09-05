@@ -126,24 +126,24 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
     }
 
     /*
-     *     public SampleUpdatesDTO(TechId sampleId, List<IEntityProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNull, Collection<NewAttachment> attachments,
-            Date version, SampleIdentifier sampleIdentifier, String containerIdentifierOrNull,
-            String[] modifiedParentCodesOrNull)
+     * public SampleUpdatesDTO(TechId sampleId, List<IEntityProperty> properties,
+     * ExperimentIdentifier experimentIdentifierOrNull, Collection<NewAttachment> attachments, Date
+     * version, SampleIdentifier sampleIdentifier, String containerIdentifierOrNull, String[]
+     * modifiedParentCodesOrNull)
      */
 
     @Override
     public SampleUpdatesDTO create()
     {
-        String[] parentCodes = new String[this.parents.size()];
+        String[] parentIdentifiers = new String[this.parents.size()];
         for (int i = 0; i < this.parents.size(); i++)
         {
-            parentCodes[i] = this.parents.get(i).getCode();
+            parentIdentifiers[i] = this.parents.get(i).getIdentifier();
         }
         return new SampleUpdatesDTO(this.sampleId, new ArrayList<IEntityProperty>(),
                 this.experimentId, new ArrayList<NewAttachment>(), this.version,
                 this.sampleIdentifier, this.container != null ? this.container.getIdentifier()
-                        : null, parentCodes);
+                        : null, parentIdentifiers);
     }
 
     @Override

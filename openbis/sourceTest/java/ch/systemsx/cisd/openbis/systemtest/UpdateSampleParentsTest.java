@@ -40,6 +40,8 @@ public class UpdateSampleParentsTest extends BaseTest
 
     Space space;
 
+    Space space2;
+
     @Test
     public void sampleCanBeUpdatedToHaveAnotherSampleAsParent() throws Exception
     {
@@ -122,9 +124,8 @@ public class UpdateSampleParentsTest extends BaseTest
         assertThat(parent, hasParents(child));
     }
 
-    @Test(expectedExceptions =
-        { UserFailureException.class })
-    public void parentCannotBeInDifferentSpace() throws Exception
+    @Test
+    public void parentCanBeInDifferentSpace() throws Exception
     {
         Sample parent = create(aSample().inSpace(space));
         Space anotherSpace = create(aSpace());
@@ -150,15 +151,42 @@ public class UpdateSampleParentsTest extends BaseTest
     Space unrelatedNone;
 
     @Test(dataProvider = "rolesAllowedToAddParentToSample", groups = "authorization")
-    public void addingParentToSampleIsAllowedFor(
-            RoleWithHierarchy spaceRole,
+    public void addingParentToSampleIsAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         Sample parentToBe = create(aSample().inSpace(space));
         Sample childToBe = create(aSample().inSpace(space));
         String user =
-                create(aSession()
-                        .withSpaceRole(spaceRole, space)
+                create(aSession().withSpaceRole(spaceRole, space).withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        perform(anUpdateOf(childToBe).toHaveParent(parentToBe).as(user));
+    }
+
+    @Test(dataProvider = "rolesNotAllowedToAddParentToSample", expectedExceptions =
+        { AuthorizationFailureException.class }, groups = "authorization")
+    public void addingParentToSampleIsNotAllowedFor(RoleWithHierarchy spaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        Sample parentToBe = create(aSample().inSpace(space));
+        Sample childToBe = create(aSample().inSpace(space));
+        String user =
+                create(aSession().withSpaceRole(spaceRole, space).withInstanceRole(instanceRole)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
+                        .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
+
+        perform(anUpdateOf(childToBe).toHaveParent(parentToBe).as(user));
+    }
+
+    @Test(dataProvider = "rolesAllowedToAddParentToSample", groups = "authorization")
+    public void addingParentToSampleInDifferentSpaceIsAllowedFor(RoleWithHierarchy spaceRole,
+            RoleWithHierarchy instanceRole) throws Exception
+    {
+        Sample parentToBe = create(aSample().inSpace(space));
+        Sample childToBe = create(aSample().inSpace(space2));
+        String user =
+                create(aSession().withSpaceRole(spaceRole, space).withSpaceRole(spaceRole, space2)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
@@ -168,15 +196,13 @@ public class UpdateSampleParentsTest extends BaseTest
 
     @Test(dataProvider = "rolesNotAllowedToAddParentToSample", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
-    public void addingParentToSampleIsNotAllowedFor(
-            RoleWithHierarchy spaceRole,
+    public void addingParentToSampleInDifferentSpaceIsNotAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         Sample parentToBe = create(aSample().inSpace(space));
-        Sample childToBe = create(aSample().inSpace(space));
+        Sample childToBe = create(aSample().inSpace(space2));
         String user =
-                create(aSession()
-                        .withSpaceRole(spaceRole, space)
+                create(aSession().withSpaceRole(spaceRole, space).withSpaceRole(spaceRole, space2)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
@@ -185,17 +211,14 @@ public class UpdateSampleParentsTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesAllowedToAddParentToSample", groups = "authorization")
-    public void removingParentToSampleIsAllowedFor(
-            RoleWithHierarchy spaceRole,
+    public void removingParentToSampleIsAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         Sample parent1 = create(aSample().inSpace(space));
         Sample parent2 = create(aSample().inSpace(space));
         Sample child = create(aSample().inSpace(space).withParents(parent1, parent2));
         String user =
-                create(aSession()
-                        .withSpaceRole(spaceRole, space)
-                        .withInstanceRole(instanceRole)
+                create(aSession().withSpaceRole(spaceRole, space).withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
@@ -204,17 +227,14 @@ public class UpdateSampleParentsTest extends BaseTest
 
     @Test(dataProvider = "rolesNotAllowedToAddParentToSample", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
-    public void removingParentToSampleIsNotAllowedFor(
-            RoleWithHierarchy spaceRole,
+    public void removingParentToSampleIsNotAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         Sample parent1 = create(aSample().inSpace(space));
         Sample parent2 = create(aSample().inSpace(space));
         Sample child = create(aSample().inSpace(space).withParents(parent1, parent2));
         String user =
-                create(aSession()
-                        .withSpaceRole(spaceRole, space)
-                        .withInstanceRole(instanceRole)
+                create(aSession().withSpaceRole(spaceRole, space).withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
@@ -225,6 +245,7 @@ public class UpdateSampleParentsTest extends BaseTest
     void createFixture() throws Exception
     {
         space = create(aSpace());
+        space2 = create(aSpace());
         unrelatedAdmin = create(aSpace());
         unrelatedObserver = create(aSpace());
         unrelatedNone = create(aSpace());
@@ -243,14 +264,10 @@ public class UpdateSampleParentsTest extends BaseTest
         spaceDomain = new SpaceDomain(instance);
 
         addParentToSampleRule =
-                or(
-                        rule(spaceDomain, RoleWithHierarchy.SPACE_POWER_USER),
+                or(rule(spaceDomain, RoleWithHierarchy.SPACE_POWER_USER),
 
-                        and(
-                                rule(spaceDomain, RoleWithHierarchy.SPACE_USER),
-                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
-                        )
-                );
+                        and(rule(spaceDomain, RoleWithHierarchy.SPACE_USER),
+                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)));
     }
 
     @DataProvider
