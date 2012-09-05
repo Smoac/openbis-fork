@@ -119,10 +119,10 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
             FileUtilities.checkPathCopier(copier, host, null, rsyncModule, rsyncPasswordFile,
                     DataSetCopier.SSH_TIMEOUT_MILLIS);
         }
-        File destination = hostAwareFile.getLocalFile();
-        File destinationFile = new File(destination, originalData.getName());
-        String dataSetCode = dataSetInformation.getDataSetCode();
-        File finalDestinationFile = new File(destination, renameToDataSetCode ? dataSetCode : originalData.getName());
+        final String destination = hostAwareFile.getPath();
+        final File destinationFile = new File(destination, originalData.getName());
+        final String dataSetCode = dataSetInformation.getDataSetCode();
+        final File finalDestinationFile = new File(destination, renameToDataSetCode ? dataSetCode : originalData.getName());
         BooleanStatus destinationExists =
                 checkDestinationFileExistence(finalDestinationFile, host, sshCommandExecutor);
 
@@ -144,13 +144,12 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
             IImmutableCopier hardLinkMaker = immutableCopierFactory.create(rsyncExecutable,
             lnExecutable);
             status =
-                    hardLinkMaker.copyImmutably(originalData, destination,
+                    hardLinkMaker.copyImmutably(originalData, new File(destination),
                             renameToDataSetCode ? dataSetCode : null);
         } else
         {
-            final String destinationRemotePath = hostAwareFile.getPath();
             status =
-                    copier.copyToRemote(originalData, destinationRemotePath, host, rsyncModule,
+                    copier.copyToRemote(originalData, destination, host, rsyncModule,
                             rsyncPasswordFile);
         }
         if (status.isError())
