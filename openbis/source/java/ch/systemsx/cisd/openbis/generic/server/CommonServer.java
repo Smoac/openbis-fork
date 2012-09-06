@@ -2499,8 +2499,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             final List<String> objectsWhichValidationWouldBeForced = new LinkedList<String>();
 
-            // TODO: refactor the check for type of entity requested for validation to the code of
-            // the caller to avoid duplication beetween here and EntityValidationInterceptor
             EntityValidationCalculator calculator =
                     EntityValidationCalculator.create(info.getScript(),
                             new IValidationRequestDelegate()
@@ -2508,16 +2506,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                                     @Override
                                     public void requestValidation(Object o)
                                     {
-                                        if (o == null)
-                                        {
-                                            return;
-                                        }
-                                        if (!(o instanceof IEntityInformationWithPropertiesHolder))
-                                        {
-                                            throw new IllegalArgumentException(
-                                                    "Would try to force validation if illegal object "
-                                                            + o.getClass());
-                                        }
                                         objectsWhichValidationWouldBeForced
                                                 .add(((IEntityInformationWithPropertiesHolder) o)
                                                         .getIdentifier());

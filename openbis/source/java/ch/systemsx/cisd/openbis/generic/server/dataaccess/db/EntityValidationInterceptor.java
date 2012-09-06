@@ -209,29 +209,19 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
     @Override
     public void requestValidation(Object entity)
     {
-        if (entity == null)
-        {
-            return;
-        }
-
-        if (false == entity instanceof IEntityInformationWithPropertiesHolder)
-        {
-            throw new IllegalArgumentException(
-                    "Trying to force the validation of an object of invalid type "
-                            + entity.getClass());
-        }
-
         if (validatedEntities.contains(entity) || newEntities.contains(entity)
                 || modifiedEntities.contains(entity))
         {
             // forcing validation of entity already listed for validation
         } else
         {
+            IEntityInformationWithPropertiesHolder typedEntity =
+                    (IEntityInformationWithPropertiesHolder) entity;
+
             // we update modified entities to know that we will validate this entity
-            modifiedEntities.add((IEntityInformationWithPropertiesHolder) entity);
+            modifiedEntities.add(typedEntity);
             // we add to the actual validation queue
-            entitiesToValidate.add((IEntityInformationWithPropertiesHolder) entity);
+            entitiesToValidate.add(typedEntity);
         }
     }
-
 }
