@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.type;
 
 import java.util.Map;
 import java.util.UUID;
+
+import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
 
 /**
  * @author anttil

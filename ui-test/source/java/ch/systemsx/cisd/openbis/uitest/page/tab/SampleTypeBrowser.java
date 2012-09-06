@@ -14,17 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.FindBys;
 
-public class SampleBrowser extends BrowserPage
+import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
+import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
+import ch.systemsx.cisd.openbis.uitest.page.dialog.EditSampleTypeDialog;
+import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+
+public class SampleTypeBrowser extends BrowserPage
 {
+
+    @FindBy(id = "add-entity-type")
+    private WebElement addSampleTypeButton;
+
+    @FindBy(id = "edit-entity-type")
+    private WebElement editSampleTypeButton;
 
     @FindBys(
         {
@@ -38,22 +48,10 @@ public class SampleBrowser extends BrowserPage
                 @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-col \")]") })
     private List<WebElement> data;
 
-    @FindBy(id = "openbis_sample-browser_main_add-button")
-    private WebElement addSampleButton;
-
-    @FindBys(
-        {
-                @FindBy(id = "openbis_select_group-selectsample-browser-toolbar"),
-                @FindBy(xpath = "img") })
-    private WebElement sampleTypeList;
-
-    @FindBy(className = "x-combo-list-item")
-    private List<WebElement> choices;
-
-    public AddSampleDialog addSample()
+    public AddSampleTypeDialog add()
     {
-        addSampleButton.click();
-        return get(AddSampleDialog.class);
+        addSampleTypeButton.click();
+        return get(AddSampleTypeDialog.class);
     }
 
     @Override
@@ -68,32 +66,17 @@ public class SampleBrowser extends BrowserPage
         return this.data;
     }
 
-    public SampleBrowser selectSampleType(String sampleType)
+    public EditSampleTypeDialog editSampleType(SampleType type)
     {
-        sampleTypeList.click();
-        for (WebElement choice : choices)
+        for (WebElement element : data)
         {
-            if (choice.getText().equals(sampleType))
+            if (element.getText().equalsIgnoreCase(type.getCode()))
             {
-                choice.click();
-                return get(SampleBrowser.class);
+                element.click();
+                editSampleTypeButton.click();
+                return get(EditSampleTypeDialog.class);
             }
         }
-
-        throw new RuntimeException("Sample type with name " + sampleType + " not found");
-    }
-
-    public List<String> getSampleTypes()
-    {
-        List<String> sampleTypes = new ArrayList<String>();
-
-        sampleTypeList.click();
-        for (WebElement choice : choices)
-        {
-            sampleTypes.add(choice.getText());
-        }
-        sampleTypeList.click();
-
-        return sampleTypes;
+        throw new IllegalArgumentException("Sample type browser does not contain " + type);
     }
 }

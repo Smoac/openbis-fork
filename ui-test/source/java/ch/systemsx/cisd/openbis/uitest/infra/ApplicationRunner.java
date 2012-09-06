@@ -16,17 +16,22 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra;
 
-import ch.systemsx.cisd.openbis.uitest.page.AddSampleTypeDialog;
-import ch.systemsx.cisd.openbis.uitest.page.AddSpaceDialog;
-import ch.systemsx.cisd.openbis.uitest.page.AddVocabularyDialog;
-import ch.systemsx.cisd.openbis.uitest.page.EditSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
 import ch.systemsx.cisd.openbis.uitest.page.PrivatePage;
-import ch.systemsx.cisd.openbis.uitest.page.RoleAssignmentBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.SampleBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.SampleTypeBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.SpaceBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.VocabularyBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
+import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSpaceDialog;
+import ch.systemsx.cisd.openbis.uitest.page.dialog.AddVocabularyDialog;
+import ch.systemsx.cisd.openbis.uitest.page.dialog.EditSampleTypeDialog;
+import ch.systemsx.cisd.openbis.uitest.page.tab.AddPropertyType;
+import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
+import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.type.Space;
+import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 
 /**
  * @author anttil
@@ -59,6 +64,13 @@ public class ApplicationRunner
     {
         AddVocabularyDialog dialog = browseToAddVocabularyDialog();
         dialog.fillWith(vocabulary);
+        dialog.save();
+    }
+
+    public void create(PropertyType propertyType)
+    {
+        AddPropertyType dialog = browseToAddPropertyType();
+        dialog.fillWith(propertyType);
         dialog.save();
     }
 
@@ -125,6 +137,11 @@ public class ApplicationRunner
     public AddVocabularyDialog browseToAddVocabularyDialog()
     {
         return browseToVocabularyBrowser().add();
+    }
+
+    public AddPropertyType browseToAddPropertyType()
+    {
+        return getMenus().admin().metadata().newPropertyType();
     }
 
     public void closeAllTabs()

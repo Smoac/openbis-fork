@@ -14,9 +14,30 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.type;
 
-
-public class AddSampleDialog extends Page
+/**
+ * @author anttil
+ */
+public class ControlledVocabularyPropertyTypeDataType implements PropertyTypeDataType
 {
+
+    private String vocabularyCode;
+
+    public ControlledVocabularyPropertyTypeDataType(String vocabularyCode)
+    {
+        this.vocabularyCode = vocabularyCode;
+    }
+
+    @Override
+    public String getName()
+    {
+        return "CONTROLLEDVOCABULARY";
+    }
+
+    public String getVocabularyCode()
+    {
+        return vocabularyCode;
+    }
+
 }

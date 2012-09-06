@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.openqa.selenium.By;
@@ -102,5 +103,21 @@ public abstract class Page
             };
 
         new WebDriverWait(SeleniumTest.driver, 10).until(condition);
+    }
+
+    protected void select(Collection<? extends WebElement> choices, String text)
+    {
+        Collection<String> found = new HashSet<String>();
+        for (WebElement choice : choices)
+        {
+            if (choice.getText().equals(text))
+            {
+                choice.click();
+                return;
+            }
+            found.add(choice.getText());
+        }
+        throw new IllegalArgumentException("Selection " + text + " not found");
+
     }
 }

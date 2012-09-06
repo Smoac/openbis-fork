@@ -14,25 +14,36 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.type;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+
+import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
 
 /**
  * @author anttil
  */
-public class Space implements Browsable
+public class Vocabulary implements Browsable
 {
 
     private String code;
 
     private String description;
 
-    public Space()
+    private Set<String> terms;
+
+    private String url;
+
+    public Vocabulary()
     {
         this.code = UUID.randomUUID().toString();
         this.description = "";
+        this.terms = new HashSet<String>();
+        this.terms.add("term1");
+        this.url = "http://invalid.com/${term}";
     }
 
     public String getCode()
@@ -40,7 +51,7 @@ public class Space implements Browsable
         return code;
     }
 
-    public Space setCode(String code)
+    public Vocabulary setCode(String code)
     {
         this.code = code;
         return this;
@@ -51,9 +62,31 @@ public class Space implements Browsable
         return description;
     }
 
-    public Space setDescription(String description)
+    public Vocabulary setDescription(String description)
     {
         this.description = description;
+        return this;
+    }
+
+    public Set<String> getTerms()
+    {
+        return terms;
+    }
+
+    public Vocabulary setTerms(Set<String> terms)
+    {
+        this.terms = terms;
+        return this;
+    }
+
+    public String getUrl()
+    {
+        return url;
+    }
+
+    public Vocabulary setUrl(String url)
+    {
+        this.url = url;
         return this;
     }
 
@@ -66,7 +99,6 @@ public class Space implements Browsable
     @Override
     public String toString()
     {
-        return "Space " + this.code;
+        return "Vocabulary " + this.code + ": " + this.terms;
     }
-
 }

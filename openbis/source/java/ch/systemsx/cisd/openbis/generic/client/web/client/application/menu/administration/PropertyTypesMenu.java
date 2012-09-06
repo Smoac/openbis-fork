@@ -36,6 +36,7 @@ public class PropertyTypesMenu extends MenuItem
     public PropertyTypesMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
     {
         super(messageProvider.getMessage(Dict.MENU_PROPERTY_TYPES));
+        setId(TopMenu.ActionMenuKind.ADMINISTRATION_MENU_MANAGE_PROPERTY_TYPES.toString());
 
         Menu menu = new Menu();
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES,

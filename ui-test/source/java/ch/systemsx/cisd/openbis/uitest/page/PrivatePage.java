@@ -21,6 +21,10 @@ import java.util.List;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
+import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
+import ch.systemsx.cisd.openbis.uitest.page.menu.BrowseMenu;
+import ch.systemsx.cisd.openbis.uitest.page.menu.UserMenu;
+
 /**
  * @author anttil
  */

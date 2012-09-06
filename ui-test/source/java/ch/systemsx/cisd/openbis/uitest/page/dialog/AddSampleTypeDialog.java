@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.page.dialog;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.FindBys;
 
-import ch.systemsx.cisd.openbis.uitest.infra.SampleType;
+import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
+import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 public class AddSampleTypeDialog extends Page
 {

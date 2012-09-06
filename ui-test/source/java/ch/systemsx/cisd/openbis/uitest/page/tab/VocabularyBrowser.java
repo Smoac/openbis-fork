@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.page.tab;
 
 import java.util.List;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.FindBys;
+
+import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
+import ch.systemsx.cisd.openbis.uitest.page.dialog.AddVocabularyDialog;
 
 public class VocabularyBrowser extends BrowserPage
 {

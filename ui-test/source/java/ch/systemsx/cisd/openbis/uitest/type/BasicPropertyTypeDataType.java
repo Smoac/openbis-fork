@@ -14,20 +14,33 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.type;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-
-public class UserMenu extends PrivatePage
+/**
+ * @author anttil
+ */
+public enum BasicPropertyTypeDataType implements PropertyTypeDataType
 {
+    BOOLEAN("BOOLEAN"),
+    HYPERLINK("HYPERLINK"),
+    INTEGER("INTEGER"),
+    MATERIAL("MATERIAL"),
+    MULTILINE_VARCHAR("MULTILINE_VARCHAR"),
+    REAL("REAL"),
+    TIMESTAMP("TIMESTAMP"),
+    VARCHAR("VARCHAR"),
+    XML("XML");
 
-    @FindBy(id = "openbis_top-menu_USER_MENU_LOGOUT")
-    private WebElement logout;
+    private String name;
 
-    public LoginPage logout()
+    private BasicPropertyTypeDataType(String name)
     {
-        logout.click();
-        return get(LoginPage.class);
+        this.name = name;
+    }
+
+    @Override
+    public String getName()
+    {
+        return this.name;
     }
 }

@@ -5,8 +5,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.infra.Vocabulary;
-import ch.systemsx.cisd.openbis.uitest.page.VocabularyBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
+import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 
 @Test(groups =
     { "login-admin" })

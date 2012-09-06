@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.page.dialog;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Vocabulary;
+import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
+import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 
 public class AddVocabularyDialog extends Page
 {

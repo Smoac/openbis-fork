@@ -14,34 +14,33 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
+
+import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
 
 /**
  * @author anttil
  */
-public class Vocabulary implements Browsable
+public class PropertyType implements Browsable
 {
 
     private String code;
 
+    private String label;
+
     private String description;
 
-    private Set<String> terms;
+    private PropertyTypeDataType dataType;
 
-    private String url;
-
-    public Vocabulary()
+    public PropertyType()
     {
         this.code = UUID.randomUUID().toString();
-        this.description = "";
-        this.terms = new HashSet<String>();
-        this.terms.add("term1");
-        this.url = "http://invalid.com/${term}";
+        this.label = "label";
+        this.description = "description";
+        this.dataType = BasicPropertyTypeDataType.BOOLEAN;
     }
 
     public String getCode()
@@ -49,9 +48,20 @@ public class Vocabulary implements Browsable
         return code;
     }
 
-    public Vocabulary setCode(String code)
+    public PropertyType setCode(String code)
     {
         this.code = code;
+        return this;
+    }
+
+    public String getLabel()
+    {
+        return label;
+    }
+
+    public PropertyType setLabel(String label)
+    {
+        this.label = label;
         return this;
     }
 
@@ -60,31 +70,20 @@ public class Vocabulary implements Browsable
         return description;
     }
 
-    public Vocabulary setDescription(String description)
+    public PropertyType setDescription(String description)
     {
         this.description = description;
         return this;
     }
 
-    public Set<String> getTerms()
+    public PropertyTypeDataType getDataType()
     {
-        return terms;
+        return dataType;
     }
 
-    public Vocabulary setTerms(Set<String> terms)
+    public PropertyType setDataType(PropertyTypeDataType dataType)
     {
-        this.terms = terms;
-        return this;
-    }
-
-    public String getUrl()
-    {
-        return url;
-    }
-
-    public Vocabulary setUrl(String url)
-    {
-        this.url = url;
+        this.dataType = dataType;
         return this;
     }
 
@@ -97,6 +96,6 @@ public class Vocabulary implements Browsable
     @Override
     public String toString()
     {
-        return "Vocabulary " + this.code + ": " + this.terms;
+        return "PropertyType " + this.code;
     }
 }

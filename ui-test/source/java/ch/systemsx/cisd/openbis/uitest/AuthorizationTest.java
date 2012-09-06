@@ -7,9 +7,9 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.infra.User;
 import ch.systemsx.cisd.openbis.uitest.page.HomePage;
-import ch.systemsx.cisd.openbis.uitest.page.InvalidPasswordDialog;
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
-import ch.systemsx.cisd.openbis.uitest.page.RoleAssignmentBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.dialog.InvalidPasswordDialog;
+import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
 
 @Test(groups =
     { "no-login" })

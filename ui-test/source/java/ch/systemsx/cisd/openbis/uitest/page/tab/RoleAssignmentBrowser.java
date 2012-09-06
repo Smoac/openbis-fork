@@ -14,37 +14,36 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.page.tab;
 
 import java.util.List;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.FindBys;
 
-public class SpaceBrowser extends BrowserPage
+import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
+
+public class RoleAssignmentBrowser extends BrowserPage
 {
 
+    @FindBy(id = "openbis_role-browser_assign-button")
+    private WebElement assignRoleButton;
+
+    /*
     @FindBys(
         {
-                @FindBy(id = "openbis_space-browser-grid"),
-                @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-header \")]//span") })
+                @FindBy(id = "openbis_sample-type-browser-grid"),
+                @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-header \")]") })
+    */
     private List<WebElement> columns;
 
+    /*
     @FindBys(
         {
-                @FindBy(id = "openbis_space-browser-grid"),
-                @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-col \")]/div") })
+                @FindBy(id = "openbis_sample-type-browser-grid"),
+                @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-col \")]") })
+     */
     private List<WebElement> data;
-
-    @FindBy(id = "openbis_space-browser_add-button")
-    private WebElement addSpaceButton;
-
-    public AddSpaceDialog addSpace()
-    {
-        addSpaceButton.click();
-        return get(AddSpaceDialog.class);
-    }
 
     @Override
     protected List<WebElement> getColumns()

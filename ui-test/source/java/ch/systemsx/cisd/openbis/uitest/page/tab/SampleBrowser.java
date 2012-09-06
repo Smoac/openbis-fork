@@ -14,34 +14,50 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.page.tab;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.FindBys;
 
-public class RoleAssignmentBrowser extends BrowserPage
+import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
+import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleDialog;
+
+public class SampleBrowser extends BrowserPage
 {
 
-    @FindBy(id = "openbis_role-browser_assign-button")
-    private WebElement assignRoleButton;
-
-    /*
     @FindBys(
         {
                 @FindBy(id = "openbis_sample-type-browser-grid"),
                 @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-header \")]") })
-    */
     private List<WebElement> columns;
 
-    /*
     @FindBys(
         {
                 @FindBy(id = "openbis_sample-type-browser-grid"),
                 @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-col \")]") })
-     */
     private List<WebElement> data;
+
+    @FindBy(id = "openbis_sample-browser_main_add-button")
+    private WebElement addSampleButton;
+
+    @FindBys(
+        {
+                @FindBy(id = "openbis_select_group-selectsample-browser-toolbar"),
+                @FindBy(xpath = "img") })
+    private WebElement sampleTypeList;
+
+    @FindBy(className = "x-combo-list-item")
+    private List<WebElement> choices;
+
+    public AddSampleDialog addSample()
+    {
+        addSampleButton.click();
+        return get(AddSampleDialog.class);
+    }
 
     @Override
     protected List<WebElement> getColumns()
@@ -53,5 +69,26 @@ public class RoleAssignmentBrowser extends BrowserPage
     protected List<WebElement> getData()
     {
         return this.data;
+    }
+
+    public SampleBrowser selectSampleType(String sampleType)
+    {
+        sampleTypeList.click();
+        select(choices, sampleType);
+        return get(SampleBrowser.class);
+    }
+
+    public List<String> getSampleTypes()
+    {
+        List<String> sampleTypes = new ArrayList<String>();
+
+        sampleTypeList.click();
+        for (WebElement choice : choices)
+        {
+            sampleTypes.add(choice.getText());
+        }
+        sampleTypeList.click();
+
+        return sampleTypes;
     }
 }

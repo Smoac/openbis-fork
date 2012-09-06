@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.page.dialog;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+
+import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
+import ch.systemsx.cisd.openbis.uitest.page.Page;
 
 public class InvalidPasswordDialog extends Page
 {
