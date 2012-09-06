@@ -37,5 +37,5 @@ public abstract class Builder<T>
         this.systemSession = commonServer.tryToAuthenticateAsSystem().getSessionToken();
     }
 
-    public abstract T create() throws Exception;
+    public abstract T create();
 }

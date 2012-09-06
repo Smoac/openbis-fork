@@ -79,7 +79,7 @@ public class ExperimentBuilder extends Builder<Experiment>
     }
 
     @Override
-    public Experiment create() throws Exception
+    public Experiment create()
     {
 
         String experimentTypeCode = UUID.randomUUID().toString();
@@ -87,14 +87,13 @@ public class ExperimentBuilder extends Builder<Experiment>
         experimentType.setCode(experimentTypeCode);
         experimentType.setDatabaseInstance(this.project.getSpace().getInstance());
         experimentType.setDescription("description");
-        experimentType
-                .setExperimentTypePropertyTypes(new ArrayList<ExperimentTypePropertyType>());
+        experimentType.setExperimentTypePropertyTypes(new ArrayList<ExperimentTypePropertyType>());
 
         commonServer.registerExperimentType(systemSession, experimentType);
 
-        String experimentId = "/" + this.project.getSpace().getCode() + "/" +
-                this.project.getCode() + "/"
-                + this.code;
+        String experimentId =
+                "/" + this.project.getSpace().getCode() + "/" + this.project.getCode() + "/"
+                        + this.code;
 
         NewExperiment details = new NewExperiment(experimentId, experimentType.getCode());
         details.setAttachments(new ArrayList<NewAttachment>());
@@ -103,8 +102,7 @@ public class ExperimentBuilder extends Builder<Experiment>
         details.setProperties(new IEntityProperty[0]);
         details.setRegisterSamples(false);
         details.setSamples(this.samples);
-        genericServer.registerExperiment(this.session, details,
-                new ArrayList<NewAttachment>());
+        genericServer.registerExperiment(this.session, details, new ArrayList<NewAttachment>());
 
         return getExperiment(experimentId);
     }
@@ -112,8 +110,7 @@ public class ExperimentBuilder extends Builder<Experiment>
     private Experiment getExperiment(String experimentId)
     {
         String[] codes = experimentId.split("/");
-        return commonServer.getExperimentInfo(systemSession, new ExperimentIdentifier(
-                "CISD",
+        return commonServer.getExperimentInfo(systemSession, new ExperimentIdentifier("CISD",
                 codes[1], codes[2], codes[3]));
     }
 

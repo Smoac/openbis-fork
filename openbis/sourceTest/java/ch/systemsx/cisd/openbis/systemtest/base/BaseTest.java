@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AndAuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.AuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.BasicAuthorizationRule;
@@ -100,6 +101,8 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     protected ICommonServerForInternalUse commonServer;
 
     protected IGenericServer genericServer;
+
+    protected IQueryServer queryServer;
 
     protected ICommonClientService commonClientService;
 
@@ -205,6 +208,13 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
 
     @Autowired
     @Test(enabled = false)
+    public final void setQueryServer(final IQueryServer queryServer)
+    {
+        this.queryServer = queryServer;
+    }
+
+    @Autowired
+    @Test(enabled = false)
     public final void setCommonClientService(final ICommonClientService commonClientService)
     {
         this.commonClientService = commonClientService;
@@ -238,7 +248,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         this.sessionManager = sessionManager;
     }
 
-    protected static <T> T create(Builder<T> builder) throws Exception
+    protected static <T> T create(Builder<T> builder)
     {
         return builder.create();
     }
