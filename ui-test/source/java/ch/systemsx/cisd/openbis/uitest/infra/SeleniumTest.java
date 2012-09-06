@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -56,7 +55,7 @@ public abstract class SeleniumTest
 
     protected ApplicationRunner openbis;
 
-    @BeforeSuite
+    // @BeforeSuite
     public void initWebDriver()
     {
         System.setProperty("webdriver.firefox.bin",
@@ -69,17 +68,19 @@ public abstract class SeleniumTest
         delete(new File("targets/dist"));
 
         driver.manage().deleteAllCookies();
-        driver.get("https://sprint-openbis.ethz.ch/openbis/");
-        // driver.get("http://127.0.0.1:8888/ch.systemsx.cisd.openbis.OpenBIS/index.html?gwt.codesvr=127.0.0.1:9997");
+        driver.get("http://127.0.0.1:8888/ch.systemsx.cisd.openbis.OpenBIS/index.html?gwt.codesvr=127.0.0.1:9997");
+    }
 
-        try
-        {
-            driver.switchTo().alert().accept();
-        } catch (NoAlertPresentException e)
-        {
-        }
-        this.loginAsAdmin();
-        this.logout();
+    @BeforeSuite
+    public void initWebDriverForCi()
+    {
+        driver = new FirefoxDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        delete(new File("targets/dist"));
+
+        driver.manage().deleteAllCookies();
+
+        driver.get("https://sprint-openbis.ethz.ch/openbis/");
     }
 
     @AfterSuite

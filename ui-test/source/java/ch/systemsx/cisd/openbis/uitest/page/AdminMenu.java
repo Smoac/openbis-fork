@@ -34,6 +34,9 @@ public class AdminMenu extends PrivatePage
     @FindBy(id = "openbis_top-menu_SAMPLE_MENU_TYPES")
     private WebElement sampleTypes;
 
+    @FindBy(id = "ADMINISTRATION_MENU_MANAGE_AUTHORIZATION")
+    private WebElement authorization;
+
     public SpaceBrowser spaces()
     {
         spaces.click();
@@ -51,5 +54,12 @@ public class AdminMenu extends PrivatePage
     {
         sampleTypes.click();
         return get(SampleTypeBrowser.class);
+    }
+
+    public AuthorizationMenu authorization()
+    {
+        Actions builder = new Actions(SeleniumTest.driver);
+        builder.moveToElement(authorization).build().perform();
+        return get(AuthorizationMenu.class);
     }
 }

@@ -9,6 +9,7 @@ import ch.systemsx.cisd.openbis.uitest.infra.User;
 import ch.systemsx.cisd.openbis.uitest.page.HomePage;
 import ch.systemsx.cisd.openbis.uitest.page.InvalidPasswordDialog;
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
+import ch.systemsx.cisd.openbis.uitest.page.RoleAssignmentBrowser;
 
 @Test(groups =
     { "no-login" })
@@ -25,7 +26,7 @@ public class AuthorizationTest extends SeleniumTest
     @Test
     public void loginFailsWithValidUserNameAndInvalidPassword() throws Exception
     {
-        openbis.login(User.ADMIN.getName(), "invalid");
+        openbis.login(User.ADMIN.getName() + "begfga", "invalid");
         get(InvalidPasswordDialog.class).dismiss();
     }
 
@@ -39,4 +40,14 @@ public class AuthorizationTest extends SeleniumTest
         assertThat(browser(), isShowing(LoginPage.class));
     }
 
+    @Test
+    public void adminCanOpenRoleAssignmentBrowser() throws Exception
+    {
+        openbis.login(User.ADMIN);
+        openbis.browseToRoleAssignmentBrowser();
+
+        assertThat(browser(), isShowing(RoleAssignmentBrowser.class));
+
+        openbis.logout();
+    }
 }

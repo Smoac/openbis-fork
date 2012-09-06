@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.uitest.page.AddSpaceDialog;
 import ch.systemsx.cisd.openbis.uitest.page.EditSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
 import ch.systemsx.cisd.openbis.uitest.page.PrivatePage;
+import ch.systemsx.cisd.openbis.uitest.page.RoleAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.SampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.SpaceBrowser;
@@ -100,6 +101,11 @@ public class ApplicationRunner
     public SampleBrowser browseToSampleBrowser()
     {
         return getMenus().browse().samples();
+    }
+
+    public RoleAssignmentBrowser browseToRoleAssignmentBrowser()
+    {
+        return getMenus().admin().authorization().roles();
     }
 
     public void closeAllTabs()
