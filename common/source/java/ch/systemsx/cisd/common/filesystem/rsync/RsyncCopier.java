@@ -728,12 +728,6 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             operationLog.trace(String.format("Trying to get lock for running command '%s'",
                     commandLine));
         }
-        Map<String, String> env = null;
-        if (System.getenv("HOME") == null)
-        {
-            env = new HashMap<String, String>();
-            env.put("HOME", System.getProperty("user.dir"));
-        }
         synchronized (this)
         {
             if (operationLog.isDebugEnabled())
@@ -741,8 +735,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 operationLog.debug(String.format("Running command '%s'", commandLine));
             }
             processHandler =
-                    ProcessExecutionHelper.runUnblocking(commandLine, env, false, operationLog,
-                            machineLog, ProcessIOStrategy.DEFAULT_IO_STRATEGY);
+                    ProcessExecutionHelper.runUnblocking(commandLine, operationLog, machineLog,
+                            ProcessIOStrategy.DEFAULT_IO_STRATEGY);
             rsyncTerminator.set(processHandler);
         }
         if (operationLog.isTraceEnabled())
