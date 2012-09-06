@@ -67,23 +67,22 @@ public final class BufferedAppender extends WriterAppender
     }
 
     /**
-     * Creates an instance for specified optional pattern, log level and optional class onto which
-     * log entries are filtered.
+     * Creates an instance for specified optional pattern, log level and snippet of the logger name
+     * onto which log entries are filtered.
      */
     public BufferedAppender(final String patternOrNull, final Level logLevel,
-            final Class<?> classToFilterOnOrNull)
+            final String loggerNameSnippetToFilterOnOrNull)
     {
         logRecorder = new ByteArrayOutputStream();
-        if (classToFilterOnOrNull != null)
+        if (loggerNameSnippetToFilterOnOrNull != null)
         {
             this.addFilter(new Filter()
                 {
-                    String className = classToFilterOnOrNull.getSimpleName();
-
                     @Override
                     public int decide(LoggingEvent event)
                     {
-                        return event.getLoggerName().endsWith(className) ? Filter.ACCEPT
+                        String loggerName = event.getLoggerName();
+                        return loggerName.indexOf(loggerNameSnippetToFilterOnOrNull) >= 0 ? Filter.ACCEPT
                                 : Filter.DENY;
                     }
                 });
