@@ -55,32 +55,29 @@ public abstract class SeleniumTest
 
     protected ApplicationRunner openbis;
 
-    // @BeforeSuite
+    @BeforeSuite
     public void initWebDriver()
     {
+        /*
         System.setProperty("webdriver.firefox.bin",
                 "/Users/anttil/Desktop/Firefox 10.app/Contents/MacOS/firefox");
 
         System.setProperty("webdriver.firefox.profile", "default");
-
-        driver = new FirefoxDriver();
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        delete(new File("targets/dist"));
-
-        driver.manage().deleteAllCookies();
-        driver.get("http://127.0.0.1:8888/ch.systemsx.cisd.openbis.OpenBIS/index.html?gwt.codesvr=127.0.0.1:9997");
-    }
-
-    @BeforeSuite
-    public void initWebDriverForCi()
-    {
+        */
         driver = new FirefoxDriver();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         delete(new File("targets/dist"));
 
         driver.manage().deleteAllCookies();
 
-        driver.get("https://sprint-openbis.ethz.ch/openbis/");
+        String url = System.getProperty("ui-test.url");
+        if (url == null || url.length() == 0)
+        {
+            url =
+                    "http://127.0.0.1:8888/ch.systemsx.cisd.openbis.OpenBIS/index.html?gwt.codesvr=127.0.0.1:9997";
+        }
+
+        driver.get(url);
     }
 
     @AfterSuite
@@ -288,6 +285,19 @@ public abstract class SeleniumTest
                 public BrowserPage open(Class<? extends BrowserPage> pageClass)
                 {
                     return this.openbis.browseToSpaceBrowser();
+                }
+
+            });
+    }
+
+    protected Matcher<Class<? extends BrowserPage>> listsVocabulary(Browsable browsable)
+    {
+        return new ListsElementMatcher(browsable, new Opener(this.openbis)
+            {
+                @Override
+                public BrowserPage open(Class<? extends BrowserPage> pageClass)
+                {
+                    return this.openbis.browseToVocabularyBrowser();
                 }
 
             });

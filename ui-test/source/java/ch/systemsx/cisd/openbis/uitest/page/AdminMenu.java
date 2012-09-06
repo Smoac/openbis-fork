@@ -28,6 +28,9 @@ public class AdminMenu extends PrivatePage
     @FindBy(id = "openbis_top-menu_ADMINISTRATION_MENU_MANAGE_GROUPS")
     private WebElement spaces;
 
+    @FindBy(id = "openbis_top-menu_VOCABULARY_MENU_BROWSE")
+    private WebElement vocabularies;
+
     @FindBy(id = "ADMINISTRATION_MENU_MANAGE_TYPES")
     private WebElement types;
 
@@ -41,6 +44,12 @@ public class AdminMenu extends PrivatePage
     {
         spaces.click();
         return get(SpaceBrowser.class);
+    }
+
+    public VocabularyBrowser vocabularies()
+    {
+        vocabularies.click();
+        return get(VocabularyBrowser.class);
     }
 
     public AdminMenu types()

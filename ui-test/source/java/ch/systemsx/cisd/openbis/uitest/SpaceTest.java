@@ -18,7 +18,7 @@ public class SpaceTest extends SeleniumTest
     {
         Space space = new Space();
 
-        openbis.createSpace(space);
+        openbis.create(space);
 
         assertThat(SpaceBrowser.class, listsSpace(space));
     }

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.uitest.infra;
 
 import ch.systemsx.cisd.openbis.uitest.page.AddSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.AddSpaceDialog;
+import ch.systemsx.cisd.openbis.uitest.page.AddVocabularyDialog;
 import ch.systemsx.cisd.openbis.uitest.page.EditSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
 import ch.systemsx.cisd.openbis.uitest.page.PrivatePage;
@@ -25,6 +26,7 @@ import ch.systemsx.cisd.openbis.uitest.page.RoleAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.SampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.SpaceBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.VocabularyBrowser;
 
 /**
  * @author anttil
@@ -39,7 +41,7 @@ public class ApplicationRunner
         this.proxy = proxy;
     }
 
-    public void createSpace(Space space)
+    public void create(Space space)
     {
         AddSpaceDialog dialog = browseToAddSpaceDialog();
         dialog.fillWith(space);
@@ -50,6 +52,13 @@ public class ApplicationRunner
     {
         AddSampleTypeDialog dialog = browseToAddSampleTypeDialog();
         dialog.fillWith(sampleType);
+        dialog.save();
+    }
+
+    public void create(Vocabulary vocabulary)
+    {
+        AddVocabularyDialog dialog = browseToAddVocabularyDialog();
+        dialog.fillWith(vocabulary);
         dialog.save();
     }
 
@@ -78,14 +87,14 @@ public class ApplicationRunner
         getMenus().user().logout();
     }
 
-    public AddSampleTypeDialog browseToAddSampleTypeDialog()
-    {
-        return getMenus().admin().types().sampleTypes().add();
-    }
-
     public SampleTypeBrowser browseToSampleTypeBrowser()
     {
         return getMenus().admin().types().sampleTypes();
+    }
+
+    public AddSampleTypeDialog browseToAddSampleTypeDialog()
+    {
+        return browseToSampleTypeBrowser().add();
     }
 
     public SpaceBrowser browseToSpaceBrowser()
@@ -95,7 +104,7 @@ public class ApplicationRunner
 
     public AddSpaceDialog browseToAddSpaceDialog()
     {
-        return getMenus().admin().spaces().addSpace();
+        return browseToSpaceBrowser().addSpace();
     }
 
     public SampleBrowser browseToSampleBrowser()
@@ -106,6 +115,16 @@ public class ApplicationRunner
     public RoleAssignmentBrowser browseToRoleAssignmentBrowser()
     {
         return getMenus().admin().authorization().roles();
+    }
+
+    public VocabularyBrowser browseToVocabularyBrowser()
+    {
+        return getMenus().admin().vocabularies();
+    }
+
+    public AddVocabularyDialog browseToAddVocabularyDialog()
+    {
+        return browseToVocabularyBrowser().add();
     }
 
     public void closeAllTabs()

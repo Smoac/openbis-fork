@@ -1,8 +1,8 @@
 <project name="ui-test" default="run-tests" basedir="..">
 	<import file="../../build_resources/ant/build-common.xml" />
 
-    <project-classpath name="ecp" classes="${classes}" />
-    <project-classpath name="eclipse.cp" classes="${targets}/classes" />
+  <project-classpath name="ecp" classes="${classes}" />
+  <project-classpath name="eclipse.cp" classes="${targets}/classes" />
 
 	
 	<target name="clean" description="Cleans distribution directory.">
@@ -11,10 +11,45 @@
   </target>
 
   <target name="run-tests">
-    <antcall target="build-common.run-tests">
+    <antcall target="run-tests-ui">
     	<param name="sources.test" value="source/java" />
       <param name="test.suite" value="tests.xml" />
     </antcall>
   </target>
+	
+	<target name="run-tests-ui" depends="compile-tests">
+		<delete dir="${output.test}" />
+		
+		<antcall target="_run-testng-ui">
+			<param name="test.suite" value="${test.suite}" />
+			<param name="failure.property" value="tests.failed" />
+		</antcall>
+				
+		<junitreport todir="${output.test}">
+			<fileset dir="${output.test}">
+				<include name="*/*.xml" />
+			</fileset>
+			<report format="noframes" todir="${output.test}" />
+		</junitreport>
+		<fail if="tests.failed" message="At least one test failed." />
+	</target>
+	
+	<target name="_run-testng-ui">
+
+		<condition property="internal-url" value="${ui-test.url}" else="">
+		    <isset property="ui-test.url"/>
+		</condition>
+
+		<testng classpath="${ecp}"
+		        workingDir="."
+		        outputdir="${output.test}"
+		        failureproperty="${failure.property}">
+			<xmlfileset dir="${sources.test}" includes="${test.suite}" />
+			<jvmarg value="-Xmx1024M" />
+			<jvmarg value="-XX:MaxPermSize=512m" />
+	  	<jvmarg value="-Dui-test.url=${internal-url}" />
+		</testng>
+		
+	</target>
 
 </project>

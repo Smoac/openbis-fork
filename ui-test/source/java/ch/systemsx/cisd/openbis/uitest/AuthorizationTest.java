@@ -44,10 +44,14 @@ public class AuthorizationTest extends SeleniumTest
     public void adminCanOpenRoleAssignmentBrowser() throws Exception
     {
         openbis.login(User.ADMIN);
-        openbis.browseToRoleAssignmentBrowser();
+        try
+        {
 
-        assertThat(browser(), isShowing(RoleAssignmentBrowser.class));
-
-        openbis.logout();
+            openbis.browseToRoleAssignmentBrowser();
+            assertThat(browser(), isShowing(RoleAssignmentBrowser.class));
+        } finally
+        {
+            openbis.logout();
+        }
     }
 }

@@ -242,6 +242,8 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             result.setRegex(regex);
             result.getMessages().setRegexText(regexTextMsg);
 
+            result.setId(ID + "-url");
+
             // manually clear invalid messages on focus (automatic validation is turned off)
             result.addListener(Events.Focus, new Listener<FieldEvent>()
                 {

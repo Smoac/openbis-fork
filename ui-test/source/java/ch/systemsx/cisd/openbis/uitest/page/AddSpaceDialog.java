@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
@@ -31,6 +30,7 @@ public class AddSpaceDialog extends Page
     @FindBy(id = "openbis_dialog-save-button")
     private WebElement saveButton;
 
+    /* this is not deleted as this is an example of WAIT
     public SpaceBrowser addSpace(String name, String description)
     {
         this.code.sendKeys(name);
@@ -38,7 +38,7 @@ public class AddSpaceDialog extends Page
         wait(By.xpath("//div[.=\"" + name.toUpperCase() + "\"]"));
         return get(SpaceBrowser.class);
     }
-
+    */
     public void fillWith(Space space)
     {
         this.code.sendKeys(space.getCode());

@@ -79,6 +79,8 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
 
     public static final String SHOW_DETAILS_BUTTON_ID = BROWSER_ID + "_show-details-button";
 
+    public static final String ADD_BUTTON_ID = BROWSER_ID + "_add-button";
+
     private final IDelegatedAction postEditionCallback;
 
     public static IDisposableComponent create(
@@ -196,6 +198,7 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
                                             viewContext).getVocabularyRegistration());
                                 }
                             });
+        addButton.setId(ADD_BUTTON_ID);
         addButton(addButton);
 
         Button showDetailsButton =
