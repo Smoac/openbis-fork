@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier.Constants;
 
 /**
@@ -41,6 +42,11 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
             throws UserFailureException
     {
         return new SampleIdentifierFactory(textToParse).createIdentifier(null);
+    }
+
+    public static final SampleIdentifier parse(final Sample sample) throws UserFailureException
+    {
+        return new SampleIdentifierFactory(sample.getIdentifier()).createIdentifier(null);
     }
 
     public static final SampleIdentifier parse(final NewSample sample) throws UserFailureException
