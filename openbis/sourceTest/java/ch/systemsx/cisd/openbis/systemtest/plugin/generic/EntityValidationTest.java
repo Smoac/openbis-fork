@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.systemtest.plugin.generic;
 
-import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
@@ -32,6 +31,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * Tests that the entity validation scripts are called when creating or updating the entities
@@ -57,13 +58,25 @@ public class EntityValidationTest extends GenericSystemTestCase
 
     private static final String IMPOSSIBLE_TO_UPDATE_TYPE = "IMPOSSIBLE_TO_UPDATE";
 
+    /**
+     * shortcut for registerNewSample(identifier, type, null)
+     */
     private void registerNewSample(String identifier, String type)
+    {
+        registerNewSample(identifier, type, null);
+    }
+
+    private void registerNewSample(String identifier, String type, String experimentIdentifierOrNull)
     {
         final NewSample newSample = new NewSample();
         newSample.setIdentifier(identifier);
         final SampleType sampleType = new SampleType();
         sampleType.setCode(type);
         newSample.setSampleType(sampleType);
+        if (experimentIdentifierOrNull != null)
+        {
+            newSample.setExperimentIdentifier(experimentIdentifierOrNull);
+        }
         genericClientService.registerSample(systemSessionToken, newSample);
     }
 
@@ -105,30 +118,9 @@ public class EntityValidationTest extends GenericSystemTestCase
     {
         registerNewSample("/CISD/EVT1", IMPOSSIBLE_TO_UPDATE_TYPE);
 
-        ListSampleCriteria listCriteria = new ListSampleCriteria();
-        listCriteria.setIncludeSpace(true);
-        listCriteria.setSpaceCode("CISD");
-        listCriteria.setSampleType(getSampleType(IMPOSSIBLE_TO_UPDATE_TYPE));
+        Sample sample = getSampleFromSpaceAndType("CISD", IMPOSSIBLE_TO_UPDATE_TYPE, "EVT1");
 
-        List<Sample> samples = etlService.listSamples(systemSessionToken, listCriteria);
-
-        assertEquals("one sample should be registered", 1, samples.size());
-
-        Sample sample = samples.get(0);
-
-        String[] modifiedParentCodesOrNull = new String[]
-            { "DYNA-TEST-1" };
-        String containerIdentifierOrNull = null;
-        SampleIdentifier sampleIdentifier = SampleIdentifier.create("CISD", "EVT1");
-        Date version = sample.getModificationDate();
-        ExperimentIdentifier experimentIdentifierOrNull = null;
-        TechId sampleId = new TechId(sample.getId());
-        List<IEntityProperty> properties = Collections.emptyList();
-        Collection<NewAttachment> attachments = Collections.emptyList();
-        SampleUpdatesDTO update =
-                new SampleUpdatesDTO(sampleId, properties, experimentIdentifierOrNull, attachments,
-                        version, sampleIdentifier, containerIdentifierOrNull,
-                        modifiedParentCodesOrNull);
+        SampleUpdatesDTO update = createSampleUpdates(sample, "DYNA-TEST-1");
 
         try
         {
@@ -139,8 +131,80 @@ public class EntityValidationTest extends GenericSystemTestCase
             assertTrue(ufe.getMessage(), ufe.getMessage().contains("Validation of sample"));
         }
 
+        deleteSample(sample);
+    }
+
+    private void deleteSample(Sample sample)
+    {
         // cleanup
-        commonServer.deleteSamples(systemSessionToken, Collections.singletonList(sampleId), "Yup",
+        commonServer.deleteSamples(systemSessionToken,
+                Collections.singletonList(new TechId(sample.getId())), "Yup",
                 DeletionType.PERMANENT);
+    }
+
+    @Test
+    public void testSampleUpdateTriggerValidationOfParentsChildren()
+    {
+        // setting the parent of this sample, forces the validation of parent (as it is aslo being
+        // changed)
+        // as the consequence validation of INVALID sample is forced - via the validation script of
+        // the parent
+        // the validation of INVALID sample should fail
+        Sample sample = getSampleFromSpaceAndType("TEST-SPACE", "WELL", "EV-NOT_INVALID");
+
+        SampleUpdatesDTO update = createSampleUpdates(sample, "EV-PARENT");
+
+        try
+        {
+            etlService.updateSample(systemSessionToken, update);
+            fail("update of sample with impossible to update type should fail");
+        } catch (Exception ufe)
+        {
+            assertTrue(ufe.getMessage(), ufe.getMessage().contains("Validation of sample"));
+            assertTrue(ufe.getMessage(), ufe.getMessage().contains("Cannot update this entity"));
+        }
+    }
+
+    private SampleUpdatesDTO createSampleUpdates(Sample sample, String parentCode)
+    {
+        String[] modifiedParentCodesOrNull = new String[]
+            { parentCode };
+        String containerIdentifierOrNull = null;
+        SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sample);
+        Date version = sample.getModificationDate();
+        Experiment experiment = sample.getExperiment();
+        ExperimentIdentifier experimentIdentifierOrNull =
+                (experiment == null) ? null : new ExperimentIdentifier(experiment);
+        List<IEntityProperty> properties = Collections.emptyList();
+        Collection<NewAttachment> attachments = Collections.emptyList();
+        SampleUpdatesDTO update =
+                new SampleUpdatesDTO(new TechId(sample.getId()), properties,
+                        experimentIdentifierOrNull, attachments, version, sampleIdentifier,
+                        containerIdentifierOrNull, modifiedParentCodesOrNull);
+        return update;
+    }
+
+    /**
+     * finds given sample via ETL service
+     */
+    private Sample getSampleFromSpaceAndType(String spaceCode, String sampleType, String sampleCode)
+    {
+        ListSampleCriteria listCriteria = new ListSampleCriteria();
+        listCriteria.setIncludeSpace(true);
+        listCriteria.setSpaceCode(spaceCode);
+        listCriteria.setSampleType(getSampleType(sampleType));
+
+        List<Sample> samples = etlService.listSamples(systemSessionToken, listCriteria);
+
+        for (Sample sample : samples)
+        {
+            if (sample.getCode().equals(sampleCode))
+            {
+                return sample;
+            }
+        }
+        fail(String
+                .format("No sample %s (%s) found in space %s", sampleCode, sampleType, spaceCode));
+        return null;
     }
 }

@@ -42,8 +42,6 @@ public class EntityValidationCalculator extends AbstractCalculator
         public void requestValidation(Object o);
     }
 
-    private IValidationRequestDelegate validationRequested;
-
     /**
      * Creates a calculator for given <code>expression</code>.
      * <p>
