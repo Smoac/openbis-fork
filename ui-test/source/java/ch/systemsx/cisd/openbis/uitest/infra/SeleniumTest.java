@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.uitest.infra;
 
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +44,7 @@ import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
@@ -299,6 +301,19 @@ public abstract class SeleniumTest
                 public BrowserPage open(Class<? extends BrowserPage> pageClass)
                 {
                     return this.openbis.browseToVocabularyBrowser();
+                }
+
+            });
+    }
+
+    protected Matcher<Class<? extends BrowserPage>> listsPropertyType(Browsable browsable)
+    {
+        return new ListsElementMatcher(browsable, new Opener(this.openbis)
+            {
+                @Override
+                public BrowserPage open(Class<? extends BrowserPage> pageClass)
+                {
+                    return this.openbis.browseToPropertyTypeBrowser();
                 }
 
             });

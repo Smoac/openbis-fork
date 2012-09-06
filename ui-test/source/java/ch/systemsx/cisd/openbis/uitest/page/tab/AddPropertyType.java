@@ -24,6 +24,7 @@ import org.openqa.selenium.support.FindBys;
 
 import ch.systemsx.cisd.openbis.uitest.page.Page;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 
 public class AddPropertyType extends Page
 {
@@ -65,6 +66,12 @@ public class AddPropertyType extends Page
         this.description.sendKeys(propertyType.getDescription());
         this.dataTypeDropDownOpener.click();
         select(dataTypeChoices, propertyType.getDataType().getName());
+
+        if (propertyType.getDataType().equals(PropertyTypeDataType.CONTROLLED_VOCABULARY))
+        {
+            this.vocabularyDropDownOpener.click();
+            select(vocabularyChoices, propertyType.getVocabulary().getCode());
+        }
     }
 
     public AddPropertyType save()

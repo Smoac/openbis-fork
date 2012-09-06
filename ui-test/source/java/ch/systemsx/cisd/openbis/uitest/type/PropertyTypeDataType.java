@@ -19,7 +19,28 @@ package ch.systemsx.cisd.openbis.uitest.type;
 /**
  * @author anttil
  */
-public interface PropertyTypeDataType
+public enum PropertyTypeDataType
 {
-    public String getName();
+    BOOLEAN("BOOLEAN"),
+    HYPERLINK("HYPERLINK"),
+    INTEGER("INTEGER"),
+    MATERIAL("MATERIAL"),
+    MULTILINE_VARCHAR("MULTILINE_VARCHAR"),
+    REAL("REAL"),
+    TIMESTAMP("TIMESTAMP"),
+    VARCHAR("VARCHAR"),
+    XML("XML"),
+    CONTROLLED_VOCABULARY("CONTROLLEDVOCABULARY");
+
+    private String name;
+
+    private PropertyTypeDataType(String name)
+    {
+        this.name = name;
+    }
+
+    public String getName()
+    {
+        return this.name;
+    }
 }

@@ -102,6 +102,7 @@ public class PropertyTypeGrid extends TypedTableGrid<PropertyType>
                                             viewContext).getPropertyTypeRegistration());
                                 }
                             });
+        addButton.setId(GRID_ID + "-add-button");
         addButton(addButton);
 
         addButton(createSelectedItemButton(

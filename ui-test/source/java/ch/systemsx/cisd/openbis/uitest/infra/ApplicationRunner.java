@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSpaceDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddVocabularyDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.EditSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AddPropertyType;
+import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
@@ -137,6 +138,11 @@ public class ApplicationRunner
     public AddVocabularyDialog browseToAddVocabularyDialog()
     {
         return browseToVocabularyBrowser().add();
+    }
+
+    public PropertyTypeBrowser browseToPropertyTypeBrowser()
+    {
+        return getMenus().admin().metadata().propertyTypes();
     }
 
     public AddPropertyType browseToAddPropertyType()

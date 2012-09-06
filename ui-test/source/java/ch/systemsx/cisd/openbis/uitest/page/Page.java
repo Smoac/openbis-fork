@@ -110,7 +110,7 @@ public abstract class Page
         Collection<String> found = new HashSet<String>();
         for (WebElement choice : choices)
         {
-            if (choice.getText().equals(text))
+            if (choice.getText().equalsIgnoreCase(text))
             {
                 choice.click();
                 return;

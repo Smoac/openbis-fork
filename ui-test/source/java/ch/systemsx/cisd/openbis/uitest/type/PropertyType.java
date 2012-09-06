@@ -35,12 +35,22 @@ public class PropertyType implements Browsable
 
     private PropertyTypeDataType dataType;
 
+    private Vocabulary vocabulary;
+
     public PropertyType()
     {
         this.code = UUID.randomUUID().toString();
         this.label = "label";
         this.description = "description";
-        this.dataType = BasicPropertyTypeDataType.BOOLEAN;
+        this.dataType = PropertyTypeDataType.BOOLEAN;
+        this.vocabulary = null;
+    }
+
+    public PropertyType(Vocabulary vocabulary)
+    {
+        this();
+        this.dataType = PropertyTypeDataType.CONTROLLED_VOCABULARY;
+        this.vocabulary = vocabulary;
     }
 
     public String getCode()
@@ -87,6 +97,17 @@ public class PropertyType implements Browsable
         return this;
     }
 
+    public Vocabulary getVocabulary()
+    {
+        return vocabulary;
+    }
+
+    public PropertyType setVocabulary(Vocabulary vocabulary)
+    {
+        this.vocabulary = vocabulary;
+        return this;
+    }
+
     @Override
     public boolean isRepresentedBy(Map<String, String> row)
     {
@@ -98,4 +119,5 @@ public class PropertyType implements Browsable
     {
         return "PropertyType " + this.code;
     }
+
 }
