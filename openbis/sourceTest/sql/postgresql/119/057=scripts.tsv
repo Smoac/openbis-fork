@@ -6,3 +6,4 @@
 6	1	validateFAIL	\N	def validate(entity, isNew):\n  return "This check always fail"\n 	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION
 7	1	validateUpdateFAIL	\N	def validate(entity, isNew):\n  if (not isNew):\n    return "Cannot update this entity"\n 	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION
 8	1	testScript	\N	def validate(entity, isNew):\n  raise "Update this script before using"\n 	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION
+9	1	code_date	\N	"%s %s" % (entity.code(), str(currentDate().getTime()))	2010-10-27 15:16:48.994831+02	2	\N	DYNAMIC_PROPERTY

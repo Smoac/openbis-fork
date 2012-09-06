@@ -92,7 +92,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         final EntityKind entityKind = EntityKind.SAMPLE;
         final String propertyTypeCode = DESCRIPTION;
         final String entityTypeCode = CELL_PLATE;
-        final String script = "code";
+        final String script = "code_date";
         NewETPTAssignment assignment =
                 createDynamicPropertyAssignment(entityKind, propertyTypeCode, entityTypeCode,
                         script);
@@ -128,7 +128,8 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                         {
                             if (property.getPropertyType().getCode().equals(DESCRIPTION))
                             {
-                                assertEquals(sample.getCode(), property.getValue());
+                                assertEquals(sample.getCode(),
+                                        property.getValue().substring(0, sample.getCode().length()));
                                 found = true;
                                 break;
                             }
@@ -163,7 +164,9 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                         if (property.getPropertyType().getCode().equals(DESCRIPTION))
                         {
                             assertEquals(NEW_SAMPLE_CODE, loadedSample.getCode());
-                            assertEquals(NEW_SAMPLE_CODE, property.getValue());
+                            assertEquals(NEW_SAMPLE_CODE,
+                                    property.getValue().substring(0, NEW_SAMPLE_CODE.length()));
+
                             found = true;
                             break;
                         }
@@ -281,10 +284,14 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                         {
                             if (property.getPropertyType().getCode().equals(DESCRIPTION))
                             {
-                                assertTrue(dateBefore.getTime() < Long.parseLong(property
-                                        .getValue()));
-                                assertTrue(dateAfter.getTime() > Long
-                                        .parseLong(property.getValue()));
+                                String[] dynPropertyValue = property.getValue().split("\\s+");
+
+                                assertEquals(NEW_SAMPLE_CODE, dynPropertyValue[0]);
+
+                                long dynPropTime = Long.parseLong(dynPropertyValue[1]);
+
+                                assertTrue(dateBefore.getTime() < dynPropTime);
+                                assertTrue(dateAfter.getTime() > dynPropTime);
                                 found = true;
                                 break;
                             }
