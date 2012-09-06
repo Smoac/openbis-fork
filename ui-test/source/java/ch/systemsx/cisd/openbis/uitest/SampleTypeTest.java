@@ -22,8 +22,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 /**
@@ -53,7 +51,7 @@ public class SampleTypeTest extends SeleniumTest
 
         openbis.create(sampleType);
 
-        assertThat(SampleTypeBrowser.class, listsSampleType(sampleType));
+        assertThat(sampleTypeBrowser(), lists(sampleType));
     }
 
     @Test
@@ -63,7 +61,7 @@ public class SampleTypeTest extends SeleniumTest
 
         openbis.create(sampleType);
 
-        assertThat(SampleBrowser.class, doesNotShowInToolBar(sampleType));
+        assertThat(sampleBrowser(), doesNotShowInToolBar(sampleType));
     }
 
     @Test
@@ -75,7 +73,7 @@ public class SampleTypeTest extends SeleniumTest
         sampleType.setListable(true);
         openbis.update(sampleType);
 
-        assertThat(SampleBrowser.class, showsInToolBar(sampleType));
+        assertThat(sampleBrowser(), showsInToolBar(sampleType));
     }
 
 }

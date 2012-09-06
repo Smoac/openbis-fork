@@ -21,7 +21,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 
@@ -41,6 +40,6 @@ public class PropertyTypeTest extends SeleniumTest
         PropertyType propertyType = new PropertyType(vocabulary);
         openbis.create(propertyType);
 
-        assertThat(PropertyTypeBrowser.class, listsPropertyType(propertyType));
+        assertThat(propertyTypeBrowser(), lists(propertyType));
     }
 }

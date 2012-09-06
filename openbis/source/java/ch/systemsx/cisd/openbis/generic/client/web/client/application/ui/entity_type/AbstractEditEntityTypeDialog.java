@@ -62,6 +62,7 @@ public abstract class AbstractEditEntityTypeDialog<T extends EntityType> extends
         setId(DIALOG_ID);
         this.type = entityType;
         descriptionField = createDescriptionField(viewContext);
+        descriptionField.setId(DIALOG_ID + "-description");
         FieldUtil.setValueWithUnescaping(descriptionField, entityType.getDescription());
         addField(descriptionField);
 

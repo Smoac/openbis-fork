@@ -16,13 +16,17 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyFactory;
 
 import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
 import ch.systemsx.cisd.openbis.uitest.page.Page;
@@ -93,6 +97,41 @@ public class PageProxy
         PageFactory.initElements(new ScreenShotDecorator(shotter), t);
         t.setPageProxy(this);
         t.setScreenShotter(shotter);
+
+        Class<T> pageClass = clazz;
+        while (pageClass != null)
+        {
+            for (Field field : pageClass.getDeclaredFields())
+            {
+                if ((field.getAnnotation(FindBy.class) != null)
+                        && (field.getAnnotation(NotAlwaysPresent.class) == null))
+                {
+                    WebElement element = null;
+                    try
+                    {
+                        field.setAccessible(true);
+                        Object potentialWebElement = field.get(t);
+                        if (potentialWebElement instanceof Collection)
+                        {
+                            continue;
+                        }
+                        element = (WebElement) potentialWebElement;
+                    } catch (IllegalAccessException ex)
+                    {
+                        ex.printStackTrace();
+                        throw new RuntimeException(ex);
+                    }
+
+                    // Force wait for the element.
+                    // This makes sure that page object is returned only when all the
+                    // expected elements are present.
+                    element.getText();
+                }
+            }
+
+            pageClass = (Class<T>) pageClass.getSuperclass();
+        }
+
         return t;
     }
 }

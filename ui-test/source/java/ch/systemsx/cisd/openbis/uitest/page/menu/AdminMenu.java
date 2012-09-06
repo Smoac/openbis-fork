@@ -20,6 +20,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 
+import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
 import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.page.PrivatePage;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
@@ -41,6 +42,7 @@ public class AdminMenu extends PrivatePage
     @FindBy(id = "ADMINISTRATION_MENU_MANAGE_PROPERTY_TYPES")
     private WebElement metadata;
 
+    @NotAlwaysPresent
     @FindBy(id = "openbis_top-menu_SAMPLE_MENU_TYPES")
     private WebElement sampleTypes;
 

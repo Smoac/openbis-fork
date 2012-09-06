@@ -5,7 +5,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
 
 @Test(groups =
@@ -20,7 +19,7 @@ public class SpaceTest extends SeleniumTest
 
         openbis.create(space);
 
-        assertThat(SpaceBrowser.class, listsSpace(space));
+        assertThat(spaceBrowser(), lists(space));
     }
 
 }

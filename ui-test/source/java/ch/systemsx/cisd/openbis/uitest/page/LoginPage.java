@@ -31,7 +31,7 @@ public class LoginPage extends Page
     @FindBy(id = "openbis_login_submit")
     private WebElement button;
 
-    public HomePage loginAs(String user, String pwd)
+    public void loginAs(String user, String pwd)
     {
         username.clear();
         password.clear();
@@ -40,7 +40,5 @@ public class LoginPage extends Page
         password.sendKeys(pwd);
 
         button.click();
-
-        return get(HomePage.class);
     }
 }

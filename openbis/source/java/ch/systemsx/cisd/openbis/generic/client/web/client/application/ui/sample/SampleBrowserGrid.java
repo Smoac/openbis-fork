@@ -585,7 +585,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                                     openSampleRegistrationTab();
                                 }
                             });
-        addButton.setId(createChildComponentId("ADD_BUTTON_ID_SUFFIX"));
+        addButton.setId(createChildComponentId(ADD_BUTTON_ID_SUFFIX));
         addButton(addButton);
 
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);

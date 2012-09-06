@@ -27,10 +27,10 @@ import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 public class EditSampleTypeDialog extends Page
 {
 
-    @FindBy(id = "openbis_add-type-dialog-description-field-input")
+    @FindBy(id = "openbis_edit-type-dialog-description-input")
     private WebElement description;
 
-    @FindBy(id = "")
+    // @FindBy(id = "")
     private WebElement validationScript;
 
     @FindBys(
