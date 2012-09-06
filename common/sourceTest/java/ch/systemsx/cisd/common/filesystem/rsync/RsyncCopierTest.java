@@ -373,7 +373,7 @@ public final class RsyncCopierTest
         final Status status = copier.copy(sourceDirectory, destinationDirectory);
         assertEquals(Status.OK, status);
         final String expectedRsyncCmdLine =
-                String.format("--archive --delete --inplace --append %s %s/\n",
+                String.format("--archive --delete-before --inplace --append %s %s/\n",
                         sourceDirectory.getAbsolutePath(), destinationDirectory.getAbsolutePath());
         final String observedRsyncCmdLine = FileUtilities.loadToString(parametersLogFile);
         assertEquals(expectedRsyncCmdLine, observedRsyncCmdLine);
@@ -391,7 +391,7 @@ public final class RsyncCopierTest
         final Status status = copier.copyContent(sourceDirectory, destinationDirectory);
         assertEquals(Status.OK, status);
         final String expectedRsyncCmdLine =
-                String.format("--archive --delete --inplace --append %s/ %s/\n",
+                String.format("--archive --delete-before --inplace --append %s/ %s/\n",
                         sourceDirectory.getAbsolutePath(), destinationDirectory.getAbsolutePath());
         final String observedRsyncCmdLine = FileUtilities.loadToString(parametersLogFile);
         assertEquals(expectedRsyncCmdLine, observedRsyncCmdLine);
