@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry
 import ch.systemsx.cisd.openbis.generic.shared.IRemoteHostValidator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityVisitComparatorByTimeStamp;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -69,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
@@ -415,6 +417,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void deactivatePersons(String sessionToken, List<String> personsCodes)
     {
         checkSession(sessionToken);
@@ -436,6 +439,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public int countActivePersons(String sessionToken)
     {
         checkSession(sessionToken);
@@ -820,6 +824,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void setSessionUser(String sessionToken, String userID)
     {
         Session session = getSession(sessionToken);
