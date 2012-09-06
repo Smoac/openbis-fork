@@ -381,6 +381,29 @@ public final class RsyncCopierTest
 
     @Test(groups =
         { "requires_unix" })
+    public void testRsyncWithSSHDirectoryOK() throws IOException, InterruptedException
+    {
+        final File parametersLogFile = new File(workingDirectory, "parameters.log");
+        final File loggingRsyncBinary =
+                createRsync("2.6.7",
+                        String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
+        final RsyncCopier copier =
+                new RsyncCopier(loggingRsyncBinary, new File("ssh"), false, false);
+        final Status status =
+                copier.copyToRemote(sourceDirectory, destinationDirectory.getAbsolutePath(),
+                        "localhost", null, null);
+        assertEquals(Status.OK, status);
+        final String expectedRsyncCmdLine =
+                String.format(
+                        "--archive --delete-before --inplace --append --rsh %s -oBatchMode=yes %s localhost:%s/\n",
+                        new File("ssh").getAbsolutePath(), sourceDirectory.getAbsolutePath(),
+                        destinationDirectory.getAbsolutePath());
+        final String observedRsyncCmdLine = FileUtilities.loadToString(parametersLogFile);
+        assertEquals(expectedRsyncCmdLine, observedRsyncCmdLine);
+    }
+
+    @Test(groups =
+        { "requires_unix" })
     public void testRsyncDirectoryContentOK() throws IOException, InterruptedException
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");

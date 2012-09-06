@@ -640,7 +640,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
 
     private final static String getSshExecutableArgument(final String sshExecutable)
     {
-        return toUnix(sshExecutable) + " -oBatchMode=yes";
+        return new File(sshExecutable).getAbsolutePath() + " -oBatchMode=yes";
     }
 
     /**
