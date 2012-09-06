@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -151,6 +152,11 @@ class ProcessExecutor
     /** Read-only! */
     private final List<String> commandLine;
 
+    private final boolean replaceEnvironment;
+
+    /** Read-only! */
+    private final Map<String, String> environment;
+
     private final long millisToWaitForCompletion;
 
     private final long millisToWaitForIOCompletion;
@@ -273,6 +279,14 @@ class ProcessExecutor
         private final Process launch() throws IOException
         {
             final ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
+            if (replaceEnvironment)
+            {
+                processBuilder.environment().clear();
+            }
+            if (environment != null)
+            {
+                processBuilder.environment().putAll(environment);
+            }
             if (processIOStrategy.isMergeStderr())
             {
                 processBuilder.redirectErrorStream(true);
@@ -371,6 +385,14 @@ class ProcessExecutor
         private final Process launch() throws IOException
         {
             final ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
+            if (replaceEnvironment)
+            {
+                processBuilder.environment().clear();
+            }
+            if (environment != null)
+            {
+                processBuilder.environment().putAll(environment);
+            }
             if (processIOStrategy.isMergeStderr())
             {
                 processBuilder.redirectErrorStream(true);
@@ -566,7 +588,8 @@ class ProcessExecutor
         }
     }
 
-    ProcessExecutor(final List<String> commandLine, final long millisToWaitForCompletion,
+    ProcessExecutor(final List<String> commandLine, final Map<String, String> environment,
+            final boolean replaceEnvironment, final long millisToWaitForCompletion,
             final ProcessIOStrategy ioStrategy, final Logger operationLog, final Logger machineLog)
     {
         this.processNumber = processCounter.getAndIncrement();
@@ -582,10 +605,12 @@ class ProcessExecutor
             this.millisToWaitForCompletion = millisToWaitForCompletion;
         }
         this.millisToWaitForIOCompletion =
-            Math.round((millisToWaitForCompletion == ConcurrencyUtilities.NO_TIMEOUT) ? ConcurrencyUtilities.NO_TIMEOUT
+                Math.round((millisToWaitForCompletion == ConcurrencyUtilities.NO_TIMEOUT) ? ConcurrencyUtilities.NO_TIMEOUT
                     : this.millisToWaitForCompletion * OUTPUT_READING_TIMEOUT_FRACTION);
         this.processIOStrategy = ioStrategy;
         this.commandLine = Collections.unmodifiableList(commandLine);
+        this.environment = environment;
+        this.replaceEnvironment = replaceEnvironment;
         this.processOutput = new ProcessOutput();
         this.processWrapper = new AtomicReference<ProcessRecord>();
         if (ioStrategy.isUseNoIOHandler() == false && ioStrategy.tryGetCustomIOHandler() == null)
@@ -622,8 +647,8 @@ class ProcessExecutor
                 }
 
                 @Override
-                public ProcessResult getResult(
-                        @SuppressWarnings("hiding") final long millisToWaitForCompletion)
+                public ProcessResult getResult(@SuppressWarnings("hiding")
+                final long millisToWaitForCompletion)
                 {
                     return getProcessResult(stopOnInterruption, runnerFuture,
                             millisToWaitForCompletion);

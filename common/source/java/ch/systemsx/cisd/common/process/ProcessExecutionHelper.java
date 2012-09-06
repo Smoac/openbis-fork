@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -100,7 +101,7 @@ public final class ProcessExecutionHelper
     public static ProcessResult run(final List<String> cmd, final Logger operationLog,
             final Logger machineLog, boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
     {
-        return new ProcessExecutor(cmd, ConcurrencyUtilities.NO_TIMEOUT,
+        return new ProcessExecutor(cmd, null, false, ConcurrencyUtilities.NO_TIMEOUT,
                 ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog)
                 .run(stopOnInterrupt);
     }
@@ -177,7 +178,7 @@ public final class ProcessExecutionHelper
             final Logger machineLog, final long millisToWaitForCompletion,
             final boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
     {
-        return new ProcessExecutor(cmd, millisToWaitForCompletion,
+        return new ProcessExecutor(cmd, null, false, millisToWaitForCompletion,
                 ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog)
                 .run(stopOnInterrupt);
     }
@@ -204,8 +205,39 @@ public final class ProcessExecutionHelper
             final ProcessIOStrategy ioStrategy, final boolean stopOnInterrupt)
             throws InterruptedExceptionUnchecked
     {
-        return new ProcessExecutor(cmd, millisToWaitForCompletion, ioStrategy, operationLog,
-                machineLog).run(stopOnInterrupt);
+        return new ProcessExecutor(cmd, null, false, millisToWaitForCompletion, ioStrategy,
+                operationLog, machineLog).run(stopOnInterrupt);
+    }
+
+    /**
+     * Runs an Operating System process, specified by <var>cmd</var>.
+     * 
+     * @param cmd The command line to run.
+     * @param environment The environment of the process to start.
+     * @param replaceEnvironment If <code>true</code>, the environment will be cleared before
+     *            addinng the keys from <var>environment</var>, if it is <code>false</code>, the
+     *            keys in <var>environment</var> will be added without clearing the environment
+     *            before.
+     * @param operationLog The {@link Logger} to use for all message on the higher level.
+     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in milli
+     *            seconds. If the process is not finished after that time, it will be terminated by
+     *            a watch dog.
+     * @param ioStrategy The strategy to handle process I/O.
+     * @param stopOnInterrupt If <code>true</code>, an {@link InterruptedExceptionUnchecked} will be
+     *            thrown if the thread got interrupted, otherwise, the
+     *            {@link ProcessResult#isInterruped()} flag will be set.
+     * @return The process result.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
+     *             <var>stopOnInterrupt</var> is <code>true</code>.
+     */
+    public static ProcessResult run(final List<String> cmd, final Map<String, String> environment,
+            boolean replaceEnvironment, final Logger operationLog, final Logger machineLog,
+            final long millisToWaitForCompletion, final ProcessIOStrategy ioStrategy,
+            final boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
+    {
+        return new ProcessExecutor(cmd, environment, replaceEnvironment, millisToWaitForCompletion,
+                ioStrategy, operationLog, machineLog).run(stopOnInterrupt);
     }
 
     /**
@@ -247,6 +279,34 @@ public final class ProcessExecutionHelper
     {
         return log(run(cmd, operationLog, machineLog, millisToWaitForCompletion, processIOStrategy,
                 false));
+    }
+
+    /**
+     * Runs an Operating System process, specified by <var>cmd</var>.
+     * 
+     * @param cmd The command line to run.
+     * @param environment The environment of the process to start.
+     * @param replaceEnvironment If <code>true</code>, the environment will be cleared before
+     *            addinng the keys from <var>environment</var>, if it is <code>false</code>, the
+     *            keys in <var>environment</var> will be added without clearing the environment
+     *            before.
+     * @param operationLog The {@link Logger} to use for all message on the higher level.
+     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
+     * @param millisToWaitForCompletion The time to wait for the process to complete in
+     *            milli-seconds. If the process is not finished after that time, it will be
+     *            terminated by a watch dog.
+     * @param processIOStrategy The strategy of how to handle the process I/O.
+     * @return <code>true</code>, if the process did complete successfully, <code>false</code>
+     *         otherwise.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted.
+     */
+    public static boolean runAndLog(final List<String> cmd, final Map<String, String> environment,
+            boolean replaceEnvironment, final Logger operationLog, final Logger machineLog,
+            final long millisToWaitForCompletion, final ProcessIOStrategy processIOStrategy)
+            throws InterruptedExceptionUnchecked
+    {
+        return log(run(cmd, environment, replaceEnvironment, operationLog, machineLog,
+                millisToWaitForCompletion, processIOStrategy, false));
     }
 
     /**
@@ -298,6 +358,8 @@ public final class ProcessExecutionHelper
     {
         return new ProcessExecutor(
                 cmd,
+                null,
+                false,
                 millisToWaitForCompletion,
                 outputReadingStrategy == OutputReadingStrategy.NEVER ? ProcessIOStrategy.DISCARD_IO_STRATEGY
                         : ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog)
@@ -331,6 +393,8 @@ public final class ProcessExecutionHelper
     {
         return new ProcessExecutor(
                 cmd,
+                null,
+                false,
                 millisToWaitForCompletion,
                 outputReadingStrategy == OutputReadingStrategy.NEVER ? ProcessIOStrategy.DISCARD_IO_STRATEGY
                         : (binaryOutput ? ProcessIOStrategy.BINARY_IO_STRATEGY
@@ -351,8 +415,32 @@ public final class ProcessExecutionHelper
     public static IProcessHandler runUnblocking(final List<String> cmd, Logger operationLog,
             final Logger machineLog, final ProcessIOStrategy processIOStrategy)
     {
-        return new ProcessExecutor(cmd, ConcurrencyUtilities.NO_TIMEOUT, processIOStrategy,
-                operationLog, machineLog).runUnblocking();
+        return new ProcessExecutor(cmd, null, false, ConcurrencyUtilities.NO_TIMEOUT,
+                processIOStrategy, operationLog, machineLog).runUnblocking();
+    }
+
+    /**
+     * Runs an Operating System process, specified by <var>cmd</var>. Does not block waiting for a
+     * result.
+     * 
+     * @param cmd The command line to run.
+     * @param environment The environment of the process to start.
+     * @param replaceEnvironment If <code>true</code>, the environment will be cleared before
+     *            addinng the keys from <var>environment</var>, if it is <code>false</code>, the
+     *            keys in <var>environment</var> will be added without clearing the environment
+     *            before.
+     * @param operationLog The {@link Logger} to use for all message on the higher level.
+     * @param machineLog The {@link Logger} to use for all message on the lower (machine) level.
+     * @param processIOStrategy The strategy on how to deal with process I/O.
+     * @return The handler which allows to wait for the result or terminate the process.
+     */
+    public static IProcessHandler runUnblocking(final List<String> cmd,
+            final Map<String, String> environment, final boolean replaceEnvironment,
+            Logger operationLog, final Logger machineLog, final ProcessIOStrategy processIOStrategy)
+    {
+        return new ProcessExecutor(cmd, environment, replaceEnvironment,
+                ConcurrencyUtilities.NO_TIMEOUT, processIOStrategy, operationLog, machineLog)
+                .runUnblocking();
     }
 
     /**
@@ -373,6 +461,8 @@ public final class ProcessExecutionHelper
     {
         return new ProcessExecutor(
                 cmd,
+                null,
+                false,
                 ConcurrencyUtilities.NO_TIMEOUT,
                 outputReadingStrategy == OutputReadingStrategy.NEVER ? ProcessIOStrategy.DISCARD_IO_STRATEGY
                         : ProcessIOStrategy.DEFAULT_IO_STRATEGY, operationLog, machineLog)

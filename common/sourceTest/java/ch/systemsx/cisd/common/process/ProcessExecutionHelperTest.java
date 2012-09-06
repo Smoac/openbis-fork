@@ -23,6 +23,8 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
@@ -148,7 +150,7 @@ public class ProcessExecutionHelperTest
         assertFalse(ok);
     }
 
-    @Test(groups = 
+    @Test(groups =
         { "requires_unix", "flaky" })
     public void testExecutionOKWithTimeOut() throws Exception
     {
@@ -170,6 +172,55 @@ public class ProcessExecutionHelperTest
                         ProcessIOStrategy.TEXT_SAME_THREAD_IO_STRATEGY);
         assertTrue(ok);
     }
+
+    @Test(groups =
+        { "requires_unix", "flaky" })
+    public void testExecutionEnvNoReplaceEnviron() throws Exception
+    {
+        final File dummyExec = createExecutable("printEnv.sh", "env");
+        final Map<String, String> env = new HashMap<String, String>();
+        env.put("bla", "blub");
+        final ProcessResult result =
+                ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()), env,
+                        false, operationLog, machineLog, WATCHDOG_WAIT_MILLIS,
+                        ProcessIOStrategy.DEFAULT_IO_STRATEGY, true);
+        assertTrue(result.isOK());
+        boolean found = false;
+        for (String ln : result.getOutput())
+        {
+            if (ln.equals("bla=blub"))
+            {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found);
+    }
+
+    @Test(groups =
+            { "requires_unix", "flaky" })
+        public void testExecutionEnvReplaceEnviron() throws Exception
+        {
+            final File dummyExec = createExecutable("printEnv.sh", "env");
+            final Map<String, String> env = new HashMap<String, String>();
+            env.put("bla", "blub");
+            final ProcessResult result =
+                    ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()), env,
+                            true, operationLog, machineLog, WATCHDOG_WAIT_MILLIS,
+                            ProcessIOStrategy.DEFAULT_IO_STRATEGY, true);
+            assertTrue(result.isOK());
+            assertEquals(2, result.getOutput().size());
+            boolean found = false;
+            for (String ln : result.getOutput())
+            {
+                if (ln.equals("bla=blub"))
+                {
+                    found = true;
+                    break;
+                }
+            }
+            assertTrue(found);
+        }
 
     @Test(groups =
         { "requires_unix" })
