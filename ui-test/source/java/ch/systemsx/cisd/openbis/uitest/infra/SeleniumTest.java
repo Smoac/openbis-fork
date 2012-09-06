@@ -59,10 +59,10 @@ public abstract class SeleniumTest
     @BeforeSuite
     public void initWebDriver()
     {
-        System.setProperty("webdriver.firefox.bin",
-                "/Users/anttil/Desktop/Firefox 10.app/Contents/MacOS/firefox");
+        // System.setProperty("webdriver.firefox.bin",
+        // "/Users/anttil/Desktop/Firefox 10.app/Contents/MacOS/firefox");
 
-        System.setProperty("webdriver.firefox.profile", "default");
+        // System.setProperty("webdriver.firefox.profile", "default");
 
         driver = new FirefoxDriver();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
