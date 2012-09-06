@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -52,11 +53,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class EntityValidationTest extends GenericSystemTestCase
 {
-    // create sample of a type, that has attached script that forbids creation
 
     private static final String IMPOSSIBLE_TYPE = "IMPOSSIBLE";
 
     private static final String IMPOSSIBLE_TO_UPDATE_TYPE = "IMPOSSIBLE_TO_UPDATE";
+
+    private static final int TEST_SCRIPT_ID = 8;
 
     /**
      * shortcut for registerNewSample(identifier, type, null)
@@ -145,6 +147,7 @@ public class EntityValidationTest extends GenericSystemTestCase
     @Test
     public void testSampleUpdateTriggerValidationOfParentsChildren()
     {
+        updateTestScript("  for childRelation in entity.entityPE().getChildRelationships():\n    requestValidation(childRelation.getChildSample()) ");
         // setting the parent of this sample, forces the validation of parent (as it is aslo being
         // changed)
         // as the consequence validation of INVALID sample is forced - via the validation script of
@@ -163,6 +166,27 @@ public class EntityValidationTest extends GenericSystemTestCase
             assertTrue(ufe.getMessage(), ufe.getMessage().contains("Validation of sample"));
             assertTrue(ufe.getMessage(), ufe.getMessage().contains("Cannot update this entity"));
         }
+    }
+
+    @Test
+    public void testSampleUpdateTriggerValidationOfParentsChildrenDoesNotHappen()
+    {
+        updateTestScript("  pass");
+
+        Sample sample = getSampleFromSpaceAndType("TEST-SPACE", "WELL", "EV-NOT_INVALID");
+
+        SampleUpdatesDTO update = createSampleUpdates(sample, "EV-PARENT");
+
+        etlService.updateSample(systemSessionToken, update);
+    }
+
+    // this updates the script that validates the EV-PARENT sample
+    private void updateTestScript(String validationFunctionBody)
+    {
+        Script script = commonServer.getScriptInfo(systemSessionToken, new TechId(TEST_SCRIPT_ID));
+
+        script.setScript("def validate(entity, isNew):\n" + validationFunctionBody + "\n");
+        commonServer.updateScript(systemSessionToken, script);
     }
 
     private SampleUpdatesDTO createSampleUpdates(Sample sample, String parentCode)
