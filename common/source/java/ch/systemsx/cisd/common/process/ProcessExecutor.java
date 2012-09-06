@@ -127,13 +127,16 @@ class ProcessExecutor
         }
     }
 
-    /** Corresponds to a short timeout of 1/10 s. */
-    private static final long SHORT_TIMEOUT = 100;
+    /** Corresponds to a short timeout of 1/5 s. */
+    private static final long SHORT_TIMEOUT = 200;
 
     /**
      * The fraction of the timeout that should be applied when reading the process output.
      */
     private static final double OUTPUT_READING_TIMEOUT_FRACTION = 0.1;
+
+    /** The minimum timeout to wait for the process output to complete. */
+    private static final long OUTPUT_READING_TIMEOUT_MIN = 250;
 
     /** Corresponds to a short timeout of 1/100 s. */
     private static final long PAUSE_MILLIS = 10;
@@ -606,7 +609,8 @@ class ProcessExecutor
         }
         this.millisToWaitForIOCompletion =
                 Math.round((millisToWaitForCompletion == ConcurrencyUtilities.NO_TIMEOUT) ? ConcurrencyUtilities.NO_TIMEOUT
-                    : this.millisToWaitForCompletion * OUTPUT_READING_TIMEOUT_FRACTION);
+                        : Math.max(OUTPUT_READING_TIMEOUT_MIN, this.millisToWaitForCompletion
+                                * OUTPUT_READING_TIMEOUT_FRACTION));
         this.processIOStrategy = ioStrategy;
         this.commandLine = Collections.unmodifiableList(commandLine);
         this.environment = environment;
