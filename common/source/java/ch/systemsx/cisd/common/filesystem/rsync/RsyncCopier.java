@@ -583,7 +583,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         } else
         {
             final List<String> standardParameters =
-                    Arrays.asList("--archive", "--delete", "--inplace");
+                    Arrays.asList("--archive", "--delete-before", "--inplace");
 
             commandLineList.addAll(standardParameters);
             if (isOverwriteMode(remoteRsyncOrNull))
