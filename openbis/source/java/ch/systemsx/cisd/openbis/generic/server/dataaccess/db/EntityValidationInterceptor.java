@@ -72,7 +72,6 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
      * marked for validation by validation scripts. We keep the track of validated entities in the
      * set, and keep the entities we still have to validate in entitiesToValidate.
      */
-    // TODO: refactor - there are too many collections here
     Set<IEntityInformationWithPropertiesHolder> modifiedEntities;
 
     Set<IEntityInformationWithPropertiesHolder> newEntities;
