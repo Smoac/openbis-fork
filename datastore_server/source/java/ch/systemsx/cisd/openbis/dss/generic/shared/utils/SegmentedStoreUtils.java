@@ -221,11 +221,12 @@ public class SegmentedStoreUtils
                             + ".");
                 } else
                 {
-                    File dataSetInStore = new File(share.getShare(), dataSet.getDataSetLocation());
-                    if (FileOperations.getMonitoredInstanceForCurrentThread()
-                            .exists(dataSetInStore))
+                    if (dataSet.getDataSetSize() == null)
                     {
-                        if (dataSet.getDataSetSize() == null)
+                        final File dataSetInStore =
+                                new File(share.getShare(), dataSet.getDataSetLocation());
+                        if (FileOperations.getMonitoredInstanceForCurrentThread()
+                                .exists(dataSetInStore))
                         {
                             log.log(LogLevel.INFO, "Calculating size of " + dataSetInStore);
                             long t0 = timeProvider.getTimeInMilliseconds();
@@ -236,12 +237,15 @@ public class SegmentedStoreUtils
                                             + " msec)");
                             service.updateShareIdAndSize(dataSetCode, shareId, size);
                             dataSet.setDataSetSize(size);
+                        } else
+                        {
+                            log.log(LogLevel.WARN, "Data set " + dataSetCode
+                                    + " no longer exists in share " + shareId + ".");
                         }
-                        share.addDataSet(dataSet);
-                    } else
+                    }
+                    if (dataSet.getDataSetSize() != null)
                     {
-                        log.log(LogLevel.WARN, "Data set " + dataSetCode
-                                + " no longer exists in share " + shareId + ".");
+                        share.addDataSet(dataSet);
                     }
                 }
             }
