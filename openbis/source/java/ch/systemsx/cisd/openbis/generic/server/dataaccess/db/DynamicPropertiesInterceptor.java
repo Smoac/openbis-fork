@@ -16,33 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.io.Serializable;
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.hibernate.EmptyInterceptor;
-import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
-import org.hibernate.type.Type;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationSchedulerWithQueue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
- * {@link Interceptor} implementation that obtains a (reentrant) Java lock before Sample save/update
- * and releases it on transaction completion. It is more safe to implement such a lock this way
- * rather than invoking a method obtaining the lock inside DAO methods because update of Sample
- * could happen automatically upon flush to DB and it would be easy to introduce such an update
- * without noticing it. On the other hand we need a lock that will be obtained for every Sample
- * modification because we have a complex unique code check in a before save/update trigger and we
- * don't want any race condition or deadlock (if lock is gathered in the trigger). See [LMS-814] for
- * details.<br>
- * <br>
- * NOTE: Explicit exclusive lock on 'samples' table cannot be used because H2 database does not
- * support it.
- * <p>
- * It also synchronizes all dynamic property evaluations scheduled in a transaction with persistent
- * queue after transaction is successfuly commited.
+ * Synchronizes all dynamic property evaluations scheduled in a transaction with persistent queue
+ * after transaction is successfully committed.
  * 
  * @author Piotr Buczek
  */
@@ -64,25 +46,8 @@ public class DynamicPropertiesInterceptor extends EmptyInterceptor
     //
 
     @Override
-    public boolean onSave(Object entity, java.io.Serializable id, Object[] state,
-            String[] propertyNames, org.hibernate.type.Type[] types)
-    {
-        obtainLockForSampleModifications(entity);
-        return false;
-    }
-
-    @Override
-    public boolean onFlushDirty(Object entity, Serializable id, Object[] currentState,
-            Object[] previousState, String[] propertyNames, Type[] types)
-    {
-        obtainLockForSampleModifications(entity);
-        return false;
-    }
-
-    @Override
     public void afterTransactionCompletion(Transaction tx)
     {
-        releaseLockForSampleModifications();
         if (tx.wasCommitted())
         {
             dynamicPropertyScheduler.synchronizeThreadQueue();
@@ -92,25 +57,4 @@ public class DynamicPropertiesInterceptor extends EmptyInterceptor
         }
     }
 
-    //
-    // implementation using ReentrantLock
-    //
-
-    private final ReentrantLock sampleTableLock = new ReentrantLock();
-
-    private void obtainLockForSampleModifications(Object entity)
-    {
-        if (entity instanceof SamplePE)
-        {
-            sampleTableLock.lock();
-        }
-    }
-
-    private void releaseLockForSampleModifications()
-    {
-        while (sampleTableLock.isHeldByCurrentThread())
-        {
-            sampleTableLock.unlock();
-        }
-    }
 }
