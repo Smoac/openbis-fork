@@ -160,7 +160,12 @@ public class EntityValidationTest extends GenericSystemTestCase
         try
         {
             etlService.updateSample(systemSessionToken, update);
-            fail("update of sample with impossible to update type should fail");
+
+            Script script =
+                    commonServer.getScriptInfo(systemSessionToken, new TechId(TEST_SCRIPT_ID));
+            fail("update of sample with impossible to update type should fail. Validation script is:\n"
+                    + script.getScript());
+
         } catch (Exception ufe)
         {
             assertTrue(ufe.getMessage(), ufe.getMessage().contains("Validation of sample"));
