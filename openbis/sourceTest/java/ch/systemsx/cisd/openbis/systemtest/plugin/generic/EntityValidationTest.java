@@ -147,7 +147,6 @@ public class EntityValidationTest extends GenericSystemTestCase
     @Test
     public void testSampleUpdateTriggerValidationOfParentsChildren()
     {
-        updateTestScript("  for childRelation in entity.entityPE().getChildRelationships():\n    requestValidation(childRelation.getChildSample()) ");
         // setting the parent of this sample, forces the validation of parent (as it is aslo being
         // changed)
         // as the consequence validation of INVALID sample is forced - via the validation script of
@@ -176,22 +175,11 @@ public class EntityValidationTest extends GenericSystemTestCase
     @Test
     public void testSampleUpdateTriggerValidationOfParentsChildrenDoesNotHappen()
     {
-        updateTestScript("  pass");
-
         Sample sample = getSampleFromSpaceAndType("TEST-SPACE", "WELL", "EV-NOT_INVALID");
 
-        SampleUpdatesDTO update = createSampleUpdates(sample, "EV-PARENT");
+        SampleUpdatesDTO update = createSampleUpdates(sample, "EV-PARENT-NORMAL");
 
         etlService.updateSample(systemSessionToken, update);
-    }
-
-    // this updates the script that validates the EV-PARENT sample
-    private void updateTestScript(String validationFunctionBody)
-    {
-        Script script = commonServer.getScriptInfo(systemSessionToken, new TechId(TEST_SCRIPT_ID));
-
-        script.setScript("def validate(entity, isNew):\n" + validationFunctionBody + "\n");
-        commonServer.updateScript(systemSessionToken, script);
     }
 
     private SampleUpdatesDTO createSampleUpdates(Sample sample, String parentCode)
