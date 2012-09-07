@@ -32,12 +32,15 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
+import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -86,7 +89,7 @@ public class SegmentedStoreUtils
             @Override
             public boolean accept(File pathname)
             {
-                if (pathname.isDirectory() == false)
+                if (FileOperations.getMonitoredInstanceForCurrentThread().isDirectory(pathname) == false)
                 {
                     return false;
                 }
@@ -100,7 +103,9 @@ public class SegmentedStoreUtils
      */
     public static File[] getShares(File storeRootDir)
     {
-        File[] files = storeRootDir.listFiles(FILTER_ON_SHARES);
+        File[] files =
+                FileOperations.getMonitoredInstanceForCurrentThread().listFiles(storeRootDir,
+                        FILTER_ON_SHARES);
         if (files == null)
         {
             throw new ConfigurationFailureException(
@@ -116,12 +121,13 @@ public class SegmentedStoreUtils
      */
     public static String findIncomingShare(File incomingFolder, File storeRoot, ISimpleLogger logger)
     {
-        if (incomingFolder.isDirectory() == false)
+        final IFileOperations fileOp = FileOperations.getMonitoredInstanceForCurrentThread();
+        if (fileOp.isDirectory(incomingFolder) == false)
         {
             throw new ConfigurationFailureException(
                     "Incoming folder does not exist or is not a folder: " + incomingFolder);
         }
-        if (storeRoot.isDirectory() == false)
+        if (fileOp.isDirectory(storeRoot) == false)
         {
             throw new ConfigurationFailureException(
                     "Store root does not exist or is not a folder: " + storeRoot);
@@ -129,8 +135,8 @@ public class SegmentedStoreUtils
         File testFile = new File(incomingFolder, ".DDS_TEST");
         try
         {
-            testFile.createNewFile();
-        } catch (IOException ex)
+            fileOp.createNewFile(testFile);
+        } catch (IOExceptionUnchecked ex)
         {
             throw new ConfigurationFailureException(
                     "Couldn't create a test file in the following incoming folder: "
@@ -216,7 +222,8 @@ public class SegmentedStoreUtils
                 } else
                 {
                     File dataSetInStore = new File(share.getShare(), dataSet.getDataSetLocation());
-                    if (dataSetInStore.exists())
+                    if (FileOperations.getMonitoredInstanceForCurrentThread()
+                            .exists(dataSetInStore))
                     {
                         if (dataSet.getDataSetSize() == null)
                         {
@@ -406,7 +413,7 @@ public class SegmentedStoreUtils
             File source, File destinationRoot, File destination, IChecksumProvider checksumProvider)
     {
         assertSameName(source, destination);
-        if (source.isFile())
+        if (FileOperations.getMonitoredInstanceForCurrentThread().isFile(source))
         {
             assertFile(destination);
             return assertSameSizeAndCheckSum(dataSetCode, sourceRoot, source, destinationRoot,
@@ -443,8 +450,9 @@ public class SegmentedStoreUtils
     private static long assertSameSizeAndCheckSum(String dataSetCode, File sourceRoot, File source,
             File destinationRoot, File destination, IChecksumProvider checksumProvider)
     {
-        long sourceSize = source.length();
-        long destinationSize = destination.length();
+        final IFileOperations fileOp = FileOperations.getMonitoredInstanceForCurrentThread();
+        long sourceSize = fileOp.length(source);
+        long destinationSize = fileOp.length(destination);
         if (sourceSize != destinationSize)
         {
             throw new EnvironmentFailureException("Destination file '"
@@ -501,11 +509,12 @@ public class SegmentedStoreUtils
 
     private static void assertFile(File file)
     {
-        if (file.exists() == false)
+        final IFileOperations fileOp = FileOperations.getMonitoredInstanceForCurrentThread();
+        if (fileOp.exists(file) == false)
         {
             throw new EnvironmentFailureException("File does not exist: " + file.getAbsolutePath());
         }
-        if (file.isFile() == false)
+        if (fileOp.isFile(file) == false)
         {
             throw new EnvironmentFailureException("File is a directory: " + file.getAbsolutePath());
         }
@@ -513,12 +522,13 @@ public class SegmentedStoreUtils
 
     private static void assertDirectory(File file)
     {
-        if (file.exists() == false)
+        final IFileOperations fileOp = FileOperations.getMonitoredInstanceForCurrentThread();
+        if (fileOp.exists(file) == false)
         {
             throw new EnvironmentFailureException("Directory does not exist: "
                     + file.getAbsolutePath());
         }
-        if (file.isDirectory() == false)
+        if (fileOp.isDirectory(file) == false)
         {
             throw new EnvironmentFailureException("Directory is a file: " + file.getAbsolutePath());
         }
@@ -526,7 +536,7 @@ public class SegmentedStoreUtils
 
     private static File[] getFiles(File file)
     {
-        File[] files = file.listFiles();
+        File[] files = FileOperations.getMonitoredInstanceForCurrentThread().listFiles(file);
         Arrays.sort(files);
         return files;
     }
