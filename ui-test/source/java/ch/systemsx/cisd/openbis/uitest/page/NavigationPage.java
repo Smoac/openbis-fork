@@ -23,6 +23,7 @@ import org.openqa.selenium.support.FindBy;
 
 import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.BrowseMenu;
+import ch.systemsx.cisd.openbis.uitest.page.menu.NewMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.UserMenu;
 
 /**
@@ -38,6 +39,9 @@ public abstract class NavigationPage extends Page
 
     @FindBy(id = "browse_menu")
     private WebElement browseMenuButton;
+
+    @FindBy(id = "new_menu")
+    private WebElement newMenuButton;
 
     @FindBy(className = "x-tab-strip-close")
     private List<WebElement> tabCloseButtons;
@@ -58,6 +62,12 @@ public abstract class NavigationPage extends Page
     {
         browseMenuButton.click();
         return get(BrowseMenu.class);
+    }
+
+    public NewMenu newMenu()
+    {
+        newMenuButton.click();
+        return get(NewMenu.class);
     }
 
     public void closeTabs()

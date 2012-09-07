@@ -23,27 +23,19 @@ import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
 /**
  * @author anttil
  */
-public class PropertyType implements Browsable
+public class Project implements Browsable
 {
-
     private final String code;
 
-    private String label;
+    private Space space;
 
     private String description;
 
-    private PropertyTypeDataType dataType;
-
-    private Vocabulary vocabulary;
-
-    PropertyType(String code, String label, String description, PropertyTypeDataType dataType,
-            Vocabulary vocabulary)
+    Project(String code, Space space, String description)
     {
         this.code = code;
-        this.label = label;
+        this.space = space;
         this.description = description;
-        this.dataType = dataType;
-        this.vocabulary = vocabulary;
     }
 
     @Override
@@ -52,20 +44,14 @@ public class PropertyType implements Browsable
         return this.code.equalsIgnoreCase(row.get("Code"));
     }
 
-    @Override
-    public String toString()
-    {
-        return "PropertyType " + this.code;
-    }
-
     public String getCode()
     {
         return code;
     }
 
-    public String getLabel()
+    public Space getSpace()
     {
-        return label;
+        return space;
     }
 
     public String getDescription()
@@ -73,34 +59,14 @@ public class PropertyType implements Browsable
         return description;
     }
 
-    public PropertyTypeDataType getDataType()
+    void setSpace(Space space)
     {
-        return dataType;
-    }
-
-    public Vocabulary getVocabulary()
-    {
-        return vocabulary;
-    }
-
-    void setLabel(String label)
-    {
-        this.label = label;
+        this.space = space;
     }
 
     void setDescription(String description)
     {
         this.description = description;
-    }
-
-    void setDataType(PropertyTypeDataType dataType)
-    {
-        this.dataType = dataType;
-    }
-
-    void setVocabulary(Vocabulary vocabulary)
-    {
-        this.vocabulary = vocabulary;
     }
 
 }

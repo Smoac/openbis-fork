@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page.dialog;
+package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.page.Page;
-
-
-public class AddSampleDialog extends Page
+/**
+ * @author anttil
+ */
+public interface UpdateBuilder
 {
+    public void update();
 }

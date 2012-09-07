@@ -16,49 +16,39 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.Map;
-
-import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
+import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
 
 /**
  * @author anttil
  */
-public class Space implements Browsable
+public class SampleTypeUpdateBuilder implements UpdateBuilder
 {
-    private final String code;
 
-    private String description;
+    private ApplicationRunner openbis;
 
-    Space(String code, String description)
+    private SampleType type;
+
+    public SampleTypeUpdateBuilder(ApplicationRunner openbis, SampleType type)
     {
-        this.code = code;
-        this.description = description;
+        this.openbis = openbis;
+        this.type = type;
+    }
+
+    public SampleTypeUpdateBuilder settingItListable()
+    {
+        type.setListable(true);
+        return this;
+    }
+
+    public SampleTypeUpdateBuilder settingItNonListable()
+    {
+        type.setListable(false);
+        return this;
     }
 
     @Override
-    public boolean isRepresentedBy(Map<String, String> row)
+    public void update()
     {
-        return this.code.equalsIgnoreCase(row.get("Code"));
-    }
-
-    @Override
-    public String toString()
-    {
-        return "Space " + this.code;
-    }
-
-    public String getCode()
-    {
-        return code;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    void setDescription(String description)
-    {
-        this.description = description;
+        openbis.update(type);
     }
 }

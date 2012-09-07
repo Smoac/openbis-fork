@@ -40,7 +40,7 @@ public class BrowserListsElementMatcher extends
     @Override
     public void describeTo(Description description)
     {
-        description.appendText("SampleTypeBrowser that contains element " + this.expected);
+        description.appendText("Browser that contains element " + this.expected);
     }
 
     @Override

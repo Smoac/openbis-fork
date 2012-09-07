@@ -15,9 +15,7 @@ public class SpaceTest extends SeleniumTest
     @Test
     public void newSpaceIsListedInSpaceBrowser() throws Exception
     {
-        Space space = new Space();
-
-        openbis.create(space);
+        Space space = create(aSpace());
 
         assertThat(spaceBrowser(), lists(space));
     }

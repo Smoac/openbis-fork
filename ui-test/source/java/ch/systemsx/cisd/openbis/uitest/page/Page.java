@@ -28,6 +28,7 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -112,12 +113,13 @@ public abstract class Page
         {
             if (choice.getText().equalsIgnoreCase(text))
             {
-                choice.click();
+                Actions builder = new Actions(SeleniumTest.driver);
+                builder.moveToElement(choice).click(choice).build().perform();
                 return;
             }
             found.add(choice.getText());
         }
-        throw new IllegalArgumentException("Selection " + text + " not found");
+        throw new IllegalArgumentException("Selection " + text + " not found, got " + found);
     }
 
     protected void checkbox(WebElement box, boolean check)

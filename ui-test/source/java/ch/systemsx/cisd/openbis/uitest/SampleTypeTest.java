@@ -35,9 +35,7 @@ public class SampleTypeTest extends SeleniumTest
     @Test
     public void cannotSaveSampleTypeWithInvalidCode()
     {
-        SampleType sampleType = new SampleType().setCode("invalid code");
-
-        openbis.create(sampleType);
+        create(aSampleType().withCode("invalid code"));
 
         assertThat(browser(), isShowing(AddSampleTypeDialog.class));
 
@@ -47,9 +45,7 @@ public class SampleTypeTest extends SeleniumTest
     @Test
     public void newSampleTypeIsListedInSampleTypeBrowser()
     {
-        SampleType sampleType = new SampleType();
-
-        openbis.create(sampleType);
+        SampleType sampleType = create(aSampleType());
 
         assertThat(sampleTypeBrowser(), lists(sampleType));
     }
@@ -57,9 +53,7 @@ public class SampleTypeTest extends SeleniumTest
     @Test
     public void nonListableSampleTypeIsNotVisibleInSampleBrowserDropDownMenu()
     {
-        SampleType sampleType = new SampleType().setListable(false);
-
-        openbis.create(sampleType);
+        SampleType sampleType = create(aSampleType().thatIsListable());
 
         assertThat(sampleBrowser(), doesNotShowInToolBar(sampleType));
     }
@@ -67,11 +61,9 @@ public class SampleTypeTest extends SeleniumTest
     @Test
     public void changingSampleTypeToBeListableMakesItVisibleInSampleBrowserDropDownMenu()
     {
-        SampleType sampleType = new SampleType().setListable(false);
-        openbis.create(sampleType);
+        SampleType sampleType = create(aSampleType().thatIsNotListable());
 
-        sampleType.setListable(true);
-        openbis.update(sampleType);
+        perform(anUpdateOf(sampleType).settingItListable());
 
         assertThat(sampleBrowser(), showsInToolBar(sampleType));
     }

@@ -24,8 +24,7 @@ import org.openqa.selenium.support.FindBys;
 
 import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
 import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
-import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
-import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 
 public class AssignSamplePropertyType extends NavigationPage
 {
@@ -61,19 +60,19 @@ public class AssignSamplePropertyType extends NavigationPage
     @FindBy(id = "openbis_property-type-assignment_SAMPLEsave-button")
     private WebElement saveButton;
 
-    public void fillWith(PropertyType propertyType, SampleType sampleType, String initialValue)
+    public void fillWith(PropertyTypeAssignment assignment)
     {
         this.propertyTypeDropDownOpener.click();
-        select(propertyTypeChoices, propertyType.getLabel());
+        select(propertyTypeChoices, assignment.getPropertyType().getLabel());
 
         this.sampleTypeDropDownOpener.click();
-        select(sampleTypeChoices, sampleType.getCode());
+        select(sampleTypeChoices, assignment.getSampleType().getCode());
 
-        checkbox(mandatoryCheckbox, initialValue != null);
+        checkbox(mandatoryCheckbox, assignment.isMandatory());
 
-        if (initialValue != null)
+        if (assignment.getInitialValue() != null)
         {
-            this.initialValue.sendKeys(initialValue);
+            this.initialValue.sendKeys(assignment.getInitialValue());
         }
     }
 

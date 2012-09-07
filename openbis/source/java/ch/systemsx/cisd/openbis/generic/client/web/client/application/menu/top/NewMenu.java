@@ -35,6 +35,7 @@ public class NewMenu extends TopMenuItem
     public NewMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
     {
         super(messageProvider.getMessage(Dict.MENU_NEW));
+        setId("new_menu");
 
         Menu submenu = new Menu();
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.PROJECT_MENU_NEW, messageProvider,
@@ -45,5 +46,4 @@ public class NewMenu extends TopMenuItem
                 componentProvider.getSampleRegistration()));
         setMenu(submenu);
     }
-
 }

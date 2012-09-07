@@ -24,7 +24,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.FindBys;
 
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
-import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleDialog;
+import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 public class SampleBrowser extends BrowserPage
 {
@@ -46,17 +46,26 @@ public class SampleBrowser extends BrowserPage
 
     @FindBys(
         {
-                @FindBy(id = "openbis_select_group-selectsample-browser-toolbar"),
+                @FindBy(id = "openbis_select_sample-typesample-browser-toolbar"),
                 @FindBy(xpath = "img") })
     private WebElement sampleTypeList;
 
     @FindBy(className = "x-combo-list-item")
-    private List<WebElement> choices;
+    private List<WebElement> sampleTypeChoices;
 
-    public AddSampleDialog addSample()
+    @FindBys(
+        {
+                @FindBy(id = "openbis_select_group-selectsample-browser-toolbar"),
+                @FindBy(xpath = "img") })
+    private WebElement spaceList;
+
+    @FindBy(className = "x-combo-list-item")
+    private List<WebElement> spaceChoices;
+
+    public RegisterSample addSample()
     {
         addSampleButton.click();
-        return get(AddSampleDialog.class);
+        return get(RegisterSample.class);
     }
 
     @Override
@@ -71,10 +80,18 @@ public class SampleBrowser extends BrowserPage
         return this.data;
     }
 
-    public SampleBrowser selectSampleType(String sampleType)
+    public SampleBrowser selectSampleType(SampleType sampleType)
     {
         sampleTypeList.click();
-        select(choices, sampleType);
+        select(sampleTypeChoices, sampleType.getCode());
+        return get(SampleBrowser.class);
+    }
+
+    public SampleBrowser allSpaces()
+    {
+        spaceList.click();
+        select(spaceChoices, "(all)");
+
         return get(SampleBrowser.class);
     }
 
@@ -83,7 +100,7 @@ public class SampleBrowser extends BrowserPage
         List<String> sampleTypes = new ArrayList<String>();
 
         sampleTypeList.click();
-        for (WebElement choice : choices)
+        for (WebElement choice : sampleTypeChoices)
         {
             sampleTypes.add(choice.getText());
         }

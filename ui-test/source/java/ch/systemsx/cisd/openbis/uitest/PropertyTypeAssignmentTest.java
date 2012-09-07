@@ -21,9 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
-import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 /**
@@ -36,15 +34,12 @@ public class PropertyTypeAssignmentTest extends SeleniumTest
     @Test
     public void newPropertyTypeAssignmentIsListedInPropertyTypeAssignmentBrowser() throws Exception
     {
-        PropertyType propertyType = new PropertyType().setDataType(PropertyTypeDataType.INTEGER);
-        openbis.create(propertyType);
+        SampleType sampleType = create(aSampleType());
 
-        SampleType sampleType = new SampleType();
-        openbis.create(sampleType);
+        PropertyTypeAssignment assignment =
+                create(aSamplePropertyTypeAssignment().withSampleType(sampleType).thatIsMandatory()
+                        .havingInitialValueOf("32"));
 
-        openbis.assign(propertyType, sampleType, "32");
-
-        assertThat(propertyTypeAssignmentBrowser(), lists(new PropertyTypeAssignment(propertyType,
-                sampleType)));
+        assertThat(propertyTypeAssignmentBrowser(), lists(assignment));
     }
 }

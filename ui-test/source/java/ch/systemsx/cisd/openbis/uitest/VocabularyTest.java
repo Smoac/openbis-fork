@@ -15,9 +15,7 @@ public class VocabularyTest extends SeleniumTest
     @Test
     public void newVocabularyIsListedInVocabularyBrowser() throws Exception
     {
-        Vocabulary vocabulary = new Vocabulary();
-
-        openbis.create(vocabulary);
+        Vocabulary vocabulary = create(aVocabulary());
 
         assertThat(vocabularyBrowser(), lists(vocabulary));
     }

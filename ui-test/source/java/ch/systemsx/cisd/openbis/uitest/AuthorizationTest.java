@@ -46,7 +46,6 @@ public class AuthorizationTest extends SeleniumTest
         openbis.login(User.ADMIN);
         try
         {
-
             openbis.browseToRoleAssignmentBrowser();
             assertThat(browser(), isShowing(RoleAssignmentBrowser.class));
         } finally

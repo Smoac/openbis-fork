@@ -14,27 +14,23 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest;
+package ch.systemsx.cisd.openbis.uitest.page.menu;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 
-import org.testng.annotations.Test;
+import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterSample;
 
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
-
-/**
- * @author anttil
- */
-@Test(groups =
-    { "login-admin" })
-public class PropertyTypeTest extends SeleniumTest
+public class NewMenu extends Page
 {
-    @Test
-    public void newPropertyTypeIsListedInPropertyTypeBrowser() throws Exception
-    {
-        PropertyType propertyType = create(aPropertyType());
 
-        assertThat(propertyTypeBrowser(), lists(propertyType));
+    @FindBy(id = "openbis_top-menu_SAMPLE_MENU_NEW")
+    private WebElement sample;
+
+    public RegisterSample sample()
+    {
+        sample.click();
+        return get(RegisterSample.class);
     }
 }

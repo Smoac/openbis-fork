@@ -14,27 +14,34 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest;
+package ch.systemsx.cisd.openbis.uitest.type;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import java.util.UUID;
 
-import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
+import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
 
 /**
  * @author anttil
  */
-@Test(groups =
-    { "login-admin" })
-public class PropertyTypeTest extends SeleniumTest
+public class SpaceBuilder implements Builder<Space>
 {
-    @Test
-    public void newPropertyTypeIsListedInPropertyTypeBrowser() throws Exception
-    {
-        PropertyType propertyType = create(aPropertyType());
 
-        assertThat(propertyTypeBrowser(), lists(propertyType));
+    private ApplicationRunner openbis;
+
+    private final String code;
+
+    private final String description;
+
+    public SpaceBuilder(ApplicationRunner openbis)
+    {
+        this.openbis = openbis;
+        this.code = UUID.randomUUID().toString();
+        this.description = "";
+    }
+
+    @Override
+    public Space build()
+    {
+        return openbis.create(new Space(code, description));
     }
 }

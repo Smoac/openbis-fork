@@ -19,46 +19,55 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
+import ch.systemsx.cisd.openbis.uitest.infra.EntityType;
 
 /**
  * @author anttil
  */
-public class Space implements Browsable
+public class Experiment implements EntityType, Browsable
 {
+    private ExperimentType type;
+
     private final String code;
 
-    private String description;
+    private Project project;
 
-    Space(String code, String description)
+    Experiment(ExperimentType type, String code, Project project)
     {
+        this.type = type;
         this.code = code;
-        this.description = description;
+        this.project = project;
     }
 
     @Override
     public boolean isRepresentedBy(Map<String, String> row)
     {
-        return this.code.equalsIgnoreCase(row.get("Code"));
+        return code.equalsIgnoreCase(row.get("Code"));
     }
 
     @Override
-    public String toString()
-    {
-        return "Space " + this.code;
-    }
-
     public String getCode()
     {
         return code;
     }
 
-    public String getDescription()
+    public ExperimentType getType()
     {
-        return description;
+        return type;
     }
 
-    void setDescription(String description)
+    public Project getProject()
     {
-        this.description = description;
+        return project;
+    }
+
+    void setType(ExperimentType type)
+    {
+        this.type = type;
+    }
+
+    void setProject(Project project)
+    {
+        this.project = project;
     }
 }

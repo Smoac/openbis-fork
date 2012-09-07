@@ -304,6 +304,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     {
         groupSelectionWidget =
                 new SpaceSelectionWidget(viewContext, getId(), true, false, initialGroupCodeOrNull);
+        groupSelectionWidget.setId("register-sample-space-selection");
         FieldUtil.markAsMandatory(groupSelectionWidget);
         groupSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         parentButton =

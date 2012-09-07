@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
 import ch.systemsx.cisd.openbis.uitest.infra.EntityType;
@@ -28,11 +28,9 @@ import ch.systemsx.cisd.openbis.uitest.infra.EntityType;
 public class SampleType implements Browsable, EntityType
 {
 
-    private String code;
+    private final String code;
 
     private String description;
-
-    private String validationScript;
 
     private boolean listable;
 
@@ -48,128 +46,23 @@ public class SampleType implements Browsable, EntityType
 
     private String generatedCodePrefix;
 
-    public SampleType()
-    {
-        this.code = UUID.randomUUID().toString();
-        this.description = "";
-        this.validationScript = "";
-        this.listable = true;
-        this.showContainer = false;
-        this.showParents = true;
-        this.uniqueSubcodes = false;
-        this.generateCodes = false;
-        this.showParentMetadata = false;
-        this.generatedCodePrefix = "S";
-    }
+    private Collection<PropertyTypeAssignment> propertyTypeAssignments;
 
-    public String getCode()
-    {
-        return code;
-    }
-
-    public SampleType setCode(String code)
+    SampleType(String code, String description, boolean listable, boolean showContainer,
+            boolean showParents, boolean uniqueSubcodes, boolean generateCodes,
+            boolean showParentMetadata, String generatedCodePrefix,
+            Collection<PropertyTypeAssignment> propertyTypeAssignments)
     {
         this.code = code;
-        return this;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public SampleType setDescription(String description)
-    {
         this.description = description;
-        return this;
-    }
-
-    public String getValidationScript()
-    {
-        return validationScript;
-    }
-
-    public SampleType setValidationScript(String validationScript)
-    {
-        this.validationScript = validationScript;
-        return this;
-    }
-
-    public boolean isListable()
-    {
-        return listable;
-    }
-
-    public SampleType setListable(boolean listable)
-    {
         this.listable = listable;
-        return this;
-    }
-
-    public boolean isShowContainer()
-    {
-        return showContainer;
-    }
-
-    public SampleType setShowContainer(boolean showContainer)
-    {
         this.showContainer = showContainer;
-        return this;
-    }
-
-    public boolean isShowParents()
-    {
-        return showParents;
-    }
-
-    public SampleType setShowParents(boolean showParents)
-    {
         this.showParents = showParents;
-        return this;
-    }
-
-    public boolean isUniqueSubcodes()
-    {
-        return uniqueSubcodes;
-    }
-
-    public SampleType setUniqueSubcodes(boolean uniqueSubcodes)
-    {
         this.uniqueSubcodes = uniqueSubcodes;
-        return this;
-    }
-
-    public boolean isGenerateCodes()
-    {
-        return generateCodes;
-    }
-
-    public SampleType setGenerateCodes(boolean generateCodes)
-    {
         this.generateCodes = generateCodes;
-        return this;
-    }
-
-    public boolean isShowParentMetadata()
-    {
-        return showParentMetadata;
-    }
-
-    public SampleType setShowParentMetadata(boolean showParentMetadata)
-    {
         this.showParentMetadata = showParentMetadata;
-        return this;
-    }
-
-    public String getGeneratedCodePrefix()
-    {
-        return generatedCodePrefix;
-    }
-
-    public SampleType setGeneratedCodePrefix(String generatedCodePrefix)
-    {
         this.generatedCodePrefix = generatedCodePrefix;
-        return this;
+        this.propertyTypeAssignments = propertyTypeAssignments;
     }
 
     @Override
@@ -184,4 +77,99 @@ public class SampleType implements Browsable, EntityType
         return "SampleType " + this.code;
     }
 
+    @Override
+    public String getCode()
+    {
+        return code;
+    }
+
+    public String getDescription()
+    {
+        return description;
+    }
+
+    public boolean isListable()
+    {
+        return listable;
+    }
+
+    public boolean isShowContainer()
+    {
+        return showContainer;
+    }
+
+    public boolean isShowParents()
+    {
+        return showParents;
+    }
+
+    public boolean isUniqueSubcodes()
+    {
+        return uniqueSubcodes;
+    }
+
+    public boolean isGenerateCodes()
+    {
+        return generateCodes;
+    }
+
+    public boolean isShowParentMetadata()
+    {
+        return showParentMetadata;
+    }
+
+    public String getGeneratedCodePrefix()
+    {
+        return generatedCodePrefix;
+    }
+
+    public Collection<PropertyTypeAssignment> getPropertyTypeAssignments()
+    {
+        return propertyTypeAssignments;
+    }
+
+    void setDescription(String description)
+    {
+        this.description = description;
+    }
+
+    void setListable(boolean listable)
+    {
+        this.listable = listable;
+    }
+
+    void setShowContainer(boolean showContainer)
+    {
+        this.showContainer = showContainer;
+    }
+
+    void setShowParents(boolean showParents)
+    {
+        this.showParents = showParents;
+    }
+
+    void setUniqueSubcodes(boolean uniqueSubcodes)
+    {
+        this.uniqueSubcodes = uniqueSubcodes;
+    }
+
+    void setGenerateCodes(boolean generateCodes)
+    {
+        this.generateCodes = generateCodes;
+    }
+
+    void setShowParentMetadata(boolean showParentMetadata)
+    {
+        this.showParentMetadata = showParentMetadata;
+    }
+
+    void setGeneratedCodePrefix(String generatedCodePrefix)
+    {
+        this.generatedCodePrefix = generatedCodePrefix;
+    }
+
+    void setPropertyTypeAssignments(Collection<PropertyTypeAssignment> propertyTypeAssignments)
+    {
+        this.propertyTypeAssignments = propertyTypeAssignments;
+    }
 }

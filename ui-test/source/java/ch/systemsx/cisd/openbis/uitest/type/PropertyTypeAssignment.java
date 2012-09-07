@@ -27,14 +27,21 @@ import ch.systemsx.cisd.openbis.uitest.infra.EntityType;
 public class PropertyTypeAssignment implements Browsable
 {
 
-    private final PropertyType propertyType;
+    private PropertyType propertyType;
 
-    private final EntityType entityType;
+    private EntityType entityType;
 
-    public PropertyTypeAssignment(PropertyType propertyType, EntityType entityType)
+    private boolean mandatory;
+
+    private String initialValue;
+
+    public PropertyTypeAssignment(PropertyType propertyType, EntityType entityType,
+            boolean mandatory, String initialValue)
     {
         this.entityType = entityType;
         this.propertyType = propertyType;
+        this.mandatory = mandatory;
+        this.initialValue = initialValue;
     }
 
     @Override
@@ -49,5 +56,25 @@ public class PropertyTypeAssignment implements Browsable
     public String toString()
     {
         return "PropertyTypeAssignment [" + this.propertyType + ", " + this.entityType + "]";
+    }
+
+    public PropertyType getPropertyType()
+    {
+        return propertyType;
+    }
+
+    public EntityType getSampleType()
+    {
+        return entityType;
+    }
+
+    public boolean isMandatory()
+    {
+        return mandatory;
+    }
+
+    public String getInitialValue()
+    {
+        return initialValue;
     }
 }

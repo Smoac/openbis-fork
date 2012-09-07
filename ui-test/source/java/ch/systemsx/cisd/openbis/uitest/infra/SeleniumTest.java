@@ -45,7 +45,16 @@ import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
+import ch.systemsx.cisd.openbis.uitest.type.Builder;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignmentBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.SampleBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.type.SampleTypeBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.SampleTypeUpdateBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.SpaceBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.UpdateBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.VocabularyBuilder;
 
 public abstract class SeleniumTest
 {
@@ -61,6 +70,7 @@ public abstract class SeleniumTest
     public void initWebDriver()
     {
         /*
+
         System.setProperty("webdriver.firefox.bin",
                 "/Users/anttil/Desktop/Firefox 10.app/Contents/MacOS/firefox");
 
@@ -152,7 +162,7 @@ public abstract class SeleniumTest
 
     protected SampleBrowser sampleBrowser()
     {
-        return openbis.browseToSampleBrowser();
+        return openbis.browseToSampleBrowser().allSpaces();
     }
 
     protected SampleTypeBrowser sampleTypeBrowser()
@@ -198,5 +208,50 @@ public abstract class SeleniumTest
     protected Matcher<BrowserPage> lists(Browsable browsable)
     {
         return new BrowserListsElementMatcher(browsable);
+    }
+
+    protected <T> T create(Builder<T> builder)
+    {
+        return builder.build();
+    }
+
+    protected SpaceBuilder aSpace()
+    {
+        return new SpaceBuilder(openbis);
+    }
+
+    protected SampleTypeBuilder aSampleType()
+    {
+        return new SampleTypeBuilder(openbis);
+    }
+
+    protected SampleBuilder aSample()
+    {
+        return new SampleBuilder(openbis);
+    }
+
+    protected VocabularyBuilder aVocabulary()
+    {
+        return new VocabularyBuilder(openbis);
+    }
+
+    protected PropertyTypeBuilder aPropertyType()
+    {
+        return new PropertyTypeBuilder(openbis);
+    }
+
+    protected PropertyTypeAssignmentBuilder aSamplePropertyTypeAssignment()
+    {
+        return new PropertyTypeAssignmentBuilder(openbis);
+    }
+
+    protected SampleTypeUpdateBuilder anUpdateOf(SampleType type)
+    {
+        return new SampleTypeUpdateBuilder(openbis, type);
+    }
+
+    protected void perform(UpdateBuilder builder)
+    {
+        builder.update();
     }
 }

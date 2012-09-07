@@ -14,27 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-
-import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
+package ch.systemsx.cisd.openbis.uitest.type;
 
 /**
  * @author anttil
  */
-@Test(groups =
-    { "login-admin" })
-public class PropertyTypeTest extends SeleniumTest
+public interface Builder<T>
 {
-    @Test
-    public void newPropertyTypeIsListedInPropertyTypeBrowser() throws Exception
-    {
-        PropertyType propertyType = create(aPropertyType());
-
-        assertThat(propertyTypeBrowser(), lists(propertyType));
-    }
+    public T build();
 }

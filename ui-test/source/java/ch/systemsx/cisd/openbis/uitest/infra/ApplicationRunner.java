@@ -26,12 +26,15 @@ import ch.systemsx.cisd.openbis.uitest.page.tab.AddPropertyType;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AssignSamplePropertyType;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterSample;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
+import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
@@ -49,32 +52,53 @@ public class ApplicationRunner
         this.proxy = proxy;
     }
 
-    public void create(Space space)
+    public Space create(Space space)
     {
         AddSpaceDialog dialog = browseToAddSpaceDialog();
         dialog.fillWith(space);
         dialog.save();
+        return space;
     }
 
-    public void create(SampleType sampleType)
+    public SampleType create(SampleType sampleType)
     {
         AddSampleTypeDialog dialog = browseToAddSampleTypeDialog();
         dialog.fillWith(sampleType);
         dialog.save();
+        return sampleType;
     }
 
-    public void create(Vocabulary vocabulary)
+    public Vocabulary create(Vocabulary vocabulary)
     {
         AddVocabularyDialog dialog = browseToAddVocabularyDialog();
         dialog.fillWith(vocabulary);
         dialog.save();
+        return vocabulary;
     }
 
-    public void create(PropertyType propertyType)
+    public PropertyType create(PropertyType propertyType)
     {
         AddPropertyType dialog = browseToAddPropertyType();
         dialog.fillWith(propertyType);
         dialog.save();
+        return propertyType;
+    }
+
+    public Sample create(Sample sample)
+    {
+        RegisterSample register = browseToRegisterSample();
+        register.selectSampleType(sample.getType());
+        register.fillWith(sample);
+        register.save();
+        return sample;
+    }
+
+    public PropertyTypeAssignment create(PropertyTypeAssignment assignment)
+    {
+        AssignSamplePropertyType assign = browseToAssignSamplePropertyType();
+        assign.fillWith(assignment);
+        assign.save();
+        return assignment;
     }
 
     public void update(SampleType sampleType)
@@ -83,18 +107,6 @@ public class ApplicationRunner
         EditSampleTypeDialog dialog = sampleTypeBrowser.editSampleType(sampleType);
         dialog.fillWith(sampleType);
         dialog.save();
-    }
-
-    public void assign(PropertyType propertyType, SampleType sampleType)
-    {
-        assign(propertyType, sampleType, null);
-    }
-
-    public void assign(PropertyType propertyType, SampleType sampleType, String initialValue)
-    {
-        AssignSamplePropertyType assign = browseToAssignSamplePropertyType();
-        assign.fillWith(propertyType, sampleType, initialValue);
-        assign.save();
     }
 
     public void login(String userName, String password)
@@ -172,6 +184,11 @@ public class ApplicationRunner
     public PropertyTypeAssignmentBrowser browseToPropertyTypeAssignmentBrowser()
     {
         return getMenus().admin().metadata().propertyTypeAssignments();
+    }
+
+    public RegisterSample browseToRegisterSample()
+    {
+        return getMenus().newMenu().sample();
     }
 
     public void closeAllTabs()
