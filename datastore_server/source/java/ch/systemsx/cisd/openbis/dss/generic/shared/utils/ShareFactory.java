@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.Constants;
  * 
  * @author Kaloyan Enimanev
  */
-@Private 
+@Private
 public class ShareFactory
 {
     @Private
@@ -57,28 +57,36 @@ public class ShareFactory
 
     @Private
     static final String SHUFFLE_PRIORITY_PROP = "shuffle-priority";
-    
+
     public static final String WITHDRAW_SHARE_PROP = "withdraw-share";
-    
+
     public static final String EXPERIMENTS_PROP = "experiments";
 
     private int speed = Math.abs(Constants.DEFAULT_SPEED_HINT);
 
     private ShufflePriority shufflePriority = ShufflePriority.SPEED;
-    
+
     private boolean withdrawShare;
-    
+
     private Set<String> experimentIdentifiers = Collections.emptySet();
 
-    Share createShare(File shareRoot, IFreeSpaceProvider freeSpaceProvider, ISimpleLogger log)
+    Share createShare(final SharesHolder sharesHolder, File shareRoot,
+            IFreeSpaceProvider freeSpaceProvider, ISimpleLogger log)
     {
         readSpeedFile(shareRoot, log);
         readSharePropertiesFile(shareRoot, log);
-        Share share = new Share(shareRoot, speed, freeSpaceProvider);
+        Share share = new Share(sharesHolder, shareRoot, speed, freeSpaceProvider);
         share.setShufflePriority(shufflePriority);
         share.setWithdrawShare(withdrawShare);
         share.setExperimentIdentifiers(experimentIdentifiers);
         return share;
+
+    }
+
+    Share createShare(File shareRoot,
+            IFreeSpaceProvider freeSpaceProvider, ISimpleLogger log)
+    {
+        return createShare(null, shareRoot, freeSpaceProvider, log);
 
     }
 
@@ -89,10 +97,12 @@ public class ShareFactory
         {
             Properties props = new Properties();
             FileInputStream fis = null;
-            try {
+            try
+            {
                 fis = new FileInputStream(propsFile);
                 props.load(fis);
-            } catch (IOException ioex) {
+            } catch (IOException ioex)
+            {
                 log.log(LogLevel.WARN, "Error while reading from " + propsFile.getAbsolutePath()
                         + " : " + ioex.getMessage());
             } finally
@@ -116,10 +126,12 @@ public class ShareFactory
                 }
             }
 
-            if (props.containsKey(SHUFFLE_PRIORITY_PROP)) {
+            if (props.containsKey(SHUFFLE_PRIORITY_PROP))
+            {
                 String shufflePriorityProp = props.getProperty(SHUFFLE_PRIORITY_PROP);
-                try {
-                    shufflePriority =  ShufflePriority.valueOf(shufflePriorityProp.toUpperCase());
+                try
+                {
+                    shufflePriority = ShufflePriority.valueOf(shufflePriorityProp.toUpperCase());
                 } catch (IllegalArgumentException iae)
                 {
                     String errorMsg =
@@ -129,13 +141,13 @@ public class ShareFactory
                     log.log(LogLevel.WARN, errorMsg);
                 }
             }
-            
+
             withdrawShare = PropertyUtils.getBoolean(props, WITHDRAW_SHARE_PROP, false);
             experimentIdentifiers =
                     new HashSet<String>(Arrays.asList(PropertyParametersUtil.parseItemisedProperty(
                             props.getProperty(EXPERIMENTS_PROP, ""), EXPERIMENTS_PROP)));
         }
-        
+
     }
 
     private void readSpeedFile(File shareRoot, ISimpleLogger log)

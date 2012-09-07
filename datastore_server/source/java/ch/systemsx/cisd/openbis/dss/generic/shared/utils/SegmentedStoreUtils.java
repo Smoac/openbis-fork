@@ -184,13 +184,13 @@ public class SegmentedStoreUtils
      *            size.
      * @param log Logger for logging size calculations.
      */
-    public static List<Share> getDataSetsPerShare(File storeRoot, String dataStoreCode,
+    public static List<Share> getSharesWithDataSets(File storeRoot, String dataStoreCode,
             Set<String> incomingShares, IFreeSpaceProvider freeSpaceProvider,
             IEncapsulatedOpenBISService service, ISimpleLogger log)
     {
         final long start = System.currentTimeMillis();
         List<Share> shares =
-                getDataSetsPerShare(storeRoot, dataStoreCode, freeSpaceProvider, service, log,
+                getSharesWithDataSets(storeRoot, dataStoreCode, freeSpaceProvider, service, log,
                         SystemTimeProvider.SYSTEM_TIME_PROVIDER);
         for (Share share : shares)
         {
@@ -202,66 +202,28 @@ public class SegmentedStoreUtils
         return shares;
     }
 
-    static List<Share> getDataSetsPerShare(File storeRoot, String dataStoreCode,
+    static List<Share> getSharesWithDataSets(File storeRoot, String dataStoreCode,
             IFreeSpaceProvider freeSpaceProvider, IEncapsulatedOpenBISService service,
             ISimpleLogger log, ITimeProvider timeProvider)
     {
-        Map<String, Share> shares = getShares(storeRoot, freeSpaceProvider, log);
-        for (SimpleDataSetInformationDTO dataSet : service.listDataSets())
-        {
-            String shareId = dataSet.getDataSetShareId();
-            if (dataStoreCode.equals(dataSet.getDataStoreCode()))
-            {
-                Share share = shares.get(shareId);
-                String dataSetCode = dataSet.getDataSetCode();
-                if (share == null)
-                {
-                    log.log(LogLevel.WARN, "Data set " + dataSetCode
-                            + " not accessible because of unknown or unmounted share " + shareId
-                            + ".");
-                } else
-                {
-                    if (dataSet.getDataSetSize() == null)
-                    {
-                        final File dataSetInStore =
-                                new File(share.getShare(), dataSet.getDataSetLocation());
-                        if (FileOperations.getMonitoredInstanceForCurrentThread()
-                                .exists(dataSetInStore))
-                        {
-                            log.log(LogLevel.INFO, "Calculating size of " + dataSetInStore);
-                            long t0 = timeProvider.getTimeInMilliseconds();
-                            long size = FileUtils.sizeOfDirectory(dataSetInStore);
-                            log.log(LogLevel.INFO,
-                                    dataSetInStore + " contains " + size + " bytes (calculated in "
-                                            + (timeProvider.getTimeInMilliseconds() - t0)
-                                            + " msec)");
-                            service.updateShareIdAndSize(dataSetCode, shareId, size);
-                            dataSet.setDataSetSize(size);
-                        } else
-                        {
-                            log.log(LogLevel.WARN, "Data set " + dataSetCode
-                                    + " no longer exists in share " + shareId + ".");
-                        }
-                    }
-                    if (dataSet.getDataSetSize() != null)
-                    {
-                        share.addDataSet(dataSet);
-                    }
-                }
-            }
-        }
-        List<Share> list = new ArrayList<Share>(shares.values());
+        final Map<String, Share> shares =
+                getShares(storeRoot, dataStoreCode, freeSpaceProvider, service, log, timeProvider);
+        final List<Share> list = new ArrayList<Share>(shares.values());
         Collections.sort(list, SHARE_COMPARATOR);
         return list;
     }
 
-    private static Map<String, Share> getShares(File storeRoot,
-            IFreeSpaceProvider freeSpaceProvider, ISimpleLogger log)
+    private static Map<String, Share> getShares(File storeRoot, String dataStoreCode,
+            IFreeSpaceProvider freeSpaceProvider, IEncapsulatedOpenBISService service,
+            ISimpleLogger log, ITimeProvider timeProvider)
     {
-        Map<String, Share> shares = new HashMap<String, Share>();
+        final Map<String, Share> shares = new HashMap<String, Share>();
+        final SharesHolder sharesHolder =
+                new SharesHolder(dataStoreCode, shares, service, log, timeProvider);
         for (File file : getShares(storeRoot))
         {
-            Share share = new ShareFactory().createShare(file, freeSpaceProvider, log);
+            final Share share =
+                    new ShareFactory().createShare(sharesHolder, file, freeSpaceProvider, log);
             shares.put(share.getShareId(), share);
         }
         return shares;

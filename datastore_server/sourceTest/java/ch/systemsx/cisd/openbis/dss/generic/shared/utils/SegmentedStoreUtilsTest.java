@@ -171,7 +171,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
             });
 
         List<Share> shares =
-                SegmentedStoreUtils.getDataSetsPerShare(store, DATA_STORE_CODE, freeSpaceProvider,
+                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, freeSpaceProvider,
                         service, log, timeProvider);
         Share share1 = shares.get(0);
         long freeSpace = share1.calculateFreeSpace();

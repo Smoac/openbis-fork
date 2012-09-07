@@ -241,7 +241,7 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
 
     private List<Share> listShares()
     {
-        return SegmentedStoreUtils.getDataSetsPerShare(storeRoot, dataStoreCode,
+        return SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode,
                 Collections.<String> emptySet(), freeSpaceProvider, service, operationLogger);
     }
 

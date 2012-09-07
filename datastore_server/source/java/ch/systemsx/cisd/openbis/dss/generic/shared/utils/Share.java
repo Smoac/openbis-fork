@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 /**
  * Represents a share of a segmented store. Holds the root directory of the share as well as
  * the data sets. It is able to calculate the free disk space.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public final class Share
@@ -66,6 +66,8 @@ public final class Share
         MOVE_TO_EXTENSION;
     }
 
+    private final SharesHolder sharesHolderOrNull;
+
     private final File share;
 
     private final IFreeSpaceProvider freeSpaceProvider;
@@ -73,28 +75,38 @@ public final class Share
     private final String shareId;
 
     private final int speed;
-    
+
     private final List<SimpleDataSetInformationDTO> dataSets =
             new ArrayList<SimpleDataSetInformationDTO>();
-    
+
+    private boolean areDataSetsSorted;
+
     private boolean incoming;
 
     private long size;
 
     private ShufflePriority shufflePriority = ShufflePriority.SPEED;
-    
+
     private boolean withdrawShare;
-    
+
     private Set<String> experimentIdentifiers;
 
-    public Share(File share, int speed, IFreeSpaceProvider freeSpaceProvider)
+    public Share(File share, int speed,
+            IFreeSpaceProvider freeSpaceProvider)
     {
+        this(null, share, speed, freeSpaceProvider);
+    }
+
+    public Share(SharesHolder sharesHolderOrNull, File share, int speed,
+            IFreeSpaceProvider freeSpaceProvider)
+    {
+        this.sharesHolderOrNull = sharesHolderOrNull;
         this.share = share;
         this.speed = speed;
         this.freeSpaceProvider = freeSpaceProvider;
         shareId = share.getName();
     }
-    
+
     /**
      * Returns the set of experiment identifier or an empty set if undefined.
      */
@@ -117,7 +129,7 @@ public final class Share
     }
 
     /**
-     * Returns the speed of this share.  
+     * Returns the speed of this share.
      */
     public int getSpeed()
     {
@@ -138,7 +150,7 @@ public final class Share
     }
 
     /**
-     * Returns the root directory of this share. 
+     * Returns the root directory of this share.
      */
     public File getShare()
     {
@@ -158,27 +170,40 @@ public final class Share
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-    
+
+    // Public only for unit testing.
     public void addDataSet(SimpleDataSetInformationDTO dataSet)
     {
         dataSets.add(dataSet);
         size += dataSet.getDataSetSize();
     }
-    
+
     /**
      * Returns all data sets of this shared ordered by size starting with the largest data set.
      */
     public List<SimpleDataSetInformationDTO> getDataSetsOrderedBySize()
     {
-        Collections.sort(dataSets, DATA_SET_SIZE_COMPARATOR);
+        if (sharesHolderOrNull != null)
+        {
+            sharesHolderOrNull.addDataSetsToStores();
+        }
+        if (areDataSetsSorted == false)
+        {
+            Collections.sort(dataSets, DATA_SET_SIZE_COMPARATOR);
+            areDataSetsSorted = true;
+        }
         return dataSets;
     }
-    
+
     /**
      * Returns the total size (in bytes) of all data sets.
      */
     public long getTotalSizeOfDataSets()
     {
+        if (sharesHolderOrNull != null)
+        {
+            sharesHolderOrNull.addDataSetsToStores();
+        }
         return size;
     }
 
