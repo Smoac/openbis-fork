@@ -19,18 +19,26 @@ package ch.systemsx.cisd.openbis.uitest.page.menu;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
-import ch.systemsx.cisd.openbis.uitest.page.PrivatePage;
+import ch.systemsx.cisd.openbis.uitest.page.Page;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AddPropertyType;
+import ch.systemsx.cisd.openbis.uitest.page.tab.AssignSamplePropertyType;
+import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
 
-public class MetadataMenu extends PrivatePage
+public class MetadataMenu extends Page
 {
 
     @FindBy(id = "openbis_top-menu_PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES")
     private WebElement browsePropertyTypes;
 
+    @FindBy(id = "openbis_top-menu_PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS")
+    private WebElement browsePropertyTypeAssignments;
+
     @FindBy(id = "openbis_top-menu_PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES")
     private WebElement newPropertyType;
+
+    @FindBy(id = "openbis_top-menu_PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE")
+    private WebElement assignToSampleType;
 
     public PropertyTypeBrowser propertyTypes()
     {
@@ -38,9 +46,21 @@ public class MetadataMenu extends PrivatePage
         return get(PropertyTypeBrowser.class);
     }
 
+    public PropertyTypeAssignmentBrowser propertyTypeAssignments()
+    {
+        browsePropertyTypeAssignments.click();
+        return get(PropertyTypeAssignmentBrowser.class);
+    }
+
     public AddPropertyType newPropertyType()
     {
         newPropertyType.click();
         return get(AddPropertyType.class);
+    }
+
+    public AssignSamplePropertyType assignToSampleType()
+    {
+        assignToSampleType.click();
+        return get(AssignSamplePropertyType.class);
     }
 }

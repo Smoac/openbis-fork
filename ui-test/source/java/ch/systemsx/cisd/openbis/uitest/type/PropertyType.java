@@ -40,7 +40,7 @@ public class PropertyType implements Browsable
     public PropertyType()
     {
         this.code = UUID.randomUUID().toString();
-        this.label = "label";
+        this.label = "label of " + this.code;
         this.description = "description";
         this.dataType = PropertyTypeDataType.BOOLEAN;
         this.vocabulary = null;

@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
 /**
  * @author anttil
  */
-public abstract class BrowserPage extends PrivatePage
+public abstract class BrowserPage extends NavigationPage
 {
 
     protected abstract List<WebElement> getColumns();

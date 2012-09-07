@@ -20,9 +20,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
-import ch.systemsx.cisd.openbis.uitest.page.PrivatePage;
+import ch.systemsx.cisd.openbis.uitest.page.Page;
 
-public class UserMenu extends PrivatePage
+public class UserMenu extends Page
 {
 
     @FindBy(id = "openbis_top-menu_USER_MENU_LOGOUT")

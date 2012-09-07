@@ -101,28 +101,20 @@ public class AddSampleTypeDialog extends Page
 
     public AddSampleTypeDialog setListable(boolean checked)
     {
-        setCheckBox(this.listable, checked);
+        checkbox(this.listable, checked);
         return this;
     }
 
     public AddSampleTypeDialog setShowContainer(boolean checked)
     {
-        setCheckBox(this.showContainer, checked);
+        checkbox(this.showContainer, checked);
         return this;
     }
 
     public AddSampleTypeDialog setShowParents(boolean checked)
     {
-        setCheckBox(this.showParents, checked);
+        checkbox(this.showParents, checked);
         return this;
-    }
-
-    private void setCheckBox(WebElement element, boolean checked)
-    {
-        if (element.getAttribute("checked") != null ^ checked)
-        {
-            element.click();
-        }
     }
 
     public void fillWith(SampleType sampleType)

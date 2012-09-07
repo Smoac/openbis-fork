@@ -17,12 +17,14 @@
 package ch.systemsx.cisd.openbis.uitest.infra;
 
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
-import ch.systemsx.cisd.openbis.uitest.page.PrivatePage;
+import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSpaceDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddVocabularyDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.EditSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AddPropertyType;
+import ch.systemsx.cisd.openbis.uitest.page.tab.AssignSamplePropertyType;
+import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
@@ -81,6 +83,18 @@ public class ApplicationRunner
         EditSampleTypeDialog dialog = sampleTypeBrowser.editSampleType(sampleType);
         dialog.fillWith(sampleType);
         dialog.save();
+    }
+
+    public void assign(PropertyType propertyType, SampleType sampleType)
+    {
+        assign(propertyType, sampleType, null);
+    }
+
+    public void assign(PropertyType propertyType, SampleType sampleType, String initialValue)
+    {
+        AssignSamplePropertyType assign = browseToAssignSamplePropertyType();
+        assign.fillWith(propertyType, sampleType, initialValue);
+        assign.save();
     }
 
     public void login(String userName, String password)
@@ -150,13 +164,23 @@ public class ApplicationRunner
         return getMenus().admin().metadata().newPropertyType();
     }
 
+    public AssignSamplePropertyType browseToAssignSamplePropertyType()
+    {
+        return getMenus().admin().metadata().assignToSampleType();
+    }
+
+    public PropertyTypeAssignmentBrowser browseToPropertyTypeAssignmentBrowser()
+    {
+        return getMenus().admin().metadata().propertyTypeAssignments();
+    }
+
     public void closeAllTabs()
     {
         getMenus().closeTabs();
     }
 
-    private PrivatePage getMenus()
+    private NavigationPage getMenus()
     {
-        return proxy.get(PrivatePage.class);
+        return proxy.get(NavigationPage.class);
     }
 }

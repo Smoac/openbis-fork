@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.uitest.page.menu;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
-import ch.systemsx.cisd.openbis.uitest.page.PrivatePage;
+import ch.systemsx.cisd.openbis.uitest.page.Page;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
 
-public class BrowseMenu extends PrivatePage
+public class BrowseMenu extends Page
 {
 
     @FindBy(id = "openbis_top-menu_SAMPLE_MENU_BROWSE")

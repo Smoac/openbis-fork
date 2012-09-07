@@ -20,11 +20,12 @@ import java.util.Map;
 import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
+import ch.systemsx.cisd.openbis.uitest.infra.EntityType;
 
 /**
  * @author anttil
  */
-public class SampleType implements Browsable
+public class SampleType implements Browsable, EntityType
 {
 
     private String code;

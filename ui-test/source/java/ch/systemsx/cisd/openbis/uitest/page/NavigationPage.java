@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.uitest.page.menu.UserMenu;
 /**
  * @author anttil
  */
-public abstract class PrivatePage extends Page
+public abstract class NavigationPage extends Page
 {
     @FindBy(id = "admin_menu")
     private WebElement adminMenuButton;

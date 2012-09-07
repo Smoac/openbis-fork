@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.uitest.infra.matcher.PageMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.SampleBrowserSampleTypeDropDownMenuMatcher;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
@@ -59,13 +60,14 @@ public abstract class SeleniumTest
     @BeforeSuite
     public void initWebDriver()
     {
-        // System.setProperty("webdriver.firefox.bin",
-        // "/Users/anttil/Desktop/Firefox 10.app/Contents/MacOS/firefox");
+        /*
+        System.setProperty("webdriver.firefox.bin",
+                "/Users/anttil/Desktop/Firefox 10.app/Contents/MacOS/firefox");
 
-        // System.setProperty("webdriver.firefox.profile", "default");
-
+        System.setProperty("webdriver.firefox.profile", "default");
+        */
         driver = new FirefoxDriver();
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
         delete(new File("targets/dist"));
 
         driver.manage().deleteAllCookies();
@@ -171,6 +173,11 @@ public abstract class SeleniumTest
     protected SpaceBrowser spaceBrowser()
     {
         return openbis.browseToSpaceBrowser();
+    }
+
+    protected PropertyTypeAssignmentBrowser propertyTypeAssignmentBrowser()
+    {
+        return openbis.browseToPropertyTypeAssignmentBrowser();
     }
 
     protected Matcher<WebDriver> isShowing(Class<? extends Page> pageClass)

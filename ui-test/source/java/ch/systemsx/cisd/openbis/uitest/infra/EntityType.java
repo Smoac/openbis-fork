@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page.menu;
+package ch.systemsx.cisd.openbis.uitest.infra;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-
-import ch.systemsx.cisd.openbis.uitest.page.Page;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
-
-public class AuthorizationMenu extends Page
+/**
+ * @author anttil
+ */
+public interface EntityType
 {
-
-    @FindBy(id = "openbis_top-menu_AUTHORIZATION_MENU_ROLES")
-    private WebElement roles;
-
-    public RoleAssignmentBrowser roles()
-    {
-        roles.click();
-        return get(RoleAssignmentBrowser.class);
-    }
+    public String getCode();
 }

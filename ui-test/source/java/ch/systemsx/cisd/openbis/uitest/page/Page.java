@@ -118,6 +118,13 @@ public abstract class Page
             found.add(choice.getText());
         }
         throw new IllegalArgumentException("Selection " + text + " not found");
+    }
 
+    protected void checkbox(WebElement box, boolean check)
+    {
+        if (box.getAttribute("checked") != null ^ check)
+        {
+            box.click();
+        }
     }
 }

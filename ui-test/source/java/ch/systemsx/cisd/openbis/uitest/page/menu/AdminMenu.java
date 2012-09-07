@@ -22,12 +22,12 @@ import org.openqa.selenium.support.FindBy;
 
 import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
 import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.page.PrivatePage;
+import ch.systemsx.cisd.openbis.uitest.page.Page;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
 
-public class AdminMenu extends PrivatePage
+public class AdminMenu extends Page
 {
 
     @FindBy(id = "openbis_top-menu_ADMINISTRATION_MENU_MANAGE_GROUPS")

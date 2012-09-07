@@ -205,44 +205,51 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
     {
         addEntityOperationsLabel();
 
-        addButton(createSelectedItemButton(
-                viewContext.getMessage(Dict.BUTTON_EDIT),
-                new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>>>()
-                    {
-
-                        @Override
-                        public void invoke(
-                                BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
-                                boolean keyPressed)
-                        {
-                            final EntityTypePropertyType<?> etpt =
-                                    selectedItem.getBaseObject().getObjectOrNull();
-                            if (etpt.isManagedInternally())
+        Button editButton =
+                createSelectedItemButton(
+                        viewContext.getMessage(Dict.BUTTON_EDIT),
+                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>>>()
                             {
-                                final String errorMsg =
-                                        "Assignments of internally managed property types cannot be edited.";
-                                MessageBox.alert("Error", errorMsg, null);
-                            } else
-                            {
-                                createEditDialog(etpt).show();
-                            }
-                        }
-                    }));
-        addButton(createSelectedItemButton(
-                viewContext.getMessage(Dict.UNASSIGN_BUTTON_LABEL),
-                new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>>>()
-                    {
-                        @Override
-                        public void invoke(
-                                BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
-                                boolean keyPressed)
-                        {
-                            final EntityTypePropertyType<?> etpt =
-                                    selectedItem.getBaseObject().getObjectOrNull();
-                            unassignPropertyType(etpt);
-                        }
 
-                    }));
+                                @Override
+                                public void invoke(
+                                        BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
+                                        boolean keyPressed)
+                                {
+                                    final EntityTypePropertyType<?> etpt =
+                                            selectedItem.getBaseObject().getObjectOrNull();
+                                    if (etpt.isManagedInternally())
+                                    {
+                                        final String errorMsg =
+                                                "Assignments of internally managed property types cannot be edited.";
+                                        MessageBox.alert("Error", errorMsg, null);
+                                    } else
+                                    {
+                                        createEditDialog(etpt).show();
+                                    }
+                                }
+                            });
+        editButton.setId(GRID_ID + "-edit");
+        addButton(editButton);
+
+        Button releaseButton =
+                createSelectedItemButton(
+                        viewContext.getMessage(Dict.UNASSIGN_BUTTON_LABEL),
+                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>>>()
+                            {
+                                @Override
+                                public void invoke(
+                                        BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
+                                        boolean keyPressed)
+                                {
+                                    final EntityTypePropertyType<?> etpt =
+                                            selectedItem.getBaseObject().getObjectOrNull();
+                                    unassignPropertyType(etpt);
+                                }
+
+                            });
+        releaseButton.setId(GRID_ID + "-release");
+        addButton(releaseButton);
 
         addEntityOperationsSeparator();
     }

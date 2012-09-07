@@ -22,11 +22,11 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.FindBys;
 
-import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 
-public class AddPropertyType extends Page
+public class AddPropertyType extends NavigationPage
 {
 
     @FindBy(id = "openbis_property-type-registration_form_code-input")

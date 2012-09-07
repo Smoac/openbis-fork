@@ -21,7 +21,7 @@ import org.openqa.selenium.support.FindBy;
 
 import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
 
-public class HomePage extends PrivatePage
+public class HomePage extends NavigationPage
 {
 
     @NotAlwaysPresent
