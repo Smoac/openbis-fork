@@ -44,7 +44,7 @@ public class JMXMemoryMonitor
     private static final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
             JMXMemoryMonitor.class);
 
-    private final long logIntervallMillis;
+    private final long logIntervalMillis;
 
     private final int memoryHighwaterMarkPercent;
 
@@ -57,24 +57,24 @@ public class JMXMemoryMonitor
     /**
      * Starts the memory monitor.
      * 
-     * @param monitoringIntervallMillis Interval (in ms) for monitoring memory consumption.
-     * @param logIntervallMillis Interval (in ms) for regular logging of memory consumption.
+     * @param monitoringIntervalMillis Interval (in ms) for monitoring memory consumption.
+     * @param logIntervalMillis Interval (in ms) for regular logging of memory consumption.
      * @param memoryHighWatermarkPercent High-water mark for heap and non-heap memory consumption
      *            (in percent of the maximal memory). If this mark is exceeded, a warning
      *            notification will be sent.
      */
-    public static final void startMonitor(long monitoringIntervallMillis, long logIntervallMillis,
+    public static final void startMonitor(long monitoringIntervalMillis, long logIntervalMillis,
             int memoryHighWatermarkPercent)
     {
-        final Timer timer = new Timer(true);
+        final Timer timer = new Timer("memory monitor", true);
         final JMXMemoryMonitor monitor =
-                new JMXMemoryMonitor(logIntervallMillis, memoryHighWatermarkPercent);
-        timer.schedule(monitor.getTimerTask(), 0L, monitoringIntervallMillis);
+                new JMXMemoryMonitor(logIntervalMillis, memoryHighWatermarkPercent);
+        timer.schedule(monitor.getTimerTask(), 0L, monitoringIntervalMillis);
     }
 
     JMXMemoryMonitor(long logIntervallMillis, int memoryHighWatermarkPercent)
     {
-        this.logIntervallMillis = logIntervallMillis;
+        this.logIntervalMillis = logIntervallMillis;
         this.memoryHighwaterMarkPercent = memoryHighWatermarkPercent;
     }
 
@@ -125,7 +125,7 @@ public class JMXMemoryMonitor
                         nonHeapMemoryExhaustionNotificationSent = false;
                     }
                     final long timeSinceLastLoggedMillis = now - lastLoggedMillis;
-                    if (timeSinceLastLoggedMillis > logIntervallMillis)
+                    if (logIntervalMillis >= 0 && timeSinceLastLoggedMillis > logIntervalMillis)
                     {
                         machineLog.info(String.format(
                                 "Heap memory used: %.1f GB, non-heap memory used: %.1f GB", mbean

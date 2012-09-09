@@ -17,6 +17,8 @@
 
     <bean id="exception-translator" class="ch.systemsx.cisd.openbis.generic.server.business.bo.NextExceptionFallbackExceptionTranslator" />
 
+	<bean id="memory-monitor" class="ch.systemsx.cisd.common.jmx.JMXMemoryMonitorSprintBean" />
+
     <bean id="transaction-manager"
         class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.OpenBISHibernateTransactionManager">
         <constructor-arg ref="dao-factory" />
