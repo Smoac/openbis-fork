@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.systemtest.base.builder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
@@ -37,6 +36,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 public class SampleBuilder extends Builder<Sample>
 {
+    private static int number;
+
     private Experiment experiment;
 
     private Space space;
@@ -52,7 +53,7 @@ public class SampleBuilder extends Builder<Sample>
         super(commonServer, genericServer);
         this.parents = new ArrayList<Sample>();
         this.container = null;
-        this.id = UUID.randomUUID().toString();
+        this.id = "S" + number++;
     }
 
     @SuppressWarnings("hiding")
@@ -100,7 +101,7 @@ public class SampleBuilder extends Builder<Sample>
     {
 
         SampleType sampleType = new SampleType();
-        sampleType.setCode(UUID.randomUUID().toString());
+        sampleType.setCode("ST" + number++);
         sampleType.setContainerHierarchyDepth(0);
 
         if (this.experiment != null)
@@ -120,12 +121,12 @@ public class SampleBuilder extends Builder<Sample>
         String identifier;
         if (this.experiment != null)
         {
-            identifier = "/" + this.experiment.getProject().getSpace().getCode() + "/"
-                    + this.id.toUpperCase();
+            identifier =
+                    "/" + this.experiment.getProject().getSpace().getCode() + "/"
+                            + this.id.toUpperCase();
         } else if (this.space != null)
         {
-            identifier = "/" + this.space.getCode() + "/"
-                    + this.id.toUpperCase();
+            identifier = "/" + this.space.getCode() + "/" + this.id.toUpperCase();
         } else
         {
             identifier = "/" + this.id.toUpperCase();

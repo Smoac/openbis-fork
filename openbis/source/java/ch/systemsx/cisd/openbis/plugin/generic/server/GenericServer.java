@@ -48,6 +48,22 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ExperimentUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewDataSetsWithTypePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentsWithTypePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplesWithTypePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.UpdatedExperimentsWithTypePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
@@ -68,6 +84,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -172,15 +189,19 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
-    public final SampleParentWithDerived getSampleInfo(final String sessionToken,
-            final TechId sampleId)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public SampleParentWithDerived getSampleInfo(final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
+            final TechId sampleId) throws UserFailureException
     {
         return commonServer.getSampleInfo(sessionToken, sampleId);
     }
 
     @Override
-    public final void registerSample(final String sessionToken, final NewSample newSample,
-            final Collection<NewAttachment> attachments)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public void registerSample(final String sessionToken,
+            @AuthorizationGuard(guardClass = NewSamplePredicate.class)
+            final NewSample newSample, final Collection<NewAttachment> attachments)
     {
         assert sessionToken != null : "Unspecified session token.";
         assert newSample != null : "Unspecified new sample.";
@@ -229,14 +250,19 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
-    public ExternalData getDataSetInfo(final String sessionToken, final TechId datasetId)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public ExternalData getDataSetInfo(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
+            TechId datasetId)
     {
         return commonServer.getDataSetInfo(sessionToken, datasetId);
     }
 
     @Override
-    public AttachmentWithContent getExperimentFileAttachment(final String sessionToken,
-            final TechId experimentId, final String filename, final Integer versionOrNull)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public AttachmentWithContent getExperimentFileAttachment(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
+            TechId experimentId, String filename, Integer versionOrNull)
             throws UserFailureException
     {
         final Session session = getSession(sessionToken);
@@ -247,7 +273,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
-    public final void registerOrUpdateSamples(final String sessionToken,
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @Capability("WRITE_SAMPLE")
+    public void registerOrUpdateSamples(final String sessionToken,
+            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class)
             final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
@@ -362,7 +391,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
-    public final void registerSamples(final String sessionToken,
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @Capability("WRITE_SAMPLE")
+    public void registerSamples(final String sessionToken,
+            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class)
             final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
@@ -374,8 +406,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
-    public void updateSamples(String sessionToken, List<NewSamplesWithTypes> newSamplesWithType)
-            throws UserFailureException
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @Capability("WRITE_SAMPLE")
+    public void updateSamples(final String sessionToken,
+            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class)
+            final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         final Session session = getSession(sessionToken);
@@ -386,8 +421,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
-    public void updateDataSets(String sessionToken, NewDataSetsWithTypes dataSets)
-            throws UserFailureException
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @Capability("WRITE_DATASET")
+    public void updateDataSets(final String sessionToken,
+            @AuthorizationGuard(guardClass = NewDataSetsWithTypePredicate.class)
+            final NewDataSetsWithTypes dataSets) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         final Session session = getSession(sessionToken);
@@ -527,8 +565,12 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
-    public void registerExperiment(String sessionToken, NewExperiment newExperiment,
-            final Collection<NewAttachment> attachments)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @Capability("WRITE_EXPERIMENT_SAMPLE")
+    public void registerExperiment(String sessionToken,
+            @AuthorizationGuard(guardClass = NewExperimentPredicate.class)
+            final NewExperiment newExperiment, final Collection<NewAttachment> attachments)
+            throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert newExperiment != null : "Unspecified new experiment.";
@@ -585,8 +627,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
-    public void registerMaterials(String sessionToken,
-            final List<NewMaterialsWithTypes> newMaterials)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("WRITE_MATERIAL")
+    public void registerMaterials(String sessionToken, List<NewMaterialsWithTypes> newMaterials)
+            throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         Session session = getSession(sessionToken);
@@ -605,8 +649,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
-    public int updateMaterials(String sessionToken, final List<NewMaterialsWithTypes> newMaterials,
-            final boolean ignoreUnregisteredMaterials) throws UserFailureException
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("WRITE_MATERIAL")
+    public int updateMaterials(String sessionToken, List<NewMaterialsWithTypes> newMaterials,
+            boolean ignoreUnregisteredMaterials) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         Session session = getSession(sessionToken);
@@ -622,8 +668,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
-    public AttachmentWithContent getProjectFileAttachment(String sessionToken, TechId projectId,
-            String fileName, Integer versionOrNull)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public AttachmentWithContent getProjectFileAttachment(String sessionToken,
+            @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class)
+            TechId projectId, String fileName, Integer versionOrNull)
     {
         final Session session = getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
@@ -633,8 +681,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
-    public AttachmentWithContent getSampleFileAttachment(String sessionToken, TechId sampleId,
-            String fileName, Integer versionOrNull)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public AttachmentWithContent getSampleFileAttachment(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
+            TechId sampleId, String fileName, Integer versionOrNull)
     {
         final Session session = getSession(sessionToken);
         final ISampleBO bo = businessObjectFactory.createSampleBO(session);
@@ -644,6 +694,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<String> generateCodes(String sessionToken, String prefix,
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind, int number)
     {
@@ -658,7 +709,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
-    public ExperimentUpdateResult updateExperiment(String sessionToken, ExperimentUpdatesDTO updates)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @Capability("WRITE_EXPERIMENT_SAMPLE")
+    public ExperimentUpdateResult updateExperiment(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class)
+            ExperimentUpdatesDTO updates)
     {
         final Session session = getSession(sessionToken);
         if (updates.isRegisterSamples())
@@ -676,6 +731,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("WRITE_MATERIAL")
     public Date updateMaterial(String sessionToken, TechId materialId,
             List<IEntityProperty> properties, Date version)
     {
@@ -683,19 +740,29 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
-    public SampleUpdateResult updateSample(String sessionToken, SampleUpdatesDTO updates)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public SampleUpdateResult updateSample(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class)
+            SampleUpdatesDTO updates)
     {
         return commonServer.updateSample(sessionToken, updates);
     }
 
     @Override
-    public DataSetUpdateResult updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @Capability("WRITE_DATASET")
+    public DataSetUpdateResult updateDataSet(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetUpdatesPredicate.class)
+            DataSetUpdatesDTO updates)
     {
         return commonServer.updateDataSet(sessionToken, updates);
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("WRITE_MATERIAL")
     public void registerOrUpdateMaterials(String sessionToken, List<NewMaterialsWithTypes> materials)
+            throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         final Session session = getSession(sessionToken);
@@ -715,8 +782,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
-    public void registerExperiments(String sessionToken, NewExperimentsWithType experiments)
-            throws UserFailureException
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @Capability("WRITE_EXPERIMENT_SAMPLE")
+    public void registerExperiments(String sessionToken,
+            @AuthorizationGuard(guardClass = NewExperimentsWithTypePredicate.class)
+            final NewExperimentsWithType experiments) throws UserFailureException
     {
         assert experiments != null : "Unspecified experiments.";
         assert sessionToken != null : "Unspecified session token.";
@@ -751,8 +821,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
      *            collection of {@link UpdatedBasicExperiment} objects.
      */
     @Override
-    public void updateExperiments(String sessionToken, UpdatedExperimentsWithType experiments)
-            throws UserFailureException
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @Capability("WRITE_EXPERIMENT_SAMPLE")
+    public void updateExperiments(String sessionToken,
+            @AuthorizationGuard(guardClass = UpdatedExperimentsWithTypePredicate.class)
+            final UpdatedExperimentsWithType experiments) throws UserFailureException
     {
         assert experiments != null : "Unspecified experiments.";
         assert sessionToken != null : "Unspecified session token.";
@@ -839,9 +912,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("WRITE_EXPERIMENT_SAMPLE_MATERIAL")
     public void registerOrUpdateSamplesAndMaterials(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType,
-            final List<NewMaterialsWithTypes> newMaterialsWithType) throws UserFailureException
+            List<NewMaterialsWithTypes> newMaterialsWithType) throws UserFailureException
     {
         EntityExistenceChecker entityExistenceChecker = new EntityExistenceChecker(getDAOFactory());
         entityExistenceChecker.checkNewMaterials(newMaterialsWithType);
@@ -851,6 +926,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void registerOrUpdateSamplesAndMaterialsAsync(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType,
             final List<NewMaterialsWithTypes> newMaterialsWithType, String userEmail)

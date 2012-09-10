@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.systemtest.base.builder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -35,6 +34,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 public class ExperimentBuilder extends Builder<Experiment>
 {
+    private static int number;
+
     private String code;
 
     private Project project;
@@ -51,7 +52,7 @@ public class ExperimentBuilder extends Builder<Experiment>
         this.session = systemSession;
         this.samples = new String[0];
         this.newSamples = null;
-        this.code = UUID.randomUUID().toString();
+        this.code = "E" + number++;
     }
 
     @SuppressWarnings("hiding")
@@ -82,7 +83,7 @@ public class ExperimentBuilder extends Builder<Experiment>
     public Experiment create()
     {
 
-        String experimentTypeCode = UUID.randomUUID().toString();
+        String experimentTypeCode = "ET" + number++;
         ExperimentType experimentType = new ExperimentType();
         experimentType.setCode(experimentTypeCode);
         experimentType.setDatabaseInstance(this.project.getSpace().getInstance());

@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.systemtest.base.builder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
@@ -30,6 +29,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 public class SessionBuilder extends Builder<String>
 {
+    private static int number;
 
     private String userName;
 
@@ -40,7 +40,7 @@ public class SessionBuilder extends Builder<String>
     public SessionBuilder(ICommonServerForInternalUse commonServer, IGenericServer genericServer)
     {
         super(commonServer, genericServer);
-        this.userName = UUID.randomUUID().toString();
+        this.userName = "U" + number++;
         this.spaceRoles = new ArrayList<Pair<RoleCode, Space>>();
         this.instanceRoles = new ArrayList<RoleCode>();
     }
@@ -91,15 +91,15 @@ public class SessionBuilder extends Builder<String>
 
         for (Pair<RoleCode, Space> role : spaceRoles)
         {
-            commonServer.registerSpaceRole(systemSession, role.first,
-                    new SpaceIdentifier(role.second.getInstance().getCode(), role.second
-                            .getCode()), Grantee.createPerson(this.userName));
+            commonServer.registerSpaceRole(systemSession, role.first, new SpaceIdentifier(
+                    role.second.getInstance().getCode(), role.second.getCode()), Grantee
+                    .createPerson(this.userName));
         }
 
         for (RoleCode role : instanceRoles)
         {
-            commonServer.registerInstanceRole(systemSession, role, Grantee
-                    .createPerson(this.userName));
+            commonServer.registerInstanceRole(systemSession, role,
+                    Grantee.createPerson(this.userName));
         }
 
         return commonServer.tryToAuthenticate(userName, "pwd").getSessionToken();

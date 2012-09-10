@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.systemtest.base.builder;
 
-import java.util.UUID;
-
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -25,13 +23,14 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 public class SpaceBuilder extends Builder<Space>
 {
+    private static int number;
 
     private String code;
 
     public SpaceBuilder(ICommonServerForInternalUse commonServer, IGenericServer genericServer)
     {
         super(commonServer, genericServer);
-        this.code = UUID.randomUUID().toString();
+        this.code = "S" + number++;
     }
 
     public SpaceBuilder withCode(String spaceCode)
@@ -49,8 +48,8 @@ public class SpaceBuilder extends Builder<Space>
 
     private Space getSpace(String spaceCode)
     {
-        for (Space space : commonServer.listSpaces(systemSession,
-                new DatabaseInstanceIdentifier("CISD")))
+        for (Space space : commonServer.listSpaces(systemSession, new DatabaseInstanceIdentifier(
+                "CISD")))
         {
             if (space.getCode().equalsIgnoreCase(spaceCode))
             {

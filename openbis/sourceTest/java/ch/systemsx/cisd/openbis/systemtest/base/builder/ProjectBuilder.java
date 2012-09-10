@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.systemtest.base.builder;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -28,6 +27,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 public class ProjectBuilder extends Builder<Project>
 {
+    private static int number;
+
     private Space space;
 
     private String code;
@@ -35,7 +36,7 @@ public class ProjectBuilder extends Builder<Project>
     public ProjectBuilder(ICommonServerForInternalUse commonServer, IGenericServer genericServer)
     {
         super(commonServer, genericServer);
-        this.code = UUID.randomUUID().toString();
+        this.code = "P" + number++;
     }
 
     @SuppressWarnings("hiding")
@@ -56,8 +57,7 @@ public class ProjectBuilder extends Builder<Project>
     public Project create()
     {
         ProjectIdentifier projectId =
-                new ProjectIdentifier(space.getInstance().getCode(), space.getCode(),
-                        this.code);
+                new ProjectIdentifier(space.getInstance().getCode(), space.getCode(), this.code);
         commonServer.registerProject(systemSession, projectId, "description", "system",
                 new ArrayList<NewAttachment>());
 
