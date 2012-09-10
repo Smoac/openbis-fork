@@ -40,8 +40,8 @@ def create_experiment_if_needed(transaction):
     return exp
 
 def createMaterials(transaction):
-    for x in range(0,100):
-        mat = transaction.createNewMaterial("RM_%d" % x, "GENE")
+    for x in range(0,60):
+        mat = transaction.createNewMaterial("RM_%d" % x, "SLOW_GENE")
         mat.setPropertyValue("GENE_SYMBOL", "RM_%d_S" %x)
 
 def createSamples(transaction):

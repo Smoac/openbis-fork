@@ -49,6 +49,12 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         return new File(rootDir, "incoming-rich-test");
     }
 
+    @Override
+    protected int dataSetImportWaitDurationInSeconds()
+    {
+        return 280;
+    }
+
     @Test
     public void testRichImport() throws Exception
     {
@@ -66,7 +72,7 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
 
         assertLinkedDataSetImported(openBISService);
 
-        assert100MaterialsCreated(openBISService);
+        assertMaterialsCreated(openBISService);
 
         assertEmailHasBeenSentFromHook();
 
@@ -130,20 +136,21 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         assertEquals("RICH_EXPERIMENT", experiment.getCode());
     }
 
-    private void assert100MaterialsCreated(IEncapsulatedOpenBISService openBISService)
+    private void assertMaterialsCreated(IEncapsulatedOpenBISService openBISService)
     {
         LinkedList<MaterialIdentifier> ids = new LinkedList<MaterialIdentifier>();
 
-        for (int i = 0; i < 100; i++)
+        int N = 60;
+        for (int i = 0; i < N; i++)
         {
-            MaterialIdentifier ident = MaterialIdentifier.tryParseIdentifier("RM_" + i + " (GENE)");
+            MaterialIdentifier ident = new MaterialIdentifier("RM_" + i, "SLOW_GENE");
             ids.add(ident);
         }
 
         ListMaterialCriteria criteria = ListMaterialCriteria.createFromMaterialIdentifiers(ids);
         List<Material> materials = openBISService.listMaterials(criteria, true);
 
-        assertEquals(100, materials.size());
+        assertEquals(N, materials.size());
 
         for (Material m : materials)
         {
