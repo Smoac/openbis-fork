@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.demo.shared;
+package ch.systemsx.cisd.openbis.plugin.demo.server;
 
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.RegressionTestCase;
+import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
 
 /**
  * @author Franz-Josef Elmer
@@ -28,6 +29,6 @@ public class ServerInterfaceRegressionTest extends RegressionTestCase
     @Test
     public void testIGenericServer()
     {
-        assertMandatoryMethodAnnotations(IDemoServer.class);
+        assertMandatoryMethodAnnotations(IDemoServer.class, DemoServer.class);
     }
 }

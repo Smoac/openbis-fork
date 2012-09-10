@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared;
+package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.List;
 

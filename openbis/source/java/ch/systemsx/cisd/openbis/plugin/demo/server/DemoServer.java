@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -32,9 +33,14 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
@@ -99,8 +105,10 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
     }
 
     @Override
-    public final SampleParentWithDerived getSampleInfo(final String sessionToken,
-            final TechId sampleId)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public SampleParentWithDerived getSampleInfo(final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
+            final TechId sampleId) throws UserFailureException
     {
         final Session session = getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
@@ -118,13 +126,16 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
     }
 
     @Override
-    public final void registerSample(final String sessionToken, final NewSample newSample,
-            final Collection<NewAttachment> attachments)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public void registerSample(final String sessionToken,
+            @AuthorizationGuard(guardClass = NewSamplePredicate.class)
+            final NewSample newSample, final Collection<NewAttachment> attachments)
     {
         throw new NotImplementedException();
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public int getNumberOfExperiments(String sessionToken)
     {
         return getDAOFactory().getExperimentDAO().listExperiments().size();

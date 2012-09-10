@@ -29,10 +29,12 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatase
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
@@ -44,20 +46,19 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
     private final ICommonBusinessObjectFactory businessObjectFactory;
 
     public TrackingServer(final ISessionManager<Session> sessionManager,
-            final IDAOFactory daoFactory,
-            final ICommonBusinessObjectFactory businessObjectFactory)
+            final IDAOFactory daoFactory, final ICommonBusinessObjectFactory businessObjectFactory)
     {
         this(sessionManager, daoFactory, null, businessObjectFactory);
     }
 
-    TrackingServer(final ISessionManager<Session> sessionManager,
-            final IDAOFactory daoFactory, IPropertiesBatchManager propertiesBatchManager,
+    TrackingServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+            IPropertiesBatchManager propertiesBatchManager,
             final ICommonBusinessObjectFactory businessObjectFactory)
     {
         super(sessionManager, daoFactory, propertiesBatchManager);
         this.businessObjectFactory = businessObjectFactory;
     }
-    
+
     ICommonBusinessObjectFactory getBusinessObjectFactory()
     {
         return businessObjectFactory;
@@ -81,6 +82,7 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
     //
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public List<Sample> listSamples(String sessionToken, TrackingSampleCriteria criteria)
     {
         final Session session = getSession(sessionToken);
@@ -103,6 +105,7 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public List<ExternalData> listDataSets(String sessionToken, TrackingDataSetCriteria criteria)
     {
         final Session session = getSession(sessionToken);

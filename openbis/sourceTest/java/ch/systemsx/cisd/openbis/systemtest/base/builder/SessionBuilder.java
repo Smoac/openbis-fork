@@ -45,6 +45,11 @@ public class SessionBuilder extends Builder<String>
         this.instanceRoles = new ArrayList<RoleCode>();
     }
 
+    public String getUserID()
+    {
+        return userName;
+    }
+
     public SessionBuilder withSpaceRole(RoleCode role, Space space)
     {
         if (role == null)

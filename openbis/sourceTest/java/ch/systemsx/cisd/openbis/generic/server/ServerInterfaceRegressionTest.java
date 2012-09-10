@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.RegressionTestCase;
 
 /**
@@ -39,5 +40,11 @@ public class ServerInterfaceRegressionTest extends RegressionTestCase
     public void testIETLLIMSService()
     {
         assertMandatoryMethodAnnotations(IETLLIMSService.class, ETLService.class);
+    }
+
+    @Test
+    public void testITrackingServer()
+    {
+        assertMandatoryMethodAnnotations(ITrackingServer.class, TrackingServer.class);
     }
 }

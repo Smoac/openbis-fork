@@ -46,6 +46,6 @@ public class GenericServerAuthorizationTest extends BaseTest
         sample.setSampleType(sampleType);
 
         genericServer.registerSample(sessionToken, sample, Collections.<NewAttachment> emptySet());
-
     }
+
 }

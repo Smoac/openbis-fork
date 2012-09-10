@@ -20,11 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.conversation.IConversationalRmiServer;
 import ch.systemsx.cisd.common.conversation.IProgressListener;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AtomicOperationsPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 
@@ -34,13 +30,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 public interface IETLLIMSServiceConversational extends IETLLIMSService, IConversationalRmiServer
 {
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     @DatabaseUpdateModification(value =
         { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT, ObjectKind.DATA_SET })
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.SPACE, ObjectKind.PROJECT, ObjectKind.SAMPLE, ObjectKind.EXPERIMENT,
                 ObjectKind.DATA_SET })
     public AtomicEntityOperationResult performEntityOperations(String sessionToken,
-            @AuthorizationGuard(guardClass = AtomicOperationsPredicate.class)
             AtomicEntityOperationDetails operationDetails, IProgressListener progressListener);
 }

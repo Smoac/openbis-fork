@@ -1432,7 +1432,9 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public AtomicEntityOperationResult performEntityOperations(String sessionToken,
+            @AuthorizationGuard(guardClass = AtomicOperationsPredicate.class)
             AtomicEntityOperationDetails operationDetails, IProgressListener progressListener)
     {
 

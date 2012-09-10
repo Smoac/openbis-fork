@@ -23,17 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * The <i>demo</i> server.
@@ -46,7 +41,6 @@ public interface IDemoServer extends IServer
      * Returns number of experiments.
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public int getNumberOfExperiments(String sessionToken);
 
     /**
@@ -57,18 +51,14 @@ public interface IDemoServer extends IServer
      *             uniquely identified by given <var>sampleId</var> does not exist.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public SampleParentWithDerived getSampleInfo(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId)
+    public SampleParentWithDerived getSampleInfo(final String sessionToken, final TechId sampleId)
             throws UserFailureException;
 
     /**
      * Registers a new sample.
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
-    public void registerSample(final String sessionToken,
-            @AuthorizationGuard(guardClass = NewSamplePredicate.class) final NewSample newSample,
+    public void registerSample(final String sessionToken, final NewSample newSample,
             final Collection<NewAttachment> attachments);
 }

@@ -18,7 +18,10 @@ package ch.systemsx.cisd.openbis.systemtest.authorization;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -27,11 +30,24 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.SessionBuilder;
 
 /**
  * @author Franz-Josef Elmer
@@ -44,9 +60,9 @@ public class ETLServiceAuthorizationTest extends BaseTest
 
     private Project project;
 
-    private Project anotherProject;
-
     private Experiment experiment;
+
+    private Sample sample;
 
     @BeforeClass
     public void createSomeEntities()
@@ -54,9 +70,9 @@ public class ETLServiceAuthorizationTest extends BaseTest
         space = create(aSpace());
         anotherSpace = create(aSpace());
         project = create(aProject().inSpace(space));
-        anotherProject = create(aProject().inSpace(anotherSpace));
+        create(aProject().inSpace(anotherSpace));
         experiment = create(anExperiment().inProject(project));
-        create(aSample().inExperiment(experiment));
+        sample = create(aSample().inExperiment(experiment));
         create(aSample().inExperiment(experiment));
     }
 
@@ -102,5 +118,36 @@ public class ETLServiceAuthorizationTest extends BaseTest
         List<Project> projects = etlService.listProjects(sessionToken);
 
         assertEquals(1, projects.size());
+    }
+
+    @Test(expectedExceptions =
+        { AuthorizationFailureException.class })
+    public void testRegistrationOfSamplesForUnauthorizedUser()
+    {
+        String sessionToken = create(aSession().withInstanceRole(RoleWithHierarchy.INSTANCE_ADMIN));
+        SessionBuilder session = aSession().withSpaceRole(RoleCode.POWER_USER, space);
+        create(session);
+        String userID = session.getUserID();
+        List<NewSpace> spaceRegistrations = Collections.emptyList();
+        List<NewProject> projectRegistrations = Collections.emptyList();
+        List<NewExperiment> experimentRegistrations = Collections.emptyList();
+        List<ExperimentUpdatesDTO> experimentUpdates =
+                Collections.<ExperimentUpdatesDTO> emptyList();
+        List<SampleUpdatesDTO> sampleUpdates = Collections.emptyList();
+        NewSample newSample = new NewSample();
+        newSample.setIdentifier(anotherSpace.getIdentifier() + "/SAMPLE-1");
+        newSample.setSampleType(sample.getSampleType());
+        List<NewSample> sampleRegistrations = Arrays.asList(newSample);
+        Map<String, List<NewMaterial>> materialRegistrations = Collections.emptyMap();
+        List<MaterialUpdateDTO> materialUpdates = Collections.emptyList();
+        List<? extends NewExternalData> dataSetRegistrations = Collections.emptyList();
+        List<DataSetBatchUpdatesDTO> dataSetUpdates = Collections.emptyList();
+
+        TechId registrationid = new TechId(etlService.drawANewUniqueID(sessionToken));
+
+        etlService.performEntityOperations(sessionToken, new AtomicEntityOperationDetails(
+                registrationid, userID, spaceRegistrations, projectRegistrations,
+                experimentRegistrations, experimentUpdates, sampleUpdates, sampleRegistrations,
+                materialRegistrations, materialUpdates, dataSetRegistrations, dataSetUpdates));
     }
 }
