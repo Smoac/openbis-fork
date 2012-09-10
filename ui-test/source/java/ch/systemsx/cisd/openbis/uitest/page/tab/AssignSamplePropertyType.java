@@ -54,7 +54,10 @@ public class AssignSamplePropertyType extends NavigationPage
     private WebElement mandatoryCheckbox;
 
     @NotAlwaysPresent
-    @FindBy(xpath = "//*[starts-with(@id, 'openbis_property-type-assignment_SAMPLEdefault_value') and contains(@id, '-input')]")
+    @FindBys(
+        {
+                @FindBy(xpath = "//div[starts-with(@id, 'openbis_property-type-assignment_SAMPLEdefault_value')]"),
+                @FindBy(xpath = "input") })
     private WebElement initialValue;
 
     @FindBy(id = "openbis_property-type-assignment_SAMPLEsave-button")

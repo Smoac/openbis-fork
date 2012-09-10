@@ -45,6 +45,8 @@ public class AddVocabularyDialog extends Page
     {
         this.code.sendKeys(vocabulary.getCode());
         this.description.sendKeys(vocabulary.getDescription());
+
+        this.terms.clear();
         for (String term : vocabulary.getTerms())
         {
             this.terms.sendKeys(term + ", ");

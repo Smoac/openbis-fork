@@ -14,27 +14,28 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest;
+package ch.systemsx.cisd.openbis.uitest.page.fragment;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import java.util.List;
 
-import org.testng.annotations.Test;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
+import ch.systemsx.cisd.openbis.uitest.page.Fragment;
 
 /**
  * @author anttil
  */
-@Test(groups =
-    { "login-admin" })
-public class PropertyTypeTest extends SeleniumTest
+public class TermSelector extends Fragment
 {
-    @Test
-    public void newPropertyTypeIsListedInPropertyTypeBrowser() throws Exception
-    {
-        PropertyType propertyType = create(aBooleanPropertyType());
+    @FindBy(className = "x-combo-list-item")
+    private List<WebElement> choices;
 
-        assertThat(propertyTypeBrowser(), lists(propertyType));
+    @Override
+    public void fillWith(Object value)
+    {
+        WebElement x = this.findElement(element, "span/img");
+        x.click();
+        select(choices, value.toString());
     }
 }

@@ -32,7 +32,7 @@ public class SampleBuilder implements Builder<Sample>
 
     private ApplicationRunner openbis;
 
-    private SampleType sampleType;
+    private SampleType type;
 
     private String code;
 
@@ -42,14 +42,26 @@ public class SampleBuilder implements Builder<Sample>
 
     private Collection<Sample> parents;
 
-    private Map<String, Object> properties;
+    private Map<PropertyType, Object> properties;
 
     public SampleBuilder(ApplicationRunner openbis)
     {
         this.openbis = openbis;
         this.code = UUID.randomUUID().toString();
-        this.properties = new HashMap<String, Object>();
+        this.properties = new HashMap<PropertyType, Object>();
         this.parents = new HashSet<Sample>();
+    }
+
+    public SampleBuilder ofType(SampleType type)
+    {
+        this.type = type;
+        return this;
+    }
+
+    public SampleBuilder withProperty(PropertyType propertyType, Object value)
+    {
+        this.properties.put(propertyType, value);
+        return this;
     }
 
     @Override
@@ -63,12 +75,12 @@ public class SampleBuilder implements Builder<Sample>
             space = new SpaceBuilder(this.openbis).build();
         }
 
-        if (sampleType == null)
+        if (type == null)
         {
-            sampleType = new SampleTypeBuilder(this.openbis).build();
+            type = new SampleTypeBuilder(this.openbis).build();
         }
 
-        for (PropertyTypeAssignment assignment : sampleType.getPropertyTypeAssignments())
+        for (PropertyTypeAssignment assignment : type.getPropertyTypeAssignments())
         {
             if (assignment.isMandatory()
                     && properties.get(assignment.getPropertyType().getLabel()) == null)
@@ -77,6 +89,6 @@ public class SampleBuilder implements Builder<Sample>
             }
         }
 
-        return openbis.create(new Sample(sampleType, code, experiment, space, parents, properties));
+        return openbis.create(new Sample(type, code, experiment, space, parents, properties));
     }
 }

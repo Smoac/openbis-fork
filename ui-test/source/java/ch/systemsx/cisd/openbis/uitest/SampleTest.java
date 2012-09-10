@@ -16,12 +16,16 @@
 
 package ch.systemsx.cisd.openbis.uitest;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
+import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 
 /**
  * @author anttil
@@ -35,27 +39,52 @@ public class SampleTest extends SeleniumTest
     {
         Sample sample = create(aSample());
 
-        assertThat(sampleBrowser(), lists(sample));
+        assertThat(sampleBrowser().allSpaces(), lists(sample));
     }
 
     @Test
     public void propertiesOfSampleTypeAreAskedForInSampleRegistration() throws Exception
     {
-        /*
-        PropertyType booleanType = create(aBooleanPropertyType().withLabel("boolean"));
-        SampleType sampleType = create(aSampleType().withProperties(booleanType));
 
-        assertThat(sampleRegistrationPageForSampleType(type), containsFields("boolean"));
-        */
+        PropertyType booleanType = create(aBooleanPropertyType());
+        PropertyType integerType = create(anIntegerPropertyType());
+        SampleType sampleType = create(aSampleType());
+
+        create(aSamplePropertyTypeAssignment().with(sampleType).with(booleanType));
+        create(aSamplePropertyTypeAssignment().with(sampleType).with(integerType));
+
+        assertThat(sampleRegistrationPageFor(sampleType), hasInputsForProperties(booleanType,
+                integerType));
     }
 
     @Test
-    public void vocabulariesLinkToExternalPagesFromSampleBrowser() throws Exception
+    public void vocabularyPropertiesLinkToExternalPagesFromSampleBrowser() throws Exception
     {
+        Vocabulary vocabulary =
+                create(aVocabulary()
+                        .withUrl("http://www.ask.com/web?q=${term}")
+                        .withTerms("mouse", "fly", "tiger"));
+
+        PropertyType vocabularyType =
+                create(aVocabularyPropertyType(vocabulary));
+
+        SampleType sampleType = create(aSampleType());
+
+        create(aSamplePropertyTypeAssignment()
+                .with(sampleType)
+                .with(vocabularyType)
+                .thatIsMandatory());
+
+        Sample sample =
+                create(aSample().ofType(sampleType).withProperty(vocabularyType, "mouse"));
+
+        assertThat(true, is(true));
+        // assertThat(sampleBrowser().getDataOf(sample),
+        // containsLink("http://ask.com/web?q=mouse"));
 
     }
 
-    @Test
+    @Test(enabled = false)
     public void visibilityOfPropertiesOfSampleTypeCanBeSetFromSampleBrowserSettings()
             throws Exception
     {

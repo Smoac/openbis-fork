@@ -53,7 +53,7 @@ public class SampleTypeTest extends SeleniumTest
     @Test
     public void nonListableSampleTypeIsNotVisibleInSampleBrowserDropDownMenu()
     {
-        SampleType sampleType = create(aSampleType().thatIsListable());
+        SampleType sampleType = create(aSampleType().thatIsNotListable());
 
         assertThat(sampleBrowser(), doesNotShowInToolBar(sampleType));
     }

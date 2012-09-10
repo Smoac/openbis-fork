@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
-import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 /**
  * @author anttil
@@ -34,11 +33,8 @@ public class PropertyTypeAssignmentTest extends SeleniumTest
     @Test
     public void newPropertyTypeAssignmentIsListedInPropertyTypeAssignmentBrowser() throws Exception
     {
-        SampleType sampleType = create(aSampleType());
-
         PropertyTypeAssignment assignment =
-                create(aSamplePropertyTypeAssignment().withSampleType(sampleType).thatIsMandatory()
-                        .havingInitialValueOf("32"));
+                create(aSamplePropertyTypeAssignment());
 
         assertThat(propertyTypeAssignmentBrowser(), lists(assignment));
     }

@@ -53,9 +53,27 @@ public class PropertyType implements Browsable
     }
 
     @Override
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof PropertyType))
+        {
+            return false;
+        }
+
+        PropertyType type = (PropertyType) o;
+        return type.getCode().equals(this.code);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return this.getCode().hashCode();
+    }
+
+    @Override
     public String toString()
     {
-        return "PropertyType " + this.code;
+        return "PropertyType " + code + " of type " + dataType;
     }
 
     public String getCode()

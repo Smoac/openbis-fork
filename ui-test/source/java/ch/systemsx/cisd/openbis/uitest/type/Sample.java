@@ -38,10 +38,10 @@ public class Sample implements EntityType, Browsable
 
     private Collection<Sample> parents;
 
-    private Map<String, Object> properties;
+    private Map<PropertyType, Object> properties;
 
     Sample(SampleType type, String code, Experiment experiment, Space space,
-            Collection<Sample> parents, Map<String, Object> properties)
+            Collection<Sample> parents, Map<PropertyType, Object> properties)
     {
         this.type = type;
         this.code = code;
@@ -83,7 +83,7 @@ public class Sample implements EntityType, Browsable
         return parents;
     }
 
-    public Map<String, Object> getProperties()
+    public Map<PropertyType, Object> getProperties()
     {
         return properties;
     }
@@ -108,7 +108,7 @@ public class Sample implements EntityType, Browsable
         this.parents = parents;
     }
 
-    void setProperties(Map<String, Object> properties)
+    void setProperties(Map<PropertyType, Object> properties)
     {
         this.properties = properties;
     }

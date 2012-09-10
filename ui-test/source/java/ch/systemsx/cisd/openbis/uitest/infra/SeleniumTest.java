@@ -36,24 +36,29 @@ import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.BrowserListsElementMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.PageMatcher;
+import ch.systemsx.cisd.openbis.uitest.infra.matcher.RegisterSampleFormContainsInputsForPropertiesMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.SampleBrowserSampleTypeDropDownMenuMatcher;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterSample;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.Builder;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignmentBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.type.SampleBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.type.SampleTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.SampleTypeUpdateBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.SpaceBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.UpdateBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 import ch.systemsx.cisd.openbis.uitest.type.VocabularyBuilder;
 
 public abstract class SeleniumTest
@@ -70,7 +75,6 @@ public abstract class SeleniumTest
     public void initWebDriver()
     {
         /*
-
         System.setProperty("webdriver.firefox.bin",
                 "/Users/anttil/Desktop/Firefox 10.app/Contents/MacOS/firefox");
 
@@ -109,6 +113,9 @@ public abstract class SeleniumTest
                 }
             }));
         openbis.login(User.ADMIN);
+
+        // this is here because of space dropdown does not work properly soon after login
+        sampleBrowser().allSpaces();
     }
 
     @AfterGroups(groups = "login-admin")
@@ -162,7 +169,7 @@ public abstract class SeleniumTest
 
     protected SampleBrowser sampleBrowser()
     {
-        return openbis.browseToSampleBrowser().allSpaces();
+        return openbis.browseToSampleBrowser();
     }
 
     protected SampleTypeBrowser sampleTypeBrowser()
@@ -185,6 +192,11 @@ public abstract class SeleniumTest
         return openbis.browseToSpaceBrowser();
     }
 
+    protected RegisterSample sampleRegistrationPageFor(SampleType type)
+    {
+        return openbis.browseToRegisterSample().selectSampleType(type);
+    }
+
     protected PropertyTypeAssignmentBrowser propertyTypeAssignmentBrowser()
     {
         return openbis.browseToPropertyTypeAssignmentBrowser();
@@ -197,7 +209,7 @@ public abstract class SeleniumTest
 
     protected Matcher<SampleBrowser> showsInToolBar(SampleType sampleType)
     {
-        return not(new SampleBrowserSampleTypeDropDownMenuMatcher(sampleType));
+        return new SampleBrowserSampleTypeDropDownMenuMatcher(sampleType);
     }
 
     protected Matcher<SampleBrowser> doesNotShowInToolBar(SampleType sampleType)
@@ -208,6 +220,11 @@ public abstract class SeleniumTest
     protected Matcher<BrowserPage> lists(Browsable browsable)
     {
         return new BrowserListsElementMatcher(browsable);
+    }
+
+    protected Matcher<RegisterSample> hasInputsForProperties(PropertyType... fields)
+    {
+        return new RegisterSampleFormContainsInputsForPropertiesMatcher(fields);
     }
 
     protected <T> T create(Builder<T> builder)
@@ -235,9 +252,19 @@ public abstract class SeleniumTest
         return new VocabularyBuilder(openbis);
     }
 
-    protected PropertyTypeBuilder aPropertyType()
+    protected PropertyTypeBuilder aBooleanPropertyType()
     {
-        return new PropertyTypeBuilder(openbis);
+        return new PropertyTypeBuilder(openbis, PropertyTypeDataType.BOOLEAN);
+    }
+
+    protected PropertyTypeBuilder anIntegerPropertyType()
+    {
+        return new PropertyTypeBuilder(openbis, PropertyTypeDataType.INTEGER);
+    }
+
+    protected PropertyTypeBuilder aVocabularyPropertyType(Vocabulary vocabulary)
+    {
+        return new PropertyTypeBuilder(openbis, vocabulary);
     }
 
     protected PropertyTypeAssignmentBuilder aSamplePropertyTypeAssignment()

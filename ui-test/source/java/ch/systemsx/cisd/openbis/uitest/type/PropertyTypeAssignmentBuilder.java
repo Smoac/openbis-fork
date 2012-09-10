@@ -43,9 +43,15 @@ public class PropertyTypeAssignmentBuilder implements Builder<PropertyTypeAssign
         this.initialValue = "";
     }
 
-    public PropertyTypeAssignmentBuilder withSampleType(SampleType sampleType)
+    public PropertyTypeAssignmentBuilder with(SampleType sampleType)
     {
         this.entityType = sampleType;
+        return this;
+    }
+
+    public PropertyTypeAssignmentBuilder with(PropertyType propertyType)
+    {
+        this.propertyType = propertyType;
         return this;
     }
 
@@ -66,7 +72,7 @@ public class PropertyTypeAssignmentBuilder implements Builder<PropertyTypeAssign
     {
         if (propertyType == null)
         {
-            propertyType = new PropertyTypeBuilder(openbis).build();
+            propertyType = new PropertyTypeBuilder(openbis, PropertyTypeDataType.BOOLEAN).build();
         }
 
         if (entityType == null)

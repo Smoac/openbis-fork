@@ -16,14 +16,21 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.FindBys;
 
 import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
+import ch.systemsx.cisd.openbis.uitest.page.Fragment;
 import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
+import ch.systemsx.cisd.openbis.uitest.page.fragment.TermSelector;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
@@ -61,11 +68,53 @@ public class RegisterSample extends NavigationPage
     @FindBy(id = "openbis_generic-sample-register_formsave-button")
     private WebElement saveButton;
 
+    @FindBys(
+        {
+                @FindBy(xpath = "//div[starts-with(@id, 'openbis_generic-sample-register_form')]"),
+                @FindBy(xpath = "../../label") })
+    private List<WebElement> labels;
+
+    @FindBys(
+        {
+                @FindBy(id = "openbis_generic-sample-register_form"),
+                @FindBy(xpath = "//form") })
+    private WebElement mainForm;
+
     public void fillWith(Sample sample)
     {
         code.sendKeys(sample.getCode());
         spaceList.click();
         select(spaceChoices, sample.getSpace().getCode());
+
+        Map<PropertyType, Object> properties = sample.getProperties();
+
+        for (PropertyType propertyType : properties.keySet())
+        {
+            Fragment propertyFragment = getFragment(propertyType);
+            propertyFragment.fillWith(properties.get(propertyType));
+        }
+    }
+
+    private Fragment getFragment(PropertyType propertyType)
+    {
+        PropertyTypeDataType type = propertyType.getDataType();
+        Fragment fragment;
+        if (type.equals(PropertyTypeDataType.CONTROLLED_VOCABULARY))
+        {
+            fragment = get(TermSelector.class);
+        } else
+        {
+            throw new IllegalArgumentException("unknown type " + type);
+        }
+
+        fragment.setElement(getPropertyElement(propertyType));
+        return fragment;
+    }
+
+    private WebElement getPropertyElement(PropertyType type)
+    {
+        return this.findElement(this.mainForm, "//div[@id='openbis_generic-sample-register_form"
+                + type.getCode() + "']");
     }
 
     public RegisterSample selectSampleType(SampleType sampleType)
@@ -75,9 +124,25 @@ public class RegisterSample extends NavigationPage
         return get(RegisterSample.class);
     }
 
+    public Collection<String> getProperties()
+    {
+        Collection<String> properties = new HashSet<String>();
+        for (WebElement label : labels)
+        {
+            properties.add(label.getText().replace(":", "").replace("*", "").trim());
+        }
+        return properties;
+    }
+
     public RegisterSample save()
     {
         this.saveButton.click();
         return get(RegisterSample.class);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Register Sample tab with properties " + this.getProperties();
     }
 }

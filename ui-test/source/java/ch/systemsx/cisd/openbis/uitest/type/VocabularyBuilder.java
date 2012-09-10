@@ -48,10 +48,25 @@ public class VocabularyBuilder implements Builder<Vocabulary>
         this.url = "http://test.com/${term}";
     }
 
+    public VocabularyBuilder withUrl(String url)
+    {
+        this.url = url;
+        return this;
+    }
+
+    public VocabularyBuilder withTerms(String... content)
+    {
+        this.terms = new HashSet<String>();
+        for (String term : content)
+        {
+            this.terms.add(term);
+        }
+        return this;
+    }
+
     @Override
     public Vocabulary build()
     {
         return openbis.create(new Vocabulary(code, description, terms, url));
     }
-
 }

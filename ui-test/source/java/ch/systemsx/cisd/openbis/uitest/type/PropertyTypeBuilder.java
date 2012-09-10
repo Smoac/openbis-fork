@@ -38,20 +38,25 @@ public class PropertyTypeBuilder implements Builder<PropertyType>
 
     private Vocabulary vocabulary;
 
-    public PropertyTypeBuilder(ApplicationRunner openbis)
+    public PropertyTypeBuilder(ApplicationRunner openbis, PropertyTypeDataType type)
     {
         this.openbis = openbis;
         this.code = UUID.randomUUID().toString();
         this.label = "label of " + code;
         this.description = "description of " + code;
-        this.dataType = PropertyTypeDataType.INTEGER;
+        this.dataType = type;
         this.vocabulary = null;
     }
 
-    public PropertyTypeBuilder withVocabulary(Vocabulary vocabulary)
+    public PropertyTypeBuilder(ApplicationRunner openbis, Vocabulary vocabulary)
     {
-        this.dataType = PropertyTypeDataType.CONTROLLED_VOCABULARY;
+        this(openbis, PropertyTypeDataType.CONTROLLED_VOCABULARY);
         this.vocabulary = vocabulary;
+    }
+
+    public PropertyTypeBuilder withLabel(String label)
+    {
+        this.label = label;
         return this;
     }
 

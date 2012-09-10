@@ -47,6 +47,7 @@ public final class SampleRegistrationPanel extends
             final SampleRegistrationConfig config)
     {
         SampleRegistrationPanel panel = new SampleRegistrationPanel(viewContext, context, config);
+        panel.setId("registration-panel");
         return new DatabaseModificationAwareComponent(panel, panel);
     }
 
