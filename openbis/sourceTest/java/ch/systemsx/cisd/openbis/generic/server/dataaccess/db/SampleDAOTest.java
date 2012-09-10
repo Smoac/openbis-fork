@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.classic.Session;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
@@ -152,9 +153,7 @@ public final class SampleDAOTest extends AbstractDAOTest
             fail("DataIntegrityViolationException expected");
         } catch (DataIntegrityViolationException e)
         {
-            assertEquals("ERROR: Insert/Update of Sample (Code: WELL1) failed because "
-                    + "database instance sample with the same code and being the part "
-                    + "of the same container already exists.", e.getMessage());
+            assertEquals(ConstraintViolationException.class, e.getCause().getClass());
         }
     }
 
@@ -183,9 +182,7 @@ public final class SampleDAOTest extends AbstractDAOTest
             fail("DataIntegrityViolationException expected");
         } catch (DataIntegrityViolationException e)
         {
-            assertEquals("ERROR: Insert/Update of Sample (Code: WELL1) failed because "
-                    + "database instance sample of the same type with the same subcode "
-                    + "already exists.", e.getMessage());
+            assertEquals(ConstraintViolationException.class, e.getCause().getClass());
         }
     }
 
@@ -210,8 +207,7 @@ public final class SampleDAOTest extends AbstractDAOTest
             fail("DataIntegrityViolationException expected");
         } catch (DataIntegrityViolationException e)
         {
-            assertEquals("ERROR: Insert/Update of Sample (Code: S_CODE) failed because "
-                    + "database instance sample with the same code already exists.", e.getMessage());
+            assertEquals(ConstraintViolationException.class, e.getCause().getClass());
         }
     }
 
