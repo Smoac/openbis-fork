@@ -7,3 +7,4 @@
 7	1	validateUpdateFAIL	\N	def validate(entity, isNew):\n  if (not isNew):\n    return "Cannot update this entity"\n 	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION
 8	1	validateChildren	\N	def validate(entity, isNew):\n  for childRelation in entity.entityPE().getChildRelationships():\n    requestValidation(childRelation.getChildSample())	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION
 9	1	code_date	\N	"%s %s" % (entity.code(), str(currentDate().getTime()))	2010-10-27 15:16:48.994831+02	2	\N	DYNAMIC_PROPERTY
+10	1	waitOK	\N	import time;\ndef validate(entity, isNew):\n  time.sleep(1);\n 	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION

@@ -139,7 +139,7 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
     public final void testListMaterialTypes()
     {
         final IEntityTypeDAO entityTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.MATERIAL);
-        assertEquals(8, entityTypeDAO.listEntityTypes().size());
+        assertEquals(9, entityTypeDAO.listEntityTypes().size());
     }
 
     @Test(dependsOnMethods = "testListMaterialTypes")

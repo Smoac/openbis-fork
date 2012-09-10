@@ -81,6 +81,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ServiceConversationsThreadContext;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSServiceConversational;
@@ -1453,6 +1454,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                         sessionManagerForEntityOperation.getSession(sessionTokenForEntityOperation);
                 injectPerson(sessionForEntityOperation, userId);
             }
+
+            ServiceConversationsThreadContext.setProgressListener(progressListener);
 
             long spacesCreated =
                     createSpaces(sessionForEntityOperation, operationDetails, progressListener);

@@ -27,8 +27,10 @@ import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
 import org.hibernate.type.Type;
 
+import ch.systemsx.cisd.common.conversation.IProgressListener;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ServiceConversationsThreadContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
@@ -61,6 +63,10 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         this.callback = callback;
         this.daoFactory = daoFactory;
         initializeLists();
+
+        totalEntitiesToValidateCount = 0;
+
+        entitiesValidatedCount = 0;
     }
 
     IHibernateTransactionManagerCallback callback;
@@ -80,10 +86,25 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 
     Queue<IEntityInformationWithPropertiesHolder> entitiesToValidate;
 
+    /**
+     * WE get information about progress listener, form the caller of updates. Luckily the
+     * onFlushDirty and onSave hooks are executed in the same thread as the caller.
+     * <p>
+     * The beforeTransactionCompletionHook is called in the separate thread, therefore we persist
+     * progress listener in a designated variable
+     */
+    IProgressListener progressListener;
+
+    int totalEntitiesToValidateCount;
+
+    int entitiesValidatedCount;
+
     @Override
     public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames,
             Type[] types)
     {
+        updateListener();
+
         if (entity instanceof IEntityInformationWithPropertiesHolder)
         {
             newEntity((IEntityInformationWithPropertiesHolder) entity);
@@ -91,10 +112,17 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         return false;
     }
 
+    private void updateListener()
+    {
+        progressListener = ServiceConversationsThreadContext.getProgressListener();
+    }
+
     @Override
     public boolean onFlushDirty(Object entity, Serializable id, Object[] currentState,
             Object[] previousState, String[] propertyNames, Type[] types)
     {
+        updateListener();
+
         if (entity instanceof IEntityInformationWithPropertiesHolder)
         {
             modifiedEntity((IEntityInformationWithPropertiesHolder) entity);
@@ -143,15 +171,18 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
             IEntityInformationWithPropertiesHolder entity, boolean isNewEntity)
     {
         String result = null;
-
         try
         {
+            if (progressListener != null)
+            {
+                progressListener.update("Validation of entities", totalEntitiesToValidateCount,
+                        entitiesValidatedCount);
+            }
             result = calculate(script, entity, isNewEntity);
         } catch (Throwable e)
         {
             callback.rollbackTransaction(tx, "Validation of " + entityDescription(entity)
                     + " resulted in error. " + e.getMessage());
-            e.printStackTrace();
         }
         if (result != null)
         {
@@ -181,11 +212,13 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 
     private void newEntity(IEntityInformationWithPropertiesHolder entity)
     {
+        totalEntitiesToValidateCount++;
         newEntities.add(entity);
     }
 
     private void validatedEntity(IEntityInformationWithPropertiesHolder entity)
     {
+        entitiesValidatedCount++;
         validatedEntities.add(entity);
     }
 
@@ -193,6 +226,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
     {
         if (false == newEntities.contains(entity))
         {
+            totalEntitiesToValidateCount++;
             modifiedEntities.add(entity);
         }
     }
