@@ -365,20 +365,19 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION sample_fill_code_unique_check()
-  RETURNS trigger AS
-$BODY$
+CREATE OR REPLACE FUNCTION sample_fill_code_unique_check() RETURNS trigger
+  LANGUAGE plpgsql
+  AS $$
 BEGIN
   NEW.code_unique_check = NEW.code || '_' || coalesce(NEW.samp_id_part_of, -1) || '_' || coalesce(NEW.dbin_id, -1) || '_' || coalesce(NEW.space_id, -1);
   RETURN NEW;
 END;
-$BODY$
-  LANGUAGE 'plpgsql';
+$$;
 
   
-CREATE OR REPLACE FUNCTION sample_fill_subcode_unique_check()
-  RETURNS trigger AS
-$BODY$
+CREATE OR REPLACE FUNCTION sample_fill_subcode_unique_check() RETURNS trigger
+  LANGUAGE plpgsql
+  AS $$
 DECLARE
     unique_subcode  BOOLEAN_CHAR;
 BEGIN
@@ -392,20 +391,18 @@ BEGIN
   
   RETURN NEW;
 END;
-$BODY$
-  LANGUAGE 'plpgsql';
-
+$$;
   
-CREATE OR REPLACE FUNCTION sample_type_fill_subcode_unique_check()
-  RETURNS trigger AS
-$BODY$
+CREATE OR REPLACE FUNCTION sample_type_fill_subcode_unique_check() RETURNS trigger
+  LANGUAGE plpgsql
+  AS $$
 BEGIN
     IF (NEW.is_subcode_unique::boolean <> OLD.is_subcode_unique::boolean) THEN
       UPDATE samples_all SET subcode_unique_check = subcode_unique_check WHERE saty_id = NEW.id;
   END IF;
     RETURN NEW;
 END;
-$BODY$ 'plpgsql';
+$$;
 
 CREATE SEQUENCE attachment_content_id_seq
     START WITH 1
