@@ -305,9 +305,10 @@
   <!--
       // Task for continuous integration server.
       -->
-  <target name="ci" depends="check-dictionary-syntax, run-two-test-suites, check-restrictions, check-dependencies, dist" description="Task for continuous integration server." />
+  <target name="ci" depends="check-dictionary-syntax, run-two-test-suites, check-dependencies, dist" description="Task for continuous integration server." />
 
   <target name="run-two-test-suites">
+    <antcall target="compile-tests"/>
   	<delete dir="${output.test}" />
   		
   	<antcall target="_run-testng">
@@ -326,6 +327,7 @@
   		<report format="noframes" todir="${output.test}" />
   	</junitreport>
   	<fail if="tests.failed" message="At least one test failed." />
+		<antcall target="check-restrictions" />
   </target>
 
 
