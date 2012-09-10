@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry
 import ch.systemsx.cisd.openbis.generic.shared.IRemoteHostValidator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityVisitComparatorByTimeStamp;
@@ -801,6 +802,8 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = ExpressionValidator.class)
     public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId)
     {
         Session session = getSession(sessionToken);

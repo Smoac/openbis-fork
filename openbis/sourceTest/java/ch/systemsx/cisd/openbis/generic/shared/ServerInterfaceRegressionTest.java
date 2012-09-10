@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.generic.shared;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.CommonServer;
+import ch.systemsx.cisd.openbis.generic.server.ETLService;
+
 /**
  * @author Franz-Josef Elmer
  */
@@ -27,13 +30,13 @@ public class ServerInterfaceRegressionTest extends RegressionTestCase
     @Test
     public void testICommonServer()
     {
-        assertMandatoryMethodAnnotations(ICommonServer.class,
+        assertMandatoryMethodAnnotations(ICommonServer.class, CommonServer.class,
                 "getLastModificationState: Transactional\n");
     }
 
     @Test
     public void testIETLLIMSService()
     {
-        assertMandatoryMethodAnnotations(IETLLIMSService.class);
+        assertMandatoryMethodAnnotations(IETLLIMSService.class, ETLService.class);
     }
 }

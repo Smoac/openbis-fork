@@ -2445,6 +2445,26 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @Capability("ARCHIVE_DATASET")
+    public int archiveDatasets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
+            List<String> datasetCodes, boolean removeFromDataStore)
+    {
+        return super.archiveDatasets(sessionToken, datasetCodes, removeFromDataStore);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @Capability("UNARCHIVE_DATASET")
+    public int unarchiveDatasets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
+            List<String> datasetCodes)
+    {
+        return super.unarchiveDatasets(sessionToken, datasetCodes);
+    }
+
+    @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void registerAuthorizationGroup(String sessionToken,
             NewAuthorizationGroup newAuthorizationGroup)

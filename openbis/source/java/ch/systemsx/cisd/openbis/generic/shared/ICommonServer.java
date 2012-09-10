@@ -60,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
@@ -1121,13 +1120,6 @@ public interface ICommonServer extends IServer
     public void updateFilter(String sessionToken, IExpressionUpdates updates);
 
     // columns
-
-    /**
-     * Lists columns available for selected grid.
-     */
-    @Override
-    @Transactional
-    public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId);
 
     /**
      * Creates a new column.

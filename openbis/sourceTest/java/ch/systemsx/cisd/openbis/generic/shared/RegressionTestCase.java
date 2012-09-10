@@ -25,6 +25,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.AssertJUnit;
 
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+
 /**
  * @author Franz-Josef Elmer
  */
@@ -32,33 +34,59 @@ public class RegressionTestCase extends AssertJUnit
 {
     protected void assertMandatoryMethodAnnotations(Class<?> clazz)
     {
-        assertMandatoryMethodAnnotations(clazz, "");
+        assertMandatoryMethodAnnotations(clazz, clazz);
     }
 
-    protected void assertMandatoryMethodAnnotations(Class<?> clazz, String exceptions)
+    protected void assertMandatoryMethodAnnotations(Class<?> interfaceClass,
+            Class<?> implementingClass)
+    {
+        assertMandatoryMethodAnnotations(interfaceClass, implementingClass, "");
+    }
+
+    protected void assertMandatoryMethodAnnotations(Class<?> interfaceClass,
+            Class<?> implementingClass, String exceptions)
     {
         List<Class<? extends Annotation>> mandatoryAnnotations =
                 new ArrayList<Class<? extends Annotation>>();
-        // TODO: Check RolesAllowed for implementing class
-        // mandatoryAnnotations.add(RolesAllowed.class);
+        mandatoryAnnotations.add(RolesAllowed.class);
         mandatoryAnnotations.add(Transactional.class);
 
         final String noMissingAnnotationsMsg =
-                "Missing annotations in class " + clazz.getCanonicalName() + ":\n";
+                "Annotation checking for interface " + interfaceClass.getName()
+                        + " and implementing class " + implementingClass.getName()
+                        + ": The mandatory annotations doesn't appear in the following methods:\n";
+        assertEquals(true, interfaceClass.isInterface());
+        assertEquals(true, interfaceClass.isAssignableFrom(implementingClass));
+
         StringBuilder problems = new StringBuilder(noMissingAnnotationsMsg);
-        for (Method m : clazz.getDeclaredMethods())
+        for (Method interfaceMethod : interfaceClass.getDeclaredMethods())
         {
             List<String> missingAnnotations = new ArrayList<String>();
-            for (Class<? extends Annotation> c : mandatoryAnnotations)
+            for (Class<? extends Annotation> annotationClass : mandatoryAnnotations)
             {
-                if (m.getAnnotation(c) == null)
+                if (interfaceMethod.getAnnotation(annotationClass) == null)
                 {
-                    missingAnnotations.add(c.getSimpleName());
+                    try
+                    {
+                        Method implementedMethod =
+                                implementingClass.getMethod(interfaceMethod.getName(),
+                                        interfaceMethod.getParameterTypes());
+                        if (implementedMethod.getAnnotation(annotationClass) == null)
+                        {
+                            missingAnnotations.add(annotationClass.getSimpleName());
+                        }
+                    } catch (Exception ex)
+                    {
+                        fail("Method '" + interfaceMethod.toGenericString() + "' of interface "
+                                + interfaceClass.getName()
+                                + " is not defined in implementing class "
+                                + implementingClass.getName() + ".");
+                    }
                 }
             }
             if (missingAnnotations.size() > 0)
             {
-                problems.append(String.format("%s: %s\n", m.getName(),
+                problems.append(String.format("%s: %s\n", interfaceMethod.getName(),
                         StringUtils.join(missingAnnotations, ", ")));
             }
         }

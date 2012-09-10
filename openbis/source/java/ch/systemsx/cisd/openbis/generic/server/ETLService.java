@@ -414,6 +414,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public long drawANewUniqueID(String sessionToken,
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind)
             throws UserFailureException
@@ -985,6 +986,24 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public int archiveDatasets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
+            List<String> datasetCodes, boolean removeFromDataStore)
+    {
+        return super.archiveDatasets(sessionToken, datasetCodes, removeFromDataStore);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public int unarchiveDatasets(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
+            List<String> datasetCodes)
+    {
+        return super.unarchiveDatasets(sessionToken, datasetCodes);
+    }
+
+    @Override
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public ExternalData tryGetDataSet(String sessionToken,
@@ -1172,6 +1191,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<String> generateCodes(String sessionToken, String prefix,
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind, int number)
     {
