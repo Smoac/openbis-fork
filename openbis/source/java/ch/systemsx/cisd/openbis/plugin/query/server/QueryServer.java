@@ -39,9 +39,13 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -97,6 +101,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public int initDatabases(String sessionToken)
     {
         checkSession(sessionToken);
@@ -105,6 +110,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<QueryDatabase> listQueryDatabases(String sessionToken)
     {
         checkSession(sessionToken);
@@ -119,6 +125,8 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = ExpressionValidator.class)
     public List<QueryExpression> listQueries(String sessionToken, QueryType queryType,
             BasicEntityType entityTypeOrNull)
     {
@@ -154,6 +162,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public void registerQuery(String sessionToken, NewQuery expression)
     {
         Session session = getSession(sessionToken);
@@ -180,14 +189,15 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Override
-    public void deleteQueries(String sessionToken, List<TechId> filterIds)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public void deleteQueries(String sessionToken, List<TechId> queryIds)
     {
         Session session = getSession(sessionToken);
 
         IQueryDAO queryDAO = getDAOFactory().getQueryDAO();
         try
         {
-            for (TechId techId : filterIds)
+            for (TechId techId : queryIds)
             {
                 QueryPE query = queryDAO.getByTechId(techId);
                 QueryAccessController.checkWriteAccess(session, query.getQueryDatabaseKey(),
@@ -201,6 +211,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public void updateQuery(String sessionToken, IQueryUpdates updates)
     {
         Session session = getSession(sessionToken);
@@ -229,6 +240,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public TableModel queryDatabase(String sessionToken, QueryDatabase database, String sqlQuery,
             QueryParameterBindings bindings, boolean onlyPerform)
     {
@@ -252,6 +264,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public TableModel queryDatabase(String sessionToken, TechId queryId,
             QueryParameterBindings bindings)
     {

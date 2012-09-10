@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.query.shared;
+package ch.systemsx.cisd.openbis.plugin.query.server;
 
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.RegressionTestCase;
+import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 
 /**
  * @author Piotr Buczek
@@ -28,6 +29,6 @@ public class ServerInterfaceRegressionTest extends RegressionTestCase
     @Test
     public void testIQueryServer()
     {
-        assertMandatoryMethodAnnotations(IQueryServer.class);
+        assertMandatoryMethodAnnotations(IQueryServer.class, QueryServer.class);
     }
 }

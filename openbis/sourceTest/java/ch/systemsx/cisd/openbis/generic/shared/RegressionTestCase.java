@@ -51,6 +51,14 @@ public class RegressionTestCase extends AssertJUnit
         mandatoryAnnotations.add(RolesAllowed.class);
         mandatoryAnnotations.add(Transactional.class);
 
+        assertMandatoryMethodAnnotations(mandatoryAnnotations, interfaceClass, implementingClass,
+                exceptions);
+    }
+
+    protected void assertMandatoryMethodAnnotations(
+            List<Class<? extends Annotation>> mandatoryAnnotations, Class<?> interfaceClass,
+            Class<?> implementingClass, String exceptions)
+    {
         final String noMissingAnnotationsMsg =
                 "Annotation checking for interface " + interfaceClass.getName()
                         + " and implementing class " + implementingClass.getName()

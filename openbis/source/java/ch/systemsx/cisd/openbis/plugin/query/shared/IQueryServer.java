@@ -23,14 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.QueryAccessController;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.IQueryUpdates;
@@ -47,41 +43,32 @@ public interface IQueryServer extends IServer
 {
 
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public int initDatabases(String sessionToken);
 
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<QueryDatabase> listQueryDatabases(String sessionToken);
 
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public TableModel queryDatabase(String sessionToken, QueryDatabase database, String sqlQuery,
             QueryParameterBindings bindings, boolean onlyPerform);
 
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public TableModel queryDatabase(String sessionToken, TechId queryId,
             QueryParameterBindings bindings);
 
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = ExpressionValidator.class)
     public List<QueryExpression> listQueries(String sessionToken, QueryType queryType,
             BasicEntityType entityTypeOrNull);
 
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.QUERY)
     public void registerQuery(String sessionToken, NewQuery expression);
 
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.QUERY)
     public void deleteQueries(String sessionToken, List<TechId> queryIds);
 
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @DatabaseUpdateModification(value = ObjectKind.QUERY)
     public void updateQuery(String sessionToken, IQueryUpdates updates);
 }
