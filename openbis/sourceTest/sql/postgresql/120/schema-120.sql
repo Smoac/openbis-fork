@@ -337,6 +337,31 @@ BEGIN
   RETURN CURR_SEQ_VAL;
 END;
 $$;
+CREATE FUNCTION sample_fill_code_unique_check() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.code_unique_check = NEW.code || '_' || coalesce(NEW.samp_id_part_of, -1) || '_' || coalesce(NEW.dbin_id, -1) || '_' || coalesce(NEW.space_id, -1);
+  RETURN NEW;
+END;
+$$;
+CREATE FUNCTION sample_fill_subcode_unique_check() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    unique_subcode  BOOLEAN_CHAR;
+BEGIN
+    SELECT is_subcode_unique into unique_subcode FROM sample_types WHERE id = NEW.saty_id;
+    
+    IF (unique_subcode) THEN
+    NEW.subcode_unique_check = NEW.code || '_' || coalesce(NEW.dbin_id, -1) || '_' || coalesce(NEW.space_id, -1);
+    ELSE
+    NEW.subcode_unique_check = NULL;
+  END IF;
+  
+  RETURN NEW;
+END;
+$$;
 CREATE FUNCTION sample_property_with_material_data_type_check() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -364,38 +389,9 @@ BEGIN
    RETURN NEW;
 END;
 $$;
-
-CREATE OR REPLACE FUNCTION sample_fill_code_unique_check() RETURNS trigger
-  LANGUAGE plpgsql
-  AS $$
-BEGIN
-  NEW.code_unique_check = NEW.code || '_' || coalesce(NEW.samp_id_part_of, -1) || '_' || coalesce(NEW.dbin_id, -1) || '_' || coalesce(NEW.space_id, -1);
-  RETURN NEW;
-END;
-$$;
-
-  
-CREATE OR REPLACE FUNCTION sample_fill_subcode_unique_check() RETURNS trigger
-  LANGUAGE plpgsql
-  AS $$
-DECLARE
-    unique_subcode  BOOLEAN_CHAR;
-BEGIN
-    SELECT is_subcode_unique into unique_subcode FROM sample_types WHERE id = NEW.saty_id;
-    
-    IF (unique_subcode) THEN
-    NEW.subcode_unique_check = NEW.code || '_' || coalesce(NEW.dbin_id, -1) || '_' || coalesce(NEW.space_id, -1);
-    ELSE
-    NEW.subcode_unique_check = NULL;
-  END IF;
-  
-  RETURN NEW;
-END;
-$$;
-  
-CREATE OR REPLACE FUNCTION sample_type_fill_subcode_unique_check() RETURNS trigger
-  LANGUAGE plpgsql
-  AS $$
+CREATE FUNCTION sample_type_fill_subcode_unique_check() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
 BEGIN
     IF (NEW.is_subcode_unique::boolean <> OLD.is_subcode_unique::boolean) THEN
       UPDATE samples_all SET subcode_unique_check = subcode_unique_check WHERE saty_id = NEW.id;
@@ -403,7 +399,6 @@ BEGIN
     RETURN NEW;
 END;
 $$;
-
 CREATE SEQUENCE attachment_content_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -574,7 +569,7 @@ CREATE TABLE data_set_relationships_history (
     valid_until_timestamp time_stamp
 );
 CREATE VIEW data_set_history_view AS
-    SELECT (2 * (data_set_relationships_history.id)::bigint) AS id, data_set_relationships_history.main_data_id, data_set_relationships_history.relation_type, data_set_relationships_history.expe_id, data_set_relationships_history.samp_id, data_set_relationships_history.data_id, data_set_relationships_history.entity_perm_id, NULL::unknown AS dstpt_id, NULL::unknown AS value, NULL::unknown AS vocabulary_term, NULL::unknown AS material, data_set_relationships_history.pers_id_author, data_set_relationships_history.valid_from_timestamp, data_set_relationships_history.valid_until_timestamp FROM data_set_relationships_history WHERE (data_set_relationships_history.valid_until_timestamp IS NOT NULL) UNION SELECT ((2 * (data_set_properties_history.id)::bigint) + 1) AS id, data_set_properties_history.ds_id AS main_data_id, NULL::unknown AS relation_type, NULL::unknown AS expe_id, NULL::unknown AS samp_id, NULL::unknown AS data_id, NULL::unknown AS entity_perm_id, data_set_properties_history.dstpt_id, data_set_properties_history.value, data_set_properties_history.vocabulary_term, data_set_properties_history.material, data_set_properties_history.pers_id_author, data_set_properties_history.valid_until_timestamp AS valid_from_timestamp, data_set_properties_history.valid_until_timestamp FROM data_set_properties_history;
+    SELECT (2 * (data_set_relationships_history.id)::bigint) AS id, data_set_relationships_history.main_data_id, data_set_relationships_history.relation_type, data_set_relationships_history.expe_id, data_set_relationships_history.samp_id, data_set_relationships_history.data_id, data_set_relationships_history.entity_perm_id, NULL::bigint AS dstpt_id, NULL::text AS value, NULL::character varying AS vocabulary_term, NULL::character varying AS material, data_set_relationships_history.pers_id_author, data_set_relationships_history.valid_from_timestamp, data_set_relationships_history.valid_until_timestamp FROM data_set_relationships_history WHERE (data_set_relationships_history.valid_until_timestamp IS NOT NULL) UNION SELECT ((2 * (data_set_properties_history.id)::bigint) + 1) AS id, data_set_properties_history.ds_id AS main_data_id, NULL::text AS relation_type, NULL::bigint AS expe_id, NULL::bigint AS samp_id, NULL::bigint AS data_id, NULL::text AS entity_perm_id, data_set_properties_history.dstpt_id, data_set_properties_history.value, data_set_properties_history.vocabulary_term, data_set_properties_history.material, data_set_properties_history.pers_id_author, data_set_properties_history.valid_until_timestamp AS valid_from_timestamp, data_set_properties_history.valid_until_timestamp FROM data_set_properties_history;
 CREATE TABLE data_set_properties (
     id tech_id NOT NULL,
     ds_id tech_id NOT NULL,
@@ -810,7 +805,7 @@ CREATE TABLE experiment_relationships_history (
     proj_id tech_id
 );
 CREATE VIEW experiment_history_view AS
-    SELECT (2 * (experiment_relationships_history.id)::bigint) AS id, experiment_relationships_history.main_expe_id, experiment_relationships_history.relation_type, experiment_relationships_history.proj_id, experiment_relationships_history.samp_id, experiment_relationships_history.data_id, experiment_relationships_history.entity_perm_id, NULL::unknown AS etpt_id, NULL::unknown AS value, NULL::unknown AS vocabulary_term, NULL::unknown AS material, experiment_relationships_history.pers_id_author, experiment_relationships_history.valid_from_timestamp, experiment_relationships_history.valid_until_timestamp FROM experiment_relationships_history WHERE (experiment_relationships_history.valid_until_timestamp IS NOT NULL) UNION SELECT ((2 * (experiment_properties_history.id)::bigint) + 1) AS id, experiment_properties_history.expe_id AS main_expe_id, NULL::unknown AS relation_type, NULL::unknown AS proj_id, NULL::unknown AS samp_id, NULL::unknown AS data_id, NULL::unknown AS entity_perm_id, experiment_properties_history.etpt_id, experiment_properties_history.value, experiment_properties_history.vocabulary_term, experiment_properties_history.material, experiment_properties_history.pers_id_author, experiment_properties_history.valid_until_timestamp AS valid_from_timestamp, experiment_properties_history.valid_until_timestamp FROM experiment_properties_history;
+    SELECT (2 * (experiment_relationships_history.id)::bigint) AS id, experiment_relationships_history.main_expe_id, experiment_relationships_history.relation_type, experiment_relationships_history.proj_id, experiment_relationships_history.samp_id, experiment_relationships_history.data_id, experiment_relationships_history.entity_perm_id, NULL::bigint AS etpt_id, NULL::text AS value, NULL::character varying AS vocabulary_term, NULL::character varying AS material, experiment_relationships_history.pers_id_author, experiment_relationships_history.valid_from_timestamp, experiment_relationships_history.valid_until_timestamp FROM experiment_relationships_history WHERE (experiment_relationships_history.valid_until_timestamp IS NOT NULL) UNION SELECT ((2 * (experiment_properties_history.id)::bigint) + 1) AS id, experiment_properties_history.expe_id AS main_expe_id, NULL::text AS relation_type, NULL::bigint AS proj_id, NULL::bigint AS samp_id, NULL::bigint AS data_id, NULL::text AS entity_perm_id, experiment_properties_history.etpt_id, experiment_properties_history.value, experiment_properties_history.vocabulary_term, experiment_properties_history.material, experiment_properties_history.pers_id_author, experiment_properties_history.valid_until_timestamp AS valid_from_timestamp, experiment_properties_history.valid_until_timestamp FROM experiment_properties_history;
 CREATE SEQUENCE experiment_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -1263,14 +1258,14 @@ CREATE TABLE sample_relationships_history (
     space_id tech_id
 );
 CREATE VIEW sample_history_view AS
-    SELECT (2 * (sample_relationships_history.id)::bigint) AS id, sample_relationships_history.main_samp_id, sample_relationships_history.relation_type, sample_relationships_history.space_id, sample_relationships_history.expe_id, sample_relationships_history.samp_id, sample_relationships_history.data_id, sample_relationships_history.entity_perm_id, NULL::unknown AS stpt_id, NULL::unknown AS value, NULL::unknown AS vocabulary_term, NULL::unknown AS material, sample_relationships_history.pers_id_author, sample_relationships_history.valid_from_timestamp, sample_relationships_history.valid_until_timestamp FROM sample_relationships_history WHERE (sample_relationships_history.valid_until_timestamp IS NOT NULL) UNION SELECT ((2 * (sample_properties_history.id)::bigint) + 1) AS id, sample_properties_history.samp_id AS main_samp_id, NULL::unknown AS relation_type, NULL::unknown AS space_id, NULL::unknown AS expe_id, NULL::unknown AS samp_id, NULL::unknown AS data_id, NULL::unknown AS entity_perm_id, sample_properties_history.stpt_id, sample_properties_history.value, sample_properties_history.vocabulary_term, sample_properties_history.material, sample_properties_history.pers_id_author, sample_properties_history.valid_until_timestamp AS valid_from_timestamp, sample_properties_history.valid_until_timestamp FROM sample_properties_history;
+    SELECT (2 * (sample_relationships_history.id)::bigint) AS id, sample_relationships_history.main_samp_id, sample_relationships_history.relation_type, sample_relationships_history.space_id, sample_relationships_history.expe_id, sample_relationships_history.samp_id, sample_relationships_history.data_id, sample_relationships_history.entity_perm_id, NULL::bigint AS stpt_id, NULL::text AS value, NULL::character varying AS vocabulary_term, NULL::character varying AS material, sample_relationships_history.pers_id_author, sample_relationships_history.valid_from_timestamp, sample_relationships_history.valid_until_timestamp FROM sample_relationships_history WHERE (sample_relationships_history.valid_until_timestamp IS NOT NULL) UNION SELECT ((2 * (sample_properties_history.id)::bigint) + 1) AS id, sample_properties_history.samp_id AS main_samp_id, NULL::text AS relation_type, NULL::bigint AS space_id, NULL::bigint AS expe_id, NULL::bigint AS samp_id, NULL::bigint AS data_id, NULL::text AS entity_perm_id, sample_properties_history.stpt_id, sample_properties_history.value, sample_properties_history.vocabulary_term, sample_properties_history.material, sample_properties_history.pers_id_author, sample_properties_history.valid_until_timestamp AS valid_from_timestamp, sample_properties_history.valid_until_timestamp FROM sample_properties_history;
 CREATE SEQUENCE sample_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-SELECT pg_catalog.setval('sample_id_seq', 1054, true);
+SELECT pg_catalog.setval('sample_id_seq', 1059, true);
 CREATE TABLE sample_properties (
     id tech_id NOT NULL,
     samp_id tech_id NOT NULL,
@@ -1297,7 +1292,7 @@ CREATE SEQUENCE sample_relationship_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-SELECT pg_catalog.setval('sample_relationship_id_seq', 46, true);
+SELECT pg_catalog.setval('sample_relationship_id_seq', 48, true);
 CREATE TABLE sample_relationships_all (
     id tech_id NOT NULL,
     sample_id_parent tech_id NOT NULL,
@@ -1323,7 +1318,7 @@ CREATE SEQUENCE sample_type_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-SELECT pg_catalog.setval('sample_type_id_seq', 7, true);
+SELECT pg_catalog.setval('sample_type_id_seq', 11, true);
 CREATE TABLE sample_type_property_types (
     id tech_id NOT NULL,
     saty_id tech_id NOT NULL,
@@ -1382,7 +1377,7 @@ CREATE SEQUENCE script_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-SELECT pg_catalog.setval('script_id_seq', 4, true);
+SELECT pg_catalog.setval('script_id_seq', 9, true);
 CREATE TABLE scripts (
     id tech_id NOT NULL,
     dbin_id tech_id NOT NULL,
