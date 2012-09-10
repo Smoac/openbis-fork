@@ -305,7 +305,30 @@
   <!--
       // Task for continuous integration server.
       -->
-  <target name="ci" depends="check-dictionary-syntax, build-common.ci, check-dependencies, dist" description="Task for continuous integration server." />
+  <target name="ci" depends="check-dictionary-syntax, run-two-test-suites, check-restrictions, check-dependencies, dist" description="Task for continuous integration server." />
+
+  <target name="run-two-test-suites">
+  	<delete dir="${output.test}" />
+  		
+  	<antcall target="_run-testng">
+  		<param name="test.suite" value="tests.xml" />
+  		<param name="failure.property" value="tests.failed" />
+  	</antcall>
+  	<antcall target="_run-testng">
+  		<param name="test.suite" value="tests_system_cleandb_without_authorization.xml" />
+  		<param name="failure.property" value="tests.failed" />
+  	</antcall>
+  				
+  	<junitreport todir="${output.test}">
+  		<fileset dir="${output.test}">
+  			<include name="*/*.xml" />
+  		</fileset>
+  		<report format="noframes" todir="${output.test}" />
+  	</junitreport>
+  	<fail if="tests.failed" message="At least one test failed." />
+  </target>
+
+
 
   <!--
     // Nightly build task for continuous integration server. // CR : Remove run-system-tests from the dependencies
