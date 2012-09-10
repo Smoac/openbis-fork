@@ -25,8 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.AssertJUnit;
 
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-
 /**
  * @author Franz-Josef Elmer
  */
@@ -41,7 +39,8 @@ public class RegressionTestCase extends AssertJUnit
     {
         List<Class<? extends Annotation>> mandatoryAnnotations =
                 new ArrayList<Class<? extends Annotation>>();
-        mandatoryAnnotations.add(RolesAllowed.class);
+        // TODO: Check RolesAllowed for implementing class
+        // mandatoryAnnotations.add(RolesAllowed.class);
         mandatoryAnnotations.add(Transactional.class);
 
         final String noMissingAnnotationsMsg =
