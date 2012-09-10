@@ -100,15 +100,21 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     {
         assert sample != null : "Unspecified sample";
 
-        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        try
+        {
+            final HibernateTemplate hibernateTemplate = getHibernateTemplate();
 
-        internalCreateOrUpdateSample(sample, modifier, hibernateTemplate, true);
+            internalCreateOrUpdateSample(sample, modifier, hibernateTemplate, true);
 
-        // need to deal with exception thrown by trigger checking code uniqueness
-        flushWithSqlExceptionHandling(hibernateTemplate);
-        scheduleDynamicPropertiesEvaluation(Collections.singletonList(sample));
-        scheduleDynamicPropertiesEvaluation(getDynamicPropertyEvaluatorScheduler(), DataPE.class,
-                new ArrayList<DataPE>(sample.getDatasets()));
+            // need to deal with exception thrown by trigger checking code uniqueness
+            flushWithSqlExceptionHandling(hibernateTemplate);
+            scheduleDynamicPropertiesEvaluation(Collections.singletonList(sample));
+            scheduleDynamicPropertiesEvaluation(getDynamicPropertyEvaluatorScheduler(),
+                    DataPE.class, new ArrayList<DataPE>(sample.getDatasets()));
+        } catch (DataAccessException e)
+        {
+            SampleDataAccessExceptionTranslator.translateAndThrow(e);
+        }
     }
 
     @Override
@@ -341,23 +347,29 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     {
         assert samples != null && samples.size() > 0 : "Unspecified or empty samples.";
 
-        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
-
-        for (final SamplePE samplePE : samples)
+        try
         {
-            internalCreateOrUpdateSample(samplePE, modifier, hibernateTemplate, false);
-        }
-        if (operationLog.isInfoEnabled())
+            final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+
+            for (final SamplePE samplePE : samples)
+            {
+                internalCreateOrUpdateSample(samplePE, modifier, hibernateTemplate, false);
+            }
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format("ADD: %d samples.", samples.size()));
+            }
+
+            // need to deal with exception thrown by trigger checking code uniqueness
+            flushWithSqlExceptionHandling(getHibernateTemplate());
+            scheduleDynamicPropertiesEvaluation(samples);
+
+            // if session is not cleared registration of many samples slows down after each batch
+            hibernateTemplate.clear();
+        } catch (DataAccessException e)
         {
-            operationLog.info(String.format("ADD: %d samples.", samples.size()));
+            SampleDataAccessExceptionTranslator.translateAndThrow(e);
         }
-
-        // need to deal with exception thrown by trigger checking code uniqueness
-        flushWithSqlExceptionHandling(getHibernateTemplate());
-        scheduleDynamicPropertiesEvaluation(samples);
-
-        // if session is not cleared registration of many samples slows down after each batch
-        hibernateTemplate.clear();
     }
 
     @Override
@@ -366,16 +378,22 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     {
         assert sample != null : "Unspecified sample";
 
-        sample.setModifier(modifier);
-        validatePE(sample);
-
-        // need to deal with exception thrown by trigger checking code uniqueness
-        flushWithSqlExceptionHandling(getHibernateTemplate());
-        scheduleDynamicPropertiesEvaluation(Collections.singletonList(sample));
-
-        if (operationLog.isInfoEnabled())
+        try
         {
-            operationLog.info("UPDATE: sample '" + sample + "'.");
+            sample.setModifier(modifier);
+            validatePE(sample);
+
+            // need to deal with exception thrown by trigger checking code uniqueness
+            flushWithSqlExceptionHandling(getHibernateTemplate());
+            scheduleDynamicPropertiesEvaluation(Collections.singletonList(sample));
+
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("UPDATE: sample '" + sample + "'.");
+            }
+        } catch (DataAccessException e)
+        {
+            SampleDataAccessExceptionTranslator.translateAndThrow(e);
         }
     }
 

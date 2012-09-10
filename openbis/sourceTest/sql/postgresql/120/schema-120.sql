@@ -341,7 +341,7 @@ CREATE FUNCTION sample_fill_code_unique_check() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-  NEW.code_unique_check = NEW.code || '_' || coalesce(NEW.samp_id_part_of, -1) || '_' || coalesce(NEW.dbin_id, -1) || '_' || coalesce(NEW.space_id, -1);
+  NEW.code_unique_check = NEW.code || ',' || coalesce(NEW.samp_id_part_of, -1) || ',' || coalesce(NEW.space_id, -1) || ',' || coalesce(NEW.dbin_id, -1);
   RETURN NEW;
 END;
 $$;
@@ -354,7 +354,7 @@ BEGIN
     SELECT is_subcode_unique into unique_subcode FROM sample_types WHERE id = NEW.saty_id;
     
     IF (unique_subcode) THEN
-    NEW.subcode_unique_check = NEW.code || '_' || coalesce(NEW.dbin_id, -1) || '_' || coalesce(NEW.space_id, -1);
+    NEW.subcode_unique_check = NEW.code || ',' || coalesce(NEW.saty_id, -1) || ',' || coalesce(NEW.space_id, -1) || ',' || coalesce(NEW.dbin_id, -1);
     ELSE
     NEW.subcode_unique_check = NULL;
   END IF;

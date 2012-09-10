@@ -89,6 +89,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataManagemen
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SampleDataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculator;
@@ -1316,7 +1317,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void updateSampleType(String sessionToken, EntityType entityType)
     {
-        updateEntityType(sessionToken, EntityKind.SAMPLE, entityType);
+        try
+        {
+            updateEntityType(sessionToken, EntityKind.SAMPLE, entityType);
+        } catch (DataAccessException e)
+        {
+            if (SampleDataAccessExceptionTranslator.isUniqueSubcodeViolationException(e))
+            {
+                throw new UserFailureException(
+                        "Cannot enable 'Unique Subcodes' option as some of the samples of this type already have duplicated subcodes.");
+            }
+        }
     }
 
     @Override
