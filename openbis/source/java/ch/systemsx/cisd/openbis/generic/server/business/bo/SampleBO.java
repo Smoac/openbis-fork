@@ -25,8 +25,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.IEntityOperationChecker;
-import ch.systemsx.cisd.openbis.generic.server.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;

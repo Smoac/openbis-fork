@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
-import ch.systemsx.cisd.openbis.generic.server.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;

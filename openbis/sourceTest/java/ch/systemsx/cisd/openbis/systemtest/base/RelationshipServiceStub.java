@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.systemtest.base;
 
-import ch.systemsx.cisd.openbis.generic.server.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;

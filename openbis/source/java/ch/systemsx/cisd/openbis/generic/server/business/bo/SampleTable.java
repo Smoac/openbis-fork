@@ -29,8 +29,8 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.IEntityOperationChecker;
-import ch.systemsx.cisd.openbis.generic.server.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;

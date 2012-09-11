@@ -29,8 +29,8 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionDisallowedTypesException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionUnknownLocationsException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;

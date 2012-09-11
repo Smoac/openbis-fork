@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AuthorizationGroupBO;
