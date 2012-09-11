@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared;
+package ch.systemsx.cisd.openbis.generic.server.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -28,21 +28,39 @@ import org.testng.AssertJUnit;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 
 /**
+ * Test case for test classes testing whether an interface and/or its implementation have all
+ * mandatory annotations.
+ * 
  * @author Franz-Josef Elmer
  */
-public class RegressionTestCase extends AssertJUnit
+public class AnnotationAppliedTestCase extends AssertJUnit
 {
-    protected void assertMandatoryMethodAnnotations(Class<?> clazz)
+    /**
+     * Asserts that the specified class is an interface and all its methods have the annotations
+     * {@link RolesAllowed} and {@link Transactional}.
+     */
+    protected void assertMandatoryMethodAnnotations(Class<?> interfaceClass)
     {
-        assertMandatoryMethodAnnotations(clazz, clazz);
+        assertMandatoryMethodAnnotations(interfaceClass, interfaceClass);
     }
 
+    /**
+     * Asserts that the specified interface class is an interface, the implementing class really
+     * implements that interface, and all interface methods or their implementations have the
+     * annotations {@link RolesAllowed} and {@link Transactional}.
+     */
     protected void assertMandatoryMethodAnnotations(Class<?> interfaceClass,
             Class<?> implementingClass)
     {
         assertMandatoryMethodAnnotations(interfaceClass, implementingClass, "");
     }
 
+    /**
+     * Asserts that the specified interface class is an interface, the implementing class really
+     * implements that interface, and all interface methods or their implementations have the
+     * annotations {@link RolesAllowed} and {@link Transactional}. The specified exceptions are
+     * allowed.
+     */
     protected void assertMandatoryMethodAnnotations(Class<?> interfaceClass,
             Class<?> implementingClass, String exceptions)
     {
@@ -55,6 +73,11 @@ public class RegressionTestCase extends AssertJUnit
                 exceptions);
     }
 
+    /**
+     * Asserts that the specified interface class is an interface, the implementing class really
+     * implements that interface, and all interface methods or their implementations have the
+     * specified annotations. The specified exceptions are allowed.
+     */
     protected void assertMandatoryMethodAnnotations(
             List<Class<? extends Annotation>> mandatoryAnnotations, Class<?> interfaceClass,
             Class<?> implementingClass, String exceptions)

@@ -18,15 +18,15 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.util.AnnotationAppliedTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
-import ch.systemsx.cisd.openbis.generic.shared.RegressionTestCase;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class ServerInterfaceRegressionTest extends RegressionTestCase
+public class ServerInterfaceRegressionTest extends AnnotationAppliedTestCase
 {
 
     @Test

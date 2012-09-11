@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.server;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.RegressionTestCase;
+import ch.systemsx.cisd.openbis.generic.server.util.AnnotationAppliedTestCase;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.IProteomicsDataServiceInternal;
 
@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.IProteomicsDataServiceI
  *
  * @author Franz-Josef Elmer
  */
-public class ServerInterfaceRegressionTest extends RegressionTestCase
+public class ServerInterfaceRegressionTest extends AnnotationAppliedTestCase
 {
     @Test
     public void testServerAnnotations()
