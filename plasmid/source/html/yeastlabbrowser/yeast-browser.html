@@ -235,13 +235,13 @@ function props_to_pairs4(data)
 function resolveObjectReference(objectOrId) {
   if (isNaN(objectOrId)) {
     yeast = objectOrId;
-   // plasmid =objectOrId;
+  
   } else {
   	yeast = yeastsById[objectOrId];
-  //	plasmid = plasmidsById[objectOrId];
+  
   }
   
-  //return yeast, plasmid;
+ 
   return yeast;
 }
 
@@ -294,24 +294,112 @@ xmlValueRegex.compile(xmlValueRegex);
 xmlParser = new DOMParser();
 
 /** Initialize properties that are not stored in the database */
-function initializeSyntheticProperties(theSample)
+function initializeSyntheticProperties(sample)
 {
-	var plasmidValue = theSample.properties.PLASMIDS;
-  theSample.properties.plasmidsDisplay = "";
+	var plasmidValue = sample.properties.PLASMIDS;
+  sample.properties.plasmidsDisplay = [];
+	
+	
+	console.log(sample)
+	
+	
+//	console.log(plasmidValue)
 	
 	if (!xmlValueRegex.test(plasmidValue))
 		return;
 
   globalValue = plasmidValue;
 	var plasmidXml = xmlParser.parseFromString(plasmidValue, "text/xml");
-	var sampleNode = plasmidXml.childNodes.item(0).childNodes.item(1);
+	
+	
+	for (i=1; i < plasmidXml.childNodes.item(0).childNodes.length; i+=2 ) {
+	
+	
+	   
+				var sampleNode = plasmidXml.childNodes.item(0).childNodes.item(i);
 
-	if (sampleNode.attributes.getNamedItem("code") != null && sampleNode.attributes.getNamedItem("annotation") != null) {
-		var code = sampleNode.attributes.getNamedItem("code").value;
-		var annotation = sampleNode.attributes.getNamedItem("annotation").value;
-	  theSample.properties.plasmidsDisplay = code + "::" + annotation;
-  }
-}
+	
+				if (sampleNode.attributes.getNamedItem("code") != null) {
+	  	  		
+	  	  		var code = sampleNode.attributes.getNamedItem("code").value;
+	 		   		
+						if (sampleNode.attributes.getNamedItem("annotation") != null)  {
+	 	  				 var annotation = sampleNode.attributes.getNamedItem("annotation").value;
+						}	 		   		
+						else{
+								var annotation = "";
+								
+						}
+						if (sampleNode.attributes.getNamedItem("rel") != null) {
+								var relationship = sampleNode.attributes.getNamedItem("rel").value;
+						}	
+						else{
+								var relationship = "";
+						}  	  		
+					
+				 }
+			
+			  var plasmidsDisplay = null;
+			
+				if (relationship == "INT"){
+				  plasmidsDisplay = code + "::" + annotation;
+				}
+				if (relationship == "MOD"){
+			   	plasmidsDisplay = code + "_" + annotation;
+				}
+				if (relationship == "DEL"){
+			  	 plasmidsDisplay = code + "_D_" + annotation;
+				}
+				if (relationship == "") {
+						plasmidsDisplay = code;
+				}
+				
+				sample.properties.plasmidsDisplay.push(plasmidsDisplay);
+				
+		
+	
+
+ 
+}			
+			
+			
+			var yeastParentsValue = sample.properties.YEAST_PARENTS;
+  sample.properties.yeastParentsDisplay = [];
+  console.log(yeastParentsValue)
+	
+	if (!xmlValueRegex.test(yeastParentsValue))
+		return;
+
+  globalValue2 = yeastParentsValue;
+	var yeastParentsXml = xmlParser.parseFromString(yeastParentsValue, "text/xml");
+	
+	for (i=1; i < yeastParentsXml.childNodes.item(0).childNodes.length; i+=2 ) {
+	
+	var sampleYeastNode = yeastParentsXml.childNodes.item(0).childNodes.item(i);
+	console.log(sampleYeastNode)
+
+  var yeastsDisplay = null;
+  
+	if (sampleYeastNode.attributes.getNamedItem("code") != null ) {
+		var yeastCode = sampleYeastNode.attributes.getNamedItem("code").value;
+			}
+			
+			
+		
+		yeastsDisplay = yeastCode;
+	
+	  	
+			
+	sample.properties.yeastParentsDisplay.push(yeastsDisplay);
+
+	}
+	
+};
+
+
+
+
+
 
 
 /** Initialize the yeasts variable */
@@ -367,52 +455,7 @@ function initializeYeasts(result)
 	yeasts = fryYeasts.concat(otherYeasts);
 }
 
-function initializePlasmids(result)
-{
-      // Construct a map of all plasmids by id
-  plasmidsById = {};
 
-	// Split the plasmids into two groups, the ones that start with FRP in their sample name and the other ones.
-	var frpPlasmids = [], otherPlasmids = [];
-	var frpRegex = /^FRP[0-9]+/;
-	frpRegex.compile(frpRegex);
-	result.forEach(function(samplePOrId) {
-		var theSampleP = samplePOrId;
-		function storeSamplesPById(referredSampleP) {
-      if (isNaN(referredSampleP)) {
-        plasmidsById[referredSampleP["@id"]] = referredSampleP;
-        if (referredSampleP.parents) referredSampleP.parents.forEach(storeSamplesPById);
-        if (referredSampleP.children) referredSampleP.children.forEach(storeSamplesPById);
-      }
-    } 
-	  if (isNaN(theSampleP)) {
-	  	storeSamplesPById(theSampleP);
-    } else {
-	    // This is referring to an object in the plasmidsById map
-	    theSampleP = plasmidsById[samplePOrId];
-		}       
- 		if (frpRegex.test(theSampleP.code)) {
-			frpPlasmids.push(theSampleP);
-		} else {
-			otherPlasmids.push(theSampleP);
-		}
-	});
-	
-	// Sort each of the groups
-	otherPlasmids.sort(function(a, b) { 
-		return (a.code < b.code) ? -1 : 1; 
-	});
-	
-	frpPlasmids.sort(function(a, b) {
-		// Sort based on the FRP number
-		var frpNumberA = parseInt(a.code.substring(3));
-		var frpNumberB = parseInt(b.code.substring(3));
-		return (frpNumberA < frpNumberB) ? -1 : 1;
-	});
-	
-	// Combine the two groups back together to produce the full collection of plasmids
-	plasmids = frpPlasmids.concat(otherPlasmids);
-}
 
 /** Set the size of the yeast-table based on whether or not inspectors are visible */
 function resizeYeastTable()
@@ -653,7 +696,7 @@ selection
 	 	.attr("class", "yeast-table-data")
 		.style("cursor", "pointer")
 		.on("click", inspectYeast)
-		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.OWNER, sample.properties.OWNER_NUMBER, sample.properties.YEAST_STRAIN_NAME, sample.properties.PROJECT, sample.properties.plasmidsDisplay, sample.properties.YEAST_PARENTS, sample.properties.GENETIC_BACKGROUND, sample.properties.MATING_TYPE]; })
+		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.OWNER, sample.properties.OWNER_NUMBER, sample.properties.YEAST_STRAIN_NAME, sample.properties.PROJECT, sample.properties.plasmidsDisplay, sample.properties.yeastParentsDisplay, sample.properties.GENETIC_BACKGROUND, sample.properties.MATING_TYPE]; })
 			.enter()
 			.append("td")
 			.append("div")
