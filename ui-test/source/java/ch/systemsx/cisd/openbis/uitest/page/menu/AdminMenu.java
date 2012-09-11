@@ -23,6 +23,7 @@ import org.openqa.selenium.support.FindBy;
 import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
 import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
@@ -45,6 +46,10 @@ public class AdminMenu extends Page
     @NotAlwaysPresent
     @FindBy(id = "openbis_top-menu_SAMPLE_MENU_TYPES")
     private WebElement sampleTypes;
+
+    @NotAlwaysPresent
+    @FindBy(id = "openbis_top-menu_EXPERIMENT_MENU_TYPES")
+    private WebElement experimentTypes;
 
     @FindBy(id = "ADMINISTRATION_MENU_MANAGE_AUTHORIZATION")
     private WebElement authorization;
@@ -79,6 +84,12 @@ public class AdminMenu extends Page
     {
         sampleTypes.click();
         return get(SampleTypeBrowser.class);
+    }
+
+    public ExperimentTypeBrowser experimentTypes()
+    {
+        experimentTypes.click();
+        return get(ExperimentTypeBrowser.class);
     }
 
     public AuthorizationMenu authorization()

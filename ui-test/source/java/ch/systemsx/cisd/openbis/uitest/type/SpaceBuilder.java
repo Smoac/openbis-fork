@@ -28,15 +28,21 @@ public class SpaceBuilder implements Builder<Space>
 
     private ApplicationRunner openbis;
 
-    private final String code;
+    private String code;
 
-    private final String description;
+    private String description;
 
     public SpaceBuilder(ApplicationRunner openbis)
     {
         this.openbis = openbis;
         this.code = UUID.randomUUID().toString();
         this.description = "";
+    }
+
+    public SpaceBuilder withCode(String code)
+    {
+        this.code = code;
+        return this;
     }
 
     @Override

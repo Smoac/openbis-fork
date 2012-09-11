@@ -23,6 +23,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.FindBys;
 
+import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
@@ -32,13 +33,13 @@ public class SampleBrowser extends BrowserPage
     @FindBys(
         {
                 @FindBy(id = "openbis_sample-browser_main-grid"),
-                @FindBy(xpath = ".//*[contains(@class, \"x-grid\") and contains(@class, \"-header \")]") })
+                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]") })
     private List<WebElement> columns;
 
     @FindBys(
         {
                 @FindBy(id = "openbis_sample-browser_main-grid"),
-                @FindBy(xpath = ".//*[contains(@class, \"x-grid\") and contains(@class, \"-col \")]") })
+                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]") })
     private List<WebElement> data;
 
     @FindBy(id = "openbis_sample-browser_main_add-button")
@@ -50,6 +51,7 @@ public class SampleBrowser extends BrowserPage
                 @FindBy(xpath = "img") })
     private WebElement sampleTypeList;
 
+    @NotAlwaysPresent
     @FindBy(className = "x-combo-list-item")
     private List<WebElement> sampleTypeChoices;
 
@@ -59,6 +61,7 @@ public class SampleBrowser extends BrowserPage
                 @FindBy(xpath = "img") })
     private WebElement spaceList;
 
+    @NotAlwaysPresent
     @FindBy(className = "x-combo-list-item")
     private List<WebElement> spaceChoices;
 
@@ -107,5 +110,12 @@ public class SampleBrowser extends BrowserPage
         sampleTypeList.click();
 
         return sampleTypes;
+    }
+
+    @Override
+    protected WebElement getDeleteButton()
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

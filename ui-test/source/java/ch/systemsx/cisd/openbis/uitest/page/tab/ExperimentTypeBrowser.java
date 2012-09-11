@@ -23,33 +23,36 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.FindBys;
 
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
-import ch.systemsx.cisd.openbis.uitest.page.dialog.AddVocabularyDialog;
+import ch.systemsx.cisd.openbis.uitest.page.dialog.AddExperimentTypeDialog;
 
-public class VocabularyBrowser extends BrowserPage
+public class ExperimentTypeBrowser extends BrowserPage
 {
+
+    @FindBy(id = "add-entity-type-ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid")
+    private WebElement addButton;
+
+    @FindBy(id = "edit-entity-type")
+    private WebElement editButton;
+
+    @FindBy(id = "delete-entity-type")
+    private WebElement deleteButton;
 
     @FindBys(
         {
-                @FindBy(id = "openbis_vocabulary-browser-grid"),
+                @FindBy(id = "openbis_experiment-type-browser-grid"),
                 @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]") })
     private List<WebElement> columns;
 
     @FindBys(
         {
-                @FindBy(id = "openbis_vocabulary-browser-grid"),
+                @FindBy(id = "openbis_experiment-type-browser-grid"),
                 @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]") })
     private List<WebElement> data;
 
-    @FindBy(id = "openbis_vocabulary-browser_add-button")
-    private WebElement addVocabularyButton;
-
-    @FindBy(id = "openbis_vocabulary-browser_delete-button")
-    private WebElement deleteVocabularyButton;
-
-    public AddVocabularyDialog add()
+    public AddExperimentTypeDialog add()
     {
-        addVocabularyButton.click();
-        return get(AddVocabularyDialog.class);
+        addButton.click();
+        return get(AddExperimentTypeDialog.class);
     }
 
     @Override
@@ -67,6 +70,6 @@ public class VocabularyBrowser extends BrowserPage
     @Override
     protected WebElement getDeleteButton()
     {
-        return this.deleteVocabularyButton;
+        return this.deleteButton;
     }
 }

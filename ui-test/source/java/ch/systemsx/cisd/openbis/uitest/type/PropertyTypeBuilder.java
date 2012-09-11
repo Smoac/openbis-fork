@@ -54,6 +54,18 @@ public class PropertyTypeBuilder implements Builder<PropertyType>
         this.vocabulary = vocabulary;
     }
 
+    public PropertyTypeBuilder withCode(String code)
+    {
+        this.code = code;
+        return this;
+    }
+
+    public PropertyTypeBuilder withDescription(String description)
+    {
+        this.description = description;
+        return this;
+    }
+
     public PropertyTypeBuilder withLabel(String label)
     {
         this.label = label;

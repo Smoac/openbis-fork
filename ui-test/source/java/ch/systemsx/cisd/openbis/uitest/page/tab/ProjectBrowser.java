@@ -23,34 +23,24 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.FindBys;
 
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
-import ch.systemsx.cisd.openbis.uitest.page.dialog.AddVocabularyDialog;
 
-public class VocabularyBrowser extends BrowserPage
+public class ProjectBrowser extends BrowserPage
 {
 
     @FindBys(
         {
-                @FindBy(id = "openbis_vocabulary-browser-grid"),
+                @FindBy(id = "openbis_project-browser-grid"),
                 @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]") })
     private List<WebElement> columns;
 
     @FindBys(
         {
-                @FindBy(id = "openbis_vocabulary-browser-grid"),
+                @FindBy(id = "openbis_project-browser-grid"),
                 @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]") })
     private List<WebElement> data;
 
-    @FindBy(id = "openbis_vocabulary-browser_add-button")
-    private WebElement addVocabularyButton;
-
-    @FindBy(id = "openbis_vocabulary-browser_delete-button")
-    private WebElement deleteVocabularyButton;
-
-    public AddVocabularyDialog add()
-    {
-        addVocabularyButton.click();
-        return get(AddVocabularyDialog.class);
-    }
+    @FindBy(id = "openbis_project-browser-delete")
+    private WebElement deleteButton;
 
     @Override
     protected List<WebElement> getColumns()
@@ -67,6 +57,6 @@ public class VocabularyBrowser extends BrowserPage
     @Override
     protected WebElement getDeleteButton()
     {
-        return this.deleteVocabularyButton;
+        return deleteButton;
     }
 }

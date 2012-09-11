@@ -30,17 +30,20 @@ public class PropertyTypeAssignmentBrowser extends BrowserPage
     @FindBys(
         {
                 @FindBy(id = "openbis_property-type-assignment-browser-grid"),
-                @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-header \")]//span") })
+                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]") })
     private List<WebElement> columns;
 
     @FindBys(
         {
                 @FindBy(id = "openbis_property-type-assignment-browser-grid"),
-                @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-col \")]/div") })
+                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]") })
     private List<WebElement> data;
 
     @FindBy(id = "openbis_property-type-assignment-browser-grid-edit")
     private WebElement editPropertyTypeButton;
+
+    @FindBy(id = "openbis_property-type-assignment-browser-grid-release")
+    private WebElement releasePropertyTypeButton;
 
     @Override
     protected List<WebElement> getColumns()
@@ -52,5 +55,11 @@ public class PropertyTypeAssignmentBrowser extends BrowserPage
     protected List<WebElement> getData()
     {
         return this.data;
+    }
+
+    @Override
+    protected WebElement getDeleteButton()
+    {
+        return this.releasePropertyTypeButton;
     }
 }

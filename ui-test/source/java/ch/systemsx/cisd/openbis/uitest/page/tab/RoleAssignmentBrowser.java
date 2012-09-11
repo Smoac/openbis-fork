@@ -56,4 +56,11 @@ public class RoleAssignmentBrowser extends BrowserPage
     {
         return this.data;
     }
+
+    @Override
+    protected WebElement getDeleteButton()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

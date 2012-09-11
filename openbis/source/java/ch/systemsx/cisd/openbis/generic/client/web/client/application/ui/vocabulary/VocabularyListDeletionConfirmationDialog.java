@@ -41,6 +41,7 @@ public final class VocabularyListDeletionConfirmationDialog extends
             AbstractAsyncCallback<Void> callback)
     {
         super(viewContext, vocabularies, callback);
+        this.setId("deletion-confirmation-dialog");
         this.localViewContext = viewContext;
     }
 

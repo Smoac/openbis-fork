@@ -83,6 +83,18 @@ public class SampleTypeBuilder implements Builder<SampleType>
         return this;
     }
 
+    public SampleTypeBuilder thatShowsParents()
+    {
+        this.showsParents = true;
+        return this;
+    }
+
+    public SampleTypeBuilder thatShowsContainer()
+    {
+        this.showsContainer = true;
+        return this;
+    }
+
     @Override
     public SampleType build()
     {

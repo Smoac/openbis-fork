@@ -20,6 +20,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
 import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterExperiment;
+import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterProject;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterSample;
 
 public class NewMenu extends Page
@@ -28,9 +30,27 @@ public class NewMenu extends Page
     @FindBy(id = "openbis_top-menu_SAMPLE_MENU_NEW")
     private WebElement sample;
 
+    @FindBy(id = "openbis_top-menu_PROJECT_MENU_NEW")
+    private WebElement project;
+
+    @FindBy(id = "openbis_top-menu_EXPERIMENT_MENU_NEW")
+    private WebElement experiment;
+
     public RegisterSample sample()
     {
         sample.click();
         return get(RegisterSample.class);
+    }
+
+    public RegisterProject project()
+    {
+        project.click();
+        return get(RegisterProject.class);
+    }
+
+    public RegisterExperiment experiment()
+    {
+        experiment.click();
+        return get(RegisterExperiment.class);
     }
 }

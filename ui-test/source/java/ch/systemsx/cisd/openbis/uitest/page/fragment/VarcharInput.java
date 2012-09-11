@@ -14,36 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra.matcher;
+package ch.systemsx.cisd.openbis.uitest.page.fragment;
 
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
+import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.page.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.Fragment;
 
 /**
  * @author anttil
  */
-public class CellContainsLinkMatcher extends TypeSafeMatcher<Cell>
+public class VarcharInput extends Fragment
 {
-
-    private Cell expected;
-
-    public CellContainsLinkMatcher(String text, String url)
-    {
-        expected = new Cell(text, url, null);
-    }
-
     @Override
-    public void describeTo(Description description)
+    public void fillWith(Object value)
     {
-        description.appendText(this.expected.toString());
+        WebElement x = this.findElement(element, "input");
+        x.clear();
+        x.sendKeys(value.toString());
     }
-
-    @Override
-    public boolean matchesSafely(Cell item)
-    {
-        return expected.equals(item);
-    }
-
 }

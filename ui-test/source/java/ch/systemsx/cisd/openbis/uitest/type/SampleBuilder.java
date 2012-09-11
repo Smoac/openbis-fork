@@ -58,6 +58,18 @@ public class SampleBuilder implements Builder<Sample>
         return this;
     }
 
+    public SampleBuilder withCode(String code)
+    {
+        this.code = code;
+        return this;
+    }
+
+    public SampleBuilder in(Space space)
+    {
+        this.space = space;
+        return this;
+    }
+
     public SampleBuilder withProperty(PropertyType propertyType, Object value)
     {
         this.properties.put(propertyType, value);

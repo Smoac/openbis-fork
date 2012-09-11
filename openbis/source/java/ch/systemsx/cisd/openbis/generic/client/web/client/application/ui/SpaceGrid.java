@@ -136,6 +136,7 @@ public class SpaceGrid extends TypedTableGrid<Space>
                                             groups, createRefreshCallback(invoker));
                                 }
                             });
+        deleteButton.setId(DELETE_BUTTON_ID);
         addButton(deleteButton);
         allowMultipleSelection(); // we allow deletion of multiple projects
 
@@ -224,6 +225,7 @@ public class SpaceGrid extends TypedTableGrid<Space>
         {
             super(viewContext, data, callback);
             this.viewContext = viewContext;
+            this.setId("deletion-confirmation-dialog");
         }
 
         @Override

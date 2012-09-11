@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
@@ -25,7 +23,7 @@ import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
 /**
  * @author anttil
  */
-public class VocabularyBuilder implements Builder<Vocabulary>
+public class ProjectBuilder implements Builder<Project>
 {
 
     private ApplicationRunner openbis;
@@ -34,45 +32,35 @@ public class VocabularyBuilder implements Builder<Vocabulary>
 
     private String description;
 
-    private Set<String> terms;
+    private Space space;
 
-    private String url;
-
-    public VocabularyBuilder(ApplicationRunner openbis)
+    public ProjectBuilder(ApplicationRunner openbis)
     {
         this.openbis = openbis;
         this.code = UUID.randomUUID().toString();
         this.description = "";
-        this.terms = new HashSet<String>();
-        this.terms.add("term1");
-        this.url = "http://test.com/${term}";
+        this.space = null;
     }
 
-    public VocabularyBuilder withUrl(String url)
-    {
-        this.url = url;
-        return this;
-    }
-
-    public VocabularyBuilder withCode(String code)
+    public ProjectBuilder withCode(String code)
     {
         this.code = code;
         return this;
     }
 
-    public VocabularyBuilder withTerms(String... content)
+    public ProjectBuilder in(Space space)
     {
-        this.terms = new HashSet<String>();
-        for (String term : content)
-        {
-            this.terms.add(term);
-        }
+        this.space = space;
         return this;
     }
 
     @Override
-    public Vocabulary build()
+    public Project build()
     {
-        return openbis.create(new Vocabulary(code, description, terms, url));
+        if (space == null)
+        {
+            space = new SpaceBuilder(openbis).build();
+        }
+        return openbis.create(new Project(code, description, space));
     }
 }

@@ -18,20 +18,28 @@ package ch.systemsx.cisd.openbis.uitest.infra;
 
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
 import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
+import ch.systemsx.cisd.openbis.uitest.page.dialog.AddExperimentTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSpaceDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddVocabularyDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.EditSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AddPropertyType;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AssignSamplePropertyType;
+import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.ProjectBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterExperiment;
+import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterProject;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterSample;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
+import ch.systemsx.cisd.openbis.uitest.type.Experiment;
+import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
+import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
@@ -60,12 +68,28 @@ public class ApplicationRunner
         return space;
     }
 
+    public Project create(Project project)
+    {
+        RegisterProject register = browseToRegisterProject();
+        register.fillWith(project);
+        register.save();
+        return project;
+    }
+
     public SampleType create(SampleType sampleType)
     {
         AddSampleTypeDialog dialog = browseToAddSampleTypeDialog();
         dialog.fillWith(sampleType);
         dialog.save();
         return sampleType;
+    }
+
+    public ExperimentType create(ExperimentType experimentType)
+    {
+        AddExperimentTypeDialog dialog = browseToAddExperimentTypeDialog();
+        dialog.fillWith(experimentType);
+        dialog.save();
+        return experimentType;
     }
 
     public Vocabulary create(Vocabulary vocabulary)
@@ -91,6 +115,15 @@ public class ApplicationRunner
         register.fillWith(sample);
         register.save();
         return sample;
+    }
+
+    public Experiment create(Experiment experiment)
+    {
+        RegisterExperiment register = browseToRegisterExperiment();
+        register.selectExperimentType(experiment.getType());
+        register.fillWith(experiment);
+        register.save();
+        return experiment;
     }
 
     public PropertyTypeAssignment create(PropertyTypeAssignment assignment)
@@ -131,14 +164,29 @@ public class ApplicationRunner
         return getMenus().admin().types().sampleTypes();
     }
 
+    public ExperimentTypeBrowser browseToExperimentTypeBrowser()
+    {
+        return getMenus().admin().types().experimentTypes();
+    }
+
     public AddSampleTypeDialog browseToAddSampleTypeDialog()
     {
         return browseToSampleTypeBrowser().add();
     }
 
+    public AddExperimentTypeDialog browseToAddExperimentTypeDialog()
+    {
+        return browseToExperimentTypeBrowser().add();
+    }
+
     public SpaceBrowser browseToSpaceBrowser()
     {
         return getMenus().admin().spaces();
+    }
+
+    public ProjectBrowser browseToProjectBrowser()
+    {
+        return getMenus().browse().projects();
     }
 
     public AddSpaceDialog browseToAddSpaceDialog()
@@ -189,6 +237,16 @@ public class ApplicationRunner
     public RegisterSample browseToRegisterSample()
     {
         return getMenus().newMenu().sample();
+    }
+
+    public RegisterExperiment browseToRegisterExperiment()
+    {
+        return getMenus().newMenu().experiment();
+    }
+
+    public RegisterProject browseToRegisterProject()
+    {
+        return getMenus().newMenu().project();
     }
 
     public void closeAllTabs()

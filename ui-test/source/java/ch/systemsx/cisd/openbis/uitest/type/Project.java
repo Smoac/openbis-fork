@@ -32,7 +32,7 @@ public class Project implements Browsable
 
     private String description;
 
-    Project(String code, Space space, String description)
+    Project(String code, String description, Space space)
     {
         this.code = code;
         this.space = space;

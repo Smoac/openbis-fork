@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
+import org.openqa.selenium.WebElement;
+
 /**
  * @author anttil
  */
@@ -25,15 +27,13 @@ public class Cell
 
     private final String url;
 
-    public Cell(String text)
-    {
-        this(text, null);
-    }
+    private final WebElement element;
 
-    public Cell(String text, String url)
+    public Cell(String text, String url, WebElement element)
     {
         this.text = text;
         this.url = url;
+        this.element = element;
     }
 
     public String getText()
@@ -44,6 +44,11 @@ public class Cell
     public String getUrl()
     {
         return url;
+    }
+
+    public WebElement getElement()
+    {
+        return this.element;
     }
 
     public boolean hasLink()

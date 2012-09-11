@@ -41,6 +41,7 @@ public final class PropertyTypeListDeletionConfirmationDialog extends
             AbstractAsyncCallback<Void> callback)
     {
         super(viewContext, propertyTypes, callback);
+        this.setId("deletion-confirmation-dialog");
         this.viewContext = viewContext;
     }
 

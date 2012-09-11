@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
@@ -25,7 +23,7 @@ import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
 /**
  * @author anttil
  */
-public class VocabularyBuilder implements Builder<Vocabulary>
+public class ExperimentTypeBuilder implements Builder<ExperimentType>
 {
 
     private ApplicationRunner openbis;
@@ -34,45 +32,22 @@ public class VocabularyBuilder implements Builder<Vocabulary>
 
     private String description;
 
-    private Set<String> terms;
-
-    private String url;
-
-    public VocabularyBuilder(ApplicationRunner openbis)
+    public ExperimentTypeBuilder(ApplicationRunner openbis)
     {
         this.openbis = openbis;
         this.code = UUID.randomUUID().toString();
         this.description = "";
-        this.terms = new HashSet<String>();
-        this.terms.add("term1");
-        this.url = "http://test.com/${term}";
     }
 
-    public VocabularyBuilder withUrl(String url)
-    {
-        this.url = url;
-        return this;
-    }
-
-    public VocabularyBuilder withCode(String code)
+    public ExperimentTypeBuilder withCode(String code)
     {
         this.code = code;
         return this;
     }
 
-    public VocabularyBuilder withTerms(String... content)
-    {
-        this.terms = new HashSet<String>();
-        for (String term : content)
-        {
-            this.terms.add(term);
-        }
-        return this;
-    }
-
     @Override
-    public Vocabulary build()
+    public ExperimentType build()
     {
-        return openbis.create(new Vocabulary(code, description, terms, url));
+        return openbis.create(new ExperimentType(code, description));
     }
 }

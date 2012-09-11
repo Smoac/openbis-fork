@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
 import ch.systemsx.cisd.openbis.uitest.page.Fragment;
 import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
 import ch.systemsx.cisd.openbis.uitest.page.fragment.TermSelector;
+import ch.systemsx.cisd.openbis.uitest.page.fragment.VarcharInput;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
@@ -102,6 +103,9 @@ public class RegisterSample extends NavigationPage
         if (type.equals(PropertyTypeDataType.CONTROLLED_VOCABULARY))
         {
             fragment = get(TermSelector.class);
+        } else if (type.equals(PropertyTypeDataType.VARCHAR))
+        {
+            fragment = get(VarcharInput.class);
         } else
         {
             throw new IllegalArgumentException("unknown type " + type);
@@ -114,7 +118,7 @@ public class RegisterSample extends NavigationPage
     private WebElement getPropertyElement(PropertyType type)
     {
         return this.findElement(this.mainForm, "//div[@id='openbis_generic-sample-register_form"
-                + type.getCode() + "']");
+                + type.getCode().toLowerCase().replace(".", "-DOT-") + "']");
     }
 
     public RegisterSample selectSampleType(SampleType sampleType)

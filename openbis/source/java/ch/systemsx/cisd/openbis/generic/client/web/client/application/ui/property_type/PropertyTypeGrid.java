@@ -129,7 +129,7 @@ public class PropertyTypeGrid extends TypedTableGrid<PropertyType>
                         }
                     }));
 
-        addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
+        Button deleteButton = createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
                 new AbstractCreateDialogListener()
                     {
 
@@ -158,7 +158,10 @@ public class PropertyTypeGrid extends TypedTableGrid<PropertyType>
                             }
                             return true;
                         }
-                    }));
+                    });
+        deleteButton.setId(GRID_ID + "-delete-button");
+        addButton(deleteButton);
+
         allowMultipleSelection(); // we allow deletion of multiple property types
 
         addEntityOperationsSeparator();

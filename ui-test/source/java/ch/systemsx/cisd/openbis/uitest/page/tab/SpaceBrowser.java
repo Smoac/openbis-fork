@@ -31,17 +31,20 @@ public class SpaceBrowser extends BrowserPage
     @FindBys(
         {
                 @FindBy(id = "openbis_space-browser-grid"),
-                @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-header \")]//span") })
+                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]") })
     private List<WebElement> columns;
 
     @FindBys(
         {
                 @FindBy(id = "openbis_space-browser-grid"),
-                @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-col \")]/div") })
+                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]") })
     private List<WebElement> data;
 
     @FindBy(id = "openbis_space-browser_add-button")
     private WebElement addSpaceButton;
+
+    @FindBy(id = "openbis_space-browser_delete-button")
+    private WebElement deleteButton;
 
     public AddSpaceDialog addSpace()
     {
@@ -59,5 +62,11 @@ public class SpaceBrowser extends BrowserPage
     protected List<WebElement> getData()
     {
         return this.data;
+    }
+
+    @Override
+    protected WebElement getDeleteButton()
+    {
+        return this.deleteButton;
     }
 }

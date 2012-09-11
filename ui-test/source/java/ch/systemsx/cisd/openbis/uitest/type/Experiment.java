@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
+import java.util.Collection;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
@@ -33,11 +34,14 @@ public class Experiment implements EntityType, Browsable
 
     private Project project;
 
-    Experiment(ExperimentType type, String code, Project project)
+    private Collection<Sample> samples;
+
+    Experiment(ExperimentType type, String code, Project project, Collection<Sample> samples)
     {
         this.type = type;
         this.code = code;
         this.project = project;
+        this.samples = samples;
     }
 
     @Override
@@ -63,6 +67,11 @@ public class Experiment implements EntityType, Browsable
         return project;
     }
 
+    public Collection<Sample> getSamples()
+    {
+        return samples;
+    }
+
     void setType(ExperimentType type)
     {
         this.type = type;
@@ -71,5 +80,10 @@ public class Experiment implements EntityType, Browsable
     void setProject(Project project)
     {
         this.project = project;
+    }
+
+    void setSamples(Collection<Sample> samples)
+    {
+        this.samples = samples;
     }
 }

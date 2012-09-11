@@ -42,6 +42,8 @@ import ch.systemsx.cisd.openbis.uitest.infra.matcher.SampleBrowserSampleTypeDrop
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.page.Cell;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.ProjectBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterSample;
@@ -50,6 +52,9 @@ import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.Builder;
+import ch.systemsx.cisd.openbis.uitest.type.ExperimentBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.ExperimentTypeBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.ProjectBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignmentBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeBuilder;
@@ -181,6 +186,11 @@ public abstract class SeleniumTest
         return openbis.browseToSampleTypeBrowser();
     }
 
+    protected ExperimentTypeBrowser experimentTypeBrowser()
+    {
+        return openbis.browseToExperimentTypeBrowser();
+    }
+
     protected VocabularyBrowser vocabularyBrowser()
     {
         return openbis.browseToVocabularyBrowser();
@@ -194,6 +204,11 @@ public abstract class SeleniumTest
     protected SpaceBrowser spaceBrowser()
     {
         return openbis.browseToSpaceBrowser();
+    }
+
+    protected ProjectBrowser projectBrowser()
+    {
+        return openbis.browseToProjectBrowser();
     }
 
     protected RegisterSample sampleRegistrationPageFor(SampleType type)
@@ -246,14 +261,29 @@ public abstract class SeleniumTest
         return new SpaceBuilder(openbis);
     }
 
+    protected ProjectBuilder aProject()
+    {
+        return new ProjectBuilder(openbis);
+    }
+
     protected SampleTypeBuilder aSampleType()
     {
         return new SampleTypeBuilder(openbis);
     }
 
+    protected ExperimentTypeBuilder anExperimentType()
+    {
+        return new ExperimentTypeBuilder(openbis);
+    }
+
     protected SampleBuilder aSample()
     {
         return new SampleBuilder(openbis);
+    }
+
+    protected ExperimentBuilder anExperiment()
+    {
+        return new ExperimentBuilder(openbis);
     }
 
     protected VocabularyBuilder aVocabulary()
@@ -269,6 +299,16 @@ public abstract class SeleniumTest
     protected PropertyTypeBuilder anIntegerPropertyType()
     {
         return new PropertyTypeBuilder(openbis, PropertyTypeDataType.INTEGER);
+    }
+
+    protected PropertyTypeBuilder aRealPropertyType()
+    {
+        return new PropertyTypeBuilder(openbis, PropertyTypeDataType.REAL);
+    }
+
+    protected PropertyTypeBuilder aVarcharPropertyType()
+    {
+        return new PropertyTypeBuilder(openbis, PropertyTypeDataType.VARCHAR);
     }
 
     protected PropertyTypeBuilder aVocabularyPropertyType(Vocabulary vocabulary)

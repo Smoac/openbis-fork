@@ -20,6 +20,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
 import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.page.tab.ProjectBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
 
 public class BrowseMenu extends Page
@@ -28,9 +29,19 @@ public class BrowseMenu extends Page
     @FindBy(id = "openbis_top-menu_SAMPLE_MENU_BROWSE")
     private WebElement samples;
 
+    @FindBy(id = "openbis_top-menu_PROJECT_MENU_BROWSE")
+    private WebElement projects;
+
     public SampleBrowser samples()
     {
         samples.click();
         return get(SampleBrowser.class);
     }
+
+    public ProjectBrowser projects()
+    {
+        projects.click();
+        return get(ProjectBrowser.class);
+    }
+
 }

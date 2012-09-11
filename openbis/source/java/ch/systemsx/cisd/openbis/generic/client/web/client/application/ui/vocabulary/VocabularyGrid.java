@@ -81,6 +81,8 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
 
     public static final String ADD_BUTTON_ID = BROWSER_ID + "_add-button";
 
+    public static final String DELETE_BUTTON_ID = BROWSER_ID + "_delete-button";
+
     private final IDelegatedAction postEditionCallback;
 
     public static IDisposableComponent create(
@@ -240,7 +242,7 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
 
                     }));
 
-        addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
+        Button deleteButton = createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
                 new AbstractCreateDialogListener()
                     {
 
@@ -268,7 +270,9 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
                             }
                             return true;
                         }
-                    }));
+                    });
+        deleteButton.setId(DELETE_BUTTON_ID);
+        addButton(deleteButton);
 
         allowMultipleSelection(); // we allow deletion of multiple vocabularies
 

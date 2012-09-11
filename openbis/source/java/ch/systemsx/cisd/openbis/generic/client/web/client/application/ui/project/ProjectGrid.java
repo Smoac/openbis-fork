@@ -77,6 +77,8 @@ public class ProjectGrid extends TypedTableGrid<Project>
 
     public static final String EDIT_BUTTON_ID = BROWSER_ID + "-edit";
 
+    public static final String DELETE_BUTTON_ID = BROWSER_ID + "-delete";
+
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -158,6 +160,7 @@ public class ProjectGrid extends TypedTableGrid<Project>
                                             projects, createRefreshCallback(invoker));
                                 }
                             });
+        deleteButton.setId(DELETE_BUTTON_ID);
         addButton(deleteButton);
         allowMultipleSelection(); // we allow deletion of multiple projects
 

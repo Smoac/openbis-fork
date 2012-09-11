@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.uitest.page;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,44 +38,30 @@ public abstract class BrowserPage extends NavigationPage
 
     protected abstract List<WebElement> getData();
 
-    protected List<WebElement> getVisible(List<WebElement> allElements)
-    {
-        List<WebElement> visibleElements = new ArrayList<WebElement>();
-        for (WebElement e : allElements)
-        {
-            if (e.isDisplayed())
-            {
-                visibleElements.add(e);
-            }
-        }
-        return visibleElements;
-    }
-
     public Collection<Map<String, Cell>> getTableContent()
     {
         List<Map<String, Cell>> content = new ArrayList<Map<String, Cell>>();
 
-        List<WebElement> columnNames = arrange(getVisible(getColumns()));
-        List<WebElement> gridValues = arrange(getVisible(getData()));
+        List<WebElement> columnNames = getColumns();
+        List<WebElement> gridValues = getData();
+
+        List<String> columns = new ArrayList<String>();
+        for (WebElement columnName : columnNames)
+        {
+            columns.add(columnName.getText());
+        }
 
         int index = 0;
         Map<String, Cell> map = new HashMap<String, Cell>();
+
         for (WebElement element : gridValues)
         {
-            String columnName = columnNames.get(index % columnNames.size()).getText();
-
-            List<WebElement> a = new ArrayList<WebElement>(this.findElements(element, ".//A"));
-            if (a.size() > 0)
-            {
-                map.put(columnName, new Cell(element.getText(), a.get(0).getAttribute("href")));
-            } else
-            {
-                map.put(columnName, new Cell(element.getText()));
-            }
+            String columnName = columns.get(index % columns.size());
+            map.put(columnName, new Cell(element.getText(), element.getAttribute("href"), element));
 
             index++;
 
-            if (index % columnNames.size() == 0)
+            if (index % columns.size() == 0)
             {
                 content.add(map);
                 map = new HashMap<String, Cell>();
@@ -98,26 +82,33 @@ public abstract class BrowserPage extends NavigationPage
         throw new IllegalStateException("Could not find " + browsable + " from " + toString());
     }
 
-    private List<WebElement> arrange(Collection<WebElement> elements)
-    {
-        List<WebElement> sorted = new ArrayList<WebElement>(elements);
-        Collections.sort(sorted, new Comparator<WebElement>()
-            {
+    protected abstract WebElement getDeleteButton();
 
-                @Override
-                public int compare(WebElement o1, WebElement o2)
+    public boolean deleteIfExists(String column, String value)
+    {
+        for (Map<String, Cell> row : getTableContent())
+        {
+
+            Cell cell = row.get(column);
+            if (cell != null && cell.getText().equalsIgnoreCase(value))
+            {
+                cell.getElement().click();
+                getDeleteButton().click();
+
+                for (WebElement ellu : this.findElements(cell.getElement(),
+                        "//*[@id='deletion-confirmation-dialog']//textarea"))
                 {
-                    int yDiff = o1.getLocation().getY() - o2.getLocation().getY();
-                    if (yDiff == 0)
-                    {
-                        return o1.getLocation().getX() - o2.getLocation().getX();
-                    } else
-                    {
-                        return yDiff;
-                    }
+                    ellu.sendKeys("reason for deletion");
                 }
-            });
-        return sorted;
+
+                this.findElement(cell.getElement(),
+                        "//*[@id='deletion-confirmation-dialog']//button[text()='OK' or text()='Yes']")
+                        .click();
+
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -125,14 +116,14 @@ public abstract class BrowserPage extends NavigationPage
     {
         String value = getClass().getSimpleName() + "\n";
         int numColumns = 0;
-        for (WebElement column : getVisible(getColumns()))
+        for (WebElement column : getColumns())
         {
             value += column.getText() + "\t";
             numColumns++;
         }
 
         int counter = 0;
-        for (WebElement cell : getVisible(getData()))
+        for (WebElement cell : getData())
         {
 
             if (counter % numColumns == 0)

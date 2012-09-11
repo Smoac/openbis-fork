@@ -125,7 +125,7 @@ public class PageProxy
                     // Force wait for the element.
                     // This makes sure that page object is returned only when all the
                     // expected elements are present.
-                    element.getText();
+                    element.getTagName();
                 }
             }
 

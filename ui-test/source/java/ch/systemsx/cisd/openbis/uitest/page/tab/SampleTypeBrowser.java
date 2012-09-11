@@ -29,23 +29,25 @@ import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 public class SampleTypeBrowser extends BrowserPage
 {
-
-    @FindBy(id = "add-entity-type")
+    @FindBy(id = "add-entity-type-ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid")
     private WebElement addSampleTypeButton;
 
     @FindBy(id = "edit-entity-type")
     private WebElement editSampleTypeButton;
 
+    @FindBy(id = "delete-entity-type")
+    private WebElement deleteSampleTypeButton;
+
     @FindBys(
         {
                 @FindBy(id = "openbis_sample-type-browser-grid"),
-                @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-header \")]") })
+                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]") })
     private List<WebElement> columns;
 
     @FindBys(
         {
                 @FindBy(id = "openbis_sample-type-browser-grid"),
-                @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-col \")]") })
+                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]") })
     private List<WebElement> data;
 
     public AddSampleTypeDialog add()
@@ -78,5 +80,11 @@ public class SampleTypeBrowser extends BrowserPage
             }
         }
         throw new IllegalArgumentException("Sample type browser does not contain " + type);
+    }
+
+    @Override
+    protected WebElement getDeleteButton()
+    {
+        return this.deleteSampleTypeButton;
     }
 }
