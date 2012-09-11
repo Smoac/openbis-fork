@@ -176,10 +176,6 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         Share share1 = shares.get(0);
         long freeSpace = share1.calculateFreeSpace();
 
-        assertEquals("WARN: Speed file " + speedFile2 + " doesn't contain a number: not a number\n"
-                + "INFO: Calculating size of " + ds1File + "\n" + "INFO: " + ds1File
-                + " contains 10 bytes (calculated in 0 msec)\n"
-                + "WARN: Data set ds5 no longer exists in share 2.\n", log.toString());
         assertEquals(new File(store, "1"), fileMatcher.recordedObject().getLocalFile());
         assertEquals(12345L * 1024, freeSpace);
         assertEquals(new File(store, "1").toString(), share1.getShare().toString());
@@ -200,6 +196,10 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         assertEquals(Math.abs(Constants.DEFAULT_SPEED_HINT), shares.get(1).getSpeed());
         assertEquals(123456789L, shares.get(1).getTotalSizeOfDataSets());
         assertEquals(2, shares.size());
+        assertEquals("WARN: Speed file " + speedFile2 + " doesn't contain a number: not a number\n"
+                + "INFO: Calculating size of " + ds1File + "\n" + "INFO: " + ds1File
+                + " contains 10 bytes (calculated in 0 msec)\n"
+                + "WARN: Data set ds5 no longer exists in share 2.\n", log.toString());
     }
 
     @Test
