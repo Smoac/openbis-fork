@@ -29,7 +29,6 @@ import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.remoting.RemoteAccessException;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -41,7 +40,6 @@ import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.LogUtils;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo.DemoArchiver;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin.DatasetProcessingStatuses;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin.Operation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
@@ -332,32 +330,6 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         logRecorder.reset();
         context.assertIsSatisfied();
         ServiceProviderTestWrapper.restoreApplicationContext();
-    }
-
-    @Test
-    public void testStatusRestoredIfRemoteCallFails()
-    {
-        AbstractArchiverProcessingPlugin archiver =
-                new DemoArchiver(new Properties(), workingDirectory);
-        archiver.setStatusUpdater(statusUpdater);
-
-        DatasetDescriptionBuilder builder = new DatasetDescriptionBuilder("ds1");
-        List<DatasetDescription> datasets = Arrays.asList(builder.getDatasetDescription());
-        ArchiverTaskContext archiverContext = new ArchiverTaskContext(null, null);
-
-        context.checking(new Expectations()
-            {
-                {
-                    one(service).listDataSets();
-                    will(throwException(new RemoteAccessException("service offline")));
-                    
-                    one(statusUpdater).update(Arrays.asList("ds1"), DataSetArchivingStatus.ARCHIVED , true);
-                }
-            });
-
-        archiver.unarchive(datasets, archiverContext);
-
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -701,9 +673,6 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         context.checking(new Expectations()
             {
                 {
-                    one(service).listDataSets();
-                    will(returnValue(Arrays.asList()));
-                    
                     one(statusUpdater).update(Arrays.asList("ds1", "ds2"),
                             DataSetArchivingStatus.AVAILABLE, true);
                 }
@@ -779,9 +748,6 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
                     one(statusChecker).check(2);
                     will(returnValue(Status.OK));
 
-                    one(service).listDataSets();
-                    will(returnValue(Arrays.asList()));
-                    
                     one(statusUpdater).update(Arrays.asList("ds1"),
                             DataSetArchivingStatus.ARCHIVED, true);
                     one(statusUpdater).update(Arrays.asList("ds2"),
@@ -822,9 +788,6 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
                 {
                     one(statusChecker).check(1);
                     will(returnValue(Status.OK));
-
-                    one(service).listDataSets();
-                    will(returnValue(Arrays.asList()));
 
                     one(statusUpdater).update(Arrays.asList("ds1"),
                             DataSetArchivingStatus.ARCHIVED, true);
