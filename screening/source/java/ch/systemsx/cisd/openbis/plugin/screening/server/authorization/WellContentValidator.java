@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.authorization;
+package ch.systemsx.cisd.openbis.plugin.screening.server.authorization;
 
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
- * A validator for a list of {@link MaterialSimpleFeatureVectorSummary} objects.
+ * A validator for a list of {@link WellContent} objects.
  * 
  * @author Tomasz Pylak
  */
-public class MaterialExperimentFeatureVectorSummaryValidator extends
-        SpaceValidator<MaterialSimpleFeatureVectorSummary>
+public class WellContentValidator extends SpaceValidator<WellContent>
 {
     @Override
-    protected String getSpace(MaterialSimpleFeatureVectorSummary value)
+    protected String getSpace(WellContent value)
     {
         return value.getExperiment().getSpaceCode();
     }

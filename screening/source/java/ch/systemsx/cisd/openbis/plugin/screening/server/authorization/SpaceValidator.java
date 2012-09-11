@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.authorization;
+package ch.systemsx.cisd.openbis.plugin.screening.server.authorization;
 
 import java.util.Set;
 
