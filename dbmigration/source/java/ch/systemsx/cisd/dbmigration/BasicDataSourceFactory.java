@@ -55,6 +55,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
         dataSource.setMaxIdle(maxIdle);
         dataSource.setMaxActive(maxActive);
         dataSource.setMaxWait(maxWait);
+        dataSource.setValidationQuery("SELECT 1");
         return dataSource;
     }
 
