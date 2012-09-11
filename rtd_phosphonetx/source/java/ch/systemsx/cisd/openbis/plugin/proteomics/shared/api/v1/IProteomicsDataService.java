@@ -21,8 +21,6 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.api.IRpcService;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.proteomics.client.api.v1.IProteomicsDataApiFacade;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
@@ -31,7 +29,7 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.dto.MsInjectionD
 
 /**
  * Interface used by {@link IProteomicsDataApiFacade}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IProteomicsDataService extends IRpcService
@@ -64,14 +62,12 @@ public interface IProteomicsDataService extends IRpcService
      * the specified user is allowed to read.
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<MsInjectionDataInfo> listRawDataSamples(String sessionToken, String userID);
 
     /**
      * Lists all processing plugins on DSS.
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataStoreServerProcessingPluginInfo> listDataStoreServerProcessingPluginInfos(
             String sessionToken);
 
@@ -82,17 +78,15 @@ public interface IProteomicsDataService extends IRpcService
      */
     @Deprecated
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public void processingRawData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType);
-    
+
     /**
      * Processes the specified data sets by the DSS processing plug-in of specified key for the
      * specified user. Implementations should check that the specified user is allowed to read
      * specified data sets.
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public void processDataSets(String sessionToken, String userID, String dataSetProcessingKey,
             List<String> dataSetCodes);
 
@@ -102,23 +96,22 @@ public interface IProteomicsDataService extends IRpcService
      */
     @Deprecated
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<Experiment> listSearchExperiments(String sessionToken, String userID);
 
     /**
      * Returns all experiments of specified type which the specified user is allowed to read.
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
-    public List<Experiment> listExperiments(String sessionToken, String userID, String experimentTypeCode);
-    
+    public List<Experiment> listExperiments(String sessionToken, String userID,
+            String experimentTypeCode);
+
     /**
      * Returns all data sets of specified experiment which the specified user is allowed to read.
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
-    public List<DataSet> listDataSetsByExperiment(String sessionToken, String userID, long experimentID);
-    
+    public List<DataSet> listDataSetsByExperiment(String sessionToken, String userID,
+            long experimentID);
+
     /**
      * Processes the data sets of specified experiments of type <tt>MS_SEARCH</tt> by the DSS
      * processing plug-in of specified key for the specified user. It will be checked if the
@@ -126,17 +119,15 @@ public interface IProteomicsDataService extends IRpcService
      */
     @Deprecated
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public void processSearchData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] searchExperimentIDs);
-    
+
     /**
-     * Processes the data sets of specified experiments by the DSS
-     * processing plug-in of specified key for the specified user. It will be checked if the
-     * experiments are of specified type and if the user is allowed to read them.
+     * Processes the data sets of specified experiments by the DSS processing plug-in of specified
+     * key for the specified user. It will be checked if the experiments are of specified type and
+     * if the user is allowed to read them.
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public void processProteinResultDataSets(String sessionToken, String userID,
             String dataSetProcessingKey, String experimentTypeCode, long[] experimentIDs);
 

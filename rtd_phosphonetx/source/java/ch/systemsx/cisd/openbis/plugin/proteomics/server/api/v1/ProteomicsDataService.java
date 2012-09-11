@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -98,6 +100,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<MsInjectionDataInfo> listRawDataSamples(String sessionToken, String userID)
     {
         checkSession(sessionToken);
@@ -174,6 +177,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataStoreServerProcessingPluginInfo> listDataStoreServerProcessingPluginInfos(
             String sessionToken)
     {
@@ -211,6 +215,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
 
     @Override
     @SuppressWarnings("deprecation")
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public void processingRawData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType)
     {
@@ -227,6 +232,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public void processDataSets(String sessionToken, String userID, String dataSetProcessingKey,
             List<String> dataSetCodes)
     {
@@ -242,6 +248,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.dto.Experiment> listSearchExperiments(
             String sessionToken, String userID)
     {
@@ -249,6 +256,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.dto.Experiment> listExperiments(
             String sessionToken, String userID, String experimentTypeCode)
     {
@@ -288,6 +296,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataSet> listDataSetsByExperiment(String sessionToken, String userID,
             long experimentID)
     {
@@ -316,6 +325,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public void processSearchData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] searchExperimentIDs)
     {
@@ -324,6 +334,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public void processProteinResultDataSets(String sessionToken, String userID,
             String dataSetProcessingKey, String experimentTypeCode, long[] experimentIDs)
     {

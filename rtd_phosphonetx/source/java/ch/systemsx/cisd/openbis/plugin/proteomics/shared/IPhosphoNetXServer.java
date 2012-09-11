@@ -22,11 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.AggregateFunction;
@@ -38,60 +34,43 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinSequen
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinSummary;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IPhosphoNetXServer extends IServer
 {
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Vocabulary getTreatmentTypeVocabulary(String sessionToken) throws UserFailureException;
 
-    
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @CacheData
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
-            String sessionToken, @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentID, String treatmentTypeOrNull) throws UserFailureException; 
-    
+            String sessionToken, TechId experimentID, String treatmentTypeOrNull)
+            throws UserFailureException;
+
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @CacheData
-    public List<ProteinInfo> listProteinsByExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentId, double falseDiscoveryRate, AggregateFunction function,
-            String treatmentTypeCode, boolean aggregateOnOriginal) throws UserFailureException;
-    
-    
+    public List<ProteinInfo> listProteinsByExperiment(String sessionToken, TechId experimentId,
+            double falseDiscoveryRate, AggregateFunction function, String treatmentTypeCode,
+            boolean aggregateOnOriginal) throws UserFailureException;
+
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @CacheData
     public List<ProteinSummary> listProteinSummariesByExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId)
-            throws UserFailureException;
-    
+            TechId experimentId) throws UserFailureException;
+
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public ProteinByExperiment getProteinByExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentId, TechId proteinReferenceID) throws UserFailureException;
-    
+    public ProteinByExperiment getProteinByExperiment(String sessionToken, TechId experimentId,
+            TechId proteinReferenceID) throws UserFailureException;
+
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ProteinSequence> listProteinSequencesByProteinReference(String sessionToken,
             TechId experimentID, TechId proteinReferenceID) throws UserFailureException;
-    
+
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<DataSetProtein> listProteinsByExperimentAndReference(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
             TechId experimentId, TechId proteinReferenceID) throws UserFailureException;
-    
+
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<ProteinRelatedSample> listProteinRelatedSamplesByProtein(
-            String sessionToken, TechId experimentID, TechId proteinReferenceID)
-            throws UserFailureException;
+    public List<ProteinRelatedSample> listProteinRelatedSamplesByProtein(String sessionToken,
+            TechId experimentID, TechId proteinReferenceID) throws UserFailureException;
 }

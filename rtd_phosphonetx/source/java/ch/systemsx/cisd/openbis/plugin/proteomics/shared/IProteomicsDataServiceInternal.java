@@ -21,22 +21,12 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExperimentValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.plugin.proteomics.shared.authorization.validator.RawDataSampleValidator;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.MsInjectionSample;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IProteomicsDataServiceInternal extends IServer
@@ -46,36 +36,25 @@ public interface IProteomicsDataServiceInternal extends IServer
      * the specified user is allow to read.
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    @ReturnValueFilter(validatorClass = RawDataSampleValidator.class)
     public List<MsInjectionSample> listRawDataSamples(String sessionToken);
-    
+
     @Deprecated
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void processRawData(String sessionToken, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType);
-    
+
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void processDataSets(
-            String sessionToken,
-            String dataSetProcessingKey,
-            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes);
-    
+    public void processDataSets(String sessionToken, String dataSetProcessingKey,
+            List<String> dataSetCodes);
+
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    @ReturnValueFilter(validatorClass = ExperimentValidator.class)
     public List<Experiment> listExperiments(String sessionToken, String experimentTypeCode);
-    
+
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public List<ExternalData> listDataSetsByExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentID);
-    
+    public List<ExternalData> listDataSetsByExperiment(String sessionToken, TechId experimentID);
+
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void processProteinResultDataSets(String sessionToken, String dataSetProcessingKey,
             String experimentTypeCode, long[] searchExperimentIDs);
-    
+
 }

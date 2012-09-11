@@ -36,6 +36,11 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExperimentValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -43,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -118,12 +124,15 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @ReturnValueFilter(validatorClass = RawDataSampleValidator.class)
     public List<MsInjectionSample> listRawDataSamples(String sessionToken)
     {
         return loadAllRawDataSamples(getSession(sessionToken));
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void processRawData(String sessionToken, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType)
     {
@@ -154,7 +163,9 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void processDataSets(String sessionToken, String dataSetProcessingKey,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
             List<String> dataSetCodes)
     {
         Session session = getSession(sessionToken);
@@ -162,6 +173,8 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @ReturnValueFilter(validatorClass = ExperimentValidator.class)
     public List<Experiment> listExperiments(String sessionToken, String experimentTypeCode)
     {
         checkSession(sessionToken);
@@ -176,7 +189,10 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
-    public List<ExternalData> listDataSetsByExperiment(String sessionToken, TechId experimentID)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public List<ExternalData> listDataSetsByExperiment(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
+            TechId experimentID)
     {
         final Session session = getSession(sessionToken);
 
@@ -186,6 +202,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void processProteinResultDataSets(String sessionToken, String dataSetProcessingKey,
             String experimentType, long[] searchExperimentIDs)
     {
