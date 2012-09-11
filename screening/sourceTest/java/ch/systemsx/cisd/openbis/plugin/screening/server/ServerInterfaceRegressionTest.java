@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared;
+package ch.systemsx.cisd.openbis.plugin.screening.server;
 
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.RegressionTestCase;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 
 /**
  * @author Tomasz Pylak
@@ -28,6 +30,13 @@ public class ServerInterfaceRegressionTest extends RegressionTestCase
     @Test
     public void testServerAnnotations()
     {
-        assertMandatoryMethodAnnotations(IScreeningServer.class);
+        assertMandatoryMethodAnnotations(IScreeningServer.class, ScreeningServer.class);
+    }
+    
+    @Test
+    public void testApiServerAnnotations()
+    {
+        assertMandatoryMethodAnnotations(IScreeningApiServer.class, ScreeningServer.class,
+                "tryLoginScreening: RolesAllowed\n" + "logoutScreening: RolesAllowed\n");
     }
 }

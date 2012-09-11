@@ -22,14 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -37,16 +29,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.DatasetReferencePredicate;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.ExperimentSearchCriteriaPredicate;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.MaterialExperimentFeatureVectorSummaryValidator;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.MaterialFeaturesOneExpPredicate;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellContentValidator;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellSearchCriteriaPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.AnalysisProcedures;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeatureVectorSummary;
@@ -81,18 +66,14 @@ public interface IScreeningServer extends IServer
      * image analysis only if one dataset with such a data exist.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public PlateContent getPlateContent(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
             TechId plateId);
 
     /**
      * Loads feature vector of specified dataset with one feature specified by name.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public FeatureVectorDataset getFeatureVectorDataset(String sessionToken,
-            @AuthorizationGuard(guardClass = DatasetReferencePredicate.class)
             DatasetReference dataset, CodeAndLabel featureName);
 
     /**
@@ -100,9 +81,7 @@ public interface IScreeningServer extends IServer
      */
     // TODO can return null
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public FeatureVectorValues getWellFeatureVectorValues(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
             String datasetCode, String datastoreCode, WellLocation wellLocation);
 
     /**
@@ -110,9 +89,7 @@ public interface IScreeningServer extends IServer
      * specified dataset, which is supposed to contain images in BDS-HCS format.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public PlateImages getPlateContentForDataset(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
             TechId datasetId);
 
     /**
@@ -120,10 +97,7 @@ public interface IScreeningServer extends IServer
      * image dataset and feature vectors.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = WellContentValidator.class)
     public List<WellContent> listPlateWells(String sessionToken,
-            @AuthorizationGuard(guardClass = WellSearchCriteriaPredicate.class)
             WellSearchCriteria materialCriteria);
 
     /**
@@ -133,9 +107,7 @@ public interface IScreeningServer extends IServer
      * the whole well is ignored.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<WellReplicaImage> listWellImages(String sessionToken, TechId materialId,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
             TechId experimentId);
 
     /**
@@ -144,9 +116,7 @@ public interface IScreeningServer extends IServer
      *         specified experiment(s) will be returned.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Material> listMaterials(String sessionToken,
-            @AuthorizationGuard(guardClass = WellSearchCriteriaPredicate.class)
             WellSearchCriteria materialCriteria);
 
     /**
@@ -155,33 +125,23 @@ public interface IScreeningServer extends IServer
      * @param materialType
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Material> listExperimentMaterials(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
             TechId experimentId, MaterialType materialType);
 
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public LogicalImageInfo getImageDatasetInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
             String datasetCode, String datastoreCode, WellLocation wellLocationOrNull);
 
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ImageDatasetEnrichedReference getImageDatasetReference(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
             String datasetCode, String datastoreCode);
 
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    List<ImageResolution> getImageDatasetResolutions(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+    public List<ImageResolution> getImageDatasetResolutions(String sessionToken,
             String datasetCode, String datastoreCode);
 
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ImageSampleContent getImageDatasetInfosForSample(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
             TechId sampleId, WellLocation wellLocationOrNull);
 
     /**
@@ -192,40 +152,32 @@ public interface IScreeningServer extends IServer
      *             uniquely identified by given <var>sampleId</var> does not exist.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public SampleParentWithDerived getSampleInfo(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
             final TechId sampleId) throws UserFailureException;
 
     /**
      * For given {@link TechId} returns the corresponding {@link ExternalData}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ExternalData getDataSetInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
             TechId datasetId);
 
     /**
      * For given {@link TechId} returns the corresponding {@link Material}.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Material getMaterialInfo(String sessionToken, TechId materialId);
 
     /**
      * Returns vocabulary with given code.
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Vocabulary getVocabulary(String sessionToken, String code) throws UserFailureException;
 
     /**
      * Registers the contents of an uploaded library.
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
-    @Capability("WRITE_EXPERIMENT_SAMPLE_MATERIAL")
     public void registerLibrary(String sessionToken, String userEmail,
             List<NewMaterial> newGenesOrNull, List<NewMaterial> newOligosOrNull,
             List<NewSamplesWithTypes> newSamplesWithType);
@@ -235,9 +187,7 @@ public interface IScreeningServer extends IServer
      * materials.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public ExperimentFeatureVectorSummary getExperimentFeatureVectorSummary(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
             TechId experimentId, AnalysisProcedureCriteria analysisProcedureCriteria);
 
     /**
@@ -245,17 +195,13 @@ public interface IScreeningServer extends IServer
      * material.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public MaterialReplicaFeatureSummaryResult getMaterialFeatureVectorSummary(String sessionToken,
-            @AuthorizationGuard(guardClass = MaterialFeaturesOneExpPredicate.class)
             MaterialFeaturesOneExpCriteria criteria);
 
     /**
      * Returns feature vectors from all experiments for a specified material.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = MaterialExperimentFeatureVectorSummaryValidator.class)
     public List<MaterialSimpleFeatureVectorSummary> getMaterialFeatureVectorsFromAllExperiments(
             String sessionToken, MaterialFeaturesManyExpCriteria criteria);
 
@@ -271,9 +217,7 @@ public interface IScreeningServer extends IServer
      * </p>
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AnalysisProcedures listNumericalDatasetsAnalysisProcedures(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentSearchCriteriaPredicate.class)
             ExperimentSearchCriteria experimentSearchCriteria);
 
 }
