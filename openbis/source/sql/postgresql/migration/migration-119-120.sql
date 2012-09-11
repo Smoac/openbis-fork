@@ -85,7 +85,30 @@ CREATE TRIGGER sample_type_fill_subcode_unique_check
   ON sample_types
   FOR EACH ROW
   EXECUTE PROCEDURE sample_type_fill_subcode_unique_check();
+
   
+-- automatically switch sample_type.is_subcode_unique flag to false when there are samples with duplicated codes for that type already 
+-- (it was possible before by creating samples with duplicated codes first and then switching sample_type.is_subcode_unique to true)
+
+CREATE OR REPLACE FUNCTION FIX_IS_SUBCODE_UNIQUE_CONSISTENCY() RETURNS void AS $BODY$
+DECLARE
+  sample_type_record RECORD;
+  sample_count INTEGER; 
+BEGIN
+  
+    FOR sample_type_record IN SELECT * FROM sample_types LOOP
+        select count(*) as c into sample_count from samples_all where saty_id = sample_type_record.id group by code, saty_id, space_id, dbin_id order by c desc limit 1;
+        IF (sample_count > 1) THEN
+          update sample_types set is_subcode_unique = false where id = sample_type_record.id;     
+        END IF;
+    END LOOP;
+  
+END;
+$BODY$ LANGUAGE 'plpgsql';
+
+SELECT FIX_IS_SUBCODE_UNIQUE_CONSISTENCY();
+DROP function FIX_IS_SUBCODE_UNIQUE_CONSISTENCY();
+
 
 -- fill in samples_all.code_unique_check and samples_all.subcode_unique_check columns for existing samples
 UPDATE samples_all SET code_unique_check = code_unique_check;
