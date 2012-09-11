@@ -59,6 +59,7 @@ public class TransferAuthorizationAnnotations
             if (indexOfOpenParanthesis < 0)
             {
                 indexOfOpenParanthesis = firstLine.length();
+                finished = true;
             }
             annotationName = firstLine.substring(indexOfStart + 1, indexOfOpenParanthesis);
         }
@@ -169,6 +170,10 @@ public class TransferAuthorizationAnnotations
     private static String getCanonicalSignature(String joinedSignatureLines)
     {
         int parametersStartIndex = joinedSignatureLines.indexOf('(');
+        if (parametersStartIndex < 0)
+        {
+            throw new IllegalArgumentException("Invalid signature: " + joinedSignatureLines);
+        }
         int parametersEndIndex = joinedSignatureLines.lastIndexOf(')');
         String[] splittedBeginning =
                 joinedSignatureLines.substring(0, parametersStartIndex).split(" ");
