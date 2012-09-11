@@ -339,15 +339,6 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
                     one(configProvider).getDataStoreCode();
                     will(returnValue(DATA_STORE_CODE));
 
-                    one(service).listDataSets();
-                    SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
-                    dataSet.setDataSetCode("ds1");
-                    dataSet.setDataStoreCode(DATA_STORE_CODE);
-                    dataSet.setDataSetShareId("1");
-                    dataSet.setDataSetLocation(LOCATION);
-                    dataSet.setDataSetSize(11L);
-                    will(returnValue(Arrays.asList(dataSet)));
-
                     one(shareIdManager).getShareId("ds1");
                     will(returnValue("2"));
 
@@ -401,22 +392,13 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         archiverTaskContext.setUnarchivingPreparation(unarchivingPreparation);
         final DatasetDescription ds1 =
                 new DatasetDescriptionBuilder("ds1").databaseInstance("db").experiment("exp1")
-                        .location("loc1").project("p1").sample("s1").space("space").size(11l)
+                        .location("loc1").project("p1").sample("s1").space("space")
                         .type("my-type").getDatasetDescription();
         context.checking(new Expectations()
             {
                 {
                     one(configProvider).getDataStoreCode();
                     will(returnValue(DATA_STORE_CODE));
-
-                    one(service).listDataSets();
-                    SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
-                    dataSet.setDataSetCode("ds1");
-                    dataSet.setDataStoreCode(DATA_STORE_CODE);
-                    dataSet.setDataSetShareId("1");
-                    dataSet.setDataSetLocation(LOCATION);
-                    dataSet.setDataSetSize(11L);
-                    will(returnValue(Arrays.asList(dataSet)));
 
                     one(statusUpdater).update(Arrays.asList("ds1"),
                             DataSetArchivingStatus.ARCHIVED, true);
@@ -442,21 +424,6 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
                 {
                     one(configProvider).getDataStoreCode();
                     will(returnValue(DATA_STORE_CODE));
-
-                    one(service).listDataSets();
-                    SimpleDataSetInformationDTO dataSet1 = new SimpleDataSetInformationDTO();
-                    dataSet1.setDataSetCode("ds1");
-                    dataSet1.setDataStoreCode(DATA_STORE_CODE);
-                    dataSet1.setDataSetShareId("1");
-                    dataSet1.setDataSetLocation(LOCATION);
-                    dataSet1.setDataSetSize(11L);
-                    SimpleDataSetInformationDTO dataSet2 = new SimpleDataSetInformationDTO();
-                    dataSet2.setDataSetCode("ds2");
-                    dataSet2.setDataStoreCode(DATA_STORE_CODE);
-                    dataSet2.setDataSetShareId("1");
-                    dataSet2.setDataSetLocation(LOCATION);
-                    dataSet2.setDataSetSize(22L);
-                    will(returnValue(Arrays.asList(dataSet1, dataSet2)));
 
                     one(statusUpdater).update(Arrays.asList("ds1", "ds2"),
                             DataSetArchivingStatus.ARCHIVED, true);
