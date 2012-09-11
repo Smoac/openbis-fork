@@ -20,6 +20,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
 import ch.systemsx.cisd.openbis.uitest.infra.EntityType;
+import ch.systemsx.cisd.openbis.uitest.page.Cell;
 
 /**
  * @author anttil
@@ -45,11 +46,15 @@ public class PropertyTypeAssignment implements Browsable
     }
 
     @Override
-    public boolean isRepresentedBy(Map<String, String> row)
+    public boolean isRepresentedBy(Map<String, Cell> row)
     {
-        System.out.println("Searching from " + row);
-        return propertyType.getCode().equalsIgnoreCase(row.get("Property Type Code")) &&
-                entityType.getCode().equalsIgnoreCase(row.get("Entity Type"));
+        Cell propertyTypeCode = row.get("Property Type Code");
+        Cell entityTypeCode = row.get("Entity Type");
+
+        return propertyTypeCode != null &&
+                entityTypeCode != null &&
+                propertyTypeCode.getText().equalsIgnoreCase(propertyType.getCode()) &&
+                entityTypeCode.getText().equalsIgnoreCase(entityType.getCode());
     }
 
     @Override

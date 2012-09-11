@@ -27,6 +27,7 @@ import java.util.Map;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
 import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
 
 /**
@@ -52,29 +53,49 @@ public abstract class BrowserPage extends NavigationPage
         return visibleElements;
     }
 
-    public Collection<Map<String, String>> getTableContent()
+    public Collection<Map<String, Cell>> getTableContent()
     {
-        List<Map<String, String>> content = new ArrayList<Map<String, String>>();
+        List<Map<String, Cell>> content = new ArrayList<Map<String, Cell>>();
 
         List<WebElement> columnNames = arrange(getVisible(getColumns()));
         List<WebElement> gridValues = arrange(getVisible(getData()));
 
         int index = 0;
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, Cell> map = new HashMap<String, Cell>();
         for (WebElement element : gridValues)
         {
             String columnName = columnNames.get(index % columnNames.size()).getText();
-            map.put(columnName, element.getText());
+
+            List<WebElement> a = new ArrayList<WebElement>(this.findElements(element, ".//A"));
+            if (a.size() > 0)
+            {
+                map.put(columnName, new Cell(element.getText(), a.get(0).getAttribute("href")));
+            } else
+            {
+                map.put(columnName, new Cell(element.getText()));
+            }
 
             index++;
 
             if (index % columnNames.size() == 0)
             {
                 content.add(map);
-                map = new HashMap<String, String>();
+                map = new HashMap<String, Cell>();
             }
         }
         return content;
+    }
+
+    public Map<String, Cell> dataOf(Browsable browsable)
+    {
+        for (Map<String, Cell> row : getTableContent())
+        {
+            if (browsable.isRepresentedBy(row))
+            {
+                return row;
+            }
+        }
+        throw new IllegalStateException("Could not find " + browsable + " from " + toString());
     }
 
     private List<WebElement> arrange(Collection<WebElement> elements)

@@ -35,10 +35,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.BrowserListsElementMatcher;
+import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellContainsLinkMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.PageMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.RegisterSampleFormContainsInputsForPropertiesMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.SampleBrowserSampleTypeDropDownMenuMatcher;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
+import ch.systemsx.cisd.openbis.uitest.page.Cell;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
@@ -63,6 +65,8 @@ import ch.systemsx.cisd.openbis.uitest.type.VocabularyBuilder;
 
 public abstract class SeleniumTest
 {
+    public static int IMPLICIT_WAIT = 20;
+
     public static WebDriver driver;
 
     private PageProxy pageProxy;
@@ -81,7 +85,7 @@ public abstract class SeleniumTest
         System.setProperty("webdriver.firefox.profile", "default");
         */
         driver = new FirefoxDriver();
-        driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT, TimeUnit.SECONDS);
         delete(new File("targets/dist"));
 
         driver.manage().deleteAllCookies();
@@ -114,7 +118,7 @@ public abstract class SeleniumTest
             }));
         openbis.login(User.ADMIN);
 
-        // this is here because of space dropdown does not work properly soon after login
+        // this is because of BIS-184
         sampleBrowser().allSpaces();
     }
 
@@ -225,6 +229,11 @@ public abstract class SeleniumTest
     protected Matcher<RegisterSample> hasInputsForProperties(PropertyType... fields)
     {
         return new RegisterSampleFormContainsInputsForPropertiesMatcher(fields);
+    }
+
+    protected Matcher<Cell> containsLink(String text, String url)
+    {
+        return new CellContainsLinkMatcher(text, url);
     }
 
     protected <T> T create(Builder<T> builder)

@@ -31,14 +31,14 @@ public class SampleBrowser extends BrowserPage
 
     @FindBys(
         {
-                @FindBy(id = "openbis_sample-type-browser-grid"),
-                @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-header \")]") })
+                @FindBy(id = "openbis_sample-browser_main-grid"),
+                @FindBy(xpath = ".//*[contains(@class, \"x-grid\") and contains(@class, \"-header \")]") })
     private List<WebElement> columns;
 
     @FindBys(
         {
-                @FindBy(id = "openbis_sample-type-browser-grid"),
-                @FindBy(xpath = "//*[contains(@class, \"x-grid\") and contains(@class, \"-col \")]") })
+                @FindBy(id = "openbis_sample-browser_main-grid"),
+                @FindBy(xpath = ".//*[contains(@class, \"x-grid\") and contains(@class, \"-col \")]") })
     private List<WebElement> data;
 
     @FindBy(id = "openbis_sample-browser_main_add-button")

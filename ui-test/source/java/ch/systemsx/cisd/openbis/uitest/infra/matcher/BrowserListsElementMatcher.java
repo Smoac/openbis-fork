@@ -23,6 +23,7 @@ import org.hamcrest.TypeSafeMatcher;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
+import ch.systemsx.cisd.openbis.uitest.page.Cell;
 
 /**
  * @author anttil
@@ -46,7 +47,7 @@ public class BrowserListsElementMatcher extends
     @Override
     public boolean matchesSafely(BrowserPage browser)
     {
-        for (Map<String, String> row : browser.getTableContent())
+        for (Map<String, Cell> row : browser.getTableContent())
         {
             if (this.expected.isRepresentedBy(row))
             {

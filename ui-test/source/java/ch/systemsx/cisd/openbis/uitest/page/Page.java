@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -83,7 +84,10 @@ public abstract class Page
 
     public Collection<WebElement> findElements(WebElement element, String xpath)
     {
+        SeleniumTest.driver.manage().timeouts().implicitlyWait(0, TimeUnit.MILLISECONDS);
         Collection<WebElement> elements = element.findElements(By.xpath(xpath));
+        SeleniumTest.driver.manage().timeouts().implicitlyWait(SeleniumTest.IMPLICIT_WAIT,
+                TimeUnit.MILLISECONDS);
         List<WebElement> wrapped = new ArrayList<WebElement>();
         for (WebElement e : elements)
         {

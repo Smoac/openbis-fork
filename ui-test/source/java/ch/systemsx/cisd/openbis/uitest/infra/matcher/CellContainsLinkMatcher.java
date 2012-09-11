@@ -14,18 +14,36 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.infra.matcher;
 
-import java.util.Map;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 
 import ch.systemsx.cisd.openbis.uitest.page.Cell;
 
 /**
  * @author anttil
  */
-public interface Browsable
+public class CellContainsLinkMatcher extends TypeSafeMatcher<Cell>
 {
 
-    public boolean isRepresentedBy(Map<String, Cell> row);
+    private Cell expected;
+
+    public CellContainsLinkMatcher(String text, String url)
+    {
+        expected = new Cell(text, url);
+    }
+
+    @Override
+    public void describeTo(Description description)
+    {
+        description.appendText(this.expected.toString());
+    }
+
+    @Override
+    public boolean matchesSafely(Cell item)
+    {
+        return expected.equals(item);
+    }
 
 }

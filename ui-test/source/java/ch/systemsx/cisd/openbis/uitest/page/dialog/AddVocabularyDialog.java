@@ -51,6 +51,7 @@ public class AddVocabularyDialog extends Page
         {
             this.terms.sendKeys(term + ", ");
         }
+        this.url.clear();
         this.url.sendKeys(vocabulary.getUrl());
     }
 

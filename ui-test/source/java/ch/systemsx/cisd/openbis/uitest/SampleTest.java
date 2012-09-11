@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
@@ -78,9 +77,8 @@ public class SampleTest extends SeleniumTest
         Sample sample =
                 create(aSample().ofType(sampleType).withProperty(vocabularyType, "mouse"));
 
-        assertThat(true, is(true));
-        // assertThat(sampleBrowser().getDataOf(sample),
-        // containsLink("http://ask.com/web?q=mouse"));
+        assertThat(sampleBrowser().allSpaces().dataOf(sample).get(vocabularyType.getLabel()),
+                containsLink("MOUSE", "http://www.ask.com/web?q=MOUSE"));
 
     }
 
