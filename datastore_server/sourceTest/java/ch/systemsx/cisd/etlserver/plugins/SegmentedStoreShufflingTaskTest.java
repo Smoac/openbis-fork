@@ -43,7 +43,6 @@ import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
-import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
@@ -164,7 +163,6 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(new File(share2, "ds2"), "hello ds2");
         prepareAsWithdrawShare(share2);
         balancerTask.setUp("mock-balancer", properties);
-        final RecordingMatcher<String> logMessageRecordingMatcher = new RecordingMatcher<String>();
         final Sequence sequence1 = context.sequence("seq1");
         context.checking(new Expectations()
             {
@@ -197,7 +195,6 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
                     will(returnValue(Arrays.asList(ds1b, ds2)));
                     inSequence(sequence1);
 
-                    one(logger).log(with(LogLevel.WARN), with(logMessageRecordingMatcher));
                     allowing(logger).log(
                             with(LogLevel.INFO),
                             with(Matchers.startsWith("Obtained the list of all "
@@ -229,8 +226,6 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
                 + "INFO  NOTIFY.SegmentedStoreShufflingTask - "
                 + "The following shares were emptied by shuffling: [1]",
                 logRecorder.getLogContent());
-        assertEquals("Data set ds1 no longer exists in share 2.", logMessageRecordingMatcher
-                .recordedObject().toString());
         context.assertIsSatisfied();
     }
 
@@ -244,9 +239,6 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    exactly(2).of(service).listDataSets();
-                    will(returnValue(Arrays.asList()));
-
                     one(logger).log(LogLevel.INFO, "Data Store Shares:");
                     allowing(logger).log(
                             with(LogLevel.INFO),
