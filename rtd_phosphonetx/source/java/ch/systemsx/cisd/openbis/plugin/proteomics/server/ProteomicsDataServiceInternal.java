@@ -60,12 +60,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
+import ch.systemsx.cisd.openbis.plugin.proteomics.server.authorization.validator.ParentSampleValidator;
+import ch.systemsx.cisd.openbis.plugin.proteomics.server.authorization.validator.RawDataSampleValidator;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.ExperimentLoader;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.ISampleLoader;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.IProteomicsDataServiceInternal;
-import ch.systemsx.cisd.openbis.plugin.proteomics.shared.authorization.validator.ParentSampleValidator;
-import ch.systemsx.cisd.openbis.plugin.proteomics.shared.authorization.validator.RawDataSampleValidator;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.CommonConstants;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.MsInjectionSample;
 

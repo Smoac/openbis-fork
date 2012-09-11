@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.proteomics.shared.authorization.validator;
+package ch.systemsx.cisd.openbis.plugin.proteomics.server.authorization.validator;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
-import ch.systemsx.cisd.openbis.plugin.proteomics.shared.authorization.validator.RawDataSampleValidator;
+import ch.systemsx.cisd.openbis.plugin.proteomics.server.authorization.validator.RawDataSampleValidator;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.MsInjectionSample;
 
 /**

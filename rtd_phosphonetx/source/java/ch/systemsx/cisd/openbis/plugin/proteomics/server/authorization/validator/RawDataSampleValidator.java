@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.plugin.proteomics.shared.authorization.validator;
+package ch.systemsx.cisd.openbis.plugin.proteomics.server.authorization.validator;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
