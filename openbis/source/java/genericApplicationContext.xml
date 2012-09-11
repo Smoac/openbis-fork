@@ -43,7 +43,7 @@
     </bean>
     
     <bean id="relationship-service"
-        class="ch.systemsx.cisd.openbis.generic.server.RelationshipService">
+        class="ch.systemsx.cisd.openbis.generic.server.business.RelationshipService">
         <property name="daoFactory" ref="dao-factory" />
     </bean>
 
@@ -189,7 +189,7 @@
     
     <bean id="etl-entity-operation-checker" class="ch.systemsx.cisd.openbis.generic.server.ETLEntityOperationChecker"/>
     
-    <bean id="entity-operation-checker" class="ch.systemsx.cisd.openbis.generic.server.EntityOperationChecker"/>
+    <bean id="entity-operation-checker" class="ch.systemsx.cisd.openbis.generic.server.business.EntityOperationChecker"/>
 
     <!-- 
         // Transaction
