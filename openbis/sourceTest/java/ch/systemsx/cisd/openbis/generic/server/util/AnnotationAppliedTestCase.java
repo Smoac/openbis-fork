@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.AssertJUnit;
 
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 
 /**
  * Test case for test classes testing whether an interface and/or its implementation have all

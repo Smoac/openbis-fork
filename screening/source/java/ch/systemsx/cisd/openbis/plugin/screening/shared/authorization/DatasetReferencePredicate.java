@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.authorization;
 
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DelegatedPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DelegatedPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 
 /**

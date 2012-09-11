@@ -18,10 +18,10 @@ package ch.systemsx.cisd.openbis.generic.server.business;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewSamplePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;

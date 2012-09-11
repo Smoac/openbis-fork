@@ -14,8 +14,6 @@ import org.hibernate.Session;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;

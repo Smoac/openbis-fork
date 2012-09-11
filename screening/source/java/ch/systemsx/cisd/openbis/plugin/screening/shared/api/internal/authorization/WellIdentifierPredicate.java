@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.internal.authorization;
 
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DelegatedPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SamplePermIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DelegatedPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePermIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 

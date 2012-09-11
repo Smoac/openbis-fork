@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.authorization;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DelegatedPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DelegatedPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 

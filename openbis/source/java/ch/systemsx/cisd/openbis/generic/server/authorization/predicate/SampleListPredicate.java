@@ -29,14 +29,12 @@ import net.lemnik.eodsql.Select;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
+import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongArrayMapper;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ShouldFlattenCollections;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractSpacePredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;

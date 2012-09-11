@@ -1,7 +1,7 @@
 package ch.systemsx.cisd.openbis.plugin.proteomics.shared.authorization.validator;
 
-import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.IValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.MsInjectionSample;

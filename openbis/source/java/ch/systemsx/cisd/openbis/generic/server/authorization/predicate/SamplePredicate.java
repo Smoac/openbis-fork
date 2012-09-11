@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DelegatedPredicate;
 
 /**
  * Predicate based on {@link ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample}. This

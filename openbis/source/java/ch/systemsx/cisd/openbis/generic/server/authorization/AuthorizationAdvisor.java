@@ -39,10 +39,10 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.AnnotationUtils;
 import ch.systemsx.cisd.common.utilities.AnnotationUtils.Parameter;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.util.MethodInvocationUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ISessionProvider;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 
 /**

@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.internal.authorizat
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractSpacePredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
+import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractSpacePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;

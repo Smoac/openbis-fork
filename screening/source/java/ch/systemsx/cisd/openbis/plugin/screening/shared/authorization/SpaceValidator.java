@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.authorization;
 
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.AbstractValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.AbstractValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;

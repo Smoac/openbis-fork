@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.Capability;
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**

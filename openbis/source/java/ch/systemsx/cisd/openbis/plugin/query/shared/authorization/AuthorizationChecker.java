@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.DefaultAccessController;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;

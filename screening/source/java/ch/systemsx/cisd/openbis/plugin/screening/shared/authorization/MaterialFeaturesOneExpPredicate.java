@@ -22,10 +22,10 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.IPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
+import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialFeaturesOneExpCriteria;
