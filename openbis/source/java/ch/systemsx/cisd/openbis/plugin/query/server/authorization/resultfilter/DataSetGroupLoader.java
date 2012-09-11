@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.query.shared.authorization.result_filter;
+package ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter;
 
 import java.util.HashMap;
 import java.util.List;

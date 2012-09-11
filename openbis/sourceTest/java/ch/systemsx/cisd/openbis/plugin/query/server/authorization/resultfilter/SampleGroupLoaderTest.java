@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.query.shared.authorization.result_filter;
+package ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,18 +27,18 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.IGroupLoader;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.SampleGroupLoader;
 
 /**
- * Test cases for {@link DataSetGroupLoader}.
+ * Test cases for {@link SampleGroupLoader}.
  * 
  * @author Izabela Adamczyk
  */
-public class DataSetGroupLoaderTest extends AssertJUnit
+public class SampleGroupLoaderTest extends AssertJUnit
 {
     private static final String UNKNOWN = "unknown";
 
@@ -48,13 +48,13 @@ public class DataSetGroupLoaderTest extends AssertJUnit
 
     private Mockery context;
 
-    private IDataDAO dao;
+    private ISampleDAO dao;
 
     @BeforeMethod
     public void setUp()
     {
         context = new Mockery();
-        dao = context.mock(IDataDAO.class);
+        dao = context.mock(ISampleDAO.class);
     }
 
     @AfterMethod
@@ -67,7 +67,7 @@ public class DataSetGroupLoaderTest extends AssertJUnit
 
     IGroupLoader createLoader()
     {
-        return new DataSetGroupLoader(dao);
+        return new SampleGroupLoader(dao);
     }
 
     @Test
@@ -77,15 +77,15 @@ public class DataSetGroupLoaderTest extends AssertJUnit
         keys.add(KNOWN_WITH_GROUP);
         keys.add(KNOWN_WITHOUT_GROUP);
         keys.add(UNKNOWN);
-        final ArrayList<ExternalDataPE> datasets = new ArrayList<ExternalDataPE>();
+        final ArrayList<SamplePE> samples = new ArrayList<SamplePE>();
         SpacePE knownGroup = new SpacePE();
-        datasets.add(createDataset(KNOWN_WITH_GROUP, knownGroup));
-        datasets.add(createDataset(KNOWN_WITHOUT_GROUP, null));
+        samples.add(createSample(KNOWN_WITH_GROUP, knownGroup));
+        samples.add(createSample(KNOWN_WITHOUT_GROUP, null));
         context.checking(new Expectations()
             {
                 {
-                    one(dao).listByCode(keys);
-                    will(returnValue(datasets));
+                    one(dao).listByPermID(keys);
+                    will(returnValue(samples));
                 }
             });
         Map<String, SpacePE> map = createLoader().loadGroups(keys);
@@ -95,15 +95,11 @@ public class DataSetGroupLoaderTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    private ExternalDataPE createDataset(String code, SpacePE group)
+    private SamplePE createSample(String permId, SpacePE group)
     {
-        ExternalDataPE dataset = new ExternalDataPE();
-        ExperimentPE experiment = new ExperimentPE();
-        ProjectPE project = new ProjectPE();
-        project.setSpace(group);
-        experiment.setProject(project);
-        dataset.setExperiment(experiment);
-        dataset.setCode(code);
-        return dataset;
+        SamplePE sample = new SamplePE();
+        sample.setSpace(group);
+        sample.setPermId(permId);
+        return sample;
     }
 }

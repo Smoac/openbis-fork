@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.query.shared.authorization.result_filter;
+package ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -25,6 +25,11 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.DataSetGroupLoader;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.ExperimentGroupLoader;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.GroupLoaderFactory;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.IGroupLoader;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.SampleGroupLoader;
 
 /**
  * Test cases for {@link GroupLoaderFactory}.

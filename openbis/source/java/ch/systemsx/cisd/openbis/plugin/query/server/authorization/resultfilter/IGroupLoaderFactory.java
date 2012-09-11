@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.query.shared.authorization;
+package ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
- * Checks if given person has access to chosen group.
+ * Creates {@link IGroupLoader} for given {@link EntityKind}.
  * 
  * @author Izabela Adamczyk
  */
-public interface IAuthorizationChecker
+public interface IGroupLoaderFactory
 {
-    boolean isAuthorized(PersonPE person, SpacePE dataSpaceOrNull, RoleWithHierarchy minimalRole);
+    public IGroupLoader create(EntityKind kind);
 }

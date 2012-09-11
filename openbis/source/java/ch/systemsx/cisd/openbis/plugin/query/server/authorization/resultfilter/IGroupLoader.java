@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.query.shared.authorization.result_filter;
+package ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import java.util.Map;
+import java.util.Set;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * Creates {@link IGroupLoader} for given {@link EntityKind}.
+ * Loads the groups connected with entities described by given keys.
  * 
  * @author Izabela Adamczyk
  */
-public interface IGroupLoaderFactory
+public interface IGroupLoader
 {
-    public IGroupLoader create(EntityKind kind);
+    Map<String, SpacePE> loadGroups(Set<String> keys);
 }

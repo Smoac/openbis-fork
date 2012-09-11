@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.query.shared.authorization.result_filter;
+package ch.systemsx.cisd.openbis.plugin.query.server.authorization;
 
-import java.util.Map;
-import java.util.Set;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * Loads the groups connected with entities described by given keys.
+ * Checks if given person has access to chosen group.
  * 
  * @author Izabela Adamczyk
  */
-public interface IGroupLoader
+public interface IAuthorizationChecker
 {
-    Map<String, SpacePE> loadGroups(Set<String> keys);
+    boolean isAuthorized(PersonPE person, SpacePE dataSpaceOrNull, RoleWithHierarchy minimalRole);
 }

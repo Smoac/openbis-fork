@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.query.shared.authorization;
+package ch.systemsx.cisd.openbis.plugin.query.server.authorization;
 
 import java.util.List;
 import java.util.Set;

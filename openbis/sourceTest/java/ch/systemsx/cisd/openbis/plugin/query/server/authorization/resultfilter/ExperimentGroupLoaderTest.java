@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.query.shared.authorization.result_filter;
+package ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,6 +31,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.ExperimentGroupLoader;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.IGroupLoader;
 
 /**
  * Test cases for {@link ExperimentGroupLoader}.

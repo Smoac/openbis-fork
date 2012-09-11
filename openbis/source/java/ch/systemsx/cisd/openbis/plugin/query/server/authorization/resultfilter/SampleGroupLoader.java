@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.query.shared.authorization.result_filter;
+package ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
- * {@link IGroupLoader} for experiments.
+ * {@link IGroupLoader} for samples.
  * 
  * @author Izabela Adamczyk
  */
-class ExperimentGroupLoader implements IGroupLoader
+class SampleGroupLoader implements IGroupLoader
 {
 
-    private final IExperimentDAO dao;
+    private final ISampleDAO dao;
 
-    public ExperimentGroupLoader(IExperimentDAO dao)
+    public SampleGroupLoader(ISampleDAO dao)
     {
         this.dao = dao;
     }
@@ -44,10 +44,10 @@ class ExperimentGroupLoader implements IGroupLoader
     public Map<String, SpacePE> loadGroups(Set<String> keys)
     {
         Map<String, SpacePE> map = new HashMap<String, SpacePE>();
-        List<ExperimentPE> experiments = dao.listByPermID(keys);
-        for (ExperimentPE e : experiments)
+        List<SamplePE> samples = dao.listByPermID(keys);
+        for (SamplePE s : samples)
         {
-            map.put(e.getPermId(), e.getProject().getSpace());
+            map.put(s.getPermId(), s.getSpace());
         }
         return map;
     }

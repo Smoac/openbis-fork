@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.query.shared.authorization;
+package ch.systemsx.cisd.openbis.plugin.query.server.authorization;
 
 import java.util.Map;
 
@@ -29,8 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.QueryResultFilter;
 import ch.systemsx.cisd.openbis.plugin.query.shared.DatabaseDefinition;
-import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.result_filter.QueryResultFilter;
 
 /**
  * @author Piotr Buczek

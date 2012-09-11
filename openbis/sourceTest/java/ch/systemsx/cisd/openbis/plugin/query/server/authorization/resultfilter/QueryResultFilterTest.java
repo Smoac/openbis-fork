@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.query.shared.authorization.result_filter;
+package ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +37,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.IAuthorizationChecker;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.IAuthorizationChecker;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.IGroupLoader;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.IGroupLoaderFactory;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.resultfilter.QueryResultFilter;
 
 /**
  * Test cases for {@link QueryResultFilter}.

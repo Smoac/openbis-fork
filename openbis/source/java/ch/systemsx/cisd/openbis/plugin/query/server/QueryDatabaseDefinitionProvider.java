@@ -37,10 +37,10 @@ import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.plugin.query.server.authorization.QueryAccessController;
 import ch.systemsx.cisd.openbis.plugin.query.shared.DatabaseDefinition;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryDatabaseDefinitionProvider;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
-import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.QueryAccessController;
 
 /**
  * Basic implementation of {@link IQueryDatabaseDefinitionProvider}
