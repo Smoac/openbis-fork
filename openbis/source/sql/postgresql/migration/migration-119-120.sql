@@ -96,7 +96,7 @@ DECLARE
   sample_count INTEGER; 
 BEGIN
   
-    FOR sample_type_record IN SELECT * FROM sample_types LOOP
+    FOR sample_type_record IN SELECT * FROM sample_types WHERE is_subcode_unique = true LOOP
         select count(*) as c into sample_count from samples_all where saty_id = sample_type_record.id group by code, saty_id, space_id, dbin_id order by c desc limit 1;
         IF (sample_count > 1) THEN
           update sample_types set is_subcode_unique = false where id = sample_type_record.id;     
