@@ -227,7 +227,7 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
             String accessionNumber = info.getAccessionNumber();
             TabItem item = new TabItem(accessionNumber);
             item.setLayout(new FitLayout());
-            PropertyGrid propertyGrid = new PropertyGrid(viewContext, 4);
+            PropertyGrid propertyGrid = new PropertyGrid(viewContext, 4, "200");
             final Map<String, Object> properties = new LinkedHashMap<String, Object>();
             properties.put(viewContext.getMessage(Dict.ACCESSION_NUMBER), info);
             propertyGrid.registerPropertyValueRenderer(IndistinguishableProteinInfo.class,
