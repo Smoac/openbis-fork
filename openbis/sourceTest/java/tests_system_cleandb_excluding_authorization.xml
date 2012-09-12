@@ -1,0 +1,14 @@
+<suite name="All" verbose="2" parallel = "false" threadCount = "1">
+  <test name="system-cleandb" annotations="JDK">
+    <groups>
+      <run>
+        <include name="system-cleandb"/>
+        <exclude name="authorization"/>
+      </run>
+    </groups>
+    <packages>
+      <package name="ch.systemsx.cisd.openbis.systemtest.*" />
+    </packages>
+  </test>
+  
+</suite>

@@ -316,7 +316,7 @@
   		<param name="failure.property" value="tests.failed" />
   	</antcall>
   	<antcall target="_run-testng">
-  		<param name="test.suite" value="tests_system_cleandb_without_authorization.xml" />
+  		<param name="test.suite" value="tests_system_cleandb_excluding_authorization.xml" />
   		<param name="failure.property" value="tests.failed" />
   	</antcall>
   				
@@ -327,7 +327,7 @@
   		<report format="noframes" todir="${output.test}" />
   	</junitreport>
   	<fail if="tests.failed" message="At least one test failed." />
-		<antcall target="check-restrictions" />
+		<!--antcall target="check-restrictions" /-->
   </target>
 
 
