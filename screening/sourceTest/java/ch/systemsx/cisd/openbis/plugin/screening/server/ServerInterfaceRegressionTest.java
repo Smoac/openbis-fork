@@ -37,6 +37,6 @@ public class ServerInterfaceRegressionTest extends AnnotationAppliedTestCase
     public void testApiServerAnnotations()
     {
         assertMandatoryMethodAnnotations(IScreeningApiServer.class, ScreeningServer.class,
-                "tryLoginScreening: RolesAllowed\n" + "logoutScreening: RolesAllowed\n");
+                "logoutScreening: RolesAllowed\n" + "tryLoginScreening: RolesAllowed\n");
     }
 }

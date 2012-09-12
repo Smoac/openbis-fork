@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.util;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -90,7 +92,16 @@ public class AnnotationAppliedTestCase extends AssertJUnit
         assertEquals(true, interfaceClass.isAssignableFrom(implementingClass));
 
         StringBuilder problems = new StringBuilder(noMissingAnnotationsMsg);
-        for (Method interfaceMethod : interfaceClass.getDeclaredMethods())
+        Method[] declaredMethods = interfaceClass.getDeclaredMethods();
+        Arrays.sort(declaredMethods, new Comparator<Method>()
+            {
+                @Override
+                public int compare(Method m0, Method m1)
+                {
+                    return m0.getName().compareTo(m1.getName());
+                }
+            });
+        for (Method interfaceMethod : declaredMethods)
         {
             List<String> missingAnnotations = new ArrayList<String>();
             for (Class<? extends Annotation> annotationClass : mandatoryAnnotations)
