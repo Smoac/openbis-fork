@@ -63,11 +63,17 @@ public final class PropertyGrid extends Grid
 
     public PropertyGrid(final IViewContext<?> viewContext, final int rows)
     {
+        this(viewContext, rows, "30%");
+    }
+
+    public PropertyGrid(final IViewContext<?> viewContext, final int rows, String widthOfFirstColumn)
+    {
         super(rows, 2);
         this.messageProvider = viewContext;
         this.viewContext = viewContext;
         setStyleName("property-grid");
         getColumnFormatter().addStyleName(0, "header");
+        getColumnFormatter().setWidth(0, widthOfFirstColumn);
         defaultPropertyValueRenderer = new ObjectPropertyValueRenderer(messageProvider);
         registerDefaultPropertyValueRenderers();
     }

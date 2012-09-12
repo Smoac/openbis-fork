@@ -296,7 +296,7 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
     private PropertyGrid createPropertyGrid(ProteinByExperiment protein)
     {
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
-        PropertyGrid propertyGrid = new PropertyGrid(viewContext, 0);
+        PropertyGrid propertyGrid = new PropertyGrid(viewContext, 0, "200");
         if (experimentOrNull != null)
         {
             properties.put(viewContext.getMessage(Dict.EXPERIMENT_LABEL), experimentOrNull);
