@@ -40,6 +40,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 public class ExternalDataBuilder extends Builder<ExternalData>
 {
+    private static int number;
+
     private IETLLIMSService etlService;
 
     private SampleIdentifier sampleIdentifier;
@@ -55,12 +57,11 @@ public class ExternalDataBuilder extends Builder<ExternalData>
     private boolean container;
 
     public ExternalDataBuilder(ICommonServerForInternalUse commonServer,
-            IGenericServer genericServer,
-            IETLLIMSService etlService)
+            IGenericServer genericServer, IETLLIMSService etlService)
     {
         super(commonServer, genericServer);
         this.etlService = etlService;
-        this.code = UUID.randomUUID().toString();
+        this.code = "DS" + number++;
         this.parentCodes = new ArrayList<String>();
         this.container = false;
         this.componentCodes = new ArrayList<String>();
@@ -120,7 +121,7 @@ public class ExternalDataBuilder extends Builder<ExternalData>
     public ExternalData create()
     {
         DataSetType dataSetType = new DataSetType();
-        dataSetType.setCode(UUID.randomUUID().toString());
+        dataSetType.setCode("DT" + number++);
         if (this.container)
         {
             dataSetType.setDataSetKind(DataSetKind.CONTAINER);
