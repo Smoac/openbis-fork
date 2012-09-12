@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.hibernate.EmptyInterceptor;
@@ -76,20 +76,20 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 
     IHibernateTransactionManagerCallback callback;
 
-    /*
-     * During the transaction the new objects are inserted into the newEntities and
-     * mofidiedEntities. During the validation phase, first all new entities are validated, then the
-     * remaining, which consists of a modified entities, and the entities which were explicitly
-     * marked for validation by validation scripts. We keep the track of validated entities in the
-     * set, and keep the entities we still have to validate in entitiesToValidate.
+    /**
+     * Used only to store information about whether some objects are new or not
      */
-    Set<IEntityInformationWithPropertiesHolder> modifiedEntities;
-
     Set<IEntityInformationWithPropertiesHolder> newEntities;
 
-    Set<IEntityInformationWithPropertiesHolder> validatedEntities;
+    /**
+     * Keeps the list of all items that should be validated
+     */
+    LinkedHashSet<IEntityInformationWithPropertiesHolder> entitiesToValidate;
 
-    Queue<IEntityInformationWithPropertiesHolder> entitiesToValidate;
+    /**
+     * Keeps the list of all items that should be validated
+     */
+    Set<IEntityInformationWithPropertiesHolder> validatedEntities;
 
     /**
      * WE get information about progress listener, form the caller of updates. Luckily the
@@ -138,26 +138,47 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
     @Override
     public void beforeTransactionCompletion(Transaction tx)
     {
-        validateNewEntities(tx);
-
-        for (IEntityInformationWithPropertiesHolder entity : modifiedEntities)
+        while (hasMoreItemsToValidate())
         {
-            entitiesToValidate.add(entity);
-        }
-
-        while (entitiesToValidate.size() > 0)
-        {
-            IEntityInformationWithPropertiesHolder entity = entitiesToValidate.remove();
-            validateEntity(tx, entity, false);
+            IEntityInformationWithPropertiesHolder entity = nextItemToValidate();
+            validateEntity(tx, entity);
         }
 
     }
 
-    private void validateNewEntities(Transaction tx)
+    private boolean hasMoreItemsToValidate()
     {
-        for (IEntityInformationWithPropertiesHolder entity : newEntities)
+        return entitiesToValidate.size() > 0;
+    }
+
+    private IEntityInformationWithPropertiesHolder nextItemToValidate()
+    {
+        Iterator<IEntityInformationWithPropertiesHolder> iterator = entitiesToValidate.iterator();
+        IEntityInformationWithPropertiesHolder entity = iterator.next();
+        iterator.remove();
+        return entity;
+    }
+
+    private void validateEntity(Transaction tx, IEntityInformationWithPropertiesHolder entity)
+    {
+        if (newEntities.contains(entity))
         {
             validateEntity(tx, entity, true);
+        } else
+        {
+            validateEntity(tx, entity, false);
+        }
+    }
+
+    private void validateEntity(Transaction tx, IEntityInformationWithPropertiesHolder entity,
+            boolean isNewEntity)
+    {
+        validatedEntity(entity);
+        ScriptPE validationScript = entity.getEntityType().getValidationScript();
+        if (validationScript != null)
+        {
+            IEntityInformationWithPropertiesHolder regained = regainEntity(entity);
+            validateEntityWithScript(tx, validationScript, regained, isNewEntity);
         }
     }
 
@@ -181,18 +202,6 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
             throw new IllegalArgumentException("Unsupported entity type " + entity.getClass());
         }
 
-    }
-
-    private void validateEntity(Transaction tx, IEntityInformationWithPropertiesHolder entity,
-            boolean isNewEntity)
-    {
-        validatedEntity(entity);
-        ScriptPE validationScript = entity.getEntityType().getValidationScript();
-        if (validationScript != null)
-        {
-            IEntityInformationWithPropertiesHolder regained = regainEntity(entity);
-            validateEntityWithScript(tx, validationScript, regained, isNewEntity);
-        }
     }
 
     private void validateEntityWithScript(Transaction tx, ScriptPE script,
@@ -240,8 +249,9 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 
     private void newEntity(IEntityInformationWithPropertiesHolder entity)
     {
-        if (newEntities.add(entity))
+        if (entitiesToValidate.add(entity))
         {
+            newEntities.add(entity);
             totalEntitiesToValidateCount++;
         }
     }
@@ -258,28 +268,23 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 
     private void modifiedEntity(IEntityInformationWithPropertiesHolder entity)
     {
-        if (false == newEntities.contains(entity))
+        if (entitiesToValidate.add(entity))
         {
-            if (modifiedEntities.add(entity))
-            {
-                totalEntitiesToValidateCount++;
-            }
+            totalEntitiesToValidateCount++;
         }
     }
 
     private void initializeLists()
     {
-        modifiedEntities = new HashSet<IEntityInformationWithPropertiesHolder>();
-        newEntities = new HashSet<IEntityInformationWithPropertiesHolder>();
         validatedEntities = new HashSet<IEntityInformationWithPropertiesHolder>();
-        entitiesToValidate = new LinkedList<IEntityInformationWithPropertiesHolder>();
+        newEntities = new HashSet<IEntityInformationWithPropertiesHolder>();
+        entitiesToValidate = new LinkedHashSet<IEntityInformationWithPropertiesHolder>();
     }
 
     @Override
     public void requestValidation(Object entity)
     {
-        if (validatedEntities.contains(entity) || newEntities.contains(entity)
-                || modifiedEntities.contains(entity))
+        if (validatedEntities.contains(entity) || entitiesToValidate.contains(entity))
         {
             // forcing validation of entity already listed for validation
         } else
@@ -287,9 +292,6 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
             IEntityInformationWithPropertiesHolder typedEntity =
                     (IEntityInformationWithPropertiesHolder) entity;
 
-            // we update modified entities to know that we will validate this entity
-            modifiedEntities.add(typedEntity);
-            // we add to the actual validation queue
             entitiesToValidate.add(typedEntity);
             totalEntitiesToValidateCount++;
         }
