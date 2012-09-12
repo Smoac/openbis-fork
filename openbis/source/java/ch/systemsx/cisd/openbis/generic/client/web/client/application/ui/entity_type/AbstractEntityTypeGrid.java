@@ -92,7 +92,7 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
                             createRegisterEntityTypeDialog(entityKind).show();
                         }
                     });
-        button.setId("add-entity-type-" + this.getClass().getName());
+        button.setId("add-entity-type-" + getEntityKindOrNull());
         addButton(button);
 
         Button editButton =
@@ -110,10 +110,10 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
                                 }
 
                             });
-        editButton.setId("edit-entity-type-" + this.getClass().getName());
+        editButton.setId("edit-entity-type-" + getEntityKindOrNull());
         addButton(editButton);
         Button deleteButton = createDeleteButton(viewContext);
-        deleteButton.setId("delete-entity-type-" + this.getClass().getName());
+        deleteButton.setId("delete-entity-type-" + getEntityKindOrNull());
         enableButtonOnSelectedItems(deleteButton);
         addButton(deleteButton);
 

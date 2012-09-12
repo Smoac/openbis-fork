@@ -29,13 +29,13 @@ import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 public class SampleTypeBrowser extends BrowserPage
 {
-    @FindBy(id = "add-entity-type-ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid")
+    @FindBy(id = "add-entity-type-SAMPLE")
     private WebElement addSampleTypeButton;
 
-    @FindBy(id = "edit-entity-type-ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid")
+    @FindBy(id = "edit-entity-type-SAMPLE")
     private WebElement editSampleTypeButton;
 
-    @FindBy(id = "delete-entity-type-ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid")
+    @FindBy(id = "delete-entity-type-SAMPLE")
     private WebElement deleteSampleTypeButton;
 
     @FindBys(

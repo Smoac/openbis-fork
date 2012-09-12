@@ -28,13 +28,13 @@ import ch.systemsx.cisd.openbis.uitest.page.dialog.AddExperimentTypeDialog;
 public class ExperimentTypeBrowser extends BrowserPage
 {
 
-    @FindBy(id = "add-entity-type-ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid")
+    @FindBy(id = "add-entity-type-EXPERIMENT")
     private WebElement addButton;
 
-    @FindBy(id = "edit-entity-type-ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid")
+    @FindBy(id = "edit-entity-type-EXPERIMENT")
     private WebElement editButton;
 
-    @FindBy(id = "delete-entity-type-ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid")
+    @FindBy(id = "delete-entity-type-EXPERIMENT")
     private WebElement deleteButton;
 
     @FindBys(
