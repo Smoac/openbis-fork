@@ -232,26 +232,33 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
         {
             if (shareWithMostFreeOrNull != null)
             {
-                long freeSpaceBefore = shareWithMostFreeOrNull.calculateFreeSpace();
-                File share = new File(storeRoot, shareIdManager.getShareId(dataSetCode));
-                dataSetMover.moveDataSetToAnotherShare(
-                        new File(share, dataSet.getDataSetLocation()),
-                        shareWithMostFreeOrNull.getShare(), getChecksumProvider(), logger);
-
-                String shareId = shareWithMostFreeOrNull.getShareId();
-                logger.log(LogLevel.INFO, "Data set " + dataSetCode
-                        + " successfully moved from share " + dataSet.getDataSetShareId() + " to "
-                        + shareId + ".");
-                long freeSpaceAfter = shareWithMostFreeOrNull.calculateFreeSpace();
-                if (freeSpaceBefore > freeSpaceLimitTriggeringNotification
-                        && freeSpaceAfter < freeSpaceLimitTriggeringNotification)
+                try
                 {
-                    notifyer.log(
-                            LogLevel.WARN,
-                            "After moving data set " + dataSetCode + " to share " + shareId
-                                    + " that share has only "
-                                    + FileUtilities.byteCountToDisplaySize(freeSpaceAfter)
-                                    + " free space. It might be necessary to add a new share.");
+                    long freeSpaceBefore = shareWithMostFreeOrNull.calculateFreeSpace();
+                    File share = new File(storeRoot, shareIdManager.getShareId(dataSetCode));
+                    dataSetMover.moveDataSetToAnotherShare(
+                            new File(share, dataSet.getDataSetLocation()),
+                            shareWithMostFreeOrNull.getShare(), getChecksumProvider(), logger);
+
+                    String shareId = shareWithMostFreeOrNull.getShareId();
+                    logger.log(LogLevel.INFO, "Data set " + dataSetCode
+                            + " successfully moved from share " + dataSet.getDataSetShareId()
+                            + " to " + shareId + ".");
+                    long freeSpaceAfter = shareWithMostFreeOrNull.calculateFreeSpace();
+                    if (freeSpaceBefore > freeSpaceLimitTriggeringNotification
+                            && freeSpaceAfter < freeSpaceLimitTriggeringNotification)
+                    {
+                        notifyer.log(
+                                LogLevel.WARN,
+                                "After moving data set " + dataSetCode + " to share " + shareId
+                                        + " that share has only "
+                                        + FileUtilities.byteCountToDisplaySize(freeSpaceAfter)
+                                        + " free space. It might be necessary to add a new share.");
+                    }
+                } catch (Throwable t)
+                {
+                    logger.log(LogLevel.ERROR, "Couldn't move data set " + dataSetCode
+                            + " to share " + shareWithMostFreeOrNull.getShareId() + ".", t);
                 }
             }
         }

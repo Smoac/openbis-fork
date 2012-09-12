@@ -142,7 +142,7 @@ public class SimpleShuffling implements ISegmentedStoreShuffling
                     taskExecutor.execute(shufflingTask, "shuffling", dataSet.getDataSetCode(), false);
                 } catch (Throwable ex)
                 {
-                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                    // ignore because it has already been logged. Try the next data set.
                 }
             }
         }

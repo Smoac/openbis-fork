@@ -250,6 +250,12 @@ public class SegmentedStoreUtils
             IEncapsulatedOpenBISService service, final IShareIdManager shareIdManager,
             IChecksumProvider checksumProvider, final ISimpleLogger logger)
     {
+        if (FileOperations.getMonitoredInstanceForCurrentThread().exists(dataSetDirInStore) == false)
+        {
+            logger.log(LogLevel.ERROR, "Data set '" + dataSetDirInStore
+                    + "' no longer exist in the data store.");
+            return;
+        }
         final String dataSetCode = dataSetDirInStore.getName();
         ExternalData dataSet = service.tryGetDataSet(dataSetCode);
         if (dataSet == null)
