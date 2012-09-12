@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calc
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
@@ -27,21 +28,21 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
  */
 public class ExternalDataAdaptor extends AbstractEntityAdaptor
 {
-    private final ExternalDataPE externalDataPE;
+    private final DataPE externalDataPE;
 
-    public ExternalDataAdaptor(ExternalDataPE externalDataPE, IDynamicPropertyEvaluator evaluator)
+    public ExternalDataAdaptor(DataPE externalDataPE, IDynamicPropertyEvaluator evaluator)
     {
         super(externalDataPE.getCode());
         initProperties(externalDataPE, evaluator);
         this.externalDataPE = externalDataPE;
     }
 
-    public ExternalDataPE externalDataPE()
+    public DataPE externalDataPE()
     {
         return externalDataPE;
     }
 
-    public ExternalDataPE entityPE()
+    public DataPE entityPE()
     {
         return externalDataPE();
     }

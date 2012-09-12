@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calc
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -42,7 +42,7 @@ public class EntityAdaptorFactory
             case EXPERIMENT:
                 return new ExperimentAdaptor((ExperimentPE) entity, evaluator);
             case DATA_SET:
-                return new ExternalDataAdaptor((ExternalDataPE) entity, evaluator);
+                return new ExternalDataAdaptor((DataPE) entity, evaluator);
             case MATERIAL:
                 return new MaterialAdaptor((MaterialPE) entity, evaluator);
             default:
