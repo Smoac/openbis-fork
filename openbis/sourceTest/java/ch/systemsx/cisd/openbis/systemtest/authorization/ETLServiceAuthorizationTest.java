@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest.authorization;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -64,13 +65,15 @@ public class ETLServiceAuthorizationTest extends BaseTest
 
     private Sample sample;
 
+    private Project anotherProject;
+
     @BeforeClass
     public void createSomeEntities()
     {
         space = create(aSpace());
         anotherSpace = create(aSpace());
         project = create(aProject().inSpace(space));
-        create(aProject().inSpace(anotherSpace));
+        anotherProject = create(aProject().inSpace(anotherSpace));
         experiment = create(anExperiment().inProject(project));
         sample = create(aSample().inExperiment(experiment));
         create(aSample().inExperiment(experiment));
@@ -106,7 +109,8 @@ public class ETLServiceAuthorizationTest extends BaseTest
 
         List<Project> projects = etlService.listProjects(sessionToken);
 
-        assertEquals(2, projects.size());
+        assertContainsProject(project.getIdentifier(), projects);
+        assertContainsProject(anotherProject.getIdentifier(), projects);
     }
 
     @Test
@@ -149,5 +153,17 @@ public class ETLServiceAuthorizationTest extends BaseTest
                 registrationid, userID, spaceRegistrations, projectRegistrations,
                 experimentRegistrations, experimentUpdates, sampleUpdates, sampleRegistrations,
                 materialRegistrations, materialUpdates, dataSetRegistrations, dataSetUpdates));
+    }
+
+    private void assertContainsProject(String expectedProjectIdentifer, List<Project> projects)
+    {
+        for (Project p : projects)
+        {
+            if (p.getIdentifier().equals(expectedProjectIdentifer))
+            {
+                return;
+            }
+        }
+        fail("Missing project " + expectedProjectIdentifer + " in " + projects);
     }
 }
