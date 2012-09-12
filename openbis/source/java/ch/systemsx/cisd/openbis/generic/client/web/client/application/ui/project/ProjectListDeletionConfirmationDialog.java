@@ -42,6 +42,7 @@ public final class ProjectListDeletionConfirmationDialog extends
     {
         super(viewContext, data, callback);
         this.viewContext = viewContext;
+        this.setId("deletion-confirmation-dialog");
     }
 
     public ProjectListDeletionConfirmationDialog(

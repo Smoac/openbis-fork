@@ -38,7 +38,7 @@ public class SampleTest extends SeleniumTest
     {
         Sample sample = create(aSample());
 
-        assertThat(sampleBrowser().allSpaces(), lists(sample));
+        assertThat(sampleBrowser(), lists(sample));
     }
 
     @Test

@@ -41,12 +41,16 @@ import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 public class ManualTest extends SeleniumTest
 {
 
-    @Test(enabled = false)
+    @Test
     public void basic()
     {
         // 0) Cleanup
+        experimentBrowser().space("sprint-test").deleteAll();
+        trash().empty();
+        projectBrowser().deleteIfExists("Code", "p1");
         spaceBrowser().deleteIfExists("Code", "sprint-test");
         sampleTypeBrowser().deleteIfExists("Code", "sprint_test");
+        experimentTypeBrowser().deleteIfExists("Code", "sprint_test");
         propertyTypeBrowser().deleteIfExists("Code", "sprint-test.text");
         propertyTypeBrowser().deleteIfExists("Code", "sprint-test.real");
         propertyTypeBrowser().deleteIfExists("Code", "sprint-test.animal");

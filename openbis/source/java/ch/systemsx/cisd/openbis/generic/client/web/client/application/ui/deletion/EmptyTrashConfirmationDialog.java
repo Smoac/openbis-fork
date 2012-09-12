@@ -51,6 +51,7 @@ public final class EmptyTrashConfirmationDialog extends
         this.viewContext = viewContext;
         this.callback = callback;
         this.forceOptions = new DeletionForceOptions(viewContext);
+        this.setId("deletion-confirmation-dialog");
     }
 
     @Override

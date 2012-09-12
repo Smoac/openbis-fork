@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.BrowseMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.NewMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.UserMenu;
+import ch.systemsx.cisd.openbis.uitest.page.tab.Trash;
 
 /**
  * @author anttil
@@ -42,6 +43,9 @@ public abstract class NavigationPage extends Page
 
     @FindBy(id = "new_menu")
     private WebElement newMenuButton;
+
+    @FindBy(id = "trash-button")
+    private WebElement trash;
 
     @FindBy(className = "x-tab-strip-close")
     private List<WebElement> tabCloseButtons;
@@ -62,6 +66,12 @@ public abstract class NavigationPage extends Page
     {
         browseMenuButton.click();
         return get(BrowseMenu.class);
+    }
+
+    public Trash trash()
+    {
+        trash.click();
+        return get(Trash.class);
     }
 
     public NewMenu newMenu()

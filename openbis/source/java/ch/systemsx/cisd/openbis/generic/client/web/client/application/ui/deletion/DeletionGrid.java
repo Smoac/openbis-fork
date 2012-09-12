@@ -98,6 +98,7 @@ public class DeletionGrid extends TypedTableGrid<Deletion>
 
         EmptyTrashButton emptyTrashButtonMenu =
                 new EmptyTrashButton(viewContext, createRefreshCallback(asActionInvoker()));
+        emptyTrashButtonMenu.setId("empty-trash-button");
         addButton(emptyTrashButtonMenu);
 
         final Button deletePermanentlyButton =

@@ -51,6 +51,7 @@ public final class PermanentDeletionConfirmationDialog extends
         this.viewContext = viewContext;
         this.callback = callback;
         this.forceOptions = new DeletionForceOptions(viewContext);
+        this.setId("deletion-confirmation-dialog");
     }
 
     public PermanentDeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,

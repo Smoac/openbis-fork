@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 
@@ -92,7 +93,8 @@ public abstract class BrowserPage extends NavigationPage
             Cell cell = row.get(column);
             if (cell != null && cell.getText().equalsIgnoreCase(value))
             {
-                cell.getElement().click();
+                cell.getElement().findElement(By.xpath("./..")).click();
+                waitForClickability(getDeleteButton());
                 getDeleteButton().click();
 
                 for (WebElement ellu : this.findElements(cell.getElement(),

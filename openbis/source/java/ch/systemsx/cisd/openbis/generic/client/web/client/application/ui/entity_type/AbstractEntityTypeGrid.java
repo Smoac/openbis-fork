@@ -110,10 +110,10 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
                                 }
 
                             });
-        editButton.setId("edit-entity-type");
+        editButton.setId("edit-entity-type-" + this.getClass().getName());
         addButton(editButton);
         Button deleteButton = createDeleteButton(viewContext);
-        deleteButton.setId("delete-entity-type");
+        deleteButton.setId("delete-entity-type-" + this.getClass().getName());
         enableButtonOnSelectedItems(deleteButton);
         addButton(deleteButton);
 

@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.uitest.infra.matcher.SampleBrowserSampleTypeDrop
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.page.Cell;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ProjectBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeAssignmentBrowser;
@@ -50,6 +51,7 @@ import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterSample;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.Trash;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.Builder;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentBuilder;
@@ -179,6 +181,16 @@ public abstract class SeleniumTest
     protected SampleBrowser sampleBrowser()
     {
         return openbis.browseToSampleBrowser();
+    }
+
+    protected ExperimentBrowser experimentBrowser()
+    {
+        return openbis.browseToExperimentBrowser();
+    }
+
+    protected Trash trash()
+    {
+        return openbis.browseToTrash();
     }
 
     protected SampleTypeBrowser sampleTypeBrowser()

@@ -31,10 +31,10 @@ public class ExperimentTypeBrowser extends BrowserPage
     @FindBy(id = "add-entity-type-ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid")
     private WebElement addButton;
 
-    @FindBy(id = "edit-entity-type")
+    @FindBy(id = "edit-entity-type-ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid")
     private WebElement editButton;
 
-    @FindBy(id = "delete-entity-type")
+    @FindBy(id = "delete-entity-type-ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid")
     private WebElement deleteButton;
 
     @FindBys(

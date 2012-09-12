@@ -32,10 +32,10 @@ public class SampleTypeBrowser extends BrowserPage
     @FindBy(id = "add-entity-type-ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid")
     private WebElement addSampleTypeButton;
 
-    @FindBy(id = "edit-entity-type")
+    @FindBy(id = "edit-entity-type-ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid")
     private WebElement editSampleTypeButton;
 
-    @FindBy(id = "delete-entity-type")
+    @FindBy(id = "delete-entity-type-ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid")
     private WebElement deleteSampleTypeButton;
 
     @FindBys(

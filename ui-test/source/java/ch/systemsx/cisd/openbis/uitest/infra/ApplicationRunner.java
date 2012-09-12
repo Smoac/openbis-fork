@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.uitest.page.dialog.AddVocabularyDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.EditSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AddPropertyType;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AssignSamplePropertyType;
+import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ProjectBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeAssignmentBrowser;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.Trash;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
@@ -169,6 +171,11 @@ public class ApplicationRunner
         return getMenus().admin().types().experimentTypes();
     }
 
+    public Trash browseToTrash()
+    {
+        return getMenus().trash();
+    }
+
     public AddSampleTypeDialog browseToAddSampleTypeDialog()
     {
         return browseToSampleTypeBrowser().add();
@@ -197,6 +204,11 @@ public class ApplicationRunner
     public SampleBrowser browseToSampleBrowser()
     {
         return getMenus().browse().samples();
+    }
+
+    public ExperimentBrowser browseToExperimentBrowser()
+    {
+        return getMenus().browse().experiments();
     }
 
     public RoleAssignmentBrowser browseToRoleAssignmentBrowser()

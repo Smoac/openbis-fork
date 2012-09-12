@@ -50,6 +50,7 @@ public final class ExperimentListDeletionConfirmationDialog extends
         this.withRadio();
         this.singleDataOrNull = null;
         this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
+        this.setId("deletion-confirmation-dialog");
     }
 
     public ExperimentListDeletionConfirmationDialog(
@@ -59,6 +60,7 @@ public final class ExperimentListDeletionConfirmationDialog extends
         super(viewContext, Collections.singletonList(experiment), deletionCallback);
         this.singleDataOrNull = experiment;
         this.selectedAndDisplayedItemsOrNull = null;
+        this.setId("deletion-confirmation-dialog");
     }
 
     @SuppressWarnings("unchecked")

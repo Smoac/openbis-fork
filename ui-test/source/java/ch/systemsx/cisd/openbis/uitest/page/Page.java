@@ -33,6 +33,8 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import com.google.common.base.Function;
+
 import ch.systemsx.cisd.openbis.uitest.infra.PageProxy;
 import ch.systemsx.cisd.openbis.uitest.infra.ScreenShotProxy;
 import ch.systemsx.cisd.openbis.uitest.infra.ScreenShotter;
@@ -108,6 +110,26 @@ public abstract class Page
             };
 
         new WebDriverWait(SeleniumTest.driver, 10).until(condition);
+    }
+
+    public void waitForClickability(final WebElement element)
+    {
+
+        new WebDriverWait(SeleniumTest.driver, 10).until(new Function<WebDriver, Object>()
+            {
+                @Override
+                public Object apply(WebDriver arg0)
+                {
+                    if (element.isDisplayed() && element.isEnabled())
+                    {
+                        return true;
+                    } else
+                    {
+                        return null;
+                    }
+                }
+
+            });
     }
 
     protected void select(Collection<? extends WebElement> choices, String text)

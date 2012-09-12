@@ -88,6 +88,8 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
 
     public static final String SHOW_DETAILS_BUTTON_ID = BROWSER_ID + "_show-details-button";
 
+    public static final String DELETE_BUTTON_ID = BROWSER_ID + "_delete-button";
+
     /**
      * Creates a grid without additional toolbar buttons. It can serve as a entity chooser.
      */
@@ -251,6 +253,7 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                 }
             });
         changeButtonTitleOnSelectedItems(deleteButton, deleteAllTitle, deleteTitle);
+        deleteButton.setId(DELETE_BUTTON_ID);
         addButton(deleteButton);
 
         if (viewContext.getModel().getApplicationInfo().isArchivingConfigured()

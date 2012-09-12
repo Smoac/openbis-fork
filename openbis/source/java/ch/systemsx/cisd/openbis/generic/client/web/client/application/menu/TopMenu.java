@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
@@ -131,7 +132,9 @@ public class TopMenu extends LayoutContainer
         if (viewContext.getModel().getApplicationInfo().getWebClientConfiguration()
                 .getEnableTrash())
         {
-            toolBar.add(new TrashButton(viewContext, componentProvider));
+            Button trash = new TrashButton(viewContext, componentProvider);
+            trash.setId("trash-button");
+            toolBar.add(trash);
         }
         toolBar.add(new AdministrationMenu(viewContext, componentProvider));
         toolBar.add(new LoggedUserMenu(viewContext, componentProvider));
