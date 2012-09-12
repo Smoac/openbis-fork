@@ -49,6 +49,16 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractExpressionPredicate.DeleteGridCustomColumnPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractExpressionPredicate.DeleteGridCustomFilterPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractExpressionPredicate.UpdateGridCustomColumnPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractExpressionPredicate.UpdateGridCustomFilterPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdCollectionPredicate.ExperimentTechIdCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdCollectionPredicate.ProjectTechIdCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdCollectionPredicate.SpaceTechIdCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetUpdatesPredicate;
@@ -61,16 +71,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTec
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIdentifierPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractExpressionPredicate.DeleteGridCustomColumnPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractExpressionPredicate.DeleteGridCustomFilterPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractExpressionPredicate.UpdateGridCustomColumnPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractExpressionPredicate.UpdateGridCustomFilterPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdCollectionPredicate.ExperimentTechIdCollectionPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdCollectionPredicate.ProjectTechIdCollectionPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdCollectionPredicate.SpaceTechIdCollectionPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DeletionValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExternalDataValidator;
@@ -1327,6 +1327,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 throw new UserFailureException(
                         "Cannot enable 'Unique Subcodes' option as some of the samples of this type already have duplicated subcodes.");
             }
+            throw e;
         }
     }
 
