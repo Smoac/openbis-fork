@@ -19,10 +19,12 @@ package ch.systemsx.cisd.openbis.systemtest.plugin.generic;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,10 +37,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -70,6 +81,13 @@ public class EntityValidationTest extends GenericSystemTestCase
 
     private void registerNewSample(String identifier, String type, String experimentIdentifierOrNull)
     {
+        final NewSample newSample = prepareNewSample(identifier, type, experimentIdentifierOrNull);
+        genericClientService.registerSample(systemSessionToken, newSample);
+    }
+
+    private NewSample prepareNewSample(String identifier, String type,
+            String experimentIdentifierOrNull)
+    {
         final NewSample newSample = new NewSample();
         newSample.setIdentifier(identifier);
         final SampleType sampleType = new SampleType();
@@ -79,7 +97,7 @@ public class EntityValidationTest extends GenericSystemTestCase
         {
             newSample.setExperimentIdentifier(experimentIdentifierOrNull);
         }
-        genericClientService.registerSample(systemSessionToken, newSample);
+        return newSample;
     }
 
     @BeforeMethod
@@ -142,6 +160,35 @@ public class EntityValidationTest extends GenericSystemTestCase
         commonServer.deleteSamples(systemSessionToken,
                 Collections.singletonList(new TechId(sample.getId())), "Yup",
                 DeletionType.PERMANENT);
+    }
+
+    @Test
+    public void testPerformEntityOperation()
+    {
+        NewSample sample = prepareNewSample("/TEST-SPACE/NEV-TEST", "NORMAL", null);
+        sample.setParents("EV-PARENT-NORMAL");
+        performSampleCreation(sample);
+    }
+
+    private void performSampleCreation(NewSample sampleToCreate)
+    {
+        List<NewSpace> spaceRegistrations = Collections.emptyList();
+        List<NewProject> projectRegistrations = Collections.emptyList();
+        List<NewExperiment> experimentRegistrations = Collections.emptyList();
+        List<ExperimentUpdatesDTO> experimentUpdates =
+                Collections.<ExperimentUpdatesDTO> emptyList();
+        List<SampleUpdatesDTO> sampleUpdates = Collections.emptyList();
+        List<NewSample> sampleRegistrations = Arrays.asList(sampleToCreate);
+        Map<String, List<NewMaterial>> materialRegistrations = Collections.emptyMap();
+        List<MaterialUpdateDTO> materialUpdates = Collections.emptyList();
+        List<? extends NewExternalData> dataSetRegistrations = Collections.emptyList();
+        List<DataSetBatchUpdatesDTO> dataSetUpdates = Collections.emptyList();
+        AtomicEntityOperationDetails details =
+                new AtomicEntityOperationDetails(null, null, spaceRegistrations,
+                        projectRegistrations, experimentRegistrations, experimentUpdates,
+                        sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
+                        dataSetRegistrations, dataSetUpdates);
+        etlService.performEntityOperations(systemSessionToken, details);
     }
 
     @Test
