@@ -37,8 +37,13 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calcu
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator.IValidationRequestDelegate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
@@ -99,6 +104,11 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 
     int entitiesValidatedCount;
 
+    private void updateListener()
+    {
+        progressListener = ServiceConversationsThreadContext.getProgressListener();
+    }
+
     @Override
     public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames,
             Type[] types)
@@ -110,11 +120,6 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
             newEntity((IEntityInformationWithPropertiesHolder) entity);
         }
         return false;
-    }
-
-    private void updateListener()
-    {
-        progressListener = ServiceConversationsThreadContext.getProgressListener();
     }
 
     @Override
@@ -156,6 +161,28 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         }
     }
 
+    private IEntityInformationWithPropertiesHolder regainEntity(
+            IEntityInformationWithPropertiesHolder entity)
+    {
+        if (entity instanceof SamplePE)
+        {
+            return daoFactory.getSampleDAO().tryGetByTechId(TechId.create(entity));
+        } else if (entity instanceof DataPE)
+        {
+            return daoFactory.getDataDAO().tryGetByTechId(TechId.create(entity));
+        } else if (entity instanceof ExperimentPE)
+        {
+            return daoFactory.getExperimentDAO().tryGetByTechId(TechId.create(entity));
+        } else if (entity instanceof MaterialPE)
+        {
+            return daoFactory.getMaterialDAO().tryGetByTechId(TechId.create(entity));
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported entity type " + entity.getClass());
+        }
+
+    }
+
     private void validateEntity(Transaction tx, IEntityInformationWithPropertiesHolder entity,
             boolean isNewEntity)
     {
@@ -163,7 +190,8 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         ScriptPE validationScript = entity.getEntityType().getValidationScript();
         if (validationScript != null)
         {
-            validateEntityWithScript(tx, validationScript, entity, isNewEntity);
+            IEntityInformationWithPropertiesHolder regained = regainEntity(entity);
+            validateEntityWithScript(tx, validationScript, regained, isNewEntity);
         }
     }
 
@@ -212,22 +240,30 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 
     private void newEntity(IEntityInformationWithPropertiesHolder entity)
     {
-        totalEntitiesToValidateCount++;
-        newEntities.add(entity);
+        if (newEntities.add(entity))
+        {
+            totalEntitiesToValidateCount++;
+        }
     }
 
     private void validatedEntity(IEntityInformationWithPropertiesHolder entity)
     {
         entitiesValidatedCount++;
-        validatedEntities.add(entity);
+        if (false == validatedEntities.add(entity))
+        {
+            throw new IllegalStateException(
+                    "Programming error - trying to validate the same entity twice!");
+        }
     }
 
     private void modifiedEntity(IEntityInformationWithPropertiesHolder entity)
     {
         if (false == newEntities.contains(entity))
         {
-            totalEntitiesToValidateCount++;
-            modifiedEntities.add(entity);
+            if (modifiedEntities.add(entity))
+            {
+                totalEntitiesToValidateCount++;
+            }
         }
     }
 
@@ -255,6 +291,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
             modifiedEntities.add(typedEntity);
             // we add to the actual validation queue
             entitiesToValidate.add(typedEntity);
+            totalEntitiesToValidateCount++;
         }
     }
 }

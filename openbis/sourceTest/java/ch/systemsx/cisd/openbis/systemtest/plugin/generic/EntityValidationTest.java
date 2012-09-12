@@ -163,11 +163,19 @@ public class EntityValidationTest extends GenericSystemTestCase
     }
 
     @Test
-    public void testPerformEntityOperation()
+    public void testRegisterSampleWithPerformEntityOperation()
     {
-        NewSample sample = prepareNewSample("/TEST-SPACE/NEV-TEST", "NORMAL", null);
+        NewSample sample = prepareNewSample("/TEST-SPACE/NEV-TEST-PE", "NORMAL", null);
         sample.setParents("EV-PARENT-NORMAL");
         performSampleCreation(sample);
+    }
+
+    @Test
+    public void testRegisterSampleWithETL()
+    {
+        NewSample sample = prepareNewSample("/TEST-SPACE/NEV-TEST_ETL", "NORMAL", null);
+        sample.setParents("EV-PARENT-NORMAL");
+        etlService.registerSample(systemSessionToken, sample, null);
     }
 
     private void performSampleCreation(NewSample sampleToCreate)
