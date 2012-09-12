@@ -30,4 +30,14 @@ public class ConsoleLogger implements ISimpleLogger
         System.out.println(level.toString() + ": " + message);
     }
 
+    @Override
+    public void log(LogLevel level, String message, Throwable throwableOrNull)
+    {
+        log(level, message);
+        if (throwableOrNull != null)
+        {
+            throwableOrNull.printStackTrace();
+        }
+    }
+
 }

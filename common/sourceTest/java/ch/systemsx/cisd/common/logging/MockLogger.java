@@ -33,10 +33,16 @@ public final class MockLogger implements ISimpleLogger
     @Override
     public void log(LogLevel level, String message)
     {
+        log(level, message, null);
+    }
+    
+    @Override
+    public void log(LogLevel level, String message, Throwable throwableOrNull)
+    {
         builder.append(level).append(": ").append(message).append('\n');
         messageChannel.send(message);
     }
-    
+
     public void assertNextLogMessage(String expectedMessage)
     {
         messageChannel.assertNextMessage(expectedMessage);

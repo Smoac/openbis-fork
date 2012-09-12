@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.logging;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
@@ -34,7 +35,13 @@ public class AssertingLogger implements ISimpleLogger
     @Override
     public void log(final LogLevel level, final String message)
     {
-        records.add(new LogRecord(level, message));
+        log(level, message, null);
+    }
+    
+    @Override
+    public void log(LogLevel level, String message, Throwable throwableOrNull)
+    {
+        records.add(new LogRecord(level, message, throwableOrNull));
     }
 
     public void assertNumberOfMessage(final int expectedNumberOfMessages)
@@ -56,6 +63,21 @@ public class AssertingLogger implements ISimpleLogger
                 message, pattern);
         assertTrue(assertError, message.matches(pattern));
     }
+    
+    public void assertThrowable(int i, LogLevel expectedLevel,
+            Class<? extends Throwable> throwableClass, String throwableMessagePattern)
+    {
+        LogRecord record = records.get(i);
+        assertEquals(expectedLevel, record.level);
+        Throwable throwable = record.throwableOrNull;
+        assertNotNull(throwable);
+        assertEquals(throwableClass.getName(), throwable.getClass().getName());
+        String message = throwable.getMessage();
+        String assertError =
+                String.format("Throwable message '%s' does not matches speficied pattern '%s'",
+                        message, throwableMessagePattern);
+        assertTrue(assertError, message.matches(throwableMessagePattern));
+    }
 
     private static class LogRecord
     {
@@ -63,10 +85,13 @@ public class AssertingLogger implements ISimpleLogger
 
         final String message;
 
-        LogRecord(final LogLevel level, final String message)
+        final Throwable throwableOrNull;
+
+        LogRecord(final LogLevel level, final String message, Throwable throwableOrNull)
         {
             this.level = level;
             this.message = message;
+            this.throwableOrNull = throwableOrNull;
         }
     }
 }

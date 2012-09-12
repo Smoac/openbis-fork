@@ -84,12 +84,18 @@ public class Log4jSimpleLogger implements ISimpleLogger
     @Override
     public void log(final LogLevel level, final String message)
     {
+        log(level, message, null);
+    }
+    
+    @Override
+    public void log(LogLevel level, String message, Throwable throwableOrNull)
+    {
         if (log4jOverridePriorityOrNull != null)
         {
             log4jLogger.log(log4jOverridePriorityOrNull, message);
         } else
         {
-            log4jLogger.log(toLog4jPriority(level), message);
+            log4jLogger.log(toLog4jPriority(level), message, null);
         }
     }
 

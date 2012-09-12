@@ -186,10 +186,15 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
         @Override
         public void log(LogLevel level, String message)
         {
+            log(level, message, null);
+        }
+        
+        @Override
+        public void log(LogLevel level, String message, Throwable throwableOrNull)
+        {
             this.storedLevel = level;
             this.storedMessage = message;
         }
-
     }
 
     @SuppressWarnings("null")

@@ -61,6 +61,12 @@ public class AntTaskSimpleLoggerAdapter implements ISimpleLogger
     @Override
     public void log(LogLevel level, String message)
     {
+        log(level, message, null);
+    }
+    
+    @Override
+    public void log(LogLevel level, String message, Throwable throwableOrNull)
+    {
         antTask.log(message, toAntLogLevel(level));
     }
 

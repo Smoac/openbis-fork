@@ -26,5 +26,10 @@ public interface ISimpleLogger
 
     /** Log <var>message</var> at log <var>level</var> out to some log file or display. */
     public void log(LogLevel level, String message);
+    
+    /**
+     * Logs for specified level the specified message with an optional throwable.
+     */
+    public void log(LogLevel level, String message, Throwable throwableOrNull);
 
 }
