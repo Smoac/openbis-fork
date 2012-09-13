@@ -67,7 +67,7 @@ public class ETLServiceAuthorizationTest extends BaseTest
 
     private Project anotherProject;
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     public void createSomeEntities()
     {
         space = create(aSpace());

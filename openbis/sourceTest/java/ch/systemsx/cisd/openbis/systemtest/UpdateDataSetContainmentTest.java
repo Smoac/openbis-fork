@@ -264,7 +264,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
         perform(anUpdateOf(container).withComponents().as(user));
     }
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createFixture() throws Exception
     {
         Space space = create(aSpace());
@@ -283,7 +283,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
 
     AuthorizationRule addParentToSampleRule;
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createAuthorizationRules()
     {
         instance = new InstanceDomain();

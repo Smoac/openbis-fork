@@ -327,7 +327,7 @@
   		<report format="noframes" todir="${output.test}" />
   	</junitreport>
   	<fail if="tests.failed" message="At least one test failed." />
-		<!--antcall target="check-restrictions" /-->
+		<antcall target="check-restrictions" />
   </target>
 
 

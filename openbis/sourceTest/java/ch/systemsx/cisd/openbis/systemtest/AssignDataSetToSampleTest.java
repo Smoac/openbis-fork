@@ -203,15 +203,13 @@ public class AssignDataSetToSampleTest extends BaseTest
     Space unrelatedNone;
 
     @Test(dataProvider = "rolesAllowedToAssignDataSetToSample", groups = "authorization")
-    public void assigningDataSetToSampleIsAllowedFor(
-            RoleWithHierarchy sourceSpaceRole,
-            RoleWithHierarchy destinationSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void assigningDataSetToSampleIsAllowedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+            throws Exception
     {
         ExternalData dataset = create(aDataSet().inSample(sourceSample));
         String user =
-                create(aSession()
-                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
                         .withSpaceRole(destinationSpaceRole, destinationSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
@@ -222,15 +220,13 @@ public class AssignDataSetToSampleTest extends BaseTest
 
     @Test(dataProvider = "rolesNotAllowedToAssignDataSetToSample", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
-    public void assigningDataSetToSampleIsNotAllowedFor(
-            RoleWithHierarchy sourceSpaceRole,
-            RoleWithHierarchy destinationSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void assigningDataSetToSampleIsNotAllowedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+            throws Exception
     {
         ExternalData dataset = create(aDataSet().inSample(sourceSample));
         String user =
-                create(aSession()
-                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
                         .withSpaceRole(destinationSpaceRole, destinationSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
@@ -239,7 +235,7 @@ public class AssignDataSetToSampleTest extends BaseTest
         perform(anUpdateOf(dataset).toSample(destinationSample).as(user));
     }
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createFixture() throws Exception
     {
         sourceSpace = create(aSpace());
@@ -265,7 +261,7 @@ public class AssignDataSetToSampleTest extends BaseTest
 
     AuthorizationRule assignDataSetToSampleRule;
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createAuthorizationRules()
     {
         instance = new InstanceDomain();
@@ -273,18 +269,15 @@ public class AssignDataSetToSampleTest extends BaseTest
         destination = new SpaceDomain(instance);
 
         assignDataSetToSampleRule =
-                and(
-                        rule(source, RoleWithHierarchy.SPACE_POWER_USER),
-                        rule(destination, RoleWithHierarchy.SPACE_POWER_USER)
-                );
+                and(rule(source, RoleWithHierarchy.SPACE_POWER_USER),
+                        rule(destination, RoleWithHierarchy.SPACE_POWER_USER));
     }
 
     @DataProvider
     Object[][] rolesAllowedToAssignDataSetToSample()
     {
         return RolePermutator.getAcceptedPermutations(assignDataSetToSampleRule, source,
-                destination,
-                instance);
+                destination, instance);
     }
 
     @DataProvider

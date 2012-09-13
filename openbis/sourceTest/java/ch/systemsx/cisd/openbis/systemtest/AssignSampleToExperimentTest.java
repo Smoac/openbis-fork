@@ -65,8 +65,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     }
 
     @Test
-    public void sampleIsAssignedWithSpaceOfNewExperiment()
-            throws Exception
+    public void sampleIsAssignedWithSpaceOfNewExperiment() throws Exception
     {
         Sample sample = create(aSample().inExperiment(sourceExperiment));
 
@@ -245,8 +244,7 @@ public class AssignSampleToExperimentTest extends BaseTest
 
     @Test(expectedExceptions =
         { UserFailureException.class })
-    public void sharedSampleCanNotBeAssignedToExperimentThroughExperimentUpdate()
-            throws Exception
+    public void sharedSampleCanNotBeAssignedToExperimentThroughExperimentUpdate() throws Exception
     {
         Sample sample = create(aSample());
 
@@ -273,15 +271,13 @@ public class AssignSampleToExperimentTest extends BaseTest
     Space unrelatedNone;
 
     @Test(dataProvider = "rolesAllowedToAssignSampleToExperiment", groups = "authorization")
-    public void assigningSampleToExperimentIsAllowedFor(
-            RoleWithHierarchy sourceSpaceRole,
-            RoleWithHierarchy destinationSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void assigningSampleToExperimentIsAllowedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+            throws Exception
     {
         Sample sample = create(aSample().inExperiment(sourceExperiment));
         String user =
-                create(aSession()
-                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
                         .withSpaceRole(destinationSpaceRole, destinationSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
@@ -292,15 +288,13 @@ public class AssignSampleToExperimentTest extends BaseTest
 
     @Test(dataProvider = "rolesNotAllowedToAssignSampleToExperiment", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
-    public void assigningSampleToExperimentIsNotAllowedFor(
-            RoleWithHierarchy sourceSpaceRole,
-            RoleWithHierarchy destinationSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void assigningSampleToExperimentIsNotAllowedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+            throws Exception
     {
         Sample sample = create(aSample().inExperiment(sourceExperiment));
         String user =
-                create(aSession()
-                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
                         .withSpaceRole(destinationSpaceRole, destinationSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
@@ -311,13 +305,12 @@ public class AssignSampleToExperimentTest extends BaseTest
 
     @Test(dataProvider = "rolesAllowedToAssignSharedSampleToExperiment", groups = "authorization")
     public void assigningSharedSampleToExperimentIsAllowedFor(
-            RoleWithHierarchy destinationSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+            throws Exception
     {
         Sample sample = create(aSample());
         String user =
-                create(aSession()
-                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                create(aSession().withSpaceRole(destinationSpaceRole, destinationSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
@@ -328,13 +321,12 @@ public class AssignSampleToExperimentTest extends BaseTest
     @Test(dataProvider = "rolesNotAllowedToAssignSharedSampleToExperiment", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningSharedSampleToExperimentIsNotAllowedFor(
-            RoleWithHierarchy destinationSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+            throws Exception
     {
         Sample sample = create(aSample());
         String user =
-                create(aSession()
-                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                create(aSession().withSpaceRole(destinationSpaceRole, destinationSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
@@ -344,13 +336,12 @@ public class AssignSampleToExperimentTest extends BaseTest
 
     @Test(dataProvider = "rolesAllowedToAssignSampleToExperimentThroughExperimentUpdate", groups = "authorization")
     public void assigningSampleToExperimentThroughExperimentUpdateIsAllowedFor(
-            RoleWithHierarchy destinationSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+            throws Exception
     {
         Sample sample = create(aSample().inSpace(destinationSpace));
         String user =
-                create(aSession()
-                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                create(aSession().withSpaceRole(destinationSpaceRole, destinationSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
@@ -361,13 +352,12 @@ public class AssignSampleToExperimentTest extends BaseTest
     @Test(dataProvider = "rolesNotAllowedToAssignSampleToExperimentThroughExperimentUpdate", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningSampleToExperimentThroughExperimentUpdateIsNotAllowedFor(
-            RoleWithHierarchy destinationSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+            throws Exception
     {
         Sample sample = create(aSample().inSpace(destinationSpace));
         String user =
-                create(aSession()
-                        .withSpaceRole(destinationSpaceRole, destinationSpace)
+                create(aSession().withSpaceRole(destinationSpaceRole, destinationSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
@@ -375,7 +365,7 @@ public class AssignSampleToExperimentTest extends BaseTest
         perform(anUpdateOf(destinationExperiment).withSamples(sample).as(user));
     }
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createFixture() throws Exception
     {
         sourceSpace = create(aSpace().withCode("sourceSpace"));
@@ -385,13 +375,10 @@ public class AssignSampleToExperimentTest extends BaseTest
         destinationProject = create(aProject().inSpace(destinationSpace));
 
         sourceExperiment =
-                create(anExperiment()
-                        .inProject(sourceProject)
-                        .withCode("sourceExperiment"));
+                create(anExperiment().inProject(sourceProject).withCode("sourceExperiment"));
         destinationExperiment =
-                create(anExperiment()
-                        .inProject(destinationProject)
-                        .withCode("destinationExperiment"));
+                create(anExperiment().inProject(destinationProject).withCode(
+                        "destinationExperiment"));
 
         unrelatedAdmin = create(aSpace());
         unrelatedObserver = create(aSpace());
@@ -410,7 +397,7 @@ public class AssignSampleToExperimentTest extends BaseTest
 
     AuthorizationRule assignSharedSampleToExperimentRule;
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createAuthorizationRules()
     {
         instance = new InstanceDomain();
@@ -418,41 +405,29 @@ public class AssignSampleToExperimentTest extends BaseTest
         destination = new SpaceDomain(instance);
 
         assignSampleToExperimentRule =
-                or(
-                        and(
-                                rule(source, RoleWithHierarchy.SPACE_POWER_USER),
-                                rule(destination, RoleWithHierarchy.SPACE_POWER_USER)),
+                or(and(rule(source, RoleWithHierarchy.SPACE_POWER_USER),
+                        rule(destination, RoleWithHierarchy.SPACE_POWER_USER)),
 
-                        and(
-                                rule(source, RoleWithHierarchy.SPACE_USER),
+                        and(rule(source, RoleWithHierarchy.SPACE_USER),
                                 rule(destination, RoleWithHierarchy.SPACE_USER),
-                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
-                        )
-                );
+                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)));
 
         assignSampleToExperimentThroughExperimentUpdateRule =
-                or(
-                        rule(source, RoleWithHierarchy.SPACE_POWER_USER),
+                or(rule(source, RoleWithHierarchy.SPACE_POWER_USER),
 
-                        and(
-                                rule(source, RoleWithHierarchy.SPACE_USER),
-                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
-                        )
-                );
+                        and(rule(source, RoleWithHierarchy.SPACE_USER),
+                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)));
 
         assignSharedSampleToExperimentRule =
-                and(
-                        rule(destination, RoleWithHierarchy.SPACE_USER),
-                        rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
-                );
+                and(rule(destination, RoleWithHierarchy.SPACE_USER),
+                        rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER));
     }
 
     @DataProvider
     Object[][] rolesAllowedToAssignSampleToExperiment()
     {
         return RolePermutator.getAcceptedPermutations(assignSampleToExperimentRule, source,
-                destination,
-                instance);
+                destination, instance);
     }
 
     @DataProvider
@@ -466,16 +441,14 @@ public class AssignSampleToExperimentTest extends BaseTest
     Object[][] rolesAllowedToAssignSampleToExperimentThroughExperimentUpdate()
     {
         return RolePermutator.getAcceptedPermutations(
-                assignSampleToExperimentThroughExperimentUpdateRule, source,
-                instance);
+                assignSampleToExperimentThroughExperimentUpdateRule, source, instance);
     }
 
     @DataProvider
     Object[][] rolesNotAllowedToAssignSampleToExperimentThroughExperimentUpdate()
     {
         return RolePermutator.getAcceptedPermutations(
-                not(assignSampleToExperimentThroughExperimentUpdateRule), source,
-                instance);
+                not(assignSampleToExperimentThroughExperimentUpdateRule), source, instance);
     }
 
     @DataProvider

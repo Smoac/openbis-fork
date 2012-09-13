@@ -74,15 +74,13 @@ public class AssignProjectToSpaceTest extends BaseTest
     Space unrelatedNone;
 
     @Test(dataProvider = "rolesAllowedToAssignProjectToSpace", groups = "authorization")
-    public void assigningProjectToSpaceIsAllowedFor(
-            RoleWithHierarchy sourceSpaceRole,
-            RoleWithHierarchy destinationSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void assigningProjectToSpaceIsAllowedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+            throws Exception
     {
         Project project = create(aProject().inSpace(sourceSpace));
         String user =
-                create(aSession()
-                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
                         .withSpaceRole(destinationSpaceRole, destinationSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
@@ -93,15 +91,13 @@ public class AssignProjectToSpaceTest extends BaseTest
 
     @Test(dataProvider = "rolesNotAllowedToAssignProjectToSpace", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
-    public void assigningProjectToSpaceIsNotAllowedFor(
-            RoleWithHierarchy sourceSpaceRole,
-            RoleWithHierarchy destinationSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void assigningProjectToSpaceIsNotAllowedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+            throws Exception
     {
         Project project = create(aProject().inSpace(sourceSpace));
         String user =
-                create(aSession()
-                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
                         .withSpaceRole(destinationSpaceRole, destinationSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
@@ -110,7 +106,7 @@ public class AssignProjectToSpaceTest extends BaseTest
         perform(anUpdateOf(project).toSpace(destinationSpace).as(user));
     }
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createFixture() throws Exception
     {
         sourceSpace = create(aSpace());
@@ -129,7 +125,7 @@ public class AssignProjectToSpaceTest extends BaseTest
 
     AuthorizationRule assignProjectToSpaceRule;
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createAuthorizationRules()
     {
         instance = new InstanceDomain();
@@ -137,18 +133,15 @@ public class AssignProjectToSpaceTest extends BaseTest
         destination = new SpaceDomain(instance);
 
         assignProjectToSpaceRule =
-                and(
-                        rule(source, RoleWithHierarchy.SPACE_POWER_USER),
-                        rule(destination, RoleWithHierarchy.SPACE_POWER_USER)
-                );
+                and(rule(source, RoleWithHierarchy.SPACE_POWER_USER),
+                        rule(destination, RoleWithHierarchy.SPACE_POWER_USER));
     }
 
     @DataProvider
     Object[][] rolesAllowedToAssignProjectToSpace()
     {
         return RolePermutator.getAcceptedPermutations(assignProjectToSpaceRule, source,
-                destination,
-                instance);
+                destination, instance);
     }
 
     @DataProvider

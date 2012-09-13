@@ -78,15 +78,13 @@ public class AssignExperimentToProjectTest extends BaseTest
     Space unrelatedNone;
 
     @Test(dataProvider = "rolesAllowedToAssignExperimentToProject", groups = "authorization")
-    public void assigningExperimentToProjectIsAllowedFor(
-            RoleWithHierarchy sourceSpaceRole,
-            RoleWithHierarchy destinationSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void assigningExperimentToProjectIsAllowedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+            throws Exception
     {
         Experiment experiment = create(anExperiment().inProject(sourceProject));
         String user =
-                create(aSession()
-                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
                         .withSpaceRole(destinationSpaceRole, destinationSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
@@ -97,15 +95,13 @@ public class AssignExperimentToProjectTest extends BaseTest
 
     @Test(dataProvider = "rolesNotAllowedToAssignExperimentToProject", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
-    public void assigningExperimentToProjectIsNotAllowedFor(
-            RoleWithHierarchy sourceSpaceRole,
-            RoleWithHierarchy destinationSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void assigningExperimentToProjectIsNotAllowedFor(RoleWithHierarchy sourceSpaceRole,
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
+            throws Exception
     {
         Experiment experiment = create(anExperiment().inProject(sourceProject));
         String user =
-                create(aSession()
-                        .withSpaceRole(sourceSpaceRole, sourceSpace)
+                create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
                         .withSpaceRole(destinationSpaceRole, destinationSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
@@ -114,7 +110,7 @@ public class AssignExperimentToProjectTest extends BaseTest
         perform(anUpdateOf(experiment).toProject(destinationProject).as(user));
     }
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createFixture() throws Exception
     {
         sourceSpace = create(aSpace());
@@ -135,7 +131,7 @@ public class AssignExperimentToProjectTest extends BaseTest
 
     AuthorizationRule assignExperimentToProjectRule;
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createAuthorizationRules()
     {
         instance = new InstanceDomain();
@@ -143,18 +139,12 @@ public class AssignExperimentToProjectTest extends BaseTest
         destination = new SpaceDomain(instance);
 
         assignExperimentToProjectRule =
-                or(
-                        and(
-                                rule(source, RoleWithHierarchy.SPACE_POWER_USER),
-                                rule(destination, RoleWithHierarchy.SPACE_POWER_USER)
-                        ),
+                or(and(rule(source, RoleWithHierarchy.SPACE_POWER_USER),
+                        rule(destination, RoleWithHierarchy.SPACE_POWER_USER)),
 
-                        and(
-                                rule(source, RoleWithHierarchy.SPACE_USER),
+                        and(rule(source, RoleWithHierarchy.SPACE_USER),
                                 rule(destination, RoleWithHierarchy.SPACE_USER),
-                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
-                        )
-                );
+                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)));
 
     }
 
@@ -162,8 +152,7 @@ public class AssignExperimentToProjectTest extends BaseTest
     Object[][] rolesAllowedToAssignExperimentToProject()
     {
         return RolePermutator.getAcceptedPermutations(assignExperimentToProjectRule, source,
-                destination,
-                instance);
+                destination, instance);
     }
 
     @DataProvider

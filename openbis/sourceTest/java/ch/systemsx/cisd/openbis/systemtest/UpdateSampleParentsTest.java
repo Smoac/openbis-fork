@@ -241,7 +241,7 @@ public class UpdateSampleParentsTest extends BaseTest
         perform(anUpdateOf(child).toHaveParent(parent1).as(user));
     }
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createFixture() throws Exception
     {
         space = create(aSpace());
@@ -257,7 +257,7 @@ public class UpdateSampleParentsTest extends BaseTest
 
     AuthorizationRule addParentToSampleRule;
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createAuthorizationRules()
     {
         instance = new InstanceDomain();

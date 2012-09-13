@@ -46,8 +46,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
     Space space;
 
     @Test
-    public void experimentAssignmentOfSampleIsRemoved()
-            throws Exception
+    public void experimentAssignmentOfSampleIsRemoved() throws Exception
     {
         Sample sample = create(aSample().inExperiment(experiment));
 
@@ -68,8 +67,7 @@ public class UnassignSampleFromExperimentTest extends BaseTest
 
     @Test(expectedExceptions =
         { UserFailureException.class })
-    public void unassigningFailsIfTheSampleHasDataSets()
-            throws Exception
+    public void unassigningFailsIfTheSampleHasDataSets() throws Exception
     {
         Sample sample = create(aSample().inExperiment(experiment));
 
@@ -187,15 +185,12 @@ public class UnassignSampleFromExperimentTest extends BaseTest
     Space unrelatedNone;
 
     @Test(dataProvider = "rolesAllowedToUnassignSampleFromExperiment", groups = "authorization")
-    public void unassigningIsAllowedFor(
-            RoleWithHierarchy spaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void unassigningIsAllowedFor(RoleWithHierarchy spaceRole, RoleWithHierarchy instanceRole)
+            throws Exception
     {
         Sample sample = create(aSample().inExperiment(experiment));
         String user =
-                create(aSession()
-                        .withSpaceRole(spaceRole, space)
-                        .withInstanceRole(instanceRole)
+                create(aSession().withSpaceRole(spaceRole, space).withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
@@ -204,22 +199,19 @@ public class UnassignSampleFromExperimentTest extends BaseTest
 
     @Test(dataProvider = "rolesNotAllowedToUnassignSampleFromExperiment", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
-    public void unassigningIsNotAllowedFor(
-            RoleWithHierarchy spaceRole,
+    public void unassigningIsNotAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         Sample sample = create(aSample().inExperiment(experiment));
         String user =
-                create(aSession()
-                        .withSpaceRole(spaceRole, space)
-                        .withInstanceRole(instanceRole)
+                create(aSession().withSpaceRole(spaceRole, space).withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         perform(anUpdateOf(sample).removingExperiment().as(user));
     }
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createFixture() throws Exception
     {
         space = create(aSpace());
@@ -237,21 +229,17 @@ public class UnassignSampleFromExperimentTest extends BaseTest
 
     AuthorizationRule unassignSampleFromExperimentRule;
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createAuthorizationRules()
     {
         instance = new InstanceDomain();
         spaceDomain = new SpaceDomain(instance);
 
         unassignSampleFromExperimentRule =
-                or(
-                        rule(spaceDomain, RoleWithHierarchy.SPACE_POWER_USER),
+                or(rule(spaceDomain, RoleWithHierarchy.SPACE_POWER_USER),
 
-                        and(
-                                rule(spaceDomain, RoleWithHierarchy.SPACE_USER),
-                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
-                        )
-                );
+                        and(rule(spaceDomain, RoleWithHierarchy.SPACE_USER),
+                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)));
     }
 
     @DataProvider

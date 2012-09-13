@@ -140,16 +140,13 @@ public class UpdateSampleContainmentTest extends BaseTest
     Space unrelatedNone;
 
     @Test(dataProvider = "rolesAllowedToSetContainerToSample", groups = "authorization")
-    public void settingContainerToSampleIsAllowedFor(
-            RoleWithHierarchy containerSpaceRole,
-            RoleWithHierarchy componentSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void settingContainerToSampleIsAllowedFor(RoleWithHierarchy containerSpaceRole,
+            RoleWithHierarchy componentSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
         Sample container = create(aSample().inSpace(containerSpace));
         Sample componentCandidate = create(aSample().inSpace(componentSpace));
         String user =
-                create(aSession()
-                        .withSpaceRole(containerSpaceRole, containerSpace)
+                create(aSession().withSpaceRole(containerSpaceRole, containerSpace)
                         .withSpaceRole(componentSpaceRole, componentSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
@@ -160,16 +157,13 @@ public class UpdateSampleContainmentTest extends BaseTest
 
     @Test(dataProvider = "rolesNotAllowedToSetContainerToSample", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
-    public void settingContainerToSampleIsNotAllowedFor(
-            RoleWithHierarchy containerSpaceRole,
-            RoleWithHierarchy componentSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void settingContainerToSampleIsNotAllowedFor(RoleWithHierarchy containerSpaceRole,
+            RoleWithHierarchy componentSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
         Sample container = create(aSample().inSpace(containerSpace));
         Sample componentCandidate = create(aSample().inSpace(componentSpace));
         String user =
-                create(aSession()
-                        .withSpaceRole(containerSpaceRole, containerSpace)
+                create(aSession().withSpaceRole(containerSpaceRole, containerSpace)
                         .withSpaceRole(componentSpaceRole, componentSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
@@ -179,16 +173,13 @@ public class UpdateSampleContainmentTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesAllowedToRemoveContainerFromSample", groups = "authorization")
-    public void removingContainerFromSampleIsAllowedFor(
-            RoleWithHierarchy containerSpaceRole,
-            RoleWithHierarchy componentSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void removingContainerFromSampleIsAllowedFor(RoleWithHierarchy containerSpaceRole,
+            RoleWithHierarchy componentSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
         Sample container = create(aSample().inSpace(containerSpace));
         Sample component = create(aSample().inSpace(componentSpace).inContainer(container));
         String user =
-                create(aSession()
-                        .withSpaceRole(containerSpaceRole, containerSpace)
+                create(aSession().withSpaceRole(containerSpaceRole, containerSpace)
                         .withSpaceRole(componentSpaceRole, componentSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
@@ -199,16 +190,13 @@ public class UpdateSampleContainmentTest extends BaseTest
 
     @Test(dataProvider = "rolesNotAllowedToRemoveContainerFromSample", expectedExceptions =
         { AuthorizationFailureException.class }, groups = "authorization")
-    public void removingContainerFromSampleIsNotAllowedFor(
-            RoleWithHierarchy containerSpaceRole,
-            RoleWithHierarchy componentSpaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+    public void removingContainerFromSampleIsNotAllowedFor(RoleWithHierarchy containerSpaceRole,
+            RoleWithHierarchy componentSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
         Sample container = create(aSample().inSpace(containerSpace));
         Sample component = create(aSample().inSpace(componentSpace).inContainer(container));
         String user =
-                create(aSession()
-                        .withSpaceRole(containerSpaceRole, containerSpace)
+                create(aSession().withSpaceRole(containerSpaceRole, containerSpace)
                         .withSpaceRole(componentSpaceRole, componentSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
@@ -217,7 +205,7 @@ public class UpdateSampleContainmentTest extends BaseTest
         perform(anUpdateOf(component).removingContainer().as(user));
     }
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createFixture() throws Exception
     {
         space = create(aSpace());
@@ -238,7 +226,7 @@ public class UpdateSampleContainmentTest extends BaseTest
 
     AuthorizationRule removeContainerFromSampleRule;
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createAuthorizationRules()
     {
         instance = new InstanceDomain();
@@ -246,62 +234,46 @@ public class UpdateSampleContainmentTest extends BaseTest
         componentDomain = new SpaceDomain(instance);
 
         setContainerToSampleRule =
-                or(
-                        and(
-                                or(
-                                        rule(containerDomain, RoleWithHierarchy.SPACE_POWER_USER),
-                                        rule(containerDomain, RoleWithHierarchy.SPACE_ETL_SERVER)
-                                ),
-                                rule(componentDomain, RoleWithHierarchy.SPACE_POWER_USER)
+                or(and(or(rule(containerDomain, RoleWithHierarchy.SPACE_POWER_USER),
+                        rule(containerDomain, RoleWithHierarchy.SPACE_ETL_SERVER)),
+                        rule(componentDomain, RoleWithHierarchy.SPACE_POWER_USER)
 
-                        ),
-                        and(
-                                rule(componentDomain, RoleWithHierarchy.SPACE_USER),
-                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
-                        )
-                );
+                ),
+                        and(rule(componentDomain, RoleWithHierarchy.SPACE_USER),
+                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)));
 
         removeContainerFromSampleRule =
-                or(
-                        rule(componentDomain, RoleWithHierarchy.SPACE_POWER_USER),
+                or(rule(componentDomain, RoleWithHierarchy.SPACE_POWER_USER),
 
-                        and(
-                                rule(componentDomain, RoleWithHierarchy.SPACE_USER),
-                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)
-                        )
-                );
+                        and(rule(componentDomain, RoleWithHierarchy.SPACE_USER),
+                                rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER)));
     }
 
     @DataProvider
     Object[][] rolesAllowedToSetContainerToSample()
     {
         return RolePermutator.getAcceptedPermutations(setContainerToSampleRule, containerDomain,
-                componentDomain,
-                instance);
+                componentDomain, instance);
     }
 
     @DataProvider
     Object[][] rolesNotAllowedToSetContainerToSample()
     {
         return RolePermutator.getAcceptedPermutations(not(setContainerToSampleRule),
-                containerDomain,
-                componentDomain, instance);
+                containerDomain, componentDomain, instance);
     }
 
     @DataProvider
     Object[][] rolesAllowedToRemoveContainerFromSample()
     {
         return RolePermutator.getAcceptedPermutations(removeContainerFromSampleRule,
-                containerDomain,
-                componentDomain,
-                instance);
+                containerDomain, componentDomain, instance);
     }
 
     @DataProvider
     Object[][] rolesNotAllowedToRemoveContainerFromSample()
     {
         return RolePermutator.getAcceptedPermutations(not(removeContainerFromSampleRule),
-                containerDomain,
-                componentDomain, instance);
+                containerDomain, componentDomain, instance);
     }
 }

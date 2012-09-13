@@ -120,17 +120,16 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
 
     protected String systemSessionToken;
 
-    @BeforeTest(groups =
-        { "system-cleandb" })
-    public void initializeLog()
+    @BeforeTest(groups = "system-cleandb")
+    public void initializeLog() throws Exception
     {
         LogInitializer.init();
+        initializeProperties();
+        setContext();
+        createDataStore();
     }
 
-    @BeforeTest(groups =
-        { "system-cleandb" }, dependsOnMethods =
-        { "initializeLog" })
-    public void initializeProperties()
+    private void initializeProperties()
     {
         System.setProperty("database.create-from-scratch", "true");
         System.setProperty("database.kind", "test");
@@ -140,18 +139,12 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         System.setProperty("hibernate.search.worker.execution", "sync");
     }
 
-    @BeforeTest(groups =
-        { "system-cleandb" }, dependsOnMethods =
-        { "initializeProperties" })
-    public void setContext() throws Exception
+    private void setContext() throws Exception
     {
         super.springTestContextPrepareTestInstance();
     }
 
-    @BeforeTest(groups =
-        { "system-cleandb" }, dependsOnMethods =
-        { "setContext" })
-    public void createDataStore()
+    private void createDataStore()
     {
         DataStorePE dataStore = new DataStorePE();
         dataStore.setCode("STANDARD");
@@ -164,14 +157,13 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         this.daoFactory.getDataStoreDAO().createOrUpdateDataStore(dataStore);
     }
 
-    @AfterTest(groups =
-        { "system-cleandb" })
+    @AfterTest(groups = "system-cleandb")
     public void testingThis()
     {
         ((GenericApplicationContext) applicationContext).destroy();
     }
 
-    @BeforeClass(alwaysRun = true)
+    @BeforeClass(alwaysRun = true, dependsOnMethods = "springTestContextPrepareTestInstance")
     public void loginAsSystem()
     {
         systemSessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();

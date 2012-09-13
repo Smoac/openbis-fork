@@ -219,7 +219,7 @@ public class UpdateDataSetParentsTest extends BaseTest
         perform(anUpdateOf(child).withParent(parent1).as(user));
     }
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createFixture() throws Exception
     {
         Space space = create(aSpace());
@@ -252,7 +252,7 @@ public class UpdateDataSetParentsTest extends BaseTest
 
     AuthorizationRule removeParentFromDataSetRule;
 
-    @BeforeClass
+    @BeforeClass(dependsOnMethods = "loginAsSystem")
     void createAuthorizationRules()
     {
         instance = new InstanceDomain();
