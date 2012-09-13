@@ -72,6 +72,8 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         totalEntitiesToValidateCount = 0;
 
         entitiesValidatedCount = 0;
+
+        isRolledBack = false;
     }
 
     IHibernateTransactionManagerCallback callback;
@@ -103,6 +105,12 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
     int totalEntitiesToValidateCount;
 
     int entitiesValidatedCount;
+
+    /**
+     * if true - than it means that at least one validation has failed, and we don't need to do any
+     * additional validations
+     */
+    private boolean isRolledBack;
 
     private void updateListener()
     {
@@ -143,12 +151,11 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
             IEntityInformationWithPropertiesHolder entity = nextItemToValidate();
             validateEntity(tx, entity);
         }
-
     }
 
     private boolean hasMoreItemsToValidate()
     {
-        return entitiesToValidate.size() > 0;
+        return entitiesToValidate.size() > 0 && false == isRolledBack;
     }
 
     private IEntityInformationWithPropertiesHolder nextItemToValidate()
@@ -218,15 +225,19 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
             result = calculate(script, entity, isNewEntity);
         } catch (Throwable e)
         {
-            callback.rollbackTransaction(tx, "Validation of " + entityDescription(entity)
-                    + " resulted in error. " + e.getMessage());
+            setRollback(tx, entity, " resulted in error. " + e.getMessage());
         }
         if (result != null)
         {
-            callback.rollbackTransaction(tx, "Validation of " + entityDescription(entity)
-                    + " failed. " + result);
+            setRollback(tx, entity, " failed. " + result);
         }
+    }
 
+    private void setRollback(Transaction tx, IEntityInformationWithPropertiesHolder entity,
+            String msg)
+    {
+        callback.rollbackTransaction(tx, "Validation of " + entityDescription(entity) + msg);
+        isRolledBack = true;
     }
 
     private String entityDescription(IEntityInformationWithPropertiesHolder entity)
