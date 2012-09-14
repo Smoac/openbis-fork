@@ -61,7 +61,8 @@ public final class RemoteDirectoryCopyActivitySensor extends AbstractCopyActivit
             return StatusWithResult.create(lastChanged);
         } catch (UnknownLastChangedException ex)
         {
-            return StatusWithResult.<Long> createError("Cannot determine time of last change of "
+            return StatusWithResult
+                    .<Long> createRetriableError("Cannot determine time of last change of "
                     + getTargetDescription());
         }
     }
