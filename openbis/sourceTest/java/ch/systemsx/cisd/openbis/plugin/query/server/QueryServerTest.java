@@ -181,7 +181,7 @@ public final class QueryServerTest extends AbstractServerTestCase
     private static DatabaseDefinition createDatabaseDefinition(String databaseKey)
     {
         return new DatabaseDefinition(new SimpleDatabaseConfigurationContext("driverClassName",
-                "url", "username", "password"), databaseKey, databaseKey,
+                "url", "username", "password", null), databaseKey, databaseKey,
                 RoleWithHierarchy.SPACE_USER, null);
     }
 
