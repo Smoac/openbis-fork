@@ -77,8 +77,9 @@ public class SampleTest extends SeleniumTest
         Sample sample =
                 create(aSample().ofType(sampleType).withProperty(vocabularyType, "mouse"));
 
-        assertThat(sampleBrowser().allSpaces().dataOf(sample).get(vocabularyType.getLabel()),
-                containsLink("MOUSE", "http://www.ask.com/web?q=MOUSE"));
+        assertThat(sampleBrowser().cell(sample, vocabularyType.getLabel()), displays("mouse"));
+        assertThat(sampleBrowser().cell(sample, vocabularyType.getLabel()),
+                linksTo("http://www.ask.com/web?q=MOUSE"));
 
     }
 

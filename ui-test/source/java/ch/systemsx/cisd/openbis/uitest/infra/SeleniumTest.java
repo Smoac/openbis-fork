@@ -35,7 +35,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.BrowserListsElementMatcher;
-import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellContainsLinkMatcher;
+import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellDisplaysMatcher;
+import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellLinksToMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.PageMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.RegisterSampleFormContainsInputsForPropertiesMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.SampleBrowserSampleTypeDropDownMenuMatcher;
@@ -258,9 +259,14 @@ public abstract class SeleniumTest
         return new RegisterSampleFormContainsInputsForPropertiesMatcher(fields);
     }
 
-    protected Matcher<Cell> containsLink(String text, String url)
+    protected Matcher<Cell> linksTo(String url)
     {
-        return new CellContainsLinkMatcher(text, url);
+        return new CellLinksToMatcher(url);
+    }
+
+    protected Matcher<Cell> displays(String text)
+    {
+        return new CellDisplaysMatcher(text);
     }
 
     protected <T> T create(Builder<T> builder)

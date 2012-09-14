@@ -71,13 +71,13 @@ public abstract class BrowserPage extends NavigationPage
         return content;
     }
 
-    public Map<String, Cell> dataOf(Browsable browsable)
+    public Cell cell(Browsable browsable, String columnName)
     {
         for (Map<String, Cell> row : getTableContent())
         {
             if (browsable.isRepresentedBy(row))
             {
-                return row;
+                return row.get(columnName);
             }
         }
         throw new IllegalStateException("Could not find " + browsable + " from " + toString());

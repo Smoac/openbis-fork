@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
@@ -123,8 +122,9 @@ public class ManualTest extends SeleniumTest
                         .withProperty(animalPropertyType, "mouse"));
 
         assertThat(sampleBrowser(), lists(sample));
-        assertThat(sampleBrowser().dataOf(sample).get(animalPropertyType.getLabel()),
-                containsLink("MOUSE", "http://www.ask.com/web?q=MOUSE"));
+        assertThat(sampleBrowser().cell(sample, animalPropertyType.getLabel()), displays("mouse"));
+        assertThat(sampleBrowser().cell(sample, animalPropertyType.getLabel()),
+                linksTo("http://www.ask.com/web?q=MOUSE"));
 
         // 5) Project and experiment
         Project project = create(aProject().withCode("P1").in(space));
@@ -133,9 +133,7 @@ public class ManualTest extends SeleniumTest
         Experiment experiment =
                 create(anExperiment().ofType(experimentType).in(project).withCode("exp1")
                         .withSamples(sample));
-        assertThat(sampleBrowser().dataOf(sample).get("Experiment").getText(),
-                is(experiment.getCode().toUpperCase()));
-        assertThat(sampleBrowser().dataOf(sample).get("Project").getText(),
-                is(project.getCode().toUpperCase()));
+        assertThat(sampleBrowser().cell(sample, "Experiment"), displays(experiment.getCode()));
+        assertThat(sampleBrowser().cell(sample, "Project"), displays(project.getCode()));
     }
 }

@@ -24,26 +24,26 @@ import ch.systemsx.cisd.openbis.uitest.page.Cell;
 /**
  * @author anttil
  */
-public class CellContainsLinkMatcher extends TypeSafeMatcher<Cell>
+public class CellLinksToMatcher extends TypeSafeMatcher<Cell>
 {
 
-    private Cell expected;
+    private String expected;
 
-    public CellContainsLinkMatcher(String text, String url)
+    public CellLinksToMatcher(String url)
     {
-        expected = new Cell(text, url, null);
+        expected = url;
     }
 
     @Override
     public void describeTo(Description description)
     {
-        description.appendText(this.expected.toString());
+        description.appendText("A cell linking to " + this.expected);
     }
 
     @Override
-    public boolean matchesSafely(Cell item)
+    public boolean matchesSafely(Cell actual)
     {
-        return expected.equals(item);
+        return expected.equals(actual.getUrl());
     }
 
 }

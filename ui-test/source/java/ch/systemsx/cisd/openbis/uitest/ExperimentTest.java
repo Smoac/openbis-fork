@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
@@ -44,10 +43,7 @@ public class ExperimentTest extends SeleniumTest
 
         Experiment experiment = create(anExperiment().in(project).withSamples(sample));
 
-        assertThat(sampleBrowser().dataOf(sample).get("Experiment").getText(),
-                is(experiment.getCode().toUpperCase()));
-        assertThat(sampleBrowser().dataOf(sample).get("Project").getText(),
-                is(project.getCode().toUpperCase()));
-
+        assertThat(sampleBrowser().cell(sample, "Experiment"), displays(experiment.getCode()));
+        assertThat(sampleBrowser().cell(sample, "Project"), displays(project.getCode()));
     }
 }
