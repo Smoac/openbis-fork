@@ -94,7 +94,7 @@ public abstract class AbstractCopyActivitySensor implements IDescribingActivityS
             {
                 timeOfLastReportedActivity = now;
                 getMachineLog().warn(
-                        describeInactivity(now)
+                        currentResult.tryGetErrorMessage()
                                 + String.format(" (error count: %d <= %d, goes unreported)",
                                         errorCount, maxErrorsToIgnore));
             } else
