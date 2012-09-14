@@ -17,15 +17,11 @@
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 import java.io.File;
-import java.net.URL;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.filesystem.AbstractCopyActivitySensor;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -57,17 +53,6 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
     protected int dataSetImportWaitDurationInSeconds()
     {
         return 280;
-    }
-
-    @Test
-    public void testFailForDebugReason()
-    {
-        Class cls = AbstractCopyActivitySensor.class;
-        ProtectionDomain pDomain = cls.getProtectionDomain();
-        CodeSource cSource = pDomain.getCodeSource();
-        URL loc = cSource.getLocation();
-
-        fail("The AbstractCopyActivitySensor is taken from " + loc);
     }
 
     @Test
