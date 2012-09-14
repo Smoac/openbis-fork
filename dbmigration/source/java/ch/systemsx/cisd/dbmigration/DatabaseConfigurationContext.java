@@ -131,7 +131,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     {
         final String dsDriver = getDriver();
         final String url = getDatabaseURL();
-        return dataSourceFactory.createDataSource(dsDriver, url, owner, password);
+        final String validationQuery = getValidationQuery();
+        return dataSourceFactory.createDataSource(dsDriver, url, owner, password, validationQuery);
     }
 
     /**
@@ -157,6 +158,11 @@ public class DatabaseConfigurationContext implements DisposableBean
         return databaseEngine.getDriverClass();
     }
 
+    private final String getValidationQuery() throws ConfigurationFailureException
+    {
+        checkDatabaseEngine();
+        return databaseEngine.getValidationQuery();
+    }
     /**
      * Returns user name of the administrator.
      * 
@@ -241,7 +247,7 @@ public class DatabaseConfigurationContext implements DisposableBean
         {
             adminDataSource =
                     dataSourceFactory.createDataSource(getDriver(), getAdminURL(), getAdminUser(),
-                            getAdminPassword());
+                            getAdminPassword(), getValidationQuery());
         }
         return adminDataSource;
     }

@@ -45,7 +45,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
 
     @Override
     public final DataSource createDataSource(final String driver, final String url,
-            final String owner, final String password)
+            final String owner, final String password, final String validationQuery)
     {
         final BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName(driver);
@@ -55,7 +55,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
         dataSource.setMaxIdle(maxIdle);
         dataSource.setMaxActive(maxActive);
         dataSource.setMaxWait(maxWait);
-        dataSource.setValidationQuery("SELECT 1");
+        dataSource.setValidationQuery(validationQuery);
         return dataSource;
     }
 

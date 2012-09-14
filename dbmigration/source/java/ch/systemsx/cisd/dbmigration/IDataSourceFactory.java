@@ -31,7 +31,8 @@ public interface IDataSourceFactory
     /**
      * Creates a data source for the specified database credentials.
      */
-    public DataSource createDataSource(String driver, String url, String owner, String password);
+    public DataSource createDataSource(String driver, String url, String owner, String password,
+            String validationQuery);
 
     /**
      * @see BasicDataSource#setMaxIdle(int)

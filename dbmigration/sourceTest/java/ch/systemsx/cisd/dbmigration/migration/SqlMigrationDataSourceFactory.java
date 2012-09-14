@@ -8,7 +8,8 @@ public class SqlMigrationDataSourceFactory implements IDataSourceFactory
 {
 
     @Override
-    public DataSource createDataSource(String driver, String url, String owner, String password)
+    public DataSource createDataSource(String driver, String url, String owner, String password,
+            String validationQuery)
     {
         return new SqlMigrationDataSource(driver, url, owner, password);
     }

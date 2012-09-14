@@ -21,13 +21,13 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
+import org.springframework.jdbc.support.lob.LobHandler;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.db.ISequencerHandler;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.db.PostgreSQLSequencerHandler;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.dbmigration.h2.H2DAOFactory;
 import ch.systemsx.cisd.dbmigration.postgresql.PostgreSQLDAOFactory;
 
@@ -40,11 +40,11 @@ public enum DatabaseEngine
 {
     POSTGRESQL("postgresql", "org.postgresql.Driver", PostgreSQLDAOFactory.class,
             new DefaultLobHandler(), new PostgreSQLSequencerHandler(), "jdbc:postgresql:{0}",
-            "jdbc:postgresql:{0}{1}", "//localhost/", "postgres"),
+            "jdbc:postgresql:{0}{1}", "//localhost/", "postgres", "SELECT 1"),
 
     H2("h2", "org.h2.Driver", H2DAOFactory.class, new DefaultLobHandler(),
             new PostgreSQLSequencerHandler(), "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1",
-            "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1", "file:db/", "sa");
+            "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1", "file:db/", "sa", null);
 
     private static Map<String, DatabaseEngine> engines = initEngineMap();
 
@@ -68,10 +68,12 @@ public enum DatabaseEngine
 
     private final String defaultAdminUser;
 
+    private final String validationQuery;
+
     @SuppressWarnings("unchecked")
     DatabaseEngine(String code, String driver, Class<?> daoFactoryClass, LobHandler lobHandler,
             ISequencerHandler sequenceHandler, String adminUrlTemplate, String urlTemplate,
-            String defaultURLHostPart, String defaultAdminUser)
+            String defaultURLHostPart, String defaultAdminUser, String validationQuery)
     {
         assert code != null;
         assert driver != null;
@@ -91,6 +93,7 @@ public enum DatabaseEngine
         this.driverClass = driver;
         this.lobHandler = lobHandler;
         this.sequenceHandler = sequenceHandler;
+        this.validationQuery = validationQuery;
         this.daoFactoryClass = (Class<ch.systemsx.cisd.dbmigration.IDAOFactory>) daoFactoryClass;
         try
         {
@@ -143,8 +146,8 @@ public enum DatabaseEngine
     }
 
     /**
-     * @param urlHostPartOrNull The host part of the URL, or <code>null</code>, if the default
-     *            host part should be used.
+     * @param urlHostPartOrNull The host part of the URL, or <code>null</code>, if the default host
+     *            part should be used.
      * @param databaseName The name of the database (may be ignored for the admin URL, depending on
      *            the database engine)
      * @return The admin URL of the db.
@@ -162,9 +165,14 @@ public enum DatabaseEngine
         return defaultAdminUser;
     }
 
+    public String getValidationQuery()
+    {
+        return validationQuery;
+    }
+
     /**
-     * @param urlHostPartOrNull The host part of the URL, or <code>null</code>, if the default
-     *            host part should be used.
+     * @param urlHostPartOrNull The host part of the URL, or <code>null</code>, if the default host
+     *            part should be used.
      * @param databaseName The name of the database.
      * @return The URL of the db.
      */

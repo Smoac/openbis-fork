@@ -53,6 +53,8 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
 
     static final String MAX_ACTIVE_KEY = "database-max-active";
 
+    static final String VALIDATION_QUERY_KEY = "validation-query";
+
     private IDataSourceFactory dataSourceFactory = new BasicDataSourceFactory();
 
     private DataSource dataSource;
@@ -65,14 +67,17 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
 
     private final String password;
 
+    private final String validationQuery;
+
     // for testing
     public SimpleDatabaseConfigurationContext(String driverClassName, String url, String username,
-            String password)
+            String password, String validationQuery)
     {
         this.driverClassName = driverClassName;
         this.url = url;
         this.username = username;
         this.password = password;
+        this.validationQuery = validationQuery;
     }
 
     public SimpleDatabaseConfigurationContext(Properties properties)
@@ -95,6 +100,8 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
         {
             dataSourceFactory.setMaxIdle(maxIdle);
         }
+
+        this.validationQuery = PropertyUtils.getProperty(properties, VALIDATION_QUERY_KEY);
     }
 
     /**
@@ -114,7 +121,8 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
      */
     private final DataSource createDataSource()
     {
-        return dataSourceFactory.createDataSource(driverClassName, url, username, password);
+        return dataSourceFactory.createDataSource(driverClassName, url, username, password,
+                validationQuery);
     }
 
     /** Closes opened database connections. */
