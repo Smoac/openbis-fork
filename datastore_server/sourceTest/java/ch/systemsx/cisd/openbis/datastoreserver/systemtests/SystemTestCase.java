@@ -253,7 +253,8 @@ public abstract class SystemTestCase extends AssertJUnit
                 dataSetImported = true;
             } else
             {
-                assertFalse(logContent, logContent.contains("ERROR"));
+                assertFalse("ERROR message found in log.\n" + logContent,
+                        logContent.contains("ERROR"));
             }
         }
 
