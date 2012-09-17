@@ -62,12 +62,14 @@ public final class MaterialDAOTest extends AbstractDAOTest
 
     private IMaterialDAO materialDAO;
 
+    private MaterialConfigurationProvider oldProvider;
+
     @BeforeMethod
     @Override
     public void setUp()
     {
         super.setUp();
-        MaterialConfigurationProvider.initializeForTesting(false);
+        oldProvider = MaterialConfigurationProvider.initializeForTesting(false);
         materialDAO = daoFactory.getMaterialDAO();
     }
 
@@ -76,7 +78,7 @@ public final class MaterialDAOTest extends AbstractDAOTest
     public void tearDown()
     {
         super.tearDown();
-        MaterialConfigurationProvider.initializeForTesting(false);
+        MaterialConfigurationProvider.restoreFromTesting(oldProvider);
     }
 
     @Test

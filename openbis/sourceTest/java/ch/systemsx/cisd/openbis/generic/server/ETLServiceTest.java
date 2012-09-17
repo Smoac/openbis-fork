@@ -105,7 +105,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatabaseInstancePEBu
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider;
 
 /**
  * @author Franz-Josef Elmer
@@ -149,7 +148,6 @@ public class ETLServiceTest extends AbstractServerTestCase
         dataStoreService = context.mock(IDataStoreService.class);
         entityOperationChecker = context.mock(IETLEntityOperationChecker.class);
         dataStoreServiceRegistrator = context.mock(IDataStoreServiceRegistrator.class);
-        MaterialConfigurationProvider.initializeForTesting(false);
     }
 
     @Test

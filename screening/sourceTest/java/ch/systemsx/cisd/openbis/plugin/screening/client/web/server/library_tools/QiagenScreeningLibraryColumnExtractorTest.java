@@ -38,9 +38,11 @@ public class QiagenScreeningLibraryColumnExtractorTest extends AssertJUnit
 
     private QiagenScreeningLibraryColumnExtractor extractor;
 
+    private MaterialConfigurationProvider oldProvider;
+
     public void setUp(boolean isRelaxedMaterialCodes)
     {
-        MaterialConfigurationProvider.initializeForTesting(isRelaxedMaterialCodes);
+        oldProvider = MaterialConfigurationProvider.initializeForTesting(isRelaxedMaterialCodes);
         extractor =
                 new QiagenScreeningLibraryColumnExtractor(HEADER_TOKENS,
                         MaterialConfigurationProvider.getInstance());
@@ -49,7 +51,7 @@ public class QiagenScreeningLibraryColumnExtractorTest extends AssertJUnit
     @AfterMethod
     public void tearDown()
     {
-        MaterialConfigurationProvider.initializeForTesting(false);
+        MaterialConfigurationProvider.restoreFromTesting(oldProvider);
     }    
 
     @Test

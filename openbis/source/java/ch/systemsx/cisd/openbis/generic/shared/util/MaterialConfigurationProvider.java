@@ -39,9 +39,20 @@ public class MaterialConfigurationProvider
     /**
      * only used for unit tests.
      */
-    public static final void initializeForTesting(boolean isRelaxCodeConstraints)
+    public static final MaterialConfigurationProvider initializeForTesting(
+            boolean isRelaxCodeConstraints)
     {
+        MaterialConfigurationProvider oldInstance = instance;
         instance = new MaterialConfigurationProvider(isRelaxCodeConstraints);
+        return oldInstance;
+    }
+
+    /**
+     * only used for unit tests.
+     */
+    public static void restoreFromTesting(MaterialConfigurationProvider provider)
+    {
+        instance = provider;
     }
 
     // invoked from Spring
