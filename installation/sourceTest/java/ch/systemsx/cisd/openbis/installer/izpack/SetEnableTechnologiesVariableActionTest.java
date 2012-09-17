@@ -54,9 +54,9 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
     {
         corePluginsFolder = new File(workingDirectory, Utils.CORE_PLUGINS_PATH);
         corePluginsFolder.mkdirs();
-        configFile = new File(workingDirectory, Utils.AS_PATH + Utils.SERVICE_PROPERTIES_PATH);
+        configFile = new File(workingDirectory, Utils.AS_PATH + Utils.CORE_PLUGINS_PROPERTIES_PATH);
         configFile.getParentFile().mkdirs();
-        dssConfigFile = new File(workingDirectory, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
+        dssConfigFile = new File(workingDirectory, Utils.DSS_PATH + Utils.CORE_PLUGINS_PROPERTIES_PATH);
         dssConfigFile.getParentFile().mkdirs();
         try
         {
@@ -114,7 +114,7 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
         {
             assertEquals("targets/unit-test-wd/ch.systemsx.cisd.openbis.installer.izpack."
                     + "SetEnableTechnologiesVariableActionTest/servers/openBIS-server/jetty/"
-                    + "etc/service.properties (No such file or directory)", ex.getMessage());
+                    + "etc/core_plugins.properties (No such file or directory)", ex.getMessage());
         }
     }
 

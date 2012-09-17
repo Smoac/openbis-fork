@@ -61,7 +61,7 @@ public class SetTechnologyCheckBoxesActionTest extends AssertJUnit
     {
         Properties properties = new Properties();
         properties.setProperty(SetTechnologyCheckBoxesAction.ENABLED_TECHNOLOGIES_KEY, "proteomics");
-        saveProperties(properties, Utils.AS_PATH + Utils.SERVICE_PROPERTIES_PATH);
+        saveProperties(properties, Utils.AS_PATH + Utils.CORE_PLUGINS_PROPERTIES_PATH);
         SetTechnologyCheckBoxesAction action = new SetTechnologyCheckBoxesAction();
         
         assertEquals(true, action.isTechnologyEnabled(TEST_FOLDER, TECHNOLOGY_PROTEOMICS));
