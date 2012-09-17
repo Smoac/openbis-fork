@@ -134,7 +134,7 @@ public class UpdateSampleParentsTest extends BaseTest
         perform(anUpdateOf(child).toHaveParent(parent));
     }
 
-    @Test(expectedExceptions =
+    @Test(groups = "broken", expectedExceptions =
         { UserFailureException.class })
     public void childCannotBeShared() throws Exception
     {
