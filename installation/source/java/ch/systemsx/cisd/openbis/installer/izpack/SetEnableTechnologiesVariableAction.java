@@ -70,10 +70,10 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
         data.setVariable(ENABLED_TECHNOLOGIES_VARNAME, newTechnologyList);
         if (isFirstTimeInstallation == false)
         {
-            File asConfigFile = new File(installDir, Utils.AS_PATH + Utils.SERVICE_PROPERTIES_PATH);
+            File asConfigFile = new File(installDir, Utils.AS_PATH + Utils.CORE_PLUGINS_PROPERTIES_PATH);
             modifyPropertyEnabledTechnologies(asConfigFile, data);
             File dssConfigFile =
-                    new File(installDir, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
+                    new File(installDir, Utils.DSS_PATH + Utils.CORE_PLUGINS_PROPERTIES_PATH);
             modifyPropertyEnabledTechnologies(dssConfigFile, data);
         }
     }

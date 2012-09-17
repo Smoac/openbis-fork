@@ -71,6 +71,7 @@ public class DssPropertyParametersUtil
 
     /** Location of service properties file. */
     public static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
+    public static final String CORE_PLUGINS_PROPERTIES_FILE = "etc/core_plugins.properties";
 
     private static final String EXPLANATION =
             "Please make sure this directory exists on the local file system and is writable "
@@ -86,16 +87,21 @@ public class DssPropertyParametersUtil
     /** loads server configuration */
     public static ExtendedProperties loadServiceProperties()
     {
-        ExtendedProperties serviceProperties = loadProperties(SERVICE_PROPERTIES_FILE);
+        ExtendedProperties serviceProperties =
+                loadProperties(SERVICE_PROPERTIES_FILE, CORE_PLUGINS_PROPERTIES_FILE);
         CorePluginsInjector injector =
                 new CorePluginsInjector(ScannerType.DSS, DssPluginType.values());
         injector.injectCorePlugins(serviceProperties);
         return serviceProperties;
     }
 
-    public static ExtendedProperties loadProperties(String filePath)
+    public static ExtendedProperties loadProperties(String... filePaths)
     {
-        Properties properties = PropertyUtils.loadProperties(filePath);
+        Properties properties = new Properties();
+        for (String filePath : filePaths)
+        {
+            properties.putAll(PropertyUtils.loadProperties(filePath));
+        }
         Properties systemProperties = System.getProperties();
         ExtendedProperties dssSystemProperties =
                 ExtendedProperties.getSubset(systemProperties,

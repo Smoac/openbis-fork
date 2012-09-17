@@ -43,6 +43,7 @@ class Utils
     static final String AS_PATH = SERVERS_PATH + "openBIS-server/jetty/";
     static final String DSS_PATH = SERVERS_PATH + "datastore_server/";
     static final String SERVICE_PROPERTIES_PATH = "etc/service.properties";
+    static final String CORE_PLUGINS_PROPERTIES_PATH = "etc/core_plugins.properties";
     static final String JETTY_XML_PATH = "etc/jetty.xml";
     static final String KEYSTORE_PATH = "etc/openBIS.keystore";
     
@@ -51,9 +52,9 @@ class Utils
         return new File(installDir, CORE_PLUGINS_PATH).isDirectory();
     }
 
-    static String tryToGetServicePropertyOfAS(File installDir, String propertyKey)
+    static String tryToGetCorePluginsPropertyOfAS(File installDir, String propertyKey)
     {
-        Properties serviceProperties = tryToGetServicePropertiesOfAS(installDir);
+        Properties serviceProperties = tryToGetCorePluginsPropertiesOfAS(installDir);
         return serviceProperties == null ? null : serviceProperties.getProperty(propertyKey);
     }
     
@@ -87,9 +88,9 @@ class Utils
         return false;
     }
     
-    private static Properties tryToGetServicePropertiesOfAS(File installDir)
+    private static Properties tryToGetCorePluginsPropertiesOfAS(File installDir)
     {
-        return tryToGetServiceProperties(installDir, AS_PATH + SERVICE_PROPERTIES_PATH);
+        return tryToGetServiceProperties(installDir, AS_PATH + CORE_PLUGINS_PROPERTIES_PATH);
     }
     
     private static Properties tryToGetServicePropertiesOfDSS(File installDir)

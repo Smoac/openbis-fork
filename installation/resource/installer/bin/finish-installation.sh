@@ -12,8 +12,6 @@ fi
 INSTALL_TMPEXTRACT=$1
 DATA_TMPEXTRACT=$2
 DSS_ROOT_DIR=$3
-INSTALL_PATH=$4
-ENABLED_TECHNOLOGIES=$5
 
 echo Finish installation...
 source $BASE/chmodx-all-scripts.sh

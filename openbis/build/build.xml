@@ -209,6 +209,7 @@
 			</fileset>
 			<fileset dir="dist/server/etc">
 				<include name="log.xml" />
+				<include name="core_plugins.properties" />
 			</fileset>
 		</checksum>
 	</target>
@@ -327,6 +328,7 @@
   	<junitreport todir="${output.test}">
   		<fileset dir="${output.test}">
   			<include name="*/*.xml" />
+				<exclude name="old/**/*.xml"/>
   		</fileset>
   		<report format="noframes" todir="${output.test}" />
   	</junitreport>
@@ -681,6 +683,7 @@
       <classes dir="${original.server.dist}">
         <include name="etc/log.xml" />
         <include name="etc/passwd" />
+        <include name="etc/core_plugins.properties" />
       </classes>
       <classes dir="${classes}">
         <include name="${build.info.filename}" />

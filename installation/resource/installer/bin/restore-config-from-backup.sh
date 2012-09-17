@@ -30,6 +30,7 @@ echo "Restoring configuration backup from $CONF to $ROOT ..."
 
 # -- AS
 cp $CONF/service.properties $ROOT/openBIS-server/jetty/etc/
+cp $CONF/core_plugins.properties $ROOT/openBIS-server/jetty/etc/
 cp $CONF/log.xml $ROOT/openBIS-server/jetty/etc/ 
 cp $CONF/openbis.conf $ROOT/openBIS-server/jetty/etc/
 cp $CONF/jetty.xml $ROOT/openBIS-server/jetty/etc/
@@ -43,6 +44,7 @@ copyIfExists $CONF/capabilities $ROOT/openBIS-server/jetty/etc/
 
 # -- DSS
 cp $CONF/dss-service.properties $ROOT/datastore_server/etc/service.properties
+cp $CONF/dss-core_plugins.properties $ROOT/datastore_server/etc/core_plugins.properties
 cp $CONF/dss-log.xml $ROOT/datastore_server/etc/log.xml
 cp $CONF/datastore_server.conf $ROOT/datastore_server/etc/
 # not always present
