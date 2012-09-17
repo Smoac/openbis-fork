@@ -65,9 +65,9 @@ public final class WebClientFilesUpdaterTest extends AbstractFileSystemTestCase
         FileUtils.writeStringToFile(openBISGwtXmlFile, OPENBIS_GWT_XML_FILE_CONTENT);
         assertTrue(openBISGwtXmlFile.exists());
         clientPluginProviderJavaFile =
-                new File(workingDirectory, WebClientFilesUpdater.CLIENT_PLUGIN_PROVIDER_CLASS
-                        .replace(".", "/")
-                        + ".java");
+                new File(workingDirectory,
+                        WebClientFilesUpdater.CLIENT_PLUGIN_PROVIDER_CLASS.replace(".", "/")
+                                + ".java");
         FileUtils.writeStringToFile(clientPluginProviderJavaFile,
                 CLIENT_PLUGIN_PROVIDER_JAVA_FILE_CONTENT);
         assertTrue(clientPluginProviderJavaFile.exists());
@@ -79,7 +79,7 @@ public final class WebClientFilesUpdaterTest extends AbstractFileSystemTestCase
         filesUpdater = new WebClientFilesUpdater(workingDirectory.getPath());
     }
 
-    @Test
+    @Test(expectedExceptionsMessageRegExp = "Technology 'dummy' must be one of '\\[demo\\]'\\.", expectedExceptions = IllegalArgumentException.class)
     public final void testConstructor()
     {
         boolean fail = true;
@@ -92,14 +92,7 @@ public final class WebClientFilesUpdaterTest extends AbstractFileSystemTestCase
         }
         assertFalse(fail);
         new WebClientFilesUpdater(workingDirectory.getPath());
-        try
-        {
-            new WebClientFilesUpdater(workingDirectory.getPath(), "dummy");
-            fail("IllegalArgumentException expected.");
-        } catch (final IllegalArgumentException ex)
-        {
-            assertEquals("Technology 'dummy' must be one of '[demo]'.", ex.getMessage());
-        }
+        new WebClientFilesUpdater(workingDirectory.getPath(), "dummy");
     }
 
     @Test
@@ -112,20 +105,20 @@ public final class WebClientFilesUpdaterTest extends AbstractFileSystemTestCase
                 + "    <public path=\"plugin/demo/client/web/public\"/>\n"
                 + "    <source path=\"plugin/demo/client/web/client\"/>\n"
                 + "    <source path=\"plugin/demo/shared/basic\"/>\n"
-                + "    <!-- Automatically generated part - END -->\n", FileUtils
-                .readFileToString(openBISGwtXmlFile));
+                + "    <!-- Automatically generated part - END -->\n",
+                FileUtils.readFileToString(openBISGwtXmlFile));
     }
 
     @Test
     public final void testUpdateClientPluginProvider() throws IOException
     {
-        assertEquals(CLIENT_PLUGIN_PROVIDER_JAVA_FILE_CONTENT, FileUtils
-                .readFileToString(clientPluginProviderJavaFile));
+        assertEquals(CLIENT_PLUGIN_PROVIDER_JAVA_FILE_CONTENT,
+                FileUtils.readFileToString(clientPluginProviderJavaFile));
         filesUpdater.updateClientPluginProvider();
         assertEquals("// Automatically generated part - START\n"
                 + "        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.demo."
                 + "client.web.client.application.ClientPluginFactory(originalViewContext));\n"
-                + "        // Automatically generated part - END\n", FileUtils
-                .readFileToString(clientPluginProviderJavaFile));
+                + "        // Automatically generated part - END\n",
+                FileUtils.readFileToString(clientPluginProviderJavaFile));
     }
 }

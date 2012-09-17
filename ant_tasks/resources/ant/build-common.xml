@@ -19,7 +19,9 @@
 	<typedef name="recursive-jar"
              classname="ch.systemsx.cisd.ant.task.RecursiveJar"
              classpathref="build-resource.path" />
-	<taskdef resource="testngtasks" classpath="../libraries/testng/testng-jdk15.jar" />
+	<taskdef name="testng" 
+	           classname="org.testng.TestNGAntTask"  
+	           classpath="../libraries/testng/testng-jdk15.jar" />
 	<taskdef name="dependency-checker"
              classname="classycle.ant.DependencyCheckingTask"
              classpath="${lib}/classycle/classycle.jar" />
