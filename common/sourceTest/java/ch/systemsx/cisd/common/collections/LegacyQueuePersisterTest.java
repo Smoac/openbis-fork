@@ -21,8 +21,8 @@ import java.io.RandomAccessFile;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.testng.AssertJUnit;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.collections.QueuePersister.LegacyQueuePersister;
@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  */
 public class LegacyQueuePersisterTest extends AssertJUnit
 {
-    private static final File TMP = new File("targets/unit-test-wd");
+    private static final File TMP = new File("targets/unit-test-wd/" + LegacyQueuePersisterTest.class.getSimpleName());
 
     private static final File QUEUE_FILE = new File(TMP, "LegacyQueuePersisterTestQueue");
 
@@ -41,16 +41,17 @@ public class LegacyQueuePersisterTest extends AssertJUnit
 
     private LegacyQueuePersister<String> persister;
 
-    @BeforeTest
+    @BeforeClass
     public void setUp()
     {
-        assertEquals("Couldn't delete " + TMP, true, FileUtilities.deleteRecursively(TMP));
+        FileUtilities.deleteRecursively(TMP);
         TMP.mkdirs();
+        assertEquals(false, QUEUE_FILE.exists());
         queue = new ArrayBlockingQueue<String>(10);
         persister = new LegacyQueuePersister<String>(queue, QUEUE_FILE);
     }
 
-    @AfterTest
+    @AfterClass
     public void tearDown()
     {
         persister.close();
