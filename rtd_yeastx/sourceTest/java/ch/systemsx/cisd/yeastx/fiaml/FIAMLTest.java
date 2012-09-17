@@ -41,6 +41,10 @@ import ch.systemsx.cisd.yeastx.db.generic.DMGenericUtils;
  */
 public class FIAMLTest extends AbstractDBTest
 {
+    private static final String SAMPLE_PERM_ID = "FIAMLTest sample perm id";
+    private static final String SAMPLE_PERM_ID2 = SAMPLE_PERM_ID + "2";
+    private static final String SAMPLE_PERM_ID4 = SAMPLE_PERM_ID + "4";
+    
     private IFIAMSRunDAO fiamsDAO;
 
     @BeforeMethod(alwaysRun = true)
@@ -60,7 +64,7 @@ public class FIAMLTest extends AbstractDBTest
     {
         FIAML2Database fiaML2Database = new FIAML2Database(datasource);
         fiaML2Database.upload(new File("resource/examples/example.fiaML"), new DMDataSetDTO(
-                "data set perm id fiaml", "sample perm id", "sample name", "experiment perm id",
+                "data set perm id fiaml", SAMPLE_PERM_ID, "sample name", "experiment perm id",
                 "experiment name"));
         fiaML2Database.commit();
     }
@@ -101,11 +105,11 @@ public class FIAMLTest extends AbstractDBTest
     {
         FIAML2Database fiaML2Database = new FIAML2Database(datasource);
         fiaML2Database.upload(new File("resource/examples/example.fiaML"), new DMDataSetDTO(
-                "data set perm id2", "sample perm id2", "sample name", "experiment perm id2",
+                "data set perm id2", SAMPLE_PERM_ID2, "sample name", "experiment perm id2",
                 "experiment name"));
         fiaML2Database.commit();
         fiaML2Database.upload(new File("resource/examples/example.fiaML"), new DMDataSetDTO(
-                "data set perm id3", "sample perm id", "sample name", "experiment perm id",
+                "data set perm id3", SAMPLE_PERM_ID, "sample name", "experiment perm id",
                 "experiment name"));
         fiaML2Database.commit();
     }
@@ -116,10 +120,10 @@ public class FIAMLTest extends AbstractDBTest
         try
         {
             DMGenericUtils.createDataSet(fiamsDAO, new DMDataSetDTO("data set perm id 4",
-                    "sample perm id4", "sample name", "experiment perm id", "experiment name"));
+                    SAMPLE_PERM_ID4, "sample name", "experiment perm id", "experiment name"));
             // This will fail with a DataIntegrityViolationException.
             DMGenericUtils.createDataSet(fiamsDAO, new DMDataSetDTO("data set perm id 4",
-                    "sample perm id4", "sample name", "experiment perm id", "experiment name"));
+                    SAMPLE_PERM_ID4, "sample name", "experiment perm id", "experiment name"));
             // There is transaction commit inside createDataSet method before DS is added to DB.
             // DS created in first invocation will be be commited in second invocation.
         } catch (RuntimeException ex)
@@ -134,9 +138,9 @@ public class FIAMLTest extends AbstractDBTest
     @Test(dependsOnMethods = "testCreateSameDataSetTwiceFailing")
     public void testDataSets() throws SQLException
     {
-        assertEquals(2, fiamsDAO.listDataSetsForSample("sample perm id").length);
-        assertEquals(1, fiamsDAO.listDataSetsForSample("sample perm id2").length);
-        assertEquals(1, fiamsDAO.listDataSetsForSample("sample perm id4").length);
+        assertEquals(2, fiamsDAO.listDataSetsForSample(SAMPLE_PERM_ID).length);
+        assertEquals(1, fiamsDAO.listDataSetsForSample(SAMPLE_PERM_ID2).length);
+        assertEquals(1, fiamsDAO.listDataSetsForSample(SAMPLE_PERM_ID4).length);
     }
 
 }
