@@ -61,7 +61,7 @@ public class MonitoringProxyTest
 
     private static final Status THE_STATUS = Status.TWO;
 
-    private static final long TIMEOUT_MILLIS = 1000L;
+    private static final long TIMEOUT_MILLIS = 1500L;
 
     private volatile Thread threadToStop;
 
