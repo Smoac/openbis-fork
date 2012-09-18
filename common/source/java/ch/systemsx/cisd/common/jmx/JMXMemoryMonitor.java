@@ -127,10 +127,13 @@ public class JMXMemoryMonitor
                     final long timeSinceLastLoggedMillis = now - lastLoggedMillis;
                     if (logIntervalMillis >= 0 && timeSinceLastLoggedMillis > logIntervalMillis)
                     {
-                        machineLog.info(String.format(
-                                "Heap memory used: %.1f GB, non-heap memory used: %.1f GB", mbean
-                                        .getHeapMemoryUsage().getUsed() / BYTES_PER_GIGABYTE, mbean
-                                        .getNonHeapMemoryUsage().getUsed() / BYTES_PER_GIGABYTE));
+                        machineLog
+                                .info(String
+                                        .format("Heap memory used: %.1f GB, non-heap memory used: %.1f GB. Number of active threads %s",
+                                                mbean.getHeapMemoryUsage().getUsed()
+                                                        / BYTES_PER_GIGABYTE, mbean
+                                                        .getNonHeapMemoryUsage().getUsed()
+                                                        / BYTES_PER_GIGABYTE, Thread.activeCount()));
                         lastLoggedMillis = now;
                     }
                 }
