@@ -16,43 +16,29 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.menu;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.FindBy;
-
-import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
-import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
+import ch.systemsx.cisd.openbis.uitest.widget.Link;
 
 public class AdminMenu extends Page
 {
 
-    @FindBy(id = "openbis_top-menu_ADMINISTRATION_MENU_MANAGE_GROUPS")
-    private WebElement spaces;
+    @Locate("openbis_top-menu_ADMINISTRATION_MENU_MANAGE_GROUPS")
+    private Link spaces;
 
-    @FindBy(id = "openbis_top-menu_VOCABULARY_MENU_BROWSE")
-    private WebElement vocabularies;
+    @Locate("openbis_top-menu_VOCABULARY_MENU_BROWSE")
+    private Link vocabularies;
 
-    @FindBy(id = "ADMINISTRATION_MENU_MANAGE_TYPES")
-    private WebElement types;
+    @Locate("ADMINISTRATION_MENU_MANAGE_TYPES")
+    private Link types;
 
-    @FindBy(id = "ADMINISTRATION_MENU_MANAGE_PROPERTY_TYPES")
-    private WebElement metadata;
+    @Locate("ADMINISTRATION_MENU_MANAGE_PROPERTY_TYPES")
+    private Link metadata;
 
-    @NotAlwaysPresent
-    @FindBy(id = "openbis_top-menu_SAMPLE_MENU_TYPES")
-    private WebElement sampleTypes;
-
-    @NotAlwaysPresent
-    @FindBy(id = "openbis_top-menu_EXPERIMENT_MENU_TYPES")
-    private WebElement experimentTypes;
-
-    @FindBy(id = "ADMINISTRATION_MENU_MANAGE_AUTHORIZATION")
-    private WebElement authorization;
+    @Locate("ADMINISTRATION_MENU_MANAGE_AUTHORIZATION")
+    private Link authorization;
 
     public SpaceBrowser spaces()
     {
@@ -66,36 +52,21 @@ public class AdminMenu extends Page
         return get(VocabularyBrowser.class);
     }
 
-    public AdminMenu types()
+    public TypesMenu types()
     {
-        Actions builder = new Actions(SeleniumTest.driver);
-        builder.moveToElement(types).build().perform();
-        return get(AdminMenu.class);
+        types.highlight();
+        return get(TypesMenu.class);
     }
 
     public MetadataMenu metadata()
     {
-        Actions builder = new Actions(SeleniumTest.driver);
-        builder.moveToElement(metadata).build().perform();
+        metadata.highlight();
         return get(MetadataMenu.class);
-    }
-
-    public SampleTypeBrowser sampleTypes()
-    {
-        sampleTypes.click();
-        return get(SampleTypeBrowser.class);
-    }
-
-    public ExperimentTypeBrowser experimentTypes()
-    {
-        experimentTypes.click();
-        return get(ExperimentTypeBrowser.class);
     }
 
     public AuthorizationMenu authorization()
     {
-        Actions builder = new Actions(SeleniumTest.driver);
-        builder.moveToElement(authorization).build().perform();
+        authorization.highlight();
         return get(AuthorizationMenu.class);
     }
 }

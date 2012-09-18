@@ -16,29 +16,28 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.menu;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AddPropertyType;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AssignSamplePropertyType;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
+import ch.systemsx.cisd.openbis.uitest.widget.Link;
 
 public class MetadataMenu extends Page
 {
 
-    @FindBy(id = "openbis_top-menu_PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES")
-    private WebElement browsePropertyTypes;
+    @Locate("openbis_top-menu_PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES")
+    private Link browsePropertyTypes;
 
-    @FindBy(id = "openbis_top-menu_PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS")
-    private WebElement browsePropertyTypeAssignments;
+    @Locate("openbis_top-menu_PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS")
+    private Link browsePropertyTypeAssignments;
 
-    @FindBy(id = "openbis_top-menu_PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES")
-    private WebElement newPropertyType;
+    @Locate("openbis_top-menu_PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES")
+    private Link newPropertyType;
 
-    @FindBy(id = "openbis_top-menu_PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE")
-    private WebElement assignToSampleType;
+    @Locate("openbis_top-menu_PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE")
+    private Link assignToSampleType;
 
     public PropertyTypeBrowser propertyTypes()
     {

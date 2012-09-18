@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+@ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,16 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.menu;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.widget.Link;
 
 public class UserMenu extends Page
 {
 
-    @FindBy(id = "openbis_top-menu_USER_MENU_LOGOUT")
-    private WebElement logout;
+    @Locate("openbis_top-menu_USER_MENU_LOGOUT")
+    private Link logout;
 
     public LoginPage logout()
     {

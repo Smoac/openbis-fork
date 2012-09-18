@@ -16,20 +16,14 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -60,22 +54,6 @@ public abstract class Page
     public <T extends Page> T get(Class<T> clazz)
     {
         return this.pageProxy.get(clazz);
-    }
-
-    public WebElement findElementWithText(String text, By by)
-    {
-        WebElement element = null;
-        for (WebElement e : SeleniumTest.driver.findElements(by))
-        {
-            if (e.getText().equals(text))
-            {
-                element = e;
-                break;
-            }
-        }
-        assertThat(element, is(notNullValue()));
-
-        return (WebElement) ScreenShotProxy.newInstance(element, shotter);
     }
 
     public WebElement findElement(WebElement element, String xpath)
@@ -130,29 +108,5 @@ public abstract class Page
                 }
 
             });
-    }
-
-    protected void select(Collection<? extends WebElement> choices, String text)
-    {
-        Collection<String> found = new HashSet<String>();
-        for (WebElement choice : choices)
-        {
-            if (choice.getText().equalsIgnoreCase(text))
-            {
-                Actions builder = new Actions(SeleniumTest.driver);
-                builder.moveToElement(choice).click(choice).build().perform();
-                return;
-            }
-            found.add(choice.getText());
-        }
-        throw new IllegalArgumentException("Selection " + text + " not found, got " + found);
-    }
-
-    protected void checkbox(WebElement box, boolean check)
-    {
-        if (box.getAttribute("checked") != null ^ check)
-        {
-            box.click();
-        }
     }
 }

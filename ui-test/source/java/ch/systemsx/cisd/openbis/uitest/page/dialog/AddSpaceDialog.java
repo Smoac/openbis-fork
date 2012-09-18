@@ -16,21 +16,21 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.dialog;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.Text;
 
 public class AddSpaceDialog extends Page
 {
 
-    @FindBy(id = "openbis_dialog-code-field-input")
-    private WebElement code;
+    @Locate("openbis_dialog-code-field")
+    private Text code;
 
-    @FindBy(id = "openbis_dialog-save-button")
-    private WebElement saveButton;
+    @Locate("openbis_dialog-save-button")
+    private Button save;
 
     /* this is not deleted as this is an example of WAIT
     public SpaceBrowser addSpace(String name, String description)
@@ -43,12 +43,12 @@ public class AddSpaceDialog extends Page
     */
     public void fillWith(Space space)
     {
-        this.code.sendKeys(space.getCode());
+        code.write(space.getCode());
     }
 
     public SpaceBrowser save()
     {
-        this.saveButton.click();
+        save.click();
         return get(SpaceBrowser.class);
     }
 }

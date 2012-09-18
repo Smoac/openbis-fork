@@ -16,19 +16,12 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-
-import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
+import ch.systemsx.cisd.openbis.uitest.widget.Text;
 
 public class HomePage extends NavigationPage
 {
 
-    @NotAlwaysPresent
-    @FindBy(id = "just_something_that_is_not_there")
-    private WebElement nonExistent;
-
-    @FindBy(id = "openbis_search-widget_text-field-input")
-    private WebElement searchTextBox;
-
+    @Locate("openbis_search-widget_text-field-input")
+    private Text searchTextBox;
 }

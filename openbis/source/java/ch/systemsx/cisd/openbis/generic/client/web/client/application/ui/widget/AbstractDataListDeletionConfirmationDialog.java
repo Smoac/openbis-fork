@@ -81,6 +81,7 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
         formPanel.setFieldWidth(FIELD_WIDTH);
 
         reason = new ReasonField(messageProvider, true);
+        reason.setId("deletion-reason");
         reason.focus();
         reason.addKeyListener(keyListener);
         if (withRadio)

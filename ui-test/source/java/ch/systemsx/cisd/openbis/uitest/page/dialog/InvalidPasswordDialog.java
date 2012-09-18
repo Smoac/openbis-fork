@@ -16,21 +16,20 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.dialog;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.widget.AlertMessageBox;
 
 public class InvalidPasswordDialog extends Page
 {
 
-    @FindBy(id = "login_failed_dialog")
-    private WebElement errorDialog;
+    @Locate("login_failed_dialog")
+    private AlertMessageBox errorDialog;
 
     public LoginPage dismiss()
     {
-        findElement(errorDialog, "//button[text()=\"OK\"]").click();
+        errorDialog.dismiss();
         return get(LoginPage.class);
     }
 }

@@ -19,54 +19,46 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 import java.util.List;
 
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.FindBys;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSpaceDialog;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 
 public class SpaceBrowser extends BrowserPage
 {
 
-    @FindBys(
-        {
-                @FindBy(id = "openbis_space-browser-grid"),
-                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]") })
-    private List<WebElement> columns;
+    @Locate("openbis_space-browser-grid")
+    private Grid grid;
 
-    @FindBys(
-        {
-                @FindBy(id = "openbis_space-browser-grid"),
-                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]") })
-    private List<WebElement> data;
+    @Locate("openbis_space-browser_add-button")
+    private Button addSpace;
 
-    @FindBy(id = "openbis_space-browser_add-button")
-    private WebElement addSpaceButton;
-
-    @FindBy(id = "openbis_space-browser_delete-button")
-    private WebElement deleteButton;
+    @Locate("openbis_space-browser_delete-button")
+    private Button delete;
 
     public AddSpaceDialog addSpace()
     {
-        addSpaceButton.click();
+        addSpace.click();
         return get(AddSpaceDialog.class);
     }
 
     @Override
     protected List<WebElement> getColumns()
     {
-        return this.columns;
+        return this.grid.getColumns();
     }
 
     @Override
     protected List<WebElement> getData()
     {
-        return this.data;
+        return this.grid.getCells();
     }
 
     @Override
     protected WebElement getDeleteButton()
     {
-        return this.deleteButton;
+        return this.delete.getContext();
     }
 }

@@ -16,45 +16,36 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import java.util.List;
-
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.FindBys;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
 import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
+import ch.systemsx.cisd.openbis.uitest.widget.Text;
 
 public class RegisterProject extends NavigationPage
 {
 
-    @FindBy(id = "openbis_project-register_form_code-input")
-    private WebElement code;
+    @Locate("openbis_project-register_form_code")
+    private Text code;
 
     @NotAlwaysPresent
-    @FindBys(
-        {
-                @FindBy(id = "openbis_select_group-selectopenbis_project-register_form"),
-                @FindBy(xpath = "img") })
-    private WebElement spaceList;
+    @Locate("openbis_select_group-selectopenbis_project-register_form")
+    private DropDown spaces;
 
-    @FindBy(className = "x-combo-list-item")
-    private List<WebElement> spaceChoices;
-
-    @FindBy(id = "openbis_project-register_formsave-button")
-    private WebElement saveButton;
+    @Locate("openbis_project-register_formsave-button")
+    private Button save;
 
     public void fillWith(Project project)
     {
-        code.sendKeys(project.getCode());
-        spaceList.click();
-        select(spaceChoices, project.getSpace().getCode());
+        code.write(project.getCode());
+        spaces.select(project.getSpace().getCode());
     }
 
     public RegisterProject save()
     {
-        this.saveButton.click();
+        save.click();
         return get(RegisterProject.class);
     }
 

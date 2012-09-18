@@ -14,38 +14,39 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page.tab;
+package ch.systemsx.cisd.openbis.uitest.widget;
 
-import java.util.List;
-
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
-import ch.systemsx.cisd.openbis.uitest.widget.Button;
-
-public class RoleAssignmentBrowser extends BrowserPage
+/**
+ * @author anttil
+ */
+public class TextArea extends Widget implements Fillable
 {
-
-    @Locate("openbis_role-browser_assign-button")
-    private Button assignRoleButton;
-
-    @Override
-    protected List<WebElement> getColumns()
+    public void write(String text)
     {
-        return null;
+        WebElement element = context.findElement(By.xpath(".//textarea"));
+        element.clear();
+        element.sendKeys(text);
+    }
+
+    public void clear()
+    {
+        WebElement element = context.findElement(By.xpath(".//textarea"));
+        element.clear();
+    }
+
+    public void append(String text)
+    {
+        WebElement element = context.findElement(By.xpath(".//textarea"));
+        element.sendKeys(text);
     }
 
     @Override
-    protected List<WebElement> getData()
+    public void fillWith(String string)
     {
-        return null;
+        write(string);
     }
 
-    @Override
-    protected WebElement getDeleteButton()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
 }

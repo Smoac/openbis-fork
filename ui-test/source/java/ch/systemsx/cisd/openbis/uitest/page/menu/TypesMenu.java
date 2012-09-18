@@ -18,38 +18,28 @@ package ch.systemsx.cisd.openbis.uitest.page.menu;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterExperiment;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterProject;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterSample;
+import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.widget.Link;
 
-public class NewMenu extends Page
+public class TypesMenu extends Page
 {
 
-    @Locate("openbis_top-menu_SAMPLE_MENU_NEW")
-    private Link sample;
+    @Locate("openbis_top-menu_SAMPLE_MENU_TYPES")
+    private Link sampleTypes;
 
-    @Locate("openbis_top-menu_PROJECT_MENU_NEW")
-    private Link project;
+    @Locate("openbis_top-menu_EXPERIMENT_MENU_TYPES")
+    private Link experimentTypes;
 
-    @Locate("openbis_top-menu_EXPERIMENT_MENU_NEW")
-    private Link experiment;
-
-    public RegisterSample sample()
+    public SampleTypeBrowser sampleTypes()
     {
-        sample.click();
-        return get(RegisterSample.class);
+        sampleTypes.click();
+        return get(SampleTypeBrowser.class);
     }
 
-    public RegisterProject project()
+    public ExperimentTypeBrowser experimentTypes()
     {
-        project.click();
-        return get(RegisterProject.class);
-    }
-
-    public RegisterExperiment experiment()
-    {
-        experiment.click();
-        return get(RegisterExperiment.class);
+        experimentTypes.click();
+        return get(ExperimentTypeBrowser.class);
     }
 }

@@ -14,21 +14,41 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.widget;
 
 import org.openqa.selenium.WebElement;
 
 /**
  * @author anttil
  */
-public abstract class Fragment extends Page
+public abstract class Widget
 {
-    protected WebElement element;
+    protected WebElement context;
 
-    public final void setElement(WebElement element)
+    public void setContext(WebElement context)
     {
-        this.element = element;
+        this.context = context;
     }
 
-    public abstract void fillWith(Object value);
+    public WebElement getContext()
+    {
+        return context;
+    }
+
+    public <T extends Widget> T handleAs(Class<T> clazz)
+    {
+        T t;
+        try
+        {
+            t = clazz.newInstance();
+        } catch (InstantiationException ex)
+        {
+            throw new RuntimeException(ex);
+        } catch (IllegalAccessException ex)
+        {
+            throw new RuntimeException(ex);
+        }
+        t.setContext(context);
+        return t;
+    }
 }

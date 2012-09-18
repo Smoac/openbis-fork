@@ -19,72 +19,57 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 import java.util.List;
 
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.FindBys;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.EditSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 
 public class SampleTypeBrowser extends BrowserPage
 {
-    @FindBy(id = "add-entity-type-SAMPLE")
-    private WebElement addSampleTypeButton;
+    @Locate("add-entity-type-SAMPLE")
+    private Button add;
 
-    @FindBy(id = "edit-entity-type-SAMPLE")
-    private WebElement editSampleTypeButton;
+    @Locate("edit-entity-type-SAMPLE")
+    private Button edit;
 
-    @FindBy(id = "delete-entity-type-SAMPLE")
-    private WebElement deleteSampleTypeButton;
+    @Locate("delete-entity-type-SAMPLE")
+    private Button delete;
 
-    @FindBys(
-        {
-                @FindBy(id = "openbis_sample-type-browser-grid"),
-                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]") })
-    private List<WebElement> columns;
-
-    @FindBys(
-        {
-                @FindBy(id = "openbis_sample-type-browser-grid"),
-                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]") })
-    private List<WebElement> data;
+    @Locate("openbis_sample-type-browser-grid")
+    private Grid grid;
 
     public AddSampleTypeDialog add()
     {
-        addSampleTypeButton.click();
+        add.click();
         return get(AddSampleTypeDialog.class);
     }
 
     @Override
     protected List<WebElement> getColumns()
     {
-        return this.columns;
+        return grid.getColumns();
     }
 
     @Override
     protected List<WebElement> getData()
     {
-        return this.data;
+        return grid.getCells();
     }
 
     public EditSampleTypeDialog editSampleType(SampleType type)
     {
-        for (WebElement element : data)
-        {
-            if (element.getText().equalsIgnoreCase(type.getCode()))
-            {
-                element.click();
-                editSampleTypeButton.click();
-                return get(EditSampleTypeDialog.class);
-            }
-        }
-        throw new IllegalArgumentException("Sample type browser does not contain " + type);
+        grid.select(type.getCode());
+        edit.click();
+        return get(EditSampleTypeDialog.class);
     }
 
     @Override
     protected WebElement getDeleteButton()
     {
-        return this.deleteSampleTypeButton;
+        return delete.getContext();
     }
 }

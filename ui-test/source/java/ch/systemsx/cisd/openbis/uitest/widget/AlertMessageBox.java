@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page.menu;
+package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.Page;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
-import ch.systemsx.cisd.openbis.uitest.widget.Link;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
-public class AuthorizationMenu extends Page
+/**
+ * @author anttil
+ */
+public class AlertMessageBox extends Widget
 {
-
-    @Locate("openbis_top-menu_AUTHORIZATION_MENU_ROLES")
-    private Link roles;
-
-    public RoleAssignmentBrowser roles()
+    public void dismiss()
     {
-        roles.click();
-        return get(RoleAssignmentBrowser.class);
+        WebElement ok = context.findElement(By.xpath(".//button[text()=\"OK\"]"));
+        ok.click();
     }
 }

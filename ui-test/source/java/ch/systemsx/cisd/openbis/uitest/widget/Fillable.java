@@ -14,22 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page.menu;
+package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.Page;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
-import ch.systemsx.cisd.openbis.uitest.widget.Link;
-
-public class AuthorizationMenu extends Page
+/**
+ * @author anttil
+ */
+public interface Fillable
 {
-
-    @Locate("openbis_top-menu_AUTHORIZATION_MENU_ROLES")
-    private Link roles;
-
-    public RoleAssignmentBrowser roles()
-    {
-        roles.click();
-        return get(RoleAssignmentBrowser.class);
-    }
+    public void fillWith(String string);
 }

@@ -16,67 +16,52 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import java.util.List;
-
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.FindBys;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
+import ch.systemsx.cisd.openbis.uitest.widget.Text;
+import ch.systemsx.cisd.openbis.uitest.widget.TextArea;
 
 public class AddPropertyType extends NavigationPage
 {
 
-    @FindBy(id = "openbis_property-type-registration_form_code-input")
-    private WebElement code;
+    @Locate("openbis_property-type-registration_form_code")
+    private Text code;
 
-    @FindBy(id = "openbis_property-type-registration_form_label-input")
-    private WebElement label;
+    @Locate("openbis_property-type-registration_form_label")
+    private Text label;
 
-    @FindBy(id = "openbis_property-type-registration_form_description-input")
-    private WebElement description;
+    @Locate("openbis_property-type-registration_form_description")
+    private TextArea description;
 
-    @FindBys(
-        {
-                @FindBy(id = "openbis_select_data-type"),
-                @FindBy(xpath = "img") })
-    private WebElement dataTypeDropDownOpener;
+    @Locate("openbis_select_data-type")
+    private DropDown dataType;
 
-    @FindBy(className = "x-combo-list-item")
-    private List<WebElement> dataTypeChoices;
+    @Locate("openbis_select_vocabulary-select")
+    private DropDown vocabulary;
 
-    @FindBys(
-        {
-                @FindBy(id = "openbis_select_vocabulary-select"),
-                @FindBy(xpath = "img") })
-    private WebElement vocabularyDropDownOpener;
-
-    @FindBy(className = "x-combo-list-item")
-    private List<WebElement> vocabularyChoices;
-
-    @FindBy(id = "openbis_property-type-registration_formsave-button")
-    private WebElement saveButton;
+    @Locate("openbis_property-type-registration_formsave-button")
+    private Button save;
 
     public void fillWith(PropertyType propertyType)
     {
-        this.code.sendKeys(propertyType.getCode());
-        this.label.sendKeys(propertyType.getLabel());
-        this.description.sendKeys(propertyType.getDescription());
-        this.dataTypeDropDownOpener.click();
-        select(dataTypeChoices, propertyType.getDataType().getName());
+        code.write(propertyType.getCode());
+        label.write(propertyType.getLabel());
+        description.write(propertyType.getDescription());
+        dataType.select(propertyType.getDataType().getName());
 
         if (propertyType.getDataType().equals(PropertyTypeDataType.CONTROLLED_VOCABULARY))
         {
-            this.vocabularyDropDownOpener.click();
-            select(vocabularyChoices, propertyType.getVocabulary().getCode());
+            vocabulary.select(propertyType.getVocabulary().getCode());
         }
     }
 
     public AddPropertyType save()
     {
-        this.saveButton.click();
+        save.click();
         return get(AddPropertyType.class);
     }
 }

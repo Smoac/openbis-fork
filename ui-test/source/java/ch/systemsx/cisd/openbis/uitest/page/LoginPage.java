@@ -16,28 +16,26 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.Text;
 
 public class LoginPage extends Page
 {
 
-    @FindBy(id = "openbis_login_username")
-    private WebElement username;
+    @Locate("openbis_login_username")
+    private Text username;
 
-    @FindBy(id = "openbis_login_password")
-    private WebElement password;
+    @Locate("openbis_login_password")
+    private Text password;
 
-    @FindBy(id = "openbis_login_submit")
-    private WebElement button;
+    @Locate("openbis_login_submit")
+    private Button button;
 
     public void loginAs(String user, String pwd)
     {
-        username.clear();
-        password.clear();
-
-        username.sendKeys(user);
-        password.sendKeys(pwd);
+        username.write(user);
+        password.write(pwd);
 
         button.click();
     }

@@ -16,44 +16,45 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.dialog;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.Text;
+import ch.systemsx.cisd.openbis.uitest.widget.TextArea;
 
 public class AddExperimentTypeDialog extends Page
 {
 
-    @FindBy(id = "openbis_dialog-code-field-input")
-    private WebElement code;
+    @Locate("openbis_dialog-code-field")
+    private Text code;
 
-    @FindBy(id = "openbis_add-type-dialog-description-field-input")
-    private WebElement description;
+    @Locate("openbis_add-type-dialog-description-field")
+    private TextArea description;
 
-    @FindBy(id = "openbis_dialog-save-button")
-    private WebElement saveButton;
+    @Locate("openbis_dialog-save-button")
+    private Button save;
 
-    @FindBy(id = "openbis_dialog-cancel-button")
-    private WebElement cancelButton;
+    @Locate("openbis_dialog-cancel-button")
+    private Button cancel;
 
     public ExperimentTypeBrowser save()
     {
-        saveButton.click();
+        save.click();
         return get(ExperimentTypeBrowser.class);
     }
 
     public ExperimentTypeBrowser cancel()
     {
-        cancelButton.click();
+        cancel.click();
         return get(ExperimentTypeBrowser.class);
     }
 
     public void fillWith(ExperimentType experimentType)
     {
-        this.code.sendKeys(experimentType.getCode());
-        this.description.sendKeys(experimentType.getDescription());
+        code.write(experimentType.getCode());
+        description.write(experimentType.getDescription());
     }
 
 }

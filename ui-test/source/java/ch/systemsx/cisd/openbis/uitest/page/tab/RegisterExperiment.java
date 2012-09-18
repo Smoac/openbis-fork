@@ -16,70 +16,55 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import java.util.List;
-
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.FindBys;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
 import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
+import ch.systemsx.cisd.openbis.uitest.widget.Text;
+import ch.systemsx.cisd.openbis.uitest.widget.TextArea;
 
 public class RegisterExperiment extends NavigationPage
 {
 
-    @FindBys(
-        {
-                @FindBy(id = "openbis_select_experiment-typeopenbis_experiment-registration"),
-                @FindBy(xpath = "img") })
-    private WebElement experimentTypeList;
-
-    @FindBy(className = "x-combo-list-item")
-    private List<WebElement> experimentTypeChoices;
+    @Locate("openbis_select_experiment-typeopenbis_experiment-registration")
+    private DropDown experimentTypeList;
 
     @NotAlwaysPresent
-    @FindBy(id = "openbis_generic-experiment-register_formcode-input")
-    private WebElement code;
+    @Locate("openbis_generic-experiment-register_formcode")
+    private Text code;
 
     @NotAlwaysPresent
-    @FindBys(
-        {
-                @FindBy(id = "openbis_select_projectgeneric-experiment-register_form"),
-                @FindBy(xpath = "img") })
-    private WebElement projectList;
-
-    @FindBy(className = "x-combo-list-item")
-    private List<WebElement> projectChoices;
+    @Locate("openbis_select_projectgeneric-experiment-register_form")
+    private DropDown projectList;
 
     @NotAlwaysPresent
-    @FindBy(id = "generic-experiment-register_form_samples-input")
-    private WebElement samples;
+    @Locate("generic-experiment-register_form_samples")
+    private TextArea samples;
 
     @NotAlwaysPresent
-    @FindBy(id = "openbis_generic-experiment-register_formsave-button")
-    private WebElement saveButton;
+    @Locate("openbis_generic-experiment-register_formsave-button")
+    private Button saveButton;
 
     public void fillWith(Experiment experiment)
     {
-        code.sendKeys(experiment.getCode());
-        projectList.click();
-        select(projectChoices, experiment.getProject().getCode() + " ("
+        code.write(experiment.getCode());
+        projectList.select(experiment.getProject().getCode() + " ("
                 + experiment.getProject().getSpace().getCode() + ")");
 
         samples.clear();
         for (Sample sample : experiment.getSamples())
         {
-            samples.sendKeys(sample.getCode() + ", ");
+            samples.append(sample.getCode() + ", ");
         }
     }
 
     public RegisterExperiment selectExperimentType(ExperimentType experimentType)
     {
-        experimentTypeList.click();
-        select(experimentTypeChoices, experimentType.getCode());
+        experimentTypeList.select(experimentType.getCode());
         return get(RegisterExperiment.class);
     }
 

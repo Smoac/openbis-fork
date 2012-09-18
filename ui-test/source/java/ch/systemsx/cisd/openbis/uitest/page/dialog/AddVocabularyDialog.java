@@ -16,48 +16,49 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.dialog;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.Text;
+import ch.systemsx.cisd.openbis.uitest.widget.TextArea;
 
 public class AddVocabularyDialog extends Page
 {
 
-    @FindBy(id = "openbis_vocabulary-registration_formvocabulary_registration_field_set_code-input")
-    private WebElement code;
+    @Locate("openbis_vocabulary-registration_formvocabulary_registration_field_set_code")
+    private Text code;
 
-    @FindBy(id = "openbis_vocabulary-registration_formvocabulary_registration_field_set_description-input")
-    private WebElement description;
+    @Locate("openbis_vocabulary-registration_formvocabulary_registration_field_set_description")
+    private TextArea description;
 
-    @FindBy(id = "openbis_vocabulary-registration_formvocabulary_registration_field_set_terms-input")
-    private WebElement terms;
+    @Locate("openbis_vocabulary-registration_formvocabulary_registration_field_set_terms")
+    private TextArea terms;
 
-    @FindBy(id = "vocabulary_registration_field_set-url-input")
-    private WebElement url;
+    @Locate("vocabulary_registration_field_set-url")
+    private Text url;
 
-    @FindBy(id = "openbis_vocabulary-registration_formsave-button")
-    private WebElement saveButton;
+    @Locate("openbis_vocabulary-registration_formsave-button")
+    private Button save;
 
     public void fillWith(Vocabulary vocabulary)
     {
-        this.code.sendKeys(vocabulary.getCode());
-        this.description.sendKeys(vocabulary.getDescription());
+        code.write(vocabulary.getCode());
+        description.write(vocabulary.getDescription());
 
-        this.terms.clear();
+        terms.clear();
         for (String term : vocabulary.getTerms())
         {
-            this.terms.sendKeys(term + ", ");
+            terms.append(term + ", ");
         }
-        this.url.clear();
-        this.url.sendKeys(vocabulary.getUrl());
+
+        url.write(vocabulary.getUrl());
     }
 
     public VocabularyBrowser save()
     {
-        this.saveButton.click();
+        save.click();
         return get(VocabularyBrowser.class);
     }
 }

@@ -19,17 +19,17 @@ package ch.systemsx.cisd.openbis.uitest.infra;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collection;
+import java.lang.reflect.Modifier;
 
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyFactory;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 
 import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
 /**
  * @author anttil
@@ -44,7 +44,7 @@ public class PageProxy
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Page> T get(Class<T> clazz)
+    public <T extends Page> T get(final Class<T> clazz)
     {
 
         ProxyFactory factory = new ProxyFactory();
@@ -63,7 +63,7 @@ public class PageProxy
                     {
                         if (e.getTargetException() instanceof StaleElementReferenceException)
                         {
-                            PageFactory.initElements(new ScreenShotDecorator(shotter), self);
+                            initLocateFields(clazz, (T) self);
                             return proceed.invoke(self, args);
                         } else
                         {
@@ -94,44 +94,69 @@ public class PageProxy
             throw new RuntimeException(ex1);
         }
 
-        PageFactory.initElements(new ScreenShotDecorator(shotter), t);
         t.setPageProxy(this);
-        t.setScreenShotter(shotter);
 
+        initLocateFields(clazz, t);
+
+        return t;
+    }
+
+    private <T> void initLocateFields(Class<T> clazz, T t)
+    {
         Class<T> pageClass = clazz;
         while (pageClass != null)
         {
             for (Field field : pageClass.getDeclaredFields())
             {
-                if ((field.getAnnotation(FindBy.class) != null)
-                        && (field.getAnnotation(NotAlwaysPresent.class) == null))
+                Locate locate = field.getAnnotation(Locate.class);
+                if (locate != null)
                 {
-                    WebElement element = null;
                     try
                     {
                         field.setAccessible(true);
-                        Object potentialWebElement = field.get(t);
-                        if (potentialWebElement instanceof Collection)
+                        Class<?> type = field.getType();
+
+                        Widget widget;
+                        if (Modifier.isAbstract(type.getModifiers()))
                         {
-                            continue;
+                            widget = new Widget()
+                                {
+                                };
+                        } else
+                        {
+                            widget = (Widget) type.newInstance();
                         }
-                        element = (WebElement) potentialWebElement;
+
+                        WebElement element;
+                        if (field.getAnnotation(NotAlwaysPresent.class) != null)
+                        {
+                            element = (WebElement) WebElementProxy.newInstance(locate.value());
+                        } else
+                        {
+                            element = SeleniumTest.driver.findElement(By.id(locate.value()));
+                        }
+                        widget.setContext((WebElement) ScreenShotProxy
+                                .newInstance(element, shotter));
+                        field.set(t, widget);
+                    } catch (IllegalArgumentException ex)
+                    {
+                        // TODO Auto-generated catch block
+                        ex.printStackTrace();
+                        throw ex;
                     } catch (IllegalAccessException ex)
                     {
                         ex.printStackTrace();
                         throw new RuntimeException(ex);
+                    } catch (InstantiationException ex)
+                    {
+                        // TODO Auto-generated catch block
+                        ex.printStackTrace();
+                        throw new RuntimeException(ex);
                     }
-
-                    // Force wait for the element.
-                    // This makes sure that page object is returned only when all the
-                    // expected elements are present.
-                    element.getTagName();
                 }
             }
 
             pageClass = (Class<T>) pageClass.getSuperclass();
         }
-
-        return t;
     }
 }

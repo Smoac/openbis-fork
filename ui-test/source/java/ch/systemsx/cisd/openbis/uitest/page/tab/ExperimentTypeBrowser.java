@@ -19,57 +19,49 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 import java.util.List;
 
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.FindBys;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddExperimentTypeDialog;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 
 public class ExperimentTypeBrowser extends BrowserPage
 {
 
-    @FindBy(id = "add-entity-type-EXPERIMENT")
-    private WebElement addButton;
+    @Locate("add-entity-type-EXPERIMENT")
+    private Button add;
 
-    @FindBy(id = "edit-entity-type-EXPERIMENT")
-    private WebElement editButton;
+    @Locate("edit-entity-type-EXPERIMENT")
+    private Button edit;
 
-    @FindBy(id = "delete-entity-type-EXPERIMENT")
-    private WebElement deleteButton;
+    @Locate("delete-entity-type-EXPERIMENT")
+    private Button delete;
 
-    @FindBys(
-        {
-                @FindBy(id = "openbis_experiment-type-browser-grid"),
-                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]") })
-    private List<WebElement> columns;
-
-    @FindBys(
-        {
-                @FindBy(id = "openbis_experiment-type-browser-grid"),
-                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]") })
-    private List<WebElement> data;
+    @Locate("openbis_experiment-type-browser-grid")
+    private Grid grid;
 
     public AddExperimentTypeDialog add()
     {
-        addButton.click();
+        add.click();
         return get(AddExperimentTypeDialog.class);
     }
 
     @Override
     protected List<WebElement> getColumns()
     {
-        return this.columns;
+        return grid.getColumns();
     }
 
     @Override
     protected List<WebElement> getData()
     {
-        return this.data;
+        return grid.getCells();
     }
 
     @Override
     protected WebElement getDeleteButton()
     {
-        return this.deleteButton;
+        return delete.getContext();
     }
 }

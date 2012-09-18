@@ -261,11 +261,6 @@ public class ApplicationRunner
         return getMenus().newMenu().project();
     }
 
-    public void closeAllTabs()
-    {
-        getMenus().closeTabs();
-    }
-
     private NavigationPage getMenus()
     {
         return proxy.get(NavigationPage.class);

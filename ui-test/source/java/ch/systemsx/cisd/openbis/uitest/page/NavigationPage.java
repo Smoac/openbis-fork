@@ -16,55 +16,49 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import java.util.List;
-
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.BrowseMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.NewMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.UserMenu;
 import ch.systemsx.cisd.openbis.uitest.page.tab.Trash;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
 
 /**
  * @author anttil
  */
 public abstract class NavigationPage extends Page
 {
-    @FindBy(id = "admin_menu")
-    private WebElement adminMenuButton;
+    @Locate("admin_menu")
+    private Button adminMenu;
 
-    @FindBy(id = "user_menu")
-    private WebElement userMenuButton;
+    @Locate("user_menu")
+    private Button userMenu;
 
-    @FindBy(id = "browse_menu")
-    private WebElement browseMenuButton;
+    @Locate("browse_menu")
+    private Button browseMenu;
 
-    @FindBy(id = "new_menu")
-    private WebElement newMenuButton;
+    @Locate("new_menu")
+    private Button newMenu;
 
-    @FindBy(id = "trash-button")
-    private WebElement trash;
-
-    @FindBy(className = "x-tab-strip-close")
-    private List<WebElement> tabCloseButtons;
+    @Locate("trash-button")
+    private Button trash;
 
     public AdminMenu admin()
     {
-        adminMenuButton.click();
+        adminMenu.click();
         return get(AdminMenu.class);
     }
 
     public UserMenu user()
     {
-        userMenuButton.click();
+        userMenu.click();
         return get(UserMenu.class);
     }
 
     public BrowseMenu browse()
     {
-        browseMenuButton.click();
+        browseMenu.click();
         return get(BrowseMenu.class);
     }
 
@@ -76,19 +70,8 @@ public abstract class NavigationPage extends Page
 
     public NewMenu newMenu()
     {
-        newMenuButton.click();
+        newMenu.click();
         return get(NewMenu.class);
-    }
-
-    public void closeTabs()
-    {
-        for (WebElement e : tabCloseButtons)
-        {
-            if (e.isDisplayed())
-            {
-                e.click();
-            }
-        }
     }
 
 }

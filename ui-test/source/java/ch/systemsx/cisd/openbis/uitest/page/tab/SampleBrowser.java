@@ -16,100 +16,65 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.FindBys;
 
-import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
+import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 
 public class SampleBrowser extends BrowserPage
 {
 
-    @FindBys(
-        {
-                @FindBy(id = "openbis_sample-browser_main-grid"),
-                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]") })
-    private List<WebElement> columns;
+    @Locate("openbis_sample-browser_main-grid")
+    private Grid grid;
 
-    @FindBys(
-        {
-                @FindBy(id = "openbis_sample-browser_main-grid"),
-                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]") })
-    private List<WebElement> data;
+    @Locate("openbis_sample-browser_main_add-button")
+    private Button addSample;
 
-    @FindBy(id = "openbis_sample-browser_main_add-button")
-    private WebElement addSampleButton;
+    @Locate("openbis_select_sample-typesample-browser-toolbar")
+    private DropDown sampleTypeList;
 
-    @FindBys(
-        {
-                @FindBy(id = "openbis_select_sample-typesample-browser-toolbar"),
-                @FindBy(xpath = "img") })
-    private WebElement sampleTypeList;
-
-    @NotAlwaysPresent
-    @FindBy(className = "x-combo-list-item")
-    private List<WebElement> sampleTypeChoices;
-
-    @FindBys(
-        {
-                @FindBy(id = "openbis_select_group-selectsample-browser-toolbar"),
-                @FindBy(xpath = "img") })
-    private WebElement spaceList;
-
-    @NotAlwaysPresent
-    @FindBy(className = "x-combo-list-item")
-    private List<WebElement> spaceChoices;
+    @Locate("openbis_select_group-selectsample-browser-toolbar")
+    private DropDown spaceList;
 
     public RegisterSample addSample()
     {
-        addSampleButton.click();
+        addSample.click();
         return get(RegisterSample.class);
     }
 
     @Override
     protected List<WebElement> getColumns()
     {
-        return this.columns;
+        return grid.getColumns();
     }
 
     @Override
     protected List<WebElement> getData()
     {
-        return this.data;
+        return grid.getCells();
     }
 
     public SampleBrowser selectSampleType(SampleType sampleType)
     {
-        sampleTypeList.click();
-        select(sampleTypeChoices, sampleType.getCode());
+        sampleTypeList.select(sampleType.getCode());
         return get(SampleBrowser.class);
     }
 
     public SampleBrowser allSpaces()
     {
-        spaceList.click();
-        select(spaceChoices, "(all)");
-
+        spaceList.select("(all)");
         return get(SampleBrowser.class);
     }
 
     public List<String> getSampleTypes()
     {
-        List<String> sampleTypes = new ArrayList<String>();
-
-        sampleTypeList.click();
-        for (WebElement choice : sampleTypeChoices)
-        {
-            sampleTypes.add(choice.getText());
-        }
-        sampleTypeList.click();
-
-        return sampleTypes;
+        return sampleTypeList.getChoices();
     }
 
     @Override

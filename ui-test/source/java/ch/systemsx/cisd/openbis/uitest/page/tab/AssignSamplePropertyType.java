@@ -16,72 +16,69 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import java.util.List;
-
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.FindBys;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
 import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.Checkbox;
+import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
+import ch.systemsx.cisd.openbis.uitest.widget.Text;
+import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
 public class AssignSamplePropertyType extends NavigationPage
 {
 
-    @FindBys(
-        {
-                @FindBy(id = "openbis_select_property-typeopenbis_property-type-assignment_SAMPLEproperty_type"),
-                @FindBy(xpath = "img") })
-    private WebElement propertyTypeDropDownOpener;
+    @Locate("openbis_select_property-typeopenbis_property-type-assignment_SAMPLEproperty_type")
+    private DropDown propertyType;
 
-    @FindBy(className = "x-combo-list-item")
-    private List<WebElement> propertyTypeChoices;
+    @Locate("openbis_select_sample-typeopenbis_property-type-assignment_sample_type")
+    private DropDown sampleType;
 
-    @FindBys(
-        {
-                @FindBy(id = "openbis_select_sample-typeopenbis_property-type-assignment_sample_type"),
-                @FindBy(xpath = "img") })
-    private WebElement sampleTypeDropDownOpener;
-
-    @FindBy(className = "x-combo-list-item")
-    private List<WebElement> sampleTypeChoices;
-
-    @FindBys(
-        {
-                @FindBy(id = "openbis_property-type-assignment_SAMPLEmandatory_checkbox"),
-                @FindBy(xpath = "input") })
-    private WebElement mandatoryCheckbox;
+    @Locate("openbis_property-type-assignment_SAMPLEmandatory_checkbox")
+    private Checkbox mandatory;
 
     @NotAlwaysPresent
-    @FindBys(
-        {
-                @FindBy(xpath = "//div[starts-with(@id, 'openbis_property-type-assignment_SAMPLEdefault_value')]"),
-                @FindBy(xpath = "input") })
-    private WebElement initialValue;
+    @Locate("openbis_property-type-assignment_SAMPLEdefault_value")
+    private Widget initialValue;
 
-    @FindBy(id = "openbis_property-type-assignment_SAMPLEsave-button")
-    private WebElement saveButton;
+    @Locate("openbis_property-type-assignment_SAMPLEsave-button")
+    private Button save;
 
     public void fillWith(PropertyTypeAssignment assignment)
     {
-        this.propertyTypeDropDownOpener.click();
-        select(propertyTypeChoices, assignment.getPropertyType().getLabel());
+        propertyType.select(assignment.getPropertyType().getLabel());
+        sampleType.select(assignment.getSampleType().getCode());
+        mandatory.set(assignment.isMandatory());
 
-        this.sampleTypeDropDownOpener.click();
-        select(sampleTypeChoices, assignment.getSampleType().getCode());
-
-        checkbox(mandatoryCheckbox, assignment.isMandatory());
-
-        if (assignment.getInitialValue() != null)
+        if (assignment.getInitialValue() != null && assignment.getInitialValue().length() > 0)
         {
-            this.initialValue.sendKeys(assignment.getInitialValue());
+            PropertyTypeDataType type = assignment.getPropertyType().getDataType();
+
+            if (type.equals(PropertyTypeDataType.BOOLEAN))
+            {
+                initialValue.handleAs(Checkbox.class).set(
+                        assignment.getInitialValue().equals("true"));
+            } else if (type.equals(PropertyTypeDataType.VARCHAR))
+            {
+                initialValue.handleAs(Text.class).write(assignment.getInitialValue());
+            } else if (type.equals(PropertyTypeDataType.INTEGER))
+            {
+                initialValue.handleAs(Text.class).write(assignment.getInitialValue());
+            } else if (type.equals(PropertyTypeDataType.CONTROLLED_VOCABULARY))
+            {
+                initialValue.handleAs(DropDown.class).select(assignment.getInitialValue());
+            } else
+            {
+                throw new IllegalArgumentException("Type " + type + " not supported");
+            }
         }
     }
 
     public AssignSamplePropertyType save()
     {
-        this.saveButton.click();
+        this.save.click();
         return get(AssignSamplePropertyType.class);
     }
 }

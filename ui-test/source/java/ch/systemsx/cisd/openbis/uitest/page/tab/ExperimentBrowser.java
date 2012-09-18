@@ -16,54 +16,39 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.FindBys;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
+import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
+import ch.systemsx.cisd.openbis.uitest.widget.TreeGrid;
 
 public class ExperimentBrowser extends BrowserPage
 {
+    @Locate("openbis_select-project")
+    private TreeGrid projectTree;
 
-    @FindBys(
-        {
-                @FindBy(id = "openbis_select-project"),
-                @FindBy(xpath = "..//span[not(*) and @class='gwt-InlineHTML']") })
-    private List<WebElement> spacesAndProjects;
+    @Locate("openbis_experiment-browser_delete-button")
+    private Button deleteAll;
 
-    @FindBy(id = "openbis_experiment-browser_delete-button")
-    private WebElement deleteAllButton;
+    @NotAlwaysPresent
+    @Locate("deletion-confirmation-dialog")
+    private DeletionConfirmationBox deletionDialog;
 
     public ExperimentBrowser space(String spaceCode)
     {
-        for (WebElement element : spacesAndProjects)
-        {
-            if (spaceCode.equalsIgnoreCase(element.getText()))
-            {
-                element.click();
-            }
-        }
+        projectTree.select(spaceCode);
         return this;
     }
 
     public void deleteAll()
     {
-        this.deleteAllButton.click();
-        for (WebElement ellu : this.findElements(deleteAllButton,
-                "//*[@id='deletion-confirmation-dialog']//textarea"))
-        {
-            ellu.sendKeys("reason for deletion");
-        }
-
-        List<WebElement> e = new ArrayList<WebElement>(this.findElements(deleteAllButton,
-                "//*[@id='deletion-confirmation-dialog']//button[text()='OK' or text()='Yes']"));
-        if (e.size() > 0)
-        {
-            e.get(0).click();
-        }
+        deleteAll.click();
+        deletionDialog.confirm("webdriver");
     }
 
     @Override

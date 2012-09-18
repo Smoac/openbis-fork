@@ -18,130 +18,101 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.FindBys;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
-import ch.systemsx.cisd.openbis.uitest.page.Fragment;
 import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
-import ch.systemsx.cisd.openbis.uitest.page.fragment.TermSelector;
-import ch.systemsx.cisd.openbis.uitest.page.fragment.VarcharInput;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.Checkbox;
+import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
+import ch.systemsx.cisd.openbis.uitest.widget.Form;
+import ch.systemsx.cisd.openbis.uitest.widget.Text;
+import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
 public class RegisterSample extends NavigationPage
 {
 
-    @FindBys(
-        {
-                @FindBy(id = "openbis_select_sample-typeopenbis_sample-registration"),
-                @FindBy(xpath = "img") })
-    private WebElement sampleTypeList;
-
-    @FindBy(className = "x-combo-list-item")
-    private List<WebElement> sampleTypeChoices;
+    @Locate("openbis_select_sample-typeopenbis_sample-registration")
+    private DropDown sampleTypes;
 
     @NotAlwaysPresent
-    @FindBy(id = "openbis_generic-sample-register_formcode-input")
-    private WebElement code;
+    @Locate("openbis_generic-sample-register_formcode")
+    private Text code;
 
     @NotAlwaysPresent
-    @FindBy(id = "openbis_generic-sample-register_formexperiment-input")
-    private WebElement experiment;
+    @Locate("openbis_generic-sample-register_formexperiment")
+    private Text experiment;
 
     @NotAlwaysPresent
-    @FindBys(
-        {
-                @FindBy(id = "register-sample-space-selection"),
-                @FindBy(xpath = "img") })
-    private WebElement spaceList;
-
-    @FindBy(className = "x-combo-list-item")
-    private List<WebElement> spaceChoices;
+    @Locate("register-sample-space-selection")
+    private DropDown spaces;
 
     @NotAlwaysPresent
-    @FindBy(id = "openbis_generic-sample-register_formsave-button")
-    private WebElement saveButton;
+    @Locate("openbis_generic-sample-register_formsave-button")
+    private Button save;
 
-    @FindBys(
-        {
-                @FindBy(xpath = "//div[starts-with(@id, 'openbis_generic-sample-register_form')]"),
-                @FindBy(xpath = "../../label") })
-    private List<WebElement> labels;
-
-    @FindBys(
-        {
-                @FindBy(id = "openbis_generic-sample-register_form"),
-                @FindBy(xpath = "//form") })
-    private WebElement mainForm;
+    @NotAlwaysPresent
+    @Locate("registration-panel-openbis_generic-sample-register_form")
+    private Form form;
 
     public void fillWith(Sample sample)
     {
-        code.sendKeys(sample.getCode());
-        spaceList.click();
-        select(spaceChoices, sample.getSpace().getCode());
+        code.write(sample.getCode());
+        spaces.select(sample.getSpace().getCode());
 
         Map<PropertyType, Object> properties = sample.getProperties();
 
         for (PropertyType propertyType : properties.keySet())
         {
-            Fragment propertyFragment = getFragment(propertyType);
-            propertyFragment.fillWith(properties.get(propertyType));
+            Widget w = form.getWidget(propertyType.getLabel());
+            PropertyTypeDataType type = propertyType.getDataType();
+            String value = properties.get(propertyType).toString();
+
+            switch (type)
+            {
+                case BOOLEAN:
+                    w.handleAs(Checkbox.class).fillWith(value);
+                    break;
+                case VARCHAR:
+                    w.handleAs(Text.class).fillWith(value);
+                    break;
+                case INTEGER:
+                    w.handleAs(Text.class).fillWith(value);
+                    break;
+                case CONTROLLED_VOCABULARY:
+                    w.handleAs(DropDown.class).fillWith(value);
+                    break;
+                default:
+                    throw new IllegalArgumentException(type + " not supported");
+            }
         }
-    }
-
-    private Fragment getFragment(PropertyType propertyType)
-    {
-        PropertyTypeDataType type = propertyType.getDataType();
-        Fragment fragment;
-        if (type.equals(PropertyTypeDataType.CONTROLLED_VOCABULARY))
-        {
-            fragment = get(TermSelector.class);
-        } else if (type.equals(PropertyTypeDataType.VARCHAR))
-        {
-            fragment = get(VarcharInput.class);
-        } else
-        {
-            throw new IllegalArgumentException("unknown type " + type);
-        }
-
-        fragment.setElement(getPropertyElement(propertyType));
-        return fragment;
-    }
-
-    private WebElement getPropertyElement(PropertyType type)
-    {
-        return this.findElement(this.mainForm, "//div[@id='openbis_generic-sample-register_form"
-                + type.getCode().toLowerCase().replace(".", "-DOT-") + "']");
     }
 
     public RegisterSample selectSampleType(SampleType sampleType)
     {
-        sampleTypeList.click();
-        select(sampleTypeChoices, sampleType.getCode());
+        sampleTypes.select(sampleType.getCode());
+        return get(RegisterSample.class);
+    }
+
+    public RegisterSample save()
+    {
+        save.click();
         return get(RegisterSample.class);
     }
 
     public Collection<String> getProperties()
     {
         Collection<String> properties = new HashSet<String>();
-        for (WebElement label : labels)
+        for (String label : form.getLabels())
         {
-            properties.add(label.getText().replace(":", "").replace("*", "").trim());
+            properties.add(label.replace(":", "").replace("*", "").trim());
         }
         return properties;
-    }
-
-    public RegisterSample save()
-    {
-        this.saveButton.click();
-        return get(RegisterSample.class);
     }
 
     @Override

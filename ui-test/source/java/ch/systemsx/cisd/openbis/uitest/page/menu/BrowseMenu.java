@@ -16,25 +16,24 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.menu;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.Page;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ProjectBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
+import ch.systemsx.cisd.openbis.uitest.widget.Link;
 
 public class BrowseMenu extends Page
 {
 
-    @FindBy(id = "openbis_top-menu_SAMPLE_MENU_BROWSE")
-    private WebElement samples;
+    @Locate("openbis_top-menu_SAMPLE_MENU_BROWSE")
+    private Link samples;
 
-    @FindBy(id = "openbis_top-menu_PROJECT_MENU_BROWSE")
-    private WebElement projects;
+    @Locate("openbis_top-menu_PROJECT_MENU_BROWSE")
+    private Link projects;
 
-    @FindBy(id = "openbis_top-menu_EXPERIMENT_MENU_BROWSE")
-    private WebElement experiments;
+    @Locate("openbis_top-menu_EXPERIMENT_MENU_BROWSE")
+    private Link experiments;
 
     public SampleBrowser samples()
     {

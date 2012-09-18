@@ -14,22 +14,28 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page.menu;
+package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.Page;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
-import ch.systemsx.cisd.openbis.uitest.widget.Link;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
-public class AuthorizationMenu extends Page
+/**
+ * @author anttil
+ */
+public class Checkbox extends Widget implements Fillable
 {
-
-    @Locate("openbis_top-menu_AUTHORIZATION_MENU_ROLES")
-    private Link roles;
-
-    public RoleAssignmentBrowser roles()
+    public void set(boolean value)
     {
-        roles.click();
-        return get(RoleAssignmentBrowser.class);
+        WebElement input = context.findElement(By.xpath("input"));
+        if (input.getAttribute("checked") != null ^ value)
+        {
+            input.click();
+        }
+    }
+
+    @Override
+    public void fillWith(String string)
+    {
+        set("true".equalsIgnoreCase(string));
     }
 }

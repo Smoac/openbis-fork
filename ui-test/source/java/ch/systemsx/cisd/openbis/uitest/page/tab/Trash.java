@@ -16,23 +16,26 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
+import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
 import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 
 public class Trash extends NavigationPage
 {
 
-    @FindBy(id = "empty-trash-button")
-    private WebElement empty;
+    @Locate("empty-trash-button")
+    private Button empty;
+
+    @NotAlwaysPresent
+    @Locate("deletion-confirmation-dialog")
+    private DeletionConfirmationBox deletionDialog;
 
     public Trash empty()
     {
         this.empty.click();
-        findElement(this.empty,
-                "//*[@id='deletion-confirmation-dialog']//button[text()='OK' or text()='Yes']")
-                .click();
+        deletionDialog.confirm();
 
         return get(Trash.class);
     }

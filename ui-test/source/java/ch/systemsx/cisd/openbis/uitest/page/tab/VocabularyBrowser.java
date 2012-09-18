@@ -19,54 +19,45 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 import java.util.List;
 
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.FindBys;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddVocabularyDialog;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 
 public class VocabularyBrowser extends BrowserPage
 {
+    @Locate("openbis_vocabulary-browser-grid")
+    private Grid grid;
 
-    @FindBys(
-        {
-                @FindBy(id = "openbis_vocabulary-browser-grid"),
-                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]") })
-    private List<WebElement> columns;
+    @Locate("openbis_vocabulary-browser_add-button")
+    private Button add;
 
-    @FindBys(
-        {
-                @FindBy(id = "openbis_vocabulary-browser-grid"),
-                @FindBy(xpath = ".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]") })
-    private List<WebElement> data;
-
-    @FindBy(id = "openbis_vocabulary-browser_add-button")
-    private WebElement addVocabularyButton;
-
-    @FindBy(id = "openbis_vocabulary-browser_delete-button")
-    private WebElement deleteVocabularyButton;
+    @Locate("openbis_vocabulary-browser_delete-button")
+    private Button delete;
 
     public AddVocabularyDialog add()
     {
-        addVocabularyButton.click();
+        add.click();
         return get(AddVocabularyDialog.class);
     }
 
     @Override
     protected List<WebElement> getColumns()
     {
-        return this.columns;
+        return grid.getColumns();
     }
 
     @Override
     protected List<WebElement> getData()
     {
-        return this.data;
+        return grid.getCells();
     }
 
     @Override
     protected WebElement getDeleteButton()
     {
-        return this.deleteVocabularyButton;
+        return delete.getContext();
     }
 }

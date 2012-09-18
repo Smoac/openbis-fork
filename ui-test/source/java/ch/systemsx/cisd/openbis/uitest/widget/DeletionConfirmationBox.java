@@ -14,22 +14,29 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page.menu;
+package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.Page;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
-import ch.systemsx.cisd.openbis.uitest.widget.Link;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
-public class AuthorizationMenu extends Page
+/**
+ * @author anttil
+ */
+public class DeletionConfirmationBox extends Widget
 {
-
-    @Locate("openbis_top-menu_AUTHORIZATION_MENU_ROLES")
-    private Link roles;
-
-    public RoleAssignmentBrowser roles()
+    public void confirm(String reason)
     {
-        roles.click();
-        return get(RoleAssignmentBrowser.class);
+
+        WebElement text = context.findElement(By.xpath(".//textarea"));
+        text.sendKeys(reason);
+
+        WebElement ok = context.findElement(By.xpath(".//button[text()=\"OK\"]"));
+        ok.click();
+    }
+
+    public void confirm()
+    {
+        WebElement ok = context.findElement(By.xpath(".//button[text()=\"OK\"]"));
+        ok.click();
     }
 }

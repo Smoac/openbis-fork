@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 public class ManualTest extends SeleniumTest
 {
 
-    @Test
+    @Test(enabled = false)
     public void basic()
     {
         // 0) Cleanup

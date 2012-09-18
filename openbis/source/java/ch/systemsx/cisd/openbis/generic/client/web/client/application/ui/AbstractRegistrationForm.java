@@ -128,6 +128,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
         add(infoBox = createInfoBox());
         add(loadingInfo = createLoadingInfo());
         add(WidgetUtils.inRow(formPanel = createFormPanel(), rightPanel = createAdditionalPanel()));
+        formPanel.setId("registration-panel-" + id);
         add(unsavedChangesInfo = createUnsavedChangesInfo());
     }
 
