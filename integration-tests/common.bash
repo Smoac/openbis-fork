@@ -17,7 +17,7 @@ LOCAL_PROJECTS=..
 
 OPENBIS_SERVER=$WORK/openBIS-server
 
-CI_HOST=cisd-vesuvio.ethz.ch
+CI_HOST=cisd-lascar.ethz.ch
 CI_HOME=/localhome/ci
 SSH_CRUISE_CONTROL_NAME=ci@$CI_HOST
 HUDSON_ARTIFACTS=hudson/jobs
