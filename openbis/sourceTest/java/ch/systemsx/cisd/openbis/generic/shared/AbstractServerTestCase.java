@@ -102,8 +102,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected static final String SESSION_TOKEN = "session-token";
 
-    protected static final Session SESSION = new Session(CommonTestUtils.USER_ID, SESSION_TOKEN,
-            PRINCIPAL, "remote-host", 1);
+    protected Session session;
 
     protected BufferedAppender logRecorder;
 
@@ -208,6 +207,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     public void setUp()
     {
         LogInitializer.init();
+        session = createSession();
         logRecorder = new BufferedAppender("%m%n", Level.DEBUG);
         context = new Mockery();
         authenticationService = context.mock(IAuthenticationService.class);
@@ -323,7 +323,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
             {
                 {
                     allowing(sessionManager).getSession(SESSION_TOKEN);
-                    will(returnValue(SESSION));
+                    will(returnValue(session));
                     allowing(daoFactory).getPersistencyResources();
                     will(returnValue(new PersistencyResources(null, null, null, null)));
 
@@ -426,6 +426,11 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         externalData.setDataSetType(dataSetType);
         externalData.setDataStore(new DataStorePE());
         return externalData;
+    }
+
+    protected Session createSession()
+    {
+        return new Session(CommonTestUtils.USER_ID, SESSION_TOKEN, PRINCIPAL, "remote-host", 1);
     }
 
 }

@@ -396,7 +396,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleLister(SESSION);
+                    one(boFactory).createSampleLister(session);
                     will(returnValue(sampleLister));
 
                     exactly(numberOfSearches).of(hibernateSearchDAO).searchForEntityIds(

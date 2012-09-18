@@ -126,7 +126,7 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private static final int PORT = 443;
 
-    private static final String URL = "http://" + SESSION.getRemoteHost() + ":" + PORT;
+    private static final String URL = "http://remote-host:" + PORT;
 
     private ICommonBusinessObjectFactory boFactory;
 
@@ -163,7 +163,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     store.setCode(DSS_CODE);
                     will(returnValue(store));
 
-                    one(boFactory).createDatasetLister(SESSION);
+                    one(boFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
 
                     one(datasetLister).listByDataStore(DSS_ID);
@@ -219,7 +219,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     store.setCode(DSS_CODE);
                     will(returnValue(store));
 
-                    one(boFactory).createDatasetLister(SESSION);
+                    one(boFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
 
                     one(datasetLister).listAllDataSetShareIdsByDataStore(DSS_ID);
@@ -673,7 +673,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleBO(SESSION);
+                    one(boFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).define(sample);
@@ -699,7 +699,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleBO(SESSION);
+                    one(boFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).define(sample);
@@ -730,7 +730,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleBO(SESSION);
+                    one(boFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).define(sample);
@@ -888,7 +888,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleBO(SESSION);
+                    one(boFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).define(sample);
@@ -899,7 +899,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(personDAO).tryFindPersonByUserId(CommonTestUtils.USER_ID);
                     will(returnValue(new PersonPE()));
 
-                    one(boFactory).createDataBO(SESSION);
+                    one(boFactory).createDataBO(session);
                     will(returnValue(dataBO));
 
                     one(dataBO).define(externalData, samplePE, SourceType.MEASUREMENT);
@@ -944,7 +944,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleBO(SESSION);
+                    one(boFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).update(sample);
@@ -952,7 +952,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(sampleBO).getSample();
                     will(returnValue(samplePE));
 
-                    one(boFactory).createDataBO(SESSION);
+                    one(boFactory).createDataBO(session);
                     will(returnValue(dataBO));
 
                     one(dataBO).define(externalData, samplePE, SourceType.MEASUREMENT);
@@ -1064,12 +1064,12 @@ public class ETLServiceTest extends AbstractServerTestCase
                     will(returnValue(materialType));
 
                     one(entityOperationChecker)
-                            .assertMaterialCreationAllowed(SESSION, newMaterials);
+                            .assertMaterialCreationAllowed(session, newMaterials);
                     List<NewMaterial> newMaterialsList = newMaterials.values().iterator().next();
                     one(propertiesBatchManager).manageProperties(materialType, newMaterialsList,
                             null);
 
-                    one(boFactory).createMaterialTable(SESSION);
+                    one(boFactory).createMaterialTable(session);
                     will(returnValue(materialTable));
 
                     one(materialTable).add(newMaterialsList, materialType);
@@ -1084,26 +1084,26 @@ public class ETLServiceTest extends AbstractServerTestCase
             {
                 {
                     List<NewSample> sampleList = Arrays.asList(newSample);
-                    one(entityOperationChecker).assertSpaceSampleCreationAllowed(SESSION,
+                    one(entityOperationChecker).assertSpaceSampleCreationAllowed(session,
                             sampleList);
 
-                    one(boFactory).createSampleTable(SESSION);
+                    one(boFactory).createSampleTable(session);
                     will(returnValue(sampleTable));
 
                     one(sampleTable).prepareForRegistration(sampleList, null);
                     one(sampleTable).save();
 
-                    one(boFactory).createSampleTable(SESSION);
+                    one(boFactory).createSampleTable(session);
                     will(returnValue(sampleTable));
 
                     List<SampleUpdatesDTO> sampleUpdateList = Arrays.asList(sampleUpdate);
-                    one(entityOperationChecker).assertSpaceSampleUpdateAllowed(SESSION,
+                    one(entityOperationChecker).assertSpaceSampleUpdateAllowed(session,
                             sampleUpdateList);
                     one(sampleTable).checkBeforeUpdate(sampleUpdateList);
                     one(sampleTable).prepareForUpdateWithSampleUpdates(sampleUpdateList);
                     one(sampleTable).save();
 
-                    one(entityOperationChecker).assertDataSetCreationAllowed(SESSION,
+                    one(entityOperationChecker).assertDataSetCreationAllowed(session,
                             Arrays.asList(externalData));
                 }
             });
@@ -1142,10 +1142,10 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createDataSetTable(SESSION);
+                    one(boFactory).createDataSetTable(session);
                     will(returnValue(dataSetTable));
 
-                    one(entityOperationChecker).assertDataSetUpdateAllowed(SESSION,
+                    one(entityOperationChecker).assertDataSetUpdateAllowed(session,
                             Arrays.asList(dataSetUpdate));
                     one(dataSetTable).checkBeforeUpdate(Arrays.asList(dataSetUpdate));
                     one(dataSetTable).update(Arrays.asList(dataSetUpdate));
@@ -1239,7 +1239,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleLister(SESSION);
+                    one(boFactory).createSampleLister(session);
                     will(returnValue(sampleLister));
 
                     one(hibernateSearchDAO).searchForEntityIds(
@@ -1280,7 +1280,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleBO(SESSION);
+                    one(boFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier);
@@ -1291,7 +1291,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     sample.setExperiment(experiment);
                     will(returnValue(sample));
 
-                    one(boFactory).createDataBO(SESSION);
+                    one(boFactory).createDataBO(session);
                     will(returnValue(dataBO));
 
                     one(dataBO).define(externalData, sample, sourceType);
@@ -1333,7 +1333,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleBO(SESSION);
+                    one(boFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).tryToLoadBySampleIdentifier(identifier);
@@ -1352,7 +1352,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleBO(SESSION);
+                    one(boFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).loadBySampleIdentifier(identifier);

@@ -54,7 +54,7 @@ public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
     {
         super.setUp();
         phosphoNetXDAOFactory = context.mock(IPhosphoNetXDAOFactory.class);
-        table = new AbundanceColumnDefinitionTable(daoFactory, phosphoNetXDAOFactory, SESSION);
+        table = new AbundanceColumnDefinitionTable(daoFactory, phosphoNetXDAOFactory, session);
     }
     
     @Test

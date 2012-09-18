@@ -60,7 +60,7 @@ public class ProteinSummaryTableTest extends AbstractServerTestCase
         super.setUp();
         specificDAOFactory = context.mock(IPhosphoNetXDAOFactory.class);
         proteinDAO = context.mock(IProteinQueryDAO.class);
-        table = new ProteinSummaryTable(daoFactory, specificDAOFactory, SESSION);
+        table = new ProteinSummaryTable(daoFactory, specificDAOFactory, session);
     }
 
     @Test

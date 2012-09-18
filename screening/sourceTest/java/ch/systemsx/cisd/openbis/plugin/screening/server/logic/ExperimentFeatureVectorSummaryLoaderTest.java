@@ -263,7 +263,7 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
     
     private ExperimentFeatureVectorSummaryLoader createLoaderWithoutCalculation()
     {
-        return new ExperimentFeatureVectorSummaryLoaderWithNoCalculation(SESSION,
+        return new ExperimentFeatureVectorSummaryLoaderWithNoCalculation(session,
                 screeningBOFactory, daoFactory, screeningQuery, materialSummarySettings);
     }
     
@@ -290,7 +290,7 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createDatasetLister(SESSION);
+                    one(screeningBOFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
                     
                     one(datasetLister).listByExperimentTechId(EXPERIMENT_ID, true);
@@ -305,7 +305,7 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createDataSetTable(SESSION);
+                    one(screeningBOFactory).createDataSetTable(session);
                     will(returnValue(dataSetTable));
 
                     one(dataSetTable).createReportFromDatasets(reportingPluginKey, DATA_STORE_CODE,
@@ -321,7 +321,7 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createDataSetTable(SESSION);
+                    one(screeningBOFactory).createDataSetTable(session);
                     will(returnValue(dataSetTable));
 
                     one(dataSetTable).createReportFromDatasets(reportingPluginKey, DATA_STORE_CODE,

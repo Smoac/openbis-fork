@@ -170,7 +170,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(genericBusinessObjectFactory).createSampleBO(SESSION);
+                    one(genericBusinessObjectFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).define(newSample);
@@ -197,7 +197,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(genericBusinessObjectFactory).createExperimentBO(SESSION);
+                    one(genericBusinessObjectFactory).createExperimentBO(session);
                     will(returnValue(experimentBO));
 
                     one(experimentBO).loadDataByTechId(experimentId);
@@ -280,7 +280,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(sampleTypeDAO).tryFindSampleTypeByCode(sampleTypePE.getCode());
                     will(returnValue(sampleTypePE));
 
-                    one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples, null);
+                    one(sampleTypeSlaveServerPlugin).registerSamples(session, newSamples, null);
 
                     one(propertiesBatchManager).manageProperties(sampleTypePE, newSamples, null);
                 }
@@ -309,7 +309,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(sampleTypeDAO).tryFindSampleTypeByCode(sampleTypePE.getCode());
                     will(returnValue(sampleTypePE));
 
-                    one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples, null);
+                    one(sampleTypeSlaveServerPlugin).registerSamples(session, newSamples, null);
 
                     one(propertiesBatchManager).manageProperties(sampleTypePE, newSamples, null);
                 }
@@ -326,7 +326,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(genericBusinessObjectFactory).createExperimentBO(SESSION);
+                    one(genericBusinessObjectFactory).createExperimentBO(session);
                     will(returnValue(experimentBO));
 
                     one(experimentBO).define(newExperiment);
@@ -369,7 +369,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(genericBusinessObjectFactory).createExperimentBO(SESSION);
+                    one(genericBusinessObjectFactory).createExperimentBO(session);
                     will(returnValue(experimentBO));
 
                     one(experimentBO).define(newExperiment);
@@ -378,12 +378,12 @@ public final class GenericServerTest extends AbstractServerTestCase
                     allowing(experimentBO).getExperiment();
                     will(returnValue(experimentPE));
 
-                    one(genericBusinessObjectFactory).createSampleBO(SESSION);
+                    one(genericBusinessObjectFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier1);
                     one(sampleBO).setExperiment(experimentPE);
 
-                    one(genericBusinessObjectFactory).createSampleBO(SESSION);
+                    one(genericBusinessObjectFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier2WithGroup);
                     one(sampleBO).setExperiment(experimentPE);
@@ -412,7 +412,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(genericBusinessObjectFactory).createExperimentBO(SESSION);
+                    one(genericBusinessObjectFactory).createExperimentBO(session);
                     will(returnValue(experimentBO));
 
                     one(experimentBO).define(newExperiment);
@@ -465,7 +465,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(genericBusinessObjectFactory).createExperimentBO(SESSION);
+                    one(genericBusinessObjectFactory).createExperimentBO(session);
                     will(returnValue(experimentBO));
 
                     one(experimentBO).define(newExperiment);
@@ -476,11 +476,11 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(sampleTypeDAO).tryFindSampleTypeByCode(sampleTypePE.getCode());
                     will(returnValue(sampleTypePE));
 
-                    one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples, null);
+                    one(sampleTypeSlaveServerPlugin).registerSamples(session, newSamples, null);
 
                     one(propertiesBatchManager).manageProperties(sampleTypePE, newSamples, null);
 
-                    one(genericBusinessObjectFactory).createSampleBO(SESSION);
+                    one(genericBusinessObjectFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
                     one(sampleBO).loadBySampleIdentifier(
                             SampleIdentifierFactory.parse(createSampleIdentifier(spaceCode,
@@ -520,7 +520,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(entityTypeDAO).tryToFindEntityTypeByCode(typeCode);
                     will(returnValue(materialTypePE));
 
-                    one(genericBusinessObjectFactory).createMaterialTable(SESSION);
+                    one(genericBusinessObjectFactory).createMaterialTable(session);
                     will(returnValue(materialTable));
 
                     one(materialTable).add(newMaterials, materialTypePE);
@@ -668,7 +668,7 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     if (doNotUpdate == false)
                     {
-                        one(genericBusinessObjectFactory).createMaterialTable(SESSION);
+                        one(genericBusinessObjectFactory).createMaterialTable(session);
                         will(returnValue(materialTable));
 
                         one(materialTable).update(updates);
@@ -743,7 +743,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(genericBusinessObjectFactory).createSampleBO(SESSION);
+                    one(genericBusinessObjectFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).update(updates);
@@ -778,7 +778,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(genericBusinessObjectFactory).createExperimentBO(SESSION);
+                    one(genericBusinessObjectFactory).createExperimentBO(session);
                     will(returnValue(experimentBO));
 
                     one(experimentBO).update(updates);
@@ -816,7 +816,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(experimentTypePE));
                     one(propertiesBatchManager).manageProperties(experimentTypePE, experiments,
                             null);
-                    one(genericBusinessObjectFactory).createExperimentTable(SESSION);
+                    one(genericBusinessObjectFactory).createExperimentTable(session);
                     will(returnValue(experimentTable));
                     one(experimentTable).prepareForUpdate(
                             with(new BaseMatcher<List<ExperimentBatchUpdatesDTO>>()
@@ -925,7 +925,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(entityTypeDAO));
                     one(entityTypeDAO).tryToFindEntityTypeByCode(EXPERIMENT_TYPE);
                     will(returnValue(experimentTypePE));
-                    one(genericBusinessObjectFactory).createExperimentTable(SESSION);
+                    one(genericBusinessObjectFactory).createExperimentTable(session);
                     will(returnValue(experimentTable));
                     one(experimentTable).add(entities, experimentTypePE);
                     one(experimentTable).save();

@@ -85,10 +85,10 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(boFactory).createProteinDetailsBO(SESSION);
+                    allowing(boFactory).createProteinDetailsBO(session);
                     will(returnValue(proteinDetailsBO));
                     
-                    allowing(boFactory).createProteinRelatedSampleTable(SESSION);
+                    allowing(boFactory).createProteinRelatedSampleTable(session);
                     will(returnValue(proteinRelatedSampleTable));
                 }
             });
@@ -115,10 +115,10 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
                     one(proteinDAO).listAbundanceRelatedSamplePermIDsByExperiment(EXPERIMENT_PERM_ID);
                     will(returnValue(mockDataSet));
                     
-                    one(boFactory).createAbundanceColumnDefinitionTable(SESSION);
+                    one(boFactory).createAbundanceColumnDefinitionTable(session);
                     will(returnValue(abundanceColumnDefinitionTable));
                     
-                    one(boFactory).createSampleProvider(SESSION);
+                    one(boFactory).createSampleProvider(session);
                     will(returnValue(sampleProvider));
                     
                     one(sampleProvider).loadByExperimentID(EXPERIMENT_ID);

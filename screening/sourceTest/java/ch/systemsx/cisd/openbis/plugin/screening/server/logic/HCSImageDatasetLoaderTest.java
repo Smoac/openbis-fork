@@ -102,9 +102,9 @@ public class HCSImageDatasetLoaderTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createSampleLister(SESSION);
+                    one(screeningBOFactory).createSampleLister(session);
                     will(returnValue(sampleLister));
-                    allowing(screeningBOFactory).createDatasetLister(SESSION);
+                    allowing(screeningBOFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
 
                     one(sampleLister).list(with(recordingCriteriaMatcher));
@@ -130,7 +130,7 @@ public class HCSImageDatasetLoaderTest extends AbstractServerTestCase
                 new HashSet<PlateIdentifier>(Arrays.<PlateIdentifier> asList(new PlateIdentifier(
                         "P1", "S", "s-1")));
         HCSImageDatasetLoader loader =
-                new HCSImageDatasetLoader(SESSION, screeningBOFactory, null, plateIdentifiers);
+                new HCSImageDatasetLoader(session, screeningBOFactory, null, plateIdentifiers);
 
         List<ImageDatasetReference> references = loader.getSegmentationImageDatasetReferences();
 

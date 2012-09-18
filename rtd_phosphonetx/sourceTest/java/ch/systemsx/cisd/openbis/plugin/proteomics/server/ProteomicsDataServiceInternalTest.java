@@ -112,7 +112,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         group.setDatabaseInstance(databaseInstance);
         roleAssignment.setSpace(group);
         person.setRoleAssignments(Collections.singleton(roleAssignment));
-        SESSION.setPerson(person);
+        session.setPerson(person);
     }
 
     @Test
@@ -133,7 +133,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
     {
         prepareGetSession();
         HashMap<String, String> parameterBindings = new HashMap<String, String>();
-        prepareProcessDataSets(SESSION, parameterBindings, "ds1", "ds2");
+        prepareProcessDataSets(session, parameterBindings, "ds1", "ds2");
 
         service.processDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, Arrays.asList("ds1", "ds2"));
 
@@ -350,7 +350,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleLoader(SESSION);
+                    one(boFactory).createSampleLoader(session);
                     will(returnValue(sampleLoader));
 
                     one(sampleLoader).listSamplesWithParentsByTypeAndSpace(
@@ -395,7 +395,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                         }
                     }
 
-                    one(commonBoFactory).createDatasetLister(SESSION);
+                    one(commonBoFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
 
                     one(datasetLister).listAllDataSetsFor(filteredSamples);

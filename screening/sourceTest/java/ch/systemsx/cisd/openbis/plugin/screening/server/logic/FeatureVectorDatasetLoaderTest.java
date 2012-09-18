@@ -77,9 +77,9 @@ public class FeatureVectorDatasetLoaderTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createSampleLister(SESSION);
+                    one(screeningBOFactory).createSampleLister(session);
                     will(returnValue(sampleLister));
-                    allowing(screeningBOFactory).createDatasetLister(SESSION);
+                    allowing(screeningBOFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
 
                     one(sampleLister).list(with(recordingCriteriaMatcher));
@@ -105,7 +105,7 @@ public class FeatureVectorDatasetLoaderTest extends AbstractServerTestCase
                 new HashSet<PlateIdentifier>(Arrays.<PlateIdentifier> asList(new PlateIdentifier(
                         "P1", "S", "s-1")));
         FeatureVectorDatasetLoader loader =
-                new FeatureVectorDatasetLoader(SESSION, screeningBOFactory, null, plateIdentifiers);
+                new FeatureVectorDatasetLoader(session, screeningBOFactory, null, plateIdentifiers);
 
         List<ExternalData> datasets =
                 new ArrayList<ExternalData>(loader.getFeatureVectorDatasets());

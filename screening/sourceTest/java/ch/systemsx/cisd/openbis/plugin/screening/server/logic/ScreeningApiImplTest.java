@@ -77,7 +77,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     public void beforeMethod()
     {
         screeningBOFactory = context.mock(IScreeningBusinessObjectFactory.class);
-        screeningApi = new ScreeningApiImpl(SESSION, screeningBOFactory, daoFactory);
+        screeningApi = new ScreeningApiImpl(session, screeningBOFactory, daoFactory);
     }
 
     @Test
@@ -92,13 +92,13 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createSampleBO(SESSION);
+                    one(screeningBOFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
                     one(sampleBO).loadBySampleIdentifier(SampleIdentifierFactory.parse(identifier));
                     one(sampleBO).getSample();
                     will(returnValue(plate));
 
-                    one(screeningBOFactory).createSampleLister(SESSION);
+                    one(screeningBOFactory).createSampleLister(session);
                     will(returnValue(sampleLister));
                     one(sampleLister).list(with(listerCriteria));
                     Sample w1 = createWellSample("w1", "A01");
@@ -128,13 +128,13 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createSampleBO(SESSION);
+                    one(screeningBOFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
                     one(sampleBO).loadBySamplePermId(permId);
                     one(sampleBO).getSample();
                     will(returnValue(plate));
 
-                    one(screeningBOFactory).createSampleLister(SESSION);
+                    one(screeningBOFactory).createSampleLister(session);
                     will(returnValue(sampleLister));
                     one(sampleLister).list(with(listerCriteria));
                     Sample w1 = createWellSample("w1", "A01");
@@ -165,13 +165,13 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createSampleLister(SESSION);
+                    one(screeningBOFactory).createSampleLister(session);
                     will(returnValue(sampleLister));
                     one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
                     Sample p1 = plateSample(pi1, "384_WELLS_16X24");
                     will(returnValue(Arrays.asList(p1)));
 
-                    one(screeningBOFactory).createDatasetLister(SESSION);
+                    one(screeningBOFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
                     one(datasetLister).listBySampleIds(with(asSet(1)));
                     will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1),
@@ -199,13 +199,13 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createSampleLister(SESSION);
+                    one(screeningBOFactory).createSampleLister(session);
                     will(returnValue(sampleLister));
                     one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
                     Sample p1 = plateSample(pi1, "384_WELLS_16X24");
                     will(returnValue(Arrays.asList(p1)));
 
-                    one(screeningBOFactory).createDatasetLister(SESSION);
+                    one(screeningBOFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
                     one(datasetLister).listBySampleIds(with(asSet(1)));
                     will(returnValue(Arrays.asList(imageRawDataSet(p1, "1", 1),
@@ -239,13 +239,13 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createSampleLister(SESSION);
+                    one(screeningBOFactory).createSampleLister(session);
                     will(returnValue(sampleLister));
                     one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
                     Sample p1 = plateSample(pi1, "384_WELLS_16X24");
                     will(returnValue(Arrays.asList(p1)));
 
-                    allowing(screeningBOFactory).createDatasetLister(SESSION);
+                    allowing(screeningBOFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
                     one(datasetLister).listBySampleIds(with(asSet(1)));
                     final ExternalData rawImage = imageRawDataSet(p1, "2", 2);
@@ -293,13 +293,13 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createSampleLister(SESSION);
+                    one(screeningBOFactory).createSampleLister(session);
                     will(returnValue(sampleLister));
                     one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
                     Sample p1 = plateSample(pi1, null);
                     will(returnValue(Arrays.asList(p1)));
 
-                    one(screeningBOFactory).createDatasetLister(SESSION);
+                    one(screeningBOFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
                     one(datasetLister).listBySampleIds(with(asSet(1)));
                     will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1))));
@@ -353,13 +353,13 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createSampleLister(SESSION);
+                    one(screeningBOFactory).createSampleLister(session);
                     will(returnValue(sampleLister));
                     one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
                     Sample p1 = plateSample(pi1, "384_WELLS_16X24");
                     will(returnValue(Arrays.asList(p1)));
 
-                    exactly(2).of(screeningBOFactory).createDatasetLister(SESSION);
+                    exactly(2).of(screeningBOFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
                     long imageDatasetId = 1;
                     one(datasetLister).listBySampleIds(
@@ -410,13 +410,13 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createSampleLister(SESSION);
+                    one(screeningBOFactory).createSampleLister(session);
                     will(returnValue(sampleLister));
                     one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
                     Sample p1 = plateSample(pi1, plateGeometry);
                     will(returnValue(Arrays.asList(p1)));
 
-                    one(screeningBOFactory).createDatasetLister(SESSION);
+                    one(screeningBOFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
                     one(datasetLister).listBySampleIds(with(asSet(1)));
                     will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1))));

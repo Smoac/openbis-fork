@@ -101,7 +101,7 @@ public class ScreeningServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createSampleBO(SESSION);
+                    one(screeningBOFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
                     
                     one(sampleBO).loadBySamplePermId(PERM_ID);
@@ -129,7 +129,7 @@ public class ScreeningServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createSampleBO(SESSION);
+                    one(screeningBOFactory).createSampleBO(session);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).loadBySampleIdentifier(

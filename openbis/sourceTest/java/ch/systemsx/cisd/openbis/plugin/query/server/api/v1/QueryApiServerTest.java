@@ -92,14 +92,14 @@ public class QueryApiServerTest extends AbstractServerTestCase
                     will(returnValue(SESSION_TOKEN));
 
                     one(sessionManager).getSession(SESSION_TOKEN);
-                    will(returnValue(SESSION));
+                    will(returnValue(session));
 
                     PersonPE person = new PersonPE();
                     person.setUserId("Albert");
                     person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays
                             .asList(new RoleAssignmentPE())));
                     person.setActive(true);
-                    one(personDAO).tryFindPersonByUserId(SESSION.getUserName());
+                    one(personDAO).tryFindPersonByUserId(session.getUserName());
                     will(returnValue(person));
 
                     one(queryServer).initDatabases(SESSION_TOKEN);

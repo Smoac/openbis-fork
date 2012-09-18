@@ -378,7 +378,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createSpaceBO(SESSION);
+                    one(commonBusinessObjectFactory).createSpaceBO(session);
                     will(returnValue(groupBO));
 
                     one(groupBO).define(groupCode, description);
@@ -576,7 +576,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createDatasetLister(SESSION);
+                    one(commonBusinessObjectFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
 
                     one(datasetLister).listBySampleTechId(sampleId, showOnlyDirectlyConnected);
@@ -614,7 +614,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createDatasetLister(SESSION);
+                    one(commonBusinessObjectFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
                     one(datasetLister).listByExperimentTechId(experimentId, true);
                     will(returnValue(Arrays.asList(externalData)));
@@ -646,7 +646,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createExperimentTable(SESSION);
+                    one(commonBusinessObjectFactory).createExperimentTable(session);
                     will(returnValue(experimentTable));
 
                     one(experimentTable).load(experimentType.getCode(), projectIdentifier, false,
@@ -711,7 +711,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createPropertyTypeTable(SESSION);
+                    one(commonBusinessObjectFactory).createPropertyTypeTable(session);
                     will(returnValue(propertyTypeTable));
 
                     one(propertyTypeTable).loadWithRelations();
@@ -871,7 +871,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createMaterialTable(SESSION);
+                    one(commonBusinessObjectFactory).createMaterialTable(session);
                     will(returnValue(materialTable));
 
                     one(materialTable).deleteByTechIds(materialIds, reason);
@@ -933,7 +933,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createPropertyTypeBO(SESSION);
+                    one(commonBusinessObjectFactory).createPropertyTypeBO(session);
                     will(returnValue(propertyTypeBO));
 
                     one(propertyTypeBO).define(with(aNonNull(PropertyType.class)));
@@ -951,7 +951,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createVocabularyBO(SESSION);
+                    one(commonBusinessObjectFactory).createVocabularyBO(session);
                     will(returnValue(vocabularyBO));
 
                     one(vocabularyBO).define(with(aNonNull(NewVocabulary.class)));
@@ -972,7 +972,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createVocabularyBO(SESSION);
+                    one(commonBusinessObjectFactory).createVocabularyBO(session);
                     will(returnValue(vocabularyBO));
 
                     one(vocabularyBO).loadDataByTechId(vocabularyId);
@@ -997,7 +997,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createVocabularyBO(SESSION);
+                    one(commonBusinessObjectFactory).createVocabularyBO(session);
                     will(returnValue(vocabularyBO));
 
                     one(vocabularyBO).loadDataByTechId(vocabularyId);
@@ -1020,7 +1020,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createEntityTypeBO(SESSION);
+                    one(commonBusinessObjectFactory).createEntityTypeBO(session);
                     will(returnValue(entityTypeBO));
 
                     one(entityTypeBO).define(type);
@@ -1072,7 +1072,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createEntityTypeBO(SESSION);
+                    one(commonBusinessObjectFactory).createEntityTypeBO(session);
                     will(returnValue(entityTypeBO));
 
                     one(entityTypeBO).define(type);
@@ -1124,7 +1124,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createEntityTypeBO(SESSION);
+                    one(commonBusinessObjectFactory).createEntityTypeBO(session);
                     will(returnValue(entityTypeBO));
 
                     one(entityTypeBO).define(type);
@@ -1176,7 +1176,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createEntityTypeBO(SESSION);
+                    one(commonBusinessObjectFactory).createEntityTypeBO(session);
                     will(returnValue(entityTypeBO));
 
                     one(entityTypeBO).define(type);
@@ -1238,7 +1238,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createEntityTypePropertyTypeBO(SESSION,
+                    one(commonBusinessObjectFactory).createEntityTypePropertyTypeBO(session,
                             DtoConverters.convertEntityKind(entityKind));
                     will(returnValue(entityTypePropertyTypeBO));
 
@@ -1261,7 +1261,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createEntityTypePropertyTypeBO(SESSION,
+                    one(commonBusinessObjectFactory).createEntityTypePropertyTypeBO(session,
                             DtoConverters.convertEntityKind(entityKind));
                     will(returnValue(entityTypePropertyTypeBO));
 
@@ -1286,7 +1286,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createEntityTypePropertyTypeBO(SESSION,
+                    one(commonBusinessObjectFactory).createEntityTypePropertyTypeBO(session,
                             DtoConverters.convertEntityKind(entityKind));
                     will(returnValue(entityTypePropertyTypeBO));
 
@@ -1316,7 +1316,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createMaterialLister(SESSION);
+                    one(commonBusinessObjectFactory).createMaterialLister(session);
                     will(returnValue(materialLister));
 
                     one(materialLister).list(criteria, true);
@@ -1362,7 +1362,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createDataSetTable(SESSION);
+                    one(commonBusinessObjectFactory).createDataSetTable(session);
                     will(returnValue(dataSetTable));
 
                     one(dataSetTable).loadByDataSetCodes(dataSetCodes, false, false);
@@ -1372,9 +1372,9 @@ public final class CommonServerTest extends AbstractServerTestCase
                     DataPE ds3 = createDataSet("ds3", "type2");
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
 
-                    one(dataSetTypeSlaveServerPlugin).permanentlyDeleteDataSets(SESSION,
+                    one(dataSetTypeSlaveServerPlugin).permanentlyDeleteDataSets(session,
                             Arrays.asList(ds1, ds2), reason, false, false);
-                    one(dataSetTypeSlaveServerPlugin).permanentlyDeleteDataSets(SESSION,
+                    one(dataSetTypeSlaveServerPlugin).permanentlyDeleteDataSets(session,
                             Arrays.asList(ds3), reason, false, false);
                 }
             });
@@ -1395,7 +1395,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createDeletedDataSetTable(SESSION);
+                    one(commonBusinessObjectFactory).createDeletedDataSetTable(session);
                     will(returnValue(deletedDataSetTable));
 
                     one(deletedDataSetTable).loadByDataSetCodes(dataSetCodes);
@@ -1419,7 +1419,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createDataSetTable(SESSION);
+                    one(commonBusinessObjectFactory).createDataSetTable(session);
                     will(returnValue(dataSetTable));
 
                     one(dataSetTable).loadByDataSetCodes(dataSetCodes, false, false);
@@ -1433,7 +1433,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     List<DataPE> dataSets = Arrays.asList(ds1, ds2, ds3);
                     will(returnValue(dataSets));
 
-                    one(commonBusinessObjectFactory).createTrashBO(SESSION);
+                    one(commonBusinessObjectFactory).createTrashBO(session);
                     will(returnValue(trashBO));
                     one(trashBO).createDeletion(reason);
                     one(trashBO).trashDataSets(TechId.createList(dataSets));
@@ -1455,7 +1455,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createDataSetTable(SESSION);
+                    one(commonBusinessObjectFactory).createDataSetTable(session);
                     will(returnValue(dataSetTable));
 
                     one(dataSetTable).loadByDataSetCodes(dataSetCodes, true, false);
@@ -1477,7 +1477,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createDataSetTable(SESSION);
+                    one(commonBusinessObjectFactory).createDataSetTable(session);
                     will(returnValue(dataSetTable));
 
                     one(dataSetTable).loadByDataSetCodes(dataSetCodes, false, true);
@@ -1498,7 +1498,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createDataSetTable(SESSION);
+                    one(commonBusinessObjectFactory).createDataSetTable(session);
                     will(returnValue(dataSetTable));
 
                     one(dataSetTable).loadByDataSetCodes(dataSetCodes, false, true);
@@ -1634,7 +1634,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createExperimentBO(SESSION);
+                    one(commonBusinessObjectFactory).createExperimentBO(session);
                     will(returnValue(experimentBO));
 
                     one(experimentBO).loadByExperimentIdentifier(experimentIdentifier);
@@ -1664,7 +1664,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createDeletionTable(SESSION);
+                    one(commonBusinessObjectFactory).createDeletionTable(session);
                     will(returnValue(deletionTable));
 
                     one(deletionTable).load(true);
@@ -1688,7 +1688,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createSampleTable(SESSION);
+                    one(commonBusinessObjectFactory).createSampleTable(session);
                     will(returnValue(sampleTable));
                     one(sampleTable).deleteByTechIds(sampleIds, reason);
                 }
@@ -1708,7 +1708,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createTrashBO(SESSION);
+                    one(commonBusinessObjectFactory).createTrashBO(session);
                     will(returnValue(trashBO));
                     one(trashBO).createDeletion(reason);
                     one(trashBO).trashSamples(sampleIds);
@@ -1729,7 +1729,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createExperimentBO(SESSION);
+                    one(commonBusinessObjectFactory).createExperimentBO(session);
                     will(returnValue(experimentBO));
                     one(experimentBO).deleteByTechIds(experimentIds, reason);
                 }
@@ -1749,7 +1749,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createTrashBO(SESSION);
+                    one(commonBusinessObjectFactory).createTrashBO(session);
                     will(returnValue(trashBO));
                     one(trashBO).createDeletion(reason);
                     one(trashBO).trashExperiments(experimentIds);

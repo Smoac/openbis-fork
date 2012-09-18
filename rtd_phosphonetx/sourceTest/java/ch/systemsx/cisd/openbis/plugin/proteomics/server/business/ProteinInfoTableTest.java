@@ -76,7 +76,7 @@ public class ProteinInfoTableTest extends AbstractBOTestCase
     {
         super.setUp();
         sampleProvider = context.mock(ISampleProvider.class);
-        table = new ProteinInfoTable(daoFactory, specificDAOFactory, SESSION, sampleProvider);
+        table = new ProteinInfoTable(daoFactory, specificDAOFactory, session, sampleProvider);
         definitions = new ArrayList<AbundanceColumnDefinition>();
         definitions.add(create(SAMPLE_ID_1, SAMPLE_ID_2));
         definitions.add(create(SAMPLE_ID_3));
