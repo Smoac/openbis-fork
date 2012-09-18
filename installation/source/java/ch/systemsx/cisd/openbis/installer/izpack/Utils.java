@@ -52,6 +52,12 @@ class Utils
         return new File(installDir, CORE_PLUGINS_PATH).isDirectory();
     }
 
+    static String tryToGetServicePropertyOfAS(File installDir, String propertyKey)
+    {
+        Properties serviceProperties = tryToGetServicePropertiesOfAS(installDir);
+        return serviceProperties == null ? null : serviceProperties.getProperty(propertyKey);
+    }
+    
     static String tryToGetCorePluginsPropertyOfAS(File installDir, String propertyKey)
     {
         Properties serviceProperties = tryToGetCorePluginsPropertiesOfAS(installDir);
@@ -86,6 +92,11 @@ class Utils
             }
         }
         return false;
+    }
+    
+    private static Properties tryToGetServicePropertiesOfAS(File installDir)
+    {
+        return tryToGetServiceProperties(installDir, AS_PATH + SERVICE_PROPERTIES_PATH);
     }
     
     private static Properties tryToGetCorePluginsPropertiesOfAS(File installDir)
