@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -173,7 +174,9 @@ class Utils
 
     static void updateOrAppendProperty(File configFile, String propertyKey, String propertyValue)
     {
-        List<String> list = FileUtilities.loadToStringList(configFile);
+        List<String> list =
+                configFile.exists() ? FileUtilities.loadToStringList(configFile)
+                        : new ArrayList<String>();
         boolean defined = false;
         boolean unchanged = false;
         String propertiesEntry = propertyKey + " = " + propertyValue;
