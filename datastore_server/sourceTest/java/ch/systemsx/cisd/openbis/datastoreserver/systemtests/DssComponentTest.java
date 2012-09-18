@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -79,7 +79,7 @@ public class DssComponentTest extends SystemTestCase
     
     private List<String> registeredDataSets = new ArrayList<String>();
     
-    @AfterClass
+    @AfterMethod
     public void deleteRegisteredDataSets()
     {
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
