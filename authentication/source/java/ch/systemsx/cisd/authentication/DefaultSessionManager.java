@@ -16,8 +16,14 @@
 
 package ch.systemsx.cisd.authentication;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
+
+import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -30,6 +36,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
 
 /**
@@ -61,7 +69,13 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DefaultSessionManager.class);
 
+    private static final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            DefaultSessionManager.class);
+
     private static final TokenGenerator tokenGenerator = new TokenGenerator();
+
+    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
+    protected ExposablePropertyPlaceholderConfigurer configurer;
 
     private static final class FullSession<S extends BasicSession>
     {
@@ -140,6 +154,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             final IRemoteHostProvider remoteHostProvider, final int sessionExpirationPeriodMinutes,
             final boolean tryEmailAsUserName)
     {
+
         assert sessionFactory != null : "Missing session factory.";
         assert prefixGenerator != null : "Missing prefix generator";
         assert authenticationService != null : "Missing authentication service.";
@@ -175,8 +190,127 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                             sessionExpirationPeriodMillis);
             final FullSession<T> createdSession = new FullSession<T>(session);
             sessions.put(createdSession.getSession().getSessionToken(), createdSession);
+
+            getSessionMonitor().logSessionMonitoringInfo();
+
             return session;
         }
+    }
+
+    private ISessionMonitor getSessionMonitor()
+    {
+        if (sessionMonitor == null)
+        {
+            synchronized (this)
+            {
+                if (sessionMonitor == null)
+                {
+                    sessionMonitor = createSessionMonitor();
+                }
+            }
+        }
+        return sessionMonitor;
+    }
+
+    private volatile ISessionMonitor sessionMonitor;
+
+    private ISessionMonitor createSessionMonitor()
+    {
+        Properties properties = configurer.getResolvedProps();
+        int sessionNotifyThreshold =
+                PropertyUtils.getInt(properties, SessionMonitor.SESSION_NOTIFY_THRESHOLD_KEY,
+                        SessionMonitor.SESSION_NOTIFY_THRESHOLD_DEFAULT);
+        int notificationDelayPeriod =
+                PropertyUtils.getInt(properties, SessionMonitor.SESSION_NOTIFY_DELAY_PERDIOD_KEY,
+                        SessionMonitor.SESSION_NOTIFY_DELAY_PERDIOD_DEFAULT);
+
+        if (sessionNotifyThreshold != 0)
+        {
+            operationLog.info("Create session monitor with threshold " + sessionNotifyThreshold);
+            return new SessionMonitor(sessionNotifyThreshold, notificationDelayPeriod);
+        } else
+        {
+            operationLog.info("Create dummy session monitor");
+            return new ISessionMonitor()
+                {
+                    @Override
+                    public void logSessionMonitoringInfo()
+                    {
+                    }
+                };
+        }
+    }
+
+    private interface ISessionMonitor
+    {
+        void logSessionMonitoringInfo();
+    }
+
+    private class SessionMonitor implements ISessionMonitor
+    {
+        private static final String SESSION_NOTIFY_THRESHOLD_KEY = "session-notification-threshold";
+
+        private static final int SESSION_NOTIFY_THRESHOLD_DEFAULT = 0;
+
+        private static final String SESSION_NOTIFY_DELAY_PERDIOD_KEY =
+                "session-notification-delay-period";
+
+        private static final int SESSION_NOTIFY_DELAY_PERDIOD_DEFAULT = 30 * 60;
+
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        final long lastNotification = 0;
+
+        final int notificationDelayPeriod;
+
+        final int sessionNotifyThreshold;
+
+        public SessionMonitor(int sessionNotifyThreshold, int notificationDelayPeriod)
+        {
+            this.notificationDelayPeriod = notificationDelayPeriod;
+            this.sessionNotifyThreshold = sessionNotifyThreshold;
+
+            if (sessionNotifyThreshold <= 0)
+            {
+                throw new IllegalArgumentException("Sessions threshold must be a positive integer");
+            }
+        }
+
+        @Override
+        public void logSessionMonitoringInfo()
+        {
+            int sessionsSize = sessions.size();
+
+            operationLog.info("Currently active sessions: " + sessionsSize);
+
+            if (sessionsSize > sessionNotifyThreshold)
+            {
+                long now = System.currentTimeMillis();
+                if (lastNotification + notificationDelayPeriod > now)
+                    return;
+
+                notifyLog.info("Number of active sessions has exceeded the threshold ("
+                        + sessionNotifyThreshold + ").");
+                for (FullSession<T> fullSession : sessions.values())
+                {
+                    T session = fullSession.getSession();
+                    session.getSessionStart();
+                    session.getUserName();
+                    session.getRemoteHost();
+                    session.isAnonymous();
+                    String message =
+                            String.format(
+                                    "Session %s:\n  User %s%s from %s\n  Started at %s, will expire in %d seconds.",
+                                    session.getSessionToken(), session.getUserName(),
+                                    session.isAnonymous() ? "(anonymous)" : "",
+                                    session.getRemoteHost(),
+                                    df.format(new Date(session.getSessionStart())),
+                                    session.getSessionExpirationTime());
+                    notifyLog.info(message);
+                }
+            }
+        }
+
     }
 
     private static void checkIfNotBlank(final String object, final String name)
@@ -291,8 +425,9 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     {
         return getSession(sessionToken, true);
     }
-    
-    private T getSession(final String sessionToken, boolean checkAndTouch) throws InvalidSessionException
+
+    private T getSession(final String sessionToken, boolean checkAndTouch)
+            throws InvalidSessionException
     {
         checkIfNotBlank(sessionToken, "sessionToken");
 
