@@ -95,7 +95,8 @@ public class DefaultSessionManagerTest
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings(
+        { "unchecked", "rawtypes" })
     private ISessionManager<BasicSession> createSessionManager(int sessionExpiration)
     {
         return new DefaultSessionManager(sessionFactory, prefixGenerator, authenticationService,
@@ -149,7 +150,9 @@ public class DefaultSessionManagerTest
         final String token = sessionManager.tryToOpenSession("bla", "blub");
         assertEquals("bla-1", token);
         assertEquals(
-                "INFO  OPERATION.DefaultSessionManager - "
+                "INFO  OPERATION.DefaultSessionManager - Create dummy session monitor"
+                        + OSUtilities.LINE_SEPARATOR
+                        + "INFO  OPERATION.DefaultSessionManager - "
                         + "LOGIN: User 'bla' has been successfully authenticated from host 'remote-host'. Session token: '"
                         + token
                         + "'."
@@ -185,7 +188,9 @@ public class DefaultSessionManagerTest
         final String token = sessionManager.tryToOpenSession(userEmail, "blub");
         assertEquals("bla-1", token);
         assertEquals(
-                "INFO  OPERATION.DefaultSessionManager - "
+                "INFO  OPERATION.DefaultSessionManager - Create dummy session monitor"
+                        + OSUtilities.LINE_SEPARATOR
+                        + "INFO  OPERATION.DefaultSessionManager - "
                         + "LOGIN: User 'bla' has been successfully authenticated from host 'remote-host'. Session token: '"
                         + token
                         + "'."
@@ -341,7 +346,9 @@ public class DefaultSessionManagerTest
 
         assertEquals(user + "-1", token);
         assertEquals(
-                "INFO  OPERATION.DefaultSessionManager - "
+                "INFO  OPERATION.DefaultSessionManager - Create dummy session monitor"
+                        + OSUtilities.LINE_SEPARATOR
+                        + "INFO  OPERATION.DefaultSessionManager - "
                         + "LOGIN: User 'u1' has been successfully authenticated from host 'remote-host'. Session token: '"
                         + token
                         + "'."

@@ -216,7 +216,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     private ISessionMonitor createSessionMonitor()
     {
-        Properties properties = configurer.getResolvedProps();
+        Properties properties =
+                configurer == null ? new Properties() : configurer.getResolvedProps();
         int sessionNotifyThreshold =
                 PropertyUtils.getInt(properties, SessionMonitor.SESSION_NOTIFY_THRESHOLD_KEY,
                         SessionMonitor.SESSION_NOTIFY_THRESHOLD_DEFAULT);
