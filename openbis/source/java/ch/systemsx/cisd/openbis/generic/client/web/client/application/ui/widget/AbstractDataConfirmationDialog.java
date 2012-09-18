@@ -109,14 +109,18 @@ public abstract class AbstractDataConfirmationDialog<T> extends Dialog
     }
 
     @Override
-    protected final void onButtonPressed(Button button)
+    protected final void onButtonPressed(final Button button)
     {
         if (button.getItemId().equals(Dialog.OK))
         {
+            button.disable();
             if (validate())
             {
                 executeConfirmedAction();
                 super.onButtonPressed(button);
+            } else
+            {
+                button.enable();
             }
         } else
         {
