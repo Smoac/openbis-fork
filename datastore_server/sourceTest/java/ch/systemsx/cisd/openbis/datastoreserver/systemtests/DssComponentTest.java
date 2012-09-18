@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -75,6 +76,15 @@ public class DssComponentTest extends SystemTestCase
     // Keep track of the number of times a data set was registered during the course of running the
     // tests
     private int putCount = 0;
+    
+    private List<String> registeredDataSets = new ArrayList<String>();
+    
+    @AfterClass
+    public void deleteRegisteredDataSets()
+    {
+        IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
+        openBISService.removeDataSetsPermanently(registeredDataSets, "DssComponentTest");
+    }
 
     @BeforeMethod
     public void beforeMethod()
@@ -87,9 +97,16 @@ public class DssComponentTest extends SystemTestCase
     {
         File exampleDataSet = new File(workingDirectory, "my-data");
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
-        IDataSetDss dataSet = dss.putDataSet(newDataset, exampleDataSet);
+        IDataSetDss dataSet = registerDataSet(exampleDataSet, newDataset);
         checkDataSet(dataSet);
         putCount++;
+    }
+
+    private IDataSetDss registerDataSet(File exampleDataSet, NewDataSetDTO newDataset)
+    {
+        IDataSetDss dataSet = dss.putDataSet(newDataset, exampleDataSet);
+        registeredDataSets.add(dataSet.getCode());
+        return dataSet;
     }
 
     @Test
@@ -233,7 +250,7 @@ public class DssComponentTest extends SystemTestCase
         File exampleDataSet = new File(workingDirectory, "my-data");
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         newDataset.setParentDataSetCodes(Arrays.asList(code));
-        IDataSetDss dataSet = dss.putDataSet(newDataset, exampleDataSet);
+        IDataSetDss dataSet = registerDataSet(exampleDataSet, newDataset);
         checkDataSet(dataSet);
         putCount++;
     }
@@ -349,7 +366,7 @@ public class DssComponentTest extends SystemTestCase
         dss = createDssComponent("observer");
         File exampleDataSet = new File(workingDirectory, "observer-data");
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
-        dss.putDataSet(newDataset, exampleDataSet);
+        registerDataSet(exampleDataSet, newDataset);
         putCount++;
     }
 
