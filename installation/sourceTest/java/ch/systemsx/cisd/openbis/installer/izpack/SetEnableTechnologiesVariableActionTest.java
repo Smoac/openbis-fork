@@ -104,18 +104,13 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
     {
         Properties variables = new Properties();
         variables.setProperty(TECHNOLOGY_PROTEOMICS, "false");
-        variables.setProperty(TECHNOLOGY_SCREENING, "false");
+        variables.setProperty(TECHNOLOGY_SCREENING, "true");
         
-        try
-        {
-            updateEnabledTechnologyProperties(variables, false);
-            fail("Exception expected.");
-        } catch (RuntimeException ex)
-        {
-            assertEquals("targets/unit-test-wd/ch.systemsx.cisd.openbis.installer.izpack."
-                    + "SetEnableTechnologiesVariableActionTest/servers/openBIS-server/jetty/"
-                    + "etc/core_plugins.properties (No such file or directory)", ex.getMessage());
-        }
+        updateEnabledTechnologyProperties(variables, false);
+        assertEquals("[, enabled-technologies = screening]",
+                FileUtilities.loadToStringList(configFile).toString());
+        assertEquals("[, " + ENABLED_TECHNOLOGIES_KEY + " = screening]", FileUtilities
+                .loadToStringList(dssConfigFile).toString());
     }
 
     @Test
