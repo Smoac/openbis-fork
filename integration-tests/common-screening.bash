@@ -23,7 +23,7 @@ function install_and_run_openbis_server_screening {
 				startup_openbis_server $openbis_server_dir
     else
         restart_openbis $openbis_server_dir
-				wait_for_server
+				wait_for_server $openbis_server_dir
     fi
 }
 

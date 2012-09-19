@@ -334,13 +334,13 @@ function fetch_latest_artifacts_from_cruise_control {
     
     local last_build="$HUDSON_ARTIFACTS/$proj_name/lastSuccessful/archive/_main/targets/dist"
     if [ -n "$MY_HOST_IP" -a "$MY_HOST_IP" == "$CI_HOST_IP" ]; then
-        local last=`ls -1 $CI_HOME/$last_build | sort | tail -1`
-        echo "Fetching artifacts for $proj_name: $last" 
+        local last=`ls $CI_HOME/$last_build/*.zip`
+        echo "Fetching artifacts locally from project '$proj_name':\n$last" 
         cp $CI_HOME/$last_build/*.zip $dest_dir
     else
-        local list_cmd="ls -1 $last_build | sort | tail -1"
+        local list_cmd="ls $last_build/*.zip"
         local last=`echo $list_cmd | ssh $SSH_CRUISE_CONTROL_NAME -T`
-        echo "Fetching artifacts for $proj_name: $last" 
+        echo "Fetching artifacts remotely from project '$proj_name':\n$last" 
         scp $SSH_CRUISE_CONTROL_NAME:$last_build/*.zip $dest_dir
     fi
 }
@@ -383,6 +383,7 @@ function check_server_port {
 }
 
 function wait_for_server {
+    local openbis_server_dir=$1
     echo -n "Server starting"
     i=0; 
     while [ "`check_server_port`" == "" -a $i -lt 20 ]; do 
@@ -391,7 +392,8 @@ function wait_for_server {
         let i=$i+1; 
     done
     if [ "`check_server_port`" == "" ]; then
-        report_error "Server could not be started!"
+        report_error "openBIS AS could not be started!"
+        shutdown_openbis_server $openbis_server_dir
         exit 1
     else
         echo "...[Done]"
@@ -437,14 +439,23 @@ function startup_openbis_server {
 	local openbis_server_dir=$1 
 		
     call_in_dir bin/startup.sh $openbis_server_dir/jetty
-    wait_for_server
+    wait_for_server $openbis_server_dir
 }
 
 function shutdown_openbis_server {
 		local openbis_server_dir=$1 
 		
     if [ "`check_server_port`" != "" ]; then
+        echo shutdown openBIS AS by regular shutdown script
         $openbis_server_dir/jetty/bin/shutdown.sh
+    else
+		    pid=`cat $openbis_server_dir/jetty/openbis.pid`
+        if [ $pid != "" ]; then
+            echo shutdown openBIS AS by killing process $pid
+            kill -9 $pid
+        else 
+            report_error "couldn't shutdown openBIS AS"
+        fi
     fi
 }
 

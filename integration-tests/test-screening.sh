@@ -52,14 +52,13 @@ function install_and_run_openbis_server_screening {
     if [ $install_openbis == "true" ]; then
         rm -fr $openbis_server_dir
     
-        unzip -q -d $openbis_server_dir $INSTALL/openBIS*.zip
+        unzip -q -d $openbis_server_dir $INSTALL/openBIS-server*.zip
         mv $openbis_server_dir/openBIS-server/* $openbis_server_dir
 				rmdir $openbis_server_dir/openBIS-server
 
 				cp -v $TEMPLATE/$openbis_server_name/service.properties $openbis_server_dir/service.properties
 				$openbis_server_dir/install.sh $PWD/$openbis_server_dir
 				startup_openbis_server $openbis_server_dir
-				wait_for_server
     else
         restart_openbis $openbis_server_dir
     fi
@@ -84,7 +83,7 @@ function install_screening_api {
 		rm -fr $API_HCS
 		mkdir -p $API_HCS
 		# unzip only jar files
-		unzip -q $INSTALL/screening-api*.zip -x *.zip -d $API_HCS
+		unzip -q $INSTALL/openBIS-screening-API*.zip -x *.zip -d $API_HCS
 }
 
 function install_screening {
@@ -181,7 +180,6 @@ function assertFeatureVectorDef {
 # can be called after integration tests are done just to check the API results
 function quick_api_test {
 	startup_openbis_server $OPENBIS_SERVER_HCS
-	wait_for_server
 	switch_dss "on" datastore_server_screening
 
 	test_screening_api
