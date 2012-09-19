@@ -11,7 +11,6 @@
 	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/mail/mail.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/bds"/>
 	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictions.jar"/>
 	<classpathentry kind="lib" path="/libraries/cglib/cglib-nodep.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-core.jar"/>
