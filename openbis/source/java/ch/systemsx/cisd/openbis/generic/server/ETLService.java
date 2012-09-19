@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServic
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AtomicOperationsPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodePredicate;
@@ -69,7 +70,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleOwn
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIdentifierPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleValidator;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
@@ -1502,6 +1502,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                     samplesCreated, samplesUpdated, dataSetsCreated, dataSetsUpdated);
         } finally
         {
+            ServiceConversationsThreadContext.unsetProgressListener();
+
             EntityOperationsInProgress.getInstance().removeRegistrationPending(registrationId);
             if (sessionTokenForEntityOperation != null)
             {
