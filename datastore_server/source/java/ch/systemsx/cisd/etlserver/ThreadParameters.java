@@ -113,6 +113,14 @@ public final class ThreadParameters
 
     public static final String PROCESS_RETRY_PAUSE_IN_SEC = "process-retry-pause-in-sec";
 
+    /*
+     * Recovery related properties
+     */
+
+    public static final String RECOVERY_MAX_RETRY_COUNT = "recovery-max-retry-count";
+
+    public static final String RECOVERY_MIN_RETRY_PERIOD = "recovery-min-retry-period";
+
     /**
      * The (local) directory to monitor for new files and directories to move to the remote side.
      * The directory where data to be processed by the ETL server become available.
@@ -150,6 +158,10 @@ public final class ThreadParameters
     private final int processMaxRetryCount;
 
     private final int processRetryPauseInSec;
+
+    private final int maximumRecoveryCount;
+
+    private final int minimumRecoveryPeriod;
 
     private final DataSetRegistrationPreStagingBehavior dataSetRegistrationPreStagingBehavior;
 
@@ -200,17 +212,21 @@ public final class ThreadParameters
                         "6"));
 
         this.dataSetRegistrationRetryPauseInSec =
-                Integer.parseInt(threadProperties.getProperty(DATASET_REGISTRATION_RETRY_PAUSE_IN_SEC,
-                        "300"));
+                Integer.parseInt(threadProperties.getProperty(
+                        DATASET_REGISTRATION_RETRY_PAUSE_IN_SEC, "300"));
 
         this.processMaxRetryCount =
-                Integer.parseInt(threadProperties.getProperty(PROCESS_MAX_RETRY_COUNT,
-                        "6"));
+                Integer.parseInt(threadProperties.getProperty(PROCESS_MAX_RETRY_COUNT, "6"));
 
         this.processRetryPauseInSec =
-                Integer.parseInt(threadProperties.getProperty(PROCESS_RETRY_PAUSE_IN_SEC,
-                        "300"));
-        
+                Integer.parseInt(threadProperties.getProperty(PROCESS_RETRY_PAUSE_IN_SEC, "300"));
+
+        this.maximumRecoveryCount =
+                PropertyUtils.getInt(threadProperties, RECOVERY_MAX_RETRY_COUNT, 50);
+
+        this.minimumRecoveryPeriod =
+                PropertyUtils.getInt(threadProperties, RECOVERY_MIN_RETRY_PERIOD, 60);
+
         this.threadName = threadName;
 
         String onErrorClassName =
@@ -477,4 +493,13 @@ public final class ThreadParameters
         return processRetryPauseInSec;
     }
 
+    public int getMaximumRecoveryCount()
+    {
+        return maximumRecoveryCount;
+    }
+
+    public int getMinimumRecoveryPeriod()
+    {
+        return minimumRecoveryPeriod;
+    }
 }

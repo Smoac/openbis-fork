@@ -156,11 +156,11 @@ public class TopLevelDataSetRegistratorGlobalState implements IResource
         this.storageRecoveryManager = storageRecoveryManager;
         this.storageRecoveryManager.setDropboxRecoveryStateDir(this.recoveryStateDir);
         this.storageRecoveryManager.setRecoveryMarkerFilesDir(recoveryMarkerFilesDirectory);
-        this.storageRecoveryManager.setMaximumRertyCount(getMaximumRecoveryCount(threadParameters
-                .getThreadProperties()));
         this.storageRecoveryManager
-                .setRetryPeriodInSeconds(getMinimumRecoveryPeriod(threadParameters
-                        .getThreadProperties()));
+                .setMaximumRertyCount(threadParameters.getMaximumRecoveryCount());
+        this.storageRecoveryManager
+.setRetryPeriodInSeconds(threadParameters
+                .getMinimumRecoveryPeriod());
 
         // Initialize the DSS Registration Log Directory
         new DssRegistrationLogDirectoryHelper(dssRegistrationLogDir).initializeSubdirectories();
@@ -310,6 +310,10 @@ public class TopLevelDataSetRegistratorGlobalState implements IResource
         return storageRecoveryManager;
     }
 
+    /*
+     * Properties that control the location of directories. Other properties are rather more
+     * suitable in ThreadParameters
+     */
     public static final String STAGING_DIR = "staging-dir";
 
     public static final String PRE_STAGING_DIR = "pre-staging-dir";
@@ -317,10 +321,6 @@ public class TopLevelDataSetRegistratorGlobalState implements IResource
     public static final String PRE_COMMIT_DIR = "pre-commit-dir";
 
     public static final String RECOVERY_MARKER_DIR = "recovery-marker-dir";
-
-    public static final String RECOVERY_MAX_RETRY_COUNT = "recovery-max-retry-count";
-
-    public static final String RECOVERY_MIN_RETRY_PERIOD = "recovery-min-retry-period";
 
     private static File getStagingDir(File storeRoot, String shareId, Properties threadProperties)
     {
@@ -343,16 +343,6 @@ public class TopLevelDataSetRegistratorGlobalState implements IResource
     {
         return getShareLocalDir(storeRoot, shareId, threadProperties, RECOVERY_MARKER_DIR,
                 "recovery-marker");
-    }
-
-    private static int getMaximumRecoveryCount(Properties threadProperties)
-    {
-        return PropertyUtils.getInt(threadProperties, RECOVERY_MAX_RETRY_COUNT, 50);
-    }
-
-    private static int getMinimumRecoveryPeriod(Properties threadProperties)
-    {
-        return PropertyUtils.getInt(threadProperties, RECOVERY_MIN_RETRY_PERIOD, 60);
     }
 
     /**
