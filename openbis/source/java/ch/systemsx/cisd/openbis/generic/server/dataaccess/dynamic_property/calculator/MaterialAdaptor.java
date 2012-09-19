@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calc
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IMaterialAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 
 /**
@@ -25,14 +26,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
  * 
  * @author Piotr Buczek
  */
-public class MaterialAdaptor extends AbstractEntityAdaptor
+public class MaterialAdaptor extends AbstractEntityAdaptor implements IMaterialAdaptor
 {
     private final MaterialPE MaterialPE;
 
     public MaterialAdaptor(MaterialPE MaterialPE, IDynamicPropertyEvaluator evaluator)
     {
-        super(MaterialPE.getCode());
-        initProperties(MaterialPE, evaluator);
+        super(MaterialPE.getCode(), evaluator);
+        initProperties(MaterialPE);
         this.MaterialPE = MaterialPE;
     }
 

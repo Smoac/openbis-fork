@@ -42,14 +42,26 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
 
     private final String code;
 
+    protected final IDynamicPropertyEvaluator evaluator;
+
     public AbstractEntityAdaptor(String code)
     {
-        this.code = code;
+        this(code, null);
     }
 
-    protected void initProperties(IEntityPropertiesHolder propertiesHolder,
-            IDynamicPropertyEvaluator evaluator)
+    public AbstractEntityAdaptor(String code, IDynamicPropertyEvaluator evaluator)
     {
+        this.code = code;
+        this.evaluator = evaluator;
+    }
+
+    protected void initProperties(IEntityPropertiesHolder propertiesHolder)
+    {
+        if (evaluator == null)
+        {
+            throw new IllegalStateException(
+                    "Couldn't init properties if the evaluator has not been set");
+        }
         for (EntityPropertyPE property : propertiesHolder.getProperties())
         {
             EntityTypePropertyTypePE etpt = property.getEntityTypePropertyType();

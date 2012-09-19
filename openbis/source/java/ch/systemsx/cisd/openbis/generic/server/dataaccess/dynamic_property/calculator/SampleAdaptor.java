@@ -16,23 +16,29 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IExperimentAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.ISampleAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 
 /**
  * {@link IEntityAdaptor} implementation for {@link SamplePE}.
  * 
  * @author Piotr Buczek
  */
-public class SampleAdaptor extends AbstractEntityAdaptor
+public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdaptor
 {
     private final SamplePE samplePE;
 
     public SampleAdaptor(SamplePE samplePE, IDynamicPropertyEvaluator evaluator)
     {
-        super(samplePE.getCode());
-        initProperties(samplePE, evaluator);
+        super(samplePE.getCode(), evaluator);
+        initProperties(samplePE);
         this.samplePE = samplePE;
     }
 
@@ -44,6 +50,59 @@ public class SampleAdaptor extends AbstractEntityAdaptor
     public SamplePE entityPE()
     {
         return samplePE();
+    }
+
+    @Override
+    public IExperimentAdaptor experiment()
+    {
+        return EntityAdaptorFactory.create(samplePE.getExperiment(), evaluator);
+    }
+
+    @Override
+    public List<ISampleAdaptor> parents()
+    {
+        List<ISampleAdaptor> list = new ArrayList<ISampleAdaptor>();
+        for (SamplePE parent : samplePE.getParents())
+        {
+            list.add(EntityAdaptorFactory.create(parent, evaluator));
+        }
+        return list;
+    }
+
+    @Override
+    public List<ISampleAdaptor> children()
+    {
+        List<ISampleAdaptor> list = new ArrayList<ISampleAdaptor>();
+        for (SampleRelationshipPE relationship : samplePE.getChildRelationships())
+        {
+            SamplePE child = relationship.getChildSample();
+            list.add(EntityAdaptorFactory.create(child, evaluator));
+        }
+        return list;
+    }
+
+    @Override
+    public List<ISampleAdaptor> contained()
+    {
+        List<ISampleAdaptor> list = new ArrayList<ISampleAdaptor>();
+        for (SamplePE contained : samplePE.getContained())
+        {
+            list.add(EntityAdaptorFactory.create(contained, evaluator));
+        }
+        return list;
+    }
+
+    @Override
+    public ISampleAdaptor container()
+    {
+        SamplePE container = samplePE.getContainer();
+        if (container != null)
+        {
+            return EntityAdaptorFactory.create(container, evaluator);
+        } else
+        {
+            return null;
+        }
     }
 
 }

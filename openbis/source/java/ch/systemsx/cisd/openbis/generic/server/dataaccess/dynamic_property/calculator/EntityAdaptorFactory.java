@@ -17,7 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDataAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IExperimentAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IMaterialAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.ISampleAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -35,6 +39,7 @@ public class EntityAdaptorFactory
     public static IEntityAdaptor create(IEntityInformationWithPropertiesHolder entity,
             IDynamicPropertyEvaluator evaluator)
     {
+
         switch (entity.getEntityKind())
         {
             case SAMPLE:
@@ -48,5 +53,25 @@ public class EntityAdaptorFactory
             default:
                 throw new UnsupportedOperationException(""); // can't happen
         }
+    }
+
+    public static IExperimentAdaptor create(ExperimentPE entity, IDynamicPropertyEvaluator evaluator)
+    {
+        return new ExperimentAdaptor(entity, evaluator);
+    }
+
+    public static ISampleAdaptor create(SamplePE entity, IDynamicPropertyEvaluator evaluator)
+    {
+        return new SampleAdaptor(entity, evaluator);
+    }
+
+    public static IDataAdaptor create(DataPE entity, IDynamicPropertyEvaluator evaluator)
+    {
+        return new ExternalDataAdaptor(entity, evaluator);
+    }
+
+    public static IMaterialAdaptor create(MaterialPE entity, IDynamicPropertyEvaluator evaluator)
+    {
+        return new MaterialAdaptor(entity, evaluator);
     }
 }

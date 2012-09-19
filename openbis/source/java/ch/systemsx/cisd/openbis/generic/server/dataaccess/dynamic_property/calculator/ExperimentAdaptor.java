@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calc
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IExperimentAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
@@ -25,14 +26,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  * 
  * @author Piotr Buczek
  */
-public class ExperimentAdaptor extends AbstractEntityAdaptor
+public class ExperimentAdaptor extends AbstractEntityAdaptor implements IExperimentAdaptor
 {
     private final ExperimentPE experimentPE;
 
     public ExperimentAdaptor(ExperimentPE experimentPE, IDynamicPropertyEvaluator evaluator)
     {
-        super(experimentPE.getCode());
-        initProperties(experimentPE, evaluator);
+        super(experimentPE.getCode(), evaluator);
+        initProperties(experimentPE);
         this.experimentPE = experimentPE;
     }
 
