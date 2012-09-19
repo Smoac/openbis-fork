@@ -42,6 +42,7 @@ public class MaterialAdaptor extends AbstractEntityAdaptor implements IMaterialA
         return MaterialPE;
     }
 
+    @Override
     public MaterialPE entityPE()
     {
         return materialPE();

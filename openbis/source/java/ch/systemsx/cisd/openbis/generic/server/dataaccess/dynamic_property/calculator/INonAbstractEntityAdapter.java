@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.INonAbstractEntityAdapter;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
  * @author Jakub Straszewski
  */
-public interface IExperimentAdaptor extends INonAbstractEntityAdapter
+public interface INonAbstractEntityAdapter
 {
-
+    public IEntityInformationWithPropertiesHolder entityPE();
 }

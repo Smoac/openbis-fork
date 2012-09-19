@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calc
 import ch.systemsx.cisd.common.evaluator.Evaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.calculator.AbstractCalculator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
  * @author Jakub Straszewski
@@ -38,9 +37,9 @@ public class EntityValidationCalculator extends AbstractCalculator
     private static final String VALIDATION_REQUEST_FUNCTION = "def requestValidation(entity):\n  "
             + CALCULATOR_VARIABLE + ".requestValidation(entity)\n";
 
-    public interface IValidationRequestDelegate
+    public interface IValidationRequestDelegate<T>
     {
-        public void requestValidation(Object o);
+        public void requestValidation(T o);
     }
 
     /**
@@ -50,7 +49,7 @@ public class EntityValidationCalculator extends AbstractCalculator
      * "isNewEntity"
      */
     public static EntityValidationCalculator create(String expression,
-            final IValidationRequestDelegate validationRequestedDelegate)
+            final IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequestedDelegate)
     {
         String initialScript = getBasicInitialScript();
         initialScript += importFunctions(EntityValidationCalculator.class) + NEWLINE;
@@ -63,14 +62,14 @@ public class EntityValidationCalculator extends AbstractCalculator
     }
 
     public EntityValidationCalculator(Evaluator evaluator,
-            final IValidationRequestDelegate validationRequested)
+            final IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequested)
     {
         super(evaluator);
 
         // wrap the request validation with argument checking, so that the implementators of the
         // interface can focus on logic
-        IValidationRequestDelegate wrappedValidationRequestedDelegate =
-                new IValidationRequestDelegate()
+        IValidationRequestDelegate<Object> wrappedValidationRequestedDelegate =
+                new IValidationRequestDelegate<Object>()
                     {
                         @Override
                         public void requestValidation(Object entity)
@@ -80,13 +79,14 @@ public class EntityValidationCalculator extends AbstractCalculator
                                 return;
                             }
 
-                            if (false == entity instanceof IEntityInformationWithPropertiesHolder)
+                            if (false == entity instanceof INonAbstractEntityAdapter)
                             {
                                 throw new IllegalArgumentException(
                                         "Trying to force the validation of an object of invalid type "
                                                 + entity.getClass());
                             }
-                            validationRequested.requestValidation(entity);
+                            validationRequested
+                                    .requestValidation((INonAbstractEntityAdapter) entity);
                         }
                     };
 

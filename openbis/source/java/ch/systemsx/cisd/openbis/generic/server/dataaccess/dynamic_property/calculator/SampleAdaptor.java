@@ -47,6 +47,7 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
         return samplePE;
     }
 
+    @Override
     public SamplePE entityPE()
     {
         return samplePE();

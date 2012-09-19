@@ -42,6 +42,7 @@ public class ExperimentAdaptor extends AbstractEntityAdaptor implements IExperim
         return experimentPE;
     }
 
+    @Override
     public ExperimentPE entityPE()
     {
         return experimentPE();

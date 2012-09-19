@@ -48,6 +48,7 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
         return externalDataPE;
     }
 
+    @Override
     public DataPE entityPE()
     {
         return externalDataPE();

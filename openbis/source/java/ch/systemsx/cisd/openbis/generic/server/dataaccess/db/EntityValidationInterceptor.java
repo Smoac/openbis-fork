@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDyna
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator.IValidationRequestDelegate;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.INonAbstractEntityAdapter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
@@ -56,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
  * @author Jakub Straszewski
  */
 public class EntityValidationInterceptor extends EmptyInterceptor implements
-        IValidationRequestDelegate
+        IValidationRequestDelegate<INonAbstractEntityAdapter>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -293,17 +294,15 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
     }
 
     @Override
-    public void requestValidation(Object entity)
+    public void requestValidation(INonAbstractEntityAdapter entityAdapter)
     {
+        IEntityInformationWithPropertiesHolder entity = entityAdapter.entityPE();
         if (validatedEntities.contains(entity) || entitiesToValidate.contains(entity))
         {
             // forcing validation of entity already listed for validation
         } else
         {
-            IEntityInformationWithPropertiesHolder typedEntity =
-                    (IEntityInformationWithPropertiesHolder) entity;
-
-            entitiesToValidate.add(typedEntity);
+            entitiesToValidate.add(entity);
             totalEntitiesToValidateCount++;
         }
     }

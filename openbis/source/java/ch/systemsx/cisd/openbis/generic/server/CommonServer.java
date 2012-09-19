@@ -129,6 +129,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calcu
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator.IValidationRequestDelegate;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.INonAbstractEntityAdapter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
@@ -2810,14 +2811,18 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
             EntityValidationCalculator calculator =
                     EntityValidationCalculator.create(info.getScript(),
-                            new IValidationRequestDelegate()
+                            new IValidationRequestDelegate<INonAbstractEntityAdapter>()
                                 {
                                     @Override
-                                    public void requestValidation(Object o)
+                                    public void requestValidation(
+                                            INonAbstractEntityAdapter entityAdaptor)
                                     {
-                                        objectsWhichValidationWouldBeForced
-                                                .add(((IEntityInformationWithPropertiesHolder) o)
-                                                        .getIdentifier());
+                                        IEntityInformationWithPropertiesHolder localEntity =
+                                                entityAdaptor.entityPE();
+                                        objectsWhichValidationWouldBeForced.add(localEntity
+                                                .getEntityKind()
+                                                + " "
+                                                + localEntity.getIdentifier());
                                     }
                                 });
             IDynamicPropertyEvaluator evaluator =

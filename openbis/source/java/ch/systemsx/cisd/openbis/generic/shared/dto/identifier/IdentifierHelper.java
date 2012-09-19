@@ -61,7 +61,7 @@ public final class IdentifierHelper
     }
 
     /**
-     * Creates a {@link GroupIdentifier} from given <var>groupPE</var>.
+     * Creates a {@link DatabaseInstanceIdentifier} from given <var>groupPE</var>.
      */
     public final static DatabaseInstanceIdentifier createDatabaseInstanceIdentifier(
             final DatabaseInstancePE databaseInstancePE)
