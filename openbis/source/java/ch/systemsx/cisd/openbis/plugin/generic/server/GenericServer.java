@@ -40,6 +40,9 @@ import ch.systemsx.cisd.openbis.generic.server.MaterialHelper;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewDataSetsWithTypePredicate;
@@ -50,9 +53,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewSample
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.UpdatedExperimentsWithTypePredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -927,6 +927,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("WRITE_EXPERIMENT_SAMPLE_MATERIAL")
     public void registerOrUpdateSamplesAndMaterialsAsync(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType,
             final List<NewMaterialsWithTypes> newMaterialsWithType, String userEmail)
