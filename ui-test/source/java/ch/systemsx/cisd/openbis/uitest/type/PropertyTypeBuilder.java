@@ -16,13 +16,12 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.UUID;
-
 import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
 
 /**
  * @author anttil
  */
+@SuppressWarnings("hiding")
 public class PropertyTypeBuilder implements Builder<PropertyType>
 {
 
@@ -41,7 +40,7 @@ public class PropertyTypeBuilder implements Builder<PropertyType>
     public PropertyTypeBuilder(ApplicationRunner openbis, PropertyTypeDataType type)
     {
         this.openbis = openbis;
-        this.code = UUID.randomUUID().toString();
+        this.code = openbis.uid();
         this.label = "label of " + code;
         this.description = "description of " + code;
         this.dataType = type;

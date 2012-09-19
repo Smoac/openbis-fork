@@ -20,9 +20,9 @@ import java.util.List;
 
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
-import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.page.common.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 import ch.systemsx.cisd.openbis.uitest.widget.TreeGrid;
@@ -35,7 +35,7 @@ public class ExperimentBrowser extends BrowserPage
     @Locate("openbis_experiment-browser_delete-button")
     private Button deleteAll;
 
-    @NotAlwaysPresent
+    @Lazy
     @Locate("deletion-confirmation-dialog")
     private DeletionConfirmationBox deletionDialog;
 

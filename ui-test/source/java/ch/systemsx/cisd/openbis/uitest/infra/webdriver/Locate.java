@@ -14,27 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest;
+package ch.systemsx.cisd.openbis.uitest.infra.webdriver;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
-
-/**
- * @author anttil
- */
-@Test(groups =
-    { "login-admin" })
-public class PropertyTypeTest extends SeleniumTest
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Locate
 {
-    @Test
-    public void newPropertyTypeIsListedInPropertyTypeBrowser() throws Exception
-    {
-        PropertyType propertyType = create(aBooleanPropertyType());
-
-        assertThat(propertyTypeBrowser(), lists(propertyType));
-    }
+    public abstract String value();
 }

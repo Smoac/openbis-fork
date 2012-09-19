@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.infra.webdriver;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -23,6 +23,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface NotAlwaysPresent
+public @interface Lazy
 {
 }

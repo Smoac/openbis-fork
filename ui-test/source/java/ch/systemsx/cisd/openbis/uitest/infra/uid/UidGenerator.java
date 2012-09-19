@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.infra.uid;
 
 /**
  * @author anttil
  */
-public interface ScreenShotter
+public interface UidGenerator
 {
-    public void screenshot();
+    public String uid();
 }

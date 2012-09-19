@@ -16,21 +16,21 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
-import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.page.common.TopBar;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 
-public class RegisterProject extends NavigationPage
+public class RegisterProject extends TopBar
 {
 
     @Locate("openbis_project-register_form_code")
     private Text code;
 
-    @NotAlwaysPresent
+    @Lazy
     @Locate("openbis_select_group-selectopenbis_project-register_form")
     private DropDown spaces;
 

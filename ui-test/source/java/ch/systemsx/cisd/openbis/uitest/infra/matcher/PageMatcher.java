@@ -25,9 +25,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
-import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
-import ch.systemsx.cisd.openbis.uitest.infra.PageProxy;
-import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.PageProxy;
+import ch.systemsx.cisd.openbis.uitest.page.common.Page;
 
 /**
  * @author anttil
@@ -61,7 +61,7 @@ public class PageMatcher extends TypeSafeMatcher<WebDriver>
             for (Field field : pageClass.getDeclaredFields())
             {
                 if ((field.getAnnotation(FindBy.class) != null)
-                        && (field.getAnnotation(NotAlwaysPresent.class) == null))
+                        && (field.getAnnotation(Lazy.class) == null))
                 {
                     WebElement element;
                     try

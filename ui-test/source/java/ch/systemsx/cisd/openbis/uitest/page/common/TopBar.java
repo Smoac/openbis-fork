@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.page.common;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.BrowseMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.NewMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.UserMenu;
 import ch.systemsx.cisd.openbis.uitest.page.tab.Trash;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.Text;
 
 /**
  * @author anttil
  */
-public abstract class NavigationPage extends Page
+public abstract class TopBar extends Page
 {
     @Locate("admin_menu")
     private Button adminMenu;
@@ -43,6 +44,10 @@ public abstract class NavigationPage extends Page
 
     @Locate("trash-button")
     private Button trash;
+
+    @SuppressWarnings("unused")
+    @Locate("openbis_search-widget_text-field-input")
+    private Text searchTextBox;
 
     public AdminMenu admin()
     {
@@ -73,5 +78,4 @@ public abstract class NavigationPage extends Page
         newMenu.click();
         return get(NewMenu.class);
     }
-
 }

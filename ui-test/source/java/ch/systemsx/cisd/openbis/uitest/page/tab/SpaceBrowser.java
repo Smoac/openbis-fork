@@ -20,8 +20,8 @@ import java.util.List;
 
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.page.common.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSpaceDialog;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;

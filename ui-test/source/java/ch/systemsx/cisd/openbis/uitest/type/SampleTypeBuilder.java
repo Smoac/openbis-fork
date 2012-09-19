@@ -18,13 +18,13 @@ package ch.systemsx.cisd.openbis.uitest.type;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
 
 /**
  * @author anttil
  */
+@SuppressWarnings("hiding")
 public class SampleTypeBuilder implements Builder<SampleType>
 {
 
@@ -53,7 +53,7 @@ public class SampleTypeBuilder implements Builder<SampleType>
     public SampleTypeBuilder(ApplicationRunner openbis)
     {
         this.openbis = openbis;
-        this.code = UUID.randomUUID().toString();
+        this.code = openbis.uid();
         this.description = "";
         this.listable = true;
         this.showsContainer = false;

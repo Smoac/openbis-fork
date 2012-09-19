@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest;
+package ch.systemsx.cisd.openbis.uitest.suite;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;

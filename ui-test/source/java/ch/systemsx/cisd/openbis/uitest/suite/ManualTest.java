@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest;
+package ch.systemsx.cisd.openbis.uitest.suite;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
@@ -92,6 +91,7 @@ public class ManualTest extends SeleniumTest
                         .withLabel("Sprint Test Text")
                         .withDescription("some text"));
 
+        @SuppressWarnings("unused")
         PropertyType realPropertyType =
                 create(aRealPropertyType()
                         .withCode("SPRINT-TEST.REAL")

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.page.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,12 +27,12 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 
 /**
  * @author anttil
  */
-public abstract class BrowserPage extends NavigationPage
+public abstract class BrowserPage extends TopBar
 {
 
     protected abstract List<WebElement> getColumns();

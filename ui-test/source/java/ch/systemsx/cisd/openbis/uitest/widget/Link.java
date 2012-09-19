@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.uitest.widget;
 
 import org.openqa.selenium.interactions.Actions;
 
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 
 /**
  * @author anttil

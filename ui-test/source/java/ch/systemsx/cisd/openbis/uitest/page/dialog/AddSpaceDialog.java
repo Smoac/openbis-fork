@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.dialog;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.page.common.Page;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
@@ -32,15 +32,6 @@ public class AddSpaceDialog extends Page
     @Locate("openbis_dialog-save-button")
     private Button save;
 
-    /* this is not deleted as this is an example of WAIT
-    public SpaceBrowser addSpace(String name, String description)
-    {
-        this.code.sendKeys(name);
-        saveButton.click();
-        wait(By.xpath("//div[.=\"" + name.toUpperCase() + "\"]"));
-        return get(SpaceBrowser.class);
-    }
-    */
     public void fillWith(Space space)
     {
         code.write(space.getCode());

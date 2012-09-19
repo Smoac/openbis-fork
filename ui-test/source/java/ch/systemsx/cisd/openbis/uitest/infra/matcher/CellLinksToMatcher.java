@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.uitest.infra.matcher;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-import ch.systemsx.cisd.openbis.uitest.page.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
 
 /**
  * @author anttil

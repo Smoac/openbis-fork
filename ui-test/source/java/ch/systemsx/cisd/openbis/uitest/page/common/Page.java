@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.page.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,15 +24,14 @@ import java.util.concurrent.TimeUnit;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.google.common.base.Function;
 
-import ch.systemsx.cisd.openbis.uitest.infra.PageProxy;
-import ch.systemsx.cisd.openbis.uitest.infra.ScreenShotProxy;
-import ch.systemsx.cisd.openbis.uitest.infra.ScreenShotter;
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotProxy;
+import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.PageProxy;
+import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 
 public abstract class Page
 {
@@ -74,20 +73,6 @@ public abstract class Page
             wrapped.add((WebElement) ScreenShotProxy.newInstance(e, shotter));
         }
         return wrapped;
-    }
-
-    public void wait(final By by)
-    {
-        ExpectedCondition<?> condition = new ExpectedCondition<WebElement>()
-            {
-                @Override
-                public WebElement apply(WebDriver d)
-                {
-                    return d.findElement(by);
-                }
-            };
-
-        new WebDriverWait(SeleniumTest.driver, 10).until(condition);
     }
 
     public void waitForClickability(final WebElement element)

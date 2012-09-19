@@ -14,28 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest;
+package ch.systemsx.cisd.openbis.uitest.suite;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 
 /**
  * @author anttil
  */
 @Test(groups =
     { "login-admin" })
-public class PropertyTypeAssignmentTest extends SeleniumTest
+public class PropertyTypeTest extends SeleniumTest
 {
     @Test
-    public void newPropertyTypeAssignmentIsListedInPropertyTypeAssignmentBrowser() throws Exception
+    public void newPropertyTypeIsListedInPropertyTypeBrowser() throws Exception
     {
-        PropertyTypeAssignment assignment =
-                create(aSamplePropertyTypeAssignment());
+        PropertyType propertyType = create(aBooleanPropertyType());
 
-        assertThat(propertyTypeAssignmentBrowser(), lists(assignment));
+        assertThat(propertyTypeBrowser(), lists(propertyType));
     }
 }

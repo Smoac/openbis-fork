@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.infra.screenshot;
 
 import java.io.File;
 import java.io.IOException;

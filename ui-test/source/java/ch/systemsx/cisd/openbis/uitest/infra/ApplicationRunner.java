@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra;
 
-import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
-import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
+import ch.systemsx.cisd.openbis.uitest.infra.uid.UidGenerator;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.PageProxy;
+import ch.systemsx.cisd.openbis.uitest.page.common.LoginPage;
+import ch.systemsx.cisd.openbis.uitest.page.common.TopBar;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddExperimentTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSpaceDialog;
@@ -57,9 +59,17 @@ public class ApplicationRunner
 
     private PageProxy proxy;
 
-    public ApplicationRunner(PageProxy proxy)
+    private UidGenerator uid;
+
+    public ApplicationRunner(PageProxy proxy, UidGenerator uid)
     {
         this.proxy = proxy;
+        this.uid = uid;
+    }
+
+    public String uid()
+    {
+        return uid.uid();
     }
 
     public Space create(Space space)
@@ -261,8 +271,8 @@ public class ApplicationRunner
         return getMenus().newMenu().project();
     }
 
-    private NavigationPage getMenus()
+    private TopBar getMenus()
     {
-        return proxy.get(NavigationPage.class);
+        return proxy.get(TopBar.class);
     }
 }

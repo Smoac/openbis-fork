@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.menu;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
-import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.page.common.LoginPage;
+import ch.systemsx.cisd.openbis.uitest.page.common.Page;
 import ch.systemsx.cisd.openbis.uitest.widget.Link;
 
 public class UserMenu extends Page

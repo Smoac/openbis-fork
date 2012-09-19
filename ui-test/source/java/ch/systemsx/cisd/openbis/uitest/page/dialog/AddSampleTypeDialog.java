@@ -16,14 +16,15 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.dialog;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.page.common.Page;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Checkbox;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 
+@SuppressWarnings("unused")
 public class AddSampleTypeDialog extends Page
 {
 

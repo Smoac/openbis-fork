@@ -14,14 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.page.common;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 
-public class HomePage extends NavigationPage
+public class LoginPage extends Page
 {
+    @Locate("openbis_login_username")
+    private Text username;
 
-    @Locate("openbis_search-widget_text-field-input")
-    private Text searchTextBox;
+    @Locate("openbis_login_password")
+    private Text password;
+
+    @Locate("openbis_login_submit")
+    private Button button;
+
+    public void loginAs(String user, String pwd)
+    {
+        username.write(user);
+        password.write(pwd);
+        button.click();
+    }
 }

@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
-import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.page.common.TopBar;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
-public class AssignSamplePropertyType extends NavigationPage
+public class AssignSamplePropertyType extends TopBar
 {
 
     @Locate("openbis_select_property-typeopenbis_property-type-assignment_SAMPLEproperty_type")
@@ -39,7 +39,7 @@ public class AssignSamplePropertyType extends NavigationPage
     @Locate("openbis_property-type-assignment_SAMPLEmandatory_checkbox")
     private Checkbox mandatory;
 
-    @NotAlwaysPresent
+    @Lazy
     @Locate("openbis_property-type-assignment_SAMPLEdefault_value")
     private Widget initialValue;
 

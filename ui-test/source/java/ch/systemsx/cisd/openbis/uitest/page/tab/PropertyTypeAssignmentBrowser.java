@@ -20,8 +20,8 @@ import java.util.List;
 
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.page.common.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 
@@ -30,6 +30,7 @@ public class PropertyTypeAssignmentBrowser extends BrowserPage
     @Locate("openbis_property-type-assignment-browser-grid")
     private Grid grid;
 
+    @SuppressWarnings("unused")
     @Locate("openbis_property-type-assignment-browser-grid-edit")
     private Button edit;
 

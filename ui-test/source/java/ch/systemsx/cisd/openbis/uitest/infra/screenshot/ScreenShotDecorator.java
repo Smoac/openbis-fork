@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.infra.screenshot;
 
 import java.lang.reflect.Field;
 
 import org.openqa.selenium.support.pagefactory.DefaultElementLocatorFactory;
 import org.openqa.selenium.support.pagefactory.DefaultFieldDecorator;
 import org.openqa.selenium.support.pagefactory.FieldDecorator;
+
+import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 
 public class ScreenShotDecorator implements FieldDecorator
 {

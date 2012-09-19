@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.infra.webdriver;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -28,7 +28,10 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotProxy;
+import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
+import ch.systemsx.cisd.openbis.uitest.page.common.Page;
+import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
 /**
@@ -101,6 +104,7 @@ public class PageProxy
         return t;
     }
 
+    @SuppressWarnings("unchecked")
     private <T> void initLocateFields(Class<T> clazz, T t)
     {
         Class<T> pageClass = clazz;
@@ -128,7 +132,7 @@ public class PageProxy
                         }
 
                         WebElement element;
-                        if (field.getAnnotation(NotAlwaysPresent.class) != null)
+                        if (field.getAnnotation(Lazy.class) != null)
                         {
                             element = (WebElement) WebElementProxy.newInstance(locate.value());
                         } else

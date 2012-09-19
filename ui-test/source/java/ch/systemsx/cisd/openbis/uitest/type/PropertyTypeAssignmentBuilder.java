@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
 /**
  * @author anttil
  */
+@SuppressWarnings("hiding")
 public class PropertyTypeAssignmentBuilder implements Builder<PropertyTypeAssignment>
 {
 

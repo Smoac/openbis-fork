@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
-import ch.systemsx.cisd.openbis.uitest.page.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
 
 /**
  * @author anttil

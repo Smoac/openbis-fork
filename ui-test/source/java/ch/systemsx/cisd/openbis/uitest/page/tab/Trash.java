@@ -16,19 +16,19 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
-import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.page.common.TopBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 
-public class Trash extends NavigationPage
+public class Trash extends TopBar
 {
 
     @Locate("empty-trash-button")
     private Button empty;
 
-    @NotAlwaysPresent
+    @Lazy
     @Locate("deletion-confirmation-dialog")
     private DeletionConfirmationBox deletionDialog;
 
@@ -36,7 +36,6 @@ public class Trash extends NavigationPage
     {
         this.empty.click();
         deletionDialog.confirm();
-
         return get(Trash.class);
     }
 

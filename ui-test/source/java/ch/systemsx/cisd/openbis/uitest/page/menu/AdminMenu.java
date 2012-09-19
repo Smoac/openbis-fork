@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.menu;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.page.common.Page;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
 import ch.systemsx.cisd.openbis.uitest.widget.Link;

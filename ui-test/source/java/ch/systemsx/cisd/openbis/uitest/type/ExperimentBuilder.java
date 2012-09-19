@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
 
 /**
  * @author anttil
  */
+@SuppressWarnings("hiding")
 public class ExperimentBuilder implements Builder<Experiment>
 {
 
@@ -43,7 +43,7 @@ public class ExperimentBuilder implements Builder<Experiment>
     {
         this.openbis = openbis;
         this.type = null;
-        this.code = UUID.randomUUID().toString();
+        this.code = openbis.uid();
         this.project = null;
         this.samples = new ArrayList<Sample>();
     }

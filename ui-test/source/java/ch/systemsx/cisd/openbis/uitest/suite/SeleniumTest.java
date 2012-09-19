@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.suite;
 
 import static org.hamcrest.CoreMatchers.not;
 
@@ -34,15 +34,23 @@ import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
+import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
+import ch.systemsx.cisd.openbis.uitest.infra.User;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.BrowserListsElementMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellDisplaysMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellLinksToMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.PageMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.RegisterSampleFormContainsInputsForPropertiesMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.SampleBrowserSampleTypeDropDownMenuMatcher;
-import ch.systemsx.cisd.openbis.uitest.page.BrowserPage;
-import ch.systemsx.cisd.openbis.uitest.page.Cell;
-import ch.systemsx.cisd.openbis.uitest.page.Page;
+import ch.systemsx.cisd.openbis.uitest.infra.screenshot.FileScreenShotter;
+import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
+import ch.systemsx.cisd.openbis.uitest.infra.uid.DictionaryUidGenerator;
+import ch.systemsx.cisd.openbis.uitest.infra.uid.UidGenerator;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.PageProxy;
+import ch.systemsx.cisd.openbis.uitest.page.common.BrowserPage;
+import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.common.Page;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ProjectBrowser;
@@ -77,6 +85,8 @@ public abstract class SeleniumTest
 
     public static WebDriver driver;
 
+    private static UidGenerator uid;
+
     private PageProxy pageProxy;
 
     private ScreenShotter shotter;
@@ -84,14 +94,12 @@ public abstract class SeleniumTest
     protected ApplicationRunner openbis;
 
     @BeforeSuite
-    public void initWebDriver()
+    public void initWebDriver() throws Exception
     {
-        /*
-        System.setProperty("webdriver.firefox.bin",
-                "/Users/anttil/Desktop/Firefox 10.app/Contents/MacOS/firefox");
+        uid = new DictionaryUidGenerator(new File("resource/corncob_lowercase.txt"));
 
         System.setProperty("webdriver.firefox.profile", "default");
-        */
+
         driver = new FirefoxDriver();
         driver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT, TimeUnit.SECONDS);
         delete(new File("targets/dist"));
@@ -123,7 +131,7 @@ public abstract class SeleniumTest
                 public void screenshot()
                 {
                 }
-            }));
+            }), uid);
         openbis.login(User.ADMIN);
 
         // this is because of BIS-184
@@ -139,7 +147,7 @@ public abstract class SeleniumTest
                 public void screenshot()
                 {
                 }
-            }));
+            }), uid);
         openbis.logout();
     }
 
@@ -150,7 +158,7 @@ public abstract class SeleniumTest
                 new FileScreenShotter((TakesScreenshot) driver, "targets/dist/"
                         + this.getClass().getSimpleName() + "/" + method.getName());
         this.pageProxy = new PageProxy(shotter);
-        this.openbis = new ApplicationRunner(this.pageProxy);
+        this.openbis = new ApplicationRunner(this.pageProxy, uid);
     }
 
     @AfterMethod(alwaysRun = true)

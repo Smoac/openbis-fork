@@ -18,13 +18,13 @@ package ch.systemsx.cisd.openbis.uitest.type;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
 
 /**
  * @author anttil
  */
+@SuppressWarnings("hiding")
 public class VocabularyBuilder implements Builder<Vocabulary>
 {
 
@@ -41,7 +41,7 @@ public class VocabularyBuilder implements Builder<Vocabulary>
     public VocabularyBuilder(ApplicationRunner openbis)
     {
         this.openbis = openbis;
-        this.code = UUID.randomUUID().toString();
+        this.code = openbis.uid();
         this.description = "";
         this.terms = new HashSet<String>();
         this.terms.add("term1");

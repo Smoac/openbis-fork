@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.page.common.TopBar;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
@@ -25,7 +26,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 import ch.systemsx.cisd.openbis.uitest.widget.TextArea;
 
-public class AddPropertyType extends NavigationPage
+public class AddPropertyType extends TopBar
 {
 
     @Locate("openbis_property-type-registration_form_code")
@@ -40,6 +41,7 @@ public class AddPropertyType extends NavigationPage
     @Locate("openbis_select_data-type")
     private DropDown dataType;
 
+    @Lazy
     @Locate("openbis_select_vocabulary-select")
     private DropDown vocabulary;
 

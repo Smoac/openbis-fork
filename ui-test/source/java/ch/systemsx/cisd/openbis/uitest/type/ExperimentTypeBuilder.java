@@ -16,13 +16,12 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.UUID;
-
 import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
 
 /**
  * @author anttil
  */
+@SuppressWarnings("hiding")
 public class ExperimentTypeBuilder implements Builder<ExperimentType>
 {
 
@@ -35,7 +34,7 @@ public class ExperimentTypeBuilder implements Builder<ExperimentType>
     public ExperimentTypeBuilder(ApplicationRunner openbis)
     {
         this.openbis = openbis;
-        this.code = UUID.randomUUID().toString();
+        this.code = openbis.uid();
         this.description = "";
     }
 

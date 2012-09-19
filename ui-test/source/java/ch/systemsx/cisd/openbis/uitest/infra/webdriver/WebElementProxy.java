@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.infra.webdriver;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -22,6 +22,8 @@ import java.lang.reflect.Method;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+
+import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 
 public class WebElementProxy implements InvocationHandler
 {

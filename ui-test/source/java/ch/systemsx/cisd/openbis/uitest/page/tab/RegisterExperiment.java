@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
-import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.page.common.TopBar;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
@@ -27,25 +27,25 @@ import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 import ch.systemsx.cisd.openbis.uitest.widget.TextArea;
 
-public class RegisterExperiment extends NavigationPage
+public class RegisterExperiment extends TopBar
 {
 
     @Locate("openbis_select_experiment-typeopenbis_experiment-registration")
     private DropDown experimentTypeList;
 
-    @NotAlwaysPresent
+    @Lazy
     @Locate("openbis_generic-experiment-register_formcode")
     private Text code;
 
-    @NotAlwaysPresent
+    @Lazy
     @Locate("openbis_select_projectgeneric-experiment-register_form")
     private DropDown projectList;
 
-    @NotAlwaysPresent
+    @Lazy
     @Locate("generic-experiment-register_form_samples")
     private TextArea samples;
 
-    @NotAlwaysPresent
+    @Lazy
     @Locate("openbis_generic-experiment-register_formsave-button")
     private Button saveButton;
 

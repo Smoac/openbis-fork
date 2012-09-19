@@ -20,9 +20,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.infra.NotAlwaysPresent;
-import ch.systemsx.cisd.openbis.uitest.page.NavigationPage;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.page.common.TopBar;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
@@ -34,29 +34,30 @@ import ch.systemsx.cisd.openbis.uitest.widget.Form;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
-public class RegisterSample extends NavigationPage
+public class RegisterSample extends TopBar
 {
 
     @Locate("openbis_select_sample-typeopenbis_sample-registration")
     private DropDown sampleTypes;
 
-    @NotAlwaysPresent
+    @Lazy
     @Locate("openbis_generic-sample-register_formcode")
     private Text code;
 
-    @NotAlwaysPresent
+    @SuppressWarnings("unused")
+    @Lazy
     @Locate("openbis_generic-sample-register_formexperiment")
     private Text experiment;
 
-    @NotAlwaysPresent
+    @Lazy
     @Locate("register-sample-space-selection")
     private DropDown spaces;
 
-    @NotAlwaysPresent
+    @Lazy
     @Locate("openbis_generic-sample-register_formsave-button")
     private Button save;
 
-    @NotAlwaysPresent
+    @Lazy
     @Locate("registration-panel-openbis_generic-sample-register_form")
     private Form form;
 

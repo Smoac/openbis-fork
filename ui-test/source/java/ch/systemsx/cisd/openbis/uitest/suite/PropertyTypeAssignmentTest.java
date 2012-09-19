@@ -14,29 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page;
+package ch.systemsx.cisd.openbis.uitest.suite;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Locate;
-import ch.systemsx.cisd.openbis.uitest.widget.Button;
-import ch.systemsx.cisd.openbis.uitest.widget.Text;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public class LoginPage extends Page
+import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
+
+/**
+ * @author anttil
+ */
+@Test(groups =
+    { "login-admin" })
+public class PropertyTypeAssignmentTest extends SeleniumTest
 {
-
-    @Locate("openbis_login_username")
-    private Text username;
-
-    @Locate("openbis_login_password")
-    private Text password;
-
-    @Locate("openbis_login_submit")
-    private Button button;
-
-    public void loginAs(String user, String pwd)
+    @Test
+    public void newPropertyTypeAssignmentIsListedInPropertyTypeAssignmentBrowser() throws Exception
     {
-        username.write(user);
-        password.write(pwd);
+        PropertyTypeAssignment assignment =
+                create(aSamplePropertyTypeAssignment());
 
-        button.click();
+        assertThat(propertyTypeAssignmentBrowser(), lists(assignment));
     }
 }

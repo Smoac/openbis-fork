@@ -20,13 +20,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
 
 /**
  * @author anttil
  */
+@SuppressWarnings("hiding")
 public class SampleBuilder implements Builder<Sample>
 {
 
@@ -47,7 +47,7 @@ public class SampleBuilder implements Builder<Sample>
     public SampleBuilder(ApplicationRunner openbis)
     {
         this.openbis = openbis;
-        this.code = UUID.randomUUID().toString();
+        this.code = openbis.uid();
         this.properties = new HashMap<PropertyType, Object>();
         this.parents = new HashSet<Sample>();
     }

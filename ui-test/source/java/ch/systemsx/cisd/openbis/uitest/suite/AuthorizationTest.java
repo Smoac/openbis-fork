@@ -1,13 +1,12 @@
-package ch.systemsx.cisd.openbis.uitest;
+package ch.systemsx.cisd.openbis.uitest.suite;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.uitest.infra.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.infra.User;
-import ch.systemsx.cisd.openbis.uitest.page.HomePage;
-import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
+import ch.systemsx.cisd.openbis.uitest.page.common.LoginPage;
+import ch.systemsx.cisd.openbis.uitest.page.common.TopBar;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.InvalidPasswordDialog;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
 
@@ -34,7 +33,7 @@ public class AuthorizationTest extends SeleniumTest
     public void loginSucceedsWithValidCredentials() throws Exception
     {
         openbis.login(User.ADMIN);
-        assertThat(browser(), isShowing(HomePage.class));
+        assertThat(browser(), isShowing(TopBar.class));
 
         openbis.logout();
         assertThat(browser(), isShowing(LoginPage.class));
