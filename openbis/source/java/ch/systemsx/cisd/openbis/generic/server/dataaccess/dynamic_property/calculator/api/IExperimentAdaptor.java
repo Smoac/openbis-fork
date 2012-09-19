@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.INonAbstractEntityAdapter;
 
 /**
@@ -23,5 +25,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calcu
  */
 public interface IExperimentAdaptor extends INonAbstractEntityAdapter
 {
+    /** Return the samples belonging to this experiment */
+    List<ISampleAdaptor> samples();
 
+    /** Return the datasets belonging to this experiment */
+    List<IDataAdaptor> dataSets();
 }

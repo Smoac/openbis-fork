@@ -16,10 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDataAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IExperimentAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.ISampleAdaptor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * {@link IEntityAdaptor} implementation for {@link ExperimentPE}.
@@ -46,6 +53,28 @@ public class ExperimentAdaptor extends AbstractEntityAdaptor implements IExperim
     public ExperimentPE entityPE()
     {
         return experimentPE();
+    }
+
+    @Override
+    public List<ISampleAdaptor> samples()
+    {
+        List<ISampleAdaptor> list = new ArrayList<ISampleAdaptor>();
+        for (SamplePE sample : experimentPE.getSamples())
+        {
+            list.add(EntityAdaptorFactory.create(sample, evaluator));
+        }
+        return list;
+    }
+
+    @Override
+    public List<IDataAdaptor> dataSets()
+    {
+        List<IDataAdaptor> list = new ArrayList<IDataAdaptor>();
+        for (DataPE dataset : experimentPE.getDataSets())
+        {
+            list.add(EntityAdaptorFactory.create(dataset, evaluator));
+        }
+        return list;
     }
 
 }
