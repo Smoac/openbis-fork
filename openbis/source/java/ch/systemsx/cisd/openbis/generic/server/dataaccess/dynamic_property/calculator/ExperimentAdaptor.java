@@ -33,7 +33,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  * 
  * @author Piotr Buczek
  */
-public class ExperimentAdaptor extends AbstractEntityAdaptor implements IExperimentAdaptor
+public class ExperimentAdaptor extends AbstractEntityAdaptor implements IExperimentAdaptor,
+        INonAbstractEntityAdapter
 {
     private final ExperimentPE experimentPE;
 

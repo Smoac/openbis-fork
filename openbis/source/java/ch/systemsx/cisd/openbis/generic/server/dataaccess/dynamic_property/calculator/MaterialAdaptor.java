@@ -26,7 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
  * 
  * @author Piotr Buczek
  */
-public class MaterialAdaptor extends AbstractEntityAdaptor implements IMaterialAdaptor
+public class MaterialAdaptor extends AbstractEntityAdaptor implements IMaterialAdaptor,
+        INonAbstractEntityAdapter
 {
     private final MaterialPE MaterialPE;
 

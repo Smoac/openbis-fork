@@ -31,7 +31,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
  * 
  * @author Piotr Buczek
  */
-public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdaptor
+public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdaptor,
+        INonAbstractEntityAdapter
 {
     private final SamplePE samplePE;
 

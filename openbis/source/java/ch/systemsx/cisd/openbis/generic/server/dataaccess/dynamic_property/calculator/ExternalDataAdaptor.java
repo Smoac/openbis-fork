@@ -32,7 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
  * 
  * @author Piotr Buczek
  */
-public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataAdaptor
+public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataAdaptor,
+        INonAbstractEntityAdapter
 {
     private final DataPE externalDataPE;
 
