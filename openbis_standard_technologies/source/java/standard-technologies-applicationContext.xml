@@ -17,12 +17,7 @@
     -->
     <bean id="propertyConfigurer"
         class="ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer">
-        <property name="locations">
-          <list>
-            <value>classpath:service.properties</value>
-            <value>file:etc/core_plugins.properties</value>
-          </list>
-        </property>
+        <property name="location" value="classpath:service.properties"/>
         <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
         <property name="ignoreUnresolvablePlaceholders" value="true" />
     </bean>
