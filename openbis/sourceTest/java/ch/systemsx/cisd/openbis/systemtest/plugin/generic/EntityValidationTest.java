@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -47,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -151,15 +153,14 @@ public class EntityValidationTest extends GenericSystemTestCase
             assertTrue(ufe.getMessage(), ufe.getMessage().contains("Validation of sample"));
         }
 
-        deleteSample(sample);
+        deleteSample(sample.getId());
     }
 
-    private void deleteSample(Sample sample)
+    private void deleteSample(long sampleId)
     {
         // cleanup
         commonServer.deleteSamples(systemSessionToken,
-                Collections.singletonList(new TechId(sample.getId())), "Yup",
-                DeletionType.PERMANENT);
+                Collections.singletonList(new TechId(sampleId)), "Yup", DeletionType.PERMANENT);
     }
 
     @Test
@@ -168,6 +169,12 @@ public class EntityValidationTest extends GenericSystemTestCase
         NewSample sample = prepareNewSample("/TEST-SPACE/NEV-TEST-PE", "NORMAL", null);
         sample.setParents("EV-PARENT-NORMAL");
         performSampleCreation(sample);
+
+        Sample createdSample =
+                etlService.tryGetSampleWithExperiment(systemSessionToken,
+                        SampleIdentifier.create("TEST-SPACE", "NEV-TEST-PE"));
+
+        deleteSample(createdSample.getId());
     }
 
     @Test
@@ -175,10 +182,18 @@ public class EntityValidationTest extends GenericSystemTestCase
     {
         NewSample sample = prepareNewSample("/TEST-SPACE/NEV-TEST_ETL", "NORMAL", null);
         sample.setParents("EV-PARENT-NORMAL");
-        etlService.registerSample(systemSessionToken, sample, null);
+        long sampleId = etlService.registerSample(systemSessionToken, sample, null);
+
+        deleteSample(sampleId);
     }
 
     private void performSampleCreation(NewSample sampleToCreate)
+    {
+        AtomicEntityOperationDetails details = prepareSampleRegistrationDetails(sampleToCreate);
+        etlService.performEntityOperations(systemSessionToken, details);
+    }
+
+    private AtomicEntityOperationDetails prepareSampleRegistrationDetails(NewSample sampleToCreate)
     {
         List<NewSpace> spaceRegistrations = Collections.emptyList();
         List<NewProject> projectRegistrations = Collections.emptyList();
@@ -196,7 +211,7 @@ public class EntityValidationTest extends GenericSystemTestCase
                         projectRegistrations, experimentRegistrations, experimentUpdates,
                         sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
                         dataSetRegistrations, dataSetUpdates);
-        etlService.performEntityOperations(systemSessionToken, details);
+        return details;
     }
 
     @Test
@@ -278,5 +293,56 @@ public class EntityValidationTest extends GenericSystemTestCase
         fail(String
                 .format("No sample %s (%s) found in space %s", sampleCode, sampleType, spaceCode));
         return null;
+    }
+
+    @Test
+    public void testContainerUpdateDoesntCauseContainedDatasetValidation()
+    {
+        updateTestScriptBeforeAction("def validate(entity, isNew):\n  print entity.code()\n");
+
+        ExternalData dataset = commonServer.getDataSetInfo(systemSessionToken, new TechId(26l));
+
+        DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
+        updates.setDatasetId(new TechId(26));
+        updates.setVersion(dataset.getModificationDate());
+        updates.setExperimentIdentifierOrNull(new ExperimentIdentifier(dataset.getExperiment()));
+        updates.setProperties(Collections.<IEntityProperty> emptyList());
+
+        etlService.updateDataSet(systemSessionToken, updates);
+    }
+
+    @Test
+    public void testContainerUpdateCauseContainedDatasetValidation()
+    {
+        try
+        {
+            updateTestScriptBeforeAction("def validate(entity, isNew):\n  for contained in entity.contained():\n    requestValidation(contained)\n");
+
+            ExternalData dataset = commonServer.getDataSetInfo(systemSessionToken, new TechId(26l));
+
+            DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
+            updates.setDatasetId(new TechId(26));
+            updates.setVersion(dataset.getModificationDate());
+            updates.setExperimentIdentifierOrNull(new ExperimentIdentifier(dataset.getExperiment()));
+            updates.setProperties(Collections.<IEntityProperty> emptyList());
+
+            etlService.updateDataSet(systemSessionToken, updates);
+
+            fail("The validation of contained dataset should have been forced, and should have failed");
+        } catch (Exception ufe)
+        {
+            assertTrue(ufe.getMessage(), ufe.getMessage().contains("Validation of dataSet"));
+            assertTrue(ufe.getMessage(), ufe.getMessage().contains("This check always fail"));
+        }
+    }
+
+    private void updateTestScriptBeforeAction(String scriptBody)
+    {
+        Script updates = new Script();
+        updates.setId(11L);
+        updates.setDescription("Test script");
+        updates.setScript(scriptBody);
+        updates.setName("test");
+        commonServer.updateScript(systemSessionToken, updates);
     }
 }
