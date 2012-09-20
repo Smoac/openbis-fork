@@ -644,7 +644,7 @@
                includesfile="${dist}/core-plugin-paths">
         <exclude name="core_plugins.properties"/>
       </fileset>
-      <fileset dir="dist/server">
+      <fileset dir="${project-path}dist/server" erroronmissingdir="false">
         <include name="core_plugins.properties"/>
       </fileset>
     </copy>
