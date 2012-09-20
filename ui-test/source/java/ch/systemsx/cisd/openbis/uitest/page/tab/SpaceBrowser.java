@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.Cell;
-import ch.systemsx.cisd.openbis.uitest.infra.Filterable;
 import ch.systemsx.cisd.openbis.uitest.infra.Row;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
@@ -30,7 +29,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 
-public class SpaceBrowser implements Browser<Space>, Filterable
+public class SpaceBrowser implements Browser<Space>
 {
 
     @Locate("openbis_space-browser-grid")
@@ -58,9 +57,10 @@ public class SpaceBrowser implements Browser<Space>, Filterable
         addSpace.click();
     }
 
-    public void select(Space space)
+    @Override
+    public Row select(Space space)
     {
-        grid.select(space.getCode());
+        return grid.select("Code", space.getCode());
     }
 
     public void delete()
@@ -70,22 +70,16 @@ public class SpaceBrowser implements Browser<Space>, Filterable
     }
 
     @Override
-    public Row row(Space space)
-    {
-        return grid.getRow("Code", space.getCode());
-    }
-
-    @Override
     public Cell cell(Space space, String column)
     {
-        return row(space).get(column);
+        return select(space).get(column);
     }
 
     @Override
-    public void filter(String filter)
+    public void filter(Space space)
     {
         paging.filters();
-        filters.setCode(filter);
+        filters.setCode(space.getCode());
         new WaitForRefreshOf(grid).withTimeoutOf(10);
     }
 

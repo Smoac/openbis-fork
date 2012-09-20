@@ -16,12 +16,11 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Cell;
@@ -34,7 +33,7 @@ import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Refreshing;
 public class Grid extends Widget implements Refreshing
 {
 
-    public Row getRow(String column, String value)
+    public Row select(String column, String value)
     {
 
         List<WebElement> columns = this.getColumns();
@@ -64,6 +63,7 @@ public class Grid extends Widget implements Refreshing
         {
             if (cells.get(index).getText().equalsIgnoreCase(value))
             {
+                cells.get(index).findElement(By.xpath("./..")).click();
                 found = true;
                 break;
             }
@@ -94,23 +94,6 @@ public class Grid extends Widget implements Refreshing
     private List<WebElement> getCells()
     {
         return findAll(".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]");
-    }
-
-    public void select(String string)
-    {
-        Collection<String> found = new ArrayList<String>();
-        for (WebElement element : getCells())
-        {
-            if (string.equalsIgnoreCase(element.getText()))
-            {
-                element.click();
-                return;
-            }
-            found.add(element.getText());
-        }
-
-        throw new IllegalArgumentException("Grid does not contain element with text " + string
-                + ", found " + found);
     }
 
     @Override

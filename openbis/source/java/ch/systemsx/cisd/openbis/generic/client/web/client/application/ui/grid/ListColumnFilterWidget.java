@@ -70,8 +70,10 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
 
     private boolean comboBoxValueSelected = false;
 
+    private String gridId;
+
     public ListColumnFilterWidget(IColumnDefinition<T> filteredField,
-            final IDelegatedAction onFilterAction, List<String> distinctValues)
+            final IDelegatedAction onFilterAction, List<String> distinctValues, String gridId)
     {
         this.filteredField = filteredField;
         this.onFilterAction = onFilterAction;
@@ -102,6 +104,8 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
                 ModelDataPropertyNames.TOOLTIP));
 
         GWTUtils.setupAutoWidth(this);
+        this.setId(gridId + "-" + label);
+        this.gridId = gridId;
     }
 
     private static DelayedTask createFilterApplierTask(final IDelegatedAction onFilterAction)
@@ -172,7 +176,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
     {
         if (distinctValuesOrNull == null)
         {
-            return new TextColumnFilterWidget<T>(filteredField, onFilterAction);
+            return new TextColumnFilterWidget<T>(filteredField, onFilterAction, gridId);
         } else
         {
             if (distinctValuesOrNull.equals(getCurrentStoreValues()) == false)

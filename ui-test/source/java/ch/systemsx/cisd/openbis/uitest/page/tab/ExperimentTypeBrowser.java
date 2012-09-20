@@ -19,10 +19,14 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.Cell;
 import ch.systemsx.cisd.openbis.uitest.infra.Row;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
+import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 
 public class ExperimentTypeBrowser implements Browser<ExperimentType>
 {
@@ -41,21 +45,50 @@ public class ExperimentTypeBrowser implements Browser<ExperimentType>
     @Locate("openbis_experiment-type-browser-grid")
     private Grid grid;
 
+    @Locate("openbis_experiment-type-browser-grid-paging-toolbar")
+    private PagingToolBar paging;
+
+    @Lazy
+    @Locate("openbis_experiment-type-browser-grid-filter-toolbar")
+    private FilterToolBar filters;
+
     public void add()
     {
         add.click();
     }
 
     @Override
-    public Row row(ExperimentType experimentType)
+    public Row select(ExperimentType experimentType)
     {
-        return grid.getRow("Code", experimentType.getCode());
+        return grid.select("Code", experimentType.getCode());
     }
 
     @Override
     public Cell cell(ExperimentType experimentType, String column)
     {
-        return row(experimentType).get(column);
+        return select(experimentType).get(column);
+    }
+
+    @Override
+    public void filter(ExperimentType type)
+    {
+        paging.filters();
+        filters.setCode(type.getCode());
+        new WaitForRefreshOf(grid).withTimeoutOf(10);
+    }
+
+    @Override
+    public void resetFilters()
+    {
+        paging.filters();
+        filters.reset();
+    }
+
+    @Override
+    public String toString()
+    {
+        String s = "ExperimentTypeBrowser\n==========\n";
+        return s + grid.toString();
     }
 
 }

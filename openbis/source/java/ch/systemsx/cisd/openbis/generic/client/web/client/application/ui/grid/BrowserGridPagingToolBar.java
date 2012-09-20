@@ -129,6 +129,7 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
         insertTableButton(createTableOperationsLabel());
 
         this.showFiltersButton = createShowFiltersButton(viewContext, invoker);
+        this.showFiltersButton.setId(gridId + "-show-filters");
         insertTableButton(showFiltersButton);
 
         this.configButton = createConfigButton(viewContext, invoker, gridId);

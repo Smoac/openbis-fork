@@ -19,10 +19,14 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.Cell;
 import ch.systemsx.cisd.openbis.uitest.infra.Row;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
+import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 
 public class PropertyTypeBrowser implements Browser<PropertyType>
 {
@@ -38,16 +42,44 @@ public class PropertyTypeBrowser implements Browser<PropertyType>
     @Locate("openbis_property-type-browser-grid-delete-button")
     private Button delete;
 
+    @Locate("openbis_property-type-browser-grid-paging-toolbar")
+    private PagingToolBar paging;
+
+    @Lazy
+    @Locate("openbis_property-type-browser-grid-filter-toolbar")
+    private FilterToolBar filters;
+
     @Override
-    public Row row(PropertyType type)
+    public Row select(PropertyType type)
     {
-        return grid.getRow("Code", type.getCode());
+        return grid.select("Code", type.getCode());
     }
 
     @Override
     public Cell cell(PropertyType type, String column)
     {
-        return row(type).get(column);
+        return select(type).get(column);
     }
 
+    @Override
+    public void filter(PropertyType propertyType)
+    {
+        paging.filters();
+        filters.setCode(propertyType.getCode());
+        new WaitForRefreshOf(grid).withTimeoutOf(10);
+    }
+
+    @Override
+    public void resetFilters()
+    {
+        paging.filters();
+        filters.reset();
+    }
+
+    @Override
+    public String toString()
+    {
+        String s = "PropertyTypeBrowser\n==========\n";
+        return s + grid.toString();
+    }
 }

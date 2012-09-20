@@ -21,12 +21,16 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.Cell;
 import ch.systemsx.cisd.openbis.uitest.infra.Row;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
+import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
+import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 
 public class SampleBrowser implements Browser<Sample>
 {
@@ -42,6 +46,13 @@ public class SampleBrowser implements Browser<Sample>
 
     @Locate("openbis_select_group-selectsample-browser-toolbar")
     private DropDown spaceList;
+
+    @Locate("openbis_sample-browser_main-grid-paging-toolbar")
+    private PagingToolBar paging;
+
+    @Lazy
+    @Locate("openbis_sample-browser_main-grid-filter-toolbar")
+    private FilterToolBar filters;
 
     public void addSample()
     {
@@ -64,15 +75,37 @@ public class SampleBrowser implements Browser<Sample>
     }
 
     @Override
-    public Row row(Sample sample)
+    public Row select(Sample sample)
     {
-        return grid.getRow("Code", sample.getCode());
+        return grid.select("Code", sample.getCode());
     }
 
     @Override
     public Cell cell(Sample sample, String column)
     {
-        return row(sample).get(column);
+        return select(sample).get(column);
+    }
+
+    @Override
+    public void filter(Sample sample)
+    {
+        paging.filters();
+        filters.setCode(sample.getCode());
+        new WaitForRefreshOf(grid).withTimeoutOf(10);
+    }
+
+    @Override
+    public void resetFilters()
+    {
+        paging.filters();
+        filters.reset();
+    }
+
+    @Override
+    public String toString()
+    {
+        String s = "SampleBrowser\n==========\n";
+        return s + grid.toString();
     }
 
 }

@@ -446,7 +446,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             removeButtons(PagingToolBarButtonKind.CONFIG, PagingToolBarButtonKind.REFRESH);
         }
         setId(browserId);
-
+        pagingToolbar.setId(gridId + "-paging-toolbar");
     }
 
     public void removeButtons(PagingToolBarButtonKind... buttonKinds)

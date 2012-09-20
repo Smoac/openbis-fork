@@ -45,7 +45,9 @@ public class BrowserListsElementMatcher<T extends Browsable, U extends Browser<T
     @Override
     public boolean matchesSafely(U browser)
     {
-        Row row = browser.row(expected);
+        browser.filter(expected);
+        Row row = browser.select(expected);
+
         if (row.exists())
         {
             return expected.isRepresentedBy(row);

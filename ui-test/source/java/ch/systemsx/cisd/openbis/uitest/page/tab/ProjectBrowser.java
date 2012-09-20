@@ -19,10 +19,14 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.Cell;
 import ch.systemsx.cisd.openbis.uitest.infra.Row;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
+import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 
 public class ProjectBrowser implements Browser<Project>
 {
@@ -34,16 +38,44 @@ public class ProjectBrowser implements Browser<Project>
     @Locate("openbis_project-browser-delete")
     private Button delete;
 
+    @Locate("openbis_project-browser-grid-paging-toolbar")
+    private PagingToolBar paging;
+
+    @Lazy
+    @Locate("openbis_project-browser-grid-filter-toolbar")
+    private FilterToolBar filters;
+
     @Override
-    public Row row(Project project)
+    public Row select(Project project)
     {
-        return grid.getRow("Code", project.getCode());
+        return grid.select("Code", project.getCode());
     }
 
     @Override
     public Cell cell(Project project, String column)
     {
-        return row(project).get(column);
+        return select(project).get(column);
     }
 
+    @Override
+    public void filter(Project project)
+    {
+        paging.filters();
+        filters.setCode(project.getCode());
+        new WaitForRefreshOf(grid).withTimeoutOf(10);
+    }
+
+    @Override
+    public void resetFilters()
+    {
+        paging.filters();
+        filters.reset();
+    }
+
+    @Override
+    public String toString()
+    {
+        String s = "ProjectBrowser\n==========\n";
+        return s + grid.toString();
+    }
 }

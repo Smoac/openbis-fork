@@ -19,10 +19,14 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.Cell;
 import ch.systemsx.cisd.openbis.uitest.infra.Row;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
+import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 
 public class PropertyTypeAssignmentBrowser implements Browser<PropertyTypeAssignment>
 {
@@ -37,16 +41,44 @@ public class PropertyTypeAssignmentBrowser implements Browser<PropertyTypeAssign
     @Locate("openbis_property-type-assignment-browser-grid-release")
     private Button release;
 
+    @Locate("openbis_property-type-assignment-browser-grid-paging-toolbar")
+    private PagingToolBar paging;
+
+    @Lazy
+    @Locate("openbis_property-type-assignment-browser-grid-filter-toolbar")
+    private FilterToolBar filters;
+
     @Override
-    public Row row(PropertyTypeAssignment assignment)
+    public Row select(PropertyTypeAssignment assignment)
     {
-        return grid.getRow("Property Type Code", assignment.getPropertyType().getCode());
+        return grid.select("Property Type Code", assignment.getPropertyType().getCode());
     }
 
     @Override
     public Cell cell(PropertyTypeAssignment assignment, String column)
     {
-        return row(assignment).get(column);
+        return select(assignment).get(column);
     }
 
+    @Override
+    public void filter(PropertyTypeAssignment assignment)
+    {
+        paging.filters();
+        filters.setCode(assignment.getPropertyType().getCode());
+        new WaitForRefreshOf(grid).withTimeoutOf(10);
+    }
+
+    @Override
+    public void resetFilters()
+    {
+        paging.filters();
+        filters.reset();
+    }
+
+    @Override
+    public String toString()
+    {
+        String s = "PropertyTypeAssignmentBrowser\n==========\n";
+        return s + grid.toString();
+    }
 }

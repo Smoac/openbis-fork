@@ -42,9 +42,11 @@ public class TextColumnFilterWidget<T/* entity */> extends StoreFilterField<Mode
 
     private boolean disableApply = false;
 
+    private String gridId;
+
     /** @param onFilterAction callback executed when data are about to be filtered. */
     public TextColumnFilterWidget(IColumnDefinition<T> filteredField,
-            IDelegatedAction onFilterAction)
+            IDelegatedAction onFilterAction, String gridId)
     {
         this.filteredField = filteredField;
         this.onFilterAction = onFilterAction;
@@ -53,6 +55,8 @@ public class TextColumnFilterWidget<T/* entity */> extends StoreFilterField<Mode
         setEmptyText(label);
         setToolTip(label);
         setValidationDelay(ListColumnFilterWidget.FILTER_APPLICATION_TIMEOUT_MS);
+        this.setId(gridId + "-" + label);
+        this.gridId = gridId;
     }
 
     @Override
@@ -112,7 +116,7 @@ public class TextColumnFilterWidget<T/* entity */> extends StoreFilterField<Mode
         } else
         {
             return new ListColumnFilterWidget<T>(filteredField, onFilterAction,
-                    distinctValuesOrNull);
+                    distinctValuesOrNull, gridId);
         }
     }
 

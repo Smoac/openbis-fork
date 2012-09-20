@@ -19,10 +19,14 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.Cell;
 import ch.systemsx.cisd.openbis.uitest.infra.Row;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
+import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 
 public class SampleTypeBrowser implements Browser<SampleType>
 {
@@ -39,6 +43,13 @@ public class SampleTypeBrowser implements Browser<SampleType>
     @Locate("openbis_sample-type-browser-grid")
     private Grid grid;
 
+    @Locate("openbis_sample-type-browser-grid-paging-toolbar")
+    private PagingToolBar paging;
+
+    @Lazy
+    @Locate("openbis_sample-type-browser-grid-filter-toolbar")
+    private FilterToolBar filters;
+
     public void add()
     {
         add.click();
@@ -46,20 +57,42 @@ public class SampleTypeBrowser implements Browser<SampleType>
 
     public void editSampleType(SampleType type)
     {
-        grid.select(type.getCode());
+        grid.select("Code", type.getCode());
         edit.click();
     }
 
     @Override
-    public Row row(SampleType type)
+    public Row select(SampleType type)
     {
-        return grid.getRow("Code", type.getCode());
+        return grid.select("Code", type.getCode());
     }
 
     @Override
     public Cell cell(SampleType type, String column)
     {
-        return row(type).get(column);
+        return select(type).get(column);
+    }
+
+    @Override
+    public void filter(SampleType type)
+    {
+        paging.filters();
+        filters.setCode(type.getCode());
+        new WaitForRefreshOf(grid).withTimeoutOf(10);
+    }
+
+    @Override
+    public void resetFilters()
+    {
+        paging.filters();
+        filters.reset();
+    }
+
+    @Override
+    public String toString()
+    {
+        String s = "SampleTypeBrowser\n==========\n";
+        return s + grid.toString();
     }
 
 }

@@ -79,6 +79,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     public final static int MAX_FILTER_FIELDS = MAX_FILTER_FIELDS_COLUMNS * MAX_FILTER_FIELDS_ROWS;
 
+    private String gridId;
+
     public FilterToolbar(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
             IDisplayTypeIDProvider displayTypeIDProvider, IDelegatedAction applyFiltersAction)
     {
@@ -151,6 +153,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                 }
             });
         viewContext.logStop(logID);
+        this.gridId = gridId;
+        setId(gridId + "-filter-toolbar");
     }
 
     public static String createId(String prefix, String gridId)
@@ -445,7 +449,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         {
             List<IColumnFilterWidget<T>> newColumnFilters =
                     createColumnFilterWidgets(pruneIfNecessary(filteredColumns),
-                            this.columnFilters, applyFiltersAction);
+                            this.columnFilters, applyFiltersAction, gridId);
             updateColumnFilters(newColumnFilters);
             return true;
         } else
@@ -490,10 +494,13 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
             {
                 return true;
             }
-            if (filter1 instanceof TypedTableGridColumnDefinition && filter2 instanceof TypedTableGridColumnDefinition)
+            if (filter1 instanceof TypedTableGridColumnDefinition
+                    && filter2 instanceof TypedTableGridColumnDefinition)
             {
-                TypedTableGridColumnDefinition<?> coldef1 = (TypedTableGridColumnDefinition<?>) filter1;
-                TypedTableGridColumnDefinition<?> coldef2 = (TypedTableGridColumnDefinition<?>) filter2;
+                TypedTableGridColumnDefinition<?> coldef1 =
+                        (TypedTableGridColumnDefinition<?>) filter1;
+                TypedTableGridColumnDefinition<?> coldef2 =
+                        (TypedTableGridColumnDefinition<?>) filter2;
                 if (coldef1.getIndex() != coldef2.getIndex())
                 {
                     return true;
@@ -505,7 +512,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private static <T> List<IColumnFilterWidget<T>> createColumnFilterWidgets(
             List<IColumnDefinition<T>> availableFilters,
-            List<IColumnFilterWidget<T>> previousColumnFilters, IDelegatedAction onFilterAction)
+            List<IColumnFilterWidget<T>> previousColumnFilters, IDelegatedAction onFilterAction,
+            String gridId)
     {
         List<IColumnFilterWidget<T>> filterWidgets = new ArrayList<IColumnFilterWidget<T>>();
         for (IColumnDefinition<T> columnDefinition : availableFilters)
@@ -516,7 +524,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
             {
                 // we do not have distinct values in the columns at this moment, so plain filter
                 // widget is always created
-                filterWidget = new TextColumnFilterWidget<T>(columnDefinition, onFilterAction);
+                filterWidget =
+                        new TextColumnFilterWidget<T>(columnDefinition, onFilterAction, gridId);
             } else
             {
                 filterWidget.setFilteredField(columnDefinition);

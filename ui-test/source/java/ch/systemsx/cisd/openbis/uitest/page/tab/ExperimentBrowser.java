@@ -50,7 +50,7 @@ public class ExperimentBrowser implements Browser<Experiment>
     }
 
     @Override
-    public Row row(Experiment browsable)
+    public Row select(Experiment browsable)
     {
         // TODO Auto-generated method stub
         return null;
@@ -61,6 +61,20 @@ public class ExperimentBrowser implements Browser<Experiment>
     {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void filter(Experiment browsable)
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void resetFilters()
+    {
+        // TODO Auto-generated method stub
+
     }
 
 }

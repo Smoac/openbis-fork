@@ -19,10 +19,14 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.Cell;
 import ch.systemsx.cisd.openbis.uitest.infra.Row;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
+import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 
 public class VocabularyBrowser implements Browser<Vocabulary>
 {
@@ -36,20 +40,49 @@ public class VocabularyBrowser implements Browser<Vocabulary>
     @Locate("openbis_vocabulary-browser_delete-button")
     private Button delete;
 
+    @Locate("openbis_vocabulary-browser-grid-paging-toolbar")
+    private PagingToolBar paging;
+
+    @Lazy
+    @Locate("openbis_vocabulary-browser-grid-filter-toolbar")
+    private FilterToolBar filters;
+
     public void add()
     {
         add.click();
     }
 
     @Override
-    public Row row(Vocabulary vocabulary)
+    public Row select(Vocabulary vocabulary)
     {
-        return grid.getRow("Code", vocabulary.getCode());
+        return grid.select("Code", vocabulary.getCode());
     }
 
     @Override
     public Cell cell(Vocabulary vocabulary, String column)
     {
-        return row(vocabulary).get(column);
+        return select(vocabulary).get(column);
+    }
+
+    @Override
+    public void filter(Vocabulary vocabulary)
+    {
+        paging.filters();
+        filters.setCode(vocabulary.getCode());
+        new WaitForRefreshOf(grid).withTimeoutOf(10);
+    }
+
+    @Override
+    public void resetFilters()
+    {
+        paging.filters();
+        filters.reset();
+    }
+
+    @Override
+    public String toString()
+    {
+        String s = "VocabularyBrowser\n==========\n";
+        return s + grid.toString();
     }
 }

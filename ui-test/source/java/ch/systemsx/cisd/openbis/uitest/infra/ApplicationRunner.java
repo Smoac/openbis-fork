@@ -90,7 +90,7 @@ public class ApplicationRunner
     public void delete(Space space)
     {
         SpaceBrowser browser = browseToSpaceBrowser();
-        browser.filter(space.getCode());
+        browser.filter(space);
         browser.select(space);
         browser.delete();
     }
@@ -192,7 +192,7 @@ public class ApplicationRunner
         getMenus().admin();
         load(AdminMenu.class).types();
         load(TypesMenu.class).sampleTypes();
-        return load(SampleTypeBrowser.class);
+        return getBrowser(SampleTypeBrowser.class);
     }
 
     public ExperimentTypeBrowser browseToExperimentTypeBrowser()
@@ -200,7 +200,7 @@ public class ApplicationRunner
         getMenus().admin();
         load(AdminMenu.class).types();
         load(TypesMenu.class).experimentTypes();
-        return load(ExperimentTypeBrowser.class);
+        return getBrowser(ExperimentTypeBrowser.class);
     }
 
     public Trash browseToTrash()
@@ -225,16 +225,14 @@ public class ApplicationRunner
     {
         getMenus().admin();
         load(AdminMenu.class).spaces();
-        SpaceBrowser browser = load(SpaceBrowser.class);
-        browser.resetFilters();
-        return browser;
+        return getBrowser(SpaceBrowser.class);
     }
 
     public ProjectBrowser browseToProjectBrowser()
     {
         getMenus().browse();
         load(BrowseMenu.class).projects();
-        return load(ProjectBrowser.class);
+        return getBrowser(ProjectBrowser.class);
     }
 
     public AddSpaceDialog browseToAddSpaceDialog()
@@ -247,7 +245,8 @@ public class ApplicationRunner
     {
         getMenus().browse();
         load(BrowseMenu.class).samples();
-        return load(SampleBrowser.class);
+        load(SampleBrowser.class).allSpaces();
+        return getBrowser(SampleBrowser.class);
     }
 
     public ExperimentBrowser browseToExperimentBrowser()
@@ -262,14 +261,14 @@ public class ApplicationRunner
         getMenus().admin();
         load(AdminMenu.class).authorization();
         load(AuthorizationMenu.class).roles();
-        return load(RoleAssignmentBrowser.class);
+        return getBrowser(RoleAssignmentBrowser.class);
     }
 
     public VocabularyBrowser browseToVocabularyBrowser()
     {
         getMenus().admin();
         load(AdminMenu.class).vocabularies();
-        return load(VocabularyBrowser.class);
+        return getBrowser(VocabularyBrowser.class);
     }
 
     public AddVocabularyDialog browseToAddVocabularyDialog()
@@ -283,7 +282,7 @@ public class ApplicationRunner
         getMenus().admin();
         load(AdminMenu.class).metadata();
         load(MetadataMenu.class).propertyTypes();
-        return load(PropertyTypeBrowser.class);
+        return getBrowser(PropertyTypeBrowser.class);
     }
 
     public AddPropertyType browseToAddPropertyType()
@@ -307,7 +306,7 @@ public class ApplicationRunner
         getMenus().admin();
         load(AdminMenu.class).metadata();
         load(MetadataMenu.class).propertyTypeAssignments();
-        return load(PropertyTypeAssignmentBrowser.class);
+        return getBrowser(PropertyTypeAssignmentBrowser.class);
     }
 
     public RegisterSample browseToRegisterSample()
@@ -334,6 +333,13 @@ public class ApplicationRunner
     private TopBar getMenus()
     {
         return proxy.get(TopBar.class);
+    }
+
+    private <T extends Browser<?>> T getBrowser(Class<T> clazz)
+    {
+        T browser = load(clazz);
+        browser.resetFilters();
+        return browser;
     }
 
     private <T> T load(Class<T> clazz)

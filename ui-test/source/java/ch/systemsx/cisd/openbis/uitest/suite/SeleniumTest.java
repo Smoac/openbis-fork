@@ -135,7 +135,7 @@ public abstract class SeleniumTest
         openbis.login(User.ADMIN);
 
         // this is because of BIS-184
-        sampleBrowser().allSpaces();
+        sampleBrowser();
     }
 
     @AfterGroups(groups = "login-admin")
