@@ -95,10 +95,9 @@ public class BackupDatabaseDescriptionGenerator
     {
         Properties properties = ExtendedProperties.createWith(readProperties(file));
         CorePluginsUtils.addCorePluginsProperties(properties, ScannerType.DSS);
-        String property = CorePluginsUtils.getCorePluginsFolder(properties, ScannerType.DSS);
         CorePluginsInjector injector =
                 new CorePluginsInjector(ScannerType.DSS, DssPluginType.values());
-        injector.injectCorePlugins(properties, file.getParentFile().getParent() + "/" + property);
+        injector.injectCorePlugins(properties);
         return properties;
     }
 
