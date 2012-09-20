@@ -5,9 +5,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.infra.User;
-import ch.systemsx.cisd.openbis.uitest.page.common.LoginPage;
-import ch.systemsx.cisd.openbis.uitest.page.common.TopBar;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.InvalidPasswordDialog;
+import ch.systemsx.cisd.openbis.uitest.page.menu.TopBar;
+import ch.systemsx.cisd.openbis.uitest.page.tab.LoginPage;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
 
 @Test(groups =

@@ -17,10 +17,10 @@
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Browser;
+import ch.systemsx.cisd.openbis.uitest.infra.Cell;
+import ch.systemsx.cisd.openbis.uitest.infra.Row;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
-import ch.systemsx.cisd.openbis.uitest.page.common.Row;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;

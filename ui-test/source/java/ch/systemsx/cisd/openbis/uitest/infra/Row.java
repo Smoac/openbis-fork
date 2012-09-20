@@ -16,13 +16,37 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra;
 
+import java.util.Map;
 
 /**
  * @author anttil
  */
-public interface Browser<T extends Browsable>
+public class Row
 {
-    public Row row(T browsable);
 
-    public Cell cell(T browsable, String column);
+    private Map<String, Cell> row;
+
+    private boolean exists;
+
+    public Row()
+    {
+        this.exists = false;
+    }
+
+    public Row(Map<String, Cell> row)
+    {
+        this.row = row;
+        this.exists = true;
+    }
+
+    public boolean exists()
+    {
+        return exists;
+    }
+
+    public Cell get(String columnName)
+    {
+        return this.row.get(columnName);
+    }
+
 }

@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.widget;
 
+import org.openqa.selenium.WebElement;
 
 /**
  * @author anttil
  */
-public interface Browser<T extends Browsable>
+public class PagingToolBar extends Widget
 {
-    public Row row(T browsable);
 
-    public Cell cell(T browsable, String column);
+    public void filters()
+    {
+        WebElement button = find(".//button[text()='Filters']");
+        Button b = new Button();
+        b.setContext(button);
+        if (!b.isPressed())
+        {
+            b.click();
+        }
+    }
 }

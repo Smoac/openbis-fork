@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -27,16 +26,16 @@ public class DeletionConfirmationBox extends Widget
     public void confirm(String reason)
     {
 
-        WebElement text = context.findElement(By.xpath(".//textarea"));
+        WebElement text = find(".//textarea");
         text.sendKeys(reason);
 
-        WebElement ok = context.findElement(By.xpath(".//button[text()=\"OK\"]"));
+        WebElement ok = find(".//button[text()=\"OK\"]");
         ok.click();
     }
 
     public void confirm()
     {
-        WebElement ok = context.findElement(By.xpath(".//button[text()=\"OK\"]"));
+        WebElement ok = find(".//button[text()=\"OK\"]");
         ok.click();
     }
 }

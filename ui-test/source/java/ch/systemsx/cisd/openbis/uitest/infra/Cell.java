@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page.common;
+package ch.systemsx.cisd.openbis.uitest.infra;
 
-import org.openqa.selenium.WebElement;
 
 /**
  * @author anttil
@@ -27,13 +26,10 @@ public class Cell
 
     private final String url;
 
-    private final WebElement element;
-
-    public Cell(String text, String url, WebElement element)
+    public Cell(String text, String url)
     {
         this.text = text;
         this.url = url;
-        this.element = element;
     }
 
     public String getText()
@@ -44,11 +40,6 @@ public class Cell
     public String getUrl()
     {
         return url;
-    }
-
-    public WebElement getElement()
-    {
-        return this.element;
     }
 
     public boolean hasLink()

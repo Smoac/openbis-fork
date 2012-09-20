@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.Collection;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
+import ch.systemsx.cisd.openbis.uitest.infra.Cell;
 import ch.systemsx.cisd.openbis.uitest.infra.EntityType;
-import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
-import ch.systemsx.cisd.openbis.uitest.page.common.Row;
+import ch.systemsx.cisd.openbis.uitest.infra.Row;
 
 /**
  * @author anttil

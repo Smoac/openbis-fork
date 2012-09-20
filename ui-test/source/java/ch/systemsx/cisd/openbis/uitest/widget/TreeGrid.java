@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -30,8 +29,7 @@ public class TreeGrid extends Widget
 {
     public void select(String label)
     {
-        List<WebElement> elements =
-                context.findElements(By.xpath(".//span[not(*) and @class='gwt-InlineHTML']"));
+        List<WebElement> elements = findAll(".//span[not(*) and @class='gwt-InlineHTML']");
 
         Collection<String> found = new ArrayList<String>();
         for (WebElement element : elements)

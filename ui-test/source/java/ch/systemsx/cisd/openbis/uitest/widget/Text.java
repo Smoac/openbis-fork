@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -48,7 +47,7 @@ public class Text extends Widget implements Fillable
             return context;
         } else
         {
-            return context.findElement(By.xpath("input"));
+            return find("input");
         }
     }
 

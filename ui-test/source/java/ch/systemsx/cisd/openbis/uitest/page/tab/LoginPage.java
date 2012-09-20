@@ -14,15 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.page.tab;
 
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.Text;
 
-/**
- * @author anttil
- */
-public interface Browser<T extends Browsable>
+public class LoginPage
 {
-    public Row row(T browsable);
+    @Locate("openbis_login_username")
+    private Text username;
 
-    public Cell cell(T browsable, String column);
+    @Locate("openbis_login_password")
+    private Text password;
+
+    @Locate("openbis_login_submit")
+    private Button button;
+
+    public void loginAs(String user, String pwd)
+    {
+        username.write(user);
+        password.write(pwd);
+        button.click();
+    }
 }

@@ -17,14 +17,20 @@
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Browser;
+import ch.systemsx.cisd.openbis.uitest.infra.Cell;
+import ch.systemsx.cisd.openbis.uitest.infra.Filterable;
+import ch.systemsx.cisd.openbis.uitest.infra.Row;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
-import ch.systemsx.cisd.openbis.uitest.page.common.Row;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
+import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
+import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 
-public class SpaceBrowser implements Browser<Space>
+public class SpaceBrowser implements Browser<Space>, Filterable
 {
 
     @Locate("openbis_space-browser-grid")
@@ -33,13 +39,34 @@ public class SpaceBrowser implements Browser<Space>
     @Locate("openbis_space-browser_add-button")
     private Button addSpace;
 
-    @SuppressWarnings("unused")
     @Locate("openbis_space-browser_delete-button")
     private Button delete;
+
+    @Locate("openbis_space-browser-grid-paging-toolbar")
+    private PagingToolBar paging;
+
+    @Lazy
+    @Locate("openbis_space-browser-grid-filter-toolbar")
+    private FilterToolBar filters;
+
+    @Lazy
+    @Locate("deletion-confirmation-dialog")
+    private DeletionConfirmationBox confimDeletion;
 
     public void addSpace()
     {
         addSpace.click();
+    }
+
+    public void select(Space space)
+    {
+        grid.select(space.getCode());
+    }
+
+    public void delete()
+    {
+        delete.click();
+        confimDeletion.confirm("WebDriver");
     }
 
     @Override
@@ -54,4 +81,25 @@ public class SpaceBrowser implements Browser<Space>
         return row(space).get(column);
     }
 
+    @Override
+    public void filter(String filter)
+    {
+        paging.filters();
+        filters.setCode(filter);
+        new WaitForRefreshOf(grid).withTimeoutOf(10);
+    }
+
+    @Override
+    public void resetFilters()
+    {
+        paging.filters();
+        filters.reset();
+    }
+
+    @Override
+    public String toString()
+    {
+        String s = "SpaceBrowser\n==========\n";
+        return s + grid.toString();
+    }
 }

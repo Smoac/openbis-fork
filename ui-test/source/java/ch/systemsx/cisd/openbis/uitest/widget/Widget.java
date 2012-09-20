@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
+import java.util.List;
+
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -33,6 +36,16 @@ public abstract class Widget
     public WebElement getContext()
     {
         return context;
+    }
+
+    protected WebElement find(String xpath)
+    {
+        return context.findElement(By.xpath(xpath));
+    }
+
+    protected List<WebElement> findAll(String xpath)
+    {
+        return context.findElements(By.xpath(xpath));
     }
 
     public <T extends Widget> T handleAs(Class<T> clazz)

@@ -14,27 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page.common;
+package ch.systemsx.cisd.openbis.uitest.infra.webdriver;
 
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.widget.Button;
-import ch.systemsx.cisd.openbis.uitest.widget.Text;
-
-public class LoginPage
+/**
+ * @author anttil
+ */
+public interface Refreshing
 {
-    @Locate("openbis_login_username")
-    private Text username;
-
-    @Locate("openbis_login_password")
-    private Text password;
-
-    @Locate("openbis_login_submit")
-    private Button button;
-
-    public void loginAs(String user, String pwd)
-    {
-        username.write(user);
-        password.write(pwd);
-        button.click();
-    }
+    public boolean hasRefreshed();
 }

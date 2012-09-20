@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra;
 
-import ch.systemsx.cisd.openbis.uitest.page.common.Row;
 
 /**
  * @author anttil

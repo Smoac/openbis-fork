@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -26,7 +25,7 @@ public class AlertMessageBox extends Widget
 {
     public void dismiss()
     {
-        WebElement ok = context.findElement(By.xpath(".//button[text()=\"OK\"]"));
+        WebElement ok = find(".//button[text()=\"OK\"]");
         ok.click();
     }
 }

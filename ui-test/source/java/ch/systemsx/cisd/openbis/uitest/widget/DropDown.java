@@ -60,7 +60,7 @@ public class DropDown extends Widget implements Fillable
 
     private List<WebElement> getChoiceElements()
     {
-        WebElement opener = context.findElement(By.xpath(".//img"));
+        WebElement opener = find(".//img");
         opener.click();
         return SeleniumTest.driver.findElements(By.className("x-combo-list-item"));
     }

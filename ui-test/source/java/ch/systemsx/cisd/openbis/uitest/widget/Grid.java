@@ -22,16 +22,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
-import ch.systemsx.cisd.openbis.uitest.page.common.Row;
+import ch.systemsx.cisd.openbis.uitest.infra.Cell;
+import ch.systemsx.cisd.openbis.uitest.infra.Row;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Refreshing;
 
 /**
  * @author anttil
  */
-public class Grid extends Widget
+public class Grid extends Widget implements Refreshing
 {
 
     public Row getRow(String column, String value)
@@ -71,8 +71,7 @@ public class Grid extends Widget
 
         if (!found)
         {
-            throw new IllegalArgumentException("Row with value " + value + " in column " + column
-                    + " not found");
+            return new Row();
         }
 
         index = index - (index % numColumns);
@@ -82,23 +81,19 @@ public class Grid extends Widget
         {
             WebElement element = cells.get(i + index);
             m.put(columns.get(i).getText(),
-                    new Cell(element.getText(), element.getAttribute("href"), element));
+                    new Cell(element.getText(), element.getAttribute("href")));
         }
         return new Row(m);
     }
 
-    public List<WebElement> getColumns()
+    private List<WebElement> getColumns()
     {
-        return context
-                .findElements(By
-                        .xpath(".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]"));
+        return findAll(".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]");
     }
 
-    public List<WebElement> getCells()
+    private List<WebElement> getCells()
     {
-        return context
-                .findElements(By
-                        .xpath(".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]"));
+        return findAll(".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]");
     }
 
     public void select(String string)
@@ -116,5 +111,55 @@ public class Grid extends Widget
 
         throw new IllegalArgumentException("Grid does not contain element with text " + string
                 + ", found " + found);
+    }
+
+    @Override
+    public String toString()
+    {
+        List<WebElement> columns = getColumns();
+        String s = "";
+        for (WebElement column : columns)
+        {
+            s += column.getText() + "\t";
+        }
+        s += "\n";
+
+        int counter = 0;
+        for (WebElement cell : getCells())
+        {
+            s += cell.getText() + "\t";
+            counter++;
+            if (counter % columns.size() == 0)
+            {
+                s += "\n";
+            }
+        }
+        return s;
+    }
+
+    boolean itsOn = false;
+
+    int last = 0;
+
+    @Override
+    public synchronized boolean hasRefreshed()
+    {
+        if (itsOn)
+        {
+            if (this.last != getCells().size())
+            {
+                this.itsOn = false;
+                return true;
+            } else
+            {
+                return false;
+            }
+        } else
+        {
+            itsOn = true;
+            this.last = getCells().size();
+            return false;
+        }
+
     }
 }

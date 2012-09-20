@@ -16,13 +16,12 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra;
 
-
 /**
  * @author anttil
  */
-public interface Browser<T extends Browsable>
+public interface Filterable
 {
-    public Row row(T browsable);
+    public void filter(String code);
 
-    public Cell cell(T browsable, String column);
+    public void resetFilters();
 }

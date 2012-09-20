@@ -29,7 +29,7 @@ public class Form extends Widget
 {
     public Widget getWidget(String label)
     {
-        List<WebElement> elements = context.findElements(By.xpath(".//form/div/label"));
+        List<WebElement> elements = findAll(".//form/div/label");
 
         for (WebElement element : elements)
         {
@@ -48,7 +48,7 @@ public class Form extends Widget
     public List<String> getLabels()
     {
         List<String> labels = new ArrayList<String>();
-        List<WebElement> elements = context.findElements(By.xpath(".//form/div/label"));
+        List<WebElement> elements = findAll(".//form/div/label");
         for (WebElement element : elements)
         {
             labels.add(element.getText());

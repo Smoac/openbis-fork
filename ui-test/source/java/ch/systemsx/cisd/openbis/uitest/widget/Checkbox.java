@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -26,7 +25,7 @@ public class Checkbox extends Widget implements Fillable
 {
     public void set(boolean value)
     {
-        WebElement input = context.findElement(By.xpath("input"));
+        WebElement input = find("input");
         if (input.getAttribute("checked") != null ^ value)
         {
             input.click();

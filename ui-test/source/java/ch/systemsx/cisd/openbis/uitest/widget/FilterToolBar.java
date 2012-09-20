@@ -14,39 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page.common;
-
-import java.util.Map;
+package ch.systemsx.cisd.openbis.uitest.widget;
 
 /**
  * @author anttil
  */
-public class Row
+public class FilterToolBar extends Widget
 {
 
-    private Map<String, Cell> row;
-
-    private boolean exists;
-
-    public Row()
+    public void setCode(String text)
     {
-        this.exists = false;
+        Text t = new Text();
+        t.setContext(find(".//input[contains(@id, 'Code-input')]"));
+        t.write(text);
     }
 
-    public Row(Map<String, Cell> row)
+    public void reset()
     {
-        this.row = row;
-        this.exists = true;
+        Button b = new Button();
+        b.setContext(find(".//button[text()='Reset']"));
+        b.click();
     }
-
-    public boolean exists()
-    {
-        return exists;
-    }
-
-    public Cell get(String columnName)
-    {
-        return this.row.get(columnName);
-    }
-
 }

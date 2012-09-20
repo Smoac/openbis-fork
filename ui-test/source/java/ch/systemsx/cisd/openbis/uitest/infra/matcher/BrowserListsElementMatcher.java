@@ -21,7 +21,7 @@ import org.hamcrest.TypeSafeMatcher;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
 import ch.systemsx.cisd.openbis.uitest.infra.Browser;
-import ch.systemsx.cisd.openbis.uitest.page.common.Row;
+import ch.systemsx.cisd.openbis.uitest.infra.Row;
 
 /**
  * @author anttil
@@ -45,7 +45,6 @@ public class BrowserListsElementMatcher<T extends Browsable, U extends Browser<T
     @Override
     public boolean matchesSafely(U browser)
     {
-
         Row row = browser.row(expected);
         if (row.exists())
         {

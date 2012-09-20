@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page.common;
+package ch.systemsx.cisd.openbis.uitest.page.menu;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;

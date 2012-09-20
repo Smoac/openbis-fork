@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -26,20 +25,20 @@ public class TextArea extends Widget implements Fillable
 {
     public void write(String text)
     {
-        WebElement element = context.findElement(By.xpath(".//textarea"));
+        WebElement element = find(".//textarea");
         element.clear();
         element.sendKeys(text);
     }
 
     public void clear()
     {
-        WebElement element = context.findElement(By.xpath(".//textarea"));
+        WebElement element = find(".//textarea");
         element.clear();
     }
 
     public void append(String text)
     {
-        WebElement element = context.findElement(By.xpath(".//textarea"));
+        WebElement element = find(".//textarea");
         element.sendKeys(text);
     }
 
@@ -48,5 +47,4 @@ public class TextArea extends Widget implements Fillable
     {
         write(string);
     }
-
 }

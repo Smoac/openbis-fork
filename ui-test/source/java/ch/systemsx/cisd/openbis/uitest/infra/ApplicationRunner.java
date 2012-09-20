@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.uitest.infra;
 
 import ch.systemsx.cisd.openbis.uitest.infra.uid.UidGenerator;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.PageProxy;
-import ch.systemsx.cisd.openbis.uitest.page.common.LoginPage;
-import ch.systemsx.cisd.openbis.uitest.page.common.TopBar;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddExperimentTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSpaceDialog;
@@ -30,12 +28,14 @@ import ch.systemsx.cisd.openbis.uitest.page.menu.AuthorizationMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.BrowseMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.MetadataMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.NewMenu;
+import ch.systemsx.cisd.openbis.uitest.page.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.page.menu.TypesMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.UserMenu;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AddPropertyType;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AssignSamplePropertyType;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.LoginPage;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ProjectBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
@@ -89,34 +89,10 @@ public class ApplicationRunner
 
     public void delete(Space space)
     {
-        /*
         SpaceBrowser browser = browseToSpaceBrowser();
-
-        PagingToolBar paging = get(PagingToolBar.class);
-        paging.showFilters();
-
-        FilterToolBar bar = get(FilterToolBar.class).reset();
-        Widget filter = null;
-        for (Widget widget : bar.getFilters()) {
-            if (widget.getValue().equalsIgnoreCase("code")) {
-                filter  = widget;
-            }
-        }
-        if (filter == null) {
-            Setting settings = paging.settings();
-            settings.enableFilter("Code");
-        }
-        // then re-find filter
-        
-        filter.write(space.code();
-        
-        Row row = browser.getRow(space);
-        if (row != null)
-        {
-            row.select();
-            browser.deleteSelection();
-        }
-        */
+        browser.filter(space.getCode());
+        browser.select(space);
+        browser.delete();
     }
 
     public Project create(Project project)
@@ -249,7 +225,9 @@ public class ApplicationRunner
     {
         getMenus().admin();
         load(AdminMenu.class).spaces();
-        return load(SpaceBrowser.class);
+        SpaceBrowser browser = load(SpaceBrowser.class);
+        browser.resetFilters();
+        return browser;
     }
 
     public ProjectBrowser browseToProjectBrowser()
