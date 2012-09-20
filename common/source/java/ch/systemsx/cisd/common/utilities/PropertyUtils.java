@@ -586,6 +586,20 @@ public final class PropertyUtils
     public static Properties loadProperties(File propertiesFile)
     {
         Properties properties = new Properties();
+        loadAndAppendProperties(properties, propertiesFile);
+        return properties;
+    }
+
+    /**
+     * Loads properties from the specified file and adds them to the specified properties.
+     * <ul>
+     * <li>Empty lines and lines starting with a hash symbol '#' are ignored.
+     * <li>All other lines should have a equals symbol '='. The trimmed part before/after '='
+     * specify property key and value , respectively.
+     * </ul>
+     */
+    public static void loadAndAppendProperties(Properties properties, File propertiesFile)
+    {
         List<String> lines = FileUtilities.loadToStringList(propertiesFile);
         for (int i = 0; i < lines.size(); i++)
         {
@@ -604,7 +618,6 @@ public final class PropertyUtils
             String value = line.substring(indexOfEqualSymbol + 1).trim();
             properties.setProperty(key, value);
         }
-        return properties;
     }
 
     /**
