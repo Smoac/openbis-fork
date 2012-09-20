@@ -16,17 +16,15 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import java.util.List;
-
-import org.openqa.selenium.WebElement;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.BrowserPage;
-import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSpaceDialog;
+import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.common.Row;
+import ch.systemsx.cisd.openbis.uitest.type.Space;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 
-public class SpaceBrowser extends BrowserPage
+public class SpaceBrowser implements Browser<Space>
 {
 
     @Locate("openbis_space-browser-grid")
@@ -35,30 +33,25 @@ public class SpaceBrowser extends BrowserPage
     @Locate("openbis_space-browser_add-button")
     private Button addSpace;
 
+    @SuppressWarnings("unused")
     @Locate("openbis_space-browser_delete-button")
     private Button delete;
 
-    public AddSpaceDialog addSpace()
+    public void addSpace()
     {
         addSpace.click();
-        return get(AddSpaceDialog.class);
     }
 
     @Override
-    protected List<WebElement> getColumns()
+    public Row row(Space space)
     {
-        return this.grid.getColumns();
+        return grid.getRow("Code", space.getCode());
     }
 
     @Override
-    protected List<WebElement> getData()
+    public Cell cell(Space space, String column)
     {
-        return this.grid.getCells();
+        return row(space).get(column);
     }
 
-    @Override
-    protected WebElement getDeleteButton()
-    {
-        return this.delete.getContext();
-    }
 }

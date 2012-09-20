@@ -36,13 +36,15 @@ import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
  */
 @Test(groups =
     { "login-admin" })
-public class ManualTest extends SeleniumTest
+public class SprintTest extends SeleniumTest
 {
 
     @Test(enabled = false)
     public void basic()
     {
+
         // 0) Cleanup
+        /*
         experimentBrowser().space("sprint-test").deleteAll();
         trash().empty();
         projectBrowser().deleteIfExists("Code", "p1");
@@ -53,7 +55,7 @@ public class ManualTest extends SeleniumTest
         propertyTypeBrowser().deleteIfExists("Code", "sprint-test.real");
         propertyTypeBrowser().deleteIfExists("Code", "sprint-test.animal");
         vocabularyBrowser().deleteIfExists("Code", "sprint-test-animal");
-
+        */
         // 1) Login and authorization
         openbis.browseToRoleAssignmentBrowser();
         assertThat(browser(), isShowing(RoleAssignmentBrowser.class));

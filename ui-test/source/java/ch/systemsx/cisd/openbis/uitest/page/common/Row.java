@@ -14,19 +14,39 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page.menu;
+package ch.systemsx.cisd.openbis.uitest.page.common;
 
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.widget.Link;
+import java.util.Map;
 
-public class AuthorizationMenu
+/**
+ * @author anttil
+ */
+public class Row
 {
 
-    @Locate("openbis_top-menu_AUTHORIZATION_MENU_ROLES")
-    private Link roles;
+    private Map<String, Cell> row;
 
-    public void roles()
+    private boolean exists;
+
+    public Row()
     {
-        roles.click();
+        this.exists = false;
     }
+
+    public Row(Map<String, Cell> row)
+    {
+        this.row = row;
+        this.exists = true;
+    }
+
+    public boolean exists()
+    {
+        return exists;
+    }
+
+    public Cell get(String columnName)
+    {
+        return this.row.get(columnName);
+    }
+
 }

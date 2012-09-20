@@ -16,39 +16,34 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import java.util.List;
-
-import org.openqa.selenium.WebElement;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.BrowserPage;
+import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.common.Row;
+import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 
-public class ProjectBrowser extends BrowserPage
+public class ProjectBrowser implements Browser<Project>
 {
 
     @Locate("openbis_project-browser-grid")
     private Grid grid;
 
+    @SuppressWarnings("unused")
     @Locate("openbis_project-browser-delete")
     private Button delete;
 
     @Override
-    protected List<WebElement> getColumns()
+    public Row row(Project project)
     {
-        return grid.getColumns();
+        return grid.getRow("Code", project.getCode());
     }
 
     @Override
-    protected List<WebElement> getData()
+    public Cell cell(Project project, String column)
     {
-        return grid.getCells();
+        return row(project).get(column);
     }
 
-    @Override
-    protected WebElement getDeleteButton()
-    {
-        return delete.getContext();
-    }
 }

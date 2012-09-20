@@ -16,17 +16,15 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import java.util.List;
-
-import org.openqa.selenium.WebElement;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.BrowserPage;
-import ch.systemsx.cisd.openbis.uitest.page.dialog.AddVocabularyDialog;
+import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.common.Row;
+import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 
-public class VocabularyBrowser extends BrowserPage
+public class VocabularyBrowser implements Browser<Vocabulary>
 {
     @Locate("openbis_vocabulary-browser-grid")
     private Grid grid;
@@ -34,30 +32,24 @@ public class VocabularyBrowser extends BrowserPage
     @Locate("openbis_vocabulary-browser_add-button")
     private Button add;
 
+    @SuppressWarnings("unused")
     @Locate("openbis_vocabulary-browser_delete-button")
     private Button delete;
 
-    public AddVocabularyDialog add()
+    public void add()
     {
         add.click();
-        return get(AddVocabularyDialog.class);
     }
 
     @Override
-    protected List<WebElement> getColumns()
+    public Row row(Vocabulary vocabulary)
     {
-        return grid.getColumns();
+        return grid.getRow("Code", vocabulary.getCode());
     }
 
     @Override
-    protected List<WebElement> getData()
+    public Cell cell(Vocabulary vocabulary, String column)
     {
-        return grid.getCells();
-    }
-
-    @Override
-    protected WebElement getDeleteButton()
-    {
-        return delete.getContext();
+        return row(vocabulary).get(column);
     }
 }

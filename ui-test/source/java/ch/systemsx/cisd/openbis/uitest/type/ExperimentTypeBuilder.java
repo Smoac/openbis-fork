@@ -45,8 +45,14 @@ public class ExperimentTypeBuilder implements Builder<ExperimentType>
     }
 
     @Override
+    public ExperimentType create()
+    {
+        return openbis.create(build());
+    }
+
+    @Override
     public ExperimentType build()
     {
-        return openbis.create(new ExperimentType(code, description));
+        return new ExperimentType(code, description);
     }
 }

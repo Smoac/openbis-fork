@@ -16,14 +16,12 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra;
 
-import java.util.Map;
-
-import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.common.Row;
 
 /**
  * @author anttil
  */
 public interface Browsable
 {
-    public boolean isRepresentedBy(Map<String, Cell> row);
+    public boolean isRepresentedBy(Row row);
 }

@@ -21,5 +21,7 @@ package ch.systemsx.cisd.openbis.uitest.type;
  */
 public interface Builder<T>
 {
+    public T create();
+
     public T build();
 }

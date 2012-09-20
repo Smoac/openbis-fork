@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.page.menu;
+package ch.systemsx.cisd.openbis.uitest.infra;
 
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.widget.Link;
+import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.common.Row;
 
-public class AuthorizationMenu
+/**
+ * @author anttil
+ */
+public interface Browser<T extends Browsable>
 {
+    public Row row(T browsable);
 
-    @Locate("openbis_top-menu_AUTHORIZATION_MENU_ROLES")
-    private Link roles;
-
-    public void roles()
-    {
-        roles.click();
-    }
+    public Cell cell(T browsable, String column);
 }

@@ -72,9 +72,15 @@ public class PropertyTypeBuilder implements Builder<PropertyType>
     }
 
     @Override
+    public PropertyType create()
+    {
+        return openbis.create(build());
+    }
+
+    @Override
     public PropertyType build()
     {
-        return openbis.create(new PropertyType(code, label, description, dataType, vocabulary));
+        return new PropertyType(code, label, description, dataType, vocabulary);
     }
 
 }

@@ -36,6 +36,7 @@ import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
+import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.User;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.BrowserListsElementMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellDisplaysMatcher;
@@ -48,9 +49,7 @@ import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.infra.uid.DictionaryUidGenerator;
 import ch.systemsx.cisd.openbis.uitest.infra.uid.UidGenerator;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.PageProxy;
-import ch.systemsx.cisd.openbis.uitest.page.common.BrowserPage;
 import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
-import ch.systemsx.cisd.openbis.uitest.page.common.Page;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ProjectBrowser;
@@ -74,6 +73,7 @@ import ch.systemsx.cisd.openbis.uitest.type.SampleBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.type.SampleTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.SampleTypeUpdateBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.Space;
 import ch.systemsx.cisd.openbis.uitest.type.SpaceBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.UpdateBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
@@ -167,7 +167,7 @@ public abstract class SeleniumTest
         shotter.screenshot();
     }
 
-    public <T extends Page> T get(Class<T> clazz)
+    public <T> T get(Class<T> clazz)
     {
         return this.pageProxy.get(clazz);
     }
@@ -234,7 +234,8 @@ public abstract class SeleniumTest
 
     protected RegisterSample sampleRegistrationPageFor(SampleType type)
     {
-        return openbis.browseToRegisterSample().selectSampleType(type);
+        openbis.browseToRegisterSample().selectSampleType(type);
+        return pageProxy.get(RegisterSample.class);
     }
 
     protected PropertyTypeAssignmentBrowser propertyTypeAssignmentBrowser()
@@ -242,7 +243,7 @@ public abstract class SeleniumTest
         return openbis.browseToPropertyTypeAssignmentBrowser();
     }
 
-    protected Matcher<WebDriver> isShowing(Class<? extends Page> pageClass)
+    protected Matcher<WebDriver> isShowing(Class<?> pageClass)
     {
         return new PageMatcher(pageClass, pageProxy);
     }
@@ -257,9 +258,14 @@ public abstract class SeleniumTest
         return not(new SampleBrowserSampleTypeDropDownMenuMatcher(sampleType));
     }
 
-    protected Matcher<BrowserPage> lists(Browsable browsable)
+    protected <T extends Browsable, U extends Browser<T>> Matcher<U> lists(T browsable)
     {
-        return new BrowserListsElementMatcher(browsable);
+        return new BrowserListsElementMatcher<T, U>(browsable);
+    }
+
+    protected <T extends Browsable, U extends Browser<T>> Matcher<U> doesNotList(T browsable)
+    {
+        return not(new BrowserListsElementMatcher<T, U>(browsable));
     }
 
     protected Matcher<RegisterSample> hasInputsForProperties(PropertyType... fields)
@@ -279,7 +285,12 @@ public abstract class SeleniumTest
 
     protected <T> T create(Builder<T> builder)
     {
-        return builder.build();
+        return builder.create();
+    }
+
+    protected void delete(Space space)
+    {
+        openbis.delete(space);
     }
 
     protected SpaceBuilder aSpace()

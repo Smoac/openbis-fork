@@ -71,8 +71,14 @@ public class VocabularyBuilder implements Builder<Vocabulary>
     }
 
     @Override
+    public Vocabulary create()
+    {
+        return openbis.create(build());
+    }
+
+    @Override
     public Vocabulary build()
     {
-        return openbis.create(new Vocabulary(code, description, terms, url));
+        return new Vocabulary(code, description, terms, url);
     }
 }

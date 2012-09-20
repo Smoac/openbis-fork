@@ -16,18 +16,17 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import java.util.List;
-
-import org.openqa.selenium.WebElement;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.BrowserPage;
+import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.common.Row;
+import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 import ch.systemsx.cisd.openbis.uitest.widget.TreeGrid;
 
-public class ExperimentBrowser extends BrowserPage
+public class ExperimentBrowser implements Browser<Experiment>
 {
     @Locate("openbis_select-project")
     private TreeGrid projectTree;
@@ -39,10 +38,9 @@ public class ExperimentBrowser extends BrowserPage
     @Locate("deletion-confirmation-dialog")
     private DeletionConfirmationBox deletionDialog;
 
-    public ExperimentBrowser space(String spaceCode)
+    public void space(String spaceCode)
     {
         projectTree.select(spaceCode);
-        return this;
     }
 
     public void deleteAll()
@@ -52,23 +50,17 @@ public class ExperimentBrowser extends BrowserPage
     }
 
     @Override
-    protected WebElement getDeleteButton()
+    public Row row(Experiment browsable)
     {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    protected List<WebElement> getColumns()
+    public Cell cell(Experiment browsable, String column)
     {
         // TODO Auto-generated method stub
         return null;
     }
 
-    @Override
-    protected List<WebElement> getData()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
 }

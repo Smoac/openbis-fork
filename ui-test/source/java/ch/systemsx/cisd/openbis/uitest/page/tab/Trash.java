@@ -18,11 +18,10 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.TopBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 
-public class Trash extends TopBar
+public class Trash
 {
 
     @Locate("empty-trash-button")
@@ -32,11 +31,10 @@ public class Trash extends TopBar
     @Locate("deletion-confirmation-dialog")
     private DeletionConfirmationBox deletionDialog;
 
-    public Trash empty()
+    public void empty()
     {
         this.empty.click();
         deletionDialog.confirm();
-        return get(Trash.class);
     }
 
     @Override

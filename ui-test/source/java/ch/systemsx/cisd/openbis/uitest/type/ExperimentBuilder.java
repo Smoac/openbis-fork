@@ -77,18 +77,24 @@ public class ExperimentBuilder implements Builder<Experiment>
     }
 
     @Override
-    public Experiment build()
+    public Experiment create()
     {
         if (type == null)
         {
-            type = new ExperimentTypeBuilder(openbis).build();
+            type = new ExperimentTypeBuilder(openbis).create();
         }
         if (project == null)
         {
-            project = new ProjectBuilder(openbis).build();
+            project = new ProjectBuilder(openbis).create();
         }
 
-        return openbis.create(new Experiment(type, code, project, samples));
+        return openbis.create(build());
+    }
+
+    @Override
+    public Experiment build()
+    {
+        return new Experiment(type, code, project, samples);
     }
 
 }

@@ -45,8 +45,15 @@ public class SpaceBuilder implements Builder<Space>
     }
 
     @Override
+    public Space create()
+    {
+        return openbis.create(build());
+    }
+
+    @Override
     public Space build()
     {
-        return openbis.create(new Space(code, description));
+        return new Space(code, description);
     }
+
 }

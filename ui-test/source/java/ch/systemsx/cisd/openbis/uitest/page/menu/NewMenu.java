@@ -17,13 +17,9 @@
 package ch.systemsx.cisd.openbis.uitest.page.menu;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.Page;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterExperiment;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterProject;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterSample;
 import ch.systemsx.cisd.openbis.uitest.widget.Link;
 
-public class NewMenu extends Page
+public class NewMenu
 {
 
     @Locate("openbis_top-menu_SAMPLE_MENU_NEW")
@@ -35,21 +31,18 @@ public class NewMenu extends Page
     @Locate("openbis_top-menu_EXPERIMENT_MENU_NEW")
     private Link experiment;
 
-    public RegisterSample sample()
+    public void sample()
     {
         sample.click();
-        return get(RegisterSample.class);
     }
 
-    public RegisterProject project()
+    public void project()
     {
         project.click();
-        return get(RegisterProject.class);
     }
 
-    public RegisterExperiment experiment()
+    public void experiment()
     {
         experiment.click();
-        return get(RegisterExperiment.class);
     }
 }

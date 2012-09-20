@@ -17,15 +17,13 @@
 package ch.systemsx.cisd.openbis.uitest.page.dialog;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.Page;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Checkbox;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 
 @SuppressWarnings("unused")
-public class EditSampleTypeDialog extends Page
+public class EditSampleTypeDialog
 {
 
     @Locate("openbis_edit-type-dialog-description")
@@ -58,34 +56,29 @@ public class EditSampleTypeDialog extends Page
     @Locate("openbis_dialog-cancel-button")
     private Button cancel;
 
-    public SampleTypeBrowser save()
+    public void save()
     {
         save.click();
-        return get(SampleTypeBrowser.class);
     }
 
-    public SampleTypeBrowser cancel()
+    public void cancel()
     {
         cancel.click();
-        return get(SampleTypeBrowser.class);
     }
 
-    public EditSampleTypeDialog setListable(boolean checked)
+    public void setListable(boolean checked)
     {
         listable.set(checked);
-        return this;
     }
 
-    public EditSampleTypeDialog setShowContainer(boolean checked)
+    public void setShowContainer(boolean checked)
     {
         showContainer.set(checked);
-        return this;
     }
 
-    public EditSampleTypeDialog setShowParents(boolean checked)
+    public void setShowParents(boolean checked)
     {
         showParents.set(checked);
-        return this;
     }
 
     public void fillWith(SampleType sampleType)

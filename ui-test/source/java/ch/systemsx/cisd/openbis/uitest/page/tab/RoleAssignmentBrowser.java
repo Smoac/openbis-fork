@@ -16,15 +16,14 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import java.util.List;
-
-import org.openqa.selenium.WebElement;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.BrowserPage;
+import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.common.Row;
+import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 
-public class RoleAssignmentBrowser extends BrowserPage
+public class RoleAssignmentBrowser implements Browser<Experiment>
 {
 
     @SuppressWarnings("unused")
@@ -32,21 +31,17 @@ public class RoleAssignmentBrowser extends BrowserPage
     private Button assignRoleButton;
 
     @Override
-    protected List<WebElement> getColumns()
-    {
-        return null;
-    }
-
-    @Override
-    protected List<WebElement> getData()
-    {
-        return null;
-    }
-
-    @Override
-    protected WebElement getDeleteButton()
+    public Row row(Experiment browsable)
     {
         // TODO Auto-generated method stub
         return null;
     }
+
+    @Override
+    public Cell cell(Experiment browsable, String column)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

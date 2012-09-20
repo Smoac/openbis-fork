@@ -17,18 +17,15 @@
 package ch.systemsx.cisd.openbis.uitest.page.dialog;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.LoginPage;
-import ch.systemsx.cisd.openbis.uitest.page.common.Page;
 import ch.systemsx.cisd.openbis.uitest.widget.AlertMessageBox;
 
-public class InvalidPasswordDialog extends Page
+public class InvalidPasswordDialog
 {
     @Locate("login_failed_dialog")
     private AlertMessageBox errorDialog;
 
-    public LoginPage dismiss()
+    public void dismiss()
     {
         errorDialog.dismiss();
-        return get(LoginPage.class);
     }
 }

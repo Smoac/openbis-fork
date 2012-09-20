@@ -16,10 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.Map;
-
 import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
 import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.common.Row;
 
 /**
  * @author anttil
@@ -37,7 +36,7 @@ public class ExperimentType implements Browsable
     }
 
     @Override
-    public boolean isRepresentedBy(Map<String, Cell> row)
+    public boolean isRepresentedBy(Row row)
     {
         Cell codeCell = row.get("Code");
         return codeCell != null && codeCell.getText().equalsIgnoreCase(this.code);

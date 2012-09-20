@@ -96,11 +96,16 @@ public class SampleTypeBuilder implements Builder<SampleType>
     }
 
     @Override
+    public SampleType create()
+    {
+        return openbis.create(build());
+    }
+
+    @Override
     public SampleType build()
     {
-        return openbis.create(new SampleType(code, description, listable, showsContainer,
-                showsParents,
+        return new SampleType(code, description, listable, showsContainer, showsParents,
                 hasUniqueSubcodes, generatesCodes, showsParentMetadata, generatedCodePrefix,
-                propertyTypeAssignments));
+                propertyTypeAssignments);
     }
 }

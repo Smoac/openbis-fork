@@ -17,13 +17,11 @@
 package ch.systemsx.cisd.openbis.uitest.page.dialog;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.Page;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 
-public class AddSpaceDialog extends Page
+public class AddSpaceDialog
 {
 
     @Locate("openbis_dialog-code-field")
@@ -37,9 +35,8 @@ public class AddSpaceDialog extends Page
         code.write(space.getCode());
     }
 
-    public SpaceBrowser save()
+    public void save()
     {
         save.click();
-        return get(SpaceBrowser.class);
     }
 }

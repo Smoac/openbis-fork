@@ -54,12 +54,18 @@ public class ProjectBuilder implements Builder<Project>
     }
 
     @Override
-    public Project build()
+    public Project create()
     {
         if (space == null)
         {
-            space = new SpaceBuilder(openbis).build();
+            space = new SpaceBuilder(openbis).create();
         }
-        return openbis.create(new Project(code, description, space));
+        return openbis.create(build());
+    }
+
+    @Override
+    public Project build()
+    {
+        return new Project(code, description, space);
     }
 }

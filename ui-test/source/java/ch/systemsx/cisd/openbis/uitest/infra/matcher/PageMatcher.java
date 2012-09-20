@@ -27,7 +27,6 @@ import org.openqa.selenium.support.FindBy;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.PageProxy;
-import ch.systemsx.cisd.openbis.uitest.page.common.Page;
 
 /**
  * @author anttil
@@ -35,11 +34,11 @@ import ch.systemsx.cisd.openbis.uitest.page.common.Page;
 public class PageMatcher extends TypeSafeMatcher<WebDriver>
 {
 
-    private Class<? extends Page> pageClass;
+    private Class<?> pageClass;
 
     private PageProxy pageProxy;
 
-    public PageMatcher(Class<? extends Page> pageClass, PageProxy pageProxy)
+    public PageMatcher(Class<?> pageClass, PageProxy pageProxy)
     {
         this.pageClass = pageClass;
         this.pageProxy = pageProxy;
@@ -51,7 +50,6 @@ public class PageMatcher extends TypeSafeMatcher<WebDriver>
         description.appendText("Browser on page described by " + this.pageClass.getName());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean matchesSafely(WebDriver ignore)
     {
@@ -89,7 +87,7 @@ public class PageMatcher extends TypeSafeMatcher<WebDriver>
                 }
             }
 
-            pageClass = (Class<? extends Page>) pageClass.getSuperclass();
+            pageClass = pageClass.getSuperclass();
         }
         return true;
     }

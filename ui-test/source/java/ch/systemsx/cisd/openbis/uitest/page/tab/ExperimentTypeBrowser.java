@@ -16,17 +16,15 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import java.util.List;
-
-import org.openqa.selenium.WebElement;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.BrowserPage;
-import ch.systemsx.cisd.openbis.uitest.page.dialog.AddExperimentTypeDialog;
+import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.common.Row;
+import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 
-public class ExperimentTypeBrowser extends BrowserPage
+public class ExperimentTypeBrowser implements Browser<ExperimentType>
 {
 
     @Locate("add-entity-type-EXPERIMENT")
@@ -36,33 +34,28 @@ public class ExperimentTypeBrowser extends BrowserPage
     @Locate("edit-entity-type-EXPERIMENT")
     private Button edit;
 
+    @SuppressWarnings("unused")
     @Locate("delete-entity-type-EXPERIMENT")
     private Button delete;
 
     @Locate("openbis_experiment-type-browser-grid")
     private Grid grid;
 
-    public AddExperimentTypeDialog add()
+    public void add()
     {
         add.click();
-        return get(AddExperimentTypeDialog.class);
     }
 
     @Override
-    protected List<WebElement> getColumns()
+    public Row row(ExperimentType experimentType)
     {
-        return grid.getColumns();
+        return grid.getRow("Code", experimentType.getCode());
     }
 
     @Override
-    protected List<WebElement> getData()
+    public Cell cell(ExperimentType experimentType, String column)
     {
-        return grid.getCells();
+        return row(experimentType).get(column);
     }
 
-    @Override
-    protected WebElement getDeleteButton()
-    {
-        return delete.getContext();
-    }
 }

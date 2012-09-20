@@ -17,12 +17,9 @@
 package ch.systemsx.cisd.openbis.uitest.page.menu;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.Page;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
 import ch.systemsx.cisd.openbis.uitest.widget.Link;
 
-public class AdminMenu extends Page
+public class AdminMenu
 {
 
     @Locate("openbis_top-menu_ADMINISTRATION_MENU_MANAGE_GROUPS")
@@ -40,33 +37,28 @@ public class AdminMenu extends Page
     @Locate("ADMINISTRATION_MENU_MANAGE_AUTHORIZATION")
     private Link authorization;
 
-    public SpaceBrowser spaces()
+    public void spaces()
     {
         spaces.click();
-        return get(SpaceBrowser.class);
     }
 
-    public VocabularyBrowser vocabularies()
+    public void vocabularies()
     {
         vocabularies.click();
-        return get(VocabularyBrowser.class);
     }
 
-    public TypesMenu types()
+    public void types()
     {
         types.highlight();
-        return get(TypesMenu.class);
     }
 
-    public MetadataMenu metadata()
+    public void metadata()
     {
         metadata.highlight();
-        return get(MetadataMenu.class);
     }
 
-    public AuthorizationMenu authorization()
+    public void authorization()
     {
         authorization.highlight();
-        return get(AuthorizationMenu.class);
     }
 }

@@ -16,16 +16,15 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import java.util.List;
-
-import org.openqa.selenium.WebElement;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.BrowserPage;
+import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.common.Row;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 
-public class PropertyTypeBrowser extends BrowserPage
+public class PropertyTypeBrowser implements Browser<PropertyType>
 {
 
     @Locate("openbis_property-type-browser-grid")
@@ -35,24 +34,20 @@ public class PropertyTypeBrowser extends BrowserPage
     @Locate("openbis_property-type-browser-grid-add-button")
     private Button add;
 
+    @SuppressWarnings("unused")
     @Locate("openbis_property-type-browser-grid-delete-button")
     private Button delete;
 
     @Override
-    protected List<WebElement> getColumns()
+    public Row row(PropertyType type)
     {
-        return grid.getColumns();
+        return grid.getRow("Code", type.getCode());
     }
 
     @Override
-    protected List<WebElement> getData()
+    public Cell cell(PropertyType type, String column)
     {
-        return grid.getCells();
+        return row(type).get(column);
     }
 
-    @Override
-    protected WebElement getDeleteButton()
-    {
-        return delete.getContext();
-    }
 }

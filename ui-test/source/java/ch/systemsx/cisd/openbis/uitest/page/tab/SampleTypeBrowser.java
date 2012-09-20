@@ -16,19 +16,15 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import java.util.List;
-
-import org.openqa.selenium.WebElement;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.BrowserPage;
-import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
-import ch.systemsx.cisd.openbis.uitest.page.dialog.EditSampleTypeDialog;
+import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.common.Row;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 
-public class SampleTypeBrowser extends BrowserPage
+public class SampleTypeBrowser implements Browser<SampleType>
 {
     @Locate("add-entity-type-SAMPLE")
     private Button add;
@@ -36,40 +32,34 @@ public class SampleTypeBrowser extends BrowserPage
     @Locate("edit-entity-type-SAMPLE")
     private Button edit;
 
+    @SuppressWarnings("unused")
     @Locate("delete-entity-type-SAMPLE")
     private Button delete;
 
     @Locate("openbis_sample-type-browser-grid")
     private Grid grid;
 
-    public AddSampleTypeDialog add()
+    public void add()
     {
         add.click();
-        return get(AddSampleTypeDialog.class);
     }
 
-    @Override
-    protected List<WebElement> getColumns()
-    {
-        return grid.getColumns();
-    }
-
-    @Override
-    protected List<WebElement> getData()
-    {
-        return grid.getCells();
-    }
-
-    public EditSampleTypeDialog editSampleType(SampleType type)
+    public void editSampleType(SampleType type)
     {
         grid.select(type.getCode());
         edit.click();
-        return get(EditSampleTypeDialog.class);
     }
 
     @Override
-    protected WebElement getDeleteButton()
+    public Row row(SampleType type)
     {
-        return delete.getContext();
+        return grid.getRow("Code", type.getCode());
     }
+
+    @Override
+    public Cell cell(SampleType type, String column)
+    {
+        return row(type).get(column);
+    }
+
 }

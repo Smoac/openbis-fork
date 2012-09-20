@@ -79,7 +79,6 @@ public class SampleTest extends SeleniumTest
         assertThat(sampleBrowser().cell(sample, vocabularyType.getLabel()), displays("mouse"));
         assertThat(sampleBrowser().cell(sample, vocabularyType.getLabel()),
                 linksTo("http://www.ask.com/web?q=MOUSE"));
-
     }
 
     @Test(enabled = false)

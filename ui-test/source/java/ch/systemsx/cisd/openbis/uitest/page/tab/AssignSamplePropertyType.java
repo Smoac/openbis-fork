@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.TopBar;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
@@ -27,7 +26,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
-public class AssignSamplePropertyType extends TopBar
+public class AssignSamplePropertyType
 {
 
     @Locate("openbis_select_property-typeopenbis_property-type-assignment_SAMPLEproperty_type")
@@ -76,9 +75,8 @@ public class AssignSamplePropertyType extends TopBar
         }
     }
 
-    public AssignSamplePropertyType save()
+    public void save()
     {
         this.save.click();
-        return get(AssignSamplePropertyType.class);
     }
 }

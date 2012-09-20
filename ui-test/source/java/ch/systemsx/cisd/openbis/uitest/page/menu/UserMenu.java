@@ -17,19 +17,16 @@
 package ch.systemsx.cisd.openbis.uitest.page.menu;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.LoginPage;
-import ch.systemsx.cisd.openbis.uitest.page.common.Page;
 import ch.systemsx.cisd.openbis.uitest.widget.Link;
 
-public class UserMenu extends Page
+public class UserMenu
 {
 
     @Locate("openbis_top-menu_USER_MENU_LOGOUT")
     private Link logout;
 
-    public LoginPage logout()
+    public void logout()
     {
         logout.click();
-        return get(LoginPage.class);
     }
 }

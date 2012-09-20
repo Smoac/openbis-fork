@@ -69,19 +69,24 @@ public class PropertyTypeAssignmentBuilder implements Builder<PropertyTypeAssign
     }
 
     @Override
-    public PropertyTypeAssignment build()
+    public PropertyTypeAssignment create()
     {
         if (propertyType == null)
         {
-            propertyType = new PropertyTypeBuilder(openbis, PropertyTypeDataType.BOOLEAN).build();
+            propertyType = new PropertyTypeBuilder(openbis, PropertyTypeDataType.BOOLEAN).create();
         }
 
         if (entityType == null)
         {
-            entityType = new SampleTypeBuilder(openbis).build();
+            entityType = new SampleTypeBuilder(openbis).create();
         }
 
-        return openbis.create(new PropertyTypeAssignment(propertyType, entityType, mandatory,
-                initialValue));
+        return openbis.create(build());
+    }
+
+    @Override
+    public PropertyTypeAssignment build()
+    {
+        return new PropertyTypeAssignment(propertyType, entityType, mandatory, initialValue);
     }
 }

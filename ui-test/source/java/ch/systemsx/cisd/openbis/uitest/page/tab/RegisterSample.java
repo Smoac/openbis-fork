@@ -22,7 +22,6 @@ import java.util.Map;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.TopBar;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
@@ -34,7 +33,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.Form;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
-public class RegisterSample extends TopBar
+public class RegisterSample
 {
 
     @Locate("openbis_select_sample-typeopenbis_sample-registration")
@@ -94,16 +93,14 @@ public class RegisterSample extends TopBar
         }
     }
 
-    public RegisterSample selectSampleType(SampleType sampleType)
+    public void selectSampleType(SampleType sampleType)
     {
         sampleTypes.select(sampleType.getCode());
-        return get(RegisterSample.class);
     }
 
-    public RegisterSample save()
+    public void save()
     {
         save.click();
-        return get(RegisterSample.class);
     }
 
     public Collection<String> getProperties()

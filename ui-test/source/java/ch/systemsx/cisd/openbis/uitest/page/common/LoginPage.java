@@ -20,7 +20,7 @@ import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 
-public class LoginPage extends Page
+public class LoginPage
 {
     @Locate("openbis_login_username")
     private Text username;

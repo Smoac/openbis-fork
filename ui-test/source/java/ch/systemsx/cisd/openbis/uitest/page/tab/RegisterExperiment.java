@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.TopBar;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
@@ -27,7 +26,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 import ch.systemsx.cisd.openbis.uitest.widget.TextArea;
 
-public class RegisterExperiment extends TopBar
+public class RegisterExperiment
 {
 
     @Locate("openbis_select_experiment-typeopenbis_experiment-registration")
@@ -62,16 +61,14 @@ public class RegisterExperiment extends TopBar
         }
     }
 
-    public RegisterExperiment selectExperimentType(ExperimentType experimentType)
+    public void selectExperimentType(ExperimentType experimentType)
     {
         experimentTypeList.select(experimentType.getCode());
-        return get(RegisterExperiment.class);
     }
 
-    public RegisterExperiment save()
+    public void save()
     {
         this.saveButton.click();
-        return get(RegisterExperiment.class);
     }
 
     @Override

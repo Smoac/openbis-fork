@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.TopBar;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
@@ -26,7 +25,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 import ch.systemsx.cisd.openbis.uitest.widget.TextArea;
 
-public class AddPropertyType extends TopBar
+public class AddPropertyType
 {
 
     @Locate("openbis_property-type-registration_form_code")
@@ -61,9 +60,8 @@ public class AddPropertyType extends TopBar
         }
     }
 
-    public AddPropertyType save()
+    public void save()
     {
         save.click();
-        return get(AddPropertyType.class);
     }
 }

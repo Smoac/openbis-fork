@@ -18,16 +18,74 @@ package ch.systemsx.cisd.openbis.uitest.widget;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+
+import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.common.Row;
 
 /**
  * @author anttil
  */
 public class Grid extends Widget
 {
+
+    public Row getRow(String column, String value)
+    {
+
+        List<WebElement> columns = this.getColumns();
+
+        int index = 0;
+        boolean found = false;
+        for (WebElement element : columns)
+        {
+            if (element.getText().equalsIgnoreCase(column))
+            {
+                found = true;
+                break;
+            }
+            index++;
+        }
+
+        if (!found)
+        {
+            throw new IllegalArgumentException("Column " + column + " does not exist");
+        }
+
+        int numColumns = columns.size();
+
+        List<WebElement> cells = this.getCells();
+        found = false;
+        for (; index < cells.size(); index += numColumns)
+        {
+            if (cells.get(index).getText().equalsIgnoreCase(value))
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            throw new IllegalArgumentException("Row with value " + value + " in column " + column
+                    + " not found");
+        }
+
+        index = index - (index % numColumns);
+
+        Map<String, Cell> m = new HashMap<String, Cell>();
+        for (int i = 0; i < numColumns; i++)
+        {
+            WebElement element = cells.get(i + index);
+            m.put(columns.get(i).getText(),
+                    new Cell(element.getText(), element.getAttribute("href"), element));
+        }
+        return new Row(m);
+    }
 
     public List<WebElement> getColumns()
     {

@@ -17,14 +17,12 @@
 package ch.systemsx.cisd.openbis.uitest.page.dialog;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.Page;
-import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 import ch.systemsx.cisd.openbis.uitest.widget.TextArea;
 
-public class AddVocabularyDialog extends Page
+public class AddVocabularyDialog
 {
 
     @Locate("openbis_vocabulary-registration_formvocabulary_registration_field_set_code")
@@ -56,9 +54,8 @@ public class AddVocabularyDialog extends Page
         url.write(vocabulary.getUrl());
     }
 
-    public VocabularyBrowser save()
+    public void save()
     {
         save.click();
-        return get(VocabularyBrowser.class);
     }
 }

@@ -17,14 +17,12 @@
 package ch.systemsx.cisd.openbis.uitest.page.dialog;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.Page;
-import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 import ch.systemsx.cisd.openbis.uitest.widget.TextArea;
 
-public class AddExperimentTypeDialog extends Page
+public class AddExperimentTypeDialog
 {
 
     @Locate("openbis_dialog-code-field")
@@ -39,16 +37,14 @@ public class AddExperimentTypeDialog extends Page
     @Locate("openbis_dialog-cancel-button")
     private Button cancel;
 
-    public ExperimentTypeBrowser save()
+    public void save()
     {
         save.click();
-        return get(ExperimentTypeBrowser.class);
     }
 
-    public ExperimentTypeBrowser cancel()
+    public void cancel()
     {
         cancel.click();
-        return get(ExperimentTypeBrowser.class);
     }
 
     public void fillWith(ExperimentType experimentType)

@@ -19,4 +19,14 @@ public class SpaceTest extends SeleniumTest
         assertThat(spaceBrowser(), lists(space));
     }
 
+    @Test(enabled = false)
+    public void deletedSpaceIsRemovedFromSpaceBrowser() throws Exception
+    {
+        Space space = create(aSpace());
+
+        delete(space);
+
+        assertThat(spaceBrowser(), doesNotList(space));
+    }
+
 }

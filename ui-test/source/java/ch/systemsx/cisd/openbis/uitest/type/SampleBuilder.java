@@ -77,19 +77,19 @@ public class SampleBuilder implements Builder<Sample>
     }
 
     @Override
-    public Sample build()
+    public Sample create()
     {
         if (experiment != null)
         {
             space = experiment.getProject().getSpace();
         } else if (space == null)
         {
-            space = new SpaceBuilder(this.openbis).build();
+            space = new SpaceBuilder(this.openbis).create();
         }
 
         if (type == null)
         {
-            type = new SampleTypeBuilder(this.openbis).build();
+            type = new SampleTypeBuilder(this.openbis).create();
         }
 
         for (PropertyTypeAssignment assignment : type.getPropertyTypeAssignments())
@@ -101,6 +101,12 @@ public class SampleBuilder implements Builder<Sample>
             }
         }
 
-        return openbis.create(new Sample(type, code, experiment, space, parents, properties));
+        return openbis.create(build());
+    }
+
+    @Override
+    public Sample build()
+    {
+        return new Sample(type, code, experiment, space, parents, properties);
     }
 }

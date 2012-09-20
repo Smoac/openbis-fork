@@ -30,7 +30,6 @@ import org.openqa.selenium.WebElement;
 
 import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotProxy;
 import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
-import ch.systemsx.cisd.openbis.uitest.page.common.Page;
 import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
@@ -47,7 +46,7 @@ public class PageProxy
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Page> T get(final Class<T> clazz)
+    public <T> T get(final Class<T> clazz)
     {
 
         ProxyFactory factory = new ProxyFactory();
@@ -96,8 +95,6 @@ public class PageProxy
         {
             throw new RuntimeException(ex1);
         }
-
-        t.setPageProxy(this);
 
         initLocateFields(clazz, t);
 

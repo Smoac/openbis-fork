@@ -25,6 +25,13 @@ import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSpaceDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddVocabularyDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.EditSampleTypeDialog;
+import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
+import ch.systemsx.cisd.openbis.uitest.page.menu.AuthorizationMenu;
+import ch.systemsx.cisd.openbis.uitest.page.menu.BrowseMenu;
+import ch.systemsx.cisd.openbis.uitest.page.menu.MetadataMenu;
+import ch.systemsx.cisd.openbis.uitest.page.menu.NewMenu;
+import ch.systemsx.cisd.openbis.uitest.page.menu.TypesMenu;
+import ch.systemsx.cisd.openbis.uitest.page.menu.UserMenu;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AddPropertyType;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AssignSamplePropertyType;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentBrowser;
@@ -78,6 +85,38 @@ public class ApplicationRunner
         dialog.fillWith(space);
         dialog.save();
         return space;
+    }
+
+    public void delete(Space space)
+    {
+        /*
+        SpaceBrowser browser = browseToSpaceBrowser();
+
+        PagingToolBar paging = get(PagingToolBar.class);
+        paging.showFilters();
+
+        FilterToolBar bar = get(FilterToolBar.class).reset();
+        Widget filter = null;
+        for (Widget widget : bar.getFilters()) {
+            if (widget.getValue().equalsIgnoreCase("code")) {
+                filter  = widget;
+            }
+        }
+        if (filter == null) {
+            Setting settings = paging.settings();
+            settings.enableFilter("Code");
+        }
+        // then re-find filter
+        
+        filter.write(space.code();
+        
+        Row row = browser.getRow(space);
+        if (row != null)
+        {
+            row.select();
+            browser.deleteSelection();
+        }
+        */
     }
 
     public Project create(Project project)
@@ -148,8 +187,8 @@ public class ApplicationRunner
 
     public void update(SampleType sampleType)
     {
-        SampleTypeBrowser sampleTypeBrowser = browseToSampleTypeBrowser();
-        EditSampleTypeDialog dialog = sampleTypeBrowser.editSampleType(sampleType);
+        browseToSampleTypeBrowser().editSampleType(sampleType);
+        EditSampleTypeDialog dialog = proxy.get(EditSampleTypeDialog.class);
         dialog.fillWith(sampleType);
         dialog.save();
     }
@@ -168,111 +207,159 @@ public class ApplicationRunner
 
     public void logout()
     {
-        getMenus().user().logout();
+        getMenus().user();
+        load(UserMenu.class).logout();
     }
 
     public SampleTypeBrowser browseToSampleTypeBrowser()
     {
-        return getMenus().admin().types().sampleTypes();
+        getMenus().admin();
+        load(AdminMenu.class).types();
+        load(TypesMenu.class).sampleTypes();
+        return load(SampleTypeBrowser.class);
     }
 
     public ExperimentTypeBrowser browseToExperimentTypeBrowser()
     {
-        return getMenus().admin().types().experimentTypes();
+        getMenus().admin();
+        load(AdminMenu.class).types();
+        load(TypesMenu.class).experimentTypes();
+        return load(ExperimentTypeBrowser.class);
     }
 
     public Trash browseToTrash()
     {
-        return getMenus().trash();
+        getMenus().trash();
+        return load(Trash.class);
     }
 
     public AddSampleTypeDialog browseToAddSampleTypeDialog()
     {
-        return browseToSampleTypeBrowser().add();
+        browseToSampleTypeBrowser().add();
+        return load(AddSampleTypeDialog.class);
     }
 
     public AddExperimentTypeDialog browseToAddExperimentTypeDialog()
     {
-        return browseToExperimentTypeBrowser().add();
+        browseToExperimentTypeBrowser().add();
+        return load(AddExperimentTypeDialog.class);
     }
 
     public SpaceBrowser browseToSpaceBrowser()
     {
-        return getMenus().admin().spaces();
+        getMenus().admin();
+        load(AdminMenu.class).spaces();
+        return load(SpaceBrowser.class);
     }
 
     public ProjectBrowser browseToProjectBrowser()
     {
-        return getMenus().browse().projects();
+        getMenus().browse();
+        load(BrowseMenu.class).projects();
+        return load(ProjectBrowser.class);
     }
 
     public AddSpaceDialog browseToAddSpaceDialog()
     {
-        return browseToSpaceBrowser().addSpace();
+        browseToSpaceBrowser().addSpace();
+        return load(AddSpaceDialog.class);
     }
 
     public SampleBrowser browseToSampleBrowser()
     {
-        return getMenus().browse().samples();
+        getMenus().browse();
+        load(BrowseMenu.class).samples();
+        return load(SampleBrowser.class);
     }
 
     public ExperimentBrowser browseToExperimentBrowser()
     {
-        return getMenus().browse().experiments();
+        getMenus().browse();
+        load(BrowseMenu.class).experiments();
+        return load(ExperimentBrowser.class);
     }
 
     public RoleAssignmentBrowser browseToRoleAssignmentBrowser()
     {
-        return getMenus().admin().authorization().roles();
+        getMenus().admin();
+        load(AdminMenu.class).authorization();
+        load(AuthorizationMenu.class).roles();
+        return load(RoleAssignmentBrowser.class);
     }
 
     public VocabularyBrowser browseToVocabularyBrowser()
     {
-        return getMenus().admin().vocabularies();
+        getMenus().admin();
+        load(AdminMenu.class).vocabularies();
+        return load(VocabularyBrowser.class);
     }
 
     public AddVocabularyDialog browseToAddVocabularyDialog()
     {
-        return browseToVocabularyBrowser().add();
+        browseToVocabularyBrowser().add();
+        return load(AddVocabularyDialog.class);
     }
 
     public PropertyTypeBrowser browseToPropertyTypeBrowser()
     {
-        return getMenus().admin().metadata().propertyTypes();
+        getMenus().admin();
+        load(AdminMenu.class).metadata();
+        load(MetadataMenu.class).propertyTypes();
+        return load(PropertyTypeBrowser.class);
     }
 
     public AddPropertyType browseToAddPropertyType()
     {
-        return getMenus().admin().metadata().newPropertyType();
+        getMenus().admin();
+        load(AdminMenu.class).metadata();
+        load(MetadataMenu.class).newPropertyType();
+        return load(AddPropertyType.class);
     }
 
     public AssignSamplePropertyType browseToAssignSamplePropertyType()
     {
-        return getMenus().admin().metadata().assignToSampleType();
+        getMenus().admin();
+        load(AdminMenu.class).metadata();
+        load(MetadataMenu.class).assignToSampleType();
+        return load(AssignSamplePropertyType.class);
     }
 
     public PropertyTypeAssignmentBrowser browseToPropertyTypeAssignmentBrowser()
     {
-        return getMenus().admin().metadata().propertyTypeAssignments();
+        getMenus().admin();
+        load(AdminMenu.class).metadata();
+        load(MetadataMenu.class).propertyTypeAssignments();
+        return load(PropertyTypeAssignmentBrowser.class);
     }
 
     public RegisterSample browseToRegisterSample()
     {
-        return getMenus().newMenu().sample();
+        getMenus().newMenu();
+        load(NewMenu.class).sample();
+        return load(RegisterSample.class);
     }
 
     public RegisterExperiment browseToRegisterExperiment()
     {
-        return getMenus().newMenu().experiment();
+        getMenus().newMenu();
+        load(NewMenu.class).experiment();
+        return load(RegisterExperiment.class);
     }
 
     public RegisterProject browseToRegisterProject()
     {
-        return getMenus().newMenu().project();
+        getMenus().newMenu();
+        load(NewMenu.class).project();
+        return load(RegisterProject.class);
     }
 
     private TopBar getMenus()
     {
         return proxy.get(TopBar.class);
+    }
+
+    private <T> T load(Class<T> clazz)
+    {
+        return proxy.get(clazz);
     }
 }

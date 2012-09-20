@@ -18,16 +18,17 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 
 import java.util.List;
 
-import org.openqa.selenium.WebElement;
-
+import ch.systemsx.cisd.openbis.uitest.infra.Browser;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.BrowserPage;
+import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.common.Row;
+import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 
-public class SampleBrowser extends BrowserPage
+public class SampleBrowser implements Browser<Sample>
 {
 
     @Locate("openbis_sample-browser_main-grid")
@@ -42,34 +43,19 @@ public class SampleBrowser extends BrowserPage
     @Locate("openbis_select_group-selectsample-browser-toolbar")
     private DropDown spaceList;
 
-    public RegisterSample addSample()
+    public void addSample()
     {
         addSample.click();
-        return get(RegisterSample.class);
     }
 
-    @Override
-    protected List<WebElement> getColumns()
-    {
-        return grid.getColumns();
-    }
-
-    @Override
-    protected List<WebElement> getData()
-    {
-        return grid.getCells();
-    }
-
-    public SampleBrowser selectSampleType(SampleType sampleType)
+    public void selectSampleType(SampleType sampleType)
     {
         sampleTypeList.select(sampleType.getCode());
-        return get(SampleBrowser.class);
     }
 
-    public SampleBrowser allSpaces()
+    public void allSpaces()
     {
         spaceList.select("(all)");
-        return get(SampleBrowser.class);
     }
 
     public List<String> getSampleTypes()
@@ -78,9 +64,15 @@ public class SampleBrowser extends BrowserPage
     }
 
     @Override
-    protected WebElement getDeleteButton()
+    public Row row(Sample sample)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return grid.getRow("Code", sample.getCode());
     }
+
+    @Override
+    public Cell cell(Sample sample, String column)
+    {
+        return row(sample).get(column);
+    }
+
 }

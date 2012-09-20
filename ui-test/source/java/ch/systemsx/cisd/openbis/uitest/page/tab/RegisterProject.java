@@ -18,13 +18,12 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.TopBar;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 
-public class RegisterProject extends TopBar
+public class RegisterProject
 {
 
     @Locate("openbis_project-register_form_code")
@@ -43,10 +42,9 @@ public class RegisterProject extends TopBar
         spaces.select(project.getSpace().getCode());
     }
 
-    public RegisterProject save()
+    public void save()
     {
         save.click();
-        return get(RegisterProject.class);
     }
 
     @Override

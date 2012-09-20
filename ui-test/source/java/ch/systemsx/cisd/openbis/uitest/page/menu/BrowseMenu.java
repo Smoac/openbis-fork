@@ -17,13 +17,9 @@
 package ch.systemsx.cisd.openbis.uitest.page.menu;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.Page;
-import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.ProjectBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.widget.Link;
 
-public class BrowseMenu extends Page
+public class BrowseMenu
 {
 
     @Locate("openbis_top-menu_SAMPLE_MENU_BROWSE")
@@ -35,21 +31,18 @@ public class BrowseMenu extends Page
     @Locate("openbis_top-menu_EXPERIMENT_MENU_BROWSE")
     private Link experiments;
 
-    public SampleBrowser samples()
+    public void samples()
     {
         samples.click();
-        return get(SampleBrowser.class);
     }
 
-    public ProjectBrowser projects()
+    public void projects()
     {
         projects.click();
-        return get(ProjectBrowser.class);
     }
 
-    public ExperimentBrowser experiments()
+    public void experiments()
     {
         experiments.click();
-        return get(ExperimentBrowser.class);
     }
 }

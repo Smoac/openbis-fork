@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
+import org.openqa.selenium.By;
+
 /**
  * @author anttil
  */
@@ -24,5 +26,11 @@ public class Button extends Widget
     public void click()
     {
         context.click();
+    }
+
+    public boolean isPressed()
+    {
+        return "true".equalsIgnoreCase(context.findElement(By.xpath(".//button")).getAttribute(
+                "aria-pressed"));
     }
 }

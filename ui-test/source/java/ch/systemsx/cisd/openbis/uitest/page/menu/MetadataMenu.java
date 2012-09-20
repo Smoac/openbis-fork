@@ -17,14 +17,9 @@
 package ch.systemsx.cisd.openbis.uitest.page.menu;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.common.Page;
-import ch.systemsx.cisd.openbis.uitest.page.tab.AddPropertyType;
-import ch.systemsx.cisd.openbis.uitest.page.tab.AssignSamplePropertyType;
-import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeAssignmentBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.widget.Link;
 
-public class MetadataMenu extends Page
+public class MetadataMenu
 {
 
     @Locate("openbis_top-menu_PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES")
@@ -39,27 +34,23 @@ public class MetadataMenu extends Page
     @Locate("openbis_top-menu_PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE")
     private Link assignToSampleType;
 
-    public PropertyTypeBrowser propertyTypes()
+    public void propertyTypes()
     {
         browsePropertyTypes.click();
-        return get(PropertyTypeBrowser.class);
     }
 
-    public PropertyTypeAssignmentBrowser propertyTypeAssignments()
+    public void propertyTypeAssignments()
     {
         browsePropertyTypeAssignments.click();
-        return get(PropertyTypeAssignmentBrowser.class);
     }
 
-    public AddPropertyType newPropertyType()
+    public void newPropertyType()
     {
         newPropertyType.click();
-        return get(AddPropertyType.class);
     }
 
-    public AssignSamplePropertyType assignToSampleType()
+    public void assignToSampleType()
     {
         assignToSampleType.click();
-        return get(AssignSamplePropertyType.class);
     }
 }

@@ -17,18 +17,13 @@
 package ch.systemsx.cisd.openbis.uitest.page.common;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
-import ch.systemsx.cisd.openbis.uitest.page.menu.BrowseMenu;
-import ch.systemsx.cisd.openbis.uitest.page.menu.NewMenu;
-import ch.systemsx.cisd.openbis.uitest.page.menu.UserMenu;
-import ch.systemsx.cisd.openbis.uitest.page.tab.Trash;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 
 /**
  * @author anttil
  */
-public abstract class TopBar extends Page
+public class TopBar
 {
     @Locate("admin_menu")
     private Button adminMenu;
@@ -49,33 +44,28 @@ public abstract class TopBar extends Page
     @Locate("openbis_search-widget_text-field-input")
     private Text searchTextBox;
 
-    public AdminMenu admin()
+    public void admin()
     {
         adminMenu.click();
-        return get(AdminMenu.class);
     }
 
-    public UserMenu user()
+    public void user()
     {
         userMenu.click();
-        return get(UserMenu.class);
     }
 
-    public BrowseMenu browse()
+    public void browse()
     {
         browseMenu.click();
-        return get(BrowseMenu.class);
     }
 
-    public Trash trash()
+    public void trash()
     {
         trash.click();
-        return get(Trash.class);
     }
 
-    public NewMenu newMenu()
+    public void newMenu()
     {
         newMenu.click();
-        return get(NewMenu.class);
     }
 }

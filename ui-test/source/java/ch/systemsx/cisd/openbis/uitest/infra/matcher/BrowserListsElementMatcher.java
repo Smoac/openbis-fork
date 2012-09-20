@@ -16,24 +16,22 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra.matcher;
 
-import java.util.Map;
-
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
-import ch.systemsx.cisd.openbis.uitest.page.common.BrowserPage;
-import ch.systemsx.cisd.openbis.uitest.page.common.Cell;
+import ch.systemsx.cisd.openbis.uitest.infra.Browser;
+import ch.systemsx.cisd.openbis.uitest.page.common.Row;
 
 /**
  * @author anttil
  */
-public class BrowserListsElementMatcher extends
-        TypeSafeMatcher<BrowserPage>
+public class BrowserListsElementMatcher<T extends Browsable, U extends Browser<T>> extends
+        TypeSafeMatcher<U>
 {
-    private Browsable expected;
+    private T expected;
 
-    public BrowserListsElementMatcher(Browsable expected)
+    public BrowserListsElementMatcher(T expected)
     {
         this.expected = expected;
     }
@@ -45,15 +43,16 @@ public class BrowserListsElementMatcher extends
     }
 
     @Override
-    public boolean matchesSafely(BrowserPage browser)
+    public boolean matchesSafely(U browser)
     {
-        for (Map<String, Cell> row : browser.getTableContent())
+
+        Row row = browser.row(expected);
+        if (row.exists())
         {
-            if (this.expected.isRepresentedBy(row))
-            {
-                return true;
-            }
+            return expected.isRepresentedBy(row);
+        } else
+        {
+            return false;
         }
-        return false;
     }
 }
