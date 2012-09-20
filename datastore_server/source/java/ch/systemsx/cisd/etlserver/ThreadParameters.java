@@ -121,6 +121,8 @@ public final class ThreadParameters
 
     public static final String RECOVERY_MIN_RETRY_PERIOD = "recovery-min-retry-period";
 
+    public static final String RECOVERY_DEVELOPMENT_MODE = "development-mode";
+
     /**
      * The (local) directory to monitor for new files and directories to move to the remote side.
      * The directory where data to be processed by the ETL server become available.
@@ -206,26 +208,34 @@ public final class ThreadParameters
         this.dataSetRegistrationPreStagingBehavior =
                 getOriginalnputDataSetBehaviour(threadProperties);
 
-        // FIXME: choose the right defaults.
-        this.dataSetRegistrationMaxRetryCount =
-                Integer.parseInt(threadProperties.getProperty(DATASET_REGISTRATION_MAX_RETRY_COUNT,
-                        "6"));
-
-        this.dataSetRegistrationRetryPauseInSec =
-                Integer.parseInt(threadProperties.getProperty(
-                        DATASET_REGISTRATION_RETRY_PAUSE_IN_SEC, "300"));
-
-        this.processMaxRetryCount =
-                Integer.parseInt(threadProperties.getProperty(PROCESS_MAX_RETRY_COUNT, "6"));
-
-        this.processRetryPauseInSec =
-                Integer.parseInt(threadProperties.getProperty(PROCESS_RETRY_PAUSE_IN_SEC, "300"));
-
-        this.maximumRecoveryCount =
-                PropertyUtils.getInt(threadProperties, RECOVERY_MAX_RETRY_COUNT, 50);
-
-        this.minimumRecoveryPeriod =
-                PropertyUtils.getInt(threadProperties, RECOVERY_MIN_RETRY_PERIOD, 60);
+        boolean developmentMode =
+                PropertyUtils.getBoolean(threadProperties, RECOVERY_DEVELOPMENT_MODE, false);
+        if (developmentMode)
+        {
+            this.dataSetRegistrationMaxRetryCount = 0;
+            this.dataSetRegistrationRetryPauseInSec = 0;
+            this.processMaxRetryCount = 0;
+            this.processRetryPauseInSec = 0;
+            this.maximumRecoveryCount = 0;
+            this.minimumRecoveryPeriod = 0;
+        } else
+        {
+            this.dataSetRegistrationMaxRetryCount =
+                    Integer.parseInt(threadProperties.getProperty(
+                            DATASET_REGISTRATION_MAX_RETRY_COUNT, "6"));
+            this.dataSetRegistrationRetryPauseInSec =
+                    Integer.parseInt(threadProperties.getProperty(
+                            DATASET_REGISTRATION_RETRY_PAUSE_IN_SEC, "300"));
+            this.processMaxRetryCount =
+                    Integer.parseInt(threadProperties.getProperty(PROCESS_MAX_RETRY_COUNT, "6"));
+            this.processRetryPauseInSec =
+                    Integer.parseInt(threadProperties
+                            .getProperty(PROCESS_RETRY_PAUSE_IN_SEC, "300"));
+            this.maximumRecoveryCount =
+                    PropertyUtils.getInt(threadProperties, RECOVERY_MAX_RETRY_COUNT, 50);
+            this.minimumRecoveryPeriod =
+                    PropertyUtils.getInt(threadProperties, RECOVERY_MIN_RETRY_PERIOD, 60);
+        }
 
         this.threadName = threadName;
 
