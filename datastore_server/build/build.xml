@@ -301,10 +301,10 @@
     <move file="${checksum.file}" todir="${dist.datastore_server}" />
     <zip basedir="${dist}" destfile="${dist.file}" excludes="*.zip *.jar">
       <zipfileset dir="${dss.original.dist}" 
-            excludes="**/datastore_server.sh, **/dss_client.sh, **/service.properties, **/core_plugins.properties, **/log.xml, *.MD5" 
+            excludes="**/datastore_server.sh, **/dss_client.sh, **/service.properties, **/log.xml, *.MD5" 
             prefix="${dss}" />
       <zipfileset dir="dist" 
-            includes="**/service.properties, **/core_plugins.properties, **/log.xml" 
+            includes="**/service.properties, **/log.xml" 
             prefix="${dss}" />
       <zipfileset file="${dss.original.dist}/datastore_server.sh"
                   filemode="755"
@@ -333,7 +333,6 @@
     <checksum todir="${dist}" pattern="{0}  etc/{1}">
       <fileset dir="dist/etc">
         <include name="service.properties" />
-        <include name="core_plugins.properties" />
         <include name="log.xml" />
         <include name="openBIS.keystore" />
       </fileset>
