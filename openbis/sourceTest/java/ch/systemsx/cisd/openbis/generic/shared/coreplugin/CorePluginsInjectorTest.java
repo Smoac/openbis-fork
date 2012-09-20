@@ -105,7 +105,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         corePluginsFolder = new File(workingDirectory, "core-plugins");
         corePluginsFolder.mkdirs();
         corePluginsFolderProperty =
-                CorePluginsInjector.CORE_PLUGINS_FOLDER_KEY + " = " + corePluginsFolder + "\n";
+                CorePluginsUtils.CORE_PLUGINS_FOLDER_KEY + " = " + corePluginsFolder + "\n";
         enabledScreeningProperty =
                 ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_TECHNOLOGIES_KEY
                         + " = screening\n";
@@ -132,7 +132,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
         injector.injectCorePlugins(new Properties());
 
-        assertEquals("Core plugins folder '" + CorePluginsInjector.DEFAULT_CORE_PLUGINS_FOLDER
+        assertEquals("Core plugins folder '" + CorePluginsUtils.DEFAULT_CORE_PLUGINS_FOLDER
                 + "' does not exists.", logMatcher.recordedObject());
         context.assertIsSatisfied();
     }
@@ -619,7 +619,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
     private Properties createProperties(String technologies)
     {
         Properties properties = new ExtendedProperties();
-        properties.setProperty(CorePluginsInjector.CORE_PLUGINS_FOLDER_KEY,
+        properties.setProperty(CorePluginsUtils.CORE_PLUGINS_FOLDER_KEY,
                 corePluginsFolder.getPath());
         properties.setProperty(
                 ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_TECHNOLOGIES_KEY,

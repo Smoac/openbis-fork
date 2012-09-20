@@ -282,7 +282,6 @@
     <move file="${admin.dist.file}" todir="${server.dist}" />
   	<move file="${checksum.file}" todir="${server.dist}" />
     <copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
-    <copy file="${original.server.dist}/core_plugins.properties" todir="${server.dist}" />
     <copy file="${original.server.dist}/web-client.properties" todir="${server.dist}" />   
     <copy file="${original.server.dist}/openbis.conf" todir="${server.dist}" />
     <copy file="${original.openbis.server.dist}/openBIS.keystore" todir="${server.dist}" />
@@ -642,7 +641,12 @@
     </replace>
     <copy todir="${dist}/core-plugins">
       <fileset dir="${project-path}${core-plugins.folder}" erroronmissingdir="false"
-               includesfile="${dist}/core-plugin-paths"/>
+               includesfile="${dist}/core-plugin-paths">
+        <exclude name="core_plugins.properties"/>
+      </fileset>
+      <fileset dir="dist/server">
+        <include name="core_plugins.properties"/>
+      </fileset>
     </copy>
   	<delete file="${dist}/core-plugin-paths"/>
   </target>

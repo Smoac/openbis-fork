@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
-import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsUtils;
 
 /**
  * A class that injects web apps into jetty.
@@ -81,7 +81,7 @@ public class JettyWebAppPluginInjector
         webapps = (null == appList) ? Collections.<String> emptyList() : appList;
         webappProperties = extractWebappProperties(props, webapps);
         webappToFoldersMap = new HashMap<String, File>();
-        String corePluginsFolder = CorePluginsInjector.getCorePluginsFolder(props, ScannerType.AS);
+        String corePluginsFolder = CorePluginsUtils.getCorePluginsFolder(props, ScannerType.AS);
         CorePluginScanner scanner = new CorePluginScanner(corePluginsFolder, ScannerType.AS);
         List<CorePlugin> plugins = scanner.scanForPlugins();
         for (CorePlugin plugin : plugins)

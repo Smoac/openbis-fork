@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsUtils;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.IPluginType;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.PluginType;
 
@@ -45,6 +46,7 @@ public class CorePluginsInjectingPropertyPlaceholderConfigurer extends
     protected void loadProperties(Properties properties) throws IOException
     {
         super.loadProperties(properties);
+        CorePluginsUtils.addCorePluginsProperties(properties, ScannerType.AS);
         PluginType dssDataSources = createPluginTypeDssDataSources();
         PluginType maintenanceTasks =
                 new PluginType("maintenance-tasks",

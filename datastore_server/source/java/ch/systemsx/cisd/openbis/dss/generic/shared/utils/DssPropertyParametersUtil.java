@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsUtils;
 
 /**
  * Utility class to load properties.
@@ -71,7 +72,6 @@ public class DssPropertyParametersUtil
 
     /** Location of service properties file. */
     public static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
-    public static final String CORE_PLUGINS_PROPERTIES_FILE = "etc/core_plugins.properties";
 
     private static final String EXPLANATION =
             "Please make sure this directory exists on the local file system and is writable "
@@ -87,21 +87,22 @@ public class DssPropertyParametersUtil
     /** loads server configuration */
     public static ExtendedProperties loadServiceProperties()
     {
-        ExtendedProperties serviceProperties =
-                loadProperties(SERVICE_PROPERTIES_FILE, CORE_PLUGINS_PROPERTIES_FILE);
+        ExtendedProperties properties = loadProperties(SERVICE_PROPERTIES_FILE);
+        CorePluginsUtils.addCorePluginsProperties(properties, ScannerType.DSS);
+        ExtendedProperties serviceProperties = extendProperties(properties);
         CorePluginsInjector injector =
                 new CorePluginsInjector(ScannerType.DSS, DssPluginType.values());
         injector.injectCorePlugins(serviceProperties);
         return serviceProperties;
     }
 
-    public static ExtendedProperties loadProperties(String... filePaths)
+    public static ExtendedProperties loadProperties(String filePath)
     {
-        Properties properties = new Properties();
-        for (String filePath : filePaths)
-        {
-            properties.putAll(PropertyUtils.loadProperties(filePath));
-        }
+        return extendProperties(PropertyUtils.loadProperties(filePath));
+    }
+
+    private static ExtendedProperties extendProperties(Properties properties)
+    {
         Properties systemProperties = System.getProperties();
         ExtendedProperties dssSystemProperties =
                 ExtendedProperties.getSubset(systemProperties,

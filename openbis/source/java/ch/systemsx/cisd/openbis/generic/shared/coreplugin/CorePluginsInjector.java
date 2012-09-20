@@ -58,12 +58,6 @@ public class CorePluginsInjector
 
     private static final String UNALLOWED_PLUGIN_NAME_CHARACTERS = " ,=";
 
-    public static final String CORE_PLUGINS_FOLDER_KEY = "core-plugins-folder";
-
-    public static final String DEFAULT_CORE_PLUGINS_FOLDER = "../core-plugins";
-
-    public static final String DEFAULT_AS_CORE_PLUGINS_FOLDER = "../../core-plugins";
-
     static final String DISABLED_CORE_PLUGINS_KEY = "disabled-core-plugins";
 
     static final String DISABLED_MARKER_FILE_NAME = "disabled";
@@ -104,16 +98,8 @@ public class CorePluginsInjector
 
     public void injectCorePlugins(Properties properties)
     {
-        String corePluginsFolderPath = getCorePluginsFolder(properties, scannerType);
+        String corePluginsFolderPath = CorePluginsUtils.getCorePluginsFolder(properties, scannerType);
         injectCorePlugins(properties, corePluginsFolderPath);
-    }
-
-    public static String getCorePluginsFolder(Properties properties, ScannerType scannerType)
-    {
-        String defaultCorePluginsFolder =
-                scannerType == ScannerType.DSS ? DEFAULT_CORE_PLUGINS_FOLDER
-                        : DEFAULT_AS_CORE_PLUGINS_FOLDER;
-        return properties.getProperty(CORE_PLUGINS_FOLDER_KEY, defaultCorePluginsFolder);
     }
 
     public void injectCorePlugins(Properties properties, String corePluginsFolderPath)
