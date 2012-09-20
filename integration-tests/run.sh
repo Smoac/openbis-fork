@@ -10,6 +10,8 @@ function print_result {
 	if [ $result -ne 0 ]; then
 		echo ERROR: Test "$testFile" has failed.
 		EXIT_WITH_ERROR=true
+	else
+		echo OK: Test "$testFile" succeeded.
 	fi
 }
 
