@@ -447,7 +447,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         DetailedSearchCriterion criterion1 = createAnyFieldCriterion("*-1*");
         DetailedSearchCriterion criterion2 = createFieldTypeCriterion(FILE_TYPE_XML);
         DetailedSearchCriteria criteria = createOrDatasetQuery(criterion1, criterion2);
-        assertAtLeastDatasetsFound(criteria, 12, DSLoc.A_1, DSLoc.XML_RESULT_11,
+        assertAtLeastDatasetsFound(criteria, 14, DSLoc.A_1, DSLoc.XML_RESULT_11,
                 DSLoc.XML_RESULT_12, DSLoc.CONTAINED_1, DSLoc.CONTAINED_2, DSLoc.XML_RESULT_18);
     }
 
