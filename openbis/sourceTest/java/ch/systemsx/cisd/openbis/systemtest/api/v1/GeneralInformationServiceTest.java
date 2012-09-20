@@ -749,7 +749,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals("UNKNOWN", types.get(4).getCode());
         assertEquals("[PropertyTypeGroup[<null>,[]]]", types.get(4).getPropertyTypeGroups()
                 .toString());
-        assertEquals(5, types.size());
+        assertEquals(8, types.size());
     }
 
     @Test
