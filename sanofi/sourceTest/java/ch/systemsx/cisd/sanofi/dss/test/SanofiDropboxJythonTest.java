@@ -871,7 +871,9 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                                     ANALYSIS_DATA_SET_FILE_NAME));
 
                     one(dataSetValidator).assertValidDataSet(
-                            new DataSetType("HCS_ANALYSIS_WELL_FEATURES_CONTAINER"), null);
+                                    new DataSetType(
+                                            ScreeningConstants.DEFAULT_ANALYSIS_WELL_CONTAINER_DATASET_TYPE),
+                                    null);
 
                     allowing(openBisService).setStorageConfirmed(with(any(String.class)));
                 }
