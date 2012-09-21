@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.conversation;
+package ch.systemsx.cisd.common.conversation.manager;
 
 import java.io.Serializable;
 
+import ch.systemsx.cisd.common.conversation.message.ServiceConversationMethodInvocation;
 import ch.systemsx.cisd.common.serviceconversation.IServiceMessenger;
 import ch.systemsx.cisd.common.serviceconversation.server.IService;
 import ch.systemsx.cisd.common.serviceconversation.server.IServiceFactory;
@@ -28,31 +29,27 @@ import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationSer
  * 
  * @author anttil
  */
-public final class RmiServiceFactory<T extends IConversationalRmiServer> implements IServiceFactory 
+abstract class ServiceConversationServiceFactory implements IServiceFactory
 {
 
     private ServiceConversationServer server;
 
-    private T service;
+    private String serviceName;
 
-    private Class<?> providedInterface;
+    private Object service;
 
-    private int timeout;
-
-    public RmiServiceFactory(ServiceConversationServer server, T service,
-            Class<?> providedInterface,
-            int clientTimeoutInMillis)
+    public ServiceConversationServiceFactory(ServiceConversationServer server, String serviceName,
+            Object service)
     {
         this.server = server;
+        this.serviceName = serviceName;
         this.service = service;
-        this.providedInterface = providedInterface;
-        this.timeout = clientTimeoutInMillis;
     }
 
     @Override
     public final String getServiceTypeId()
     {
-        return this.providedInterface.getName();
+        return this.serviceName;
     }
 
     @Override
@@ -64,12 +61,21 @@ public final class RmiServiceFactory<T extends IConversationalRmiServer> impleme
                 @Override
                 public void run(IServiceMessenger messenger)
                 {
-                    MethodInvocation call =
-                            (MethodInvocation) messenger.receive(Serializable.class);
+                    try
+                    {
+                        ServiceConversationMethodInvocation call =
+                                (ServiceConversationMethodInvocation) messenger
+                                        .receive(Serializable.class);
 
-                    Serializable result =
-                            call.executeOn(service, server, messenger.getId(), timeout);
-                    messenger.send(result);
+                        Serializable result =
+                                call.executeOn(service, server, messenger.getId(),
+                                        getProgressInterval(messenger.getId()));
+
+                        messenger.send(result);
+                    } finally
+                    {
+                        onConversationFinish(messenger.getId());
+                    }
                 }
             };
     }
@@ -77,8 +83,13 @@ public final class RmiServiceFactory<T extends IConversationalRmiServer> impleme
     @Override
     public int getClientTimeoutMillis()
     {
-        return this.timeout;
+        // we don't want to suggest any timeout to the client - it should choose the timeout itself
+        return -1;
     }
+
+    protected abstract int getProgressInterval(String conversationId);
+
+    protected abstract void onConversationFinish(String conversationId);
 
     @Override
     public boolean interruptServiceOnClientException()

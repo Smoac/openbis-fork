@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.conversation.IProgressListener;
+import ch.systemsx.cisd.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -35,7 +35,7 @@ public class BatchOperationExecutor
      *            non-null if the progressListenerOrNull is
      */
     public static <S> void executeInBatches(IBatchOperation<S> strategy,
-            IProgressListener progressListenerOrNull, String progressPhaseOrNull)
+            IServiceConversationProgressListener progressListenerOrNull, String progressPhaseOrNull)
     {
         executeInBatches(strategy, DEFAULT_BATCH_SIZE, progressListenerOrNull, progressPhaseOrNull);
     }
@@ -56,7 +56,7 @@ public class BatchOperationExecutor
      *            non-null if the progressListenerOrNull is
      */
     public static <S> void executeInBatches(IBatchOperation<S> strategy, int batchSize,
-            IProgressListener progressListenerOrNull, String progressPhaseOrNull)
+            IServiceConversationProgressListener progressListenerOrNull, String progressPhaseOrNull)
     {
         assert strategy != null : "Unspecified operation.";
 
@@ -89,7 +89,7 @@ public class BatchOperationExecutor
         return DEFAULT_BATCH_SIZE;
     }
 
-    private static void notifyProgressListener(IProgressListener progressListenerOrNull,
+    private static void notifyProgressListener(IServiceConversationProgressListener progressListenerOrNull,
             String progressPhaseOrNull, int maxIndex, int currentIndex)
     {
         if (null != progressListenerOrNull)

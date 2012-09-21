@@ -22,7 +22,8 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.systemsx.cisd.common.conversation.IConversationalRmiServer;
+import ch.systemsx.cisd.common.conversation.annotation.Conversational;
+import ch.systemsx.cisd.common.conversation.annotation.Progress;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
@@ -76,7 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  * 
  * @author Christian Ribeaud
  */
-public interface IETLLIMSService extends IServer, ISessionProvider, IConversationalRmiServer
+public interface IETLLIMSService extends IServer, ISessionProvider
 {
     /**
      * Returns the home database instance.
@@ -550,6 +551,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider, IConversatio
      *             layer.
      */
     @Transactional
+    @Conversational(progress = Progress.MANUAL)
     @DatabaseUpdateModification(value =
         { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT, ObjectKind.DATA_SET })
     @DatabaseCreateOrDeleteModification(value =

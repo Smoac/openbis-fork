@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.conversation;
+package ch.systemsx.cisd.common.conversation.progress;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import ch.systemsx.cisd.base.namedthread.NamingThreadFactory;
 import ch.systemsx.cisd.common.serviceconversation.server.ProgressInfo;
 import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
 
@@ -31,7 +32,8 @@ import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationSer
  * 
  * @author anttil
  */
-public class RateLimitedProgressListener implements IProgressListener
+public class ServiceConversationRateLimitedProgressListener implements
+        IServiceConversationProgressListener
 {
 
     private ServiceConversationServer server;
@@ -46,13 +48,20 @@ public class RateLimitedProgressListener implements IProgressListener
 
     private ScheduledFuture<?> future;
 
-    public RateLimitedProgressListener(ServiceConversationServer server, String conversationId,
-            int reportingInterval)
+    public ServiceConversationRateLimitedProgressListener(ServiceConversationServer server,
+            String conversationId, int reportingInterval)
     {
         this.server = server;
         this.conversationId = conversationId;
         this.interval = reportingInterval;
-        this.executor = new ScheduledThreadPoolExecutor(1);
+
+        NamingThreadFactory threadFactory =
+                new NamingThreadFactory(Thread.currentThread().getName()
+                        + "-rate-limited-progress-listener");
+        threadFactory.setCreateDaemonThreads(true);
+
+        executor = new ScheduledThreadPoolExecutor(1);
+        executor.setThreadFactory(threadFactory);
     }
 
     @Override
@@ -74,20 +83,23 @@ public class RateLimitedProgressListener implements IProgressListener
                 new Update(this.server, this.conversationId, new ProgressInfo(label,
                         totalItemsToProcess, numItemsProcessed), lastExecution);
 
-        if (System.currentTimeMillis() - lastExecution > this.interval)
+        long timeSinceLastExecution = System.currentTimeMillis() - lastExecution;
+
+        if (timeSinceLastExecution > this.interval)
         {
             this.executor.execute(update);
             this.future = null;
         } else
         {
             future =
-                    this.executor.schedule(update, lastExecution + this.interval,
+                    this.executor.schedule(update, this.interval - timeSinceLastExecution,
                             TimeUnit.MILLISECONDS);
         }
 
         this.lastUpdate = update;
     }
 
+    @Override
     public synchronized void close()
     {
         if (future != null)

@@ -29,6 +29,7 @@ import org.springframework.dao.DataAccessException;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
@@ -80,15 +81,20 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
 
     private DataStorePE dataStore;
 
-    public DataBO(IDAOFactory daoFactory, Session session, IRelationshipService relationshipService)
+    public DataBO(IDAOFactory daoFactory, Session session,
+            IRelationshipService relationshipService,
+            IServiceConversationClientManagerLocal conversationClient)
     {
-        super(daoFactory, session, relationshipService);
+        super(daoFactory, session, relationshipService, conversationClient);
     }
 
     public DataBO(IDAOFactory daoFactory, Session exampleSession,
-            IEntityPropertiesConverter propertiesConverter, IRelationshipService relationshipService)
+            IEntityPropertiesConverter propertiesConverter,
+            IRelationshipService relationshipService,
+            IServiceConversationClientManagerLocal conversationClient)
     {
-        super(daoFactory, exampleSession, propertiesConverter, relationshipService);
+        super(daoFactory, exampleSession, propertiesConverter, relationshipService,
+                conversationClient);
     }
 
     @Override

@@ -1125,7 +1125,8 @@ public class DataBOTest extends AbstractBOTest
 
     private final IDataBO createDataBO()
     {
-        return new DataBO(daoFactory, EXAMPLE_SESSION, propertiesConverter, relationshipService);
+        return new DataBO(daoFactory, EXAMPLE_SESSION, propertiesConverter, relationshipService,
+                conversationClient);
     }
 
 }

@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
@@ -36,18 +35,12 @@ import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.DummyAuthenticationService;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.common.conversation.IConversationalRmiClient;
-import ch.systemsx.cisd.common.conversation.IProgressListener;
-import ch.systemsx.cisd.common.conversation.RmiServiceFactory;
+import ch.systemsx.cisd.common.conversation.context.ServiceConversationsThreadContext;
+import ch.systemsx.cisd.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.server.ISessionTokenProvider;
-import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
-import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
-import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSearchCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
@@ -80,6 +73,8 @@ import ch.systemsx.cisd.openbis.generic.server.batch.SampleCheckBeforeUpdate;
 import ch.systemsx.cisd.openbis.generic.server.batch.SampleUpdate;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
+import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
+import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationServerManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
@@ -102,10 +97,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ServiceConversationsThreadContext;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSServiceConversational;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.LogMessagePrefixGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -218,10 +211,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * @author Franz-Josef Elmer
  */
-public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
-        IETLLIMSServiceConversational
+public class ETLService extends AbstractCommonServer<IETLLIMSService> implements IETLLIMSService
 {
-    private static final int PROGRESS_TIMEOUT = 60000;
 
     private final IDAOFactory daoFactory;
 
@@ -229,15 +220,15 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     private final TrustedCrossOriginDomainsProvider trustedOriginDomainProvider;
 
-    private ServiceConversationServer server;
-
     private final IETLEntityOperationChecker entityOperationChecker;
 
     private final DefaultSessionManager<Session> sessionManagerForEntityOperation;
 
-    private IETLLIMSServiceConversational etlService;
-
     private final IDataStoreServiceRegistrator dataStoreServiceRegistrator;
+
+    private IServiceConversationClientManagerLocal conversationClient;
+
+    private IServiceConversationServerManagerLocal conversationServer;
 
     public ETLService(IAuthenticationService authenticationService,
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
@@ -279,21 +270,6 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     }
 
-    public void setEtlService(IETLLIMSServiceConversational etlService)
-    {
-        this.etlService = etlService;
-    }
-
-    @PostConstruct
-    public void initServiceConversationServer()
-    {
-        server = new ServiceConversationServer();
-        RmiServiceFactory<IETLLIMSServiceConversational> rmiServiceFactory =
-                new RmiServiceFactory<IETLLIMSServiceConversational>(server, this.etlService,
-                        IETLLIMSService.class, PROGRESS_TIMEOUT);
-        server.addServiceType(rmiServiceFactory);
-    }
-
     @Override
     public IETLLIMSService createLogger(IInvocationLoggerContext context)
     {
@@ -304,26 +280,6 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     public int getVersion()
     {
         return IServer.VERSION;
-    }
-
-    @Override
-    public ServiceConversationDTO startConversation(ISessionTokenProvider sessionTokenProvider,
-            String clientUrl, String typeId)
-    {
-        String sessionToken = sessionTokenProvider.getSessionToken();
-        getSession(sessionToken);
-
-        IConversationalRmiClient client =
-                HttpInvokerUtils.createServiceStub(IConversationalRmiClient.class, clientUrl, 5000);
-        String clientId = sessionToken;
-        server.addClientResponseTransport(clientId, client);
-        return server.startConversation(typeId, clientId);
-    }
-
-    @Override
-    public void send(ServiceMessage message)
-    {
-        server.getIncomingMessageTransport().send(message);
     }
 
     @Override
@@ -364,6 +320,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         dataStoreDAO.createOrUpdateDataStore(dataStore);
         dataStoreServiceRegistrator.setServiceDescriptions(dataStore,
                 info.getServicesDescriptions());
+
+        conversationClient.setDataStoreInformation(dssURL, info.getTimeoutInMinutes());
+        conversationServer.setDataStoreInformation(info.getDataStoreCode(), dssURL,
+                info.getTimeoutInMinutes());
     }
 
     private String checkVersion(DataStoreServerInfo info, Session session, String dssSessionToken)
@@ -1422,21 +1382,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             @AuthorizationGuard(guardClass = AtomicOperationsPredicate.class)
             AtomicEntityOperationDetails operationDetails)
     {
-        return this.performEntityOperations(sessionToken, operationDetails, new IProgressListener()
-            {
-                @Override
-                public void update(String phaseName, int totalItemsToProcess, int numItemsProcessed)
-                {
-                }
-            });
-    }
-
-    @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public AtomicEntityOperationResult performEntityOperations(String sessionToken,
-            @AuthorizationGuard(guardClass = AtomicOperationsPredicate.class)
-            AtomicEntityOperationDetails operationDetails, IProgressListener progressListener)
-    {
+        IServiceConversationProgressListener progressListener =
+                ServiceConversationsThreadContext.getProgressListener();
 
         TechId registrationId = operationDetails.getRegistrationIdOrNull();
 
@@ -1456,8 +1403,6 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                         sessionManagerForEntityOperation.getSession(sessionTokenForEntityOperation);
                 injectPerson(sessionForEntityOperation, userId);
             }
-
-            ServiceConversationsThreadContext.setProgressListener(progressListener);
 
             long spacesCreated =
                     createSpaces(sessionForEntityOperation, operationDetails, progressListener);
@@ -1502,8 +1447,6 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                     samplesCreated, samplesUpdated, dataSetsCreated, dataSetsUpdated);
         } finally
         {
-            ServiceConversationsThreadContext.unsetProgressListener();
-
             EntityOperationsInProgress.getInstance().removeRegistrationPending(registrationId);
             if (sessionTokenForEntityOperation != null)
             {
@@ -1539,7 +1482,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private long createSpaces(Session session, AtomicEntityOperationDetails operationDetails,
-            IProgressListener progress)
+            IServiceConversationProgressListener progress)
     {
         ArrayList<SpacePE> spacePEsCreated = new ArrayList<SpacePE>();
         List<NewSpace> newSpaces = operationDetails.getSpaceRegistrations();
@@ -1565,7 +1508,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private long createMaterials(Session session, AtomicEntityOperationDetails operationDetails,
-            IProgressListener progress)
+            IServiceConversationProgressListener progress)
     {
         MaterialHelper materialHelper =
                 new MaterialHelper(session, businessObjectFactory, getDAOFactory(),
@@ -1584,7 +1527,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private long updateMaterials(Session session, AtomicEntityOperationDetails operationDetails,
-            IProgressListener progress)
+            IServiceConversationProgressListener progress)
     {
         MaterialHelper materialHelper =
                 new MaterialHelper(session, businessObjectFactory, getDAOFactory(),
@@ -1652,7 +1595,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private long createProjects(Session session, AtomicEntityOperationDetails operationDetails,
-            IProgressListener progress)
+            IServiceConversationProgressListener progress)
     {
         ArrayList<ProjectPE> projectPEsCreated = new ArrayList<ProjectPE>();
         List<NewProject> newProjects = operationDetails.getProjectRegistrations();
@@ -1694,7 +1637,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private long createSamples(Session session, AtomicEntityOperationDetails operationDetails,
-            IProgressListener progress)
+            IServiceConversationProgressListener progress)
     {
         List<NewSample> newSamples = operationDetails.getSampleRegistrations();
         List<NewSample> containerSamples = new ArrayList<NewSample>();
@@ -1760,7 +1703,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private long updateSamples(final Session session,
-            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
+            AtomicEntityOperationDetails operationDetails,
+            IServiceConversationProgressListener progress)
     {
         List<SampleUpdatesDTO> sampleUpdates = operationDetails.getSampleUpdates();
         int sampleUpdateCount = sampleUpdates.size();
@@ -1825,7 +1769,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
      * order
      */
     private long createDataSets(Session session, AtomicEntityOperationDetails operationDetails,
-            IProgressListener progress)
+            IServiceConversationProgressListener progress)
     {
         ArrayList<DataPE> dataSetsCreated = new ArrayList<DataPE>();
         List<? extends NewExternalData> dataSetRegistrations =
@@ -1853,7 +1797,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private long updateDataSets(final Session session,
-            AtomicEntityOperationDetails operationDetails, IProgressListener progress)
+            AtomicEntityOperationDetails operationDetails,
+            IServiceConversationProgressListener progress)
     {
         List<DataSetBatchUpdatesDTO> dataSetUpdates = operationDetails.getDataSetUpdates();
         int dataSetUpdatesCount = dataSetUpdates.size();
@@ -1903,7 +1848,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private long createExperiments(Session session, AtomicEntityOperationDetails operationDetails,
-            IProgressListener progress)
+            IServiceConversationProgressListener progress)
     {
         List<NewExperiment> experimentRegistrations = operationDetails.getExperimentRegistrations();
         int index = 0;
@@ -1923,7 +1868,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private long updateExperiments(Session session, AtomicEntityOperationDetails operationDetails,
-            IProgressListener progress)
+            IServiceConversationProgressListener progress)
     {
         List<ExperimentUpdatesDTO> updates = operationDetails.getExperimentUpdates();
 
@@ -2224,6 +2169,16 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         return details == null || details.getBatchSizeOrNull() == null ? BatchOperationExecutor
                 .getDefaultBatchSize() : details.getBatchSizeOrNull();
+    }
+
+    public void setConversationClient(IServiceConversationClientManagerLocal conversationClient)
+    {
+        this.conversationClient = conversationClient;
+    }
+
+    public void setConversationServer(IServiceConversationServerManagerLocal conversationServer)
+    {
+        this.conversationServer = conversationServer;
     }
 
 }

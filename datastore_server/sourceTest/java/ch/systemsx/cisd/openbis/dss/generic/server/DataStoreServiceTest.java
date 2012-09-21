@@ -156,7 +156,7 @@ public class DataStoreServiceTest extends AssertJUnit
     {
         try
         {
-            createService().getKnownDataSets("invalid", null);
+            createService().getKnownDataSets("invalid", null, false);
             fail("InvalidAuthenticationException expected");
         } catch (InvalidAuthenticationException e)
         {
@@ -185,7 +185,7 @@ public class DataStoreServiceTest extends AssertJUnit
                     one(shareIdManager).getShareId("ds1");
                     will(returnValue(shareId));
                     one(shareIdManager).releaseLock("ds1");
-                    
+
                     one(shareIdManager).lock("ds2");
                     one(shareIdManager).isKnown("ds2");
                     will(returnValue(false));
@@ -196,7 +196,8 @@ public class DataStoreServiceTest extends AssertJUnit
         IDataStoreService service = createService();
         List<String> knownDataSets =
                 service.getKnownDataSets(sessionToken,
-                        Arrays.asList(ds1.getDatasetDescription(), ds2.getDatasetDescription()));
+                        Arrays.asList(ds1.getDatasetDescription(), ds2.getDatasetDescription()),
+                        false);
 
         assertEquals(1, knownDataSets.size());
         assertSame(location, knownDataSets.get(0));

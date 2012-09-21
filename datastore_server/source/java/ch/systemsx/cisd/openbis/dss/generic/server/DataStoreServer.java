@@ -58,6 +58,8 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
+import ch.systemsx.cisd.common.conversation.manager.IServiceConversationClientManagerRemote;
+import ch.systemsx.cisd.common.conversation.manager.IServiceConversationServerManagerRemote;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -267,11 +269,21 @@ public class DataStoreServer
         context.addServlet(new ServletHolder(new HttpInvokerServlet(v1ServiceExporter, rpcV1Path)),
                 rpcV1Path);
 
-        String clientSuffix = "/encapsulated_openbis_service_conversational_client";
-        String clientPath = DataStoreApiUrlUtilities.getUrlForRpcService(clientSuffix);
+        // Export service conversation client manager
+        String clientPath =
+                DataStoreApiUrlUtilities
+                        .getUrlForRpcService(IServiceConversationClientManagerRemote.PATH);
         context.addServlet(
-                new ServletHolder(new HttpInvokerServlet(ServiceProvider.getConversationalClient(),
-                        clientPath)), clientPath);
+                new ServletHolder(new HttpInvokerServlet(ServiceProvider
+                        .getServiceConversationClientManagerServer(), clientPath)), clientPath);
+
+        // Export service conversation server manager
+        String serverPath =
+                DataStoreApiUrlUtilities
+                        .getUrlForRpcService(IServiceConversationServerManagerRemote.PATH);
+        context.addServlet(
+                new ServletHolder(new HttpInvokerServlet(ServiceProvider
+                        .getServiceConversationServerManagerServer(), serverPath)), serverPath);
 
         //
         // export the API via JSON

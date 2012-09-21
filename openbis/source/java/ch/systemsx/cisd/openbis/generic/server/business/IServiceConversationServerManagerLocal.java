@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.conversation;
-
-import ch.systemsx.cisd.common.serviceconversation.IServiceMessageTransport;
+package ch.systemsx.cisd.openbis.generic.server.business;
 
 /**
- * All clients of conversational RMI services must implement this interface
- * 
- * @author anttil
+ * @author pkupczyk
  */
-public interface IConversationalRmiClient extends IServiceMessageTransport
+public interface IServiceConversationServerManagerLocal
 {
+
+    public abstract void setDataStoreInformation(String dataStoreCode, String dataStoreUrl,
+            int dataStoreTimeoutInMinutes);
+
 }

@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 
 /**
@@ -41,18 +42,22 @@ public abstract class AbstractBusinessObjectFactory
 
     protected IEntityOperationChecker entityOperationChecker;
 
+    private IServiceConversationClientManagerLocal conversationClient;
+
     protected AbstractBusinessObjectFactory()
     {
     }
 
     protected AbstractBusinessObjectFactory(final IDAOFactory daoFactory,
             IDataStoreServiceFactory dssFactory, IRelationshipService relationshipService,
-            IEntityOperationChecker entityOperationChecker)
+            IEntityOperationChecker entityOperationChecker,
+            IServiceConversationClientManagerLocal conversationClient)
     {
         this.daoFactory = daoFactory;
         this.dssFactory = dssFactory;
         this.relationshipService = relationshipService;
         this.entityOperationChecker = entityOperationChecker;
+        this.conversationClient = conversationClient;
     }
 
     protected final IDAOFactory getDaoFactory()
@@ -74,4 +79,10 @@ public abstract class AbstractBusinessObjectFactory
     {
         return entityOperationChecker;
     }
+
+    protected IServiceConversationClientManagerLocal getConversationClient()
+    {
+        return conversationClient;
+    }
+
 }

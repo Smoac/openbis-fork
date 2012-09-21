@@ -14,20 +14,23 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.conversation;
-
-import ch.systemsx.cisd.common.server.ISessionTokenProvider;
-import ch.systemsx.cisd.common.serviceconversation.IServiceMessageTransport;
-import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
+package ch.systemsx.cisd.common.conversation.progress;
 
 /**
- * All services offering conversational RMI must implement this interface
- * 
- * @author anttil
+ * @author pkupczyk
  */
-public interface IConversationalRmiServer extends IServiceMessageTransport
+public class ServiceConversationNullProgressListener implements
+        IServiceConversationProgressListener
 {
-    public ServiceConversationDTO startConversation(ISessionTokenProvider sessionTokenProvider,
-            String clientUrl, String typeId);
+
+    @Override
+    public void update(String phaseName, int totalItemsToProcess, int numItemsProcessed)
+    {
+    }
+
+    @Override
+    public void close()
+    {
+    }
 
 }

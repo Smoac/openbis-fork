@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionDisallowedTypesException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionUnknownLocationsException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -198,9 +199,10 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     private List<DataPE> dataSets;
 
     public DataSetTable(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
-            Session session, IRelationshipService relationshipService)
+            Session session, IRelationshipService relationshipService,
+            IServiceConversationClientManagerLocal conversationClient)
     {
-        super(daoFactory, session, relationshipService);
+        super(daoFactory, session, relationshipService, conversationClient);
         this.dssFactory = dssFactory;
     }
 
@@ -516,7 +518,9 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     private void uploadDataSetsToCIFEX(DataStorePE dataStore, List<DataPE> list,
             DataSetUploadContext context)
     {
-        IDataStoreService service = dssFactory.create(dataStore.getRemoteUrl());
+        IDataStoreService service =
+                getConversationClient().getDataStoreService(dataStore.getRemoteUrl(),
+                        session.getSessionToken());
         String sessionToken = dataStore.getSessionToken();
         List<ExternalData> cleanDataSets = DataSetTranslator.translate(list, "?", "?");
         service.uploadDataSetsToCIFEX(sessionToken, cleanDataSets, context);
@@ -547,7 +551,9 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             }
             return locations;
         }
-        IDataStoreService service = dssFactory.create(remoteURL);
+
+        IDataStoreService service =
+                getConversationClient().getDataStoreService(remoteURL, session.getSessionToken());
         String sessionToken = dataStore.getSessionToken();
         return new HashSet<String>(service.getKnownDataSets(sessionToken, dataSetDescriptions,
                 ignoreNonExistingLocation));
@@ -588,11 +594,15 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             List<String> datasetCodes)
     {
         DataStorePE dataStore = findDataStore(datastoreCode);
-        IDataStoreService service = tryGetDataStoreService(dataStore);
-        if (service == null)
+
+        if (StringUtils.isBlank(dataStore.getRemoteUrl()))
         {
             throw createUnknownDataStoreServerException();
         }
+
+        IDataStoreService service =
+                getConversationClient().getDataStoreService(dataStore.getRemoteUrl(),
+                        session.getSessionToken());
         List<DatasetDescription> locations = loadAvailableDatasetDescriptions(datasetCodes);
         String sessionToken = dataStore.getSessionToken();
         String userSessionToken = session.getSessionToken();
@@ -1055,11 +1065,15 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             String datastoreCode, Map<String, Object> parameters)
     {
         DataStorePE dataStore = findDataStore(datastoreCode);
-        IDataStoreService service = tryGetDataStoreService(dataStore);
-        if (service == null)
+
+        if (StringUtils.isBlank(dataStore.getRemoteUrl()))
         {
             throw createUnknownDataStoreServerException();
         }
+
+        IDataStoreService service =
+                getConversationClient().getDataStoreService(dataStore.getRemoteUrl(),
+                        session.getSessionToken());
         String sessionToken = dataStore.getSessionToken();
         String userSessionToken = session.getSessionToken();
         return service.createReportFromAggregationService(sessionToken, userSessionToken,

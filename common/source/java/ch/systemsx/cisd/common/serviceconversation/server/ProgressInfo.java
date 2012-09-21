@@ -20,42 +20,43 @@ import java.io.Serializable;
 
 /**
  * A value object holding progress info about remote method execution.
- *
+ * 
  * @author anttil
  */
 public class ProgressInfo implements Serializable
 {
-    
+
     private static final long serialVersionUID = -3692359907946988354L;
 
     private String label;
-    private int totalItemsToProcess;
-    private int numItemsProcessed;
-  
-    public ProgressInfo(String label, int totalItemsToProcess, int numItemsProcessed) {
+
+    private Integer totalItemsToProcess;
+
+    private Integer numItemsProcessed;
+
+    public ProgressInfo(String label)
+    {
+        this.label = label;
+    }
+
+    public ProgressInfo(String label, Integer totalItemsToProcess, Integer numItemsProcessed)
+    {
         this.label = label;
         this.totalItemsToProcess = totalItemsToProcess;
         this.numItemsProcessed = numItemsProcessed;
     }
 
-    public String getLabel()
-    {
-        return label;
-    }
-
-    public int getTotalItemsToProcess()
-    {
-        return totalItemsToProcess;
-    }
-
-    public int getNumItemsProcessed()
-    {
-        return numItemsProcessed;
-    }
-    
     @Override
-    public String toString() {
-        return "ProgressInfo: "+this.label+" "+this.numItemsProcessed+"/"+this.totalItemsToProcess;
+    public String toString()
+    {
+        if (this.numItemsProcessed == null && this.totalItemsToProcess == null)
+        {
+            return "ProgressInfo: " + this.label;
+        } else
+        {
+            return "ProgressInfo: " + this.label + " " + this.numItemsProcessed + "/"
+                    + this.totalItemsToProcess;
+        }
     }
 
 }

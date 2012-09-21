@@ -27,6 +27,7 @@ import org.testng.annotations.BeforeMethod;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ScriptBO.IScriptFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
@@ -131,6 +132,8 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     protected IRelationshipService relationshipService;
 
+    protected IServiceConversationClientManagerLocal conversationClient;
+
     protected IEntityOperationChecker entityOperationChecker;
 
     protected ISampleLister sampleLister;
@@ -173,6 +176,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         deletionDAO = context.mock(IDeletionDAO.class);
         corePluginDAO = context.mock(ICorePluginDAO.class);
         relationshipService = context.mock(IRelationshipService.class);
+        conversationClient = context.mock(IServiceConversationClientManagerLocal.class);
         entityOperationChecker = context.mock(IEntityOperationChecker.class);
         sampleLister = context.mock(ISampleLister.class);
         datasetLister = context.mock(IDatasetLister.class);

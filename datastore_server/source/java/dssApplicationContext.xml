@@ -60,6 +60,7 @@
 	        <property name="port" value="${port}"/>
 	        <property name="useSSL" value="${use-ssl}"/>
 	        <property name="downloadUrl" value="${download-url}"/>
+	        <property name="timeoutInMinutes" value="${server-timeout-in-minutes}"/>
 	  </bean>
 	  
 	  <bean id="reauthenticateAdvisor" class="ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISAuthenticationAdvisor">
@@ -70,7 +71,8 @@
        <constructor-arg ref="etl-lims-service"/>
        <constructor-arg ref="sessionHolder"/>
        <constructor-arg value="${download-url}"/>
-    </bean>    
+       <property name="conversationClient" ref="data-store-service-conversation-client-manager"/>
+    </bean>
     
     <bean id="search-service" class="ch.systemsx.cisd.etlserver.registrator.api.v1.impl.SearchService">
         <constructor-arg ref="openBIS-service"/>
@@ -146,11 +148,35 @@
         <property name="service" ref="rpc-name-server" />
         <property name="serviceInterface" value="ch.systemsx.cisd.common.api.IRpcServiceNameServer" />
     </bean>
+
+    <!-- 
+        // Service conversation client manager
+    -->
     
-    <bean id="data-store-rpc-conversational-client"
-        class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
-        <property name="service" ref="openBIS-service" />
-        <property name="serviceInterface" value="ch.systemsx.cisd.common.conversation.IConversationalRmiClient" />
+    <bean id="data-store-service-conversation-client-manager" class="ch.systemsx.cisd.openbis.dss.generic.server.ServiceConversationClientManager">
+        <property name="dataStoreCode" value="${data-store-server-code}" />
+        <property name="applicationServerUrl" value="${server-url}" />
+        <property name="applicationServerTimeout" value="${server-timeout-in-minutes}" />
+    </bean>
+    
+    <bean id="data-store-service-conversation-client-manager-server" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
+        <property name="service" ref="data-store-service-conversation-client-manager" />
+        <property name="serviceInterface" value="ch.systemsx.cisd.common.conversation.manager.IServiceConversationClientManagerRemote" />
+    </bean>
+
+    <!-- 
+        // Service conversation server manager
+    -->
+    
+    <bean id="data-store-service-conversation-server-manager" class="ch.systemsx.cisd.openbis.dss.generic.server.ServiceConversationServerManager">
+        <property name="dataStoreService" ref="data-store-service" />
+        <property name="applicationServerUrl" value="${server-url}" />
+        <property name="applicationServerTimeout" value="${server-timeout-in-minutes}" />
+    </bean>
+    
+    <bean id="data-store-service-conversation-server-manager-server" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
+        <property name="service" ref="data-store-service-conversation-server-manager" />
+        <property name="serviceInterface" value="ch.systemsx.cisd.common.conversation.manager.IServiceConversationServerManagerRemote" />
     </bean>
     
     <bean id="session-token-manager" class="ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager"/>

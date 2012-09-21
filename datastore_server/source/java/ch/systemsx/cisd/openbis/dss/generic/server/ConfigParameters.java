@@ -54,11 +54,17 @@ public final class ConfigParameters implements IServletPropertiesManager
 
     static final String SESSION_TIMEOUT_KEY = "session-timeout";
 
+    static final String SERVER_TIMEOUT_IN_MINUTES = "server-timeout-in-minutes";
+
+    static final int DEFAULT_SERVER_TIMEOUT_IN_MINUTES = 5;
+
     static final String DOWNLOAD_URL = "download-url";
 
     private static final String KEYSTORE = "keystore.";
 
     static final String USE_SSL = "use-ssl";
+
+    static final boolean DEFAULT_USE_SSL = true;
 
     static final String USE_NIO = "use-nio-selector-socket";
 
@@ -111,6 +117,8 @@ public final class ConfigParameters implements IServletPropertiesManager
 
     private final int sessionTimeout;
 
+    private final int serverTimeoutInMinutes;
+
     private final boolean useSSL;
 
     private final boolean useNIO;
@@ -151,7 +159,11 @@ public final class ConfigParameters implements IServletPropertiesManager
         serverURL = PropertyUtils.getMandatoryProperty(properties, SERVER_URL_KEY);
         downloadURL = PropertyUtils.getMandatoryProperty(properties, DOWNLOAD_URL);
         sessionTimeout = getMandatoryIntegerProperty(properties, SESSION_TIMEOUT_KEY) * 60;
-        useSSL = PropertyUtils.getBoolean(properties, USE_SSL, true);
+        serverTimeoutInMinutes =
+                PropertyUtils.getInt(properties, SERVER_TIMEOUT_IN_MINUTES,
+                        getDefaultServerTimeoutInMinutes());
+
+        useSSL = PropertyUtils.getBoolean(properties, USE_SSL, getDefaultUseSSL());
         commandQueueDir =
                 new File(PropertyUtils.getProperty(properties, COMMAND_QUEUE_DIR, storeRootDir));
         if (useSSL == true)
@@ -265,6 +277,16 @@ public final class ConfigParameters implements IServletPropertiesManager
         return sessionTimeout;
     }
 
+    public int getServerTimeoutInMinutes()
+    {
+        return serverTimeoutInMinutes;
+    }
+
+    public static int getDefaultServerTimeoutInMinutes()
+    {
+        return DEFAULT_SERVER_TIMEOUT_IN_MINUTES;
+    }
+
     public final String getKeystorePath()
     {
         return keystorePath;
@@ -288,6 +310,11 @@ public final class ConfigParameters implements IServletPropertiesManager
     public boolean isUseSSL()
     {
         return useSSL;
+    }
+
+    public static boolean getDefaultUseSSL()
+    {
+        return DEFAULT_USE_SSL;
     }
 
     public boolean isUseNIO()
@@ -328,6 +355,8 @@ public final class ConfigParameters implements IServletPropertiesManager
             operationLog.info(String.format("Port number: %d.", port));
             operationLog.info(String.format("URL of openBIS server: '%s'.", serverURL));
             operationLog.info(String.format("Session timeout (seconds): %d.", sessionTimeout));
+            operationLog.info(String
+                    .format("Server timeout (minutes): %d.", serverTimeoutInMinutes));
             operationLog.info(String.format("Use SSL: %s.", useSSL));
             operationLog.info(String.format("Use NIO sockets: %s", useNIO));
             operationLog.info(String.format("Authorization cache expiration time (minutes): %s",

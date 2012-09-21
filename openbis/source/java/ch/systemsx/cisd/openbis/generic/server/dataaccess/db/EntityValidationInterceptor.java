@@ -27,10 +27,10 @@ import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
 import org.hibernate.type.Type;
 
-import ch.systemsx.cisd.common.conversation.IProgressListener;
+import ch.systemsx.cisd.common.conversation.context.ServiceConversationsThreadContext;
+import ch.systemsx.cisd.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ServiceConversationsThreadContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
@@ -101,7 +101,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
      * The beforeTransactionCompletionHook is called in the separate thread, therefore we persist
      * progress listener in a designated variable
      */
-    IProgressListener progressListener;
+    IServiceConversationProgressListener progressListener;
 
     int totalEntitiesToValidateCount;
 

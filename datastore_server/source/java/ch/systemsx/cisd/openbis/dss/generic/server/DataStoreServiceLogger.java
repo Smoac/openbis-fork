@@ -96,15 +96,6 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
 
     @Override
     public List<String> getKnownDataSets(String sessionToken,
-            List<? extends IDatasetLocation> dataSetLocations)
-            throws InvalidAuthenticationException
-    {
-        log("getKnownDataSets", "DATA_SETS(%s)", dataSetLocations);
-        return null;
-    }
-
-    @Override
-    public List<String> getKnownDataSets(String sessionToken,
             List<? extends IDatasetLocation> dataSetLocations, boolean ignoreNonExistingLocation)
             throws InvalidAuthenticationException
     {

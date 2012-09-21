@@ -25,6 +25,8 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.spring.PropertyPlaceholderUtils;
+import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
@@ -74,6 +76,8 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
     private String password;
 
     private String downloadUrl;
+
+    private int timeoutInMinutes;
 
     private OpenBISSessionHolder sessionHolder;
 
@@ -151,6 +155,7 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
         dataStoreServerInfo.setSessionToken(sessionTokenManager.drawSessionToken());
         dataStoreServerInfo.setServicesDescriptions(pluginTaskDescriptions);
         dataStoreServerInfo.setArchiverConfigured(archiverConfigured);
+        dataStoreServerInfo.setTimeoutInMinutes(timeoutInMinutes);
         service.registerDataStoreServer(sessionToken, dataStoreServerInfo);
     }
 
@@ -178,15 +183,8 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
 
     public final void setUseSSL(String useSSL)
     {
-        // NOTE: 'use-ssl' property is optional. If it is not specified in DS properties file
-        // String value passed by Spring is "${use-ssl}". Default value, which is 'true',
-        // should be used in such case.
-        boolean booleanValue = true;
-        if (useSSL.equalsIgnoreCase("false"))
-        {
-            booleanValue = false;
-        }
-        this.useSSL = booleanValue;
+        this.useSSL =
+                PropertyPlaceholderUtils.getBoolean(useSSL, ConfigParameters.getDefaultUseSSL());
     }
 
     public final void setUsername(String username)
@@ -203,4 +201,12 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
     {
         this.downloadUrl = downloadUrl;
     }
+
+    public void setTimeoutInMinutes(String timeoutInMinutes)
+    {
+        this.timeoutInMinutes =
+                PropertyPlaceholderUtils.getInteger(timeoutInMinutes,
+                        ConfigParameters.getDefaultServerTimeoutInMinutes());
+    }
+
 }

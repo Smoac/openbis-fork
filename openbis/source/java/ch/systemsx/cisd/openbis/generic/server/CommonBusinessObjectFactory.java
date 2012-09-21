@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AuthorizationGroupBO;
@@ -96,9 +97,11 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
 
     public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
             IRelationshipService relationshipService,
-            IEntityOperationChecker entityOperationChecker)
+            IEntityOperationChecker entityOperationChecker,
+            IServiceConversationClientManagerLocal conversationClient)
     {
-        super(daoFactory, dssFactory, relationshipService, entityOperationChecker);
+        super(daoFactory, dssFactory, relationshipService, entityOperationChecker,
+                conversationClient);
     }
 
     @Override
@@ -160,20 +163,22 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public IDataBO createDataBO(Session session)
     {
-        return new DataBO(getDaoFactory(), session, getRelationshipService());
+        return new DataBO(getDaoFactory(), session, getRelationshipService(),
+                getConversationClient());
     }
 
     @Override
     public final IDataSetTable createDataSetTable(final Session session)
     {
-        return new DataSetTable(getDaoFactory(), getDSSFactory(), session, getRelationshipService());
+        return new DataSetTable(getDaoFactory(), getDSSFactory(), session,
+                getRelationshipService(), getConversationClient());
     }
 
     @Override
     public IDeletedDataSetTable createDeletedDataSetTable(Session session)
     {
         return new DeletedDataSetTable(getDaoFactory(), getDSSFactory(), session,
-                getRelationshipService());
+                getRelationshipService(), getConversationClient());
     }
 
     @Override

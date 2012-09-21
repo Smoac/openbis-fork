@@ -25,12 +25,9 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.FactoryBean;
 
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
-import ch.systemsx.cisd.common.conversation.IConversationalRmiClient;
-import ch.systemsx.cisd.common.conversation.RmiConversationController;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -88,16 +85,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  * 
  * @author Bernd Rinn
  */
-public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISService, FactoryBean,
-        IConversationalRmiClient
+public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISService, FactoryBean
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             EncapsulatedOpenBISService.class);
 
     private final IETLLIMSService service;
-
-    private final RmiConversationController conversationController;
 
     private Integer version;
 
@@ -107,6 +101,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     private OpenBISSessionHolder session;
 
     private IShareIdManager shareIdManager;
+
+    private IServiceConversationClientManagerLocal conversationClient;
 
     public static IETLLIMSService createOpenBisService(String openBISURL, String timeout)
     {
@@ -154,9 +150,6 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         assert sessionHolder != null : "Given OpenBISSessionHolder can not be null.";
         this.service = service;
         this.session = sessionHolder;
-        this.conversationController =
-                new RmiConversationController(downloadUrl
-                        + "/datastore_server/encapsulated_openbis_service_conversational_client");
     }
 
     private IShareIdManager getShareIdManager()
@@ -271,7 +264,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             boolean showOnlyDirectlyConnected)
     {
         TechId id = new TechId(sampleID);
-        return service.listDataSetsBySampleID(session.getSessionToken(), id, showOnlyDirectlyConnected);
+        return service.listDataSetsBySampleID(session.getSessionToken(), id,
+                showOnlyDirectlyConnected);
     }
 
     @Override
@@ -393,8 +387,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         assert dataSetCode != null : "missing data set codes";
         assert oldStatus != null : "missing old status";
         assert newStatus != null : "missing new status";
-        return service.compareAndSetDataSetStatus(session.getSessionToken(), dataSetCode, oldStatus,
-                newStatus, newPresentInArchive);
+        return service.compareAndSetDataSetStatus(session.getSessionToken(), dataSetCode,
+                oldStatus, newStatus, newPresentInArchive);
     }
 
     @Override
@@ -530,7 +524,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public List<ExternalData> listNewerDataSets(TrackingDataSetCriteria criteria)
             throws UserFailureException
     {
-        return service.listDataSets(session.getSessionToken(), session.getDataStoreCode(), criteria);
+        return service
+                .listDataSets(session.getSessionToken(), session.getDataStoreCode(), criteria);
     }
 
     @Override
@@ -545,8 +540,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull,
             Date maxDeletionDataOrNull)
     {
-        return service.listDeletedDataSets(session.getSessionToken(), lastSeenDeletionEventIdOrNull,
-                maxDeletionDataOrNull);
+        return service.listDeletedDataSets(session.getSessionToken(),
+                lastSeenDeletionEventIdOrNull, maxDeletionDataOrNull);
     }
 
     @Override
@@ -597,8 +592,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             String userIdOrNull) throws UserFailureException
     {
         Sample sample =
-                service.registerSampleAndDataSet(session.getSessionToken(), newSample, externalData,
-                        userIdOrNull);
+                service.registerSampleAndDataSet(session.getSessionToken(), newSample,
+                        externalData, userIdOrNull);
         setShareId(externalData);
         return sample;
     }
@@ -608,7 +603,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             NewExternalData externalData)
     {
         Sample sample =
-                service.updateSampleAndRegisterDataSet(session.getSessionToken(), newSample, externalData);
+                service.updateSampleAndRegisterDataSet(session.getSessionToken(), newSample,
+                        externalData);
         setShareId(externalData);
         return sample;
     }
@@ -618,23 +614,18 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             AtomicEntityOperationDetails operationDetails)
     {
         IETLLIMSService conversationalService =
-                conversationController.getConversationalReference(session, service,
-                        IETLLIMSService.class);
+                conversationClient.getETLService(session.getSessionToken());
 
         AtomicEntityOperationResult operations =
-                conversationalService.performEntityOperations(session.getSessionToken(), operationDetails);
+                conversationalService.performEntityOperations(session.getSessionToken(),
+                        operationDetails);
+
         List<? extends NewExternalData> dataSets = operationDetails.getDataSetRegistrations();
         for (NewExternalData dataSet : dataSets)
         {
             setShareId(dataSet);
         }
         return operations;
-    }
-
-    @Override
-    public void send(ServiceMessage message)
-    {
-        this.conversationController.process(message);
     }
 
     private void setShareId(NewExternalData data)
@@ -757,6 +748,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         return service.tryGetExternalDataManagementSystem(session.getSessionToken(),
                 externalDataManagementSystemCode);
+    }
+
+    public void setConversationClient(IServiceConversationClientManagerLocal conversationClient)
+    {
+        this.conversationClient = conversationClient;
     }
 
 }

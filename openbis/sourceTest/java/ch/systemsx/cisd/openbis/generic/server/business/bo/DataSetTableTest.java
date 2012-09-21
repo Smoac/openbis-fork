@@ -91,10 +91,16 @@ public final class DataSetTableTest extends AbstractBOTest
 
     private IDataStoreService dataStoreService3;
 
+    private IDataStoreService dataStoreServiceConversational1;
+
+    private IDataStoreService dataStoreServiceConversational2;
+
+    private IDataStoreService dataStoreServiceConversational3;
+
     private final DataSetTable createDataSetTable()
     {
         return new DataSetTable(daoFactory, dssFactory, ManagerTestTool.EXAMPLE_SESSION,
-                relationshipService);
+                relationshipService, conversationClient);
     }
 
     @BeforeMethod
@@ -109,6 +115,14 @@ public final class DataSetTableTest extends AbstractBOTest
         dataStoreService1 = context.mock(IDataStoreService.class, "dataStoreService1");
         dataStoreService2 = context.mock(IDataStoreService.class, "dataStoreService2");
         dataStoreService3 = context.mock(IDataStoreService.class, "dataStoreService3");
+
+        dataStoreServiceConversational1 =
+                context.mock(IDataStoreService.class, "dataStoreServiceConversational1");
+        dataStoreServiceConversational2 =
+                context.mock(IDataStoreService.class, "dataStoreServiceConversational2");
+        dataStoreServiceConversational3 =
+                context.mock(IDataStoreService.class, "dataStoreServiceConversational3");
+
         context.checking(new Expectations()
             {
                 {
@@ -120,6 +134,18 @@ public final class DataSetTableTest extends AbstractBOTest
 
                     allowing(dssFactory).create(dss3.getRemoteUrl());
                     will(returnValue(dataStoreService3));
+
+                    allowing(conversationClient).getDataStoreService(dss1.getRemoteUrl(),
+                            ManagerTestTool.EXAMPLE_SESSION.getSessionToken());
+                    will(returnValue(dataStoreServiceConversational1));
+
+                    allowing(conversationClient).getDataStoreService(dss2.getRemoteUrl(),
+                            ManagerTestTool.EXAMPLE_SESSION.getSessionToken());
+                    will(returnValue(dataStoreServiceConversational2));
+
+                    allowing(conversationClient).getDataStoreService(dss3.getRemoteUrl(),
+                            ManagerTestTool.EXAMPLE_SESSION.getSessionToken());
+                    will(returnValue(dataStoreServiceConversational3));
                 }
             });
     }
@@ -248,7 +274,8 @@ public final class DataSetTableTest extends AbstractBOTest
                     prepareFindFullDatasets(new ExternalDataPE[]
                         { d1, d2 }, false, false);
 
-                    one(dataStoreService2).getKnownDataSets(with(dss2.getSessionToken()),
+                    one(dataStoreServiceConversational2).getKnownDataSets(
+                            with(dss2.getSessionToken()),
                             with(createDatasetDescriptionsMatcher(d2)), with(false));
                     will(returnValue(Arrays.asList()));
                 }
@@ -315,8 +342,9 @@ public final class DataSetTableTest extends AbstractBOTest
 
                     BaseMatcher<List<DatasetDescription>> dataSets =
                             createDatasetDescriptionsMatcher(d2);
-                    one(dataStoreService2).getKnownDataSets(with(dss2.getSessionToken()),
-                            with(dataSets), with(false));
+
+                    one(dataStoreServiceConversational2).getKnownDataSets(
+                            with(dss2.getSessionToken()), with(dataSets), with(false));
                     will(returnValue(Arrays.asList(d2.getLocation())));
 
                     PersonPE person = EXAMPLE_SESSION.tryGetPerson();
@@ -357,11 +385,12 @@ public final class DataSetTableTest extends AbstractBOTest
                     prepareFindFullDatasets(new ExternalDataPE[]
                         { d1PE, d2PE }, true, false);
 
-                    one(dataStoreService2).getKnownDataSets(with(dss2.getSessionToken()),
+                    one(dataStoreServiceConversational2).getKnownDataSets(
+                            with(dss2.getSessionToken()),
                             with(createDatasetDescriptionsMatcher(d2PE)), with(false));
                     will(returnValue(Arrays.asList(d2PE.getLocation())));
 
-                    one(dataStoreService2).uploadDataSetsToCIFEX(
+                    one(dataStoreServiceConversational2).uploadDataSetsToCIFEX(
                             with(equal(dss2.getSessionToken())),
                             with(new BaseMatcher<List<ExternalData>>()
                                 {
@@ -546,8 +575,8 @@ public final class DataSetTableTest extends AbstractBOTest
         final ExternalDataPE d3Available = createDataSet("d3a", dss3, AVAILABLE);
         final ExternalDataPE d3NonAvailable = createDataSet("d3n", dss3, ARCHIVED);
         final ExternalDataPE[] allDataSets =
-            { d2Available1, d2Available2, d2NonAvailable1, d2NonAvailable2, d3Available,
-                    d3NonAvailable, d2NonAvailable3 };
+                    { d2Available1, d2Available2, d2NonAvailable1, d2NonAvailable2, d3Available,
+                            d3NonAvailable, d2NonAvailable3 };
         context.checking(new Expectations()
             {
                 {
@@ -581,8 +610,8 @@ public final class DataSetTableTest extends AbstractBOTest
         final ExternalDataPE d3Archived = createDataSet("d3a", dss3, ARCHIVED);
         final ExternalDataPE d3NonArchived = createDataSet("d3n", dss3, AVAILABLE);
         final ExternalDataPE[] allDataSets =
-            { d2Archived1, d2Archived2, d2NonArchived1, d2NonArchived2, d3Archived,
-                    d3NonArchived, d2NonAvailable3 };
+                    { d2Archived1, d2Archived2, d2NonArchived1, d2NonArchived2, d3Archived,
+                            d3NonArchived, d2NonAvailable3 };
         context.checking(new Expectations()
             {
                 {

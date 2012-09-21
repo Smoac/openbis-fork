@@ -43,11 +43,10 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.api.server.JsonBaseTest.EchoServiceBean;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.shared.basic.utils.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.RmiConversationTest.EchoServiceBean;
-import ch.systemsx.cisd.openbis.datastoreserver.systemtests.RmiConversationTest.EchoServiceExporter;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
@@ -165,9 +164,11 @@ public abstract class SystemTestCase extends AssertJUnit
                     applicationContext.registerBeanDefinition("echoService", definition);
 
                     /* Needed for RmiConversationTest */
+                    /*
                     GenericBeanDefinition exporter = new GenericBeanDefinition();
                     exporter.setBeanClass(EchoServiceExporter.class);
                     applicationContext.registerBeanDefinition("echoServiceExporter", exporter);
+                    */
 
                     applicationContext.refresh();
                     return applicationContext;

@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionDisallowedTypesException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionUnknownLocationsException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -97,15 +98,13 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
         }
     }
 
-    private final IDataStoreServiceFactory dssFactory;
-
     private List<DeletedDataPE> deletedDataSets;
 
     public DeletedDataSetTable(final IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
-            final Session session, IRelationshipService relationshipService)
+            final Session session, IRelationshipService relationshipService,
+            IServiceConversationClientManagerLocal conversationClient)
     {
-        super(daoFactory, session, relationshipService);
-        this.dssFactory = dssFactory;
+        super(daoFactory, session, relationshipService, conversationClient);
     }
 
     //
@@ -243,7 +242,8 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
             }
             return locations;
         }
-        IDataStoreService service = dssFactory.create(remoteURL);
+        IDataStoreService service =
+                getConversationClient().getDataStoreService(remoteURL, session.getSessionToken());
         String sessionToken = dataStore.getSessionToken();
         return new HashSet<String>(service.getKnownDataSets(sessionToken, dataSets,
                 ignoreNonExistingLocation));

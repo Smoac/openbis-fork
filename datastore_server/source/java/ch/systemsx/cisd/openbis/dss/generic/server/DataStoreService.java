@@ -248,13 +248,6 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     @Override
     public List<String> getKnownDataSets(String sessionToken,
-            List<? extends IDatasetLocation> dataSets) throws InvalidAuthenticationException
-    {
-        return getKnownDataSets(sessionToken, dataSets, false);
-    }
-
-    @Override
-    public List<String> getKnownDataSets(String sessionToken,
             List<? extends IDatasetLocation> dataSets, boolean ignoreNonExistingLocation)
             throws InvalidAuthenticationException
     {
@@ -315,8 +308,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     @Override
     public TableModel createReportFromDatasets(String sessionToken, String userSessionToken,
-            String serviceKey, List<DatasetDescription> datasets,
-            String userEmailOrNull)
+            String serviceKey, List<DatasetDescription> datasets, String userEmailOrNull)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
@@ -333,12 +325,10 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             IMailClient mailClient = createEMailClient();
             return task.createReport(
                     datasets,
-                    new DataSetProcessingContext(
-                            getHierarchicalContentProvider(), new DataSetDirectoryProvider(
-                                    storeRoot,
-                                    manager), new SessionWorkspaceProvider(pluginTaskInfoProvider
-                                    .getSessionWorkspaceRootDir(),
-                                    userSessionToken),
+                    new DataSetProcessingContext(getHierarchicalContentProvider(),
+                            new DataSetDirectoryProvider(storeRoot, manager),
+                            new SessionWorkspaceProvider(pluginTaskInfoProvider
+                                    .getSessionWorkspaceRootDir(), userSessionToken),
                             new HashMap<String, String>(), mailClient, userEmailOrNull,
                             userSessionToken));
 
@@ -413,12 +403,10 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             IMailClient mailClient = createEMailClient();
             return task.createAggregationReport(
                     parameters,
-                    new DataSetProcessingContext(
-                            getHierarchicalContentProvider(), new DataSetDirectoryProvider(
-                                    storeRoot,
-                                    manager), new SessionWorkspaceProvider(pluginTaskInfoProvider
-                                    .getSessionWorkspaceRootDir(),
-                                    userSessionToken),
+                    new DataSetProcessingContext(getHierarchicalContentProvider(),
+                            new DataSetDirectoryProvider(storeRoot, manager),
+                            new SessionWorkspaceProvider(pluginTaskInfoProvider
+                                    .getSessionWorkspaceRootDir(), userSessionToken),
                             new HashMap<String, String>(), mailClient, userEmailOrNull,
                             userSessionToken));
 

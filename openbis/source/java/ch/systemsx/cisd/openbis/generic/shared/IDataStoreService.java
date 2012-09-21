@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.common.conversation.annotation.Conversational;
+import ch.systemsx.cisd.common.conversation.annotation.Progress;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -51,17 +53,6 @@ public interface IDataStoreService
     public int getVersion(String sessionToken) throws InvalidAuthenticationException;
 
     /**
-     * Returns from the specified data sets those known by the Data Store Server. Data set not
-     * available on the filesystem is classified as not known.
-     * 
-     * @param sessionToken Valid token to identify authorised access.
-     * @return locations (as strings) of known data sets
-     * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
-     */
-    public List<String> getKnownDataSets(String sessionToken,
-            List<? extends IDatasetLocation> dataSets) throws InvalidAuthenticationException;
-
-    /**
      * Returns from the specified data sets those known by the Data Store Server.
      * 
      * @param sessionToken Valid token to identify authorised access.
@@ -69,6 +60,7 @@ public interface IDataStoreService
      * @return locations (as strings) of known data sets
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
+    @Conversational(progress = Progress.AUTOMATIC)
     public List<String> getKnownDataSets(String sessionToken,
             List<? extends IDatasetLocation> dataSets, boolean ignoreNonExistingLocation)
             throws InvalidAuthenticationException;
@@ -80,6 +72,7 @@ public interface IDataStoreService
      * @param context Context data needed for uploading.
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
+    @Conversational(progress = Progress.AUTOMATIC)
     public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalData> dataSets,
             DataSetUploadContext context) throws InvalidAuthenticationException;
 
@@ -89,6 +82,7 @@ public interface IDataStoreService
      * <i> Ensure that you call {@link #cleanupSession(String)} on closing of the user sesssion
      * <var>userSessionToken</var> so that DSS gets the chance to cleanup session files. </i>
      */
+    @Conversational(progress = Progress.AUTOMATIC)
     public TableModel createReportFromDatasets(String sessionToken, String userSessionToken,
             String serviceKey, List<DatasetDescription> datasets, String userEmailOrNull);
 
@@ -154,6 +148,7 @@ public interface IDataStoreService
      * @return A TableModel produced by the service.
      * @since 7
      */
+    @Conversational(progress = Progress.AUTOMATIC)
     public TableModel createReportFromAggregationService(String sessionToken,
             String userSessionToken, String serviceKey, Map<String, Object> parameters,
             String userEmailOrNull);

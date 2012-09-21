@@ -123,10 +123,16 @@ public class ServiceProvider
                 "data-set-path-infos-provider"));
     }
 
-    public static HttpInvokerServiceExporter getConversationalClient()
+    public static HttpInvokerServiceExporter getServiceConversationClientManagerServer()
     {
         return (HttpInvokerServiceExporter) getApplicationContext().getBean(
-                "data-store-rpc-conversational-client");
+                "data-store-service-conversation-client-manager-server");
+    }
+
+    public static HttpInvokerServiceExporter getServiceConversationServerManagerServer()
+    {
+        return (HttpInvokerServiceExporter) getApplicationContext().getBean(
+                "data-store-service-conversation-server-manager-server");
     }
 
     public static IShareIdManager getShareIdManager()

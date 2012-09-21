@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.conversation;
+package ch.systemsx.cisd.common.conversation.manager;
+
+import ch.systemsx.cisd.common.serviceconversation.IServiceMessageTransport;
 
 /**
- * A role that can receive progress updates from method executions initiated through the 
- * service conversation framework by remote clients.
+ * All clients of conversational RMI services must implement this interface
  * 
  * @author anttil
  */
-public interface IProgressListener
+public interface IServiceConversationClientManagerRemote extends IServiceMessageTransport
 {
-    public void update(String phaseName, int totalItemsToProcess, int numItemsProcessed);
+
+    public static final String PATH = "/service-conversation-client-manager";
+
 }

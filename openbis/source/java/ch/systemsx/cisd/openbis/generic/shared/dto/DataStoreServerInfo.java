@@ -56,6 +56,12 @@ public class DataStoreServerInfo implements Serializable
 
     private boolean archiverConfigured;
 
+    private int timeoutInMinutes;
+
+    public DataStoreServerInfo()
+    {
+    }
+
     public final int getPort()
     {
         return port;
@@ -124,6 +130,16 @@ public class DataStoreServerInfo implements Serializable
     public void setArchiverConfigured(boolean archiverConfigured)
     {
         this.archiverConfigured = archiverConfigured;
+    }
+
+    public int getTimeoutInMinutes()
+    {
+        return timeoutInMinutes;
+    }
+
+    public void setTimeoutInMinutes(int timeoutInMinutes)
+    {
+        this.timeoutInMinutes = timeoutInMinutes;
     }
 
 }

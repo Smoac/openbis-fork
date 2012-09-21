@@ -39,6 +39,8 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
+import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationServerManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
@@ -118,6 +120,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private static final String DOWNLOAD_URL = "download-url";
 
+    private static final int TIMEOUT_IN_MINUTES = 1;
+
     private static final long DSS_ID = 137L;
 
     private static final String DSS_CODE = "my-dss";
@@ -138,6 +142,10 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private IDataStoreServiceRegistrator dataStoreServiceRegistrator;
 
+    private IServiceConversationClientManagerLocal conversationClient;
+
+    private IServiceConversationServerManagerLocal conversationServer;
+
     @Override
     @BeforeMethod
     public final void setUp()
@@ -148,6 +156,8 @@ public class ETLServiceTest extends AbstractServerTestCase
         dataStoreService = context.mock(IDataStoreService.class);
         entityOperationChecker = context.mock(IETLEntityOperationChecker.class);
         dataStoreServiceRegistrator = context.mock(IDataStoreServiceRegistrator.class);
+        conversationClient = context.mock(IServiceConversationClientManagerLocal.class);
+        conversationServer = context.mock(IServiceConversationServerManagerLocal.class);
     }
 
     @Test
@@ -257,6 +267,10 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(dataStoreServiceRegistrator).setServiceDescriptions(
                             with(dataStoreRecordingMatcher), with(info.getServicesDescriptions()));
 
+                    one(conversationClient).setDataStoreInformation(URL, TIMEOUT_IN_MINUTES);
+                    one(conversationServer).setDataStoreInformation(DSS_CODE, URL,
+                            TIMEOUT_IN_MINUTES);
+
                     one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
                     will(returnValue(null));
 
@@ -319,6 +333,10 @@ public class ETLServiceTest extends AbstractServerTestCase
                 {
                     one(dataStoreServiceRegistrator).setServiceDescriptions(
                             with(dataStoreRecordingMatcher), with(info.getServicesDescriptions()));
+
+                    one(conversationClient).setDataStoreInformation(URL, TIMEOUT_IN_MINUTES);
+                    one(conversationServer).setDataStoreInformation(DSS_CODE, URL,
+                            TIMEOUT_IN_MINUTES);
 
                     one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
                     will(returnValue(new DataStorePE()));
@@ -1364,9 +1382,13 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private IETLLIMSService createService()
     {
-        return new ETLService(authenticationService, sessionManager, daoFactory,
-                propertiesBatchManager, boFactory, dssfactory, null, entityOperationChecker,
-                dataStoreServiceRegistrator);
+        ETLService etlService =
+                new ETLService(authenticationService, sessionManager, daoFactory,
+                        propertiesBatchManager, boFactory, dssfactory, null,
+                        entityOperationChecker, dataStoreServiceRegistrator);
+        etlService.setConversationClient(conversationClient);
+        etlService.setConversationServer(conversationServer);
+        return etlService;
     }
 
     private DataStoreServerInfo createDSSInfo()
@@ -1376,6 +1398,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         info.setSessionToken(DSS_SESSION_TOKEN);
         info.setDataStoreCode(DSS_CODE);
         info.setDownloadUrl(DOWNLOAD_URL);
+        info.setTimeoutInMinutes(TIMEOUT_IN_MINUTES);
         List<DatastoreServiceDescription> reporting =
                 Arrays.asList(createDataStoreService(DataStoreServiceKind.QUERIES, "reporting"));
         List<DatastoreServiceDescription> processing =
@@ -1394,6 +1417,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         info.setSessionToken(DSS_SESSION_TOKEN);
         info.setDataStoreCode(DSS_CODE);
         info.setDownloadUrl(DOWNLOAD_URL);
+        info.setTimeoutInMinutes(TIMEOUT_IN_MINUTES);
         List<DatastoreServiceDescription> reporting =
                 Arrays.asList(createDataStoreServiceForWildcardTypes(DataStoreServiceKind.QUERIES,
                         "reporting", reportingPluginTypes));

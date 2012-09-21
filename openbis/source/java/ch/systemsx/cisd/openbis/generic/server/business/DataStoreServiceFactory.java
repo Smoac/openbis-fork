@@ -28,20 +28,22 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 
 /**
  * Factory of cached {@link IDataStoreService} instances.
- *
- * @author     Franz-Josef Elmer
+ * 
+ * @author Franz-Josef Elmer
  */
 public class DataStoreServiceFactory implements IDataStoreServiceFactory
 {
-    private final Map<String, IDataStoreService> services = new HashMap<String, IDataStoreService>();
-    
+    private final Map<String, IDataStoreService> services =
+            new HashMap<String, IDataStoreService>();
+
     @Override
     public IDataStoreService create(String serverURL)
     {
         IDataStoreService service = services.get(serverURL);
         if (service == null)
         {
-            service = HttpInvokerUtils.createServiceStub(IDataStoreService.class, serverURL + "/"
+            service =
+                    HttpInvokerUtils.createServiceStub(IDataStoreService.class, serverURL + "/"
                             + DATA_STORE_SERVER_SERVICE_NAME, 5 * DateUtils.MILLIS_PER_MINUTE);
             services.put(serverURL, service);
         }

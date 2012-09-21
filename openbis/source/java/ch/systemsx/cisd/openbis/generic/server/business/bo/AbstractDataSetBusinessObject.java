@@ -26,6 +26,7 @@ import java.util.Set;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
@@ -55,20 +56,25 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
 
     protected IRelationshipService relationshipService;
 
+    private IServiceConversationClientManagerLocal conversationClient;
+
     public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session,
-            IRelationshipService relationshipService)
+            IRelationshipService relationshipService,
+            IServiceConversationClientManagerLocal conversationClient)
     {
         super(daoFactory, session, EntityKind.DATA_SET);
         this.relationshipService = relationshipService;
+        this.conversationClient = conversationClient;
     }
 
     public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session,
             IEntityPropertiesConverter entityPropertiesConverter,
-            IRelationshipService relationshipService)
+            IRelationshipService relationshipService,
+            IServiceConversationClientManagerLocal conversationClient)
     {
         super(daoFactory, session, entityPropertiesConverter);
         this.relationshipService = relationshipService;
-
+        this.conversationClient = conversationClient;
     }
 
     protected void enrichWithParentsAndExperiment(DataPE dataPE)
@@ -471,5 +477,15 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         return UserFailureException.fromTemplate(
                 "The dataset '%s' cannot be connected to the sample '%s'" + " because %s.",
                 data.getCode(), sample.getIdentifier(), reason);
+    }
+
+    public IRelationshipService getRelationshipService()
+    {
+        return relationshipService;
+    }
+
+    public IServiceConversationClientManagerLocal getConversationClient()
+    {
+        return conversationClient;
     }
 }

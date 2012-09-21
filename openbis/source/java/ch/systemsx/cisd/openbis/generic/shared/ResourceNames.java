@@ -75,4 +75,10 @@ public final class ResourceNames
     public final static String CREATABLE_DATA_SET_TYPES_BLACKLIST =
             "creatable-data-set-types-blacklist";
 
+    public final static String SERVICE_CONVERSATION_CLIENT_MANAGER =
+            "service-conversation-client-manager";
+
+    public final static String SERVICE_CONVERSATION_SERVER_MANAGER =
+            "service-conversation-server-manager";
+
 }

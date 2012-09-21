@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess;
+package ch.systemsx.cisd.common.conversation.context;
 
-import ch.systemsx.cisd.common.conversation.IProgressListener;
+import ch.systemsx.cisd.common.conversation.progress.IServiceConversationProgressListener;
+import ch.systemsx.cisd.common.conversation.progress.ServiceConversationNullProgressListener;
 
 /**
  * The class contains the logic for communication beetween Hibernate interceptors, which should send
@@ -30,17 +31,17 @@ import ch.systemsx.cisd.common.conversation.IProgressListener;
  */
 public class ServiceConversationsThreadContext
 {
-    private static ThreadLocal<IProgressListener> progressListener;
+    private static ThreadLocal<IServiceConversationProgressListener> progressListener;
 
     static
     {
-        progressListener = new ThreadLocal<IProgressListener>();
+        progressListener = new ThreadLocal<IServiceConversationProgressListener>();
     }
 
     /**
      * Store progress listener in a thread local context
      */
-    public static void setProgressListener(IProgressListener listener)
+    public static void setProgressListener(IServiceConversationProgressListener listener)
     {
         progressListener.set(listener);
     }
@@ -56,8 +57,16 @@ public class ServiceConversationsThreadContext
     /**
      * Read the progress listener from the thread local context
      */
-    public static IProgressListener getProgressListener()
+    public static IServiceConversationProgressListener getProgressListener()
     {
-        return progressListener.get();
+        IServiceConversationProgressListener listener = progressListener.get();
+
+        if (listener == null)
+        {
+            return new ServiceConversationNullProgressListener();
+        } else
+        {
+            return listener;
+        }
     }
 }

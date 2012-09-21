@@ -107,6 +107,7 @@
         <constructor-arg ref="dss-factory" />
         <constructor-arg ref="relationship-service" />
         <constructor-arg ref="entity-operation-checker" />
+        <constructor-arg ref="service-conversation-client-manager" />
     </bean>
 
     <bean id="last-modification-state"
@@ -171,6 +172,19 @@
         <constructor-arg ref="dao-factory" />
         <constructor-arg ref="common-business-object-factory" />
     </bean>
+
+    <!-- 
+        // Service conversation client manager 
+    -->
+    <bean id="service-conversation-client-manager" class="ch.systemsx.cisd.openbis.generic.server.ServiceConversationClientManager">
+    </bean>
+    
+    <!-- 
+        // Service conversation server manager 
+    -->
+    <bean id="service-conversation-server-manager" class="ch.systemsx.cisd.openbis.generic.server.ServiceConversationServerManager">
+        <property name="etlService" ref="etl-service" />
+    </bean>
     
     <!-- 
         // ETL Service 
@@ -184,7 +198,8 @@
         <constructor-arg ref="trusted-origin-domain-provider" />
         <constructor-arg ref="etl-entity-operation-checker" />
         <constructor-arg ref="data-store-service-registrator" />
-        <property name = "etlService" ref="etl-service" />
+        <property name="conversationClient" ref="service-conversation-client-manager" />
+        <property name="conversationServer" ref="service-conversation-server-manager" />
     </bean>
     
     <bean id="etl-entity-operation-checker" class="ch.systemsx.cisd.openbis.generic.server.ETLEntityOperationChecker"/>
