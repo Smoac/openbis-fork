@@ -19,11 +19,10 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
-import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Checkbox;
 import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
-import ch.systemsx.cisd.openbis.uitest.widget.Text;
+import ch.systemsx.cisd.openbis.uitest.widget.Fillable;
 import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
 public class AssignSamplePropertyType
@@ -53,25 +52,7 @@ public class AssignSamplePropertyType
 
         if (assignment.getInitialValue() != null && assignment.getInitialValue().length() > 0)
         {
-            PropertyTypeDataType type = assignment.getPropertyType().getDataType();
-
-            if (type.equals(PropertyTypeDataType.BOOLEAN))
-            {
-                initialValue.handleAs(Checkbox.class).set(
-                        assignment.getInitialValue().equals("true"));
-            } else if (type.equals(PropertyTypeDataType.VARCHAR))
-            {
-                initialValue.handleAs(Text.class).write(assignment.getInitialValue());
-            } else if (type.equals(PropertyTypeDataType.INTEGER))
-            {
-                initialValue.handleAs(Text.class).write(assignment.getInitialValue());
-            } else if (type.equals(PropertyTypeDataType.CONTROLLED_VOCABULARY))
-            {
-                initialValue.handleAs(DropDown.class).select(assignment.getInitialValue());
-            } else
-            {
-                throw new IllegalArgumentException("Type " + type + " not supported");
-            }
+            ((Fillable) initialValue).fillWith(assignment.getInitialValue());
         }
     }
 

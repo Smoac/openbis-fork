@@ -25,7 +25,7 @@ public class Checkbox extends Widget implements Fillable
 {
     public void set(boolean value)
     {
-        WebElement input = find("input");
+        WebElement input = find("input").getContext();
         if (input.getAttribute("checked") != null ^ value)
         {
             input.click();

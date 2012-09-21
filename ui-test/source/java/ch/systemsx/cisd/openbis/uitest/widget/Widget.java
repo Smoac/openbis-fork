@@ -38,9 +38,13 @@ public abstract class Widget
         return context;
     }
 
-    protected WebElement find(String xpath)
+    protected Widget find(String xpath)
     {
-        return context.findElement(By.xpath(xpath));
+        Widget w = new Widget()
+            {
+            };
+        w.setContext(context.findElement(By.xpath(xpath)));
+        return w;
     }
 
     protected List<WebElement> findAll(String xpath)

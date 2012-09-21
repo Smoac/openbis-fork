@@ -23,7 +23,6 @@ import ch.systemsx.cisd.openbis.uitest.infra.Cell;
 import ch.systemsx.cisd.openbis.uitest.infra.Row;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
@@ -90,8 +89,7 @@ public class SampleBrowser implements Browser<Sample>
     public void filter(Sample sample)
     {
         paging.filters();
-        filters.setCode(sample.getCode());
-        new WaitForRefreshOf(grid).withTimeoutOf(10);
+        filters.setCode(sample.getCode(), grid);
     }
 
     @Override

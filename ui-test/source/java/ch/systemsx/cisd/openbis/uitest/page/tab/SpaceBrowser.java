@@ -21,7 +21,6 @@ import ch.systemsx.cisd.openbis.uitest.infra.Cell;
 import ch.systemsx.cisd.openbis.uitest.infra.Row;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
@@ -76,11 +75,10 @@ public class SpaceBrowser implements Browser<Space>
     }
 
     @Override
-    public void filter(Space space)
+    public void filter(final Space space)
     {
         paging.filters();
-        filters.setCode(space.getCode());
-        new WaitForRefreshOf(grid).withTimeoutOf(10);
+        filters.setCode(space.getCode(), grid);
     }
 
     @Override

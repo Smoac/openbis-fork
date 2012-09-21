@@ -26,8 +26,8 @@ import ch.systemsx.cisd.openbis.uitest.infra.Row;
 /**
  * @author anttil
  */
-public class BrowserListsElementMatcher<T extends Browsable, U extends Browser<T>> extends
-        TypeSafeMatcher<U>
+public class BrowserListsElementMatcher<T extends Browsable, U extends Browser<T>>
+        extends TypeSafeMatcher<U>
 {
     private T expected;
 

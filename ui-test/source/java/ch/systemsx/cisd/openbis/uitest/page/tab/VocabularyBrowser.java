@@ -21,7 +21,6 @@ import ch.systemsx.cisd.openbis.uitest.infra.Cell;
 import ch.systemsx.cisd.openbis.uitest.infra.Row;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
@@ -68,8 +67,7 @@ public class VocabularyBrowser implements Browser<Vocabulary>
     public void filter(Vocabulary vocabulary)
     {
         paging.filters();
-        filters.setCode(vocabulary.getCode());
-        new WaitForRefreshOf(grid).withTimeoutOf(10);
+        filters.setCode(vocabulary.getCode(), grid);
     }
 
     @Override

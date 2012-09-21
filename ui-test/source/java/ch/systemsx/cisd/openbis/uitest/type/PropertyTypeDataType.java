@@ -16,31 +16,54 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
+import ch.systemsx.cisd.openbis.uitest.widget.Checkbox;
+import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
+import ch.systemsx.cisd.openbis.uitest.widget.Text;
+import ch.systemsx.cisd.openbis.uitest.widget.TextArea;
+import ch.systemsx.cisd.openbis.uitest.widget.Widget;
+
 /**
  * @author anttil
  */
-public enum PropertyTypeDataType
+public enum PropertyTypeDataType 
 {
-    BOOLEAN("BOOLEAN"),
-    HYPERLINK("HYPERLINK"),
-    INTEGER("INTEGER"),
-    MATERIAL("MATERIAL"),
-    MULTILINE_VARCHAR("MULTILINE_VARCHAR"),
-    REAL("REAL"),
-    TIMESTAMP("TIMESTAMP"),
-    VARCHAR("VARCHAR"),
-    XML("XML"),
-    CONTROLLED_VOCABULARY("CONTROLLEDVOCABULARY");
+    BOOLEAN("BOOLEAN", Checkbox.class),
+    HYPERLINK("HYPERLINK", Text.class),
+    INTEGER("INTEGER", Text.class),
+    MATERIAL("MATERIAL", Text.class),
+    MULTILINE_VARCHAR("MULTILINE_VARCHAR", TextArea.class),
+    REAL("REAL", Text.class),
+    TIMESTAMP("TIMESTAMP", Text.class),
+    VARCHAR("VARCHAR", Text.class),
+    XML("XML", TextArea.class),
+    CONTROLLED_VOCABULARY("CONTROLLEDVOCABULARY", DropDown.class);
 
     private String name;
 
-    private PropertyTypeDataType(String name)
+    private Class<? extends Widget> widgetClass;
+
+    private PropertyTypeDataType(String name, Class<? extends Widget> widgetClass)
     {
         this.name = name;
+        this.widgetClass = widgetClass;
     }
 
     public String getName()
     {
         return this.name;
+    }
+
+    public Widget representedAs()
+    {
+        try
+        {
+            return widgetClass.newInstance();
+        } catch (InstantiationException ex)
+        {
+            throw new RuntimeException(ex);
+        } catch (IllegalAccessException ex)
+        {
+            throw new RuntimeException(ex);
+        }
     }
 }

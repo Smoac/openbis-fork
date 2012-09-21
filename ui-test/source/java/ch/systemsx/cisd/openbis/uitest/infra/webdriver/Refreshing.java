@@ -21,5 +21,5 @@ package ch.systemsx.cisd.openbis.uitest.infra.webdriver;
  */
 public interface Refreshing
 {
-    public boolean hasRefreshed();
+    public String getState();
 }

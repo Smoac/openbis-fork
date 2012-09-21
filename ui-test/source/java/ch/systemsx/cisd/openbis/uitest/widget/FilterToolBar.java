@@ -16,23 +16,33 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Action;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
+
 /**
  * @author anttil
  */
 public class FilterToolBar extends Widget
 {
 
-    public void setCode(String text)
+    public void setCode(final String text, Grid refreshingGrid)
     {
-        Text t = new Text();
-        t.setContext(find(".//input[contains(@id, 'Code-input')]"));
-        t.write(text);
+        final Text t = find(".//input[contains(@id, 'Code-input')]").handleAs(Text.class);
+
+        new WaitForRefreshOf(refreshingGrid).after(new Action()
+            {
+                @Override
+                public void execute()
+                {
+                    t.write(text);
+                }
+            }).withTimeoutOf(10);
+
     }
 
     public void reset()
     {
-        Button b = new Button();
-        b.setContext(find(".//button[text()='Reset']"));
+        Button b = find(".//button[text()='Reset']").handleAs(Button.class);
         b.click();
     }
 }

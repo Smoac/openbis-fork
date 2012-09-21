@@ -22,27 +22,27 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
+
 /**
  * @author anttil
  */
 public class Form extends Widget
 {
-    public Widget getWidget(String label)
+    public Widget getWidget(PropertyType type)
     {
         List<WebElement> elements = findAll(".//form/div/label");
 
         for (WebElement element : elements)
         {
-            if (element.getText().toLowerCase().startsWith(label.toLowerCase()))
+            if (element.getText().toLowerCase().startsWith(type.getLabel().toLowerCase()))
             {
-                Widget w = new Widget()
-                    {
-                    };
+                Widget w = type.getDataType().representedAs();
                 w.setContext(element.findElement(By.xpath("../div/div")));
                 return w;
             }
         }
-        throw new IllegalArgumentException("Could not find " + label);
+        throw new IllegalArgumentException("Could not find " + type.getLabel());
     }
 
     public List<String> getLabels()

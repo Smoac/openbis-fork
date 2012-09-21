@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import org.openqa.selenium.WebElement;
 
 /**
  * @author anttil
@@ -26,9 +25,7 @@ public class PagingToolBar extends Widget
 
     public void filters()
     {
-        WebElement button = find(".//button[text()='Filters']");
-        Button b = new Button();
-        b.setContext(button);
+        Button b = find(".//button[text()='Filters']").handleAs(Button.class);
         if (!b.isPressed())
         {
             b.click();

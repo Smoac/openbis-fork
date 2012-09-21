@@ -36,7 +36,7 @@ public class Button extends Widget
             button = context;
         } else
         {
-            button = find(".//button");
+            button = find(".//button").getContext();
         }
         return "true".equalsIgnoreCase(button.getAttribute("aria-pressed"));
     }

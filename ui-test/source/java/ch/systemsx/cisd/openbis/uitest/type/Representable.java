@@ -14,28 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.widget;
+package ch.systemsx.cisd.openbis.uitest.type;
+
+import ch.systemsx.cisd.openbis.uitest.widget.Fillable;
+import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
 /**
  * @author anttil
  */
-public class DeletionConfirmationBox extends Widget
+public interface Representable<T extends Widget & Fillable>
 {
-    public void confirm(String reason)
-    {
-        TextArea text = find(".//textarea").handleAs(TextArea.class);
-        text.write(reason);
-
-        getOkButton().click();
-    }
-
-    public void confirm()
-    {
-        getOkButton().click();
-    }
-
-    private Button getOkButton()
-    {
-        return find(".//button[text()=\"OK\"]").handleAs(Button.class);
-    }
+    public T representedAs();
 }

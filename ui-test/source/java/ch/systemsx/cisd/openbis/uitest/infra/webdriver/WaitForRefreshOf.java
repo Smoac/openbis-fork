@@ -28,21 +28,34 @@ import com.google.common.base.Predicate;
 public class WaitForRefreshOf extends FluentWait<Refreshing>
 {
 
+    private final String state;
+
+    private Action action;
+
     public WaitForRefreshOf(Refreshing widget)
     {
         super(widget);
+        this.state = widget.getState();
+    }
+
+    @SuppressWarnings("hiding")
+    public WaitForRefreshOf after(Action action)
+    {
+        this.action = action;
+        return this;
     }
 
     public void withTimeoutOf(int seconds)
     {
-        this.withTimeout(seconds, TimeUnit.SECONDS)
+        action.execute();
+        withTimeout(seconds, TimeUnit.SECONDS)
                 .pollingEvery(100, TimeUnit.MILLISECONDS)
                 .until(new Predicate<Refreshing>()
                     {
                         @Override
                         public boolean apply(Refreshing widget)
                         {
-                            return widget.hasRefreshed();
+                            return !state.equals(widget.getState());
                         }
                     });
     }

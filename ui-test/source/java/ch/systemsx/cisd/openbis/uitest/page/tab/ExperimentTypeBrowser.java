@@ -21,7 +21,6 @@ import ch.systemsx.cisd.openbis.uitest.infra.Cell;
 import ch.systemsx.cisd.openbis.uitest.infra.Row;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
@@ -70,11 +69,10 @@ public class ExperimentTypeBrowser implements Browser<ExperimentType>
     }
 
     @Override
-    public void filter(ExperimentType type)
+    public void filter(final ExperimentType type)
     {
         paging.filters();
-        filters.setCode(type.getCode());
-        new WaitForRefreshOf(grid).withTimeoutOf(10);
+        filters.setCode(type.getCode(), grid);
     }
 
     @Override

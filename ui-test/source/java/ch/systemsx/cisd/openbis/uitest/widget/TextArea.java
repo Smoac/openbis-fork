@@ -25,26 +25,35 @@ public class TextArea extends Widget implements Fillable
 {
     public void write(String text)
     {
-        WebElement element = find(".//textarea");
+        WebElement element = getElement();
         element.clear();
         element.sendKeys(text);
     }
 
     public void clear()
     {
-        WebElement element = find(".//textarea");
-        element.clear();
+        getElement().clear();
     }
 
     public void append(String text)
     {
-        WebElement element = find(".//textarea");
-        element.sendKeys(text);
+        getElement().sendKeys(text);
     }
 
     @Override
     public void fillWith(String string)
     {
         write(string);
+    }
+
+    private WebElement getElement()
+    {
+        if (context.getTagName().equals("textarea"))
+        {
+            return context;
+        } else
+        {
+            return find(".//textarea").getContext();
+        }
     }
 }

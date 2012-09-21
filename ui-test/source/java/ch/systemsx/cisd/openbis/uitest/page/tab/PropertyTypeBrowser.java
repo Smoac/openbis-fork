@@ -21,7 +21,6 @@ import ch.systemsx.cisd.openbis.uitest.infra.Cell;
 import ch.systemsx.cisd.openbis.uitest.infra.Row;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
@@ -65,8 +64,7 @@ public class PropertyTypeBrowser implements Browser<PropertyType>
     public void filter(PropertyType propertyType)
     {
         paging.filters();
-        filters.setCode(propertyType.getCode());
-        new WaitForRefreshOf(grid).withTimeoutOf(10);
+        filters.setCode(propertyType.getCode(), grid);
     }
 
     @Override

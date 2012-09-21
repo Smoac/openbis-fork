@@ -14,28 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.widget;
+package ch.systemsx.cisd.openbis.uitest.infra.webdriver;
 
 /**
  * @author anttil
  */
-public class DeletionConfirmationBox extends Widget
+public interface Action
 {
-    public void confirm(String reason)
-    {
-        TextArea text = find(".//textarea").handleAs(TextArea.class);
-        text.write(reason);
-
-        getOkButton().click();
-    }
-
-    public void confirm()
-    {
-        getOkButton().click();
-    }
-
-    private Button getOkButton()
-    {
-        return find(".//button[text()=\"OK\"]").handleAs(Button.class);
-    }
+    public void execute();
 }

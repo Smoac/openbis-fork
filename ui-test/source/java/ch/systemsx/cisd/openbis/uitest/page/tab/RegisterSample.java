@@ -23,15 +23,13 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
-import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
-import ch.systemsx.cisd.openbis.uitest.widget.Checkbox;
 import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
+import ch.systemsx.cisd.openbis.uitest.widget.Fillable;
 import ch.systemsx.cisd.openbis.uitest.widget.Form;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
-import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
 public class RegisterSample
 {
@@ -69,27 +67,9 @@ public class RegisterSample
 
         for (PropertyType propertyType : properties.keySet())
         {
-            Widget w = form.getWidget(propertyType.getLabel());
-            PropertyTypeDataType type = propertyType.getDataType();
-            String value = properties.get(propertyType).toString();
+            Fillable widget = (Fillable) form.getWidget(propertyType);
+            widget.fillWith(properties.get(propertyType).toString());
 
-            switch (type)
-            {
-                case BOOLEAN:
-                    w.handleAs(Checkbox.class).fillWith(value);
-                    break;
-                case VARCHAR:
-                    w.handleAs(Text.class).fillWith(value);
-                    break;
-                case INTEGER:
-                    w.handleAs(Text.class).fillWith(value);
-                    break;
-                case CONTROLLED_VOCABULARY:
-                    w.handleAs(DropDown.class).fillWith(value);
-                    break;
-                default:
-                    throw new IllegalArgumentException(type + " not supported");
-            }
         }
     }
 

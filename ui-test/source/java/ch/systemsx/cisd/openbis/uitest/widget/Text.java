@@ -47,7 +47,7 @@ public class Text extends Widget implements Fillable
             return context;
         } else
         {
-            return find("input");
+            return find("input").getContext();
         }
     }
 

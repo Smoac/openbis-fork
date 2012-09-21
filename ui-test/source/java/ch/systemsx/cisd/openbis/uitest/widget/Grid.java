@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.uitest.widget;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -26,6 +27,7 @@ import org.openqa.selenium.WebElement;
 import ch.systemsx.cisd.openbis.uitest.infra.Cell;
 import ch.systemsx.cisd.openbis.uitest.infra.Row;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Refreshing;
+import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 
 /**
  * @author anttil
@@ -93,7 +95,15 @@ public class Grid extends Widget implements Refreshing
 
     private List<WebElement> getCells()
     {
-        return findAll(".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]");
+        SeleniumTest.driver.manage().timeouts().implicitlyWait(500, TimeUnit.MILLISECONDS);
+        try
+        {
+            return findAll(".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]");
+        } finally
+        {
+            SeleniumTest.driver.manage().timeouts().implicitlyWait(SeleniumTest.IMPLICIT_WAIT,
+                    TimeUnit.SECONDS);
+        }
     }
 
     @Override
@@ -120,29 +130,9 @@ public class Grid extends Widget implements Refreshing
         return s;
     }
 
-    boolean itsOn = false;
-
-    int last = 0;
-
     @Override
-    public synchronized boolean hasRefreshed()
+    public synchronized String getState()
     {
-        if (itsOn)
-        {
-            if (this.last != getCells().size())
-            {
-                this.itsOn = false;
-                return true;
-            } else
-            {
-                return false;
-            }
-        } else
-        {
-            itsOn = true;
-            this.last = getCells().size();
-            return false;
-        }
-
+        return "" + this.getCells().size();
     }
 }
