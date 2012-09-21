@@ -29,8 +29,8 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.Template;
-import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsUtils;
 
 /**
@@ -51,6 +51,11 @@ public class DssPropertyParametersUtil
     public static final String DOWNLOAD_URL_KEY = "download-url";
 
     public static final String SERVER_URL_KEY = "server-url";
+
+    public static final String MINIMUM_TIME_TO_KEEP_STREAMS_IN_SEC_KEY =
+            "minimum-time-to-keep-streams-in-sec";
+
+    public static final int MINIMUM_TIME_TO_KEEP_STREAMS_DEFAULT = 20;
 
     /**
      * Temp directory for dss usage.
@@ -134,6 +139,12 @@ public class DssPropertyParametersUtil
     public static String getDownloadUrl(Properties serviceProperties)
     {
         return PropertyUtils.getMandatoryProperty(serviceProperties, DOWNLOAD_URL_KEY);
+    }
+
+    public static int getMinimumTimeToKeepStreams(Properties serviceProperties)
+    {
+        return PropertyUtils.getPosInt(serviceProperties, MINIMUM_TIME_TO_KEEP_STREAMS_IN_SEC_KEY,
+                MINIMUM_TIME_TO_KEEP_STREAMS_DEFAULT);
     }
 
     public static File getDssInternalTempDir(final Properties properties)

@@ -24,13 +24,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 
 /**
  * Repository of {@link InputStream} instances.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class StreamRepository implements IStreamRepository
@@ -38,19 +40,21 @@ public class StreamRepository implements IStreamRepository
     private static final class InputStreamWithTimeStamp
     {
         final Date timestamp;
+
         final InputStreamWithPath inputStreamWithPath;
+
         InputStreamWithTimeStamp(InputStreamWithPath inputStreamWithPath, Date timestamp)
         {
             this.inputStreamWithPath = inputStreamWithPath;
             this.timestamp = timestamp;
         }
     }
-    
+
     static interface IUniqueIdGenerator
     {
         public String createUniqueID();
     }
-    
+
     private static final class IdGenerator implements IUniqueIdGenerator
     {
         private final TokenGenerator tokenGenerator = new TokenGenerator();
@@ -61,17 +65,24 @@ public class StreamRepository implements IStreamRepository
             return tokenGenerator.getNewToken(System.currentTimeMillis());
         }
     }
-    
-    private final Map<String, InputStreamWithTimeStamp> streams = new HashMap<String, InputStreamWithTimeStamp>();
+
+    private final Map<String, InputStreamWithTimeStamp> streams =
+
+    new HashMap<String, InputStreamWithTimeStamp>();
+
     private final IUniqueIdGenerator inputStreamIDGenerator;
+
     private final ITimeProvider timeProvider;
+
     private final long minimumTime;
-    
-    public StreamRepository(int minimumTimeInSecondsToKeepStreams)
+
+    public StreamRepository(IConfigProvider configProvider)
     {
-        this(minimumTimeInSecondsToKeepStreams, new IdGenerator(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+        this(configProvider.getMinimumTimeToKeepStreams(), new IdGenerator(),
+                SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
-    
+
+    @Private
     StreamRepository(int minimumTimeInSecondsToKeepStreams,
             IUniqueIdGenerator inputStreamIDGenerator, ITimeProvider timeProvider)
     {
@@ -92,7 +103,8 @@ public class StreamRepository implements IStreamRepository
         removeStaleInputStreams();
         String id = inputStreamIDGenerator.createUniqueID();
         Date timestamp = new Date(timeProvider.getTimeInMilliseconds());
-        streams.put(id, new InputStreamWithTimeStamp(new InputStreamWithPath(inputStream, path), timestamp));
+        streams.put(id, new InputStreamWithTimeStamp(new InputStreamWithPath(inputStream, path),
+                timestamp));
         return id;
     }
 
@@ -103,11 +115,12 @@ public class StreamRepository implements IStreamRepository
         InputStreamWithTimeStamp inputStreamWithTimeStamp = streams.remove(inputStreamID);
         if (inputStreamWithTimeStamp == null)
         {
-            throw new IllegalArgumentException("Stream " + inputStreamID + " is no longer available.");
+            throw new IllegalArgumentException("Stream " + inputStreamID
+                    + " is no longer available.");
         }
         return inputStreamWithTimeStamp.inputStreamWithPath;
     }
-    
+
     private void removeStaleInputStreams()
     {
         long currentTime = timeProvider.getTimeInMilliseconds();
@@ -121,6 +134,5 @@ public class StreamRepository implements IStreamRepository
             }
         }
     }
-    
-    
+
 }

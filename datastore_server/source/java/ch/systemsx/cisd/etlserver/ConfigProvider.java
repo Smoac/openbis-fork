@@ -65,4 +65,9 @@ public class ConfigProvider implements IConfigProvider
         return DssPropertyParametersUtil.getOpenBisServerUrl(properties);
     }
 
+    @Override
+    public int getMinimumTimeToKeepStreams()
+    {
+        return DssPropertyParametersUtil.getMinimumTimeToKeepStreams(properties);
+    }
 }

@@ -41,4 +41,8 @@ public interface IConfigProvider
      */
     String getOpenBisServerUrl();
 
+    /**
+     * Return the minimum time to keep streams (in seconds).
+     */
+    int getMinimumTimeToKeepStreams();
 }

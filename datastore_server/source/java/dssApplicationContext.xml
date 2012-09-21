@@ -109,7 +109,7 @@
     </bean>
     
     <bean id="stream-repository" class="ch.systemsx.cisd.openbis.dss.generic.server.StreamRepository"> 
-        <constructor-arg value="20"/>
+        <constructor-arg ref="config-provider" />
     </bean>
     
     <bean id="dss-service-rpc-generic" 
