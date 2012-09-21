@@ -148,6 +148,8 @@ public class ScreeningConstants
      */
     public static final String DEFAULT_OVERVIEW_IMAGE_DATASET_TYPE = "HCS_IMAGE_OVERVIEW";
 
+    public static final String HCS_ANALYSIS_PREFIX = "HCS_ANALYSIS";
+
     /** type of the new analysis dataset */
     public static final String DEFAULT_ANALYSIS_WELL_DATASET_TYPE = "HCS_ANALYSIS_WELL_FEATURES";
 
@@ -155,7 +157,7 @@ public class ScreeningConstants
      * type of the analysis container dataset
      */
     public static final String DEFAULT_ANALYSIS_WELL_CONTAINER_DATASET_TYPE =
-            "HCS_ANALYSIS_WELL_FEATURES_CONTAINER";
+            "HCS_ANALYSIS_CONTAINER_WELL_FEATURES";
 
     /** unknown file format code */
     public static final String UNKNOWN_FILE_FORMAT = "UNKNOWN";

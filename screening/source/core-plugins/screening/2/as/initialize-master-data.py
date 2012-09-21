@@ -196,9 +196,9 @@ data_set_type_HCS_IMAGE_CONTAINER_SEGMENTATION = tr.getOrCreateNewDataSetType('H
 data_set_type_HCS_IMAGE_CONTAINER_SEGMENTATION.setDescription('Container for HCS segmentation (a.k.a. overlays) images of different resolutions (original, overviews, thumbnails).')
 data_set_type_HCS_IMAGE_CONTAINER_SEGMENTATION.setContainerType(True)
 
-data_set_type_HCS_ANALYSIS_WELL_FEATURES_CONTAINER = tr.getOrCreateNewDataSetType('HCS_ANALYSIS_WELL_FEATURES_CONTAINER')
-data_set_type_HCS_ANALYSIS_WELL_FEATURES_CONTAINER.setDescription('Container for HCS image analysis well feature vectors.')
-data_set_type_HCS_ANALYSIS_WELL_FEATURES_CONTAINER.setContainerType(True)
+data_set_type_HCS_ANALYSIS_CONTAINER_WELL_FEATURES = tr.getOrCreateNewDataSetType('HCS_ANALYSIS_CONTAINER_WELL_FEATURES')
+data_set_type_HCS_ANALYSIS_CONTAINER_WELL_FEATURES.setDescription('Container for HCS image analysis well feature vectors.')
+data_set_type_HCS_ANALYSIS_CONTAINER_WELL_FEATURES.setContainerType(True)
 
 # Exists in the database by default
 #data_set_type_UNKNOWN = tr.getOrCreateNewDataSetType('UNKNOWN')
@@ -341,7 +341,7 @@ assignment_MATERIAL_GENE_GENE_SYMBOLS.setMandatory(False)
 assignment_MATERIAL_GENE_GENE_SYMBOLS.setSection(None)
 assignment_MATERIAL_GENE_GENE_SYMBOLS.setPositionInForms(4)
 
-assignment_DATA_SET_HCS_ANALYSIS_WELL_FEATURES_ANALYSIS_PROCEDURE = tr.assignPropertyType(data_set_type_HCS_ANALYSIS_WELL_FEATURES_CONTAINER, prop_type_ANALYSIS_PROCEDURE)
+assignment_DATA_SET_HCS_ANALYSIS_WELL_FEATURES_ANALYSIS_PROCEDURE = tr.assignPropertyType(data_set_type_HCS_ANALYSIS_CONTAINER_WELL_FEATURES, prop_type_ANALYSIS_PROCEDURE)
 assignment_DATA_SET_HCS_ANALYSIS_WELL_FEATURES_ANALYSIS_PROCEDURE.setMandatory(False)
 assignment_DATA_SET_HCS_ANALYSIS_WELL_FEATURES_ANALYSIS_PROCEDURE.setSection(None)
 assignment_DATA_SET_HCS_ANALYSIS_WELL_FEATURES_ANALYSIS_PROCEDURE.setPositionInForms(1)
