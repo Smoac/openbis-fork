@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.widget;
+package ch.systemsx.cisd.openbis.uitest.infra;
 
 /**
  * @author anttil
  */
-public interface Fillable
+public interface Widget extends Contextual
 {
-    public void fillWith(String string);
+    public String getTagName();
+
 }

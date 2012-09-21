@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.widget.Fillable;
-import ch.systemsx.cisd.openbis.uitest.widget.Widget;
+import ch.systemsx.cisd.openbis.uitest.infra.Fillable;
+import ch.systemsx.cisd.openbis.uitest.infra.Widget;
 
 /**
  * @author anttil

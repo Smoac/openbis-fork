@@ -16,48 +16,24 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import java.util.List;
-
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
+import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
+import ch.systemsx.cisd.openbis.uitest.infra.Widget;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
 
 /**
  * @author anttil
  */
-public abstract class Widget
+public class Dynamic implements Contextual
 {
-    protected WebElement context;
 
-    public void setContext(WebElement context)
-    {
-        this.context = context;
-    }
+    private WidgetWebElement context;
 
-    public WebElement getContext()
+    public Contextual define(Class<? extends Contextual> clazz)
     {
-        return context;
-    }
-
-    protected Widget find(String xpath)
-    {
-        Widget w = new Widget()
-            {
-            };
-        w.setContext(context.findElement(By.xpath(xpath)));
-        return w;
-    }
-
-    protected List<WebElement> findAll(String xpath)
-    {
-        return context.findElements(By.xpath(xpath));
-    }
-
-    public <T extends Widget> T handleAs(Class<T> clazz)
-    {
-        T t;
+        Contextual widget;
         try
         {
-            t = clazz.newInstance();
+            widget = clazz.newInstance();
         } catch (InstantiationException ex)
         {
             throw new RuntimeException(ex);
@@ -65,7 +41,24 @@ public abstract class Widget
         {
             throw new RuntimeException(ex);
         }
-        t.setContext(context);
-        return t;
+
+        if (widget instanceof Widget)
+        {
+            Widget w = (Widget) widget;
+            if (!w.getTagName().equals(context.getTagName()))
+            {
+                widget.setContext(new WidgetWebElement(context.find(".//" + w.getTagName())));
+                return widget;
+            }
+        }
+        widget.setContext(this.context);
+        return widget;
     }
+
+    @Override
+    public void setContext(WidgetWebElement context)
+    {
+        this.context = context;
+    }
+
 }

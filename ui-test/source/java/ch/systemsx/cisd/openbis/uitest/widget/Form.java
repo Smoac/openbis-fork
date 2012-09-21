@@ -22,23 +22,46 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
+import ch.systemsx.cisd.openbis.uitest.infra.Widget;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 
 /**
  * @author anttil
  */
-public class Form extends Widget
+public class Form implements Contextual
 {
+    private WidgetWebElement context;
+
     public Widget getWidget(PropertyType type)
     {
-        List<WebElement> elements = findAll(".//form/div/label");
+        List<WebElement> elements = context.findAll(".//form/div/label");
 
         for (WebElement element : elements)
         {
             if (element.getText().toLowerCase().startsWith(type.getLabel().toLowerCase()))
             {
-                Widget w = type.getDataType().representedAs();
-                w.setContext(element.findElement(By.xpath("../div/div")));
+
+                Widget w;
+                try
+                {
+                    w = type.getDataType().representedAs().newInstance();
+                } catch (InstantiationException ex)
+                {
+                    throw new RuntimeException(ex);
+                } catch (IllegalAccessException ex)
+                {
+                    throw new RuntimeException(ex);
+                }
+
+                WebElement e = element.findElement(By.xpath("../div/div"));
+                if (w.getTagName() != null && !e.getTagName().equals(w.getTagName()))
+                {
+                    e = e.findElement(By.xpath(".//" + w.getTagName()));
+                }
+
+                w.setContext(new WidgetWebElement(e));
                 return w;
             }
         }
@@ -48,11 +71,17 @@ public class Form extends Widget
     public List<String> getLabels()
     {
         List<String> labels = new ArrayList<String>();
-        List<WebElement> elements = findAll(".//form/div/label");
+        List<WebElement> elements = context.findAll(".//form/div/label");
         for (WebElement element : elements)
         {
             labels.add(element.getText());
         }
         return labels;
+    }
+
+    @Override
+    public void setContext(WidgetWebElement context)
+    {
+        this.context = context;
     }
 }

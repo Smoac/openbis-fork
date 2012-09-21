@@ -101,7 +101,7 @@ public abstract class SeleniumTest
         System.setProperty("webdriver.firefox.profile", "default");
 
         driver = new FirefoxDriver();
-        driver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT, TimeUnit.SECONDS);
+        setImplicitWaitToDefault();
         delete(new File("targets/dist"));
 
         driver.manage().deleteAllCookies();
@@ -114,6 +114,16 @@ public abstract class SeleniumTest
         }
 
         driver.get(url);
+    }
+
+    public static void setImplicitWait(long amount, TimeUnit unit)
+    {
+        driver.manage().timeouts().implicitlyWait(amount, unit);
+    }
+
+    public static void setImplicitWaitToDefault()
+    {
+        driver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT, TimeUnit.SECONDS);
     }
 
     @AfterSuite
@@ -271,6 +281,30 @@ public abstract class SeleniumTest
     protected Matcher<RegisterSample> hasInputsForProperties(PropertyType... fields)
     {
         return new RegisterSampleFormContainsInputsForPropertiesMatcher(fields);
+    }
+
+    protected <T extends Browsable> CellExtractor<T> cell(T browsable, String column)
+    {
+        return new CellExtractor<T>(browsable, column);
+    }
+
+    protected class CellExtractor<T extends Browsable>
+    {
+        private final T browsable;
+
+        private final String column;
+
+        public CellExtractor(T browsable, String column)
+        {
+            this.browsable = browsable;
+            this.column = column;
+        }
+
+        public Cell of(Browser<T> browser)
+        {
+            browser.filter(browsable);
+            return browser.cell(browsable, column);
+        }
     }
 
     protected Matcher<Cell> linksTo(String url)

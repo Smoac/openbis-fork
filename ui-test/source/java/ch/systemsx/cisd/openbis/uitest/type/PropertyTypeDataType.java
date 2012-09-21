@@ -16,16 +16,17 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Fillable;
+import ch.systemsx.cisd.openbis.uitest.infra.Widget;
 import ch.systemsx.cisd.openbis.uitest.widget.Checkbox;
 import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 import ch.systemsx.cisd.openbis.uitest.widget.TextArea;
-import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
 /**
  * @author anttil
  */
-public enum PropertyTypeDataType 
+public enum PropertyTypeDataType
 {
     BOOLEAN("BOOLEAN", Checkbox.class),
     HYPERLINK("HYPERLINK", Text.class),
@@ -40,9 +41,9 @@ public enum PropertyTypeDataType
 
     private String name;
 
-    private Class<? extends Widget> widgetClass;
+    private Class<?> widgetClass;
 
-    private PropertyTypeDataType(String name, Class<? extends Widget> widgetClass)
+    private <T extends Widget & Fillable> PropertyTypeDataType(String name, Class<T> widgetClass)
     {
         this.name = name;
         this.widgetClass = widgetClass;
@@ -53,17 +54,9 @@ public enum PropertyTypeDataType
         return this.name;
     }
 
-    public Widget representedAs()
+    @SuppressWarnings("unchecked")
+    public <T extends Widget & Fillable> Class<T> representedAs()
     {
-        try
-        {
-            return widgetClass.newInstance();
-        } catch (InstantiationException ex)
-        {
-            throw new RuntimeException(ex);
-        } catch (IllegalAccessException ex)
-        {
-            throw new RuntimeException(ex);
-        }
+        return (Class<T>) widgetClass;
     }
 }

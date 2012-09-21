@@ -124,8 +124,9 @@ public class SprintTest extends SeleniumTest
                         .withProperty(animalPropertyType, "mouse"));
 
         assertThat(sampleBrowser(), lists(sample));
-        assertThat(sampleBrowser().cell(sample, animalPropertyType.getLabel()), displays("mouse"));
-        assertThat(sampleBrowser().cell(sample, animalPropertyType.getLabel()),
+        assertThat(cell(sample, animalPropertyType.getLabel()).of(sampleBrowser()),
+                displays("mouse"));
+        assertThat(cell(sample, animalPropertyType.getLabel()).of(sampleBrowser()),
                 linksTo("http://www.ask.com/web?q=MOUSE"));
 
         // 5) Project and experiment
@@ -135,7 +136,7 @@ public class SprintTest extends SeleniumTest
         Experiment experiment =
                 create(anExperiment().ofType(experimentType).in(project).withCode("exp1")
                         .withSamples(sample));
-        assertThat(sampleBrowser().cell(sample, "Experiment"), displays(experiment.getCode()));
-        assertThat(sampleBrowser().cell(sample, "Project"), displays(project.getCode()));
+        assertThat(cell(sample, "Experiment").of(sampleBrowser()), displays(experiment.getCode()));
+        assertThat(cell(sample, "Project").of(sampleBrowser()), displays(project.getCode()));
     }
 }

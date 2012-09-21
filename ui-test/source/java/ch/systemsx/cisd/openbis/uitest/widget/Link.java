@@ -16,15 +16,16 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import org.openqa.selenium.interactions.Actions;
-
-import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.infra.Widget;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
 
 /**
  * @author anttil
  */
-public class Link extends Widget
+public class Link implements Widget
 {
+    private WidgetWebElement context;
+
     public void click()
     {
         context.click();
@@ -32,7 +33,18 @@ public class Link extends Widget
 
     public void highlight()
     {
-        Actions builder = new Actions(SeleniumTest.driver);
-        builder.moveToElement(context).build().perform();
+        context.mouseOver();
+    }
+
+    @Override
+    public void setContext(WidgetWebElement context)
+    {
+        this.context = context;
+    }
+
+    @Override
+    public String getTagName()
+    {
+        return "a";
     }
 }

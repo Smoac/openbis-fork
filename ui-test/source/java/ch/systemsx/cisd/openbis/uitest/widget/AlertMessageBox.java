@@ -16,15 +16,27 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
 
 /**
  * @author anttil
  */
-public class AlertMessageBox extends Widget
+public class AlertMessageBox implements Contextual
 {
+
+    private WidgetWebElement context;
+
     public void dismiss()
     {
-        Button ok = find(".//button[text()=\"OK\"]").handleAs(Button.class);
+        Button ok = context.find(".//button[text()=\"OK\"]", Button.class);
         ok.click();
     }
+
+    @Override
+    public void setContext(WidgetWebElement context)
+    {
+        this.context = context;
+    }
+
 }

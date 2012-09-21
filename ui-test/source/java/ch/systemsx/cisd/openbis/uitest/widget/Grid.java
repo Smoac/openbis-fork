@@ -25,15 +25,19 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import ch.systemsx.cisd.openbis.uitest.infra.Cell;
+import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
+import ch.systemsx.cisd.openbis.uitest.infra.Refreshing;
 import ch.systemsx.cisd.openbis.uitest.infra.Row;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Refreshing;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
 import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 
 /**
  * @author anttil
  */
-public class Grid extends Widget implements Refreshing
+public class Grid implements Contextual, Refreshing
 {
+
+    private WidgetWebElement context;
 
     public Row select(String column, String value)
     {
@@ -90,19 +94,20 @@ public class Grid extends Widget implements Refreshing
 
     private List<WebElement> getColumns()
     {
-        return findAll(".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]");
+        return context
+                .findAll(".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]");
     }
 
     private List<WebElement> getCells()
     {
-        SeleniumTest.driver.manage().timeouts().implicitlyWait(500, TimeUnit.MILLISECONDS);
+        SeleniumTest.setImplicitWait(500, TimeUnit.MILLISECONDS);
         try
         {
-            return findAll(".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]");
+            return context
+                    .findAll(".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]");
         } finally
         {
-            SeleniumTest.driver.manage().timeouts().implicitlyWait(SeleniumTest.IMPLICIT_WAIT,
-                    TimeUnit.SECONDS);
+            SeleniumTest.setImplicitWaitToDefault();
         }
     }
 
@@ -134,5 +139,11 @@ public class Grid extends Widget implements Refreshing
     public synchronized String getState()
     {
         return "" + this.getCells().size();
+    }
+
+    @Override
+    public void setContext(WidgetWebElement context)
+    {
+        this.context = context;
     }
 }

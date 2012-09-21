@@ -16,19 +16,29 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
 
 /**
  * @author anttil
  */
-public class PagingToolBar extends Widget
+public class PagingToolBar implements Contextual
 {
+
+    private WidgetWebElement context;
 
     public void filters()
     {
-        Button b = find(".//button[text()='Filters']").handleAs(Button.class);
+        Button b = context.find(".//button[text()='Filters']", Button.class);
         if (!b.isPressed())
         {
             b.click();
         }
+    }
+
+    @Override
+    public void setContext(WidgetWebElement context)
+    {
+        this.context = context;
     }
 }

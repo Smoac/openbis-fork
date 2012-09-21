@@ -16,42 +16,31 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Fillable;
 import ch.systemsx.cisd.openbis.uitest.infra.Widget;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
-
 
 /**
  * @author anttil
  */
-public class Checkbox implements Widget, Fillable
+public class SubmitButton implements Widget
 {
 
     private WidgetWebElement context;
 
-    public void set(boolean value)
+    public void click()
     {
-        if (context.getAttribute("checked") != null ^ value)
-        {
-            context.click();
-        }
-    }
-
-    @Override
-    public void fillWith(String string)
-    {
-        set("true".equalsIgnoreCase(string));
-    }
-
-    @Override
-    public void setContext(WidgetWebElement context)
-    {
-        this.context = context;
+        context.click();
     }
 
     @Override
     public String getTagName()
     {
         return "input";
+    }
+
+    @Override
+    public void setContext(WidgetWebElement context)
+    {
+        this.context = context;
     }
 }

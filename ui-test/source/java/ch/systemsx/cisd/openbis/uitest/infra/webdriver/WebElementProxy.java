@@ -30,18 +30,21 @@ public class WebElementProxy implements InvocationHandler
 
     private String id;
 
-    public static Object newInstance(String id)
+    private String tag;
+
+    public static Object newInstance(String id, String tag)
     {
         return java.lang.reflect.Proxy.newProxyInstance(
                 WebElement.class.getClassLoader(),
                 new Class<?>[]
                     { WebElement.class },
-                new WebElementProxy(id));
+                new WebElementProxy(id, tag));
     }
 
-    private WebElementProxy(String id)
+    private WebElementProxy(String id, String tag)
     {
         this.id = id;
+        this.tag = tag;
     }
 
     @Override
@@ -50,6 +53,10 @@ public class WebElementProxy implements InvocationHandler
         try
         {
             WebElement e = SeleniumTest.driver.findElement(By.id(id));
+            if (tag != null && !tag.equals(e.getTagName()))
+            {
+                e = e.findElement(By.xpath(".//" + tag));
+            }
             return m.invoke(e, args);
         } catch (InvocationTargetException e)
         {

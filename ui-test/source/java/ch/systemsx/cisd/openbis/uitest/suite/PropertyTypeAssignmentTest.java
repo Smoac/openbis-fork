@@ -20,7 +20,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
+import ch.systemsx.cisd.openbis.uitest.type.Sample;
+import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 /**
  * @author anttil
@@ -32,9 +35,27 @@ public class PropertyTypeAssignmentTest extends SeleniumTest
     @Test
     public void newPropertyTypeAssignmentIsListedInPropertyTypeAssignmentBrowser() throws Exception
     {
-        PropertyTypeAssignment assignment =
-                create(aSamplePropertyTypeAssignment());
+        PropertyTypeAssignment assignment = create(aSamplePropertyTypeAssignment());
 
         assertThat(propertyTypeAssignmentBrowser(), lists(assignment));
+    }
+
+    @Test
+    public void existingSamplesGetInitialValueSetForNewProperty()
+            throws Exception
+    {
+        SampleType sampleType = create(aSampleType());
+        Sample sample = create(aSample().ofType(sampleType));
+
+        PropertyType propertyType = create(aVarcharPropertyType());
+
+        create(aSamplePropertyTypeAssignment()
+                .with(sampleType)
+                .with(propertyType)
+                .thatIsMandatory()
+                .havingInitialValueOf("Test Initial Value"));
+
+        assertThat(cell(sample, propertyType.getLabel()).of(sampleBrowser()),
+                displays("Test Initial Value"));
     }
 }

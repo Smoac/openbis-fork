@@ -25,13 +25,18 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Fillable;
+import ch.systemsx.cisd.openbis.uitest.infra.Widget;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
 import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 
 /**
  * @author anttil
  */
-public class DropDown extends Widget implements Fillable
+public class DropDown implements Widget, Fillable
 {
+    private WidgetWebElement context;
+
     public void select(String text)
     {
         Collection<String> found = new HashSet<String>();
@@ -60,8 +65,7 @@ public class DropDown extends Widget implements Fillable
 
     private List<WebElement> getChoiceElements()
     {
-        WebElement opener = find(".//img").getContext();
-        opener.click();
+        context.click();
         return SeleniumTest.driver.findElements(By.className("x-combo-list-item"));
     }
 
@@ -69,6 +73,18 @@ public class DropDown extends Widget implements Fillable
     public void fillWith(String string)
     {
         select(string);
+    }
+
+    @Override
+    public void setContext(WidgetWebElement context)
+    {
+        this.context = context;
+    }
+
+    @Override
+    public String getTagName()
+    {
+        return "img";
     }
 
 }

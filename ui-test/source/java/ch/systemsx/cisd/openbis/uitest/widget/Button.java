@@ -16,13 +16,18 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import org.openqa.selenium.WebElement;
+import ch.systemsx.cisd.openbis.uitest.infra.Widget;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
+
 
 /**
  * @author anttil
  */
-public class Button extends Widget
+public class Button implements Widget
 {
+
+    private WidgetWebElement context;
+
     public void click()
     {
         context.click();
@@ -30,14 +35,18 @@ public class Button extends Widget
 
     public boolean isPressed()
     {
-        WebElement button;
-        if (context.getTagName().equals("button"))
-        {
-            button = context;
-        } else
-        {
-            button = find(".//button").getContext();
-        }
-        return "true".equalsIgnoreCase(button.getAttribute("aria-pressed"));
+        return "true".equalsIgnoreCase(context.getAttribute("aria-pressed"));
+    }
+
+    @Override
+    public String getTagName()
+    {
+        return "button";
+    }
+
+    @Override
+    public void setContext(WidgetWebElement context)
+    {
+        this.context = context;
     }
 }

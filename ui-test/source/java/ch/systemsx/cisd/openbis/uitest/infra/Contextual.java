@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra.webdriver;
+package ch.systemsx.cisd.openbis.uitest.infra;
+
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
+
 
 /**
  * @author anttil
  */
-public interface Refreshing
+public interface Contextual
 {
-    public String getState();
+    public void setContext(WidgetWebElement context);
 }

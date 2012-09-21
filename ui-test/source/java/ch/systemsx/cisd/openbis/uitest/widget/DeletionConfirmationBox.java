@@ -16,16 +16,20 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
+
 /**
  * @author anttil
  */
-public class DeletionConfirmationBox extends Widget
+public class DeletionConfirmationBox implements Contextual
 {
+    private WidgetWebElement context;
+
     public void confirm(String reason)
     {
-        TextArea text = find(".//textarea").handleAs(TextArea.class);
+        TextArea text = context.find(".//textarea", TextArea.class);
         text.write(reason);
-
         getOkButton().click();
     }
 
@@ -36,6 +40,12 @@ public class DeletionConfirmationBox extends Widget
 
     private Button getOkButton()
     {
-        return find(".//button[text()=\"OK\"]").handleAs(Button.class);
+        return context.find(".//button[text()=\"OK\"]", Button.class);
+    }
+
+    @Override
+    public void setContext(WidgetWebElement context)
+    {
+        this.context = context;
     }
 }

@@ -16,45 +16,50 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import org.openqa.selenium.WebElement;
+import ch.systemsx.cisd.openbis.uitest.infra.Fillable;
+import ch.systemsx.cisd.openbis.uitest.infra.Widget;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
+
 
 /**
  * @author anttil
  */
-public class Text extends Widget implements Fillable
+public class Text implements Widget, Fillable
 {
+    private WidgetWebElement context;
+
     public void write(String text)
     {
-        WebElement element = getInputElement();
-        element.clear();
-        element.sendKeys(text);
+        context.clear();
+        context.sendKeys(text);
     }
 
     public void clear()
     {
-        getInputElement().clear();
+        context.clear();
     }
 
     public void append(String text)
     {
-        getInputElement().sendKeys(text);
-    }
-
-    private WebElement getInputElement()
-    {
-        if (context.getTagName().equals("input"))
-        {
-            return context;
-        } else
-        {
-            return find("input").getContext();
-        }
+        context.sendKeys(text);
     }
 
     @Override
     public void fillWith(String string)
     {
         write(string);
+    }
+
+    @Override
+    public void setContext(WidgetWebElement context)
+    {
+        this.context = context;
+    }
+
+    @Override
+    public String getTagName()
+    {
+        return "input";
     }
 
 }

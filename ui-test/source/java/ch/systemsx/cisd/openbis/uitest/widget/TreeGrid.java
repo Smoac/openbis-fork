@@ -22,14 +22,19 @@ import java.util.List;
 
 import org.openqa.selenium.WebElement;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
+
 /**
  * @author anttil
  */
-public class TreeGrid extends Widget
+public class TreeGrid implements Contextual
 {
+    private WidgetWebElement context;
+
     public void select(String label)
     {
-        List<WebElement> elements = findAll(".//span[not(*) and @class='gwt-InlineHTML']");
+        List<WebElement> elements = context.findAll(".//span[not(*) and @class='gwt-InlineHTML']");
 
         Collection<String> found = new ArrayList<String>();
         for (WebElement element : elements)
@@ -46,5 +51,11 @@ public class TreeGrid extends Widget
         }
         throw new IllegalArgumentException("Selection " + label + " not found - these were found: "
                 + found);
+    }
+
+    @Override
+    public void setContext(WidgetWebElement context)
+    {
+        this.context = context;
     }
 }

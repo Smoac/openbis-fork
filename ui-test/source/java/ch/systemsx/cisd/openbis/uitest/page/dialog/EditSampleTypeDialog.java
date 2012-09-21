@@ -21,13 +21,14 @@ import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Checkbox;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
+import ch.systemsx.cisd.openbis.uitest.widget.TextArea;
 
 @SuppressWarnings("unused")
 public class EditSampleTypeDialog
 {
 
     @Locate("openbis_edit-type-dialog-description")
-    private Text description;
+    private TextArea description;
 
     @Locate("openbis_add-type-dialog-listable")
     private Checkbox listable;

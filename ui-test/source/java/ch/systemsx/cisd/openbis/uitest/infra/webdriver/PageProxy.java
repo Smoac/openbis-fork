@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.uitest.infra.webdriver;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyFactory;
@@ -28,10 +27,11 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
+import ch.systemsx.cisd.openbis.uitest.infra.Widget;
 import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotProxy;
 import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
 /**
  * @author anttil
@@ -115,29 +115,31 @@ public class PageProxy
                     try
                     {
                         field.setAccessible(true);
-                        Class<?> type = field.getType();
+                        Contextual widget = (Contextual) field.getType().newInstance();
 
-                        Widget widget;
-                        if (Modifier.isAbstract(type.getModifiers()))
+                        String tagName = null;
+                        if (widget instanceof Widget)
                         {
-                            widget = new Widget()
-                                {
-                                };
-                        } else
-                        {
-                            widget = (Widget) type.newInstance();
+                            tagName = ((Widget) widget).getTagName();
                         }
 
                         WebElement element;
                         if (field.getAnnotation(Lazy.class) != null)
                         {
-                            element = (WebElement) WebElementProxy.newInstance(locate.value());
+                            element =
+                                    (WebElement) WebElementProxy.newInstance(locate.value(),
+                                            tagName);
                         } else
                         {
                             element = SeleniumTest.driver.findElement(By.id(locate.value()));
+                            if (tagName != null && !element.getTagName().equals(tagName))
+                            {
+                                element = element.findElement(By.xpath(".//" + tagName));
+                            }
                         }
-                        widget.setContext((WebElement) ScreenShotProxy
-                                .newInstance(element, shotter));
+
+                        widget.setContext(new WidgetWebElement((WebElement) ScreenShotProxy
+                                .newInstance(element, shotter)));
                         field.set(t, widget);
                     } catch (IllegalArgumentException ex)
                     {

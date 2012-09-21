@@ -16,18 +16,22 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Action;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
 
 /**
  * @author anttil
  */
-public class FilterToolBar extends Widget
+public class FilterToolBar implements Contextual
 {
+
+    private WidgetWebElement context;
 
     public void setCode(final String text, Grid refreshingGrid)
     {
-        final Text t = find(".//input[contains(@id, 'Code-input')]").handleAs(Text.class);
+        final Text t = context.find(".//input[contains(@id, 'Code-input')]", Text.class);
 
         new WaitForRefreshOf(refreshingGrid).after(new Action()
             {
@@ -42,7 +46,13 @@ public class FilterToolBar extends Widget
 
     public void reset()
     {
-        Button b = find(".//button[text()='Reset']").handleAs(Button.class);
+        Button b = context.find(".//button[text()='Reset']", Button.class);
         b.click();
+    }
+
+    @Override
+    public void setContext(WidgetWebElement context)
+    {
+        this.context = context;
     }
 }

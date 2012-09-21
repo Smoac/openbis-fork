@@ -22,6 +22,8 @@ import org.openqa.selenium.support.ui.FluentWait;
 
 import com.google.common.base.Predicate;
 
+import ch.systemsx.cisd.openbis.uitest.infra.Refreshing;
+
 /**
  * @author anttil
  */
