@@ -1,0 +1,2 @@
+-- Migration from 120 to 121
+-- Intentionally left empty - migration is performed in sub project screening
