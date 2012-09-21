@@ -196,6 +196,10 @@ data_set_type_HCS_IMAGE_CONTAINER_SEGMENTATION = tr.getOrCreateNewDataSetType('H
 data_set_type_HCS_IMAGE_CONTAINER_SEGMENTATION.setDescription('Container for HCS segmentation (a.k.a. overlays) images of different resolutions (original, overviews, thumbnails).')
 data_set_type_HCS_IMAGE_CONTAINER_SEGMENTATION.setContainerType(True)
 
+data_set_type_HCS_ANALYSIS_CONTAINER_CELL_FEATURES = tr.getOrCreateNewDataSetType('HCS_ANALYSIS_CONTAINER_CELL_FEATURES')
+data_set_type_HCS_ANALYSIS_CONTAINER_CELL_FEATURES.setDescription('Container for HCS image analysis cell feature vectors.')
+data_set_type_HCS_ANALYSIS_CONTAINER_CELL_FEATURES.setContainerType(True)
+
 data_set_type_HCS_ANALYSIS_CONTAINER_WELL_FEATURES = tr.getOrCreateNewDataSetType('HCS_ANALYSIS_CONTAINER_WELL_FEATURES')
 data_set_type_HCS_ANALYSIS_CONTAINER_WELL_FEATURES.setDescription('Container for HCS image analysis well feature vectors.')
 data_set_type_HCS_ANALYSIS_CONTAINER_WELL_FEATURES.setContainerType(True)
