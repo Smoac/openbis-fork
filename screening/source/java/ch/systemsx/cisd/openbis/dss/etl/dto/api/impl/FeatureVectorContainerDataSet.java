@@ -90,12 +90,6 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
         }
     }
 
-    @Override
-    public void setDataSetType(String dataSetTypeCode)
-    {
-        throw new IllegalStateException(
-                "It is illegal to manually set dataSetType of the feature vector dataset.");
-    }
 
     @Override
     public void setPropertyValue(String propertyCode, String propertyValue)

@@ -517,8 +517,23 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     private FeatureVectorContainerDataSet createFeatureVectorContainerDataSet(
             FeatureVectorDataSet mainDataset)
     {
+
+        String dataSetTypeCode = mainDataset.getDataSetType();
+        if (!isHCSAnalysisDataSetType(dataSetTypeCode))
+        {
+            throw UserFailureException
+                    .fromTemplate(
+                            "Feature vector data set type should conform to the HCS_ANALYSIS_* pattern, but was %s",
+                            dataSetTypeCode);
+            
+        }
+        
         String containerDatasetTypeCode =
-                ScreeningConstants.DEFAULT_ANALYSIS_WELL_CONTAINER_DATASET_TYPE;
+                ScreeningConstants.HCS_ANALYSIS_PREFIX
+                        + ScreeningConstants.IMAGE_CONTAINER_DATASET_TYPE_MARKER
+                        + dataSetTypeCode
+                                .substring(ScreeningConstants.HCS_ANALYSIS_PREFIX.length());
+        
         @SuppressWarnings("unchecked")
         FeatureVectorContainerDataSet containerDataSet =
                 (FeatureVectorContainerDataSet) createNewDataSet(
@@ -573,6 +588,27 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                 && false == dataSetTypeCode.contains(MICROSCOPY_CONTAINER_TYPE_SUBSTRING);
     }
 
+    private static boolean isHCSAnalysisDataSetType(String mainDatasetTypeCode)
+    {
+        String prefix = ScreeningConstants.HCS_ANALYSIS_PREFIX;
+        if (mainDatasetTypeCode.startsWith(prefix))
+        {
+            if (mainDatasetTypeCode
+                    .contains(ScreeningConstants.IMAGE_CONTAINER_DATASET_TYPE_MARKER))
+            {
+                throw UserFailureException
+                        .fromTemplate(
+                                "The specified analysis dataset type '%s' should not be of container type, but contains '%s' in the type code.",
+                                mainDatasetTypeCode,
+                                ScreeningConstants.IMAGE_CONTAINER_DATASET_TYPE_MARKER);
+            }
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
     private static String findContainerDatasetTypeCode(
             DataSetInformation imageDataSetInformation)
     {
@@ -595,7 +631,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                             ScreeningConstants.MICROSCOPY_IMAGE_SAMPLE_TYPE_PATTERN);
         }
     }
-
+    
     private static String findThumbnailsDatasetTypeCode(
             DataSetInformation imageDataSetInformation)
     {
