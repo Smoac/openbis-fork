@@ -101,19 +101,22 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
 
     }
 
-    /**
-     * authenticate when the session has expired.
-     */
     @Override
-    public synchronized Object invoke(MethodInvocation invocation) throws Throwable
+    public Object invoke(MethodInvocation invocation) throws Throwable
     {
-        checkSessionToken();
+        String sessionToken = getSessionToken();
         try
         {
             return invocation.proceed();
         } catch (InvalidSessionException ise)
         {
-            authenticate();
+            synchronized (this)
+            {
+                if (sessionToken == sessionHolder.getSessionToken())
+                {
+                    authenticate();
+                }
+            }
             return invocation.proceed();
         }
     }
@@ -151,12 +154,21 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
         service.registerDataStoreServer(sessionToken, dataStoreServerInfo);
     }
 
-    private final void checkSessionToken()
+    /**
+     * authenticates when the session has expired.
+     */
+    private final String getSessionToken()
     {
         if (sessionHolder.getSessionToken() == null)
         {
-            authenticate();
+            synchronized (this)
+            {
+                if (sessionHolder.getSessionToken() == null)
+                    authenticate();
+            }
         }
+
+        return sessionHolder.getSessionToken();
     }
 
     public final void setPort(int port)

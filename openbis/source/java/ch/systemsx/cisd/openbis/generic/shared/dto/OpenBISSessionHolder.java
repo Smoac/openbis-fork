@@ -30,7 +30,7 @@ public class OpenBISSessionHolder implements Serializable, ISessionTokenProvider
 {
     private static final long serialVersionUID = 1L;
 
-    private String sessionToken;
+    private volatile String sessionToken;
 
     private String dataStoreCode;
 
