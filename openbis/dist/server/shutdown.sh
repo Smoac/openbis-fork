@@ -30,7 +30,15 @@ if [ -f "$JETTY_PID_FILE" ]; then
   if [ $? -ne 0 ]; then
     rm -f "$JETTY_PID_FILE"
   else
-    echo "Failed to shutdown process $PID." > /dev/stderr
-    exit 1
+    echo "Trying 'kill -KILL' on $PID..."
+    kill -KILL $PID
+    sleep 3
+    isPIDRunning $PID
+    if [ $? -ne 0 ]; then
+      rm -f "$JETTY_PID_FILE"
+    else
+      echo "Failed to shutdown process $PID." > /dev/stderr
+      exit 1
+    fi
   fi
 fi
