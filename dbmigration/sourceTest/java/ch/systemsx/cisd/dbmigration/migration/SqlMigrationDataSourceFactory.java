@@ -39,4 +39,35 @@ public class SqlMigrationDataSourceFactory implements IDataSourceFactory
     {
     }
 
+    @Override
+    public int getMaxIdle()
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public int getMaxActive()
+    {
+        return 0;
+    }
+
+    @Override
+    public long getMaxWait()
+    {
+        return 0;
+    }
+
+    @Override
+    public long getActiveConnectionsLogInterval()
+    {
+        return 0;
+    }
+
+    @Override
+    public int getActiveNumConnectionsLogThreshold()
+    {
+        return 0;
+    }
+
 }

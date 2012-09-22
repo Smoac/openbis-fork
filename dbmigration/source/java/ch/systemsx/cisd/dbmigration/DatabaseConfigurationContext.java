@@ -26,6 +26,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.jdbc.support.lob.LobHandler;
 
@@ -33,6 +34,8 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.db.ISequenceNameMapper;
 import ch.systemsx.cisd.common.db.ISequencerHandler;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Configuration context for database operations.
@@ -41,6 +44,9 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
  */
 public class DatabaseConfigurationContext implements DisposableBean
 {
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DatabaseConfigurationContext.class);
+
     private ISequenceNameMapper sequenceNameMapper;
 
     private boolean sequenceUpdateNeeded;
@@ -132,7 +138,33 @@ public class DatabaseConfigurationContext implements DisposableBean
         final String dsDriver = getDriver();
         final String url = getDatabaseURL();
         final String validationQuery = getValidationQuery();
+        logParameters();
         return dataSourceFactory.createDataSource(dsDriver, url, owner, password, validationQuery);
+    }
+
+    private final void logParameters()
+    {
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("driver = %s", getDriver()));
+            operationLog.info(String.format("databaseURL = %s", getDatabaseURL()));
+            operationLog.info(String.format("validationQuery = %s", getValidationQuery()));
+            operationLog.info(String.format("basicDatabaseName = %s", getBasicDatabaseName()));
+            operationLog.info(String.format("kind = %s", getDatabaseKind()));
+            operationLog.info(String.format("instance = %s", getDatabaseInstance()));
+            operationLog.info(String.format("owner = %s", getOwner()));
+            operationLog.info(String.format("scriptFolder = %s", getScriptFolder()));
+            operationLog.info(String.format("maxActiveConnections = %d",
+                    dataSourceFactory.getMaxActive()));
+            operationLog.info(String.format("maxIdleConnections = %d",
+                    dataSourceFactory.getMaxIdle()));
+            operationLog.info(String.format("maxWaitForConnectionsMillis = %d",
+                    dataSourceFactory.getMaxWait()));
+            operationLog.info(String.format("activeConnectionsLogIntervalMillis = %d",
+                    dataSourceFactory.getActiveConnectionsLogInterval()));
+            operationLog.info(String.format("activeNumConnectionsLogThreshold = %d",
+                    dataSourceFactory.getActiveNumConnectionsLogThreshold()));
+        }
     }
 
     /**
@@ -406,31 +438,46 @@ public class DatabaseConfigurationContext implements DisposableBean
         }
     }
 
+    private boolean isSet(String propertyValueStr)
+    {
+        return StringUtils.isNotBlank(propertyValueStr)
+                && propertyValueStr.startsWith("${") == false;
+    }
+
     /**
-     * The maximum number of milliseconds that the pool will wait (when there are no available
+     * The maximum number of seconds that the pool will wait (when there are no available
      * connections) for a connection to be returned before throwing an exception, or -1 (by default)
      * to wait indefinitely.
      */
-    public void setMaxWait(long maxWait)
+    public void setMaxWaitForConnection(String maxWaitStr)
     {
-        this.dataSourceFactory.setMaxWait(maxWait);
+        if (isSet(maxWaitStr))
+        {
+            this.dataSourceFactory.setMaxWait(Integer.parseInt(maxWaitStr) * 1000L);
+        }
     }
 
     /**
      * Sets the maximum number of idle connections in the pool (default is 20).
      */
-    public void setMaxIdle(int maxIdle)
+    public void setMaxIdleConnections(String maxIdleStr)
     {
-        this.dataSourceFactory.setMaxIdle(maxIdle);
+        if (isSet(maxIdleStr))
+        {
+            this.dataSourceFactory.setMaxIdle(Integer.parseInt(maxIdleStr));
+        }
     }
 
     /**
      * Sets the maximum number of active connections that can be allocated at the same time (default
      * is 20).
      */
-    public void setMaxActive(int maxActive)
+    public void setMaxActiveConnections(String maxActiveStr)
     {
-        this.dataSourceFactory.setMaxActive(maxActive);
+        if (isSet(maxActiveStr))
+        {
+            this.dataSourceFactory.setMaxActive(Integer.parseInt(maxActiveStr));
+        }
     }
 
     /**
@@ -438,18 +485,26 @@ public class DatabaseConfigurationContext implements DisposableBean
      * connections if more than one connection is active. Set to a negative value to disable this
      * feature.
      */
-    public void setActiveConnectionsLogInterval(long activeConnectionLogInterval)
+    public void setActiveConnectionsLogInterval(String activeConnectionLogIntervalStr)
     {
-        this.dataSourceFactory.setActiveConnectionsLogInterval(activeConnectionLogInterval * 1000L);
+        if (isSet(activeConnectionLogIntervalStr))
+        {
+            this.dataSourceFactory.setActiveConnectionsLogInterval(Integer
+                    .parseInt(activeConnectionLogIntervalStr) * 1000L);
+        }
     }
 
     /**
      * Sets the number of active connections that will trigger a NOTIFY log and will switch on
      * detailed connection logging.
      */
-    public void setActiveConnectionsLogThreshold(int activeConnectionsLogThreshold)
+    public void setActiveNumConnectionsLogThreshold(String activeConnectionsLogThresholdStr)
     {
-        this.dataSourceFactory.setActiveNumConnectionsLogThreshold(activeConnectionsLogThreshold);
+        if (isSet(activeConnectionsLogThresholdStr))
+        {
+            this.dataSourceFactory.setActiveNumConnectionsLogThreshold(Integer
+                    .parseInt(activeConnectionsLogThresholdStr));
+        }
     }
 
     /**

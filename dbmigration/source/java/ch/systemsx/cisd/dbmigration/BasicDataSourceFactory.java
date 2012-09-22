@@ -30,7 +30,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     private static final int DEFAULT_MAX_ACTIVE = 100;
 
     /** @see GenericObjectPool#DEFAULT_MAX_IDLE */
-    private static final int DEFAULT_MAX_IDLE = DEFAULT_MAX_ACTIVE;
+    private static final int DEFAULT_MAX_IDLE = (int) (DEFAULT_MAX_ACTIVE * 0.2);
 
     private static final int DEFAULT_MAX_WAIT = 60 * 1000;
 
@@ -72,11 +72,23 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     }
 
     @Override
+    public long getMaxWait()
+    {
+        return maxWaitMillis;
+    }
+    
+    @Override
     public void setMaxWait(long maxWait)
     {
         this.maxWaitMillis = maxWait;
     }
 
+    @Override
+    public int getMaxIdle()
+    {
+        return maxIdle;
+    }
+    
     @Override
     public void setMaxIdle(int maxIdle)
     {
@@ -84,17 +96,35 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     }
 
     @Override
+    public int getMaxActive()
+    {
+        return maxActive;
+    }
+    
+    @Override
     public void setMaxActive(int maxActive)
     {
         this.maxActive = maxActive;
     }
 
     @Override
+    public long getActiveConnectionsLogInterval()
+    {
+        return activeConnectionsLogIntervalMillis;
+    }
+    
+    @Override
     public void setActiveConnectionsLogInterval(long activeConnectionLogInterval)
     {
         this.activeConnectionsLogIntervalMillis = activeConnectionLogInterval;
     }
 
+    @Override
+    public int getActiveNumConnectionsLogThreshold()
+    {
+        return activeNumConnectionsLogThreshold;
+    }
+    
     @Override
     public void setActiveNumConnectionsLogThreshold(int activeConnectionsLogThreshold)
     {

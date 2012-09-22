@@ -38,6 +38,11 @@
         <property name="scriptFolder" value="${script-folder}/sql" />
         <property name="scriptFolders" value="${script-folders}" />
         <property name="databaseInstance" value="${database-instance}" />
+        <property name="maxWaitForConnection" value="${database-max-wait-for-connection}" />
+        <property name="maxActiveConnections" value="${database-max-active-connections}" />
+        <property name="maxIdleConnections" value="${database-max-idle-connections}" />
+        <property name="activeConnectionsLogInterval" value="${database-active-connections-log-interval}" />
+        <property name="activeNumConnectionsLogThreshold" value="${database-active-number-connections-log-threshold}" />
     </bean>
 
 </beans>
