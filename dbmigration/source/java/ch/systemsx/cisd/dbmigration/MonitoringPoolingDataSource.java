@@ -56,7 +56,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
     private final int activeConnectionsLogThreshold;
 
     private long lastLogged;
-    
+
     private int maxActiveSinceLastLogged;
 
     private volatile boolean logConnection;
@@ -85,7 +85,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
             maxActiveSinceLastLogged = Math.max(maxActiveSinceLastLogged, numActive);
             if (logConnection
                     || ((activeConnectionsLogInterval > 0)
-                            && (now - lastLogged > activeConnectionsLogInterval) && numActive > 1))
+                            && (now - lastLogged > activeConnectionsLogInterval) && maxActiveSinceLastLogged > 1))
             {
                 if (operationLog.isInfoEnabled())
                 {
