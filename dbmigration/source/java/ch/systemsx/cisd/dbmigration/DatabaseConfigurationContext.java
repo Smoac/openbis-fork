@@ -50,8 +50,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     private String adminPassword;
 
     private String scriptFolder;
-    
-    private List<String> scriptFolders; 
+
+    private List<String> scriptFolders;
 
     private String databaseKind;
 
@@ -163,6 +163,7 @@ public class DatabaseConfigurationContext implements DisposableBean
         checkDatabaseEngine();
         return databaseEngine.getValidationQuery();
     }
+
     /**
      * Returns user name of the administrator.
      * 
@@ -433,6 +434,25 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
+     * Set the interval (in seconds) between two regular log entries of currently active database
+     * connections if more than one connection is active. Set to a negative value to disable this
+     * feature.
+     */
+    public void setActiveConnectionsLogInterval(long activeConnectionLogInterval)
+    {
+        this.dataSourceFactory.setActiveConnectionsLogInterval(activeConnectionLogInterval * 1000L);
+    }
+
+    /**
+     * Sets the number of active connections that will trigger a NOTIFY log and will switch on
+     * detailed connection logging.
+     */
+    public void setActiveConnectionsLogThreshold(int activeConnectionsLogThreshold)
+    {
+        this.dataSourceFactory.setActiveNumConnectionsLogThreshold(activeConnectionsLogThreshold);
+    }
+
+    /**
      * Returns the URL of the database server which allows to create a new database.
      * 
      * @return <code>null</code> when undefined.
@@ -618,7 +638,7 @@ public class DatabaseConfigurationContext implements DisposableBean
         }
         return Collections.emptyList();
     }
-    
+
     private boolean variablesResolved(String value)
     {
         return value.indexOf("${") < 0;

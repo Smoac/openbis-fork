@@ -51,4 +51,17 @@ public interface IDataSourceFactory
      * @see GenericObjectPool#DEFAULT_MAX_WAIT
      */
     public void setMaxWait(long maxWait);
+
+    /**
+     * Set the interval (in seconds) between two regular log entries of currently active database
+     * connections if more than one connection is active. Set to a negative value to disable this
+     * feature.
+     */
+    public void setActiveConnectionsLogInterval(long activeConnectionLogInterval);
+
+    /**
+     * Sets the number of active connections that will trigger a NOTIFY log and will switch on
+     * detailed connection logging.
+     */
+    public void setActiveNumConnectionsLogThreshold(int activeConnectionsLogThreshold);
 }

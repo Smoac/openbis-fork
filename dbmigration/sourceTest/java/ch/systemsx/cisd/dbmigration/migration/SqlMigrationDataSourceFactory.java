@@ -29,4 +29,14 @@ public class SqlMigrationDataSourceFactory implements IDataSourceFactory
     {
     }
 
+    @Override
+    public void setActiveConnectionsLogInterval(long activeConnectionLogInterval)
+    {
+    }
+
+    @Override
+    public void setActiveNumConnectionsLogThreshold(int activeConnectionsLogThreshold)
+    {
+    }
+
 }

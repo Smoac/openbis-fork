@@ -18,7 +18,6 @@ package ch.systemsx.cisd.dbmigration;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.pool.impl.GenericObjectPool;
 
 /**
@@ -28,16 +27,27 @@ public class BasicDataSourceFactory implements IDataSourceFactory
 {
 
     /** @see GenericObjectPool#DEFAULT_MAX_ACTIVE */
-    private final int DEFAULT_MAX_ACTIVE = 20;
+    private static final int DEFAULT_MAX_ACTIVE = 100;
 
     /** @see GenericObjectPool#DEFAULT_MAX_IDLE */
-    private final int DEFAULT_MAX_IDLE = DEFAULT_MAX_ACTIVE;
+    private static final int DEFAULT_MAX_IDLE = DEFAULT_MAX_ACTIVE;
 
-    private long maxWait = GenericObjectPool.DEFAULT_MAX_WAIT;
+    private static final int DEFAULT_MAX_WAIT = 60 * 1000;
+
+    private static final int DEFAULT_ACTIVE_CONNECTIONS_LOG_INTERVAL = 3600 * 1000;
+
+    private static final int DEFAULT_ACTIVE_NUM_CONNECTIONS_LOG_THRESHOLD =
+            (int) (DEFAULT_MAX_ACTIVE * 0.8);
+
+    private long maxWaitMillis = DEFAULT_MAX_WAIT;
 
     private int maxIdle = DEFAULT_MAX_IDLE;
 
     private int maxActive = DEFAULT_MAX_ACTIVE;
+
+    private long activeConnectionsLogIntervalMillis = DEFAULT_ACTIVE_CONNECTIONS_LOG_INTERVAL;
+
+    private int activeNumConnectionsLogThreshold = DEFAULT_ACTIVE_NUM_CONNECTIONS_LOG_THRESHOLD;
 
     //
     // IDataSourceFactory
@@ -47,14 +57,16 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     public final DataSource createDataSource(final String driver, final String url,
             final String owner, final String password, final String validationQuery)
     {
-        final BasicDataSource dataSource = new BasicDataSource();
+        final MonitoringDataSource dataSource = new MonitoringDataSource();
         dataSource.setDriverClassName(driver);
         dataSource.setUrl(url);
         dataSource.setUsername(owner);
         dataSource.setPassword(password);
         dataSource.setMaxIdle(maxIdle);
         dataSource.setMaxActive(maxActive);
-        dataSource.setMaxWait(maxWait);
+        dataSource.setMaxWait(maxWaitMillis * 1000L);
+        dataSource.setActiveConnectionsLogInterval(activeConnectionsLogIntervalMillis);
+        dataSource.setActiveConnectionsLogThreshold(activeNumConnectionsLogThreshold);
         dataSource.setValidationQuery(validationQuery);
         return dataSource;
     }
@@ -62,7 +74,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     @Override
     public void setMaxWait(long maxWait)
     {
-        this.maxWait = maxWait;
+        this.maxWaitMillis = maxWait;
     }
 
     @Override
@@ -76,4 +88,17 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     {
         this.maxActive = maxActive;
     }
+
+    @Override
+    public void setActiveConnectionsLogInterval(long activeConnectionLogInterval)
+    {
+        this.activeConnectionsLogIntervalMillis = activeConnectionLogInterval;
+    }
+
+    @Override
+    public void setActiveNumConnectionsLogThreshold(int activeConnectionsLogThreshold)
+    {
+        this.activeNumConnectionsLogThreshold = activeConnectionsLogThreshold;
+    }
+
 }
