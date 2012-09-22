@@ -85,7 +85,8 @@ public class MaintenancePlugin
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Plugin scheduled: " + parameters.getPluginName()
-                        + ", first execution at " + startDate);
+                        + ", first execution at " + startDate + ", scheduling interval: "
+                        + parameters.getIntervalSeconds() + "s.");
             }
         }
     }
