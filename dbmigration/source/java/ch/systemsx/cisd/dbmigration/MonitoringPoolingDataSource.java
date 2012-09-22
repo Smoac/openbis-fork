@@ -56,6 +56,8 @@ class MonitoringPoolingDataSource extends PoolingDataSource
     private final int activeConnectionsLogThreshold;
 
     private long lastLogged;
+    
+    private int maxActiveSinceLastLogged;
 
     private volatile boolean logConnection;
 
@@ -80,6 +82,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
             Connection conn = (Connection) (_pool.borrowObject());
             final long now = System.currentTimeMillis();
             final int numActive = _pool.getNumActive();
+            maxActiveSinceLastLogged = Math.max(maxActiveSinceLastLogged, numActive);
             if (logConnection
                     || ((activeConnectionsLogInterval > 0)
                             && (now - lastLogged > activeConnectionsLogInterval) && numActive > 1))
@@ -87,9 +90,10 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                 if (operationLog.isInfoEnabled())
                 {
                     operationLog.info(String.format(
-                            "Active database connections: %d.", numActive));
+                            "Active database connections: %d.", maxActiveSinceLastLogged));
                 }
                 lastLogged = now;
+                maxActiveSinceLastLogged = 0;
             }
             if (numActive > activeConnectionsLogThreshold)
             {
