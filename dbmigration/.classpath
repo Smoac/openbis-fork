@@ -6,7 +6,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
 	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/commons-dbcp/commons-dbcp.jar" sourcepath="/libraries/commons-dbcp/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/commons-dbcp/commons-dbcp.jar" sourcepath="/libraries/commons-dbcp/commons-dbcp_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
 	<classpathentry kind="lib" path="/libraries/postgresql/postgresql.jar" sourcepath="/libraries/postgresql/postgresql-src.zip"/>
