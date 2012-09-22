@@ -100,7 +100,7 @@ public final class ETLDaemon
 
     public static final File dropboxActivityDir = new File(".activity");
 
-    public static final int INJECTED_POST_REGISTRATION_TASK_INTERVAL = 1;
+    public static final int INJECTED_POST_REGISTRATION_TASK_INTERVAL = 10;
 
     static final String NOTIFY_SUCCESSFUL_REGISTRATION = "notify-successful-registration";
 
