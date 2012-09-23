@@ -427,6 +427,16 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         return getSession(sessionToken, true);
     }
 
+    @Override
+    public T tryGetSession(String sessionToken)
+    {
+        synchronized (sessions)
+        {
+            final FullSession<T> session = sessions.get(sessionToken);
+            return (session == null) ? null : session.getSession();
+        }
+    }
+
     private T getSession(final String sessionToken, boolean checkAndTouch)
             throws InvalidSessionException
     {

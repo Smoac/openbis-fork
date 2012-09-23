@@ -116,15 +116,10 @@ public abstract class AbstractServerLogger implements IServer
         {
             return "[SESSION:" + sessionToken + "]";
         }
-        try
-        {
-            Session session = sessionManagerOrNull.getSession(sessionToken);
-            return logMessagePrefixGenerator.createPrefix(session);
-        } catch (InvalidSessionException e)
-        {
-            // ignore the situation when session is not available
-            return "[NO SESSION]";
-        }
+        // Do not trigger any session expiration at this point, this might lead to leaking database
+        // connections, see BIS-205
+        final Session session = sessionManagerOrNull.tryGetSession(sessionToken);
+        return (session == null) ? "[NO SESSION]" : logMessagePrefixGenerator.createPrefix(session);
     }
 
     protected final void logAuth(final String sessionToken, final String commandName,

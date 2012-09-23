@@ -40,15 +40,15 @@ public interface ISessionManager<T extends BasicSession> extends IRemoteHostProv
     public String tryToOpenSession(final String user, final String password);
 
     /**
-     * Opens a new session for specified user and principal provider. 
+     * Opens a new session for specified user and principal provider.
      */
     public String tryToOpenSession(String userID, IPrincipalProvider principalProvider);
-    
+
     /**
      * Closes session by removing given <code>sessionToken</code> from active sessions.
      */
     public void closeSession(final String sessionToken) throws InvalidSessionException;
-    
+
     /**
      * Returns <code>true</code> if the specified string is a well-formed session token.
      */
@@ -61,5 +61,15 @@ public interface ISessionManager<T extends BasicSession> extends IRemoteHostProv
      * </p>
      */
     public T getSession(final String sessionToken) throws InvalidSessionException;
+
+    /**
+     * For given <var>sessionToken</var> return the <code>Session</code> object, or
+     * <code>null</code>, if no session exist or the session is not valid. This method will never
+     * touch or expire a session.
+     * <p>
+     * You should already be authenticated before calling this method.
+     * </p>
+     */
+    public T tryGetSession(final String sessionToken);
 
 }
