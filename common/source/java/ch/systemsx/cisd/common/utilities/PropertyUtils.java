@@ -64,7 +64,7 @@ public final class PropertyUtils
             "Invalid long '%s'. Default value '%s' will be used.";
 
     static final String NON_DOUBLE_VALUE_FORMAT =
-        "Invalid double '%s'. Default value '%s' will be used.";
+            "Invalid double '%s'. Default value '%s' will be used.";
 
     static final String NOT_POSITIVE_LONG_VALUE_FORMAT =
             "Invalid positive long '%s'. Default value '%s' will be used.";
@@ -93,7 +93,20 @@ public final class PropertyUtils
     {
         assertParameters(properties, propertyKey);
         final String property = properties.getProperty(propertyKey);
-        return property == null ? null : property.trim();
+        return StringUtils.isBlank(property) ? null : property.trim();
+    }
+
+    /**
+     * Searches for the property with the specified key in this property list.
+     * 
+     * @return <code>null</code> or the value trimmed if found.
+     */
+    public final static String getPropertyKeepEmptyString(final Properties properties,
+            final String propertyKey)
+    {
+        assertParameters(properties, propertyKey);
+        final String property = properties.getProperty(propertyKey);
+        return (property == null) ? null : property.trim();
     }
 
     /**
@@ -363,8 +376,9 @@ public final class PropertyUtils
         {
             if (loggerOrNull != null)
             {
-                loggerOrNull.log(LogLevel.INFO, String.format(NON_DOUBLE_VALUE_FORMAT, doubleOrNull,
-                        defaultValue));
+                loggerOrNull.log(LogLevel.INFO,
+                        String.format(NON_DOUBLE_VALUE_FORMAT, doubleOrNull,
+                                defaultValue));
             }
             return defaultValue;
         }
