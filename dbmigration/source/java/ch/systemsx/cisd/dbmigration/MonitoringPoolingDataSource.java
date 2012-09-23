@@ -45,8 +45,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 class MonitoringPoolingDataSource extends PoolingDataSource
 {
-    private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, MonitoringPoolingDataSource.class);
+    private final static Logger machineLog =
+            LogFactory.getLogger(LogCategory.MACHINE, MonitoringPoolingDataSource.class);
 
     private final static Logger notifyLog =
             LogFactory.getLogger(LogCategory.NOTIFY, MonitoringPoolingDataSource.class);
@@ -87,9 +87,9 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                     || ((activeConnectionsLogInterval > 0)
                             && (now - lastLogged > activeConnectionsLogInterval) && maxActiveSinceLastLogged > 1))
             {
-                if (operationLog.isInfoEnabled())
+                if (machineLog.isInfoEnabled())
                 {
-                    operationLog.info(String.format(
+                    machineLog.info(String.format(
                             "Active database connections: %d.", maxActiveSinceLastLogged));
                 }
                 lastLogged = now;
@@ -178,16 +178,16 @@ class MonitoringPoolingDataSource extends PoolingDataSource
 
         void log(String action)
         {
-            if (logConnection && operationLog.isInfoEnabled())
+            if (logConnection && machineLog.isInfoEnabled())
             {
                 final StackTraceElement[] stackTrace = getStackTrace();
                 final String serviceMethod = tryGetServiceMethodName(stackTrace);
                 if (serviceMethod == null)
                 {
-                    operationLog.info(action + ".\n" + traceToString(stackTrace));
+                    machineLog.info(action + ".\n" + traceToString(stackTrace));
                 } else
                 {
-                    operationLog.info(action + ", service method: " + serviceMethod + ".");
+                    machineLog.info(action + ", service method: " + serviceMethod + ".");
                 }
             }
         }
