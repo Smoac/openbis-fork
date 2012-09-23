@@ -21,9 +21,9 @@
 	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/apgdiff/apgdiff.jar" sourcepath="/libraries/apgdiff/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring-core.jar"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring-jdbc.jar"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring-beans.jar"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-core.jar" sourcepath="/libraries/spring/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-jdbc.jar" sourcepath="/libraries/spring/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-beans.jar" sourcepath="/libraries/spring/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
