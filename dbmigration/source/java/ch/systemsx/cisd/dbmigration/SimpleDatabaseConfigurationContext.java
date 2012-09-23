@@ -63,7 +63,7 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
             "database-active-number-connections-log-threshold";
 
     static final String LOG_STACKTRACE_ON_CONNECTION_LOGGING =
-            "database.log-stacktrace-on-connection-logging";
+            "database-log-stacktrace-on-connection-logging";
 
     static final String VALIDATION_QUERY_KEY = "validation-query";
 
