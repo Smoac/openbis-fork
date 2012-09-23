@@ -30,7 +30,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     private static final int DEFAULT_MAX_ACTIVE = 100;
 
     /** @see GenericObjectPool#DEFAULT_MAX_IDLE */
-    private static final int DEFAULT_MAX_IDLE = (int) (DEFAULT_MAX_ACTIVE * 0.2);
+    private static final int DEFAULT_MAX_IDLE = DEFAULT_MAX_ACTIVE;
 
     private static final int DEFAULT_MAX_WAIT = 60 * 1000;
 
