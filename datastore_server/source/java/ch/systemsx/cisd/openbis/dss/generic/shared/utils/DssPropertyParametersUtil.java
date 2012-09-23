@@ -52,8 +52,7 @@ public class DssPropertyParametersUtil
 
     public static final String SERVER_URL_KEY = "server-url";
 
-    public static final String MINIMUM_TIME_TO_KEEP_STREAMS_IN_SEC_KEY =
-            "minimum-time-to-keep-streams-in-sec";
+    public static final String DATA_STREAM_TIMEOUT = "data-stream-timeout";
 
     public static final int MINIMUM_TIME_TO_KEEP_STREAMS_DEFAULT = 20;
 
@@ -141,9 +140,9 @@ public class DssPropertyParametersUtil
         return PropertyUtils.getMandatoryProperty(serviceProperties, DOWNLOAD_URL_KEY);
     }
 
-    public static int getMinimumTimeToKeepStreams(Properties serviceProperties)
+    public static int getDataStreamTimeout(Properties serviceProperties)
     {
-        return PropertyUtils.getPosInt(serviceProperties, MINIMUM_TIME_TO_KEEP_STREAMS_IN_SEC_KEY,
+        return PropertyUtils.getPosInt(serviceProperties, DATA_STREAM_TIMEOUT,
                 MINIMUM_TIME_TO_KEEP_STREAMS_DEFAULT);
     }
 

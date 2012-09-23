@@ -42,7 +42,7 @@ public interface IConfigProvider
     String getOpenBisServerUrl();
 
     /**
-     * Return the minimum time to keep streams (in seconds).
+     * Return the minimum time (in seconds) that data streams are kept before expiring.
      */
-    int getMinimumTimeToKeepStreams();
+    int getDataStreamTimeout();
 }

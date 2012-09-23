@@ -78,7 +78,7 @@ public class StreamRepository implements IStreamRepository
 
     public StreamRepository(IConfigProvider configProvider)
     {
-        this(configProvider.getMinimumTimeToKeepStreams(), new IdGenerator(),
+        this(configProvider.getDataStreamTimeout(), new IdGenerator(),
                 SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 

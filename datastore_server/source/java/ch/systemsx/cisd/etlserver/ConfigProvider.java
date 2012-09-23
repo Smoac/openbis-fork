@@ -66,8 +66,8 @@ public class ConfigProvider implements IConfigProvider
     }
 
     @Override
-    public int getMinimumTimeToKeepStreams()
+    public int getDataStreamTimeout()
     {
-        return DssPropertyParametersUtil.getMinimumTimeToKeepStreams(properties);
+        return DssPropertyParametersUtil.getDataStreamTimeout(properties);
     }
 }
