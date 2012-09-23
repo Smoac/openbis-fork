@@ -85,6 +85,19 @@ public final class PropertyUtils
     }
 
     /**
+     * Looks up given <var>propertyKey</var> in given <var>properties</var>.
+     * 
+     * @return <code>true</code> if the <var>propertyKey</var> is found and <code>false</code>
+     *         otherwise.
+     */
+    public final static boolean hasProperty(final Properties properties, final String propertyKey)
+    {
+        assertParameters(properties, propertyKey);
+        final String propOrNull = getProperty(properties, propertyKey);
+        return (propOrNull != null);
+    }
+
+    /**
      * Searches for the property with the specified key in this property list.
      * 
      * @return <code>null</code> or the value trimmed if found.
