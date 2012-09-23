@@ -50,7 +50,7 @@ public final class GenericHttpSessionListener implements HttpSessionListener
 
     private final HttpSessionActivationListener loggingActivationListener =
             new LoggingActivationListener();
-        
+
     private class LoggingActivationListener implements HttpSessionActivationListener, Serializable
     {
 
@@ -99,9 +99,22 @@ public final class GenericHttpSessionListener implements HttpSessionListener
 
             if (server != null)
             {
-                server.logout(sessionToken);
+                if (isExpiration(sessionEvent))
+                {
+                    server.expireSession(sessionToken);
+                } else
+                {
+                    server.logout(sessionToken);
+                }
             }
         }
+    }
+
+    private boolean isExpiration(HttpSessionEvent event)
+    {
+        final long now = System.currentTimeMillis();
+        final HttpSession session = event.getSession();
+        return (now - session.getLastAccessedTime()) > session.getMaxInactiveInterval();
     }
 
     private void logSessionEvent(String methodName, HttpSessionEvent event)

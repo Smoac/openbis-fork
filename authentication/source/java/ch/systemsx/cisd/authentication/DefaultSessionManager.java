@@ -556,6 +556,13 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         }
     }
 
+    @Override
+    public void expireSession(String sessionToken) throws InvalidSessionException
+    {
+        final T session = getSession(sessionToken, false);
+        closeSession(session, false);
+    }
+
     private void closeSession(final T session, final boolean regularLogout)
             throws InvalidSessionException
     {

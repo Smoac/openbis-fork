@@ -50,6 +50,11 @@ public interface ISessionManager<T extends BasicSession> extends IRemoteHostProv
     public void closeSession(final String sessionToken) throws InvalidSessionException;
 
     /**
+     * Expires session by removing given <code>sessionToken</code> from active sessions.
+     */
+    public void expireSession(final String sessionToken) throws InvalidSessionException;
+
+    /**
      * Returns <code>true</code> if the specified string is a well-formed session token.
      */
     public boolean isAWellFormedSessionToken(String sessionTokenOrNull);

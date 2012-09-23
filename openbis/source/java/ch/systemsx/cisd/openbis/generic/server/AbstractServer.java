@@ -418,6 +418,19 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public final void expireSession(final String sessionToken) throws UserFailureException
+    {
+        try
+        {
+            sessionManager.expireSession(sessionToken);
+        } catch (InvalidSessionException e)
+        {
+            // ignore the situation when session is not available
+        }
+    }
+
+    @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void deactivatePersons(String sessionToken, List<String> personsCodes)
     {

@@ -249,6 +249,12 @@ public abstract class AbstractServerLogger implements IServer
     }
 
     @Override
+    public void expireSession(String sessionToken) throws UserFailureException
+    {
+        // No logging because already done by the session manager
+    }
+
+    @Override
     public void deactivatePersons(String sessionToken, List<String> personsCodes)
     {
         logTracking(sessionToken, "deactivatePersons", "PERSONS(%s)", abbreviate(personsCodes));

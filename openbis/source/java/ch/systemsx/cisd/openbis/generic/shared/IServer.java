@@ -113,6 +113,11 @@ public interface IServer extends ISessionProvider
     public void logout(final String sessionToken) throws UserFailureException;
 
     /**
+     * Expires the session with the specified session token.
+     */
+    public void expireSession(final String sessionToken) throws UserFailureException;
+
+    /**
      * Deactivates specified persons.
      */
     @Transactional
