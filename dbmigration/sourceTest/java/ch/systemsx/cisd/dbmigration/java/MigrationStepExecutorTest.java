@@ -73,8 +73,9 @@ public final class MigrationStepExecutorTest
         migrationStepExecutor.performPreMigration();
         migrationStepExecutor.performPostMigration();
         migrationStepExecutor.finish();
-        assertEquals("Migration step class 'MigrationStepFrom001To002' found for "
-                + "migration script '001To002.sql'.", logRecorder.getLogContent());
+        assertTrue(logRecorder.getLogContent(), logRecorder.getLogContent().contains(
+                "Migration step class 'MigrationStepFrom001To002' found for "
+                        + "migration script '001To002.sql'."));
         assertSame(dbContext.getDataSource(), migrationStepExecutor.getDataSource());
         logRecorder.resetLogContent();
         script =
@@ -151,7 +152,7 @@ public final class MigrationStepExecutorTest
         final MigrationStepExecutor migrationStepExecutor =
                 new MigrationStepExecutor(dbContext, false);
         final MigrationStepExecutor migrationStepExecutorAdmin =
-            new MigrationStepExecutor(dbContext, true);
+                new MigrationStepExecutor(dbContext, true);
         Script script =
                 new Script(
                         "001To002.sql",
@@ -161,8 +162,9 @@ public final class MigrationStepExecutorTest
         migrationStepExecutor.performPreMigration();
         migrationStepExecutor.performPostMigration();
         migrationStepExecutor.finish();
-        assertEquals("Migration step class 'MigrationStepFrom001To002' found for "
-                + "migration script '001To002.sql'.", logRecorder.getLogContent());
+        assertTrue(logRecorder.getLogContent(), logRecorder.getLogContent().contains(
+                "Migration step class 'MigrationStepFrom001To002' found for "
+                        + "migration script '001To002.sql'."));
         logRecorder.resetLogContent();
         migrationStepExecutorAdmin.init(script);
         migrationStepExecutorAdmin.performPreMigration();
@@ -218,15 +220,16 @@ public final class MigrationStepExecutorTest
         Script script =
                 new Script("002To003.sql", "\n-- This is a comment\n-- This is another comment\n");
         migrationStepExecutor.init(script);
-        assertEquals("No migration step class found for migration script '002To003.sql'.",
-                logRecorder.getLogContent());
+        assertTrue(logRecorder.getLogContent(), logRecorder.getLogContent().contains(
+                "No migration step class found for migration script '002To003.sql'."));
         logRecorder.resetLogContent();
         script =
                 new Script("002To003.sql",
                         "-- JAVA ch.systemsx.cisd.dbmigration.java.MigrationStepFrom002To003");
         migrationStepExecutor.init(script);
-        assertEquals("Migration step class 'MigrationStepFrom002To003' found for "
-                + "migration script '002To003.sql'.", logRecorder.getLogContent());
+        assertTrue(logRecorder.getLogContent(), logRecorder.getLogContent().contains(
+                "Migration step class 'MigrationStepFrom002To003' found for "
+                        + "migration script '002To003.sql'."));
         try
         {
             migrationStepExecutor.performPreMigration();
