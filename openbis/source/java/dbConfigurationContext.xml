@@ -43,6 +43,7 @@
         <property name="maxIdleConnections" value="${database.max-idle-connections}" />
         <property name="activeConnectionsLogInterval" value="${database.active-connections-log-interval}" />
         <property name="activeNumConnectionsLogThreshold" value="${database.active-number-connections-log-threshold}" />
+        <property name="logStackTraceOnConnectionLogging" value="${database.log-stacktrace-on-connection-logging}" />
     </bean>
 
 </beans>

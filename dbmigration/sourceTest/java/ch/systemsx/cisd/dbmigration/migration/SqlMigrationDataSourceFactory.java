@@ -42,7 +42,6 @@ public class SqlMigrationDataSourceFactory implements IDataSourceFactory
     @Override
     public int getMaxIdle()
     {
-        // TODO Auto-generated method stub
         return 0;
     }
 
@@ -68,6 +67,17 @@ public class SqlMigrationDataSourceFactory implements IDataSourceFactory
     public int getActiveNumConnectionsLogThreshold()
     {
         return 0;
+    }
+
+    @Override
+    public boolean isLogStackTraceOnConnectionLogging()
+    {
+        return false;
+    }
+
+    @Override
+    public void setLogStackTraceOnConnectionLogging(boolean logStackTrace)
+    {
     }
 
 }

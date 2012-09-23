@@ -32,6 +32,8 @@ public class MonitoringDataSource extends BasicDataSource
 
     private int activeConnectionsLogThreshold;
 
+    private boolean logStackTrace;
+
     /**
      * Returns the interval (in ms) between two regular log entries of currently active database
      * connections if more than one connection is active.
@@ -68,12 +70,29 @@ public class MonitoringDataSource extends BasicDataSource
         this.activeConnectionsLogThreshold = activeConnectionsLogThreshold;
     }
 
+    /**
+     * Returns <code>true</code> if the stack traces are to be logged for detailed connection
+     * logging.
+     */
+    public boolean isLogStackTrace()
+    {
+        return logStackTrace;
+    }
+
+    /**
+     * Sets whether stack traces are to be logged for detailed connection logging.
+     */
+    public void setLogStackTrace(boolean logStackTrace)
+    {
+        this.logStackTrace = logStackTrace;
+    }
+
     @Override
     protected void createDataSourceInstance() throws SQLException
     {
         final MonitoringPoolingDataSource pds =
                 new MonitoringPoolingDataSource(connectionPool, activeConnectionsLogInterval,
-                        activeConnectionsLogThreshold);
+                        activeConnectionsLogThreshold, logStackTrace);
         pds.setAccessToUnderlyingConnectionAllowed(isAccessToUnderlyingConnectionAllowed());
         pds.setLogWriter(logWriter);
         dataSource = pds;

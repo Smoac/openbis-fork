@@ -35,7 +35,7 @@ public interface IDataSourceFactory
             String validationQuery);
 
     public int getMaxIdle();
-    
+
     /**
      * @see BasicDataSource#setMaxIdle(int)
      * @see GenericObjectPool#DEFAULT_MAX_IDLE
@@ -43,7 +43,7 @@ public interface IDataSourceFactory
     public void setMaxIdle(int maxIdle);
 
     public int getMaxActive();
-    
+
     /**
      * @see BasicDataSource#setMaxActive(int)
      * @see GenericObjectPool#DEFAULT_MAX_ACTIVE
@@ -51,7 +51,7 @@ public interface IDataSourceFactory
     public void setMaxActive(int maxActive);
 
     public long getMaxWait();
-    
+
     /**
      * @see BasicDataSource#setMaxWait(long)
      * @see GenericObjectPool#DEFAULT_MAX_WAIT
@@ -59,7 +59,7 @@ public interface IDataSourceFactory
     public void setMaxWait(long maxWait);
 
     public long getActiveConnectionsLogInterval();
-    
+
     /**
      * Set the interval (in seconds) between two regular log entries of currently active database
      * connections if more than one connection is active. Set to a negative value to disable this
@@ -68,10 +68,21 @@ public interface IDataSourceFactory
     public void setActiveConnectionsLogInterval(long activeConnectionLogInterval);
 
     public int getActiveNumConnectionsLogThreshold();
-    
+
     /**
      * Sets the number of active connections that will trigger a NOTIFY log and will switch on
      * detailed connection logging.
      */
     public void setActiveNumConnectionsLogThreshold(int activeConnectionsLogThreshold);
+
+    /**
+     * Returns <code>true</code> if the StackTrace should be logged also for detailed connection
+     * logging.
+     */
+    public boolean isLogStackTraceOnConnectionLogging();
+
+    /**
+     * Sets whether the StackTrace should be logged also for detailed connection logging.
+     */
+    public void setLogStackTraceOnConnectionLogging(boolean logStackTrace);
 }

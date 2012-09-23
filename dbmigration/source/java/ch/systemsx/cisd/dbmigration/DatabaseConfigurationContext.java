@@ -164,6 +164,8 @@ public class DatabaseConfigurationContext implements DisposableBean
                     dataSourceFactory.getActiveConnectionsLogInterval()));
             operationLog.info(String.format("activeNumConnectionsLogThreshold = %d",
                     dataSourceFactory.getActiveNumConnectionsLogThreshold()));
+            operationLog.info(String.format("logStackTraceOnConnectionLogging = %s",
+                    dataSourceFactory.isLogStackTraceOnConnectionLogging()));
         }
     }
 
@@ -504,6 +506,18 @@ public class DatabaseConfigurationContext implements DisposableBean
         {
             this.dataSourceFactory.setActiveNumConnectionsLogThreshold(Integer
                     .parseInt(activeConnectionsLogThresholdStr));
+        }
+    }
+
+    /**
+     * Sets whether the StackTrace should be logged also for detailed connection logging.
+     */
+    public void setLogStackTraceOnConnectionLogging(String logStackTraceOnConnectionLoggingStr)
+    {
+        if (isSet(logStackTraceOnConnectionLoggingStr))
+        {
+            this.dataSourceFactory.setLogStackTraceOnConnectionLogging(Boolean
+                    .parseBoolean(logStackTraceOnConnectionLoggingStr));
         }
     }
 

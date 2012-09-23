@@ -48,6 +48,8 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     private long activeConnectionsLogIntervalMillis = DEFAULT_ACTIVE_CONNECTIONS_LOG_INTERVAL;
 
     private int activeNumConnectionsLogThreshold = DEFAULT_ACTIVE_NUM_CONNECTIONS_LOG_THRESHOLD;
+    
+    private boolean logStackTraceOnConnectionLogging = false;
 
     //
     // IDataSourceFactory
@@ -67,6 +69,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
         dataSource.setMaxWait(maxWaitMillis * 1000L);
         dataSource.setActiveConnectionsLogInterval(activeConnectionsLogIntervalMillis);
         dataSource.setActiveConnectionsLogThreshold(activeNumConnectionsLogThreshold);
+        dataSource.setLogStackTrace(logStackTraceOnConnectionLogging);
         dataSource.setValidationQuery(validationQuery);
         return dataSource;
     }
@@ -129,6 +132,18 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     public void setActiveNumConnectionsLogThreshold(int activeConnectionsLogThreshold)
     {
         this.activeNumConnectionsLogThreshold = activeConnectionsLogThreshold;
+    }
+
+    @Override
+    public boolean isLogStackTraceOnConnectionLogging()
+    {
+        return logStackTraceOnConnectionLogging;
+    }
+
+    @Override
+    public void setLogStackTraceOnConnectionLogging(boolean logStackTrace)
+    {
+        logStackTraceOnConnectionLogging = logStackTrace;
     }
 
 }

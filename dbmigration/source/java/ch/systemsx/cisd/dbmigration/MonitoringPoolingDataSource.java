@@ -55,6 +55,8 @@ class MonitoringPoolingDataSource extends PoolingDataSource
 
     private final int activeConnectionsLogThreshold;
 
+    private final boolean logStackTrace;
+
     private long lastLogged;
 
     private int maxActiveSinceLastLogged;
@@ -62,11 +64,12 @@ class MonitoringPoolingDataSource extends PoolingDataSource
     private volatile boolean logConnection;
 
     public MonitoringPoolingDataSource(ObjectPool pool, long activeConnectionsLogInternval,
-            int activeConnectionsLogThreshold)
+            int activeConnectionsLogThreshold, boolean logStackTrace)
     {
         super(pool);
         this.activeConnectionsLogThreshold = activeConnectionsLogThreshold;
         this.activeConnectionsLogInterval = activeConnectionsLogInternval;
+        this.logStackTrace = logStackTrace;
     }
 
     /**
@@ -187,7 +190,14 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                     machineLog.info(action + ".\n" + traceToString(stackTrace));
                 } else
                 {
-                    machineLog.info(action + ", service method: " + serviceMethod + ".");
+                    if (logStackTrace)
+                    {
+                        machineLog.info(action + ", service method: " + serviceMethod + ".\n"
+                                + traceToString(stackTrace));
+                    } else
+                    {
+                        machineLog.info(action + ", service method: " + serviceMethod + ".");
+                    }
                 }
             }
         }
