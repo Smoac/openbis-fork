@@ -154,6 +154,8 @@ public class DatabaseConfigurationContext implements DisposableBean
             operationLog.info(String.format("instance = %s", getDatabaseInstance()));
             operationLog.info(String.format("owner = %s", getOwner()));
             operationLog.info(String.format("scriptFolder = %s", getScriptFolder()));
+            operationLog.info(String.format("createFromScratch = %s", isCreateFromScratch()));
+            operationLog.info(String.format("scriptSingleStepMode = %s", isScriptSingleStepMode()));
             operationLog.info(String.format("maxActiveConnections = %d",
                     dataSourceFactory.getMaxActive()));
             operationLog.info(String.format("maxIdleConnections = %d",
@@ -451,7 +453,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      * connections) for a connection to be returned before throwing an exception, or -1 (by default)
      * to wait indefinitely.
      */
-    public void setMaxWaitForConnection(String maxWaitStr)
+    public void setMaxWaitForConnectionProp(String maxWaitStr)
     {
         if (isSet(maxWaitStr))
         {
@@ -462,7 +464,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     /**
      * Sets the maximum number of idle connections in the pool (default is 20).
      */
-    public void setMaxIdleConnections(String maxIdleStr)
+    public void setMaxIdleConnectionsProp(String maxIdleStr)
     {
         if (isSet(maxIdleStr))
         {
@@ -474,7 +476,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      * Sets the maximum number of active connections that can be allocated at the same time (default
      * is 20).
      */
-    public void setMaxActiveConnections(String maxActiveStr)
+    public void setMaxActiveConnectionsProp(String maxActiveStr)
     {
         if (isSet(maxActiveStr))
         {
@@ -487,7 +489,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      * connections if more than one connection is active. Set to a negative value to disable this
      * feature.
      */
-    public void setActiveConnectionsLogInterval(String activeConnectionLogIntervalStr)
+    public void setActiveConnectionsLogIntervalProp(String activeConnectionLogIntervalStr)
     {
         if (isSet(activeConnectionLogIntervalStr))
         {
@@ -500,7 +502,7 @@ public class DatabaseConfigurationContext implements DisposableBean
      * Sets the number of active connections that will trigger a NOTIFY log and will switch on
      * detailed connection logging.
      */
-    public void setActiveNumConnectionsLogThreshold(String activeConnectionsLogThresholdStr)
+    public void setActiveNumConnectionsLogThresholdProp(String activeConnectionsLogThresholdStr)
     {
         if (isSet(activeConnectionsLogThresholdStr))
         {
@@ -512,7 +514,7 @@ public class DatabaseConfigurationContext implements DisposableBean
     /**
      * Sets whether the StackTrace should be logged also for detailed connection logging.
      */
-    public void setLogStackTraceOnConnectionLogging(String logStackTraceOnConnectionLoggingStr)
+    public void setLogStackTraceOnConnectionLoggingProp(String logStackTraceOnConnectionLoggingStr)
     {
         if (isSet(logStackTraceOnConnectionLoggingStr))
         {
@@ -600,6 +602,17 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
+     * Sets the database should be dropped and (re)created from scratch or not.
+     */
+    public final void setCreateFromScratchProp(final String createFromScratchStr)
+    {
+        if (isSet(createFromScratchStr))
+        {
+            setCreateFromScratch(Boolean.parseBoolean(createFromScratchStr));
+        }
+    }
+
+    /**
      * Returns <code>true</code> if scripts in the db migration engine should be executed statement
      * by statement. This mode gives better error messages on where the faulty SQL is but on the
      * other hand it is a lot slower.
@@ -615,6 +628,17 @@ public class DatabaseConfigurationContext implements DisposableBean
     public final void setScriptSingleStepMode(final boolean singleStepMode)
     {
         this.scriptSingleStepMode = singleStepMode;
+    }
+
+    /**
+     * Sets the db migration engine to single step mode for scripts.
+     */
+    public final void setScriptSingleStepModeProp(final String singleStepModeStr)
+    {
+        if (isSet(singleStepModeStr))
+        {
+            setScriptSingleStepMode(Boolean.parseBoolean(singleStepModeStr));
+        }
     }
 
     /**

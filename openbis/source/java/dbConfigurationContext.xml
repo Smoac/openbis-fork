@@ -22,8 +22,8 @@
     <bean id="db-configuration-context"
         class="ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext">
         <property name="basicDatabaseName" value="openbis" />
-        <property name="createFromScratch" value="${database.create-from-scratch}" />
-        <property name="scriptSingleStepMode" value="${database.script-single-step-mode}" />
+        <property name="createFromScratchProp" value="${database.create-from-scratch}" />
+        <property name="scriptSingleStepModeProp" value="${database.script-single-step-mode}" />
         <property name="sequenceNameMapper">
             <bean class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SequenceNameMapper" />
         </property>
@@ -38,12 +38,12 @@
         <property name="scriptFolder" value="${script-folder}/sql" />
         <property name="scriptFolders" value="${script-folders}" />
         <property name="databaseInstance" value="${database-instance}" />
-        <property name="maxWaitForConnection" value="${database.max-wait-for-connection}" />
-        <property name="maxActiveConnections" value="${database.max-active-connections}" />
-        <property name="maxIdleConnections" value="${database.max-idle-connections}" />
-        <property name="activeConnectionsLogInterval" value="${database.active-connections-log-interval}" />
-        <property name="activeNumConnectionsLogThreshold" value="${database.active-number-connections-log-threshold}" />
-        <property name="logStackTraceOnConnectionLogging" value="${database.log-stacktrace-on-connection-logging}" />
+        <property name="maxWaitForConnectionProp" value="${database.max-wait-for-connection}" />
+        <property name="maxActiveConnectionsProp" value="${database.max-active-connections}" />
+        <property name="maxIdleConnectionsProp" value="${database.max-idle-connections}" />
+        <property name="activeConnectionsLogIntervalProp" value="${database.active-connections-log-interval}" />
+        <property name="activeNumConnectionsLogThresholdProp" value="${database.active-number-connections-log-threshold}" />
+        <property name="logStackTraceOnConnectionLoggingProp" value="${database.log-stacktrace-on-connection-logging}" />
     </bean>
 
 </beans>

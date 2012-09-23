@@ -187,7 +187,13 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                 final String serviceMethod = tryGetServiceMethodName(stackTrace);
                 if (serviceMethod == null)
                 {
-                    machineLog.info(action + ".\n" + traceToString(stackTrace));
+                    if (logStackTrace)
+                    {
+                        machineLog.info(action + ".\n" + traceToString(stackTrace));
+                    } else
+                    {
+                        machineLog.info(action + ".");
+                    }
                 } else
                 {
                     if (logStackTrace)
