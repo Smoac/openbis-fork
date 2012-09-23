@@ -24,7 +24,8 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.DisposableBean;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+
+import static ch.systemsx.cisd.common.utilities.PropertyUtils.*;
 
 /**
  * Configuration context for database operations.
@@ -49,9 +50,20 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
 
     static final String PASSWORD_KEY = "database-password";
 
-    static final String MAX_IDLE_KEY = "database-max-idle";
+    static final String MAX_IDLE_KEY = "database-max-idle-connections";
 
-    static final String MAX_ACTIVE_KEY = "database-max-active";
+    static final String MAX_ACTIVE_KEY = "database-max-active-connections";
+
+    static final String MAX_WAIT_FOR_CONNECTION = "database-max-wait-for-connection";
+
+    static final String ACTIVE_CONNECTIONS_LOG_INTERVAL =
+            "database-active-connections-log-interval";
+
+    static final String ACTIVE_NUMBER_CONNECTIONS_LOG_THRESHOLD =
+            "database-active-number-connections-log-threshold";
+
+    static final String LOG_STACKTRACE_ON_CONNECTION_LOGGING =
+            "database.log-stacktrace-on-connection-logging";
 
     static final String VALIDATION_QUERY_KEY = "validation-query";
 
@@ -82,26 +94,47 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
 
     public SimpleDatabaseConfigurationContext(Properties properties)
     {
-        this.driverClassName = PropertyUtils.getMandatoryProperty(properties, DRIVER_KEY);
-        this.url = PropertyUtils.getMandatoryProperty(properties, URL_KEY);
+        this.driverClassName = getMandatoryProperty(properties, DRIVER_KEY);
+        this.url = getMandatoryProperty(properties, URL_KEY);
         this.username =
-                PropertyUtils.getProperty(properties, USER_KEY, System.getProperty("user.name")
+                getProperty(properties, USER_KEY, System.getProperty("user.name")
                         .toLowerCase());
-        this.password = PropertyUtils.getProperty(properties, PASSWORD_KEY);
+        this.password = getProperty(properties, PASSWORD_KEY);
 
-        int maxActive = PropertyUtils.getInt(properties, MAX_ACTIVE_KEY, -1);
-        if (maxActive != -1)
+        if (hasProperty(properties, MAX_ACTIVE_KEY))
         {
-            dataSourceFactory.setMaxActive(maxActive);
+            dataSourceFactory.setMaxActive(getInt(properties, MAX_ACTIVE_KEY, -1));
         }
 
-        int maxIdle = PropertyUtils.getInt(properties, MAX_IDLE_KEY, -1);
-        if (maxIdle != -1)
+        if (hasProperty(properties, MAX_IDLE_KEY))
         {
-            dataSourceFactory.setMaxIdle(maxIdle);
+            dataSourceFactory.setMaxIdle(getInt(properties, MAX_IDLE_KEY, -1));
         }
 
-        this.validationQuery = PropertyUtils.getProperty(properties, VALIDATION_QUERY_KEY);
+        if (hasProperty(properties, MAX_WAIT_FOR_CONNECTION))
+        {
+            dataSourceFactory.setMaxWait(getInt(properties, MAX_WAIT_FOR_CONNECTION, -1));
+        }
+
+        if (hasProperty(properties, ACTIVE_CONNECTIONS_LOG_INTERVAL))
+        {
+            dataSourceFactory.setActiveConnectionsLogInterval(getInt(properties,
+                    ACTIVE_CONNECTIONS_LOG_INTERVAL, -1));
+        }
+
+        if (hasProperty(properties, ACTIVE_NUMBER_CONNECTIONS_LOG_THRESHOLD))
+        {
+            dataSourceFactory.setActiveNumConnectionsLogThreshold(getInt(properties,
+                    ACTIVE_NUMBER_CONNECTIONS_LOG_THRESHOLD, -1));
+        }
+
+        if (hasProperty(properties, LOG_STACKTRACE_ON_CONNECTION_LOGGING))
+        {
+            dataSourceFactory.setLogStackTraceOnConnectionLogging(getBoolean(properties,
+                    LOG_STACKTRACE_ON_CONNECTION_LOGGING, false));
+        }
+
+        this.validationQuery = getProperty(properties, VALIDATION_QUERY_KEY);
     }
 
     /**
