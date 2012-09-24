@@ -48,6 +48,7 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
  * 
  * @author Bernd Rinn
  */
+@Test(groups = "flaky")
 public class MonitoringProxyTest
 {
 
