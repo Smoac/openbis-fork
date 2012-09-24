@@ -43,10 +43,9 @@ public abstract class AbstractHardlinkMakerTest
     protected static final File unitTestRootDirectory = new File("targets" + File.separator
             + "unit-test-wd");
 
-    protected static final File workingDirectory = new File(unitTestRootDirectory,
-            FastRecursiveHardLinkMakerTest.class.getSimpleName());
+    protected File workingDirectory;
 
-    protected static final File outputDir = new File(workingDirectory, "output");
+    protected File outputDir;
 
     protected static File createFile(File directory, String name) throws IOException
     {
@@ -70,6 +69,8 @@ public abstract class AbstractHardlinkMakerTest
     @BeforeMethod
     public void setUp()
     {
+        workingDirectory = new File(unitTestRootDirectory, getClass().getSimpleName());
+        outputDir = new File(workingDirectory, "output");
         FileUtilities.deleteRecursively(workingDirectory);
         outputDir.mkdirs();
     }
