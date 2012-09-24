@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.dbbackup;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -28,9 +26,10 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPluginType;
-import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsUtils;
 
 /**
@@ -82,7 +81,7 @@ public class BackupDatabaseDescriptionGenerator
             File file = new File(fileName);
             if (file.isFile() && file.canRead())
             {
-                Properties properties = readPropertiesAndInjectCorePlugins(file);
+                Properties properties = readPropertiesAndInjectCorePluginsIfDSS(file);
                 process(properties);
             } else
             {
@@ -91,32 +90,37 @@ public class BackupDatabaseDescriptionGenerator
         }
     }
     
-    private Properties readPropertiesAndInjectCorePlugins(File file)
+    private Properties readPropertiesAndInjectCorePluginsIfDSS(File propertiesFile)
     {
-        Properties properties = ExtendedProperties.createWith(readProperties(file));
-        CorePluginsUtils.addCorePluginsProperties(properties, ScannerType.DSS);
-        CorePluginsInjector injector =
-                new CorePluginsInjector(ScannerType.DSS, DssPluginType.values());
-        injector.injectCorePlugins(properties);
-        return properties;
-    }
-
-    private Properties readProperties(File file)
-    {
-        Properties properties = new Properties();
-        FileInputStream fin = null;
-        try
+        Properties properties = PropertyUtils.loadProperties(propertiesFile);
+        if (isDSSPropertiesFile(propertiesFile))
         {
-            fin = new FileInputStream(file);
-            properties.load(fin);
-        } catch (IOException ioex)
-        {
-            throw new IOExceptionUnchecked(ioex);
-        } finally
-        {
-            closeQuietly(fin);
+            String corePluginsFolderRelativePath =
+                    CorePluginsUtils.getCorePluginsFolder(properties, ScannerType.DSS);
+            File workingDirectory = propertiesFile.getParentFile().getParentFile();
+            File corePluginsFolder = new File(workingDirectory, corePluginsFolderRelativePath);
+            File file = new File(corePluginsFolder, CorePluginsUtils.CORE_PLUGINS_PROPERTIES_FILE);
+            PropertyUtils.loadAndAppendProperties(properties, file);
+            CorePluginsInjector injector =
+                    new CorePluginsInjector(ScannerType.DSS, DssPluginType.values());
+            injector.injectCorePlugins(properties, corePluginsFolder.getAbsolutePath());
         }
-        return properties;
+        return ExtendedProperties.createWith(properties);
+    }
+    
+    private boolean isDSSPropertiesFile(File propertiesFile)
+    {
+        String grandParentName = propertiesFile.getParentFile().getParentFile().getName();
+        if (grandParentName.equals("datastore_server"))
+        {
+            return true;
+        }
+        if (grandParentName.equals("jetty"))
+        {
+            return false;
+        }
+        throw new IllegalArgumentException("Neither DSS nor AS service.properties file: " + propertiesFile.getAbsolutePath());
+        
     }
 
     String getResult()
@@ -131,20 +135,6 @@ public class BackupDatabaseDescriptionGenerator
             builder.append(description);
         }
         return builder.toString();
-    }
-
-    private void closeQuietly(FileInputStream fin)
-    {
-        try
-        {
-            if (fin != null)
-            {
-                fin.close();
-            }
-        } catch (Throwable t)
-        {
-            // it is safe to ignore any errors here
-        }
     }
 
     public static void main(String[] args)

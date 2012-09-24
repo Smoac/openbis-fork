@@ -35,7 +35,7 @@ public class CorePluginsUtils
 
     static final String DEFAULT_AS_CORE_PLUGINS_FOLDER = "../../core-plugins";
 
-    static final String CORE_PLUGINS_PROPERTIES_FILE = "core_plugins.properties";
+    public static final String CORE_PLUGINS_PROPERTIES_FILE = "core_plugins.properties";
 
     /**
      * Adds the content of <code>core_plugins.properties</code> file to the specified properties.

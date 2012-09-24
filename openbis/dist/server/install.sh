@@ -101,7 +101,10 @@ echo "Make the configuration checksum file available : " $checksum_file
 test -f "$checksum_file" && cp -p "$checksum_file" "$jetty_folder"
 
 echo installing core-plugins
-unzip -quo "$installation_folder/core-plugins.zip" -d "$server_folder/.."
+if [ -f "$server_folder/../core-plugins/core_plugins.properties" ]; then
+    excludingStuff="-x core-plugins/core_plugins.properties" 
+fi
+unzip -quo "$installation_folder/core-plugins.zip" $excludingStuff -d "$server_folder/.."
 
 # Move config files to etc and create symlinks.
 mv "$war_classes/etc/log.xml" "$JETTY_ETC_DIR"
