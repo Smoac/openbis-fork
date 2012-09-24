@@ -514,26 +514,14 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         return containerDataset;
     }
 
+
     private FeatureVectorContainerDataSet createFeatureVectorContainerDataSet(
             FeatureVectorDataSet mainDataset)
     {
-
-        String dataSetTypeCode = mainDataset.getDataSetType();
-        if (!isHCSAnalysisDataSetType(dataSetTypeCode))
-        {
-            throw UserFailureException
-                    .fromTemplate(
-                            "Feature vector data set type should conform to the HCS_ANALYSIS_* pattern, but was %s",
-                            dataSetTypeCode);
-            
-        }
-        
         String containerDatasetTypeCode =
-                ScreeningConstants.HCS_ANALYSIS_PREFIX
-                        + ScreeningConstants.IMAGE_CONTAINER_DATASET_TYPE_MARKER
-                        + dataSetTypeCode
-                                .substring(ScreeningConstants.HCS_ANALYSIS_PREFIX.length());
-        
+                FeatureVectorContainerDataSet
+                        .getContainerAnalysisType(mainDataset.getDataSetType());
+
         @SuppressWarnings("unchecked")
         FeatureVectorContainerDataSet containerDataSet =
                 (FeatureVectorContainerDataSet) createNewDataSet(
@@ -586,27 +574,6 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     {
         return dataSetTypeCode.contains(MICROSCOPY_IMAGE_TYPE_SUBSTRING)
                 && false == dataSetTypeCode.contains(MICROSCOPY_CONTAINER_TYPE_SUBSTRING);
-    }
-
-    private static boolean isHCSAnalysisDataSetType(String mainDatasetTypeCode)
-    {
-        String prefix = ScreeningConstants.HCS_ANALYSIS_PREFIX;
-        if (mainDatasetTypeCode.startsWith(prefix))
-        {
-            if (mainDatasetTypeCode
-                    .contains(ScreeningConstants.IMAGE_CONTAINER_DATASET_TYPE_MARKER))
-            {
-                throw UserFailureException
-                        .fromTemplate(
-                                "The specified analysis dataset type '%s' should not be of container type, but contains '%s' in the type code.",
-                                mainDatasetTypeCode,
-                                ScreeningConstants.IMAGE_CONTAINER_DATASET_TYPE_MARKER);
-            }
-            return true;
-        } else
-        {
-            return false;
-        }
     }
 
     private static String findContainerDatasetTypeCode(

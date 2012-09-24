@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.Screeni
 
 import java.io.File;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
@@ -29,6 +30,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentIm
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * @author jakubs
@@ -90,7 +92,6 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
         }
     }
 
-
     @Override
     public void setPropertyValue(String propertyCode, String propertyValue)
     {
@@ -101,5 +102,54 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
     public File getDataSetStagingFolder()
     {
         return originalDataset.getDataSetStagingFolder();
+    }
+
+    public static String getContainerAnalysisType(String dataSetTypeCode)
+    {
+        if (!isHCSAnalysisDataSetType(dataSetTypeCode))
+        {
+            throw UserFailureException
+                    .fromTemplate(
+                            "Feature vector data set type should conform to the HCS_ANALYSIS_* pattern, but was %s",
+                            dataSetTypeCode);
+
+        }
+
+        String containerDatasetTypeCode =
+                ScreeningConstants.HCS_ANALYSIS_PREFIX
+                        + ScreeningConstants.IMAGE_CONTAINER_DATASET_TYPE_MARKER
+                        + dataSetTypeCode
+                                .substring(ScreeningConstants.HCS_ANALYSIS_PREFIX.length());
+
+        return containerDatasetTypeCode;
+    }
+
+    private static boolean isHCSAnalysisDataSetType(String mainDatasetTypeCode)
+    {
+        String prefix = ScreeningConstants.HCS_ANALYSIS_PREFIX;
+        if (mainDatasetTypeCode.startsWith(prefix))
+        {
+            if (mainDatasetTypeCode
+                    .contains(ScreeningConstants.IMAGE_CONTAINER_DATASET_TYPE_MARKER))
+            {
+                throw UserFailureException
+                        .fromTemplate(
+                                "The specified analysis dataset type '%s' should not be of container type, but contains '%s' in the type code.",
+                                mainDatasetTypeCode,
+                                ScreeningConstants.IMAGE_CONTAINER_DATASET_TYPE_MARKER);
+            }
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    @Override
+    public void setDataSetType(String dataSetTypeCode)
+    {
+        originalDataset.setDataSetType(dataSetTypeCode);
+
+        super.setDataSetType(getContainerAnalysisType(dataSetTypeCode));
     }
 }
