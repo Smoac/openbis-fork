@@ -103,7 +103,7 @@ public abstract class SeleniumTest
     {
         uid = new DictionaryUidGenerator(new File("resource/corncob_lowercase.txt"));
 
-        System.setProperty("webdriver.firefox.profile", "default");
+        // System.setProperty("webdriver.firefox.profile", "default");
 
         driver = new FirefoxDriver();
         setImplicitWaitToDefault();
