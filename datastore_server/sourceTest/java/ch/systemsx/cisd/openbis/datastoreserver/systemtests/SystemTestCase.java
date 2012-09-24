@@ -28,9 +28,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.springframework.beans.MutablePropertyValues;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
-import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.FileSystemResource;
@@ -43,7 +40,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.api.server.JsonBaseTest.EchoServiceBean;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.shared.basic.utils.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
@@ -153,22 +149,22 @@ public abstract class SystemTestCase extends AssertJUnit
                             getApplicationContextLocation()));
 
                     /* Needed for RmiConversationTest */
-                    GenericBeanDefinition definition = new GenericBeanDefinition();
-                    MutablePropertyValues values = new MutablePropertyValues();
-                    values.addPropertyValue("sessionFactory", new RuntimeBeanReference(
-                            "hibernate-session-factory"));
-                    values.addPropertyValue("echoService", new RuntimeBeanReference(
-                            "echoService"));
-                    definition.setPropertyValues(values);
-                    definition.setBeanClass(EchoServiceBean.class);
-                    applicationContext.registerBeanDefinition("echoService", definition);
+                    /*
+                     * GenericBeanDefinition definition = new GenericBeanDefinition();
+                     * MutablePropertyValues values = new MutablePropertyValues();
+                     * values.addPropertyValue("sessionFactory", new RuntimeBeanReference(
+                     * "hibernate-session-factory")); values.addPropertyValue("echoService", new
+                     * RuntimeBeanReference( "echoService")); definition.setPropertyValues(values);
+                     * definition.setBeanClass(EchoServiceBean.class);
+                     * applicationContext.registerBeanDefinition("echoService", definition);
+                     */
 
                     /* Needed for RmiConversationTest */
                     /*
-                    GenericBeanDefinition exporter = new GenericBeanDefinition();
-                    exporter.setBeanClass(EchoServiceExporter.class);
-                    applicationContext.registerBeanDefinition("echoServiceExporter", exporter);
-                    */
+                     * GenericBeanDefinition exporter = new GenericBeanDefinition();
+                     * exporter.setBeanClass(EchoServiceExporter.class);
+                     * applicationContext.registerBeanDefinition("echoServiceExporter", exporter);
+                     */
 
                     applicationContext.refresh();
                     return applicationContext;
