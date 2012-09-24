@@ -93,7 +93,8 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                 if (machineLog.isInfoEnabled())
                 {
                     machineLog.info(String.format(
-                            "Active database connections: %d.", maxActiveSinceLastLogged));
+                            "Active database connections: current: %d, peak: %d.", numActive,
+                            maxActiveSinceLastLogged));
                 }
                 lastLogged = now;
                 maxActiveSinceLastLogged = 0;
