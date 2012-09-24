@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
+import ch.systemsx.cisd.openbis.uitest.widget.AtomicWidget;
 import ch.systemsx.cisd.openbis.uitest.widget.Checkbox;
 import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.Fillable;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 import ch.systemsx.cisd.openbis.uitest.widget.TextArea;
-import ch.systemsx.cisd.openbis.uitest.widget.AtomicWidget;
 
 /**
  * @author anttil
@@ -43,7 +43,8 @@ public enum PropertyTypeDataType
 
     private Class<?> widgetClass;
 
-    private <T extends AtomicWidget & Fillable> PropertyTypeDataType(String name, Class<T> widgetClass)
+    private <T extends AtomicWidget & Fillable> PropertyTypeDataType(String name,
+            Class<T> widgetClass)
     {
         this.name = name;
         this.widgetClass = widgetClass;
@@ -55,7 +56,7 @@ public enum PropertyTypeDataType
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AtomicWidget & Fillable> Class<T> representedAs()
+    public <T extends AtomicWidget> Class<T> representedAs()
     {
         return (Class<T>) widgetClass;
     }
