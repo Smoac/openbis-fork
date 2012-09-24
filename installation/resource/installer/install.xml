@@ -140,7 +140,6 @@
       <description>The openBIS application server</description>
       <file src="@{installer.dist.dir}/openBIS-server" targetdir="$INSTALL_TMPEXTRACT"/>
       <parsable targetfile="$INSTALL_OPENBIS_TMPEXTRACT/service.properties" />
-      <parsable targetfile="$INSTALL_OPENBIS_TMPEXTRACT/core_plugins.properties" />
       <!-- run post installation script for the openBIS server -->
       <executable targetfile="$INSTALL_OPENBIS_TMPEXTRACT/install.sh" stage="postinstall">
         <args>
@@ -155,7 +154,6 @@
       <file src="@{installer.dist.dir}/datastore_server" targetdir="$INSTALL_PATH/servers"/>
       <file src="@{installer.dist.dir}/core-plugins" targetdir="$INSTALL_PATH/servers"/>
       <parsable targetfile="$INSTALL_DSS_PATH/etc/service.properties" />
-      <parsable targetfile="$INSTALL_DSS_PATH/etc/core_plugins.properties" />
       
       <!--  
          Since there is no way to copy all contents of the "data" folder directly to DSS_ROOT_DIR,

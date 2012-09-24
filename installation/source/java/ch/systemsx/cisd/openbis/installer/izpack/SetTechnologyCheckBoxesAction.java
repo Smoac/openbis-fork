@@ -64,7 +64,7 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
         public boolean isTechnologyEnabled(File installDir)
         {
             String technologies =
-                    Utils.tryToGetCorePluginsPropertyOfAS(installDir, ENABLED_TECHNOLOGIES_KEY);
+                    Utils.tryToGetCorePluginsProperty(installDir, ENABLED_TECHNOLOGIES_KEY);
             if (technologies == null)
             {
                 technologies =

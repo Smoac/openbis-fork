@@ -29,7 +29,6 @@ ROOT=$BASE/../servers
 # -- AS
 copyFileIfExists $ROOT/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/service.properties $CONF/
 copyFileIfExists $ROOT/openBIS-server/jetty/etc/service.properties $CONF/
-copyFileIfExists $ROOT/openBIS-server/jetty/etc/core_plugins.properties $CONF/
 copyFileIfExists $ROOT/openBIS-server/jetty/etc/capabilities $CONF/
 copyFileIfExists $ROOT/openBIS-server/jetty/etc/log.xml $CONF/
 copyFileIfExists $ROOT/openBIS-server/jetty/bin/openbis.conf $CONF/
@@ -45,7 +44,6 @@ copyIfExists $ROOT/openBIS-server/jetty/etc/web-client.properties $CONF/
 
 # -- DSS
 cp $ROOT/datastore_server/etc/service.properties $CONF/dss-service.properties
-cp $ROOT/datastore_server/etc/core_plugins.properties $CONF/dss-core_plugins.properties
 cp $ROOT/datastore_server/etc/log.xml $CONF/dss-log.xml
 cp $ROOT/datastore_server/etc/datastore_server.conf $CONF/datastore_server.conf
 # not always present

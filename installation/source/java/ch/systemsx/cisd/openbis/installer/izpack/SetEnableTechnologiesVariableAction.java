@@ -68,14 +68,9 @@ public class SetEnableTechnologiesVariableAction implements PanelAction
     {
         String newTechnologyList = createListOfEnabledTechnologies(data);
         data.setVariable(ENABLED_TECHNOLOGIES_VARNAME, newTechnologyList);
-        if (isFirstTimeInstallation == false)
-        {
-            File asConfigFile = new File(installDir, Utils.AS_PATH + Utils.CORE_PLUGINS_PROPERTIES_PATH);
-            modifyPropertyEnabledTechnologies(asConfigFile, data);
-            File dssConfigFile =
-                    new File(installDir, Utils.DSS_PATH + Utils.CORE_PLUGINS_PROPERTIES_PATH);
-            modifyPropertyEnabledTechnologies(dssConfigFile, data);
-        }
+        File corePluginPropertiesFile = new File(installDir, Utils.CORE_PLUGINS_PROPERTIES_PATH);
+        corePluginPropertiesFile.getParentFile().mkdirs();
+        modifyPropertyEnabledTechnologies(corePluginPropertiesFile, data);
     }
 
     private String createListOfEnabledTechnologies(AutomatedInstallData data)
