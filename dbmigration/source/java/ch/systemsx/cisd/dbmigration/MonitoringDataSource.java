@@ -19,6 +19,10 @@ package ch.systemsx.cisd.dbmigration;
 import java.sql.SQLException;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * A data source that performs monitoring of active connections to help track load and connection
@@ -28,6 +32,9 @@ import org.apache.commons.dbcp.BasicDataSource;
  */
 public class MonitoringDataSource extends BasicDataSource
 {
+    private final static Logger machineLog =
+            LogFactory.getLogger(LogCategory.MACHINE, MonitoringPoolingDataSource.class);
+
     private long activeConnectionsLogInterval;
 
     private int activeConnectionsLogThreshold;
@@ -110,6 +117,18 @@ public class MonitoringDataSource extends BasicDataSource
     public boolean isWrapperFor(Class<?> iface) throws SQLException
     {
         return false;
+    }
+
+    @Override
+    public synchronized void close() throws SQLException
+    {
+        if (machineLog.isInfoEnabled())
+        {
+            final Throwable th = new Throwable();
+            th.fillInStackTrace();
+            machineLog.info("Closing data source '" + getUrl() + "'.", th);
+        }
+        super.close();
     }
 
 }
