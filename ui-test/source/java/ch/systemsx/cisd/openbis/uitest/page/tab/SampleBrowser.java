@@ -18,9 +18,6 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Browser;
-import ch.systemsx.cisd.openbis.uitest.infra.Cell;
-import ch.systemsx.cisd.openbis.uitest.infra.Row;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
@@ -74,13 +71,13 @@ public class SampleBrowser implements Browser<Sample>
     }
 
     @Override
-    public Row select(Sample sample)
+    public BrowserRow select(Sample sample)
     {
         return grid.select("Code", sample.getCode());
     }
 
     @Override
-    public Cell cell(Sample sample, String column)
+    public BrowserCell cell(Sample sample, String column)
     {
         return select(sample).get(column);
     }

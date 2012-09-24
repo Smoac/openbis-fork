@@ -35,6 +35,7 @@ public abstract class ConfirmationDialog extends Dialog
         addText(message);
         setHideOnButtonClick(true);
         setModal(true);
+        setId("confirmation_dialog");
     }
 
     @Override

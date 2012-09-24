@@ -16,17 +16,15 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Fillable;
-import ch.systemsx.cisd.openbis.uitest.infra.Widget;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 
 
 /**
  * @author anttil
  */
-public class Text implements Widget, Fillable
+public class Text implements AtomicWidget, Fillable
 {
-    private WidgetWebElement context;
+    private WidgetContext context;
 
     public void write(String text)
     {
@@ -51,7 +49,7 @@ public class Text implements Widget, Fillable
     }
 
     @Override
-    public void setContext(WidgetWebElement context)
+    public void setContext(WidgetContext context)
     {
         this.context = context;
     }

@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.infra.application.ApplicationRunner;
 
 /**
  * @author anttil

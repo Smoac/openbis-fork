@@ -39,23 +39,31 @@ import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 public class SprintTest extends SeleniumTest
 {
 
-    @Test(enabled = false)
+    @Test
     public void basic()
     {
-
         // 0) Cleanup
-        /*
-        experimentBrowser().space("sprint-test").deleteAll();
+        Project oldProject = assume(aProject().withCode("p1"));
+        Space oldSpace = assume(aSpace().withCode("sprint-test"));
+        SampleType oldSampleType = assume(aSampleType().withCode("sprint_test"));
+        ExperimentType oldExperimentType = assume(anExperimentType().withCode("sprint_test"));
+        Vocabulary oldVocabulary = assume(aVocabulary().withCode("sprint-test-animal"));
+        PropertyType text = assume(aVarcharPropertyType().withCode("sprint-test.text"));
+        PropertyType real = assume(aVarcharPropertyType().withCode("sprint-test.real"));
+        PropertyType animal =
+                assume(aVocabularyPropertyType(oldVocabulary).withCode("sprint-test.animal"));
+
+        deleteExperimentsFrom(oldProject);
         trash().empty();
-        projectBrowser().deleteIfExists("Code", "p1");
-        spaceBrowser().deleteIfExists("Code", "sprint-test");
-        sampleTypeBrowser().deleteIfExists("Code", "sprint_test");
-        experimentTypeBrowser().deleteIfExists("Code", "sprint_test");
-        propertyTypeBrowser().deleteIfExists("Code", "sprint-test.text");
-        propertyTypeBrowser().deleteIfExists("Code", "sprint-test.real");
-        propertyTypeBrowser().deleteIfExists("Code", "sprint-test.animal");
-        vocabularyBrowser().deleteIfExists("Code", "sprint-test-animal");
-        */
+        delete(oldProject);
+        delete(oldSpace);
+        delete(oldSampleType);
+        delete(oldExperimentType);
+        delete(text);
+        delete(real);
+        delete(animal);
+        delete(oldVocabulary);
+
         // 1) Login and authorization
         openbis.browseToRoleAssignmentBrowser();
         assertThat(browser(), isShowing(RoleAssignmentBrowser.class));

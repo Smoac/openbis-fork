@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.type;
-
-import ch.systemsx.cisd.openbis.uitest.infra.Fillable;
-import ch.systemsx.cisd.openbis.uitest.infra.Widget;
+package ch.systemsx.cisd.openbis.uitest.widget;
 
 /**
  * @author anttil
  */
-public interface Representable<T extends Widget & Fillable>
+public interface Refreshable
 {
-    public T representedAs();
+    public String getState();
 }

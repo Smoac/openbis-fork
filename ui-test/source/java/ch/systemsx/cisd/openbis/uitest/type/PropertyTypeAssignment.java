@@ -16,10 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
-import ch.systemsx.cisd.openbis.uitest.infra.Cell;
-import ch.systemsx.cisd.openbis.uitest.infra.EntityType;
-import ch.systemsx.cisd.openbis.uitest.infra.Row;
+import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserCell;
+import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 
 /**
  * @author anttil
@@ -45,10 +43,10 @@ public class PropertyTypeAssignment implements Browsable
     }
 
     @Override
-    public boolean isRepresentedBy(Row row)
+    public boolean isRepresentedBy(BrowserRow row)
     {
-        Cell propertyTypeCode = row.get("Property Type Code");
-        Cell entityTypeCode = row.get("Entity Type");
+        BrowserCell propertyTypeCode = row.get("Property Type Code");
+        BrowserCell entityTypeCode = row.get("Entity Type");
 
         return propertyTypeCode != null &&
                 entityTypeCode != null &&

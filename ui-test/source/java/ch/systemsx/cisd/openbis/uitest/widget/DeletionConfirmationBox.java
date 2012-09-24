@@ -16,15 +16,14 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 
 /**
  * @author anttil
  */
-public class DeletionConfirmationBox implements Contextual
+public class DeletionConfirmationBox implements Widget
 {
-    private WidgetWebElement context;
+    private WidgetContext context;
 
     public void confirm(String reason)
     {
@@ -40,11 +39,11 @@ public class DeletionConfirmationBox implements Contextual
 
     private Button getOkButton()
     {
-        return context.find(".//button[text()=\"OK\"]", Button.class);
+        return context.find(".//button[text()='OK' or text()='Yes']", Button.class);
     }
 
     @Override
-    public void setContext(WidgetWebElement context)
+    public void setContext(WidgetContext context)
     {
         this.context = context;
     }

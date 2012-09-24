@@ -16,13 +16,11 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Browser;
-import ch.systemsx.cisd.openbis.uitest.infra.Cell;
-import ch.systemsx.cisd.openbis.uitest.infra.Row;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
@@ -35,7 +33,6 @@ public class SampleTypeBrowser implements Browser<SampleType>
     @Locate("edit-entity-type-SAMPLE")
     private Button edit;
 
-    @SuppressWarnings("unused")
     @Locate("delete-entity-type-SAMPLE")
     private Button delete;
 
@@ -49,25 +46,34 @@ public class SampleTypeBrowser implements Browser<SampleType>
     @Locate("openbis_sample-type-browser-grid-filter-toolbar")
     private FilterToolBar filters;
 
+    @Lazy
+    @Locate("deletion-confirmation-dialog")
+    private DeletionConfirmationBox confimDeletion;
+
     public void add()
     {
         add.click();
     }
 
-    public void editSampleType(SampleType type)
+    public void edit()
     {
-        grid.select("Code", type.getCode());
         edit.click();
     }
 
+    public void delete()
+    {
+        delete.click();
+        confimDeletion.confirm();
+    }
+
     @Override
-    public Row select(SampleType type)
+    public BrowserRow select(SampleType type)
     {
         return grid.select("Code", type.getCode());
     }
 
     @Override
-    public Cell cell(SampleType type, String column)
+    public BrowserCell cell(SampleType type, String column)
     {
         return select(type).get(column);
     }

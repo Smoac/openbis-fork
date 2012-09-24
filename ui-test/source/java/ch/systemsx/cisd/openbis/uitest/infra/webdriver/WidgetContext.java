@@ -22,18 +22,18 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Widget;
 import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.widget.AtomicWidget;
 
 /**
  * @author anttil
  */
-public class WidgetWebElement
+public class WidgetContext
 {
 
     public WebElement element;
 
-    public WidgetWebElement(WebElement element)
+    public WidgetContext(WebElement element)
     {
         this.element = element;
     }
@@ -68,7 +68,7 @@ public class WidgetWebElement
         return element.findElement(By.xpath(xpath));
     }
 
-    public <T extends Widget> T find(String xpath, Class<T> widgetClass)
+    public <T extends AtomicWidget> T find(String xpath, Class<T> widgetClass)
     {
         T t;
         try
@@ -87,7 +87,7 @@ public class WidgetWebElement
         {
             e = e.findElement(By.xpath(".//" + t.getTagName()));
         }
-        t.setContext(new WidgetWebElement(e));
+        t.setContext(new WidgetContext(e));
         return t;
     }
 

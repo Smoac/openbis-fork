@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.type;
+
+import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 
 
 /**
@@ -22,5 +24,5 @@ package ch.systemsx.cisd.openbis.uitest.infra;
  */
 public interface Browsable
 {
-    public boolean isRepresentedBy(Row row);
+    public boolean isRepresentedBy(BrowserRow row);
 }

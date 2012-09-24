@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
-import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.infra.application.ApplicationRunner;
 
 /**
  * @author anttil

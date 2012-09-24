@@ -14,33 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.widget;
+
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
+
 
 /**
  * @author anttil
  */
-public enum User
+public interface Widget
 {
-    ADMIN("selenium", "selenium4CISD");
-
-    private String name;
-
-    private String password;
-
-    private User(String name, String password)
-    {
-        this.name = name;
-        this.password = password;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public String getPassword()
-    {
-        return password;
-    }
-
+    public void setContext(WidgetContext context);
 }

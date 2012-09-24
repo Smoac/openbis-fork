@@ -16,13 +16,11 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Browser;
-import ch.systemsx.cisd.openbis.uitest.infra.Cell;
-import ch.systemsx.cisd.openbis.uitest.infra.Row;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
@@ -33,7 +31,6 @@ public class ProjectBrowser implements Browser<Project>
     @Locate("openbis_project-browser-grid")
     private Grid grid;
 
-    @SuppressWarnings("unused")
     @Locate("openbis_project-browser-delete")
     private Button delete;
 
@@ -44,14 +41,24 @@ public class ProjectBrowser implements Browser<Project>
     @Locate("openbis_project-browser-grid-filter-toolbar")
     private FilterToolBar filters;
 
+    @Lazy
+    @Locate("deletion-confirmation-dialog")
+    private DeletionConfirmationBox confimDeletion;
+
+    public void delete()
+    {
+        delete.click();
+        confimDeletion.confirm("WebDriver");
+    }
+
     @Override
-    public Row select(Project project)
+    public BrowserRow select(Project project)
     {
         return grid.select("Code", project.getCode());
     }
 
     @Override
-    public Cell cell(Project project, String column)
+    public BrowserCell cell(Project project, String column)
     {
         return select(project).get(column);
     }

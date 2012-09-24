@@ -16,15 +16,15 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
-import ch.systemsx.cisd.openbis.uitest.infra.Fillable;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Checkbox;
+import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.Dynamic;
+import ch.systemsx.cisd.openbis.uitest.widget.Fillable;
 
 public class AssignSamplePropertyType
 {
@@ -53,7 +53,7 @@ public class AssignSamplePropertyType
 
         if (assignment.getInitialValue() != null && assignment.getInitialValue().length() > 0)
         {
-            Contextual c =
+            Widget c =
                     initialValue.define(assignment.getPropertyType().getDataType().representedAs());
             ((Fillable) c).fillWith(assignment.getInitialValue());
         }

@@ -16,16 +16,15 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 
 /**
  * @author anttil
  */
-public class AlertMessageBox implements Contextual
+public class AlertMessageBox implements Widget
 {
 
-    private WidgetWebElement context;
+    private WidgetContext context;
 
     public void dismiss()
     {
@@ -34,7 +33,7 @@ public class AlertMessageBox implements Contextual
     }
 
     @Override
-    public void setContext(WidgetWebElement context)
+    public void setContext(WidgetContext context)
     {
         this.context = context;
     }

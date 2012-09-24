@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.HashSet;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.infra.application.ApplicationRunner;
 
 /**
  * @author anttil

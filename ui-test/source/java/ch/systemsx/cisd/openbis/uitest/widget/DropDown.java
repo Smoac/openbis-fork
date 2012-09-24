@@ -25,17 +25,15 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Fillable;
-import ch.systemsx.cisd.openbis.uitest.infra.Widget;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 
 /**
  * @author anttil
  */
-public class DropDown implements Widget, Fillable
+public class DropDown implements AtomicWidget, Fillable
 {
-    private WidgetWebElement context;
+    private WidgetContext context;
 
     public void select(String text)
     {
@@ -51,6 +49,16 @@ public class DropDown implements Widget, Fillable
             found.add(choice.getText());
         }
         throw new IllegalArgumentException("Selection " + text + " not found, got " + found);
+    }
+
+    public void clear()
+    {
+        this.context.find("../input").clear();
+    }
+
+    public String getValue()
+    {
+        return this.context.find("../input").getAttribute("value");
     }
 
     public List<String> getChoices()
@@ -76,7 +84,7 @@ public class DropDown implements Widget, Fillable
     }
 
     @Override
-    public void setContext(WidgetWebElement context)
+    public void setContext(WidgetContext context)
     {
         this.context = context;
     }

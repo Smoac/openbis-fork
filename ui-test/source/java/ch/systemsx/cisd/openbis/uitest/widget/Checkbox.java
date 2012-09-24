@@ -16,18 +16,16 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Fillable;
-import ch.systemsx.cisd.openbis.uitest.infra.Widget;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 
 
 /**
  * @author anttil
  */
-public class Checkbox implements Widget, Fillable
+public class Checkbox implements AtomicWidget, Fillable
 {
 
-    private WidgetWebElement context;
+    private WidgetContext context;
 
     public void set(boolean value)
     {
@@ -44,7 +42,7 @@ public class Checkbox implements Widget, Fillable
     }
 
     @Override
-    public void setContext(WidgetWebElement context)
+    public void setContext(WidgetContext context)
     {
         this.context = context;
     }

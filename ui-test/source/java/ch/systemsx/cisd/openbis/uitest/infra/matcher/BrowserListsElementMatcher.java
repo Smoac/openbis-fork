@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.uitest.infra.matcher;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
-import ch.systemsx.cisd.openbis.uitest.infra.Browser;
-import ch.systemsx.cisd.openbis.uitest.infra.Row;
+import ch.systemsx.cisd.openbis.uitest.page.tab.Browser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
+import ch.systemsx.cisd.openbis.uitest.type.Browsable;
 
 /**
  * @author anttil
@@ -46,7 +46,7 @@ public class BrowserListsElementMatcher<T extends Browsable, U extends Browser<T
     public boolean matchesSafely(U browser)
     {
         browser.filter(expected);
-        Row row = browser.select(expected);
+        BrowserRow row = browser.select(expected);
 
         if (row.exists())
         {

@@ -22,17 +22,16 @@ import java.util.List;
 
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 
 /**
  * @author anttil
  */
-public class TreeGrid implements Contextual
+public class TreeGrid implements Widget
 {
-    private WidgetWebElement context;
+    private WidgetContext context;
 
-    public void select(String label)
+    public boolean select(String label)
     {
         List<WebElement> elements = context.findAll(".//span[not(*) and @class='gwt-InlineHTML']");
 
@@ -43,18 +42,22 @@ public class TreeGrid implements Contextual
             if (label.equalsIgnoreCase(text))
             {
                 element.click();
-                return;
+                return true;
             } else
             {
                 found.add(text);
             }
         }
-        throw new IllegalArgumentException("Selection " + label + " not found - these were found: "
-                + found);
+
+        return false;
+        /*        
+         * throw new IllegalArgumentException("Selection " + label + " not found - these were found: "
+                        + found);
+                        */
     }
 
     @Override
-    public void setContext(WidgetWebElement context)
+    public void setContext(WidgetContext context)
     {
         this.context = context;
     }

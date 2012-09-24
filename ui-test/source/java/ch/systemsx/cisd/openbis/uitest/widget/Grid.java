@@ -24,22 +24,20 @@ import java.util.concurrent.TimeUnit;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Cell;
-import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
-import ch.systemsx.cisd.openbis.uitest.infra.Refreshing;
-import ch.systemsx.cisd.openbis.uitest.infra.Row;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
+import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserCell;
+import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 
 /**
  * @author anttil
  */
-public class Grid implements Contextual, Refreshing
+public class Grid implements Widget, Refreshable
 {
 
-    private WidgetWebElement context;
+    private WidgetContext context;
 
-    public Row select(String column, String value)
+    public BrowserRow select(String column, String value)
     {
 
         List<WebElement> columns = this.getColumns();
@@ -77,19 +75,19 @@ public class Grid implements Contextual, Refreshing
 
         if (!found)
         {
-            return new Row();
+            return new BrowserRow();
         }
 
         index = index - (index % numColumns);
 
-        Map<String, Cell> m = new HashMap<String, Cell>();
+        Map<String, BrowserCell> m = new HashMap<String, BrowserCell>();
         for (int i = 0; i < numColumns; i++)
         {
             WebElement element = cells.get(i + index);
             m.put(columns.get(i).getText(),
-                    new Cell(element.getText(), element.getAttribute("href")));
+                    new BrowserCell(element.getText(), element.getAttribute("href")));
         }
-        return new Row(m);
+        return new BrowserRow(m);
     }
 
     private List<WebElement> getColumns()
@@ -138,11 +136,11 @@ public class Grid implements Contextual, Refreshing
     @Override
     public synchronized String getState()
     {
-        return "" + this.getCells().size();
+        return "" + this.getCells().size() + "/" + this.getColumns().size();
     }
 
     @Override
-    public void setContext(WidgetWebElement context)
+    public void setContext(WidgetContext context)
     {
         this.context = context;
     }

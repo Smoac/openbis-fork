@@ -16,13 +16,11 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Browser;
-import ch.systemsx.cisd.openbis.uitest.infra.Cell;
-import ch.systemsx.cisd.openbis.uitest.infra.Row;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
@@ -35,7 +33,6 @@ public class VocabularyBrowser implements Browser<Vocabulary>
     @Locate("openbis_vocabulary-browser_add-button")
     private Button add;
 
-    @SuppressWarnings("unused")
     @Locate("openbis_vocabulary-browser_delete-button")
     private Button delete;
 
@@ -46,19 +43,29 @@ public class VocabularyBrowser implements Browser<Vocabulary>
     @Locate("openbis_vocabulary-browser-grid-filter-toolbar")
     private FilterToolBar filters;
 
+    @Lazy
+    @Locate("deletion-confirmation-dialog")
+    private DeletionConfirmationBox confimDeletion;
+
     public void add()
     {
         add.click();
     }
 
+    public void delete()
+    {
+        delete.click();
+        confimDeletion.confirm("WebDriver");
+    }
+
     @Override
-    public Row select(Vocabulary vocabulary)
+    public BrowserRow select(Vocabulary vocabulary)
     {
         return grid.select("Code", vocabulary.getCode());
     }
 
     @Override
-    public Cell cell(Vocabulary vocabulary, String column)
+    public BrowserCell cell(Vocabulary vocabulary, String column)
     {
         return select(vocabulary).get(column);
     }

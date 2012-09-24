@@ -27,11 +27,11 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
-import ch.systemsx.cisd.openbis.uitest.infra.Widget;
 import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotProxy;
 import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.widget.AtomicWidget;
+import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
 /**
  * @author anttil
@@ -115,12 +115,12 @@ public class PageProxy
                     try
                     {
                         field.setAccessible(true);
-                        Contextual widget = (Contextual) field.getType().newInstance();
+                        Widget widget = (Widget) field.getType().newInstance();
 
                         String tagName = null;
-                        if (widget instanceof Widget)
+                        if (widget instanceof AtomicWidget)
                         {
-                            tagName = ((Widget) widget).getTagName();
+                            tagName = ((AtomicWidget) widget).getTagName();
                         }
 
                         WebElement element;
@@ -138,7 +138,7 @@ public class PageProxy
                             }
                         }
 
-                        widget.setContext(new WidgetWebElement((WebElement) ScreenShotProxy
+                        widget.setContext(new WidgetContext((WebElement) ScreenShotProxy
                                 .newInstance(element, shotter)));
                         field.set(t, widget);
                     } catch (IllegalArgumentException ex)

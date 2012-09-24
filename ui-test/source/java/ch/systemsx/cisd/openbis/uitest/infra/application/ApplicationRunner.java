@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.infra.application;
 
 import ch.systemsx.cisd.openbis.uitest.infra.uid.UidGenerator;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.PageProxy;
@@ -33,6 +33,8 @@ import ch.systemsx.cisd.openbis.uitest.page.menu.TypesMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.UserMenu;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AddPropertyType;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AssignSamplePropertyType;
+import ch.systemsx.cisd.openbis.uitest.page.tab.Browser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.LoginPage;
@@ -91,8 +93,75 @@ public class ApplicationRunner
     {
         SpaceBrowser browser = browseToSpaceBrowser();
         browser.filter(space);
-        browser.select(space);
-        browser.delete();
+        BrowserRow row = browser.select(space);
+        if (row.exists())
+        {
+            browser.delete();
+        }
+    }
+
+    public void deleteExperimentsFrom(Project project)
+    {
+        ExperimentBrowser browser = browseToExperimentBrowser();
+        if (browser.selectProject(project))
+        {
+            browser.deleteAll();
+        }
+    }
+
+    public void delete(Project project)
+    {
+        ProjectBrowser browser = browseToProjectBrowser();
+        browser.filter(project);
+        BrowserRow row = browser.select(project);
+        if (row.exists())
+        {
+            browser.delete();
+        }
+    }
+
+    public void delete(SampleType sampleType)
+    {
+        SampleTypeBrowser browser = browseToSampleTypeBrowser();
+        browser.filter(sampleType);
+        BrowserRow row = browser.select(sampleType);
+        if (row.exists())
+        {
+            browser.delete();
+        }
+    }
+
+    public void delete(ExperimentType experimentType)
+    {
+        ExperimentTypeBrowser browser = browseToExperimentTypeBrowser();
+        browser.filter(experimentType);
+        BrowserRow row = browser.select(experimentType);
+        if (row.exists())
+        {
+            browser.delete();
+        }
+    }
+
+    public void delete(PropertyType propertyType)
+    {
+        PropertyTypeBrowser browser = browseToPropertyTypeBrowser();
+        browser.filter(propertyType);
+        BrowserRow row = browser.select(propertyType);
+        if (row.exists())
+        {
+            browser.delete();
+        }
+    }
+
+    public void delete(Vocabulary vocabulary)
+    {
+        VocabularyBrowser browser = browseToVocabularyBrowser();
+        browser.filter(vocabulary);
+        BrowserRow row = browser.select(vocabulary);
+        if (row.exists())
+        {
+            browser.delete();
+        }
     }
 
     public Project create(Project project)
@@ -163,7 +232,10 @@ public class ApplicationRunner
 
     public void update(SampleType sampleType)
     {
-        browseToSampleTypeBrowser().editSampleType(sampleType);
+        SampleTypeBrowser browser = browseToSampleTypeBrowser();
+        browser.filter(sampleType);
+        browser.select(sampleType);
+        browser.edit();
         EditSampleTypeDialog dialog = proxy.get(EditSampleTypeDialog.class);
         dialog.fillWith(sampleType);
         dialog.save();
@@ -173,12 +245,6 @@ public class ApplicationRunner
     {
         LoginPage loginPage = proxy.get(LoginPage.class);
         loginPage.loginAs(userName, password);
-    }
-
-    public void login(User user)
-    {
-        LoginPage loginPage = proxy.get(LoginPage.class);
-        loginPage.loginAs(user.getName(), user.getPassword());
     }
 
     public void logout()

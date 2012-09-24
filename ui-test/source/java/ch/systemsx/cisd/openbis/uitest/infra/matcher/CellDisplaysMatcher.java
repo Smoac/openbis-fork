@@ -19,12 +19,12 @@ package ch.systemsx.cisd.openbis.uitest.infra.matcher;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Cell;
+import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserCell;
 
 /**
  * @author anttil
  */
-public class CellDisplaysMatcher extends TypeSafeMatcher<Cell>
+public class CellDisplaysMatcher extends TypeSafeMatcher<BrowserCell>
 {
 
     private String expected;
@@ -41,7 +41,7 @@ public class CellDisplaysMatcher extends TypeSafeMatcher<Cell>
     }
 
     @Override
-    public boolean matchesSafely(Cell actual)
+    public boolean matchesSafely(BrowserCell actual)
     {
         return expected.equalsIgnoreCase(actual.getText());
     }

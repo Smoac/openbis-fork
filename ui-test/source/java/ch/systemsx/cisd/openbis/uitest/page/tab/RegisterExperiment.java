@@ -16,12 +16,16 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
+import java.util.concurrent.TimeUnit;
+
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.Text;
 import ch.systemsx.cisd.openbis.uitest.widget.TextArea;
@@ -48,6 +52,10 @@ public class RegisterExperiment
     @Locate("openbis_generic-experiment-register_formsave-button")
     private Button saveButton;
 
+    @Lazy
+    @Locate("confirmation_dialog")
+    private DeletionConfirmationBox dialog;
+
     public void fillWith(Experiment experiment)
     {
         code.write(experiment.getCode());
@@ -63,7 +71,20 @@ public class RegisterExperiment
 
     public void selectExperimentType(ExperimentType experimentType)
     {
+
         experimentTypeList.select(experimentType.getCode());
+
+        // BIS-208
+        SeleniumTest.setImplicitWait(500, TimeUnit.MILLISECONDS);
+        try
+        {
+            dialog.confirm();
+        } catch (RuntimeException e)
+        {
+        } finally
+        {
+            SeleniumTest.setImplicitWaitToDefault();
+        }
     }
 
     public void save()

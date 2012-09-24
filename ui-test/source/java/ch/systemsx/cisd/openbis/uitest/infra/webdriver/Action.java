@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.uitest.infra.webdriver;
 /**
  * @author anttil
  */
-public interface Action
+public interface Action<T>
 {
-    public void execute();
+    public T execute();
+
+    public boolean shouldWait(T result);
 }

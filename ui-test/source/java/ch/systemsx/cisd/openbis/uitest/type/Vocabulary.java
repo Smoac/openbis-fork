@@ -18,9 +18,8 @@ package ch.systemsx.cisd.openbis.uitest.type;
 
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
-import ch.systemsx.cisd.openbis.uitest.infra.Cell;
-import ch.systemsx.cisd.openbis.uitest.infra.Row;
+import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserCell;
+import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 
 /**
  * @author anttil
@@ -44,9 +43,9 @@ public class Vocabulary implements Browsable
     }
 
     @Override
-    public boolean isRepresentedBy(Row row)
+    public boolean isRepresentedBy(BrowserRow row)
     {
-        Cell codeCell = row.get("Code");
+        BrowserCell codeCell = row.get("Code");
         return codeCell != null && codeCell.getText().equalsIgnoreCase(this.code);
     }
 

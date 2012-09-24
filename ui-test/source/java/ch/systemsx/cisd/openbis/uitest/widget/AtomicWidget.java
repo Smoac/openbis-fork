@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.widget;
 
 /**
  * @author anttil
  */
-public interface Widget extends Contextual
+public interface AtomicWidget extends Widget
 {
     public String getTagName();
 

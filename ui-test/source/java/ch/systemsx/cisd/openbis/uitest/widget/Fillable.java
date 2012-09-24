@@ -14,39 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
-
-import java.util.Map;
+package ch.systemsx.cisd.openbis.uitest.widget;
 
 /**
  * @author anttil
  */
-public class Row
+public interface Fillable
 {
-
-    private Map<String, Cell> row;
-
-    private boolean exists;
-
-    public Row()
-    {
-        this.exists = false;
-    }
-
-    public Row(Map<String, Cell> row)
-    {
-        this.row = row;
-        this.exists = true;
-    }
-
-    public boolean exists()
-    {
-        return exists;
-    }
-
-    public Cell get(String columnName)
-    {
-        return this.row.get(columnName);
-    }
-
+    public void fillWith(String string);
 }

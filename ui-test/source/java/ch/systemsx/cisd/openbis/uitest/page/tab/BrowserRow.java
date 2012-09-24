@@ -14,18 +14,39 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.page.tab;
+
+import java.util.Map;
 
 /**
  * @author anttil
  */
-public interface Browser<T extends Browsable>
+public class BrowserRow
 {
-    public Row select(T browsable);
 
-    public Cell cell(T browsable, String column);
+    private Map<String, BrowserCell> row;
 
-    public void filter(T browsable);
+    private boolean exists;
 
-    public void resetFilters();
+    public BrowserRow()
+    {
+        this.exists = false;
+    }
+
+    public BrowserRow(Map<String, BrowserCell> row)
+    {
+        this.row = row;
+        this.exists = true;
+    }
+
+    public boolean exists()
+    {
+        return exists;
+    }
+
+    public BrowserCell get(String columnName)
+    {
+        return this.row.get(columnName);
+    }
+
 }

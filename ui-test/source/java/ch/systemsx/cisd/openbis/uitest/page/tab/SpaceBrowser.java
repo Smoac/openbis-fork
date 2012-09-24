@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Browser;
-import ch.systemsx.cisd.openbis.uitest.infra.Cell;
-import ch.systemsx.cisd.openbis.uitest.infra.Row;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
@@ -57,7 +54,7 @@ public class SpaceBrowser implements Browser<Space>
     }
 
     @Override
-    public Row select(Space space)
+    public BrowserRow select(Space space)
     {
         return grid.select("Code", space.getCode());
     }
@@ -69,7 +66,7 @@ public class SpaceBrowser implements Browser<Space>
     }
 
     @Override
-    public Cell cell(Space space, String column)
+    public BrowserCell cell(Space space, String column)
     {
         return select(space).get(column);
     }

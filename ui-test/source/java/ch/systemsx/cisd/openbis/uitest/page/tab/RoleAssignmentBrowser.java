@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Browser;
-import ch.systemsx.cisd.openbis.uitest.infra.Cell;
-import ch.systemsx.cisd.openbis.uitest.infra.Row;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
@@ -31,14 +28,14 @@ public class RoleAssignmentBrowser implements Browser<Experiment>
     private Button assignRoleButton;
 
     @Override
-    public Row select(Experiment browsable)
+    public BrowserRow select(Experiment browsable)
     {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Cell cell(Experiment browsable, String column)
+    public BrowserCell cell(Experiment browsable, String column)
     {
         // TODO Auto-generated method stub
         return null;

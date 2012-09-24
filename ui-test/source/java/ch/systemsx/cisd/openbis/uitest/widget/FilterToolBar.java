@@ -16,31 +16,32 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Action;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.DeterminateAction;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 
 /**
  * @author anttil
  */
-public class FilterToolBar implements Contextual
+public class FilterToolBar implements Widget
 {
 
-    private WidgetWebElement context;
+    private WidgetContext context;
 
     public void setCode(final String text, Grid refreshingGrid)
     {
         final Text t = context.find(".//input[contains(@id, 'Code-input')]", Text.class);
 
-        new WaitForRefreshOf(refreshingGrid).after(new Action()
-            {
-                @Override
-                public void execute()
-                {
-                    t.write(text);
-                }
-            }).withTimeoutOf(10);
+        new WaitForRefreshOf<Void>(refreshingGrid)
+                .after(new DeterminateAction<Void>()
+                    {
+                        @Override
+                        public Void execute()
+                        {
+                            t.write(text);
+                            return null;
+                        }
+                    }).withTimeoutOf(10);
 
     }
 
@@ -51,7 +52,7 @@ public class FilterToolBar implements Contextual
     }
 
     @Override
-    public void setContext(WidgetWebElement context)
+    public void setContext(WidgetContext context)
     {
         this.context = context;
     }

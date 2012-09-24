@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.page.tab;
 
 
 /**
  * @author anttil
  */
-public class Cell
+public class BrowserCell
 {
     private final String text;
 
     private final String url;
 
-    public Cell(String text, String url)
+    public BrowserCell(String text, String url)
     {
         this.text = text;
         this.url = url;
@@ -56,12 +56,12 @@ public class Cell
     @Override
     public boolean equals(Object o)
     {
-        if (!(o instanceof Cell))
+        if (!(o instanceof BrowserCell))
         {
             return false;
         }
 
-        Cell cell = (Cell) o;
+        BrowserCell cell = (BrowserCell) o;
         return toString().equals(cell.toString());
     }
 }

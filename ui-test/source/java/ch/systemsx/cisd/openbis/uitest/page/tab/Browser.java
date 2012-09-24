@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
+package ch.systemsx.cisd.openbis.uitest.page.tab;
+
+import ch.systemsx.cisd.openbis.uitest.type.Browsable;
 
 /**
  * @author anttil
  */
-public interface Fillable
+public interface Browser<T extends Browsable>
 {
-    public void fillWith(String string);
+    public BrowserRow select(T browsable);
+
+    public BrowserCell cell(T browsable, String column);
+
+    public void filter(T browsable);
+
+    public void resetFilters();
 }

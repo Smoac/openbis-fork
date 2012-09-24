@@ -22,43 +22,47 @@ import org.openqa.selenium.support.ui.FluentWait;
 
 import com.google.common.base.Predicate;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Refreshing;
+import ch.systemsx.cisd.openbis.uitest.widget.Refreshable;
 
 /**
  * @author anttil
  */
-public class WaitForRefreshOf extends FluentWait<Refreshing>
+public class WaitForRefreshOf<T> extends FluentWait<Refreshable>
 {
 
     private final String state;
 
-    private Action action;
+    private Action<T> action;
 
-    public WaitForRefreshOf(Refreshing widget)
+    public WaitForRefreshOf(Refreshable widget)
     {
         super(widget);
         this.state = widget.getState();
     }
 
     @SuppressWarnings("hiding")
-    public WaitForRefreshOf after(Action action)
+    public WaitForRefreshOf<T> after(Action<T> action)
     {
         this.action = action;
         return this;
     }
 
-    public void withTimeoutOf(int seconds)
+    public T withTimeoutOf(int seconds)
     {
-        action.execute();
-        withTimeout(seconds, TimeUnit.SECONDS)
-                .pollingEvery(100, TimeUnit.MILLISECONDS)
-                .until(new Predicate<Refreshing>()
-                    {
-                        @Override
-                        public boolean apply(Refreshing widget)
+        T result = action.execute();
+        if (action.shouldWait(result))
+        {
+            withTimeout(seconds, TimeUnit.SECONDS)
+                    .pollingEvery(100, TimeUnit.MILLISECONDS)
+                    .until(new Predicate<Refreshable>()
                         {
-                            return !state.equals(widget.getState());
-                        }
-                    });
+                            @Override
+                            public boolean apply(Refreshable widget)
+                            {
+                                return !state.equals(widget.getState());
+                            }
+                        });
+        }
+        return result;
     }
 }

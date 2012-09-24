@@ -22,19 +22,17 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
-import ch.systemsx.cisd.openbis.uitest.infra.Widget;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 
 /**
  * @author anttil
  */
-public class Form implements Contextual
+public class Form implements Widget
 {
-    private WidgetWebElement context;
+    private WidgetContext context;
 
-    public Widget getWidget(PropertyType type)
+    public AtomicWidget getWidget(PropertyType type)
     {
         List<WebElement> elements = context.findAll(".//form/div/label");
 
@@ -43,7 +41,7 @@ public class Form implements Contextual
             if (element.getText().toLowerCase().startsWith(type.getLabel().toLowerCase()))
             {
 
-                Widget w;
+                AtomicWidget w;
                 try
                 {
                     w = type.getDataType().representedAs().newInstance();
@@ -61,7 +59,7 @@ public class Form implements Contextual
                     e = e.findElement(By.xpath(".//" + w.getTagName()));
                 }
 
-                w.setContext(new WidgetWebElement(e));
+                w.setContext(new WidgetContext(e));
                 return w;
             }
         }
@@ -80,7 +78,7 @@ public class Form implements Contextual
     }
 
     @Override
-    public void setContext(WidgetWebElement context)
+    public void setContext(WidgetContext context)
     {
         this.context = context;
     }

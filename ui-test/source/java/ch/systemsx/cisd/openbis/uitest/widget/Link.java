@@ -16,15 +16,14 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Widget;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 
 /**
  * @author anttil
  */
-public class Link implements Widget
+public class Link implements AtomicWidget
 {
-    private WidgetWebElement context;
+    private WidgetContext context;
 
     public void click()
     {
@@ -37,7 +36,7 @@ public class Link implements Widget
     }
 
     @Override
-    public void setContext(WidgetWebElement context)
+    public void setContext(WidgetContext context)
     {
         this.context = context;
     }

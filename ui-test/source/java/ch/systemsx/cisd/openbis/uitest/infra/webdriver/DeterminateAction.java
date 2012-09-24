@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra;
-
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
-
+package ch.systemsx.cisd.openbis.uitest.infra.webdriver;
 
 /**
  * @author anttil
  */
-public interface Contextual
+public abstract class DeterminateAction<T> implements Action<T>
 {
-    public void setContext(WidgetWebElement context);
+    @Override
+    public boolean shouldWait(T result)
+    {
+        return true;
+    }
+
 }

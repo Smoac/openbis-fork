@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Browser;
-import ch.systemsx.cisd.openbis.uitest.infra.Cell;
-import ch.systemsx.cisd.openbis.uitest.infra.Row;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
@@ -48,13 +45,13 @@ public class PropertyTypeAssignmentBrowser implements Browser<PropertyTypeAssign
     private FilterToolBar filters;
 
     @Override
-    public Row select(PropertyTypeAssignment assignment)
+    public BrowserRow select(PropertyTypeAssignment assignment)
     {
         return grid.select("Property Type Code", assignment.getPropertyType().getCode());
     }
 
     @Override
-    public Cell cell(PropertyTypeAssignment assignment, String column)
+    public BrowserCell cell(PropertyTypeAssignment assignment, String column)
     {
         return select(assignment).get(column);
     }

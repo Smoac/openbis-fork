@@ -16,13 +16,11 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Browser;
-import ch.systemsx.cisd.openbis.uitest.infra.Cell;
-import ch.systemsx.cisd.openbis.uitest.infra.Row;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
@@ -37,7 +35,6 @@ public class ExperimentTypeBrowser implements Browser<ExperimentType>
     @Locate("edit-entity-type-EXPERIMENT")
     private Button edit;
 
-    @SuppressWarnings("unused")
     @Locate("delete-entity-type-EXPERIMENT")
     private Button delete;
 
@@ -51,19 +48,29 @@ public class ExperimentTypeBrowser implements Browser<ExperimentType>
     @Locate("openbis_experiment-type-browser-grid-filter-toolbar")
     private FilterToolBar filters;
 
+    @Lazy
+    @Locate("deletion-confirmation-dialog")
+    private DeletionConfirmationBox confimDeletion;
+
     public void add()
     {
         add.click();
     }
 
+    public void delete()
+    {
+        delete.click();
+        confimDeletion.confirm();
+    }
+
     @Override
-    public Row select(ExperimentType experimentType)
+    public BrowserRow select(ExperimentType experimentType)
     {
         return grid.select("Code", experimentType.getCode());
     }
 
     @Override
-    public Cell cell(ExperimentType experimentType, String column)
+    public BrowserCell cell(ExperimentType experimentType, String column)
     {
         return select(experimentType).get(column);
     }

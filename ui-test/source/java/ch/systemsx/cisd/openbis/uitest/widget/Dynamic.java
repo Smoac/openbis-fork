@@ -16,21 +16,19 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Contextual;
-import ch.systemsx.cisd.openbis.uitest.infra.Widget;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetWebElement;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 
 /**
  * @author anttil
  */
-public class Dynamic implements Contextual
+public class Dynamic implements Widget
 {
 
-    private WidgetWebElement context;
+    private WidgetContext context;
 
-    public Contextual define(Class<? extends Contextual> clazz)
+    public Widget define(Class<? extends Widget> clazz)
     {
-        Contextual widget;
+        Widget widget;
         try
         {
             widget = clazz.newInstance();
@@ -42,12 +40,12 @@ public class Dynamic implements Contextual
             throw new RuntimeException(ex);
         }
 
-        if (widget instanceof Widget)
+        if (widget instanceof AtomicWidget)
         {
-            Widget w = (Widget) widget;
+            AtomicWidget w = (AtomicWidget) widget;
             if (!w.getTagName().equals(context.getTagName()))
             {
-                widget.setContext(new WidgetWebElement(context.find(".//" + w.getTagName())));
+                widget.setContext(new WidgetContext(context.find(".//" + w.getTagName())));
                 return widget;
             }
         }
@@ -56,7 +54,7 @@ public class Dynamic implements Contextual
     }
 
     @Override
-    public void setContext(WidgetWebElement context)
+    public void setContext(WidgetContext context)
     {
         this.context = context;
     }

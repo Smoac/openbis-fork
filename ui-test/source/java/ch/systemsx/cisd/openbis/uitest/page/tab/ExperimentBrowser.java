@@ -16,20 +16,24 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
-import ch.systemsx.cisd.openbis.uitest.infra.Browser;
-import ch.systemsx.cisd.openbis.uitest.infra.Cell;
-import ch.systemsx.cisd.openbis.uitest.infra.Row;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Action;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
+import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
+import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.TreeGrid;
 
 public class ExperimentBrowser implements Browser<Experiment>
 {
     @Locate("openbis_select-project")
     private TreeGrid projectTree;
+
+    @Locate("openbis_experiment-browser-grid-grid")
+    private Grid grid;
 
     @Locate("openbis_experiment-browser_delete-button")
     private Button deleteAll;
@@ -38,9 +42,22 @@ public class ExperimentBrowser implements Browser<Experiment>
     @Locate("deletion-confirmation-dialog")
     private DeletionConfirmationBox deletionDialog;
 
-    public void space(String spaceCode)
+    public boolean selectProject(final Project project)
     {
-        projectTree.select(spaceCode);
+        return new WaitForRefreshOf<Boolean>(grid).after(new Action<Boolean>()
+            {
+                @Override
+                public Boolean execute()
+                {
+                    return projectTree.select(project.getCode());
+                }
+
+                @Override
+                public boolean shouldWait(Boolean result)
+                {
+                    return result;
+                }
+            }).withTimeoutOf(10);
     }
 
     public void deleteAll()
@@ -50,14 +67,14 @@ public class ExperimentBrowser implements Browser<Experiment>
     }
 
     @Override
-    public Row select(Experiment browsable)
+    public BrowserRow select(Experiment browsable)
     {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Cell cell(Experiment browsable, String column)
+    public BrowserCell cell(Experiment browsable, String column)
     {
         // TODO Auto-generated method stub
         return null;

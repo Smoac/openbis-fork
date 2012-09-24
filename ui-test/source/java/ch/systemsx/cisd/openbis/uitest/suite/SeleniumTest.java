@@ -34,11 +34,7 @@ import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
-import ch.systemsx.cisd.openbis.uitest.infra.ApplicationRunner;
-import ch.systemsx.cisd.openbis.uitest.infra.Browsable;
-import ch.systemsx.cisd.openbis.uitest.infra.Browser;
-import ch.systemsx.cisd.openbis.uitest.infra.Cell;
-import ch.systemsx.cisd.openbis.uitest.infra.User;
+import ch.systemsx.cisd.openbis.uitest.infra.application.ApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.BrowserListsElementMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellDisplaysMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellLinksToMatcher;
@@ -50,6 +46,8 @@ import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.infra.uid.DictionaryUidGenerator;
 import ch.systemsx.cisd.openbis.uitest.infra.uid.UidGenerator;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.PageProxy;
+import ch.systemsx.cisd.openbis.uitest.page.tab.Browser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserCell;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ProjectBrowser;
@@ -61,9 +59,12 @@ import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.Trash;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
+import ch.systemsx.cisd.openbis.uitest.type.Browsable;
 import ch.systemsx.cisd.openbis.uitest.type.Builder;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentTypeBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.type.ProjectBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignmentBuilder;
@@ -82,6 +83,10 @@ import ch.systemsx.cisd.openbis.uitest.type.VocabularyBuilder;
 public abstract class SeleniumTest
 {
     public static int IMPLICIT_WAIT = 20;
+
+    public static String ADMIN_USER = "selenium";
+
+    public static String ADMIN_PASSWORD = "selenium4CISD";
 
     public static WebDriver driver;
 
@@ -142,7 +147,7 @@ public abstract class SeleniumTest
                 {
                 }
             }), uid);
-        openbis.login(User.ADMIN);
+        openbis.login(ADMIN_USER, ADMIN_PASSWORD);
 
         // this is because of BIS-184
         sampleBrowser();
@@ -300,19 +305,19 @@ public abstract class SeleniumTest
             this.column = column;
         }
 
-        public Cell of(Browser<T> browser)
+        public BrowserCell of(Browser<T> browser)
         {
             browser.filter(browsable);
             return browser.cell(browsable, column);
         }
     }
 
-    protected Matcher<Cell> linksTo(String url)
+    protected Matcher<BrowserCell> linksTo(String url)
     {
         return new CellLinksToMatcher(url);
     }
 
-    protected Matcher<Cell> displays(String text)
+    protected Matcher<BrowserCell> displays(String text)
     {
         return new CellDisplaysMatcher(text);
     }
@@ -322,9 +327,44 @@ public abstract class SeleniumTest
         return builder.create();
     }
 
+    protected <T> T assume(Builder<T> builder)
+    {
+        return builder.build();
+    }
+
     protected void delete(Space space)
     {
         openbis.delete(space);
+    }
+
+    protected void deleteExperimentsFrom(Project project)
+    {
+        openbis.deleteExperimentsFrom(project);
+    }
+
+    protected void delete(Project project)
+    {
+        openbis.delete(project);
+    }
+
+    protected void delete(SampleType sampleType)
+    {
+        openbis.delete(sampleType);
+    }
+
+    protected void delete(ExperimentType experimentType)
+    {
+        openbis.delete(experimentType);
+    }
+
+    protected void delete(PropertyType propertyType)
+    {
+        openbis.delete(propertyType);
+    }
+
+    protected void delete(Vocabulary vocabulary)
+    {
+        openbis.delete(vocabulary);
     }
 
     protected SpaceBuilder aSpace()
