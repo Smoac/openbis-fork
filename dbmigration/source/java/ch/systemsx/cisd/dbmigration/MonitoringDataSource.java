@@ -44,9 +44,11 @@ public class MonitoringDataSource extends BasicDataSource
     @Override
     public synchronized void setUrl(String url)
     {
-        if (machineLog.isInfoEnabled())
+        if (machineLog.isDebugEnabled())
         {
-            machineLog.info("Creating data source '" + url + "'.");
+            final Throwable th = new Throwable();
+            th.fillInStackTrace();
+            machineLog.debug("Creating data source '" + url + "'.", th);
         }
         super.setUrl(url);
     }
@@ -132,9 +134,12 @@ public class MonitoringDataSource extends BasicDataSource
     @Override
     public synchronized void close() throws SQLException
     {
-        final Throwable th = new Throwable();
-        th.fillInStackTrace();
-        machineLog.warn("Closing data source '" + getUrl() + "'.", th);
+        if (machineLog.isDebugEnabled())
+        {
+            final Throwable th = new Throwable();
+            th.fillInStackTrace();
+            machineLog.debug("Closing data source '" + getUrl() + "'.", th);
+        }
         super.close();
     }
 
