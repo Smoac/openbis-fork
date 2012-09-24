@@ -87,8 +87,8 @@ public final class PropertyUtils
     /**
      * Looks up given <var>propertyKey</var> in given <var>properties</var>.
      * 
-     * @return <code>true</code> if the <var>propertyKey</var> is found and <code>false</code>
-     *         otherwise.
+     * @return <code>true</code> if the <var>propertyKey</var> is found and the trimmed value isn't
+     *         an empty string. <code>false</code> otherwise.
      */
     public final static boolean hasProperty(final Properties properties, final String propertyKey)
     {
@@ -98,7 +98,9 @@ public final class PropertyUtils
     }
 
     /**
-     * Searches for the property with the specified key in this property list.
+     * Searches for the property with the specified key in this property list. <code>null</code> is
+     * returned if there is no property for the specified key or it contains only white space
+     * characters.
      * 
      * @return <code>null</code> or the value trimmed if found.
      */

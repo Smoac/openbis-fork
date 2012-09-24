@@ -115,7 +115,7 @@ public final class PropertyUtilsTest extends AbstractFileSystemTestCase
             PropertyUtils.getMandatoryProperty(properties, propertyKey);
         } catch (final ConfigurationFailureException ex)
         {
-            assertEquals(String.format(PropertyUtils.EMPTY_STRING_FORMAT, propertyKey),
+            assertEquals(String.format(PropertyUtils.NOT_FOUND_PROPERTY_FORMAT, propertyKey, "[key]"),
                     ex.getMessage());
         }
         final String value = "value";
