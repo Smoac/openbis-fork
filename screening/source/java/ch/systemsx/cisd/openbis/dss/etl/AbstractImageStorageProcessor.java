@@ -285,10 +285,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                     extractionResultWithConfig.getExtractionResult()
                             .getDatasetRelativeImagesFolderPath();
 
-            ImageDataSetInformation imageDataSetInformation =
-                    (ImageDataSetInformation) dataSetInformation;
-
-            if (false == imageDataSetInformation.getRegisterAsOverviewImageDataSet())
+            if (false == getRegisterAsOverviewImageDataSet(dataSetInformation))
             {
                 processImages(plateImages, datasetRelativeImagesFolderPath,
                         imageStorageConfiguraton);
@@ -296,14 +293,23 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
 
             shouldDeleteOriginalDataOnCommit =
                     imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5()
-                            && false == imageDataSetInformation.getRegisterAsOverviewImageDataSet();
+                            && false == getRegisterAsOverviewImageDataSet(dataSetInformation);
 
             dbTransaction = processor.createQuery();
             processor.storeInDatabase(dbTransaction,
                     extractionResultWithConfig.getImageDatasetOwner(), extractionResult,
-                    imageDataSetInformation.getRegisterAsOverviewImageDataSet());
+                    getRegisterAsOverviewImageDataSet(dataSetInformation));
 
             return rootDirectory;
+        }
+        
+        private boolean getRegisterAsOverviewImageDataSet(DataSetInformation dataSetInfo)
+        {
+            if (dataSetInfo instanceof ImageDataSetInformation == false)
+            {
+                return false;
+            }
+            return ((ImageDataSetInformation) dataSetInfo).getRegisterAsOverviewImageDataSet();
         }
 
         private void processImages(List<AcquiredSingleImage> images,
