@@ -53,6 +53,11 @@ public class BaseServiceConversationClientManager implements
         }
     }
 
+    @Override
+    public void ping()
+    {
+    }
+
     public <T> T getService(String serverUrl, Class<T> serviceInterface, String sessionToken,
             Object clientId, int clientTimeout)
     {

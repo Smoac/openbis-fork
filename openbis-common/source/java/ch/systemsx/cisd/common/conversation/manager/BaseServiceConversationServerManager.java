@@ -118,6 +118,11 @@ public abstract class BaseServiceConversationServerManager implements
         server.getIncomingMessageTransport().send(message);
     }
 
+    @Override
+    public void ping()
+    {
+    }
+
     protected abstract ServiceConversationClientDetails getClientDetailsForClientId(Object clientId);
 
     private synchronized IServiceConversationClientManagerRemote getClientForClientDetails(

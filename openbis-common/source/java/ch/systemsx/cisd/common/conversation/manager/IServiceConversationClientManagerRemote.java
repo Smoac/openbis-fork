@@ -28,4 +28,6 @@ public interface IServiceConversationClientManagerRemote extends IServiceMessage
 
     public static final String PATH = "/service-conversation-client-manager";
 
+    public void ping();
+
 }

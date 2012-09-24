@@ -32,7 +32,7 @@ public class ServiceConversationServerManager extends BaseServiceConversationSer
 
     private IDataStoreService dataStoreService;
 
-    private String applicationServerClientUrl;
+    private ServiceConversationApplicationServerUrl applicationServerUrl;
 
     private int applicationServerTimeoutInMillis;
 
@@ -47,7 +47,8 @@ public class ServiceConversationServerManager extends BaseServiceConversationSer
     {
         if (clientId instanceof ServiceConversationApplicationServerClientId)
         {
-            return new ServiceConversationClientDetails(applicationServerClientUrl,
+            return new ServiceConversationClientDetails(
+                    applicationServerUrl.getClientUrl(applicationServerTimeoutInMillis),
                     applicationServerTimeoutInMillis);
         }
         return null;
@@ -60,8 +61,8 @@ public class ServiceConversationServerManager extends BaseServiceConversationSer
 
     public void setApplicationServerUrl(String applicationServerUrl)
     {
-        this.applicationServerClientUrl =
-                new ServiceConversationApplicationServerUrl(applicationServerUrl).getClientUrl();
+        this.applicationServerUrl =
+                new ServiceConversationApplicationServerUrl(applicationServerUrl);
     }
 
     public void setApplicationServerTimeout(String applicationServerTimeout)

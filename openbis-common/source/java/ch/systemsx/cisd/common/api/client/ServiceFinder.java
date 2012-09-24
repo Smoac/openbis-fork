@@ -118,6 +118,22 @@ public class ServiceFinder
     public <S> S createService(Class<S> serviceInterface, String serverUrl,
             IServicePinger<S> servicePinger, long timeoutInMillis)
     {
+        ServiceWithUrl<S> serviceWithUrl =
+                createServiceWithUrl(serviceInterface, serverUrl, servicePinger, timeoutInMillis);
+        return serviceWithUrl.getService();
+    }
+
+    public <S> String createServiceUrl(Class<S> serviceInterface, String serverUrl,
+            IServicePinger<S> servicePinger, long timeoutInMillis)
+    {
+        ServiceWithUrl<S> serviceWithUrl =
+                createServiceWithUrl(serviceInterface, serverUrl, servicePinger, timeoutInMillis);
+        return serviceWithUrl.getUrl();
+    }
+
+    private <S> ServiceWithUrl<S> createServiceWithUrl(Class<S> serviceInterface, String serverUrl,
+            IServicePinger<S> servicePinger, long timeoutInMillis)
+    {
         S service;
         String usedServerUrl = computeServerUrlWithDoubledApplicationName(serverUrl);
         // Try the url that ends in <applicationName>/<applicationName>
@@ -126,7 +142,7 @@ public class ServiceFinder
                         usedServerUrl);
         if (canConnectToService(service, servicePinger))
         {
-            return service;
+            return new ServiceWithUrl<S>(usedServerUrl, service);
         }
 
         // Try the url that ends in just one <applicationName>
@@ -136,7 +152,7 @@ public class ServiceFinder
                         usedServerUrl);
         if (canConnectToService(service, servicePinger))
         {
-            return service;
+            return new ServiceWithUrl<S>(usedServerUrl, service);
         }
 
         // Try the url as provided
@@ -144,7 +160,7 @@ public class ServiceFinder
         service =
                 createServiceStubStoringCertificateIfNecessary(serviceInterface, timeoutInMillis,
                         usedServerUrl);
-        return service;
+        return new ServiceWithUrl<S>(usedServerUrl, service);
     }
 
     private <S> S createServiceStubStoringCertificateIfNecessary(Class<S> serviceInterface,
@@ -275,5 +291,28 @@ public class ServiceFinder
         }
         configDir.mkdirs();
         return configDir;
+    }
+
+    private class ServiceWithUrl<S>
+    {
+        private String url;
+
+        private S service;
+
+        public ServiceWithUrl(String url, S service)
+        {
+            this.url = url + urlServiceSuffix;
+            this.service = service;
+        }
+
+        public String getUrl()
+        {
+            return url;
+        }
+
+        public S getService()
+        {
+            return service;
+        }
     }
 }

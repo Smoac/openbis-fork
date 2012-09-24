@@ -31,15 +31,16 @@ public class ServiceConversationClientManager extends BaseServiceConversationCli
 
     private ServiceConversationDataStoreClientId dataStoreClientId;
 
-    private String applicationServerServerUrl;
+    private ServiceConversationApplicationServerUrl applicationServerUrl;
 
     private int applicationServerTimeoutInMillis;
 
     @Override
     public IETLLIMSService getETLService(String sessionToken)
     {
-        return getService(applicationServerServerUrl, IETLLIMSService.class, sessionToken,
-                dataStoreClientId, applicationServerTimeoutInMillis);
+        return getService(applicationServerUrl.getServerUrl(applicationServerTimeoutInMillis),
+                IETLLIMSService.class, sessionToken, dataStoreClientId,
+                applicationServerTimeoutInMillis);
     }
 
     public void setDataStoreCode(String dataStoreCode)
@@ -49,8 +50,8 @@ public class ServiceConversationClientManager extends BaseServiceConversationCli
 
     public void setApplicationServerUrl(String applicationServerUrl)
     {
-        this.applicationServerServerUrl =
-                new ServiceConversationApplicationServerUrl(applicationServerUrl).getServerUrl();
+        this.applicationServerUrl =
+                new ServiceConversationApplicationServerUrl(applicationServerUrl);
     }
 
     public void setApplicationServerTimeout(String applicationServerTimeout)

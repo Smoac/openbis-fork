@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.conversation;
 
+import ch.systemsx.cisd.common.api.client.IServicePinger;
+import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.conversation.manager.IServiceConversationClientManagerRemote;
 import ch.systemsx.cisd.common.conversation.manager.IServiceConversationServerManagerRemote;
 
@@ -27,21 +29,60 @@ public class ServiceConversationApplicationServerUrl
 
     private String applicationServerUrl;
 
+    private String clientUrl;
+
+    private String serverUrl;
+
     public ServiceConversationApplicationServerUrl(String applicationServerUrl)
     {
         this.applicationServerUrl = applicationServerUrl;
     }
 
-    public String getClientUrl()
+    public String getClientUrl(int timeout)
     {
-        return applicationServerUrl + "/openbis/openbis"
-                + IServiceConversationClientManagerRemote.PATH;
+        if (clientUrl == null)
+        {
+            IServicePinger<IServiceConversationClientManagerRemote> pinger =
+                    new IServicePinger<IServiceConversationClientManagerRemote>()
+                        {
+                            @Override
+                            public void ping(IServiceConversationClientManagerRemote service)
+                            {
+                                service.ping();
+                            }
+                        };
+
+            ServiceFinder finder =
+                    new ServiceFinder("openbis", IServiceConversationClientManagerRemote.PATH);
+            clientUrl =
+                    finder.createServiceUrl(IServiceConversationClientManagerRemote.class,
+                            applicationServerUrl, pinger, timeout);
+        }
+
+        return clientUrl;
     }
 
-    public String getServerUrl()
+    public String getServerUrl(int timeout)
     {
-        return applicationServerUrl + "/openbis/openbis"
-                + IServiceConversationServerManagerRemote.PATH;
+        if (serverUrl == null)
+        {
+            IServicePinger<IServiceConversationServerManagerRemote> pinger =
+                    new IServicePinger<IServiceConversationServerManagerRemote>()
+                        {
+                            @Override
+                            public void ping(IServiceConversationServerManagerRemote service)
+                            {
+                                service.ping();
+                            }
+                        };
+            ServiceFinder finder =
+                    new ServiceFinder("openbis", IServiceConversationServerManagerRemote.PATH);
+            serverUrl =
+                    finder.createServiceUrl(IServiceConversationServerManagerRemote.class,
+                            applicationServerUrl, pinger, timeout);
+        }
+
+        return serverUrl;
     }
 
 }
