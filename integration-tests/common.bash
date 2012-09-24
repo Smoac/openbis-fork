@@ -335,12 +335,12 @@ function fetch_latest_artifacts_from_cruise_control {
     local last_build="$HUDSON_ARTIFACTS/$proj_name/lastSuccessful/archive/_main/targets/dist"
     if [ -n "$MY_HOST_IP" -a "$MY_HOST_IP" == "$CI_HOST_IP" ]; then
         local last=`ls $CI_HOME/$last_build/*.zip`
-        echo "Fetching artifacts locally from project '$proj_name':\n$last" 
+        echo "Fetching artifacts locally from project '$proj_name':$last" 
         cp $CI_HOME/$last_build/*.zip $dest_dir
     else
         local list_cmd="ls $last_build/*.zip"
         local last=`echo $list_cmd | ssh $SSH_CRUISE_CONTROL_NAME -T`
-        echo "Fetching artifacts remotely from project '$proj_name':\n$last" 
+        echo "Fetching artifacts remotely from project '$proj_name':$last" 
         scp $SSH_CRUISE_CONTROL_NAME:$last_build/*.zip $dest_dir
     fi
 }

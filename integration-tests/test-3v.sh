@@ -38,7 +38,7 @@ function generate_test_data {
     echo Generate incoming data
     local DIR=$DATA/in-raw
     
-    # drop an identifyable valid data set
+    # drop an identifiable valid data set
     copy_test_data 3VCP1 $DIR
     sleep 30
     
@@ -46,19 +46,12 @@ function generate_test_data {
     copy_test_data 3VCP1 $DIR
     sleep 30
     
-    # drop an identifyable invalid data set (wrong image name, missing plate)
+    # drop another identifiable valid data set
     copy_test_data 3VCP3 $DIR
-    sleep 30
+    sleep 30	
     
-    # drop an unidentifyable data set
+    # drop an unidentifiable data set
     copy_test_data UnknownPlate $DIR
-    sleep 30
-    
-    # drop 3VCP1 again but this time it is a valid data set
-    copy_test_data 3VCP3 $DATA
-    mv $DATA/3VCP3/TIFF/blabla_3VCP1_K13_8_w460.tif  $DATA/3VCP3/TIFF/blabla_3VCP3_K13_8_w460.tif
-    echo image for well M03 > $DATA/3VCP3/TIFF/blabla_3VCP3_M03_2_w350.tif
-    mv $DATA/3VCP3 $DIR 
     sleep 30
     
     # register not at a sample but at an experiment and two data set parents
@@ -99,17 +92,17 @@ function launch_tests {
 }
 
 function find_dataset_dir {
-	local pattern=$1
-	local dir=`find $DATA/main-store/1/E96C8910-596A-409D-BDA4-BBD3FE6629A7 -type d | grep "$pattern"`
-        if [ "$dir" != "" ]; then
-                if [ ! -d "$dir" ]; then
-                        report_error Directory \"$dir\" does not exist!  
-                else
-                        echo $dir
-                        return
-	        fi
-	fi
-        report_error "$DATA/main-store/1/identified does not contain a directory matching $pattern: $dir"
+    local pattern=$1
+    local dir=`find $DATA/main-store/1/E96C8910-596A-409D-BDA4-BBD3FE6629A7 -type d | grep "$pattern"`
+    if [ "$dir" != "" ]; then
+        if [ ! -d "$dir" ]; then
+            report_error Directory \"$dir\" does not exist!  
+        else
+            echo $dir
+            return
+	      fi
+   fi
+   report_error "$DATA/main-store/1/E96C8910-596A-409D-BDA4-BBD3FE6629A7 does not contain a directory matching $pattern: $dir"
 }
 
 function assert_empty_in_out_folders {
@@ -169,25 +162,24 @@ function assert_correct_content {
     assert_empty_in_out_folders
     assert_dir_exists $DATA/out-raw/microX_200801011213_3VCP1/TIFF
     assert_pattern_present $DATA/out-raw/.faulty_paths 1 ".*data/out-raw/.MARKER_is_finished_microX_200801011213_3VCP1"
-    assert_pattern_present $WORK/datamover-raw/data-completed-info.txt 4 "Data complete.*3VCP[0-9]" 
+    assert_pattern_present $WORK/datamover-raw/data-completed-info.txt 3 "Data complete.*3VCP[0-9]" 
     assert_correct_content_of_plate_3VCP1_in_store
-    assert_correct_content_of_image_analysis_data 3VCP1 ".*-22.*3VCP1$"
-    assert_correct_content_of_image_analysis_data 3VCP3 ".*-24.*3VCP3$"
+    assert_correct_content_of_image_analysis_data 3VCP1 ".*-24.*3VCP1$"
+    assert_correct_content_of_image_analysis_data 3VCP3 ".*-26.*3VCP3$"
     assert_correct_content_of_unidentified_plate_in_store UnknownPlate
-    local file=`find_dataset_dir ".*-27$"`/original/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3.txt
+    local file=`find_dataset_dir ".*-28$"`/original/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3.txt
     assert_equals_as_in_file "hello world" $file
     # result set columns are
     # id;experiment_code;data_store_code;code;is_placeholder;data_id_parent;is_complete;data_producer_code;production_timestamp
     assert_correct_dataset_content_in_database 2 "2;EXP1;DSS1;MICROX-3VCP1;f;;U;microX;2008-01-01.*"
-    assert_correct_dataset_content_in_database 3 "3;EXP1;DSS1;20[0-9]*-22;f;;U;;"
-    assert_correct_dataset_content_in_database 4 "4;EXP1;DSS1;20[0-9]*-23;f;;U;;"
+    assert_correct_dataset_content_in_database 3 "3;EXP1;DSS1;20[0-9]*-24;f;;U;;"
+    assert_correct_dataset_content_in_database 4 "4;EXP1;DSS1;20[0-9]*-25;f;;U;;"
     assert_correct_dataset_content_in_database 5 "5;EXP1;DSS1;MICROX-3VCP3;f;;U;microX;2008-01-01.*"
-    assert_correct_dataset_content_in_database 6 "6;EXP1;DSS1;20[0-9]*-24;f;;U;;"   
-    assert_correct_dataset_content_in_database 7 "7;EXP1;DSS1;20[0-9]*-26;f;;U;;"
-    assert_correct_dataset_content_in_database 8 ".*8;EXP1;DSS2;20[0-9]*-27;f;2;U;;.*"
-    assert_correct_dataset_content_in_database 8 ".*8;EXP1;DSS2;20[0-9]*-27;f;5;U;;.*"
-    assert_equals "Content of file in drop box1" "hello world" "`cat $DATA/drop-box1/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3*-27.txt`"
-    assert_equals "Content of file in drop box2" "hello world" "`cat $DATA/drop-box2/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3*-27.txt`"
+    assert_correct_dataset_content_in_database 6 "6;EXP1;DSS1;20[0-9]*-26;f;;U;;"   
+    assert_correct_dataset_content_in_database 7 ".*7;EXP1;DSS2;20[0-9]*-28;f;2;U;;.*"
+    assert_correct_dataset_content_in_database 7 ".*7;EXP1;DSS2;20[0-9]*-28;f;5;U;;.*"
+    assert_equals "Content of file in drop box1" "hello world" "`cat $DATA/drop-box1/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3*-28.txt`"
+    assert_equals "Content of file in drop box2" "hello world" "`cat $DATA/drop-box2/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3*-28.txt`"
 }
 
 function print_help {
