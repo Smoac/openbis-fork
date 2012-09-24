@@ -43,9 +43,10 @@ public class MaintenanceTaskUtils
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, MaintenanceTaskUtils.class);
 
-    public static void startupMaintenancePlugins(MaintenanceTaskParameters[] maintenancePlugins)
+    public static List<MaintenancePlugin> startupMaintenancePlugins(
+            MaintenanceTaskParameters[] maintenancePlugins)
     {
-        List<MaintenancePlugin> plugins = new ArrayList<MaintenancePlugin>();
+        final List<MaintenancePlugin> plugins = new ArrayList<MaintenancePlugin>();
         for (MaintenanceTaskParameters parameters : maintenancePlugins)
         {
             MaintenancePlugin plugin = new MaintenancePlugin(parameters);
@@ -55,6 +56,27 @@ public class MaintenanceTaskUtils
         for (MaintenancePlugin plugin : plugins)
         {
             plugin.start();
+        }
+        return plugins;
+    }
+
+    public static void shutdownMaintenancePlugins(List<MaintenancePlugin> maintenancePlugins)
+    {
+        if (maintenancePlugins == null)
+        {
+            return;
+        }
+        for (MaintenancePlugin plugin : maintenancePlugins)
+        {
+            try
+            {
+                plugin.shutdown();
+            } catch (Exception ex)
+            {
+                operationLog.error(
+                        "Error shutting down maintenance task '" + plugin.getPluginName()
+                                + "' failed.", ex);
+            }
         }
     }
 

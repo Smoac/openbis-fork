@@ -1,5 +1,7 @@
 package ch.systemsx.cisd.common.maintenance;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -26,6 +28,10 @@ public class MaintenancePlugin
 
     private final boolean requiresDataStoreLock;
 
+    private Timer workerTimer;
+    
+    private volatile boolean stopped;
+    
     public MaintenancePlugin(MaintenanceTaskParameters parameters)
     {
         this.parameters = parameters;
@@ -42,7 +48,7 @@ public class MaintenancePlugin
         task.setUp(parameters.getPluginName(), parameters.getProperties());
         this.requiresDataStoreLock = requiresDataStoreLock();
     }
-
+    
     /**
      * Constructor that takes a configured maintenance task.
      * 
@@ -64,13 +70,18 @@ public class MaintenancePlugin
         return false;
     }
 
-    public void start()
+    public String getPluginName()
     {
-        String timerThreadName = parameters.getPluginName() + " - Maintenance Plugin";
-        Timer workerTimer = new Timer(timerThreadName);
+        return parameters.getPluginName();
+    }
+    
+    public synchronized void start()
+    {
+        final String timerThreadName = parameters.getPluginName() + " - Maintenance Plugin";
+        workerTimer = new Timer(timerThreadName);
 
-        TimerTask timerTask = new MaintenanceTimerTask();
-        Date startDate = parameters.getStartDate();
+        final TimerTask timerTask = new MaintenanceTimerTask();
+        final Date startDate = parameters.getStartDate();
         if (parameters.isExecuteOnlyOnce())
         {
             workerTimer.schedule(timerTask, startDate);
@@ -90,12 +101,36 @@ public class MaintenancePlugin
             }
         }
     }
+    
+    public synchronized void shutdown()
+    {
+        if (workerTimer != null)
+        {
+            workerTimer.cancel();
+            workerTimer = null;
+        }
+        stopped = true;
+        if (task instanceof Closeable)
+        {
+            try
+            {
+                ((Closeable) task).close();
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+    }
 
     private class MaintenanceTimerTask extends TimerTask
     {
         @Override
         public void run()
         {
+            if (stopped)
+            {
+                return;
+            }
             acquireLockIfNecessary();
             try
             {

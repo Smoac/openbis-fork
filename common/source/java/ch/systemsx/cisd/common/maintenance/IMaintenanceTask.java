@@ -20,6 +20,9 @@ import java.util.Properties;
 
 /**
  * The interface that should be implemented by all maintenance tasks. Task instances are reusable.
+ * <p>
+ * If your maintenance task needs cleanup, additionally implement the {@link java.io.Closeable}
+ * interface and put the cleanup tasks in {@link java.io.Closeable#close()}.
  * 
  * @author Izabela Adamczyk
  */

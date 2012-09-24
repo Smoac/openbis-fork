@@ -16,13 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import ch.systemsx.cisd.common.maintenance.MaintenancePlugin;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskParameters;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
@@ -32,10 +36,13 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
  * 
  * @author Piotr Buczek
  */
-public class MaintenanceTaskStarter implements ApplicationContextAware, InitializingBean
+public class MaintenanceTaskStarter implements ApplicationContextAware, InitializingBean,
+        DisposableBean
 {
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
+
+    private List<MaintenancePlugin> plugins;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
@@ -48,7 +55,13 @@ public class MaintenanceTaskStarter implements ApplicationContextAware, Initiali
     {
         MaintenanceTaskParameters[] tasks =
                 MaintenanceTaskUtils.createMaintenancePlugins(configurer.getResolvedProps());
-        MaintenanceTaskUtils.startupMaintenancePlugins(tasks);
+        plugins = MaintenanceTaskUtils.startupMaintenancePlugins(tasks);
+    }
+
+    @Override
+    public void destroy() throws Exception
+    {
+        MaintenanceTaskUtils.shutdownMaintenancePlugins(plugins);
     }
 
 }
