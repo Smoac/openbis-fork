@@ -132,7 +132,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     private void initializeProperties()
     {
         System.setProperty("database.create-from-scratch", "true");
-        System.setProperty("database.kind", "test");
+        System.setProperty("database.kind", "test_clean");
         System.setProperty("script-folder", "../openbis/source");
         System.setProperty("hibernate.search.index-mode", IndexMode.INDEX_FROM_SCRATCH.name());
         System.setProperty("hibernate.search.index-base", "../openbis/targets/lucene/cleandb");
