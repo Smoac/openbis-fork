@@ -41,6 +41,16 @@ public class MonitoringDataSource extends BasicDataSource
 
     private boolean logStackTrace;
 
+    @Override
+    public synchronized void setUrl(String url)
+    {
+        if (machineLog.isInfoEnabled())
+        {
+            machineLog.info("Creating data source '" + url + "'.");
+        }
+        super.setUrl(url);
+    }
+
     /**
      * Returns the interval (in ms) between two regular log entries of currently active database
      * connections if more than one connection is active.
@@ -122,12 +132,9 @@ public class MonitoringDataSource extends BasicDataSource
     @Override
     public synchronized void close() throws SQLException
     {
-        if (machineLog.isInfoEnabled())
-        {
-            final Throwable th = new Throwable();
-            th.fillInStackTrace();
-            machineLog.info("Closing data source '" + getUrl() + "'.", th);
-        }
+        final Throwable th = new Throwable();
+        th.fillInStackTrace();
+        machineLog.warn("Closing data source '" + getUrl() + "'.", th);
         super.close();
     }
 
