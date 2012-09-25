@@ -81,6 +81,91 @@ public class CapabilityMapTest
     }
 
     @Test
+    public void testHappyCaseAlternative() throws SecurityException, NoSuchMethodException
+    {
+        CapabilityMap capMap =
+                new CapabilityMap(Arrays.asList("A:SPACE_POWER_USER\t", "# Some comment", "",
+                        " B  INSTANCE_ETL_SERVER"), "<memory>");
+        assertEquals(
+                RoleWithHierarchy.SPACE_POWER_USER,
+                capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1")).toArray()[0]);
+        assertEquals(
+                RoleWithHierarchy.SPACE_POWER_USER,
+                capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA2")).toArray()[0]);
+        assertEquals(
+                RoleWithHierarchy.INSTANCE_ETL_SERVER,
+                capMap.tryGetRoles(CapabilityMapTest.class
+                        .getDeclaredMethod("dummyB", String.class)).toArray()[0]);
+        assertNull(capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyC")));
+    }
+
+    @Test
+    public void testHappyCaseAlternative2() throws SecurityException, NoSuchMethodException
+    {
+        CapabilityMap capMap =
+                new CapabilityMap(Arrays.asList("A :SPACE_POWER_USER\t", "# Some comment", "",
+                        " B  INSTANCE_ETL_SERVER"), "<memory>");
+        assertEquals(
+                RoleWithHierarchy.SPACE_POWER_USER,
+                capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1")).toArray()[0]);
+        assertEquals(
+                RoleWithHierarchy.SPACE_POWER_USER,
+                capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA2")).toArray()[0]);
+        assertEquals(
+                RoleWithHierarchy.INSTANCE_ETL_SERVER,
+                capMap.tryGetRoles(CapabilityMapTest.class
+                        .getDeclaredMethod("dummyB", String.class)).toArray()[0]);
+        assertNull(capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyC")));
+    }
+
+    @Test
+    public void testHappyCaseAlternative3() throws SecurityException, NoSuchMethodException
+    {
+        CapabilityMap capMap =
+                new CapabilityMap(Arrays.asList("A : SPACE_POWER_USER\t", "# Some comment", "",
+                        " B  INSTANCE_ETL_SERVER"), "<memory>");
+        assertEquals(
+                RoleWithHierarchy.SPACE_POWER_USER,
+                capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1")).toArray()[0]);
+        assertEquals(
+                RoleWithHierarchy.SPACE_POWER_USER,
+                capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA2")).toArray()[0]);
+        assertEquals(
+                RoleWithHierarchy.INSTANCE_ETL_SERVER,
+                capMap.tryGetRoles(CapabilityMapTest.class
+                        .getDeclaredMethod("dummyB", String.class)).toArray()[0]);
+        assertNull(capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyC")));
+    }
+
+    @Test
+    public void testHappyCaseAlternative4() throws SecurityException, NoSuchMethodException
+    {
+        CapabilityMap capMap =
+                new CapabilityMap(Arrays.asList("A : SPACE_POWER_USER\t",
+                        " A  INSTANCE_ETL_SERVER"), "<memory>");
+        assertEquals(2, capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1"))
+                .size());
+        assertTrue(capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1"))
+                .contains(RoleWithHierarchy.SPACE_POWER_USER));
+        assertTrue(capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1"))
+                .contains(RoleWithHierarchy.INSTANCE_ETL_SERVER));
+    }
+
+    @Test
+    public void testHappyCaseAlternative5() throws SecurityException, NoSuchMethodException
+    {
+        CapabilityMap capMap =
+                new CapabilityMap(Arrays.asList("A : SPACE_POWER_USER,INSTANCE_ETL_SERVER\t"),
+                        "<memory>");
+        assertEquals(2, capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1"))
+                .size());
+        assertTrue(capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1"))
+                .contains(RoleWithHierarchy.SPACE_POWER_USER));
+        assertTrue(capMap.tryGetRoles(CapabilityMapTest.class.getDeclaredMethod("dummyA1"))
+                .contains(RoleWithHierarchy.INSTANCE_ETL_SERVER));
+    }
+
+    @Test
     public void testInvalidMapLines() throws SecurityException, NoSuchMethodException
     {
         CapabilityMap capMap =

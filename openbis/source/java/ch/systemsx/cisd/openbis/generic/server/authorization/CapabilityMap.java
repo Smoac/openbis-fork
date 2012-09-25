@@ -83,37 +83,41 @@ class CapabilityMap
             {
                 continue;
             }
-            final String[] splitted = StringUtils.split(trimmed);
+            final String[] splitted = StringUtils.split(trimmed, " \t:");
             if (splitted.length != 2)
             {
                 operationLog.warn(String.format("Ignoring mal-formed line '%s' in %s.", trimmed,
                         filePath));
                 continue;
             }
-            final String methodName =
-                    (splitted[0].endsWith(":") ? splitted[0].substring(0, splitted[0].length() - 1)
-                            : splitted[0]);
-            final String roleName = splitted[1];
-            try
+            final String methodName = splitted[0];
+            final String roleNames = splitted[1];
+            final String[] roleNameArray = StringUtils.split(roleNames, ",");
+            for (String roleName : roleNameArray)
             {
-                final RoleWithHierarchy role = RoleWithHierarchy.valueOf(roleName);
-                Collection<RoleWithHierarchy> roles = new HashSet<RoleWithHierarchy>();
-                roles.add(role);
-                roles = capMap.put(methodName, roles);
-                if (roles != null)
+                try
                 {
-                    capMap.get(methodName).addAll(roles);
-                }
+                    final RoleWithHierarchy role = RoleWithHierarchy.valueOf(roleName);
+                    Collection<RoleWithHierarchy> roles = capMap.get(methodName);
+                    if (roles == null)
+                    {
+                        roles = new HashSet<RoleWithHierarchy>();
+                        capMap.put(methodName, roles);
+                    }
+                    roles.add(role);
 
-                if (operationLog.isDebugEnabled())
+                    if (operationLog.isDebugEnabled())
+                    {
+                        operationLog.debug(String
+                                .format("Add to map: '%s' -> %s", methodName, role));
+                    }
+                } catch (IllegalArgumentException ex)
                 {
-                    operationLog.debug(String.format("Add to map: '%s' -> %s", methodName, role));
+                    operationLog.warn(String.format(
+                            "Ignoring mal-formed line '%s' in %s [role '%s' doesn't exist].",
+                            trimmed,
+                            filePath, roleName));
                 }
-            } catch (IllegalArgumentException ex)
-            {
-                operationLog.warn(String.format(
-                        "Ignoring mal-formed line '%s' in %s [role '%s' doesn't exist].", trimmed,
-                        filePath, roleName));
             }
         }
     }
