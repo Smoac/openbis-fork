@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.conversation.context.ServiceConversationsThreadContext;
+import ch.systemsx.cisd.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
@@ -112,6 +114,8 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
 
         private final Status instanceWriteStatus;
 
+        private final IServiceConversationProgressListener progressListener;
+
         private Status result = Status.OK;
 
         public AtomicOperationsPredicateEvaluator(AtomicOperationsPredicate predicate,
@@ -123,6 +127,8 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
             this.allowedRoles = allowedRoles;
             this.value = value;
             this.instanceWriteStatus = hasInstanceWritePermissions(person, allowedRoles);
+            this.progressListener = ServiceConversationsThreadContext.getProgressListener();
+
         }
 
         public Status evaluate()
@@ -194,6 +200,7 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
             if (value.getProjectRegistrations() != null
                     && value.getProjectRegistrations().size() > 0)
             {
+                int index = 0;
                 for (NewProject newProject : value.getProjectRegistrations())
                 {
                     Status status;
@@ -205,6 +212,8 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
                     {
                         return status;
                     }
+                    progressListener.update("authorizeProjectRegistrations", value
+                            .getExperimentUpdates().size(), ++index);
                 }
                 return Status.OK;
             } else
@@ -239,6 +248,7 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
 
         private Status evaluateExperimentUpdatePredicate()
         {
+            int index = 0;
             for (ExperimentUpdatesDTO experimentUpdates : value.getExperimentUpdates())
             {
                 Status status;
@@ -250,12 +260,15 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
                 {
                     return status;
                 }
+                progressListener.update("authorizeExperimentUpdates", value.getExperimentUpdates()
+                        .size(), ++index);
             }
             return Status.OK;
         }
 
         private Status evaluateNewExperimentPredicate()
         {
+            int index = 0;
             for (NewExperiment newExperiment : value.getExperimentRegistrations())
             {
                 Status status;
@@ -267,6 +280,8 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
                 {
                     return status;
                 }
+                progressListener.update("authorizeExperimentRegistration", value
+                        .getExperimentUpdates().size(), ++index);
             }
             return Status.OK;
         }
@@ -279,6 +294,7 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
 
         private Status evaluateNewSamplePredicate()
         {
+            int index = 0;
             for (NewSample newSample : value.getSampleRegistrations())
             {
                 Status status =
@@ -287,12 +303,15 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
                 {
                     return status;
                 }
+                progressListener.update("authorizeSampleRegistration", value.getExperimentUpdates()
+                        .size(), ++index);
             }
             return Status.OK;
         }
 
         private Status evaluateDataSetRegistrationsPredicate()
         {
+            int index = 0;
             for (NewExternalData newExternalData : value.getDataSetRegistrations())
             {
                 Status status =
@@ -302,6 +321,8 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
                 {
                     return status;
                 }
+                progressListener.update("authorizeDatasetRegistration", value
+                        .getExperimentUpdates().size(), ++index);
             }
             return Status.OK;
         }
