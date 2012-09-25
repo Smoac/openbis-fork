@@ -121,6 +121,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
     {
         String code = getCodeOfLatestDataSet().getDataSetCode();
         DataSet dataSet = serviceFacade.getDataSet(code);
+        assertNotNull("Unknown data set: " + code, dataSet);
         dataSet.getParentCodes();
     }
 
@@ -187,6 +188,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
                         dataSetInfo.getDataSetLocation());
 
         DataSet ds = serviceFacade.getDataSet(code);
+        assertNotNull("Unknown data set: " + code, ds);
 
         File link = ds.tryLinkToContents(null);
         assertEquals(fileIntoStore.getAbsolutePath(), link.getAbsolutePath());
@@ -201,6 +203,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         String code = dataSetInfo.getDataSetCode();
 
         DataSet ds = serviceFacade.getDataSet(code);
+        assertNotNull("Unknown data set: " + code, ds);
 
         assertEquals(null, ds.tryLinkToContents("blabla"));
         File file = ds.getLinkOrCopyOfContents("blabla", workingDirectory);
