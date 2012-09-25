@@ -60,6 +60,10 @@ class CapabilityMap
             }
             return Collections.emptyList();
         }
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Reading capability role map file " + file);
+        }
         try
         {
             return FileUtils.readLines(file);
