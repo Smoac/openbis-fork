@@ -34,6 +34,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
 /**
@@ -82,7 +83,7 @@ public final class MigrationStepExecutorTest
                 new Script("001To002.sql", "\n\n  \n"
                         + "--JAVA ch.systemsx.cisd.dbmigration.java.MigrationStepFrom001To002");
         migrationStepExecutor.init(script);
-        assertEquals("Migration step class 'MigrationStepFrom001To002' found for "
+        AssertionUtil.assertEnds("Migration step class 'MigrationStepFrom001To002' found for "
                 + "migration script '001To002.sql'.", logRecorder.getLogContent());
     }
 
@@ -130,7 +131,7 @@ public final class MigrationStepExecutorTest
         migrationStepExecutor.performPostMigration();
         assertTrue(MigrationStepAdminFrom001To002.instance.postMigrationPerformed);
         migrationStepExecutor.finish();
-        assertEquals("Migration step class 'MigrationStepAdminFrom001To002' found for "
+        AssertionUtil.assertEnds("Migration step class 'MigrationStepAdminFrom001To002' found for "
                 + "migration script '001To002.sql'.", logRecorder.getLogContent());
         assertSame(dbContext.getAdminDataSource(), migrationStepExecutor.getDataSource());
         logRecorder.resetLogContent();
