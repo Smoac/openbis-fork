@@ -687,7 +687,13 @@ public class DatabaseConfigurationContext implements DisposableBean
     public final void setDatabaseEngineCode(final String databaseEngineCode)
             throws ConfigurationFailureException
     {
-        this.databaseEngine = DatabaseEngine.getEngineForCode(StringUtils.trim(databaseEngineCode));
+        if (isSet(databaseEngineCode))
+        {
+            this.databaseEngine = DatabaseEngine.getEngineForCode(StringUtils.trim(databaseEngineCode));
+        } else
+        {
+            this.databaseEngine = DatabaseEngine.POSTGRESQL;
+        }
     }
 
     /**

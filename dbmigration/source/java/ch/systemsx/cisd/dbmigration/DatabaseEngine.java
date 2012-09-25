@@ -39,8 +39,8 @@ import ch.systemsx.cisd.dbmigration.postgresql.PostgreSQLDAOFactory;
 public enum DatabaseEngine
 {
     POSTGRESQL("postgresql", "org.postgresql.Driver", PostgreSQLDAOFactory.class,
-            new DefaultLobHandler(), new PostgreSQLSequencerHandler(), "jdbc:postgresql:{0}",
-            "jdbc:postgresql:{0}{1}", "//localhost/", "postgres", "SELECT 1"),
+            new DefaultLobHandler(), new PostgreSQLSequencerHandler(), "jdbc:postgresql://{0}/",
+            "jdbc:postgresql://{0}/{1}", "localhost", "postgres", "SELECT 1"),
 
     H2("h2", "org.h2.Driver", H2DAOFactory.class, new DefaultLobHandler(),
             new PostgreSQLSequencerHandler(), "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1",
