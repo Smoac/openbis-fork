@@ -28,6 +28,7 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
+import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
@@ -40,6 +41,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.conversation.annotation.Conversational;
 import ch.systemsx.cisd.common.conversation.annotation.Progress;
 import ch.systemsx.cisd.common.conversation.client.ServiceConversationClientDetails;
@@ -75,11 +77,13 @@ public class ServiceConversationTest
 
     private static final String SESSION_TOKEN_2 = "test-session-token-2";
 
-    private static final int TIMEOUT = 500;
+    private static final int TIMEOUT = 100;
 
     private static final Integer CLIENT_ID_1 = Integer.valueOf(1);
 
     private static final Integer CLIENT_ID_2 = Integer.valueOf(2);
+
+    private static final Integer UNKNOWN_CLIENT_ID = Integer.valueOf(3);
 
     private Mockery context;
 
@@ -128,7 +132,7 @@ public class ServiceConversationTest
         serverExporter.getServer().stop();
     }
 
-    @BeforeMethod
+    @BeforeMethod(alwaysRun = true)
     public void beforeMethod() throws Exception
     {
         context = new Mockery();
@@ -152,11 +156,17 @@ public class ServiceConversationTest
     @Test(expectedExceptions = ServiceExecutionException.class)
     public void testNonConversationalMethod() throws Exception
     {
-        getServiceOnClientSide1(TestService1.class).nonConversationalMethod();
+        try
+        {
+            getServiceOnClientSide1(TestService1.class).nonConversationalMethod();
+        } finally
+        {
+            assertNoMoreConversations();
+        }
     }
 
     @Test
-    public void testConversationalMethodWithoutReturnValue()
+    public void testMethodWithoutReturnValue()
     {
         context.checking(new Expectations()
             {
@@ -165,10 +175,11 @@ public class ServiceConversationTest
                 }
             });
         getServiceOnClientSide1(TestService1.class).methodWithoutReturnValue();
+        assertNoMoreConversations();
     }
 
     @Test
-    public void testConversationalMethodWithPrimitiveReturnValue()
+    public void testMethodWithPrimitiveReturnValue()
     {
         context.checking(new Expectations()
             {
@@ -180,10 +191,11 @@ public class ServiceConversationTest
 
         Assert.assertEquals(getServiceOnClientSide1(TestService1.class)
                 .methodWithPrimitiveReturnValue(), 1);
+        assertNoMoreConversations();
     }
 
     @Test
-    public void testConversationalMethodWithSerializableReturnValue()
+    public void testMethodWithSerializableReturnValue()
     {
         context.checking(new Expectations()
             {
@@ -196,19 +208,108 @@ public class ServiceConversationTest
             });
         Assert.assertEquals(getServiceOnClientSide1(TestService1.class)
                 .methodWithSerializableReturnValue(), "abc");
+        assertNoMoreConversations();
+    }
+
+    @Test(expectedExceptions = ServiceExecutionException.class)
+    public void testMethodWithNonSerializableReturnValue()
+    {
+        try
+        {
+            context.checking(new Expectations()
+                {
+                    {
+                        one(serviceOnServerSideWrapper1.getService()).methodWithObjectReturnValue();
+                        will(returnValue(new Object()));
+                    }
+                });
+            getServiceOnClientSide1(TestService1.class).methodWithObjectReturnValue();
+        } finally
+        {
+            assertNoMoreConversations();
+        }
+    }
+
+    @Test
+    public void testMethodWithPrimitiveParameter()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(serviceOnServerSideWrapper2.getService()).methodWithPrimitiveParameter(1);
+                }
+            });
+        getServiceOnClientSide1(TestService2.class).methodWithPrimitiveParameter(1);
+        assertNoMoreConversations();
+    }
+
+    @Test
+    public void testMethodWithSerializableParameter()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(serviceOnServerSideWrapper2.getService()).methodWithSerializableParameter(
+                            "abc");
+                }
+            });
+        getServiceOnClientSide1(TestService2.class).methodWithSerializableParameter("abc");
+        assertNoMoreConversations();
+    }
+
+    @Test(expectedExceptions = RemoteAccessException.class)
+    public void testMethodWithNonSerializableParameter()
+    {
+        try
+        {
+            getServiceOnClientSide1(TestService2.class).methodWithObjectParameter(new Object());
+        } finally
+        {
+            // wait for the server to timeout and clean up the conversation
+            assertNoMoreConversations(TIMEOUT);
+        }
     }
 
     @Test(expectedExceptions = TimeoutExceptionUnchecked.class)
     public void testTimeout()
     {
-        context.checking(new Expectations()
-            {
+        try
+        {
+            context.checking(new Expectations()
                 {
-                    one(serviceOnServerSideWrapper1.getService()).methodWithoutReturnValue();
-                    will(new WaitAction(2 * TIMEOUT));
-                }
-            });
-        getServiceOnClientSide1(TestService1.class).methodWithoutReturnValue();
+                    {
+                        one(serviceOnServerSideWrapper1.getService()).methodWithoutReturnValue();
+                        will(new WaitAction(2 * TIMEOUT));
+                    }
+                });
+            getServiceOnClientSide1(TestService1.class).methodWithoutReturnValue();
+        } finally
+        {
+            // wait for the server to wake up and clean up the conversation
+            assertNoMoreConversations(TIMEOUT);
+        }
+    }
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testUnknownClient()
+    {
+        try
+        {
+            context.checking(new Expectations()
+                {
+                    {
+                        one(serviceOnServerSideWrapper1.getService()).methodWithoutReturnValue();
+                    }
+                });
+
+            TestService1 service =
+                    clientManager1.getService(SERVER_URL, TestService1.class, SESSION_TOKEN_1,
+                            UNKNOWN_CLIENT_ID, TIMEOUT);
+            service.methodWithoutReturnValue();
+        } finally
+        {
+            assertNoMoreConversations();
+        }
     }
 
     @Test
@@ -217,27 +318,24 @@ public class ServiceConversationTest
         context.checking(new Expectations()
             {
                 {
-                    one(serviceOnServerSideWrapper2.getService()).methodWithPrimitiveParameter(1);
+                    one(serviceOnServerSideWrapper2.getService()).echo(1);
                     will(returnValue(1));
 
-                    one(serviceOnServerSideWrapper2.getService()).methodWithPrimitiveParameter(2);
+                    one(serviceOnServerSideWrapper2.getService()).echo(2);
                     will(returnValue(2));
 
-                    one(serviceOnServerSideWrapper2.getService()).methodWithPrimitiveParameter(3);
+                    one(serviceOnServerSideWrapper2.getService()).echo(3);
                     will(returnValue(3));
 
-                    one(serviceOnServerSideWrapper2.getService()).methodWithPrimitiveParameter(4);
+                    one(serviceOnServerSideWrapper2.getService()).echo(4);
                     will(returnValue(4));
                 }
             });
-        Assert.assertEquals(getServiceOnClientSide1(TestService2.class)
-                .methodWithPrimitiveParameter(1), 1);
-        Assert.assertEquals(getServiceOnClientSide2(TestService2.class)
-                .methodWithPrimitiveParameter(2), 2);
-        Assert.assertEquals(getServiceOnClientSide2(TestService2.class)
-                .methodWithPrimitiveParameter(3), 3);
-        Assert.assertEquals(getServiceOnClientSide1(TestService2.class)
-                .methodWithPrimitiveParameter(4), 4);
+        Assert.assertEquals(getServiceOnClientSide1(TestService2.class).echo(1), 1);
+        Assert.assertEquals(getServiceOnClientSide2(TestService2.class).echo(2), 2);
+        Assert.assertEquals(getServiceOnClientSide2(TestService2.class).echo(3), 3);
+        Assert.assertEquals(getServiceOnClientSide1(TestService2.class).echo(4), 4);
+        assertNoMoreConversations();
     }
 
     @Test
@@ -246,17 +344,30 @@ public class ServiceConversationTest
         context.checking(new Expectations()
             {
                 {
-                    one(serviceOnServerSideWrapper1.getService()).methodWithPrimitiveReturnValue();
+                    one(serviceOnServerSideWrapper1.getService()).echo(1);
                     will(returnValue(1));
 
-                    one(serviceOnServerSideWrapper2.getService()).methodWithPrimitiveParameter(2);
+                    one(serviceOnServerSideWrapper2.getService()).echo(2);
                     will(returnValue(2));
                 }
             });
-        Assert.assertEquals(getServiceOnClientSide1(TestService1.class)
-                .methodWithPrimitiveReturnValue(), 1);
-        Assert.assertEquals(getServiceOnClientSide2(TestService2.class)
-                .methodWithPrimitiveParameter(2), 2);
+        Assert.assertEquals(getServiceOnClientSide1(TestService1.class).echo(1), 1);
+        Assert.assertEquals(getServiceOnClientSide2(TestService2.class).echo(2), 2);
+        assertNoMoreConversations();
+    }
+
+    private void assertNoMoreConversations()
+    {
+        assertNoMoreConversations(0);
+    }
+
+    private void assertNoMoreConversations(int delayBeforeChecking)
+    {
+        // wait for the server thread to run and clean up
+        ConcurrencyUtilities.sleep(delayBeforeChecking + 100);
+        Assert.assertEquals(clientManager1.getConversationCount(), 0);
+        Assert.assertEquals(clientManager2.getConversationCount(), 0);
+        Assert.assertEquals(serverManager.getConversationCount(), 0);
     }
 
     private BaseServiceConversationClientManager createClientManager()
@@ -392,15 +503,27 @@ public class ServiceConversationTest
         @Conversational(progress = Progress.MANUAL)
         public Serializable methodWithSerializableReturnValue();
 
+        @Conversational(progress = Progress.MANUAL)
+        public Object methodWithObjectReturnValue();
+
+        @Conversational(progress = Progress.MANUAL)
+        public Object echo(Object parameter);
+
     }
 
     public static interface TestService2
     {
         @Conversational(progress = Progress.MANUAL)
-        public int methodWithPrimitiveParameter(int parameter);
+        public void methodWithPrimitiveParameter(int parameter);
 
         @Conversational(progress = Progress.MANUAL)
-        public Serializable methodWithSerializableParameter(Serializable parameter);
+        public void methodWithSerializableParameter(Serializable parameter);
+
+        @Conversational(progress = Progress.MANUAL)
+        public void methodWithObjectParameter(Object parameter);
+
+        @Conversational(progress = Progress.MANUAL)
+        public Object echo(Object parameter);
 
     }
 
@@ -439,6 +562,18 @@ public class ServiceConversationTest
         }
 
         @Override
+        public Object methodWithObjectReturnValue()
+        {
+            return service.methodWithObjectReturnValue();
+        }
+
+        @Override
+        public Object echo(Object parameter)
+        {
+            return service.echo(parameter);
+        }
+
+        @Override
         public void someLocalMethod()
         {
         }
@@ -461,15 +596,27 @@ public class ServiceConversationTest
         private TestService2 service;
 
         @Override
-        public int methodWithPrimitiveParameter(int parameter)
+        public void methodWithPrimitiveParameter(int parameter)
         {
-            return service.methodWithPrimitiveParameter(parameter);
+            service.methodWithPrimitiveParameter(parameter);
         }
 
         @Override
-        public Serializable methodWithSerializableParameter(Serializable parameter)
+        public void methodWithSerializableParameter(Serializable parameter)
         {
-            return service.methodWithSerializableParameter(parameter);
+            service.methodWithSerializableParameter(parameter);
+        }
+
+        @Override
+        public void methodWithObjectParameter(Object parameter)
+        {
+            service.methodWithObjectParameter(parameter);
+        }
+
+        @Override
+        public Object echo(Object parameter)
+        {
+            return service.echo(parameter);
         }
 
         @Override

@@ -29,8 +29,6 @@ public class ServiceConversationServerConfig
 
     private int workQueueSize = 0;
 
-    private int messageReceivingTimeoutMillis = 30000;
-
     private int shutdownTimeoutMillis = 60000;
 
     private boolean daemonize = true;
@@ -95,23 +93,6 @@ public class ServiceConversationServerConfig
     {
         this.workQueueSize = workQueueSize;
         this.maxNumberOfThreads = this.numberOfCoreThreads;
-        return this;
-    }
-
-    public int getMessageReceivingTimeoutMillis()
-    {
-        return messageReceivingTimeoutMillis;
-    }
-
-    /**
-     * Configures the time in milli-seconds that a service conversation methods waits for an
-     * incoming message from the client before timing out (default: 30000).
-     */
-    public ServiceConversationServerConfig messageReceivingTimeoutMillis(
-            @SuppressWarnings("hiding")
-            int messageReceivingTimeoutMillis)
-    {
-        this.messageReceivingTimeoutMillis = messageReceivingTimeoutMillis;
         return this;
     }
 

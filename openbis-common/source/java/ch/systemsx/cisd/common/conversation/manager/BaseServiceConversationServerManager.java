@@ -95,7 +95,8 @@ public abstract class BaseServiceConversationServerManager implements
         }
 
         server.addClientResponseTransport(sessionToken, getClientForClientDetails(clientDetails));
-        ServiceConversationDTO conversation = server.startConversation(serviceName, sessionToken);
+        ServiceConversationDTO conversation =
+                server.startConversation(serviceName, sessionToken, clientDetails.getTimeout());
         conversationIdToClientDetailsMap
                 .put(conversation.getServiceConversationId(), clientDetails);
 
@@ -111,6 +112,16 @@ public abstract class BaseServiceConversationServerManager implements
     @Override
     public void ping()
     {
+    }
+
+    public int getConversationCount()
+    {
+        return conversationIdToClientDetailsMap.size();
+    }
+
+    public int getClientCount()
+    {
+        return clientDetailsToClientMap.size();
     }
 
     protected abstract ServiceConversationClientDetails getClientDetailsForClientId(Object clientId);

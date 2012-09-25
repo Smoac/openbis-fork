@@ -50,6 +50,9 @@ import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationSer
  */
 public class ServiceConversationTest
 {
+
+    private static final int MESSAGE_RECEIVING_TIMEOUT_MILLIS = 500;
+
     @BeforeTest
     public void init()
     {
@@ -58,7 +61,7 @@ public class ServiceConversationTest
 
     private ServiceConversationServerConfig config()
     {
-        return ServiceConversationServerConfig.create().messageReceivingTimeoutMillis(100);
+        return ServiceConversationServerConfig.create();
     }
 
     /**
@@ -111,7 +114,8 @@ public class ServiceConversationTest
         @Override
         public ServiceConversationDTO startConversation(String typeId)
         {
-            return server.startConversation(typeId, "dummyClient");
+            return server
+                    .startConversation(typeId, "dummyClient", MESSAGE_RECEIVING_TIMEOUT_MILLIS);
         }
 
     }
@@ -388,7 +392,8 @@ public class ServiceConversationTest
                 }
             });
         final String id =
-                conversations.startConversation("echo", "dummyClient").getServiceConversationId();
+                conversations.startConversation("echo", "dummyClient",
+                        MESSAGE_RECEIVING_TIMEOUT_MILLIS).getServiceConversationId();
         assertTrue(conversations.hasConversation(id));
         int messageIdx = 0;
 
@@ -463,7 +468,7 @@ public class ServiceConversationTest
                 {
                 }
             });
-        conversations.startConversation("echo", "dummyClient");
+        conversations.startConversation("echo", "dummyClient", MESSAGE_RECEIVING_TIMEOUT_MILLIS);
     }
 
     @Test(expectedExceptions = UnknownClientException.class)
@@ -496,7 +501,7 @@ public class ServiceConversationTest
                     return true;
                 }
             });
-        conversations.startConversation("echo", "dummyClient");
+        conversations.startConversation("echo", "dummyClient", MESSAGE_RECEIVING_TIMEOUT_MILLIS);
     }
 
     private static class ExceptionThrowingService implements IService
@@ -528,7 +533,7 @@ public class ServiceConversationTest
                     {
                         return "throwException";
                     }
-                    
+
                     @Override
                     public boolean interruptServiceOnClientException()
                     {
@@ -677,7 +682,7 @@ public class ServiceConversationTest
                     {
                         return "delayed";
                     }
-                    
+
                     @Override
                     public boolean interruptServiceOnClientException()
                     {

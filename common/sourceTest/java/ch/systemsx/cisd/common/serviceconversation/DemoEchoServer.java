@@ -37,6 +37,9 @@ import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationSer
  */
 public class DemoEchoServer
 {
+
+    private final int TIMEOUT = 1000;
+
     private final ServiceConversationServer server;
 
     /**
@@ -45,11 +48,11 @@ public class DemoEchoServer
     DemoEchoServer()
     {
         server = new ServiceConversationServer();
-        
+
         // Here is the right place to add any number of service types.
         // A 'service type' corresponds to a 'remote procedure' in the conventional RPC model.
-        server.addServiceType(EchoService.createFactory(1000));
-        
+        server.addServiceType(EchoService.createFactory(TIMEOUT));
+
         // Cleanup any left-overs from previous executions.
         ServerFileTransport.init();
     }
@@ -62,7 +65,7 @@ public class DemoEchoServer
             processDisconnectionRequests();
             processStartConversationRequests();
             processConversationMessages();
-            
+
             ConcurrencyUtilities.sleep(200L);
         }
     }
@@ -88,10 +91,10 @@ public class DemoEchoServer
         for (StartConversationRequest request : ServerFileTransport.getStartConversationRequests())
         {
             request.respond(server.startConversation(request.getConversationTypeId(),
-                    request.getClientId()));
+                    request.getClientId(), TIMEOUT));
         }
     }
-    
+
     private void processConversationMessages()
     {
         for (ServiceMessage msg : ServerFileTransport.receive())

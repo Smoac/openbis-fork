@@ -49,8 +49,6 @@ public class ServiceConversationServer
     final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ServiceConversationServer.class);
 
-    private final int messageReceivingTimeoutMillis;
-
     private final int shutdownTimeoutMillis;
 
     private final NamingThreadPoolExecutor executor;
@@ -97,8 +95,7 @@ public class ServiceConversationServer
                         {
                             operationLog
                                     .error(String
-                                            .format(
-                                                    "[id: %s] Client requests termination of service conversation.",
+                                            .format("[id: %s] Client requests termination of service conversation.",
                                                     conversationId));
                         }
                         record.getMessenger().markAsInterrupted();
@@ -114,8 +111,7 @@ public class ServiceConversationServer
                 {
                     return false;
                 }
-                return message.isTerminate() || record
-                        .isInterruptServerOnClientException();
+                return message.isTerminate() || record.isInterruptServerOnClientException();
             }
         };
 
@@ -134,7 +130,6 @@ public class ServiceConversationServer
         {
             this.executor.daemonize();
         }
-        this.messageReceivingTimeoutMillis = config.getMessageReceivingTimeoutMillis();
         this.shutdownTimeoutMillis = config.getShutdownTimeoutMillis();
     }
 
@@ -192,9 +187,12 @@ public class ServiceConversationServer
      * @param typeId The service type of the conversation.
      * @param clientId The id of the client, used to find a suitable transport to communicate back
      *            the messages from the service to the client.
+     * @param messageReceivingTimeoutMillis The time in milli-seconds that a service conversation
+     *            method waits for an incoming message from the client before timing out.
      * @return The information about the service conversation started.
      */
-    public ServiceConversationDTO startConversation(final String typeId, final String clientId)
+    public ServiceConversationDTO startConversation(final String typeId, final String clientId,
+            final int messageReceivingTimeoutMillis)
     {
         final IServiceFactory serviceFactory = serviceFactoryMap.get(typeId);
         if (serviceFactory == null)
@@ -215,8 +213,8 @@ public class ServiceConversationServer
                 new BidirectionalServiceMessenger(serviceConversationId,
                         messageReceivingTimeoutMillis, responseMessenger);
         final ServiceConversationRecord record =
-                new ServiceConversationRecord(messenger, serviceFactory
-                        .interruptServiceOnClientException());
+                new ServiceConversationRecord(messenger,
+                        serviceFactory.interruptServiceOnClientException());
         conversations.put(serviceConversationId, record);
         try
         {
@@ -245,11 +243,10 @@ public class ServiceConversationServer
                                                     errorMessage));
                                         } catch (Exception ex2)
                                         {
-                                            operationLog
-                                                    .error(
-                                                            String.format(
-                                                                    "[id: %s] Cannot send message about exception to client.",
-                                                                    serviceConversationId), ex2);
+                                            operationLog.error(
+                                                    String.format(
+                                                            "[id: %s] Cannot send message about exception to client.",
+                                                            serviceConversationId), ex2);
                                         }
                                     }
                                 } finally
