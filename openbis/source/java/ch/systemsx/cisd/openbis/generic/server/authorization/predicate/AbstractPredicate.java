@@ -23,6 +23,8 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -47,13 +49,62 @@ abstract class AbstractPredicate<T> implements IPredicate<T>
     protected abstract Status doEvaluation(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles, final T value);
 
-    /** 
-     * Is the checked value allowed to be <code>null</code>, <code>false</code> by default. 
+    /**
+     * Is the checked value allowed to be <code>null</code>, <code>false</code> by default.
      * Can be overridden in sub-classes.
      */
     protected boolean isNullValueAllowed()
     {
         return false;
+    }
+
+    /**
+     * Returns <code>true</code> if <var>allowedRoles</var> contains a role that allows writing to
+     * all entities.
+     */
+    public static Status hasInstanceWritePermissions(PersonPE aPerson,
+            List<RoleWithIdentifier> allowedRoles)
+    {
+        for (RoleWithIdentifier role : allowedRoles)
+        {
+            if (role.getRoleLevel() == RoleLevel.INSTANCE)
+            {
+                final RoleCode roleCode = role.getRole().getRoleCode();
+                if (RoleCode.ADMIN.equals(roleCode) || RoleCode.ETL_SERVER.equals(roleCode))
+                {
+                    return Status.OK;
+                }
+            }
+        }
+        return Status.createError(false,
+                "None of method roles '[INSTANCE_ETL_SERVER, INSTANCE_ADMIN]' could be found in roles of user '"
+                        + aPerson.getUserId() + "'.");
+    }
+
+    /**
+     * Returns <code>true</code> if <var>allowedRoles</var> contains a role that allows reading all
+     * entities.
+     */
+    public static Status hasInstanceReadPermissions(PersonPE aPerson,
+            List<RoleWithIdentifier> allowedRoles)
+    {
+        for (RoleWithIdentifier role : allowedRoles)
+        {
+            if (role.getRoleLevel() == RoleLevel.INSTANCE)
+            {
+                final RoleCode roleCode = role.getRole().getRoleCode();
+                if (RoleCode.ADMIN.equals(roleCode) || RoleCode.ETL_SERVER.equals(roleCode)
+                        || RoleCode.OBSERVER.equals(roleCode))
+                {
+                    return Status.OK;
+                }
+            }
+        }
+        return Status
+                .createError(false,
+                        "None of method roles '[INSTANCE_ETL_SERVER, INSTANCE_ADMIN, INSTANCE_OBSERVER]' "
+                                + "could be found in roles of user '"
+                                + aPerson.getUserId() + "'.");
     }
 
     //
