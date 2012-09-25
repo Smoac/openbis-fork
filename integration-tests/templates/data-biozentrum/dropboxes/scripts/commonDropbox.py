@@ -301,9 +301,11 @@ def registerDerivedBlackBoxDataset(state, aService, factory, incoming, metadataP
 		dataset = transaction.createNewDataSet()
 		dataset.setDataSetType(datasetType)
 		dataset.setFileFormatType(fileFormatType)
-		registerDerivedDataset(state, transaction, dataset, incoming, metadataParser)
+		registerDerivedDataset(state, service, transaction, dataset, incoming, metadataParser)
 		
-def registerDerivedDataset(state, transaction, dataset, incoming, metadataParser):
+def registerDerivedDataset(state, aService, transaction, dataset, incoming, metadataParser):
+		global service
+		service = aService
 		iBrain2DatasetId = metadataParser.getIBrain2DatasetId()
 	# Find a parent which is connected to a plate
 		for openbisDatasetParentPermId in metadataParser.getParentDatasetPermId():
@@ -457,7 +459,7 @@ def registerFeaturesFromCsvMatrix(aService, factory, state, incoming, datasetMet
 		dataset = transaction.createNewDataSet(analysisRegistrationDetails)
 		dataset.setDataSetType(datasetTypeCode)
 		dataset.setFileFormatType('CSV')
-		registerDerivedDataset(state, transaction, dataset, incoming, datasetMetadataParser)
+		registerDerivedDataset(state, service, transaction, dataset, incoming, datasetMetadataParser)
 		
 # -------------- TODO: remove tests
 

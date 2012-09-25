@@ -12,7 +12,7 @@ function install_and_run_openbis_server_screening {
     if [ $install_openbis == "true" ]; then
         rm -fr $openbis_server_dir
     
-        unzip -q -d $openbis_server_dir $INSTALL/openBIS*.zip
+        unzip -q -d $openbis_server_dir $INSTALL/openBIS-server*.zip
         mv $openbis_server_dir/openBIS-server/* $openbis_server_dir
 				rmdir $openbis_server_dir/openBIS-server
 
@@ -74,7 +74,7 @@ function assertFeatureVectorDef {
 function wait_for_file {
 	local file_name=$1
 
-	local timeout=40
+	local timeout=640
 	local total_time=0
 	local check_interval=5	
 	echo -n Waiting for creation of $file_name

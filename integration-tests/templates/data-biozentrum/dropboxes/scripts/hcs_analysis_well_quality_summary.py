@@ -46,7 +46,7 @@ def register(incomingPath):
     dataset = transaction.createNewDataSet(analysisRegistrationDetails)
     dataset.setDataSetType(datasetTypeCode)
     dataset.setFileFormatType('CSV')
-    commonDropbox.registerDerivedDataset(state, transaction, dataset, incoming, datasetMetadataParser)
+    commonDropbox.registerDerivedDataset(state, service, transaction, dataset, incoming, datasetMetadataParser)
  
 if incoming.isDirectory():
     register(incoming.getPath())

@@ -61,6 +61,7 @@ function install_and_run_openbis_server_screening {
 				startup_openbis_server $openbis_server_dir
     else
         restart_openbis $openbis_server_dir
+				wait_for_server $openbis_server_dir
     fi
 }
 
@@ -113,11 +114,11 @@ function test_screening_api {
 	assert_pattern_present api-client-log.txt 1 "Experiments: \[/DEMO/DEMO_PROJECT/DEMO_EXPERIMENT \[20100623121102843-1\]\]"
 	assert_pattern_present api-client-log.txt 1 "Plates: \[/DEMO/PLATE1 \[20100624113752213-5\]"
 	assert_pattern_present api-client-log.txt 1 "Image datasets: \[[0-9]*-[0-9]* (plate: /DEMO/PLATE3"
-	assert_pattern_present api-client-log.txt 1 "Feature vector datasets: \[[0-9]*-8 (plate: /DEMO/PLATE2 \[20100624113756254-6\]"
+	assert_pattern_present api-client-log.txt 1 "Feature vector datasets: \[[0-9]*-[0-9]* (plate: /DEMO/PLATE2 \[20100624113756254-6\]"
 	assert_pattern_present api-client-log.txt 1 "Feature codes: \[CELLNUMBER, FEATRUE1, FEATRUE10, FEATRUE11, FEATRUE12, FEATRUE13, FEATRUE14, FEATRUE15, FEATRUE16, FEATRUE2, FEATRUE3, FEATRUE4, FEATRUE5, FEATRUE6, FEATRUE7, FEATRUE8, FEATRUE9, HITRATE, STD1, STD10, STD11, STD12, STD13, STD14, STD15, STD16, STD2, STD3, STD4, STD5, STD6, STD7, STD8, STD9\]"
 	assert_pattern_present api-client-log.txt 1 "Loaded feature datasets: 1"
 	assert_pattern_present api-client-log.txt 1 "features labels: \[cellNumber, featrue1, featrue10, featrue11, featrue12, featrue13, featrue14, featrue15, featrue16, featrue2, featrue3, featrue4, featrue5, featrue6, featrue7, featrue8, featrue9, Hit Rate, std1, std10, std11, std12, std13, std14, std15, std16, std2, std3, std4, std5, std6, std7, std8, std9\]"
-	assert_pattern_present api-client-log.txt 1 "Features of the first dataset: datasetCode: [0-9]*-8"
+	assert_pattern_present api-client-log.txt 1 "Features of the first dataset: datasetCode: [0-9]*-[0-9]*"
 	assert_pattern_present api-client-log.txt 1 "wellPosition: \[1, 2\], values: \[48.0, 0.0051865"
 	assert_pattern_present api-client-log.txt 1 "Image metadata: \[Dataset [0-9]*-[0-9]* (plate: /DEMO/PLATE3 \[20100624113759640-7\]) has \[\[DAPI, GFP\]\] channels, 9 tiles\. Image resolution: 720x468"
 	
