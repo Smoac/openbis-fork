@@ -22,18 +22,18 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * The predicate for the {@link AtomicEntityOperationDetails}.
+ * The predicate for the {@link AtomicEntityOperationDetails}. This check is always being performed
+ * as the user
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -54,6 +54,8 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
 
     private final DataSetUpdatesCollectionPredicate dataSetUpdatesCollectionPredicate;
 
+    private final NewProjectPredicate newProjectPredicate;
+
     public AtomicOperationsPredicate()
     {
         newExperimentPredicate = new NewExperimentPredicate();
@@ -63,6 +65,7 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
         sampleOwnerIdentifierPredicate = new SampleOwnerIdentifierPredicate(true, true);
         experimentOwnerIdentifierPredicate = new ExistingSpaceIdentifierPredicate();
         dataSetUpdatesCollectionPredicate = new DataSetUpdatesCollectionPredicate();
+        newProjectPredicate = new NewProjectPredicate();
     }
 
     @Override
@@ -107,6 +110,8 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
 
         private final AtomicEntityOperationDetails value;
 
+        private final Status instanceWriteStatus;
+
         private Status result = Status.OK;
 
         public AtomicOperationsPredicateEvaluator(AtomicOperationsPredicate predicate,
@@ -117,10 +122,17 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
             this.person = person;
             this.allowedRoles = allowedRoles;
             this.value = value;
+            this.instanceWriteStatus = hasInstanceWritePermissions(person, allowedRoles);
         }
 
         public Status evaluate()
         {
+            // Skip all further checks if the person has instance-wide write permissions.
+            if (instanceWriteStatus.isOK())
+            {
+                return instanceWriteStatus;
+            }
+
             // Evaluate all the predicates, stopping if we find an operation that is not allowed
             if (result.equals(Status.OK))
             {
@@ -152,7 +164,15 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
             }
             if (result.equals(Status.OK))
             {
+                result = evaluateProjectRegistrations();
+            }
+            if (result.equals(Status.OK))
+            {
                 result = evaluateMaterialRegistrations();
+            }
+            if (result.equals(Status.OK))
+            {
+                result = evaluateMaterialUpdates();
             }
 
             return result;
@@ -162,7 +182,31 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
         {
             if (value.getSpaceRegistrations() != null && value.getSpaceRegistrations().size() > 0)
             {
-                return isInstanceEtlServer(person);
+                return instanceWriteStatus;
+            } else
+            {
+                return Status.OK;
+            }
+        }
+
+        private Status evaluateProjectRegistrations()
+        {
+            if (value.getProjectRegistrations() != null
+                    && value.getProjectRegistrations().size() > 0)
+            {
+                for (NewProject newProject : value.getProjectRegistrations())
+                {
+                    Status status;
+
+                    status =
+                            predicate.newProjectPredicate.doEvaluation(person, allowedRoles,
+                                    newProject);
+                    if (status.equals(Status.OK) == false)
+                    {
+                        return status;
+                    }
+                }
+                return Status.OK;
             } else
             {
                 return Status.OK;
@@ -174,29 +218,23 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
             if (value.getMaterialRegistrations() != null
                     && value.getMaterialRegistrations().size() > 0)
             {
-                return isInstanceEtlServer(person);
+                return instanceWriteStatus;
             } else
             {
                 return Status.OK;
             }
         }
 
-        private Status isInstanceEtlServer(PersonPE aPerson)
+        private Status evaluateMaterialUpdates()
         {
-            for (RoleAssignmentPE role : aPerson.getRoleAssignments())
+            if (value.getMaterialUpdates() != null
+                    && value.getMaterialUpdates().size() > 0)
             {
-                if (role.getSpace() == null)
-                {
-                    RoleCode roleCode = role.getRole();
-                    if (RoleCode.ADMIN.equals(roleCode) || RoleCode.ETL_SERVER.equals(roleCode))
-                    {
-                        return Status.OK;
-                    }
-                }
+                return instanceWriteStatus;
+            } else
+            {
+                return Status.OK;
             }
-            return Status.createError(false,
-                    "None of method roles '[INSTANCE_ETL_SERVER, INSTANCE_ADMIN]' could be found in roles of user '"
-                            + aPerson.getUserId() + "'.");
         }
 
         private Status evaluateExperimentUpdatePredicate()
