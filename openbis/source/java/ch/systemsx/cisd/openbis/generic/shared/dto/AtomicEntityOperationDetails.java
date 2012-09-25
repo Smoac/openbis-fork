@@ -45,11 +45,10 @@ public class AtomicEntityOperationDetails implements Serializable
     // The unique identifier for this registration
     private final TechId registrationIdOrNull;
 
-    // The userid on whose behalf the operations are done.
+    // The userid on whose behalf the operations are done, or null if not done on behalf of another
+    // user
     private final String userIdOrNull;
 
-    // This is always an empty list, since it is not currently possible to update experiments from
-    // the DSS
     private final List<ExperimentUpdatesDTO> experimentUpdates;
 
     private final List<NewSpace> spaceRegistrations;
