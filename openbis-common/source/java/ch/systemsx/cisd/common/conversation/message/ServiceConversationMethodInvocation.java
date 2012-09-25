@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.conversation.message;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import org.springframework.remoting.support.RemoteInvocation;
 
@@ -100,19 +101,30 @@ public class ServiceConversationMethodInvocation implements Serializable
 
     private Method findMethodOn(Object o) throws SecurityException, NoSuchMethodException
     {
-        Method method = null;
+        Method methodFound = null;
 
         for (Class<?> inter : o.getClass().getInterfaces())
         {
-            method = inter.getMethod(invocation.getMethodName(), invocation.getParameterTypes());
+            Method[] methods = inter.getMethods();
 
-            if (method != null && method.isAnnotationPresent(Conversational.class))
+            for (Method method : methods)
             {
-                return method;
+                if (method.getName().equals(invocation.getMethodName())
+                        && Arrays
+                                .equals(method.getParameterTypes(), invocation.getParameterTypes()))
+                {
+                    methodFound = method;
+                    break;
+                }
+            }
+
+            if (methodFound != null && methodFound.isAnnotationPresent(Conversational.class))
+            {
+                return methodFound;
             }
         }
 
-        if (method == null)
+        if (methodFound == null)
         {
             throw new NoSuchMethodException(
                     "No method found for the service conversation invocation: " + invocation);

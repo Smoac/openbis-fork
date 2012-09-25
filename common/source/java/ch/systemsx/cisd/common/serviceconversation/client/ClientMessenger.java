@@ -46,16 +46,15 @@ class ClientMessenger implements IServiceConversation
     private final ClientResponseMessageMultiplexer responseMessageMultiplexer;
 
     private final int serviceMessageTimeoutMillis;
-    
+
     private final int serverWorkQueueSizeAtStartup;
 
     private int outgoingMessageIdx;
 
     private final AtomicBoolean serviceExceptionSignaled = new AtomicBoolean();
-    
-    private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, ClientMessenger.class);
 
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ClientMessenger.class);
 
     ClientMessenger(ServiceConversationDTO serviceConversationDTO,
             IServiceMessageTransport transportToService,
@@ -151,9 +150,11 @@ class ClientMessenger implements IServiceConversation
         }
     }
 
-    private ServiceMessage getMessage(int timeout) throws InterruptedException {
+    private ServiceMessage getMessage(int timeout) throws InterruptedException
+    {
         ServiceMessage message = responseMessageQueue.poll(timeout);
-        while (message != null && message.getProgress() != null) {
+        while (message != null && message.getProgress() != null)
+        {
             operationLog.info(message.getProgress());
             message = responseMessageQueue.poll(timeout);
         }
@@ -186,9 +187,10 @@ class ClientMessenger implements IServiceConversation
             throw new ServiceExecutionException(message.getConversationId(),
                     message.tryGetExceptionDescription());
         }
-                
+
         final Object payload = message.getPayload();
-        if (messageClass != null && messageClass.isAssignableFrom(payload.getClass()) == false)
+        if (messageClass != null && payload != null
+                && messageClass.isAssignableFrom(payload.getClass()) == false)
         {
             throw new UnexpectedMessagePayloadException(payload.getClass(), messageClass);
         }

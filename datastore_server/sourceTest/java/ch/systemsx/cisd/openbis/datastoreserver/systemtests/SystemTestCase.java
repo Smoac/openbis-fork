@@ -147,25 +147,6 @@ public abstract class SystemTestCase extends AssertJUnit
                     applicationContext = new GenericWebApplicationContext(f);
                     applicationContext.setParent(new ClassPathXmlApplicationContext(
                             getApplicationContextLocation()));
-
-                    /* Needed for RmiConversationTest */
-                    /*
-                     * GenericBeanDefinition definition = new GenericBeanDefinition();
-                     * MutablePropertyValues values = new MutablePropertyValues();
-                     * values.addPropertyValue("sessionFactory", new RuntimeBeanReference(
-                     * "hibernate-session-factory")); values.addPropertyValue("echoService", new
-                     * RuntimeBeanReference( "echoService")); definition.setPropertyValues(values);
-                     * definition.setBeanClass(EchoServiceBean.class);
-                     * applicationContext.registerBeanDefinition("echoService", definition);
-                     */
-
-                    /* Needed for RmiConversationTest */
-                    /*
-                     * GenericBeanDefinition exporter = new GenericBeanDefinition();
-                     * exporter.setBeanClass(EchoServiceExporter.class);
-                     * applicationContext.registerBeanDefinition("echoServiceExporter", exporter);
-                     */
-
                     applicationContext.refresh();
                     return applicationContext;
                 }

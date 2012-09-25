@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import org.springframework.beans.factory.InitializingBean;
+
 import ch.systemsx.cisd.common.conversation.client.ServiceConversationClientDetails;
 import ch.systemsx.cisd.common.conversation.manager.BaseServiceConversationServerManager;
 import ch.systemsx.cisd.common.spring.PropertyPlaceholderUtils;
@@ -27,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationA
  * @author pkupczyk
  */
 public class ServiceConversationServerManager extends BaseServiceConversationServerManager
-        implements IServiceConversationServerManagerLocal
+        implements IServiceConversationServerManagerLocal, InitializingBean
 {
 
     private IDataStoreService dataStoreService;
@@ -37,9 +39,9 @@ public class ServiceConversationServerManager extends BaseServiceConversationSer
     private int applicationServerTimeoutInMillis;
 
     @Override
-    protected void initializeServices()
+    public void afterPropertiesSet() throws Exception
     {
-        addService(IDataStoreService.class.getName(), dataStoreService);
+        addService(IDataStoreService.class, dataStoreService);
     }
 
     @Override

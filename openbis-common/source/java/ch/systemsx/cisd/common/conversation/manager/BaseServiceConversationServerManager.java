@@ -19,8 +19,6 @@ package ch.systemsx.cisd.common.conversation.manager;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.InitializingBean;
-
 import ch.systemsx.cisd.common.conversation.client.ServiceConversationClientDetails;
 import ch.systemsx.cisd.common.serviceconversation.ServiceConversationDTO;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
@@ -32,7 +30,7 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
  * @author pkupczyk
  */
 public abstract class BaseServiceConversationServerManager implements
-        IServiceConversationServerManagerRemote, InitializingBean
+        IServiceConversationServerManagerRemote
 {
 
     private ServiceConversationServer server;
@@ -48,18 +46,10 @@ public abstract class BaseServiceConversationServerManager implements
         server = new ServiceConversationServer();
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception
-    {
-        initializeServices();
-    }
-
-    protected abstract void initializeServices();
-
-    protected void addService(String serviceName, Object service)
+    protected void addService(Class<?> serviceInterface, Object service)
     {
         ServiceConversationServiceFactory serviceFactory =
-                new ServiceConversationServiceFactory(server, serviceName, service)
+                new ServiceConversationServiceFactory(server, serviceInterface.getName(), service)
                     {
                         @Override
                         protected int getProgressInterval(String conversationId)

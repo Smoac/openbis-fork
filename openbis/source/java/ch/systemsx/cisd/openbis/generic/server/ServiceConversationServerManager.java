@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.InitializingBean;
+
 import ch.systemsx.cisd.common.conversation.client.ServiceConversationClientDetails;
 import ch.systemsx.cisd.common.conversation.manager.BaseServiceConversationServerManager;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationServerManagerLocal;
@@ -31,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationD
  */
 
 public class ServiceConversationServerManager extends BaseServiceConversationServerManager
-        implements IServiceConversationServerManagerLocal
+        implements IServiceConversationServerManagerLocal, InitializingBean
 {
 
     private Map<Object, ServiceConversationClientDetails> dataStoreIdToDataStoreDetailsMap =
@@ -40,9 +42,9 @@ public class ServiceConversationServerManager extends BaseServiceConversationSer
     private IETLLIMSService etlService;
 
     @Override
-    protected void initializeServices()
+    public void afterPropertiesSet() throws Exception
     {
-        addService(IETLLIMSService.class.getName(), etlService);
+        addService(IETLLIMSService.class, etlService);
     }
 
     @Override
