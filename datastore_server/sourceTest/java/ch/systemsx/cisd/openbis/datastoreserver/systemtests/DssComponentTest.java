@@ -435,12 +435,6 @@ public class DssComponentTest extends SystemTestCase
                     return code.startsWith("2") ? code : "0" + code;
                 }
             });
-        System.out.println("==== data sets:");
-        for (SimpleDataSetInformationDTO ds : dataSets)
-        {
-            System.out.println(ds.getDataSetCode());
-        }
-        System.out.println("====");
         return dataSets.get(0);
     }
 

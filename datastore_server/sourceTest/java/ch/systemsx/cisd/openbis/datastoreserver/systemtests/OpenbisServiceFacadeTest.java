@@ -300,7 +300,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
                 @Override
                 public int compare(SimpleDataSetInformationDTO d1, SimpleDataSetInformationDTO d2)
                 {
-                    return d2.getDataSetCode().compareTo(d1.getDataSetCode());
+                    return normalize(d2.getDataSetCode()).compareTo(normalize(d1.getDataSetCode()));
                 }
             });
         return dataSets.get(0);
@@ -316,10 +316,15 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
                 public int compare(DataSet o1, DataSet o2)
                 {
                     // sort decreasing
-                    return o2.getCode().compareTo(o1.getCode());
+                    return normalize(o2.getCode()).compareTo(normalize(o1.getCode()));
                 }
             });
         return dataSets.get(0);
+    }
+    
+    private String normalize(String code)
+    {
+        return code.startsWith("2") ? code : "0" + code;
     }
 
     private void checkDataSet(DataSet dataSet) throws IOException
