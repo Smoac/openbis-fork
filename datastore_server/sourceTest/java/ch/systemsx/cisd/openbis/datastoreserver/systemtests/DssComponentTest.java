@@ -29,7 +29,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -79,7 +78,7 @@ public class DssComponentTest extends SystemTestCase
     
     private List<String> registeredDataSets = new ArrayList<String>();
     
-    @AfterMethod
+//    @AfterMethod
     public void deleteRegisteredDataSets()
     {
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
@@ -426,9 +425,22 @@ public class DssComponentTest extends SystemTestCase
                 @Override
                 public int compare(SimpleDataSetInformationDTO d1, SimpleDataSetInformationDTO d2)
                 {
-                    return d2.getDataSetCode().compareTo(d1.getDataSetCode());
+                    String d2Code = normalize(d2.getDataSetCode());
+                    String d1Code = normalize(d1.getDataSetCode());
+                    return d2Code.compareTo(d1Code);
+                }
+                
+                private String normalize(String code)
+                {
+                    return code.startsWith("2") ? code : "0" + code;
                 }
             });
+        System.out.println("==== data sets:");
+        for (SimpleDataSetInformationDTO ds : dataSets)
+        {
+            System.out.println(ds.getDataSetCode());
+        }
+        System.out.println("====");
         return dataSets.get(0);
     }
 
