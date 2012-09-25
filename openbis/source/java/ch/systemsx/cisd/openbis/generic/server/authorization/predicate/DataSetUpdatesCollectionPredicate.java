@@ -73,6 +73,12 @@ public class DataSetUpdatesCollectionPredicate extends
     protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
             List<? extends DataSetUpdatesDTO> value)
     {
+        // Skip all further checks if the person has instance-wide write permissions.
+        if (hasInstanceWritePermissions(person, allowedRoles).isOK())
+        {
+            return Status.OK;
+        }
+
         List<TechId> techIds = new ArrayList<TechId>();
         List<SampleOwnerIdentifier> sampleIdentifiers = new ArrayList<SampleOwnerIdentifier>();
         for (DataSetUpdatesDTO dataSetUpdates : value)

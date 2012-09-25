@@ -83,6 +83,12 @@ public class SampleOwnerIdentifierPredicate extends AbstractPredicate<SampleOwne
     public Status performEvaluation(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles, final SampleOwnerIdentifier value)
     {
+        // Skip all further checks if the person has instance-wide write permissions.
+        if (hasInstanceWritePermissions(person, allowedRoles).isOK())
+        {
+            return Status.OK;
+        }
+
         if (value.isDatabaseInstanceLevel())
         {
             return databaseInstanceIdentifierPredicate.doEvaluation(person, allowedRoles,

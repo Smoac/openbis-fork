@@ -59,6 +59,12 @@ public class NewExternalDataPredicate extends AbstractPredicate<NewExternalData>
     protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
             NewExternalData value)
     {
+        // Skip all further checks if the person has instance-wide write permissions.
+        if (hasInstanceWritePermissions(person, allowedRoles).isOK())
+        {
+            return Status.OK;
+        }
+
         SampleIdentifier sampleIdentifier = value.getSampleIdentifierOrNull();
         if (sampleIdentifier != null)
         {

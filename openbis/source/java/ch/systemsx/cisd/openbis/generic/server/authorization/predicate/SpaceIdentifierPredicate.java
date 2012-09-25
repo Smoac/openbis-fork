@@ -57,6 +57,12 @@ public class SpaceIdentifierPredicate extends AbstractSpacePredicate<SpaceIdenti
     protected Status doEvaluation(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles, final SpaceIdentifier spaceIdentifier)
     {
+        // Skip all further checks if the person has instance-wide write permissions.
+        if (hasInstanceWritePermissions(person, allowedRoles).isOK())
+        {
+            return Status.OK;
+        }
+
         assert initialized : "Predicate has not been initialized";
         final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceIdentifier);
         final DatabaseInstancePE databaseInstance = getDatabaseInstance(spaceIdentifier);

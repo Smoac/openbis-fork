@@ -70,6 +70,12 @@ public class SampleUpdatesCollectionPredicate extends AbstractPredicate<List<Sam
     protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
             List<SampleUpdatesDTO> value)
     {
+        // Skip all further checks if the person has instance-wide write permissions.
+        if (hasInstanceWritePermissions(person, allowedRoles).isOK())
+        {
+            return Status.OK;
+        }
+
         List<TechId> techIds = new ArrayList<TechId>(value.size());
         List<SampleOwnerIdentifier> sampleIdentifiers =
                 new ArrayList<SampleOwnerIdentifier>(value.size());
