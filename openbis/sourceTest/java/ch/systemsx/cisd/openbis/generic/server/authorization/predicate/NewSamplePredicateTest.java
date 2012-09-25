@@ -23,7 +23,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -68,7 +67,7 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
 
-        Status status = predicate.evaluate(createPerson(), createRoles(true), sample);
+        Status status = predicate.evaluate(createPerson(), createRoles(false), sample);
 
         assertEquals(true, status.isError());
         assertEquals("User 'megapixel' does not have enough privileges to modify "
@@ -112,8 +111,8 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         Status status = predicate.evaluate(createPerson(), createRoles(false), sample);
 
         assertEquals(true, status.isError());
-        assertEquals("User 'megapixel' does not have enough privileges.", status
-                .tryGetErrorMessage());
+        assertEquals("User 'megapixel' does not have enough privileges.",
+                status.tryGetErrorMessage());
         context.assertIsSatisfied();
     }
 }

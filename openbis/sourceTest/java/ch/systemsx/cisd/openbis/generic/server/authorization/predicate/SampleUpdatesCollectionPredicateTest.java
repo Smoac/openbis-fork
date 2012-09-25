@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleUpdatesCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE.SampleOwnerType;
@@ -151,7 +150,7 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
             });
 
         Status result =
-                predicate.evaluate(createPerson(), createRoles(true), Arrays.asList(sampleWithId,
+                predicate.evaluate(createPerson(), createRoles(false), Arrays.asList(sampleWithId,
                         sampleWithIdAndExperiment, sampleWithIdAndIdentifer));
 
         assertEquals("ERROR: \"User 'megapixel' does not have enough privileges.\"",
