@@ -1393,9 +1393,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         try
         {
             final Session session = getSession(sessionToken);
+            final String userId = operationDetails.tryUserIdOrNull();
+            boolean authorize = (userId != null);
             Session sessionForEntityOperation = session;
-            String userId = operationDetails.tryUserIdOrNull();
-            if (userId != null)
+            if (authorize)
             {
                 sessionTokenForEntityOperation =
                         sessionManagerForEntityOperation.tryToOpenSession(userId, "dummy password");
@@ -1405,34 +1406,44 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             }
 
             long spacesCreated =
-                    createSpaces(sessionForEntityOperation, operationDetails, progressListener);
+                    createSpaces(sessionForEntityOperation, operationDetails, progressListener,
+                            authorize);
 
             long materialsCreated =
-                    createMaterials(sessionForEntityOperation, operationDetails, progressListener);
+                    createMaterials(sessionForEntityOperation, operationDetails, progressListener,
+                            authorize);
 
             long projectsCreated =
-                    createProjects(sessionForEntityOperation, operationDetails, progressListener);
+                    createProjects(sessionForEntityOperation, operationDetails, progressListener,
+                            authorize);
 
             long experimentsCreated =
-                    createExperiments(sessionForEntityOperation, operationDetails, progressListener);
+                    createExperiments(sessionForEntityOperation, operationDetails,
+                            progressListener, authorize);
 
             long experimentsUpdates =
-                    updateExperiments(sessionForEntityOperation, operationDetails, progressListener);
+                    updateExperiments(sessionForEntityOperation, operationDetails,
+                            progressListener, authorize);
 
             long samplesCreated =
-                    createSamples(sessionForEntityOperation, operationDetails, progressListener);
+                    createSamples(sessionForEntityOperation, operationDetails, progressListener,
+                            authorize);
 
             long samplesUpdated =
-                    updateSamples(sessionForEntityOperation, operationDetails, progressListener);
+                    updateSamples(sessionForEntityOperation, operationDetails, progressListener,
+                            authorize);
 
             long dataSetsCreated =
-                    createDataSets(sessionForEntityOperation, operationDetails, progressListener);
+                    createDataSets(sessionForEntityOperation, operationDetails, progressListener,
+                            authorize);
 
             long dataSetsUpdated =
-                    updateDataSets(sessionForEntityOperation, operationDetails, progressListener);
+                    updateDataSets(sessionForEntityOperation, operationDetails, progressListener,
+                            authorize);
 
             long materialsUpdates =
-                    updateMaterials(sessionForEntityOperation, operationDetails, progressListener);
+                    updateMaterials(sessionForEntityOperation, operationDetails, progressListener,
+                            authorize);
 
             // If the id is not null, the caller wants to persist the fact that the operation was
             // invoked and completed;
@@ -1482,11 +1493,14 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private long createSpaces(Session session, AtomicEntityOperationDetails operationDetails,
-            IServiceConversationProgressListener progress)
+            IServiceConversationProgressListener progress, boolean authorize)
     {
         ArrayList<SpacePE> spacePEsCreated = new ArrayList<SpacePE>();
         List<NewSpace> newSpaces = operationDetails.getSpaceRegistrations();
-        assertSpaceCreationAllowed(session, newSpaces);
+        if (authorize)
+        {
+            checkSpaceCreationAllowed(session, newSpaces);
+        }
 
         int index = 0;
         for (NewSpace newSpace : newSpaces)
@@ -1499,7 +1513,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return index;
     }
 
-    protected void assertSpaceCreationAllowed(Session session, List<NewSpace> newSpaces)
+    protected void checkSpaceCreationAllowed(Session session, List<NewSpace> newSpaces)
     {
         if (newSpaces != null && newSpaces.isEmpty() == false)
         {
@@ -1508,13 +1522,16 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private long createMaterials(Session session, AtomicEntityOperationDetails operationDetails,
-            IServiceConversationProgressListener progress)
+            IServiceConversationProgressListener progress, boolean authorize)
     {
         MaterialHelper materialHelper =
                 new MaterialHelper(session, businessObjectFactory, getDAOFactory(),
                         getPropertiesBatchManager());
         Map<String, List<NewMaterial>> materialRegs = operationDetails.getMaterialRegistrations();
-        assertMaterialCreationAllowed(session, materialRegs);
+        if (authorize)
+        {
+            checkMaterialCreationAllowed(session, materialRegs);
+        }
         int index = 0;
         for (Entry<String, List<NewMaterial>> newMaterialsEntry : materialRegs.entrySet())
         {
@@ -1527,7 +1544,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private long updateMaterials(Session session, AtomicEntityOperationDetails operationDetails,
-            IServiceConversationProgressListener progress)
+            IServiceConversationProgressListener progress, boolean authorize)
     {
         MaterialHelper materialHelper =
                 new MaterialHelper(session, businessObjectFactory, getDAOFactory(),
@@ -1535,7 +1552,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
         List<MaterialUpdateDTO> allMaterialUpdates = operationDetails.getMaterialUpdates();
 
-        assertMaterialUpdateAllowed(session, allMaterialUpdates);
+        if (authorize)
+        {
+            checkMaterialUpdateAllowed(session, allMaterialUpdates);
+        }
 
         materialHelper.updateMaterials(allMaterialUpdates);
 
@@ -1544,7 +1564,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return allMaterialUpdates.size();
     }
 
-    protected void assertMaterialCreationAllowed(Session session,
+    protected void checkMaterialCreationAllowed(Session session,
             Map<String, List<NewMaterial>> materials)
     {
         if (materials != null && materials.isEmpty() == false)
@@ -1553,7 +1573,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         }
     }
 
-    protected void assertMaterialUpdateAllowed(Session session,
+    protected void checkMaterialUpdateAllowed(Session session,
             List<MaterialUpdateDTO> materialUpdates)
     {
         if (materialUpdates != null && materialUpdates.isEmpty() == false)
@@ -1595,11 +1615,14 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private long createProjects(Session session, AtomicEntityOperationDetails operationDetails,
-            IServiceConversationProgressListener progress)
+            IServiceConversationProgressListener progress, boolean authorize)
     {
         ArrayList<ProjectPE> projectPEsCreated = new ArrayList<ProjectPE>();
         List<NewProject> newProjects = operationDetails.getProjectRegistrations();
-        assertProjectCreationAllowed(session, newProjects);
+        if (authorize)
+        {
+            checkProjectCreationAllowed(session, newProjects);
+        }
         int index = 0;
         for (NewProject newProject : newProjects)
         {
@@ -1611,7 +1634,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return index;
     }
 
-    protected void assertProjectCreationAllowed(Session session, List<NewProject> newProjects)
+    protected void checkProjectCreationAllowed(Session session, List<NewProject> newProjects)
     {
         if (newProjects != null && newProjects.isEmpty() == false)
         {
@@ -1637,7 +1660,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private long createSamples(Session session, AtomicEntityOperationDetails operationDetails,
-            IServiceConversationProgressListener progress)
+            IServiceConversationProgressListener progress, boolean authorize)
     {
         List<NewSample> newSamples = operationDetails.getSampleRegistrations();
         List<NewSample> containerSamples = new ArrayList<NewSample>();
@@ -1663,8 +1686,11 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             }
         }
 
-        assertInstanceSampleCreationAllowed(session, instanceSamples);
-        assertSpaceSampleCreationAllowed(session, spaceSamples);
+        if (authorize)
+        {
+            checkInstanceSampleCreationAllowed(session, instanceSamples);
+            checkSpaceSampleCreationAllowed(session, spaceSamples);
+        }
 
         String userIdOrNull = operationDetails.tryUserIdOrNull();
         PersonPE registratorOrNull = tryFindPersonForUserIdOrEmail(userIdOrNull);
@@ -1685,7 +1711,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return newSamples.size();
     }
 
-    private void assertInstanceSampleCreationAllowed(Session session,
+    private void checkInstanceSampleCreationAllowed(Session session,
             List<NewSample> instanceSamples)
     {
         if (instanceSamples.isEmpty() == false)
@@ -1694,7 +1720,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         }
     }
 
-    private void assertSpaceSampleCreationAllowed(Session session, List<NewSample> spaceSamples)
+    private void checkSpaceSampleCreationAllowed(Session session, List<NewSample> spaceSamples)
     {
         if (spaceSamples.isEmpty() == false)
         {
@@ -1704,7 +1730,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     private long updateSamples(final Session session,
             AtomicEntityOperationDetails operationDetails,
-            IServiceConversationProgressListener progress)
+            IServiceConversationProgressListener progress, boolean authorize)
     {
         List<SampleUpdatesDTO> sampleUpdates = operationDetails.getSampleUpdates();
         int sampleUpdateCount = sampleUpdates.size();
@@ -1713,7 +1739,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             return 0;
         }
         progress.update("authorizingSampleUpdates", sampleUpdateCount, 0);
-        assertSampleUpdatesAllowed(session, sampleUpdates);
+        if (authorize)
+        {
+            checkSampleUpdatesAllowed(session, sampleUpdates);
+        }
         progress.update("authorizingSampleUpdates", sampleUpdateCount, sampleUpdateCount);
         final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
 
@@ -1727,7 +1756,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return sampleUpdateCount;
     }
 
-    private void assertSampleUpdatesAllowed(final Session session,
+    private void checkSampleUpdatesAllowed(final Session session,
             List<SampleUpdatesDTO> sampleUpdates)
     {
         List<SampleUpdatesDTO> instanceSamples = new ArrayList<SampleUpdatesDTO>();
@@ -1743,11 +1772,11 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                 spaceSamples.add(sampleUpdate);
             }
         }
-        assertInstanceSampleUpdateAllowed(session, instanceSamples);
-        assertSpaceSampleUpdateAllowed(session, spaceSamples);
+        checkInstanceSampleUpdateAllowed(session, instanceSamples);
+        checkSpaceSampleUpdateAllowed(session, spaceSamples);
     }
 
-    private void assertInstanceSampleUpdateAllowed(Session session,
+    private void checkInstanceSampleUpdateAllowed(Session session,
             List<SampleUpdatesDTO> instanceSamples)
     {
         if (instanceSamples.isEmpty() == false)
@@ -1756,7 +1785,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         }
     }
 
-    private void assertSpaceSampleUpdateAllowed(Session session, List<SampleUpdatesDTO> spaceSamples)
+    private void checkSpaceSampleUpdateAllowed(Session session, List<SampleUpdatesDTO> spaceSamples)
     {
         if (spaceSamples.isEmpty() == false)
         {
@@ -1769,14 +1798,17 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
      * order
      */
     private long createDataSets(Session session, AtomicEntityOperationDetails operationDetails,
-            IServiceConversationProgressListener progress)
+            IServiceConversationProgressListener progress, boolean authorize)
     {
         ArrayList<DataPE> dataSetsCreated = new ArrayList<DataPE>();
         List<? extends NewExternalData> dataSetRegistrations =
                 operationDetails.getDataSetRegistrations();
-        assertDataSetCreationAllowed(session, dataSetRegistrations);
-        NewExternalDataDAG dag = new NewExternalDataDAG(dataSetRegistrations);
-        List<? extends NewExternalData> orderedRegistrations = dag.getOrderedRegistrations();
+        if (authorize)
+        {
+            checkDataSetCreationAllowed(session, dataSetRegistrations);
+        }
+        final NewExternalDataDAG dag = new NewExternalDataDAG(dataSetRegistrations);
+        final List<? extends NewExternalData> orderedRegistrations = dag.getOrderedRegistrations();
 
         int index = 0;
         for (NewExternalData dataSet : orderedRegistrations)
@@ -1787,7 +1819,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return index;
     }
 
-    private void assertDataSetCreationAllowed(Session session,
+    private void checkDataSetCreationAllowed(Session session,
             List<? extends NewExternalData> dataSets)
     {
         if (dataSets != null && dataSets.isEmpty() == false)
@@ -1798,17 +1830,20 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     private long updateDataSets(final Session session,
             AtomicEntityOperationDetails operationDetails,
-            IServiceConversationProgressListener progress)
+            IServiceConversationProgressListener progress, boolean authorize)
     {
-        List<DataSetBatchUpdatesDTO> dataSetUpdates = operationDetails.getDataSetUpdates();
-        int dataSetUpdatesCount = dataSetUpdates.size();
+        final List<DataSetBatchUpdatesDTO> dataSetUpdates = operationDetails.getDataSetUpdates();
+        final int dataSetUpdatesCount = dataSetUpdates.size();
         if (dataSetUpdatesCount < 1)
         {
             return 0;
         }
 
         progress.update("authorizingDataSetUpdates", dataSetUpdatesCount, 0);
-        assertDataSetUpdateAllowed(session, dataSetUpdates);
+        if (authorize)
+        {
+            checkDataSetUpdateAllowed(session, dataSetUpdates);
+        }
         progress.update("authorizingDataSetUpdates", dataSetUpdatesCount, dataSetUpdatesCount);
         final IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
 
@@ -1823,7 +1858,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return dataSetUpdatesCount;
     }
 
-    private void assertDataSetUpdateAllowed(Session session, List<DataSetBatchUpdatesDTO> dataSets)
+    private void checkDataSetUpdateAllowed(Session session, List<DataSetBatchUpdatesDTO> dataSets)
     {
         if (dataSets != null && dataSets.isEmpty() == false)
         {
@@ -1848,9 +1883,15 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private long createExperiments(Session session, AtomicEntityOperationDetails operationDetails,
-            IServiceConversationProgressListener progress)
+            IServiceConversationProgressListener progress, boolean authorize)
     {
-        List<NewExperiment> experimentRegistrations = operationDetails.getExperimentRegistrations();
+        final List<NewExperiment> experimentRegistrations =
+                operationDetails.getExperimentRegistrations();
+        if (authorize)
+        {
+            entityOperationChecker
+                    .assertExperimentCreationAllowed(session, experimentRegistrations);
+        }
         int index = 0;
         for (NewExperiment experiment : experimentRegistrations)
         {
@@ -1868,13 +1909,16 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     private long updateExperiments(Session session, AtomicEntityOperationDetails operationDetails,
-            IServiceConversationProgressListener progress)
+            IServiceConversationProgressListener progress, boolean authorize)
     {
         List<ExperimentUpdatesDTO> updates = operationDetails.getExperimentUpdates();
 
         for (ExperimentUpdatesDTO update : updates)
         {
-            entityOperationChecker.assertExperimentUpdateAllowed(session, update);
+            if (authorize)
+            {
+                entityOperationChecker.assertExperimentUpdateAllowed(session, update);
+            }
             updateExperiment(session, update);
         }
 
