@@ -66,8 +66,8 @@ public abstract class BaseServiceConversationServerManager implements
                             } else
                             {
                                 // try to report progress 10 times within the timeout time,
-                                // but keep the interval in range(1, 60) seconds
-                                return Math.min(Math.max(clientDetails.getTimeout() / 10, 1000),
+                                // but keep the interval in range(1ms, 60sec)
+                                return Math.min(Math.max(clientDetails.getTimeout() / 10, 1),
                                         60 * 1000);
                             }
                         }

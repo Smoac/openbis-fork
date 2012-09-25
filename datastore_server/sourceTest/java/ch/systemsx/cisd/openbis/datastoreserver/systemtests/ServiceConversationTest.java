@@ -24,8 +24,13 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.api.Action;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.DoAllAction;
+import org.jmock.lib.action.ReturnValueAction;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.remoting.RemoteAccessException;
@@ -45,6 +50,7 @@ import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.conversation.annotation.Conversational;
 import ch.systemsx.cisd.common.conversation.annotation.Progress;
 import ch.systemsx.cisd.common.conversation.client.ServiceConversationClientDetails;
+import ch.systemsx.cisd.common.conversation.context.ServiceConversationsThreadContext;
 import ch.systemsx.cisd.common.conversation.manager.BaseServiceConversationClientManager;
 import ch.systemsx.cisd.common.conversation.manager.BaseServiceConversationServerManager;
 import ch.systemsx.cisd.common.conversation.manager.IServiceConversationClientManagerRemote;
@@ -179,6 +185,20 @@ public class ServiceConversationTest
     }
 
     @Test
+    public void testMethodWithNullReturnValue()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(serviceOnServerSideWrapper1.getService()).methodWithObjectReturnValue();
+                    will(returnValue(null));
+                }
+            });
+        Assert.assertNull(getServiceOnClientSide1(TestService1.class).methodWithObjectReturnValue());
+        assertNoMoreConversations();
+    }
+
+    @Test
     public void testMethodWithPrimitiveReturnValue()
     {
         context.checking(new Expectations()
@@ -231,6 +251,19 @@ public class ServiceConversationTest
     }
 
     @Test
+    public void testMethodWithNullParameter()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(serviceOnServerSideWrapper2.getService()).methodWithObjectParameter(null);
+                }
+            });
+        getServiceOnClientSide1(TestService2.class).methodWithObjectParameter(null);
+        assertNoMoreConversations();
+    }
+
+    @Test
     public void testMethodWithPrimitiveParameter()
     {
         context.checking(new Expectations()
@@ -270,24 +303,75 @@ public class ServiceConversationTest
         }
     }
 
+    @Test
+    public void testMethodWithAutomaticProgressShouldNotTimeout()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(serviceOnServerSideWrapper1.getService()).methodWithAutomaticProgress();
+                    will(new DoAllAction(new WaitAction(2 * TIMEOUT), new ReturnValueAction(1)));
+
+                }
+            });
+        Assert.assertEquals(getServiceOnClientSide1(TestService1.class)
+                .methodWithAutomaticProgress(), 1);
+        assertNoMoreConversations();
+    }
+
     @Test(expectedExceptions = TimeoutExceptionUnchecked.class)
-    public void testTimeout()
+    public void testMethodWithManualProgressShouldTimeoutWhenProgressIsNotReported()
     {
         try
         {
             context.checking(new Expectations()
                 {
                     {
-                        one(serviceOnServerSideWrapper1.getService()).methodWithoutReturnValue();
+                        one(serviceOnServerSideWrapper1.getService()).methodWithManualProgress();
                         will(new WaitAction(2 * TIMEOUT));
                     }
                 });
-            getServiceOnClientSide1(TestService1.class).methodWithoutReturnValue();
+            getServiceOnClientSide1(TestService1.class).methodWithManualProgress();
         } finally
         {
             // wait for the server to wake up and clean up the conversation
             assertNoMoreConversations(TIMEOUT);
         }
+    }
+
+    @Test
+    public void testMethodWithManualProgressShouldNotTimeoutWhenProgressIsReported()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(serviceOnServerSideWrapper1.getService()).methodWithManualProgress();
+                    will(new Action()
+                        {
+
+                            @Override
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                for (int i = 1; i <= 10; i++)
+                                {
+                                    ServiceConversationsThreadContext.getProgressListener().update(
+                                            "manualProgress", 10, i);
+                                    ConcurrencyUtilities.sleep(TIMEOUT / 2);
+                                }
+                                return null;
+                            }
+
+                            @Override
+                            public void describeTo(Description description)
+                            {
+                                description
+                                        .appendText("processing method with manual progress reporting");
+                            }
+                        });
+                }
+            });
+        getServiceOnClientSide1(TestService1.class).methodWithManualProgress();
+        assertNoMoreConversations(5 * TIMEOUT);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
@@ -507,6 +591,12 @@ public class ServiceConversationTest
         public Object methodWithObjectReturnValue();
 
         @Conversational(progress = Progress.MANUAL)
+        public Object methodWithManualProgress();
+
+        @Conversational(progress = Progress.AUTOMATIC)
+        public Object methodWithAutomaticProgress();
+
+        @Conversational(progress = Progress.MANUAL)
         public Object echo(Object parameter);
 
     }
@@ -565,6 +655,18 @@ public class ServiceConversationTest
         public Object methodWithObjectReturnValue()
         {
             return service.methodWithObjectReturnValue();
+        }
+
+        @Override
+        public Object methodWithManualProgress()
+        {
+            return service.methodWithManualProgress();
+        }
+
+        @Override
+        public Object methodWithAutomaticProgress()
+        {
+            return service.methodWithAutomaticProgress();
         }
 
         @Override
