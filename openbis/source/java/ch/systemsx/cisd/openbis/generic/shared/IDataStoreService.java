@@ -60,7 +60,7 @@ public interface IDataStoreService
      * @return locations (as strings) of known data sets
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
-    @Conversational(progress = Progress.AUTOMATIC)
+    @Conversational(progress = Progress.MANUAL)
     public List<String> getKnownDataSets(String sessionToken,
             List<? extends IDatasetLocation> dataSets, boolean ignoreNonExistingLocation)
             throws InvalidAuthenticationException;
