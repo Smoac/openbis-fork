@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
+import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.TreeGrid;
 
 public class ExperimentBrowser implements Browser<Experiment>
@@ -32,6 +33,7 @@ public class ExperimentBrowser implements Browser<Experiment>
     @Locate("openbis_select-project")
     private TreeGrid projectTree;
 
+    @SuppressWarnings("unused")
     @Locate("openbis_experiment-browser-grid-grid")
     private Grid grid;
 
@@ -42,9 +44,13 @@ public class ExperimentBrowser implements Browser<Experiment>
     @Locate("deletion-confirmation-dialog")
     private DeletionConfirmationBox deletionDialog;
 
+    @Lazy
+    @Locate("openbis_experiment-browser-grid-grid-paging-toolbar")
+    private PagingToolBar paging;
+
     public boolean selectProject(final Project project)
     {
-        return new WaitForRefreshOf<Boolean>(grid).after(new Action<Boolean>()
+        return new WaitForRefreshOf<Boolean>(paging).after(new Action<Boolean>()
             {
                 @Override
                 public Boolean execute()
@@ -57,7 +63,7 @@ public class ExperimentBrowser implements Browser<Experiment>
                 {
                     return result;
                 }
-            }).withTimeoutOf(10);
+            }).withTimeoutOf(20);
     }
 
     public void deleteAll()

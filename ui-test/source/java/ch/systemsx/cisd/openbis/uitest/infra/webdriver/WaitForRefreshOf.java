@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.uitest.infra.webdriver;
 
 import java.util.concurrent.TimeUnit;
 
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.support.ui.FluentWait;
 
 import com.google.common.base.Predicate;
@@ -30,14 +31,12 @@ import ch.systemsx.cisd.openbis.uitest.widget.Refreshable;
 public class WaitForRefreshOf<T> extends FluentWait<Refreshable>
 {
 
-    private final String state;
-
     private Action<T> action;
 
     public WaitForRefreshOf(Refreshable widget)
     {
         super(widget);
-        this.state = widget.getState();
+        widget.prepareWait();
     }
 
     @SuppressWarnings("hiding")
@@ -52,16 +51,24 @@ public class WaitForRefreshOf<T> extends FluentWait<Refreshable>
         T result = action.execute();
         if (action.shouldWait(result))
         {
-            withTimeout(seconds, TimeUnit.SECONDS)
-                    .pollingEvery(100, TimeUnit.MILLISECONDS)
-                    .until(new Predicate<Refreshable>()
-                        {
-                            @Override
-                            public boolean apply(Refreshable widget)
+            try
+            {
+                withTimeout(seconds, TimeUnit.SECONDS)
+                        .pollingEvery(100, TimeUnit.MILLISECONDS)
+                        .until(new Predicate<Refreshable>()
                             {
-                                return !state.equals(widget.getState());
-                            }
-                        });
+                                @Override
+                                public boolean apply(Refreshable widget)
+                                {
+                                    return widget.hasRefreshed();
+                                }
+                            });
+
+            } catch (TimeoutException e)
+            {
+                System.out.println("TIMEOUT");
+                throw e;
+            }
         }
         return result;
     }

@@ -71,7 +71,7 @@ public class PropertyTypeBrowser implements Browser<PropertyType>
     public void filter(PropertyType propertyType)
     {
         paging.filters();
-        filters.setCode(propertyType.getCode(), grid);
+        filters.setCode(propertyType.getCode(), paging);
     }
 
     @Override

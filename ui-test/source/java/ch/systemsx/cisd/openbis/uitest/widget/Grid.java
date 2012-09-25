@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 /**
  * @author anttil
  */
-public class Grid implements Widget, Refreshable
+public class Grid implements Widget
 {
 
     private WidgetContext context;
@@ -131,12 +131,6 @@ public class Grid implements Widget, Refreshable
             }
         }
         return s;
-    }
-
-    @Override
-    public synchronized String getState()
-    {
-        return "" + this.getCells().size() + "/" + this.getColumns().size();
     }
 
     @Override

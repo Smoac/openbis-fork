@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 /**
  * @author anttil
  */
-public class PagingToolBar implements Widget
+public class PagingToolBar implements Widget, Refreshable
 {
 
     private WidgetContext context;
@@ -39,5 +39,22 @@ public class PagingToolBar implements Widget
     public void setContext(WidgetContext context)
     {
         this.context = context;
+    }
+
+    String displayText;
+
+    @Override
+    public void prepareWait()
+    {
+        displayText = context.find(".//div[contains(@class, 'my-paging-display')]").getText();
+    }
+
+    @Override
+    public boolean hasRefreshed()
+    {
+        String currentText =
+                context.find(".//div[contains(@class, 'my-paging-display')]").getText();
+        System.out.println("comparing " + displayText + " with " + currentText);
+        return (this.displayText.equals(currentText) == false);
     }
 }

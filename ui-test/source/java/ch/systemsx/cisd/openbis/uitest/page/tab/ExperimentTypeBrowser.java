@@ -79,7 +79,7 @@ public class ExperimentTypeBrowser implements Browser<ExperimentType>
     public void filter(final ExperimentType type)
     {
         paging.filters();
-        filters.setCode(type.getCode(), grid);
+        filters.setCode(type.getCode(), paging);
     }
 
     @Override

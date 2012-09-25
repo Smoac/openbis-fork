@@ -75,7 +75,7 @@ public class SpaceBrowser implements Browser<Space>
     public void filter(final Space space)
     {
         paging.filters();
-        filters.setCode(space.getCode(), grid);
+        filters.setCode(space.getCode(), paging);
     }
 
     @Override

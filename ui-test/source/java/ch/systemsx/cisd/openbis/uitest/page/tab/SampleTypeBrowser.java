@@ -82,7 +82,7 @@ public class SampleTypeBrowser implements Browser<SampleType>
     public void filter(SampleType type)
     {
         paging.filters();
-        filters.setCode(type.getCode(), grid);
+        filters.setCode(type.getCode(), paging);
     }
 
     @Override

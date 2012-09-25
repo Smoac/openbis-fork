@@ -60,7 +60,7 @@ public class PropertyTypeAssignmentBrowser implements Browser<PropertyTypeAssign
     public void filter(PropertyTypeAssignment assignment)
     {
         paging.filters();
-        filters.setCode(assignment.getPropertyType().getCode(), grid);
+        filters.setCode(assignment.getPropertyType().getCode(), paging);
     }
 
     @Override

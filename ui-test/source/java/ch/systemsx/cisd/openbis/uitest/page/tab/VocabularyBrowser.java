@@ -74,7 +74,7 @@ public class VocabularyBrowser implements Browser<Vocabulary>
     public void filter(Vocabulary vocabulary)
     {
         paging.filters();
-        filters.setCode(vocabulary.getCode(), grid);
+        filters.setCode(vocabulary.getCode(), paging);
     }
 
     @Override

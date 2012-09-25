@@ -19,19 +19,10 @@
 	
 	<target name="run-tests-ui" depends="compile-tests">
 		<delete dir="${output.test}" />
-		
 		<antcall target="_run-testng-ui">
 			<param name="test.suite" value="${test.suite}" />
 			<param name="failure.property" value="tests.failed" />
 		</antcall>
-				
-		<junitreport todir="${output.test}">
-			<fileset dir="${output.test}">
-				<include name="*/*.xml" />
-			</fileset>
-			<report format="noframes" todir="${output.test}" />
-		</junitreport>
-		<fail if="tests.failed" message="At least one test failed." />
 	</target>
 	
 	<target name="_run-testng-ui">
@@ -44,11 +35,13 @@
 		        workingDir="."
 		        outputdir="${output.test}"
 		        failureproperty="${failure.property}">
-			<xmlfileset dir="${sources.test}" includes="${test.suite}" />
+			<xmlfileset dir="source/java" includes="${test.suite}" />
 			<jvmarg value="-Xmx1024M" />
 			<jvmarg value="-XX:MaxPermSize=512m" />
 	  	<jvmarg value="-Dui-test.url=${internal-url}" />
 		</testng>
+
+		<fail if="${failure.property}" />
 		
 	</target>
 

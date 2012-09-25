@@ -28,11 +28,11 @@ public class FilterToolBar implements Widget
 
     private WidgetContext context;
 
-    public void setCode(final String text, Grid refreshingGrid)
+    public void setCode(final String text, Refreshable refresher)
     {
         final Text t = context.find(".//input[contains(@id, 'Code-input')]", Text.class);
 
-        new WaitForRefreshOf<Void>(refreshingGrid)
+        new WaitForRefreshOf<Void>(refresher)
                 .after(new DeterminateAction<Void>()
                     {
                         @Override
@@ -41,7 +41,7 @@ public class FilterToolBar implements Widget
                             t.write(text);
                             return null;
                         }
-                    }).withTimeoutOf(10);
+                    }).withTimeoutOf(20);
 
     }
 

@@ -67,7 +67,7 @@ public class ProjectBrowser implements Browser<Project>
     public void filter(Project project)
     {
         paging.filters();
-        filters.setCode(project.getCode(), grid);
+        filters.setCode(project.getCode(), paging);
     }
 
     @Override

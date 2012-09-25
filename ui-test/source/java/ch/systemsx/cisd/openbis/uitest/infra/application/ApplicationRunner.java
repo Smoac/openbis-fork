@@ -151,6 +151,7 @@ public class ApplicationRunner
         {
             browser.delete();
         }
+        browser.resetFilters();
     }
 
     public void delete(Vocabulary vocabulary)
