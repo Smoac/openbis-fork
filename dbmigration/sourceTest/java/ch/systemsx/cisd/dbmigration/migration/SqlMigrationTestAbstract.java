@@ -42,7 +42,7 @@ import ch.systemsx.cisd.dbmigration.postgresql.DumpPreparator;
 public abstract class SqlMigrationTestAbstract
 {
 
-    private static final int CHECK_NUMBER_OF_MIGRATIONS = 4;
+    private static final int CHECK_NUMBER_OF_MIGRATIONS = 30;
 
     private File sqlScriptOutputDirectory;
 

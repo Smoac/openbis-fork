@@ -4,8 +4,8 @@ alter table material_properties_history add column vocabulary_term identifier;
 alter table material_properties_history add column material identifier;
 update material_properties_history set vocabulary_term = (select (t.code || ' [' || v.code || ']') from controlled_vocabulary_terms as t join controlled_vocabularies as v on t.covo_id = v.id where t.id = cvte_id) where cvte_id is not null;
 update material_properties_history set material = (select (m.code || ' [' || mt.code || ']') from materials as m join material_types as mt on m.maty_id = mt.id where m.id = mate_prop_id) where mate_prop_id is not null;
-alter table material_properties_history drop column cvte_id;
-alter table material_properties_history drop column mate_prop_id;
+alter table material_properties_history drop column cvte_id cascade;
+alter table material_properties_history drop column mate_prop_id cascade;
 ALTER TABLE MATERIAL_PROPERTIES_HISTORY ADD CONSTRAINT MAPRH_CK CHECK 
 	((VALUE IS NOT NULL AND VOCABULARY_TERM IS NULL AND MATERIAL IS NULL) OR 
 	 (VALUE IS NULL AND VOCABULARY_TERM IS NOT NULL AND MATERIAL IS NULL) OR
@@ -16,8 +16,8 @@ alter table experiment_properties_history add column vocabulary_term identifier;
 alter table experiment_properties_history add column material identifier;
 update experiment_properties_history set vocabulary_term = (select (t.code || ' [' || v.code || ']') from controlled_vocabulary_terms as t join controlled_vocabularies as v on t.covo_id = v.id where t.id = cvte_id) where cvte_id is not null;
 update experiment_properties_history set material = (select (m.code || ' [' || mt.code || ']') from materials as m join material_types as mt on m.maty_id = mt.id where m.id = mate_prop_id) where mate_prop_id is not null;
-alter table experiment_properties_history drop column cvte_id;
-alter table experiment_properties_history drop column mate_prop_id;
+alter table experiment_properties_history drop column cvte_id cascade;
+alter table experiment_properties_history drop column mate_prop_id cascade;
 ALTER TABLE EXPERIMENT_PROPERTIES_HISTORY ADD CONSTRAINT EXPRH_CK CHECK 
 	((VALUE IS NOT NULL AND VOCABULARY_TERM IS NULL AND MATERIAL IS NULL) OR 
 	 (VALUE IS NULL AND VOCABULARY_TERM IS NOT NULL AND MATERIAL IS NULL) OR
@@ -28,8 +28,8 @@ alter table sample_properties_history add column vocabulary_term identifier;
 alter table sample_properties_history add column material identifier;
 update sample_properties_history set vocabulary_term = (select (t.code || ' [' || v.code || ']') from controlled_vocabulary_terms as t join controlled_vocabularies as v on t.covo_id = v.id where t.id = cvte_id) where cvte_id is not null;
 update sample_properties_history set material = (select (m.code || ' [' || mt.code || ']') from materials as m join material_types as mt on m.maty_id = mt.id where m.id = mate_prop_id) where mate_prop_id is not null;
-alter table sample_properties_history drop column cvte_id;
-alter table sample_properties_history drop column mate_prop_id;
+alter table sample_properties_history drop column cvte_id cascade;
+alter table sample_properties_history drop column mate_prop_id cascade;
 ALTER TABLE SAMPLE_PROPERTIES_HISTORY ADD CONSTRAINT SAPRH_CK CHECK 
 	((VALUE IS NOT NULL AND VOCABULARY_TERM IS NULL AND MATERIAL IS NULL) OR 
 	 (VALUE IS NULL AND VOCABULARY_TERM IS NOT NULL AND MATERIAL IS NULL) OR
@@ -40,8 +40,8 @@ alter table data_set_properties_history add column vocabulary_term identifier;
 alter table data_set_properties_history add column material identifier;
 update data_set_properties_history set vocabulary_term = (select (t.code || ' [' || v.code || ']') from controlled_vocabulary_terms as t join controlled_vocabularies as v on t.covo_id = v.id where t.id = cvte_id) where cvte_id is not null;
 update data_set_properties_history set material = (select (m.code || ' [' || mt.code || ']') from materials as m join material_types as mt on m.maty_id = mt.id where m.id = mate_prop_id) where mate_prop_id is not null;
-alter table data_set_properties_history drop column cvte_id;
-alter table data_set_properties_history drop column mate_prop_id;
+alter table data_set_properties_history drop column cvte_id cascade;
+alter table data_set_properties_history drop column mate_prop_id cascade;
 ALTER TABLE DATA_SET_PROPERTIES_HISTORY ADD CONSTRAINT DSPRH_CK CHECK 
 	((VALUE IS NOT NULL AND VOCABULARY_TERM IS NULL AND MATERIAL IS NULL) OR 
 	 (VALUE IS NULL AND VOCABULARY_TERM IS NOT NULL AND MATERIAL IS NULL) OR
