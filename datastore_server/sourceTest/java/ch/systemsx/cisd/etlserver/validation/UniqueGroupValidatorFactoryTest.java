@@ -93,7 +93,7 @@ public class UniqueGroupValidatorFactoryTest extends AssertJUnit
         } catch (ConfigurationFailureException ex)
         {
             exceptionThrown = true;
-            assertEquals("Property 'groups' is not specified.", ex.getMessage());
+            assertEquals("Given key 'groups' not found in properties '[groups, value-pattern]'", ex.getMessage());
         }
         assertTrue(exceptionThrown);
     }
