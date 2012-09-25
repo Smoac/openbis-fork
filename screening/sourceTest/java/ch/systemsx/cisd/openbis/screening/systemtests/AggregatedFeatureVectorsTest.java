@@ -16,8 +16,13 @@
 
 package ch.systemsx.cisd.openbis.screening.systemtests;
 
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.EXPERIMENT_PERM_ID;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.grids.FeatureVectorSummaryGridColumnIDs.MATERIAL_ID;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -34,10 +39,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -148,8 +155,14 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
                 expFeatureSummary.getMaterialsSummary().get(0);
         assertEquals("G (GENE)", materialFeatureSummary.getMaterial().toString());
         assertEquals(1, materialFeatureSummary.getNumberOfMaterialsInExperiment());
+        List<CodeAndLabel> featureDescriptions = expFeatureSummary.getFeatureDescriptions();
+        List<String> featureCodes = new ArrayList<String>();
+        for (CodeAndLabel codeAndLabel : featureDescriptions)
+        {
+            featureCodes.add(codeAndLabel.getCode());
+        }
         assertRanks("1, 1, 1, 1", materialFeatureSummary);
-        assertSummaries("3.5, 2.5, 15.0, 2.0", materialFeatureSummary);
+        assertSummaries("[A=15.0, B=2.0, X=3.5, Y=2.5]", featureCodes, materialFeatureSummary);
         assertEquals(1, expFeatureSummary.getMaterialsSummary().size());
     }
     
@@ -169,15 +182,49 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
         
         GridRowModels<TableModelRowWithObject<MaterialFeatureVectorSummary>> list =
                 resultSet.getList();
+        List<TableModelColumnHeader> columnHeaders = list.getColumnHeaders();
+        List<String> featureCodes = new ArrayList<String>();
+        for (TableModelColumnHeader tableModelColumnHeader : columnHeaders)
+        {
+            String title = tableModelColumnHeader.getTitle();
+            if (title != null && title.equals("Rank") == false)
+            {
+                featureCodes.add(title);
+            }
+        }
         TableModelRowWithObject<MaterialFeatureVectorSummary> row = list.get(0).getOriginalObject();
         MaterialFeatureVectorSummary materialFeatureSummary = row.getObjectOrNull();
         assertEquals("G (GENE)", materialFeatureSummary.getMaterial().toString());
         assertEquals(1, materialFeatureSummary.getNumberOfMaterialsInExperiment());
         assertRanks("1, 1, 1, 1", materialFeatureSummary);
-        assertSummaries("3.5, 2.5, 15.0, 2.0", materialFeatureSummary);
-        assertEquals("[G, " + experiment.getPermId() + ", 3.5, 1, 2.5, 1, 15.0, 1, 2.0, 1]", row
-                .getValues().toString());
+        assertSummaries("[A=15.0, B=2.0, X=3.5, Y=2.5]", featureCodes, materialFeatureSummary);
+        assertEquals("15.0", getValue("FEATURE_VALUE-A", columnHeaders, row).toString());
+        assertEquals("1", getValue("RANKA", columnHeaders, row).toString());
+        assertEquals("2.0", getValue("FEATURE_VALUE-B", columnHeaders, row).toString());
+        assertEquals("1", getValue("RANKB", columnHeaders, row).toString());
+        assertEquals("3.5", getValue("FEATURE_VALUE-X", columnHeaders, row).toString());
+        assertEquals("1", getValue("RANKX", columnHeaders, row).toString());
+        assertEquals("2.5", getValue("FEATURE_VALUE-Y", columnHeaders, row).toString());
+        assertEquals("1", getValue("RANKY", columnHeaders, row).toString());
+        assertEquals(experiment.getPermId(), getValue(EXPERIMENT_PERM_ID, columnHeaders, row).toString());
+        assertEquals("G", getValue(MATERIAL_ID, columnHeaders, row).toString());
         assertEquals(1, list.size());
+    }
+    
+    private ISerializableComparable getValue(String column,
+            List<TableModelColumnHeader> columnHeaders,
+            TableModelRowWithObject<MaterialFeatureVectorSummary> row)
+    {
+        List<String> columns = new ArrayList<String>();
+        for (TableModelColumnHeader header : columnHeaders)
+        {
+            columns.add(header.getId());
+            if (header.getId().equals(column))
+            {
+                return row.getValues().get(header.getIndex());
+            }
+        }
+        throw new AssertionError("Unknown column '" + column + "': " + columns);
     }
     
     @Test
@@ -278,19 +325,17 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
         assertEquals(expectedRanks, builder.toString());
     }
 
-    private void assertSummaries(String expectedSummaries, MaterialFeatureVectorSummary materialFeatureSummary)
+    private void assertSummaries(String expectedSummaries, List<String> featureCodes,
+            MaterialFeatureVectorSummary materialFeatureSummary)
     {
-        StringBuilder builder = new StringBuilder();
+        List<String> result = new ArrayList<String>();
         float[] summaries = materialFeatureSummary.getFeatureVectorSummary();
-        for (float number : summaries)
+        for (int i = 0; i < summaries.length; i++)
         {
-            if (builder.length() > 0)
-            {
-                builder.append(", ");
-            }
-            builder.append(number);
+            result.add(featureCodes.get(i) + "=" + summaries[i]);
         }
-        assertEquals(expectedSummaries, builder.toString());
+        Collections.sort(result);
+        assertEquals(expectedSummaries, result.toString());
     }
     
     private void assertFeatureSummary(String feature, double featureMedianValue,
