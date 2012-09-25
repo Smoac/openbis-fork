@@ -80,9 +80,15 @@ public class ScreeningConstants
     /** Prefix for types of the dataset which stores image analysis data. */
     public static final String HCS_ANALYSIS_DATASET_TYPE_PREFIX = "HCS_ANALYSIS_WELL";
 
+    /** Prefix for types of the dataset which stores image analysis data. */
+    public static final String HCS_ANALYSIS_CONTAINER_DATASET_TYPE_PREFIX =
+            "HCS_ANALYSIS_CONTAINER_WELL";
+
     /** Type of the dataset which stores image analysis data, there should be at most one. */
     public static final String HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN = "HCS_IMAGE_ANALYSIS_DATA|" // legacy
-            + (HCS_ANALYSIS_DATASET_TYPE_PREFIX + ".*");
+            + (HCS_ANALYSIS_DATASET_TYPE_PREFIX + ".*")
+            + "|"
+            + HCS_ANALYSIS_CONTAINER_DATASET_TYPE_PREFIX + ".*";
 
     // --- HCS sample types
 
