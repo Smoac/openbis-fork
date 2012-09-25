@@ -79,7 +79,7 @@ public abstract class SqlMigrationTestAbstract
     {
         SqlMigrationVersion newestVersion = new SqlMigrationVersion(newestVersionString);
         SqlMigrationVersion firstVersion =
-                new SqlMigrationVersion(newestVersion.getVersionInt() - CHECK_NUMBER_OF_MIGRATIONS);
+                new SqlMigrationVersion(Math.max(1, newestVersion.getVersionInt() - CHECK_NUMBER_OF_MIGRATIONS));
 
         DatabaseConfigurationContext migrationContext = null;
         DatabaseConfigurationContext scratchContext = null;
