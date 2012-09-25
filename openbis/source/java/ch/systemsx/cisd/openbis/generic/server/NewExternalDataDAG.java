@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import ch.systemsx.cisd.common.collections.DAG;
+import ch.systemsx.cisd.common.conversation.context.ServiceConversationsThreadContext;
+import ch.systemsx.cisd.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
@@ -78,6 +80,11 @@ public class NewExternalDataDAG
      */
     private void constructGraph()
     {
+        IServiceConversationProgressListener listener =
+                ServiceConversationsThreadContext.getProgressListener();
+
+        int index = 0;
+
         for (NewExternalData dataSet : dataSetRegistrations)
         {
             String dataSetCode = dataSet.getCode();
@@ -99,6 +106,8 @@ public class NewExternalDataDAG
             }
 
             dependencyGraph.put(dataSet.getCode(), dependents);
+
+            listener.update("constructGraph", dataSetRegistrations.size(), ++index);
         }
     }
 

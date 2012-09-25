@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 import java.util.Collection;
 import java.util.List;
 
+import ch.systemsx.cisd.common.conversation.context.ServiceConversationsThreadContext;
+import ch.systemsx.cisd.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
@@ -56,10 +58,14 @@ public final class CollectionPredicate<T> extends AbstractPredicate<Collection<T
     }
 
     @Override
-    protected
-    final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
-            final Collection<T> value)
+    protected final Status doEvaluation(final PersonPE person,
+            final List<RoleWithIdentifier> allowedRoles, final Collection<T> value)
     {
+        IServiceConversationProgressListener listener =
+                ServiceConversationsThreadContext.getProgressListener();
+
+        int index = 0;
+
         for (final T item : value)
         {
             final Status status = itemEvaluate(person, allowedRoles, item);
@@ -67,6 +73,7 @@ public final class CollectionPredicate<T> extends AbstractPredicate<Collection<T
             {
                 return status;
             }
+            listener.update("authorize", value.size(), ++index);
         }
         return Status.OK;
     }
