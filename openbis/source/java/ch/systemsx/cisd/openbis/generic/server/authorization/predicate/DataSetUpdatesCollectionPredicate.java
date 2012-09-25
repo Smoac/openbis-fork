@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.common.conversation.context.ServiceConversationsThreadContext;
+import ch.systemsx.cisd.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
@@ -79,8 +81,11 @@ public class DataSetUpdatesCollectionPredicate extends
             return Status.OK;
         }
 
+        IServiceConversationProgressListener progressListener =
+                ServiceConversationsThreadContext.getProgressListener();
         List<TechId> techIds = new ArrayList<TechId>();
         List<SampleOwnerIdentifier> sampleIdentifiers = new ArrayList<SampleOwnerIdentifier>();
+        int index = 0;
         for (DataSetUpdatesDTO dataSetUpdates : value)
         {
             techIds.add(dataSetUpdates.getDatasetId());
@@ -100,6 +105,7 @@ public class DataSetUpdatesCollectionPredicate extends
             {
                 sampleIdentifiers.add(sampleIdentifier);
             }
+            progressListener.update("authorizeDatasetUpdates", value.size(), ++index);
         }
         Status result =
                 dataSetTechIdCollectionPredicate.doEvaluation(person, allowedRoles, techIds);
