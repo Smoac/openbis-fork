@@ -7,7 +7,7 @@ source `dirname "$0"`/setup-env
 
 checkNotRoot
 
-`dirname "$0"`/status.sh -q
+bin/status.sh -q
 if [ $? -eq 0 ]; then
   echo openBIS AS already running, shut it down before starting a new one. > /dev/stderr
   exit 1
