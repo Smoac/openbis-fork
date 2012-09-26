@@ -262,13 +262,16 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
         final long lastNotification = 0;
 
+        /**
+         * The delay beetween sending two notifications (in miliseconds)
+         */
         final int notificationDelayPeriod;
 
         final int sessionNotifyThreshold;
 
-        public SessionMonitor(int sessionNotifyThreshold, int notificationDelayPeriod)
+        public SessionMonitor(int sessionNotifyThreshold, int notificationDelayPeriodInSeconds)
         {
-            this.notificationDelayPeriod = notificationDelayPeriod;
+            this.notificationDelayPeriod = notificationDelayPeriodInSeconds * 1000;
             this.sessionNotifyThreshold = sessionNotifyThreshold;
 
             if (sessionNotifyThreshold <= 0)
