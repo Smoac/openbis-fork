@@ -30,8 +30,8 @@ import ch.systemsx.cisd.openbis.uitest.type.Sample;
 public class DataSetTest extends SeleniumTest
 {
 
-    @Test(enabled = false)
-    public void jaha() throws Exception
+    @Test
+    public void newDataSetIsListedInDetailedViewOfTheSample() throws Exception
     {
         Experiment experiment = create(anExperiment());
         Sample sample = create(aSample().in(experiment));

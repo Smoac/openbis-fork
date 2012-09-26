@@ -32,7 +32,6 @@ public class SettingsDialog implements Widget
 
     public void showColumns(String... columns)
     {
-
         context.find(".//*[text()='No Columns']").click();
 
         for (String name : columns)
@@ -42,11 +41,8 @@ public class SettingsDialog implements Widget
                             + name
                             + "']/../..//div[contains(@class, 'IS_VISIBLE') and not(*)]");
 
-            System.out.println("SEarching for " + name);
-
             if (l.size() > 0)
             {
-                System.out.println("Actually clicking " + name);
                 l.get(0).click();
             }
         }
