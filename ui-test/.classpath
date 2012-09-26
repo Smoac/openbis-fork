@@ -6,7 +6,7 @@
 	<classpathentry kind="lib" path="/libraries/selenium/lib/bsh-1.3.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/selenium/lib/cglib-nodep-2.1_3.jar"/>
 	<classpathentry kind="lib" path="/libraries/selenium/lib/commons-codec-1.6.jar"/>
-	<classpathentry kind="lib" path="/libraries/selenium/lib/commons-collections-3.2.1.jar"/>
+	<!--  classpathentry kind="lib" path="/libraries/selenium/lib/commons-collections-3.2.1.jar"/ -->
 	<classpathentry kind="lib" path="/libraries/selenium/lib/commons-exec-1.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/selenium/lib/commons-io-2.0.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/selenium/lib/commons-jxpath-1.3.jar"/>
