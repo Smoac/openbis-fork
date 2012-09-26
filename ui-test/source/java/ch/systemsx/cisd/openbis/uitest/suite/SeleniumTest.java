@@ -35,12 +35,15 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.openbis.uitest.infra.application.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.infra.application.PublicApiApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.BrowserListsElementMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellDisplaysMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellLinksToMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.PageMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.RegisterSampleFormContainsInputsForPropertiesMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.SampleBrowserSampleTypeDropDownMenuMatcher;
+import ch.systemsx.cisd.openbis.uitest.infra.matcher.SampleHasDataSetsMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.screenshot.FileScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.infra.uid.DictionaryUidGenerator;
@@ -61,6 +64,9 @@ import ch.systemsx.cisd.openbis.uitest.page.tab.Trash;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.Browsable;
 import ch.systemsx.cisd.openbis.uitest.type.Builder;
+import ch.systemsx.cisd.openbis.uitest.type.DataSet;
+import ch.systemsx.cisd.openbis.uitest.type.DataSetBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.DataSetTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentTypeBuilder;
@@ -70,6 +76,7 @@ import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignmentBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
+import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.type.SampleTypeBuilder;
@@ -96,29 +103,32 @@ public abstract class SeleniumTest
 
     private ScreenShotter shotter;
 
-    protected ApplicationRunner openbis;
+    protected GuiApplicationRunner openbis;
+
+    private ApplicationRunner openbisApi;
 
     @BeforeSuite
     public void initWebDriver() throws Exception
     {
-        uid = new DictionaryUidGenerator(new File("resource/corncob_lowercase.txt"));
-
-        System.setProperty("webdriver.firefox.profile", "default");
-
-        driver = new FirefoxDriver();
-        setImplicitWaitToDefault();
-        delete(new File("targets/dist"));
-
-        driver.manage().deleteAllCookies();
-
         String url = System.getProperty("ui-test.url");
         if (url == null || url.length() == 0)
         {
             url =
                     "http://127.0.0.1:8888/ch.systemsx.cisd.openbis.OpenBIS/index.html?gwt.codesvr=127.0.0.1:9997";
+            System.setProperty("webdriver.firefox.profile", "default");
         }
 
+        driver = new FirefoxDriver();
+        setImplicitWaitToDefault();
+        delete(new File("targets/dist"));
+        driver.manage().deleteAllCookies();
         driver.get(url);
+
+        uid = new DictionaryUidGenerator(new File("resource/corncob_lowercase.txt"));
+        openbisApi =
+                new PublicApiApplicationRunner("http://localhost:8888", "http://localhost:8889",
+                        uid);
+
     }
 
     public static void setImplicitWait(long amount, TimeUnit unit)
@@ -140,7 +150,7 @@ public abstract class SeleniumTest
     @BeforeGroups(groups = "login-admin")
     public void loginAsAdmin()
     {
-        this.openbis = new ApplicationRunner(new PageProxy(new ScreenShotter()
+        this.openbis = new GuiApplicationRunner(new PageProxy(new ScreenShotter()
             {
                 @Override
                 public void screenshot()
@@ -148,15 +158,16 @@ public abstract class SeleniumTest
                 }
             }), uid);
         openbis.login(ADMIN_USER, ADMIN_PASSWORD);
-
         // this is because of BIS-184
         sampleBrowser();
+
+        this.openbisApi.login(ADMIN_USER, ADMIN_PASSWORD);
     }
 
     @AfterGroups(groups = "login-admin")
     public void logout()
     {
-        this.openbis = new ApplicationRunner(new PageProxy(new ScreenShotter()
+        this.openbis = new GuiApplicationRunner(new PageProxy(new ScreenShotter()
             {
                 @Override
                 public void screenshot()
@@ -173,7 +184,7 @@ public abstract class SeleniumTest
                 new FileScreenShotter((TakesScreenshot) driver, "targets/dist/"
                         + this.getClass().getSimpleName() + "/" + method.getName());
         this.pageProxy = new PageProxy(shotter);
-        this.openbis = new ApplicationRunner(this.pageProxy, uid);
+        this.openbis = new GuiApplicationRunner(this.pageProxy, uid);
     }
 
     @AfterMethod(alwaysRun = true)
@@ -256,6 +267,11 @@ public abstract class SeleniumTest
     protected PropertyTypeAssignmentBrowser propertyTypeAssignmentBrowser()
     {
         return openbis.browseToPropertyTypeAssignmentBrowser();
+    }
+
+    protected Matcher<Sample> hasDataSets(DataSet... datasets)
+    {
+        return new SampleHasDataSetsMatcher(openbis, datasets);
     }
 
     protected Matcher<WebDriver> isShowing(Class<?> pageClass)
@@ -430,6 +446,16 @@ public abstract class SeleniumTest
     protected PropertyTypeAssignmentBuilder aSamplePropertyTypeAssignment()
     {
         return new PropertyTypeAssignmentBuilder(openbis);
+    }
+
+    protected DataSetTypeBuilder aDataSetType()
+    {
+        return new DataSetTypeBuilder(openbisApi);
+    }
+
+    protected DataSetBuilder aDataSet()
+    {
+        return new DataSetBuilder(openbisApi);
     }
 
     protected SampleTypeUpdateBuilder anUpdateOf(SampleType type)
