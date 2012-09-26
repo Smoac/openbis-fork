@@ -2,7 +2,7 @@
 -- rename HCS_ANALYSIS_WELL_FEATURES_CONTAINER to HCS_ANALYSIS_CONTAINER_WELL_FEATURES
 -------------------------------------------------------
 
-update data_set_types set code = 'HCS_ANALYSIS_CONTAINER_WELL_FEATURES' where code = 'HCS_ANALYSIS_WELL_FEATURES_CONTAINER'
+update data_set_types set code = 'HCS_ANALYSIS_CONTAINER_WELL_FEATURES' where code = 'HCS_ANALYSIS_WELL_FEATURES_CONTAINER';
 
 
 -------------------------------------------------------
@@ -11,8 +11,7 @@ update data_set_types set code = 'HCS_ANALYSIS_CONTAINER_WELL_FEATURES' where co
 
 
 insert into data_set_type_property_types( id, dsty_id, prty_id, is_mandatory, is_managed_internally, pers_id_registerer, registration_timestamp, ordinal, section, script_id, is_shown_edit )
-
-select 
+  select 
     nextval('dstpt_id_seq'), 
     container.id, 
     dstpt.prty_id, 
@@ -24,9 +23,9 @@ select
     dstpt.section, 
     dstpt.script_id, 
     dstpt.is_shown_edit
-from 
+  from 
     data_set_type_property_types dstpt,
     data_set_types container
-where 
+  where 
     dstpt.dsty_id = (select dst.id from data_set_types dst where dst.code = 'HCS_ANALYSIS_CELL_FEATURES') AND
     container.code = 'HCS_ANALYSIS_CELL_FEATURES_CONTAINER';
