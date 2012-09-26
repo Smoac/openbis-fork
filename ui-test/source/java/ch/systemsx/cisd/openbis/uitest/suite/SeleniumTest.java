@@ -122,7 +122,7 @@ public abstract class SeleniumTest
             System.setProperty("webdriver.firefox.profile", "default");
         } else
         {
-            startPage = asUrl + "/openbis";
+            startPage = asUrl;
         }
 
         if (dssUrl == null || dssUrl.length() == 0)
