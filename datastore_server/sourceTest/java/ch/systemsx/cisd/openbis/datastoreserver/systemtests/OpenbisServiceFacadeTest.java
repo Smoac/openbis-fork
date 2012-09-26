@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
@@ -32,6 +31,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
@@ -71,8 +71,6 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
 
     private IOpenbisServiceFacade serviceFacade;
 
-    private String dataSetCode;
-    
     @BeforeMethod
     public void beforeMethod()
     {
@@ -85,14 +83,13 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         File exampleDataSet = new File(workingDirectory, "my-data");
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         DataSet dataSet = serviceFacade.putDataSet(newDataset, exampleDataSet);
-        dataSetCode = dataSet.getCode();
         checkDataSet(dataSet);
     }
 
-    @Test(dependsOnMethods = "testPutDataSet")
+    @Test
     public void testPutDataSetWithParent() throws Exception
     {
-        String code = getCodeOfLatestDataSet().getDataSetCode();
+        String code = createAndLoadADataSet().getCode();
 
         File exampleDataSet = new File(workingDirectory, "my-data");
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
@@ -119,23 +116,18 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         assertEquals(Arrays.asList(code), parentCodes);
     }
 
-    @Test(dependsOnMethods = "testPutDataSet", expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Parent codes were not retrieved for data set .*")
     public void testFailureAccessingParentFromSearchResult() throws Exception
     {
-        String code = getCodeOfLatestDataSet().getDataSetCode();
-        DataSet dataSet = serviceFacade.getDataSet(code);
-        assertNotNull("Unknown data set: " + code, dataSet);
+        DataSet dataSet = createAndLoadADataSet();
         dataSet.getParentCodes();
     }
 
-    @Test(dependsOnMethods = "testPutDataSet")
+    @Test
     public void testGetDataSetGetFile() throws Exception
     {
-        DataSet ds = getLatestDataSet();
+        DataSet ds = createAndLoadADataSet();
 
-        String code = getCodeOfLatestDataSet().getDataSetCode();
-        assertEquals(code, ds.getCode());
-        checkDataSet(ds);
         String path = "original/my-data/data";
         FileInfoDssDTO[] files = ds.listFiles(path, false);
         Arrays.sort(files, FILE_INFO_COMPARATOR);
@@ -156,11 +148,10 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         assertEquals(fileInfoString("original/my-data/data/2.data", 7), files[6].toString());
     }
 
-    @Test(dependsOnMethods = "testPutDataSet")
+    @Test
     public void testGetDataSetContainedDataSets() throws Exception
     {
-        DataSet ds = getLatestDataSet();
-
+        DataSet ds = createAndLoadADataSet();
         List<DataSet> contained = ds.getContainedDataSets();
         assertEquals(0, contained.size());
 
@@ -180,18 +171,15 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         return String.format("FileInfoDssDTO[%s,%s,%d]", pathInListing, pathInListing, length);
     }
 
-    @Test(dependsOnMethods = "testPutDataSet")
+    @Test
     public void testGetDataSetGetLink() throws Exception
     {
-        SimpleDataSetInformationDTO dataSetInfo = getCodeOfLatestDataSet();
-        String code = dataSetInfo.getDataSetCode();
+        DataSet ds = createAndLoadADataSet();
+        SimpleDataSetInformationDTO dataSetInfo = getCodeOfLatestDataSet(ds.getCode());
         File fileIntoStore =
                 new File(new File(store,
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
                         dataSetInfo.getDataSetLocation());
-
-        DataSet ds = serviceFacade.getDataSet(code);
-        assertNotNull("Unknown data set: " + code, ds);
 
         File link = ds.tryLinkToContents(null);
         assertEquals(fileIntoStore.getAbsolutePath(), link.getAbsolutePath());
@@ -199,14 +187,10 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         assertEquals(fileIntoStore.getAbsolutePath(), file.getAbsolutePath());
     }
 
-    @Test(dependsOnMethods = "testPutDataSet")
+    @Test
     public void testGetDataSetGetCopy() throws Exception
     {
-        SimpleDataSetInformationDTO dataSetInfo = getCodeOfLatestDataSet();
-        String code = dataSetInfo.getDataSetCode();
-
-        DataSet ds = serviceFacade.getDataSet(code);
-        assertNotNull("Unknown data set: " + code, ds);
+        DataSet ds = createAndLoadADataSet();
 
         assertEquals(null, ds.tryLinkToContents("blabla"));
         File file = ds.getLinkOrCopyOfContents("blabla", workingDirectory);
@@ -297,7 +281,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
                 FileUtilities.loadToString(new File(root, "original/my-data/" + path)).trim());
     }
 
-    private SimpleDataSetInformationDTO getCodeOfLatestDataSet()
+    private SimpleDataSetInformationDTO getCodeOfLatestDataSet(String dataSetCode)
     {
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         List<SimpleDataSetInformationDTO> dataSets = openBISService.listDataSets();
@@ -308,36 +292,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
                 return dataSet;
             }
         }
-        Collections.sort(dataSets, new Comparator<SimpleDataSetInformationDTO>()
-            {
-                @Override
-                public int compare(SimpleDataSetInformationDTO d1, SimpleDataSetInformationDTO d2)
-                {
-                    return normalize(d2.getDataSetCode()).compareTo(normalize(d1.getDataSetCode()));
-                }
-            });
         return dataSets.get(0);
-    }
-
-    private DataSet getLatestDataSet()
-    {
-        SearchCriteria sc = new SearchCriteria();
-        List<DataSet> dataSets = serviceFacade.searchForDataSets(sc);
-        Collections.sort(dataSets, new Comparator<DataSet>()
-            {
-                @Override
-                public int compare(DataSet o1, DataSet o2)
-                {
-                    // sort decreasing
-                    return normalize(o2.getCode()).compareTo(normalize(o1.getCode()));
-                }
-            });
-        return dataSets.get(0);
-    }
-    
-    private String normalize(String code)
-    {
-        return code.startsWith("2") ? code : "0" + code;
     }
 
     private void checkDataSet(DataSet dataSet) throws IOException
@@ -360,6 +315,32 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
             IOUtils.closeQuietly(inputStream);
         }
         return output.toString();
+    }
+
+    private DataSet createAndLoadADataSet() throws IOException
+    {
+        File exampleDataSet = new File(workingDirectory, "my-data");
+        NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
+        DataSet dataSet = serviceFacade.putDataSet(newDataset, exampleDataSet);
+        String code = dataSet.getCode();
+        // Because serviceFacade.getDataSet() relies on updated lucene index (which is done
+        // asynchronously) we tried it for ten second to retrieve the just created data set.
+        for (int i = 0; i < 10; i++)
+        {
+            DataSet retrievedDataSet = serviceFacade.getDataSet(code);
+            if (retrievedDataSet != null)
+            {
+                return retrievedDataSet;
+            }
+            try
+            {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+        throw new AssertionError("Couldn't retrieve back the just created data set " + code + ".");
     }
 
 }
