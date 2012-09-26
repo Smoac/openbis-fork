@@ -135,7 +135,7 @@ public abstract class SeleniumTest
         dssUrl = "https://sprint-openbis.ethz.ch";
         startPage = asUrl;
         */
-    
+
         System.out.println("asUrl: " + asUrl);
         System.out.println("dssUrl: " + dssUrl);
         System.out.println("startPage: " + startPage);
@@ -343,7 +343,13 @@ public abstract class SeleniumTest
         public BrowserCell of(Browser<T> browser)
         {
             browser.filter(browsable);
-            return browser.cell(browsable, column);
+            try
+            {
+                return browser.cell(browsable, column);
+            } finally
+            {
+                browser.resetFilters();
+            }
         }
     }
 

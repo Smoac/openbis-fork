@@ -64,6 +64,17 @@ public class PagingToolBar implements Widget, Refreshable
         String currentText =
                 context.find(".//div[contains(@class, 'my-paging-display')]").getText();
         System.out.println("comparing " + displayText + " with " + currentText);
-        return (this.displayText.equals(currentText) == false);
+
+        if (currentText.contains("Loading"))
+        {
+            return false;
+        }
+
+        boolean result = (this.displayText.equals(currentText) == false);
+        if (result)
+        {
+            System.out.println("--- polling ends --");
+        }
+        return result;
     }
 }

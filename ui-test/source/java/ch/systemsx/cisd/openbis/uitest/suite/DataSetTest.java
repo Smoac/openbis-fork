@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Sample;
 public class DataSetTest extends SeleniumTest
 {
 
-    @Test
+    @Test(enabled = false)
     public void newDataSetIsListedInDetailedViewOfTheSample() throws Exception
     {
         Experiment experiment = create(anExperiment());

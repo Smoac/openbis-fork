@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -31,6 +32,7 @@ public class BrowserRow
     public BrowserRow()
     {
         this.exists = false;
+        this.row = new HashMap<String, BrowserCell>();
     }
 
     public BrowserRow(Map<String, BrowserCell> row)
