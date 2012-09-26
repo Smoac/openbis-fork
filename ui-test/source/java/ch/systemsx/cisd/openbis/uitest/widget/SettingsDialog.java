@@ -16,54 +16,47 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
+import java.util.List;
+
+import org.openqa.selenium.WebElement;
+
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 
 /**
  * @author anttil
  */
-public class PagingToolBar implements Widget, Refreshable
+public class SettingsDialog implements Widget
 {
 
     private WidgetContext context;
 
-    public void filters()
+    public void showColumns(String... columns)
     {
-        Button b = context.find(".//button[text()='Filters']", Button.class);
-        if (!b.isPressed())
-        {
-            b.click();
-        }
-    }
 
-    public void settings()
-    {
-        Button b = context.find(".//button[text()='Settings']", Button.class);
-        if (!b.isPressed())
+        context.find(".//*[text()='No Columns']").click();
+
+        for (String name : columns)
         {
-            b.click();
+            List<WebElement> l =
+                    context.findAll(".//div[text()='"
+                            + name
+                            + "']/../..//div[contains(@class, 'IS_VISIBLE') and not(*)]");
+
+            System.out.println("SEarching for " + name);
+
+            if (l.size() > 0)
+            {
+                System.out.println("Actually clicking " + name);
+                l.get(0).click();
+            }
         }
+
+        context.find("//*[@class='x-window-bl']//button[text()='OK']").click();
     }
 
     @Override
     public void setContext(WidgetContext context)
     {
         this.context = context;
-    }
-
-    String displayText;
-
-    @Override
-    public void prepareWait()
-    {
-        displayText = context.find(".//div[contains(@class, 'my-paging-display')]").getText();
-    }
-
-    @Override
-    public boolean hasRefreshed()
-    {
-        String currentText =
-                context.find(".//div[contains(@class, 'my-paging-display')]").getText();
-        System.out.println("comparing " + displayText + " with " + currentText);
-        return (this.displayText.equals(currentText) == false);
     }
 }

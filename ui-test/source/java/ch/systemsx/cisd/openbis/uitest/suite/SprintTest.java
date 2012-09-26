@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 public class SprintTest extends SeleniumTest
 {
 
-    @Test(enabled = false)
+    @Test
     public void basic()
     {
         // 0) Cleanup

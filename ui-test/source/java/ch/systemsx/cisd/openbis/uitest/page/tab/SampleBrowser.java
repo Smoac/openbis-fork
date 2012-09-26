@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
+import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
 public class SampleBrowser implements Browser<Sample>
 {
@@ -49,6 +50,10 @@ public class SampleBrowser implements Browser<Sample>
     @Lazy
     @Locate("openbis_sample-browser_main-grid-filter-toolbar")
     private FilterToolBar filters;
+
+    @Lazy
+    @Locate("entity-browser-grid-SAMPLE-(all)")
+    private SettingsDialog settings;
 
     public void addSample()
     {
@@ -79,7 +84,16 @@ public class SampleBrowser implements Browser<Sample>
     @Override
     public BrowserCell cell(Sample sample, String column)
     {
-        return select(sample).get(column);
+        BrowserCell c = select(sample).get(column);
+        if (c == null)
+        {
+            paging.settings();
+            settings.showColumns("Code", column);
+            return select(sample).get(column);
+        } else
+        {
+            return c;
+        }
     }
 
     @Override

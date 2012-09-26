@@ -130,6 +130,12 @@ public abstract class SeleniumTest
             dssUrl = "http://localhost:8889";
         }
 
+        /*
+        asUrl = "https://sprint-openbis.ethz.ch/openbis";
+        dssUrl = "https://sprint-openbis.ethz.ch";
+        startPage = asUrl;
+        */
+    
         System.out.println("asUrl: " + asUrl);
         System.out.println("dssUrl: " + dssUrl);
         System.out.println("startPage: " + startPage);
