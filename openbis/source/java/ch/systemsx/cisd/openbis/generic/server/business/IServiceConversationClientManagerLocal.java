@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.business;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 
 /**
+ * A local interface of the service conversation client manager used by AS.
+ * 
  * @author pkupczyk
  */
 public interface IServiceConversationClientManagerLocal

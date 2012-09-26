@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.server.business;
 
 /**
+ * A local interface of the service conversation server manager used by AS.
+ * 
  * @author pkupczyk
  */
 public interface IServiceConversationServerManagerLocal

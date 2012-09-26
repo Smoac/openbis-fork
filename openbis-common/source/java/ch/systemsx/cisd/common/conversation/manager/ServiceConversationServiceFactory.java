@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.serviceconversation.server.IServiceFactory;
 import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
 
 /**
- * A factory for RMI services. Runs incoming MethodInvocations within transactions.
+ * A factory for service conversation services. Runs incoming MethodInvocations.
  * 
  * @author anttil
  */

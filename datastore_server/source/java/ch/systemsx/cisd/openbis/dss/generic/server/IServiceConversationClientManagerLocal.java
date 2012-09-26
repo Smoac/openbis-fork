@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 
 /**
+ * A local interface of the service conversation client manager used by DSS.
+ * 
  * @author pkupczyk
  */
 public interface IServiceConversationClientManagerLocal

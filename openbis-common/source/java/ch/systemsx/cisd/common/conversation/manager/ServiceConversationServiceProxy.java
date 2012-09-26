@@ -26,8 +26,8 @@ import ch.systemsx.cisd.common.conversation.message.ServiceConversationMethodInv
 import ch.systemsx.cisd.common.serviceconversation.client.IServiceConversation;
 
 /**
- * Dynamic proxy that passes RPC calls to a ConversationalServer through service conversation
- * framework.
+ * Dynamic proxy that converts a given service method calls into appropriate service conversation
+ * messages.
  * 
  * @author anttil
  */

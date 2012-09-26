@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 /**
+ * A local interface of the service conversation server manager used by DSS.
+ * 
  * @author pkupczyk
  */
 public interface IServiceConversationServerManagerLocal

@@ -23,6 +23,8 @@ import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationA
 import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationDataStoreClientId;
 
 /**
+ * The service conversation client manager used by DSS.
+ * 
  * @author pkupczyk
  */
 public class ServiceConversationClientManager extends BaseServiceConversationClientManager

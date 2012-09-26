@@ -20,12 +20,8 @@ import ch.systemsx.cisd.common.conversation.progress.IServiceConversationProgres
 import ch.systemsx.cisd.common.conversation.progress.ServiceConversationNullProgressListener;
 
 /**
- * The class contains the logic for communication beetween Hibernate interceptors, which should send
- * service conversation updates, and parts of applications that use service conversations, but don't
- * have acces to the Hibernate objects.
- * <p>
- * It lets the owner of service conversation store the information about it in the thread local
- * variable, from which the interceptor can later read it.
+ * This class provides methods for accessing information about the current service conversation. All
+ * the information is stored in thread local variables.
  * 
  * @author Jakub Straszewski
  */
@@ -39,7 +35,7 @@ public class ServiceConversationsThreadContext
     }
 
     /**
-     * Store progress listener in a thread local context
+     * Sets the current service conversation progress listener.
      */
     public static void setProgressListener(IServiceConversationProgressListener listener)
     {
@@ -47,7 +43,7 @@ public class ServiceConversationsThreadContext
     }
 
     /**
-     * Remove information about progress listener from the thread local context.
+     * Removes the current service conversation progress listener.
      */
     public static void unsetProgressListener()
     {
@@ -55,7 +51,10 @@ public class ServiceConversationsThreadContext
     }
 
     /**
-     * Read the progress listener from the thread local context
+     * Get the current service conversation progress listener. If there is no service conversation
+     * available then a dummy progress listener is returned. The dummy listener is returned just for
+     * a convenience to eliminate all the not null checks. Calling methods on the dummy listener
+     * doesn't have any effect.
      */
     public static IServiceConversationProgressListener getProgressListener()
     {

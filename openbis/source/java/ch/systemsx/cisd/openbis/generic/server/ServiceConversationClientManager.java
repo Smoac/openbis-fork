@@ -26,6 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationA
 import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationDataStoreUrl;
 
 /**
+ * The service conversation client manager used by AS.
+ * 
  * @author pkupczyk
  */
 public class ServiceConversationClientManager extends BaseServiceConversationClientManager

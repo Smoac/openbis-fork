@@ -25,6 +25,11 @@ import ch.systemsx.cisd.common.serviceconversation.client.ServiceConversationCli
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
 /**
+ * Service conversation client that keeps track of the started conversations and provides
+ * {@link #onConversationStart(IServiceConversation)} and
+ * {@link #onConversationClose(IServiceConversation)} methods that can be overwritten to perform
+ * some additional actions on these events.
+ * 
  * @author pkupczyk
  */
 public class ServiceConversationClientWithConversationTracking
@@ -51,6 +56,9 @@ public class ServiceConversationClientWithConversationTracking
         return conversation;
     }
 
+    /**
+     * Method that is called whenever a new conversation is started.
+     */
     public void onConversationStart(IServiceConversation conversation)
     {
         // does nothing by default
@@ -67,6 +75,9 @@ public class ServiceConversationClientWithConversationTracking
         onConversationClose(conversation);
     }
 
+    /**
+     * Method that is called whenever a new conversation is closed.
+     */
     public void onConversationClose(IServiceConversation conversation)
     {
         // does nothing by default

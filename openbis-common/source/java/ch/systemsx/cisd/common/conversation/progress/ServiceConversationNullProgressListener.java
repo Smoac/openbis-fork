@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.common.conversation.progress;
 
 /**
+ * Dummy progress listener that doesn't do anything when its methods are called.
+ * 
  * @author pkupczyk
  */
 public class ServiceConversationNullProgressListener implements

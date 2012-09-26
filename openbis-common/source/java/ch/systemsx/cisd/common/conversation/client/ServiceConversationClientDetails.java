@@ -20,13 +20,21 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
+ * Stores information about a service conversation client manager.
+ * 
  * @author pkupczyk
  */
 public class ServiceConversationClientDetails
 {
 
+    /**
+     * URL that should be used for communication with the client manager.
+     */
     private String url;
 
+    /**
+     * Timeout to be used for communication with the client manager.
+     */
     private int timeout;
 
     public ServiceConversationClientDetails(String url, int timeout)

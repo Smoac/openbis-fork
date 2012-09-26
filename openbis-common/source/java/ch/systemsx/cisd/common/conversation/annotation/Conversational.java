@@ -22,6 +22,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * All methods that support service conversations communication should be marked with this
+ * annotation. If a method without this annotation is called via service conversations then
+ * {@link java.lang.NoSuchMethodException NoSuchMethodException} is thrown.
+ * 
  * @author pkupczyk
  */
 
@@ -31,6 +35,9 @@ import java.lang.annotation.Target;
 public @interface Conversational
 {
 
+    /**
+     * Type of the progress reporting that should be used for the annotated method.
+     */
     Progress progress();
 
 }

@@ -26,6 +26,9 @@ import ch.systemsx.cisd.common.serviceconversation.server.ProgressInfo;
 import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationServer;
 
 /**
+ * Creates a separate thread that regularly sends a progress information without a need of calling
+ * IServiceConversationProgressListener.update() method.
+ * 
  * @author pkupczyk
  */
 public class ServiceConversationAutomaticProgressListener implements

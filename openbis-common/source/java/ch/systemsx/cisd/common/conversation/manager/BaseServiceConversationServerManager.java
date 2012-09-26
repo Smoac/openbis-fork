@@ -27,6 +27,15 @@ import ch.systemsx.cisd.common.serviceconversation.server.ServiceConversationSer
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 
 /**
+ * Service conversation server manager that dispatches calls coming from remote service conversation
+ * client managers to appropriate local services. One instance of server manager can handle
+ * communication with multiple client managers located on different machines. To expose a local
+ * service for remote conversational calls you must add the service to the manager using
+ * {@link #addService(Class, Object)} method. Moreover the
+ * {@link #getClientDetailsForClientId(Object)} method must be implemented to return information
+ * which clients are recognized, what URLs should be used for communicating them back and what
+ * timeouts should be used for their conversations.
+ * 
  * @author pkupczyk
  */
 public abstract class BaseServiceConversationServerManager implements
@@ -46,6 +55,10 @@ public abstract class BaseServiceConversationServerManager implements
         server = new ServiceConversationServer();
     }
 
+    /**
+     * Method that can be used for registering local services that should be exposed for remote
+     * service conversation calls.
+     */
     protected void addService(Class<?> serviceInterface, Object service)
     {
         ServiceConversationServiceFactory serviceFactory =
@@ -124,6 +137,10 @@ public abstract class BaseServiceConversationServerManager implements
         return clientDetailsToClientMap.size();
     }
 
+    /**
+     * Returns detailed information about a client basing on a client id. If it returns null then
+     * the client is treated as unknown.
+     */
     protected abstract ServiceConversationClientDetails getClientDetailsForClientId(Object clientId);
 
     private synchronized IServiceConversationClientManagerRemote getClientForClientDetails(

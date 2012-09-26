@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.conversation.manager;
 import ch.systemsx.cisd.common.serviceconversation.IServiceMessageTransport;
 
 /**
- * All clients of conversational RMI services must implement this interface
+ * A remote interface for service conversation client manager.
  * 
  * @author anttil
  */

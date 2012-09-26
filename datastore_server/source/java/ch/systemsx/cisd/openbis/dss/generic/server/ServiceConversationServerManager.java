@@ -26,6 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationA
 import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationApplicationServerUrl;
 
 /**
+ * The service conversation server manager used by DSS.
+ * 
  * @author pkupczyk
  */
 public class ServiceConversationServerManager extends BaseServiceConversationServerManager
