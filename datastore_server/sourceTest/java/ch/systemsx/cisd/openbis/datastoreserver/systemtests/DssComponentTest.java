@@ -76,15 +76,6 @@ public class DssComponentTest extends SystemTestCase
     // tests
     private int putCount = 0;
     
-    private List<String> registeredDataSets = new ArrayList<String>();
-    
-//    @AfterMethod
-    public void deleteRegisteredDataSets()
-    {
-        IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
-        openBISService.removeDataSetsPermanently(registeredDataSets, "DssComponentTest");
-    }
-
     @BeforeMethod
     public void beforeMethod()
     {
@@ -104,7 +95,6 @@ public class DssComponentTest extends SystemTestCase
     private IDataSetDss registerDataSet(File exampleDataSet, NewDataSetDTO newDataset)
     {
         IDataSetDss dataSet = dss.putDataSet(newDataset, exampleDataSet);
-        registeredDataSets.add(dataSet.getCode());
         return dataSet;
     }
 
