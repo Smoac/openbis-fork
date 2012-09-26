@@ -16,40 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra.application;
 
-import ch.systemsx.cisd.openbis.uitest.infra.uid.UidGenerator;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.PageProxy;
-import ch.systemsx.cisd.openbis.uitest.page.dialog.AddExperimentTypeDialog;
-import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
-import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSpaceDialog;
-import ch.systemsx.cisd.openbis.uitest.page.dialog.AddVocabularyDialog;
-import ch.systemsx.cisd.openbis.uitest.page.dialog.EditSampleTypeDialog;
-import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
-import ch.systemsx.cisd.openbis.uitest.page.menu.AuthorizationMenu;
-import ch.systemsx.cisd.openbis.uitest.page.menu.BrowseMenu;
-import ch.systemsx.cisd.openbis.uitest.page.menu.MetadataMenu;
-import ch.systemsx.cisd.openbis.uitest.page.menu.NewMenu;
-import ch.systemsx.cisd.openbis.uitest.page.menu.TopBar;
-import ch.systemsx.cisd.openbis.uitest.page.menu.TypesMenu;
-import ch.systemsx.cisd.openbis.uitest.page.menu.UserMenu;
-import ch.systemsx.cisd.openbis.uitest.page.tab.AddPropertyType;
-import ch.systemsx.cisd.openbis.uitest.page.tab.AssignSamplePropertyType;
-import ch.systemsx.cisd.openbis.uitest.page.tab.Browser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
-import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.LoginPage;
-import ch.systemsx.cisd.openbis.uitest.page.tab.ProjectBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeAssignmentBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterExperiment;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterProject;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterSample;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.Trash;
-import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
+import ch.systemsx.cisd.openbis.uitest.type.DataSet;
+import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
@@ -63,354 +31,48 @@ import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 /**
  * @author anttil
  */
-public class ApplicationRunner
+public interface ApplicationRunner
 {
 
-    private PageProxy proxy;
+    public String uid();
 
-    private UidGenerator uid;
+    public void login(String userName, String password);
 
-    public ApplicationRunner(PageProxy proxy, UidGenerator uid)
-    {
-        this.proxy = proxy;
-        this.uid = uid;
-    }
+    public void logout();
 
-    public String uid()
-    {
-        return uid.uid();
-    }
+    public Space create(Space space);
 
-    public Space create(Space space)
-    {
-        AddSpaceDialog dialog = browseToAddSpaceDialog();
-        dialog.fillWith(space);
-        dialog.save();
-        return space;
-    }
+    public void delete(Space space);
 
-    public void delete(Space space)
-    {
-        SpaceBrowser browser = browseToSpaceBrowser();
-        browser.filter(space);
-        BrowserRow row = browser.select(space);
-        if (row.exists())
-        {
-            browser.delete();
-        }
-    }
+    public Project create(Project project);
 
-    public void deleteExperimentsFrom(Project project)
-    {
-        ExperimentBrowser browser = browseToExperimentBrowser();
-        if (browser.selectProject(project))
-        {
-            browser.deleteAll();
-        }
-    }
+    public void delete(Project project);
 
-    public void delete(Project project)
-    {
-        ProjectBrowser browser = browseToProjectBrowser();
-        browser.filter(project);
-        BrowserRow row = browser.select(project);
-        if (row.exists())
-        {
-            browser.delete();
-        }
-    }
+    public SampleType create(SampleType sampleType);
 
-    public void delete(SampleType sampleType)
-    {
-        SampleTypeBrowser browser = browseToSampleTypeBrowser();
-        browser.filter(sampleType);
-        BrowserRow row = browser.select(sampleType);
-        if (row.exists())
-        {
-            browser.delete();
-        }
-    }
+    public void update(SampleType sampleType);
 
-    public void delete(ExperimentType experimentType)
-    {
-        ExperimentTypeBrowser browser = browseToExperimentTypeBrowser();
-        browser.filter(experimentType);
-        BrowserRow row = browser.select(experimentType);
-        if (row.exists())
-        {
-            browser.delete();
-        }
-    }
+    public void delete(SampleType sampleType);
 
-    public void delete(PropertyType propertyType)
-    {
-        PropertyTypeBrowser browser = browseToPropertyTypeBrowser();
-        browser.filter(propertyType);
-        BrowserRow row = browser.select(propertyType);
-        if (row.exists())
-        {
-            browser.delete();
-        }
-        browser.resetFilters();
-    }
+    public ExperimentType create(ExperimentType experimentType);
 
-    public void delete(Vocabulary vocabulary)
-    {
-        VocabularyBrowser browser = browseToVocabularyBrowser();
-        browser.filter(vocabulary);
-        BrowserRow row = browser.select(vocabulary);
-        if (row.exists())
-        {
-            browser.delete();
-        }
-    }
+    public void delete(ExperimentType experimentType);
 
-    public Project create(Project project)
-    {
-        RegisterProject register = browseToRegisterProject();
-        register.fillWith(project);
-        register.save();
-        return project;
-    }
+    public PropertyType create(PropertyType propertyType);
 
-    public SampleType create(SampleType sampleType)
-    {
-        AddSampleTypeDialog dialog = browseToAddSampleTypeDialog();
-        dialog.fillWith(sampleType);
-        dialog.save();
-        return sampleType;
-    }
+    public void delete(PropertyType propertyType);
 
-    public ExperimentType create(ExperimentType experimentType)
-    {
-        AddExperimentTypeDialog dialog = browseToAddExperimentTypeDialog();
-        dialog.fillWith(experimentType);
-        dialog.save();
-        return experimentType;
-    }
+    public Vocabulary create(Vocabulary vocabulary);
 
-    public Vocabulary create(Vocabulary vocabulary)
-    {
-        AddVocabularyDialog dialog = browseToAddVocabularyDialog();
-        dialog.fillWith(vocabulary);
-        dialog.save();
-        return vocabulary;
-    }
+    public void delete(Vocabulary vocabulary);
 
-    public PropertyType create(PropertyType propertyType)
-    {
-        AddPropertyType dialog = browseToAddPropertyType();
-        dialog.fillWith(propertyType);
-        dialog.save();
-        return propertyType;
-    }
+    public Sample create(Sample sample);
 
-    public Sample create(Sample sample)
-    {
-        RegisterSample register = browseToRegisterSample();
-        register.selectSampleType(sample.getType());
-        register.fillWith(sample);
-        register.save();
-        return sample;
-    }
+    public Experiment create(Experiment experiment);
 
-    public Experiment create(Experiment experiment)
-    {
-        RegisterExperiment register = browseToRegisterExperiment();
-        register.selectExperimentType(experiment.getType());
-        register.fillWith(experiment);
-        register.save();
-        return experiment;
-    }
+    public PropertyTypeAssignment create(PropertyTypeAssignment assignment);
 
-    public PropertyTypeAssignment create(PropertyTypeAssignment assignment)
-    {
-        AssignSamplePropertyType assign = browseToAssignSamplePropertyType();
-        assign.fillWith(assignment);
-        assign.save();
-        return assignment;
-    }
+    public DataSetType create(DataSetType type);
 
-    public void update(SampleType sampleType)
-    {
-        SampleTypeBrowser browser = browseToSampleTypeBrowser();
-        browser.filter(sampleType);
-        browser.select(sampleType);
-        browser.edit();
-        EditSampleTypeDialog dialog = proxy.get(EditSampleTypeDialog.class);
-        dialog.fillWith(sampleType);
-        dialog.save();
-    }
-
-    public void login(String userName, String password)
-    {
-        LoginPage loginPage = proxy.get(LoginPage.class);
-        loginPage.loginAs(userName, password);
-    }
-
-    public void logout()
-    {
-        getMenus().user();
-        load(UserMenu.class).logout();
-    }
-
-    public SampleTypeBrowser browseToSampleTypeBrowser()
-    {
-        getMenus().admin();
-        load(AdminMenu.class).types();
-        load(TypesMenu.class).sampleTypes();
-        return getBrowser(SampleTypeBrowser.class);
-    }
-
-    public ExperimentTypeBrowser browseToExperimentTypeBrowser()
-    {
-        getMenus().admin();
-        load(AdminMenu.class).types();
-        load(TypesMenu.class).experimentTypes();
-        return getBrowser(ExperimentTypeBrowser.class);
-    }
-
-    public Trash browseToTrash()
-    {
-        getMenus().trash();
-        return load(Trash.class);
-    }
-
-    public AddSampleTypeDialog browseToAddSampleTypeDialog()
-    {
-        browseToSampleTypeBrowser().add();
-        return load(AddSampleTypeDialog.class);
-    }
-
-    public AddExperimentTypeDialog browseToAddExperimentTypeDialog()
-    {
-        browseToExperimentTypeBrowser().add();
-        return load(AddExperimentTypeDialog.class);
-    }
-
-    public SpaceBrowser browseToSpaceBrowser()
-    {
-        getMenus().admin();
-        load(AdminMenu.class).spaces();
-        return getBrowser(SpaceBrowser.class);
-    }
-
-    public ProjectBrowser browseToProjectBrowser()
-    {
-        getMenus().browse();
-        load(BrowseMenu.class).projects();
-        return getBrowser(ProjectBrowser.class);
-    }
-
-    public AddSpaceDialog browseToAddSpaceDialog()
-    {
-        browseToSpaceBrowser().addSpace();
-        return load(AddSpaceDialog.class);
-    }
-
-    public SampleBrowser browseToSampleBrowser()
-    {
-        getMenus().browse();
-        load(BrowseMenu.class).samples();
-        load(SampleBrowser.class).allSpaces();
-        return getBrowser(SampleBrowser.class);
-    }
-
-    public ExperimentBrowser browseToExperimentBrowser()
-    {
-        getMenus().browse();
-        load(BrowseMenu.class).experiments();
-        return load(ExperimentBrowser.class);
-    }
-
-    public RoleAssignmentBrowser browseToRoleAssignmentBrowser()
-    {
-        getMenus().admin();
-        load(AdminMenu.class).authorization();
-        load(AuthorizationMenu.class).roles();
-        return getBrowser(RoleAssignmentBrowser.class);
-    }
-
-    public VocabularyBrowser browseToVocabularyBrowser()
-    {
-        getMenus().admin();
-        load(AdminMenu.class).vocabularies();
-        return getBrowser(VocabularyBrowser.class);
-    }
-
-    public AddVocabularyDialog browseToAddVocabularyDialog()
-    {
-        browseToVocabularyBrowser().add();
-        return load(AddVocabularyDialog.class);
-    }
-
-    public PropertyTypeBrowser browseToPropertyTypeBrowser()
-    {
-        getMenus().admin();
-        load(AdminMenu.class).metadata();
-        load(MetadataMenu.class).propertyTypes();
-        return getBrowser(PropertyTypeBrowser.class);
-    }
-
-    public AddPropertyType browseToAddPropertyType()
-    {
-        getMenus().admin();
-        load(AdminMenu.class).metadata();
-        load(MetadataMenu.class).newPropertyType();
-        return load(AddPropertyType.class);
-    }
-
-    public AssignSamplePropertyType browseToAssignSamplePropertyType()
-    {
-        getMenus().admin();
-        load(AdminMenu.class).metadata();
-        load(MetadataMenu.class).assignToSampleType();
-        return load(AssignSamplePropertyType.class);
-    }
-
-    public PropertyTypeAssignmentBrowser browseToPropertyTypeAssignmentBrowser()
-    {
-        getMenus().admin();
-        load(AdminMenu.class).metadata();
-        load(MetadataMenu.class).propertyTypeAssignments();
-        return getBrowser(PropertyTypeAssignmentBrowser.class);
-    }
-
-    public RegisterSample browseToRegisterSample()
-    {
-        getMenus().newMenu();
-        load(NewMenu.class).sample();
-        return load(RegisterSample.class);
-    }
-
-    public RegisterExperiment browseToRegisterExperiment()
-    {
-        getMenus().newMenu();
-        load(NewMenu.class).experiment();
-        return load(RegisterExperiment.class);
-    }
-
-    public RegisterProject browseToRegisterProject()
-    {
-        getMenus().newMenu();
-        load(NewMenu.class).project();
-        return load(RegisterProject.class);
-    }
-
-    private TopBar getMenus()
-    {
-        return proxy.get(TopBar.class);
-    }
-
-    private <T extends Browser<?>> T getBrowser(Class<T> clazz)
-    {
-        T browser = load(clazz);
-        browser.resetFilters();
-        return browser;
-    }
-
-    private <T> T load(Class<T> clazz)
-    {
-        return proxy.get(clazz);
-    }
+    public DataSet create(DataSet dataSet);
 }

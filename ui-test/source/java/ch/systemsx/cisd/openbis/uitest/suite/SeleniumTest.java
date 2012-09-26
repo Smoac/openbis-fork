@@ -110,25 +110,34 @@ public abstract class SeleniumTest
     @BeforeSuite
     public void initWebDriver() throws Exception
     {
-        String url = System.getProperty("ui-test.url");
-        if (url == null || url.length() == 0)
+        String asUrl = System.getProperty("ui-test.as-url");
+        String dssUrl = System.getProperty("ui-test.dss-url");
+        String startPage;
+
+        if (asUrl == null || asUrl.length() == 0)
         {
-            url =
+            asUrl = "http://localhost:8888";
+            startPage =
                     "http://127.0.0.1:8888/ch.systemsx.cisd.openbis.OpenBIS/index.html?gwt.codesvr=127.0.0.1:9997";
             System.setProperty("webdriver.firefox.profile", "default");
+        } else
+        {
+            startPage = asUrl + "/openbis";
+        }
+
+        if (dssUrl == null || dssUrl.length() == 0)
+        {
+            dssUrl = "http://localhost:8889";
         }
 
         driver = new FirefoxDriver();
         setImplicitWaitToDefault();
         delete(new File("targets/dist"));
         driver.manage().deleteAllCookies();
-        driver.get(url);
+        driver.get(startPage);
 
         uid = new DictionaryUidGenerator(new File("resource/corncob_lowercase.txt"));
-        openbisApi =
-                new PublicApiApplicationRunner("http://localhost:8888", "http://localhost:8889",
-                        uid);
-
+        openbisApi = new PublicApiApplicationRunner(asUrl, dssUrl, uid);
     }
 
     public static void setImplicitWait(long amount, TimeUnit unit)

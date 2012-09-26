@@ -42,5 +42,9 @@
 	<classpathentry kind="lib" path="/libraries/selenium/selenium-java.jar"/>
 	<classpathentry kind="lib" path="/libraries/javassist/javassist.jar" sourcepath="/libraries/javassist/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-integration.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/openbis"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/datastore_server"/>
+	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

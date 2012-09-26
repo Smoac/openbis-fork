@@ -70,6 +70,12 @@ public class SampleBuilder implements Builder<Sample>
         return this;
     }
 
+    public SampleBuilder in(Experiment experiment)
+    {
+        this.experiment = experiment;
+        return this;
+    }
+
     public SampleBuilder withProperty(PropertyType propertyType, Object value)
     {
         this.properties.put(propertyType, value);

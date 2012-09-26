@@ -41,7 +41,6 @@ public class RegisterSample
     @Locate("openbis_generic-sample-register_formcode")
     private Text code;
 
-    @SuppressWarnings("unused")
     @Lazy
     @Locate("openbis_generic-sample-register_formexperiment")
     private Text experiment;
@@ -62,6 +61,12 @@ public class RegisterSample
     {
         code.write(sample.getCode());
         spaces.select(sample.getSpace().getCode());
+        if (sample.getExperiment() != null)
+        {
+            experiment.write("/" + sample.getSpace().getCode() + "/"
+                    + sample.getExperiment().getProject().getCode()
+                    + "/" + sample.getExperiment().getCode());
+        }
 
         Map<PropertyType, Object> properties = sample.getProperties();
 
