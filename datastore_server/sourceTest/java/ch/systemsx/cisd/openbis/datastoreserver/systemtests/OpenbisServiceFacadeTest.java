@@ -71,6 +71,8 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
 
     private IOpenbisServiceFacade serviceFacade;
 
+    private String dataSetCode;
+    
     @BeforeMethod
     public void beforeMethod()
     {
@@ -83,6 +85,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         File exampleDataSet = new File(workingDirectory, "my-data");
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         DataSet dataSet = serviceFacade.putDataSet(newDataset, exampleDataSet);
+        dataSetCode = dataSet.getCode();
         checkDataSet(dataSet);
     }
 
@@ -298,6 +301,13 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
     {
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         List<SimpleDataSetInformationDTO> dataSets = openBISService.listDataSets();
+        for (SimpleDataSetInformationDTO dataSet : dataSets)
+        {
+            if (dataSet.getDataSetCode().equals(dataSetCode))
+            {
+                return dataSet;
+            }
+        }
         Collections.sort(dataSets, new Comparator<SimpleDataSetInformationDTO>()
             {
                 @Override
