@@ -35,6 +35,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
@@ -102,6 +103,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatabaseInstancePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -132,6 +134,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private static final String URL = "http://remote-host:" + PORT;
 
+    private static final String USER_FOR_ENTITY_OPERATIONS = "eo-user";
+
     private ICommonBusinessObjectFactory boFactory;
 
     private IDataStoreServiceFactory dssfactory;
@@ -146,8 +150,11 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private IServiceConversationServerManagerLocal conversationServer;
 
+    private ISessionManager<Session> sessionManagerForEntityOperations;
+
     @Override
     @BeforeMethod
+    @SuppressWarnings("unchecked")
     public final void setUp()
     {
         super.setUp();
@@ -158,6 +165,8 @@ public class ETLServiceTest extends AbstractServerTestCase
         dataStoreServiceRegistrator = context.mock(IDataStoreServiceRegistrator.class);
         conversationClient = context.mock(IServiceConversationClientManagerLocal.class);
         conversationServer = context.mock(IServiceConversationServerManagerLocal.class);
+        sessionManagerForEntityOperations =
+                context.mock(ISessionManager.class, "sessionManagerForEntityOperations");
     }
 
     @Test
@@ -822,8 +831,8 @@ public class ETLServiceTest extends AbstractServerTestCase
         final NewExternalData externalData = new NewExternalData();
         externalData.setCode("dc");
         externalData.setMeasured(true);
-        prepareRegisterDataSet(sampleIdentifier, sample.getExperiment(), SourceType.MEASUREMENT,
-                externalData);
+        prepareRegisterDataSet(session, sampleIdentifier, sample.getExperiment(),
+                SourceType.MEASUREMENT, externalData);
 
         createService().registerDataSet(SESSION_TOKEN, sampleIdentifier, externalData);
 
@@ -1048,9 +1057,10 @@ public class ETLServiceTest extends AbstractServerTestCase
                 updatedDataSetCode, dataSetUpdate);
 
         AtomicEntityOperationDetails details =
-                new AtomicEntityOperationDetails(null, null, new ArrayList<NewSpace>(),
-                        new ArrayList<NewProject>(), new ArrayList<NewExperiment>(),
-                        experimentUpdates, Collections.singletonList(sampleUpdate),
+                new AtomicEntityOperationDetails(null, USER_FOR_ENTITY_OPERATIONS,
+                        new ArrayList<NewSpace>(), new ArrayList<NewProject>(),
+                        new ArrayList<NewExperiment>(), experimentUpdates,
+                        Collections.singletonList(sampleUpdate),
                         Collections.singletonList(newSample), materialRegistrations,
                         materialUpdates, Collections.singletonList(externalData),
                         Collections.singletonList(dataSetUpdate));
@@ -1072,22 +1082,37 @@ public class ETLServiceTest extends AbstractServerTestCase
             final NewSample newSample, final NewExternalData externalData,
             final String updatedDataSetCode, final DataSetBatchUpdatesDTO dataSetUpdate)
     {
+        final Session userSession = createSession(USER_FOR_ENTITY_OPERATIONS);
         context.checking(new Expectations()
             {
                 {
+                    allowing(sessionManagerForEntityOperations).tryToOpenSession(
+                            USER_FOR_ENTITY_OPERATIONS, "dummy password");
+                    String sessionToken = "session-token-eo";
+                    will(returnValue(sessionToken));
+
+                    allowing(sessionManagerForEntityOperations).getSession(sessionToken);
+                    will(returnValue(userSession));
+
+                    one(sessionManagerForEntityOperations).closeSession(sessionToken);
+
+                    allowing(personDAO).tryFindPersonByUserId(USER_FOR_ENTITY_OPERATIONS);
+                    PersonPE user = createSystemUser();
+                    will(returnValue(user));
+
                     allowing(daoFactory).getEntityTypeDAO(EntityKind.MATERIAL);
                     will(returnValue(entityTypeDAO));
 
                     allowing(entityTypeDAO).tryToFindEntityTypeByCode(materialType.getCode());
                     will(returnValue(materialType));
 
-                    one(entityOperationChecker)
-                            .assertMaterialCreationAllowed(session, newMaterials);
+                    one(entityOperationChecker).assertMaterialCreationAllowed(userSession,
+                            newMaterials);
                     List<NewMaterial> newMaterialsList = newMaterials.values().iterator().next();
                     one(propertiesBatchManager).manageProperties(materialType, newMaterialsList,
-                            null);
+                            user);
 
-                    one(boFactory).createMaterialTable(session);
+                    one(boFactory).createMaterialTable(userSession);
                     will(returnValue(materialTable));
 
                     one(materialTable).add(newMaterialsList, materialType);
@@ -1095,39 +1120,45 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(materialTable).getMaterials();
                     will(returnValue(Arrays.asList(material)));
 
-                }
-            });
+                    one(entityOperationChecker).assertExperimentCreationAllowed(userSession,
+                            Collections.<NewExperiment> emptyList());
 
-        context.checking(new Expectations()
-            {
-                {
                     List<NewSample> sampleList = Arrays.asList(newSample);
-                    one(entityOperationChecker).assertSpaceSampleCreationAllowed(session,
+                    one(entityOperationChecker).assertSpaceSampleCreationAllowed(userSession,
                             sampleList);
 
-                    one(boFactory).createSampleTable(session);
+                    one(boFactory).createSampleTable(userSession);
                     will(returnValue(sampleTable));
 
-                    one(sampleTable).prepareForRegistration(sampleList, null);
+                    one(sampleTable).prepareForRegistration(sampleList, user);
                     one(sampleTable).save();
 
-                    one(boFactory).createSampleTable(session);
+                    one(boFactory).createSampleTable(userSession);
                     will(returnValue(sampleTable));
 
                     List<SampleUpdatesDTO> sampleUpdateList = Arrays.asList(sampleUpdate);
-                    one(entityOperationChecker).assertSpaceSampleUpdateAllowed(session,
+                    one(entityOperationChecker).assertSpaceSampleUpdateAllowed(userSession,
                             sampleUpdateList);
                     one(sampleTable).checkBeforeUpdate(sampleUpdateList);
                     one(sampleTable).prepareForUpdateWithSampleUpdates(sampleUpdateList);
                     one(sampleTable).save();
 
-                    one(entityOperationChecker).assertDataSetCreationAllowed(session,
+                    one(entityOperationChecker).assertDataSetCreationAllowed(userSession,
                             Arrays.asList(externalData));
+
+                    one(boFactory).createDataSetTable(userSession);
+                    will(returnValue(dataSetTable));
+
+                    one(entityOperationChecker).assertDataSetUpdateAllowed(userSession,
+                            Arrays.asList(dataSetUpdate));
+                    one(dataSetTable).checkBeforeUpdate(Arrays.asList(dataSetUpdate));
+                    one(dataSetTable).update(Arrays.asList(dataSetUpdate));
+                    one(dataSetTable).save();
                 }
             });
 
-        prepareTryToLoadSample(newSampleIdentifier, newSamplePE);
-        prepareRegisterDataSet(newSampleIdentifier, newSamplePE.getExperiment(),
+        prepareTryToLoadSample(userSession, newSampleIdentifier, newSamplePE);
+        prepareRegisterDataSet(userSession, newSampleIdentifier, newSamplePE.getExperiment(),
                 SourceType.MEASUREMENT, externalData);
 
         context.checking(new Expectations()
@@ -1154,20 +1185,6 @@ public class ETLServiceTest extends AbstractServerTestCase
                     // ExternalDataPE externalDataPE = new ExternalDataPE();
                     // externalDataPE.setCode(externalData.getCode());
                     // will(returnValue(externalDataPE));
-                }
-            });
-
-        context.checking(new Expectations()
-            {
-                {
-                    one(boFactory).createDataSetTable(session);
-                    will(returnValue(dataSetTable));
-
-                    one(entityOperationChecker).assertDataSetUpdateAllowed(session,
-                            Arrays.asList(dataSetUpdate));
-                    one(dataSetTable).checkBeforeUpdate(Arrays.asList(dataSetUpdate));
-                    one(dataSetTable).update(Arrays.asList(dataSetUpdate));
-                    one(dataSetTable).save();
                 }
             });
     }
@@ -1222,18 +1239,18 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
                 materialRegistrations, newSamplePE, newSampleIdentifier, newSample, externalData,
                 updatedDataSetCode, dataSetUpdate);
-
         context.checking(new Expectations()
             {
                 {
                     one(entityOperationsLogDAO).addLogEntry(new Long(1));
+
                 }
             });
 
         AtomicEntityOperationDetails details =
-                new AtomicEntityOperationDetails(new TechId(1), null, new ArrayList<NewSpace>(),
-                        new ArrayList<NewProject>(), new ArrayList<NewExperiment>(),
-                        new ArrayList<ExperimentUpdatesDTO>(),
+                new AtomicEntityOperationDetails(new TechId(1), USER_FOR_ENTITY_OPERATIONS,
+                        new ArrayList<NewSpace>(), new ArrayList<NewProject>(),
+                        new ArrayList<NewExperiment>(), new ArrayList<ExperimentUpdatesDTO>(),
                         Collections.singletonList(sampleUpdate),
                         Collections.singletonList(newSample), materialRegistrations,
                         materialUpdates, Collections.singletonList(externalData),
@@ -1291,14 +1308,14 @@ public class ETLServiceTest extends AbstractServerTestCase
         return sc;
     }
 
-    private void prepareRegisterDataSet(final SampleIdentifier sampleIdentifier,
-            final ExperimentPE experiment, final SourceType sourceType,
-            final NewExternalData externalData)
+    private void prepareRegisterDataSet(final Session userSession,
+            final SampleIdentifier sampleIdentifier, final ExperimentPE experiment,
+            final SourceType sourceType, final NewExternalData externalData)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleBO(session);
+                    one(boFactory).createSampleBO(userSession);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier);
@@ -1309,7 +1326,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     sample.setExperiment(experiment);
                     will(returnValue(sample));
 
-                    one(boFactory).createDataBO(session);
+                    one(boFactory).createDataBO(userSession);
                     will(returnValue(dataBO));
 
                     one(dataBO).define(externalData, sample, sourceType);
@@ -1347,11 +1364,17 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private void prepareTryToLoadSample(final SampleIdentifier identifier, final SamplePE sample)
     {
+        prepareTryToLoadSample(session, identifier, sample);
+    }
+
+    private void prepareTryToLoadSample(final Session userSession,
+            final SampleIdentifier identifier, final SamplePE sample)
+    {
         prepareGetSession();
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleBO(session);
+                    one(boFactory).createSampleBO(userSession);
                     will(returnValue(sampleBO));
 
                     one(sampleBO).tryToLoadBySampleIdentifier(identifier);
@@ -1385,9 +1408,12 @@ public class ETLServiceTest extends AbstractServerTestCase
         ETLService etlService =
                 new ETLService(authenticationService, sessionManager, daoFactory,
                         propertiesBatchManager, boFactory, dssfactory, null,
-                        entityOperationChecker, dataStoreServiceRegistrator);
+                        entityOperationChecker, dataStoreServiceRegistrator,
+                        sessionManagerForEntityOperations);
         etlService.setConversationClient(conversationClient);
         etlService.setConversationServer(conversationServer);
+        etlService.setDisplaySettingsProvider(new DisplaySettingsProvider());
+
         return etlService;
     }
 

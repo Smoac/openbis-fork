@@ -222,7 +222,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     private final IETLEntityOperationChecker entityOperationChecker;
 
-    private final DefaultSessionManager<Session> sessionManagerForEntityOperation;
+    private final ISessionManager<Session> sessionManagerForEntityOperation;
 
     private final IDataStoreServiceRegistrator dataStoreServiceRegistrator;
 
@@ -238,25 +238,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             IDataStoreServiceRegistrator dataStoreServiceRegistrator)
     {
         this(authenticationService, sessionManager, daoFactory, null, boFactory, dssFactory,
-                trustedOriginDomainProvider, entityOperationChecker, dataStoreServiceRegistrator);
-    }
-
-    ETLService(IAuthenticationService authenticationService,
-            ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
-            IPropertiesBatchManager propertiesBatchManager, ICommonBusinessObjectFactory boFactory,
-            IDataStoreServiceFactory dssFactory,
-            TrustedCrossOriginDomainsProvider trustedOriginDomainProvider,
-            IETLEntityOperationChecker entityOperationChecker,
-            IDataStoreServiceRegistrator dataStoreServiceRegistrator)
-    {
-        super(authenticationService, sessionManager, daoFactory, propertiesBatchManager, boFactory);
-        this.daoFactory = daoFactory;
-        this.dssFactory = dssFactory;
-        this.trustedOriginDomainProvider = trustedOriginDomainProvider;
-        this.entityOperationChecker = entityOperationChecker;
-        this.dataStoreServiceRegistrator = dataStoreServiceRegistrator;
-
-        sessionManagerForEntityOperation =
+                trustedOriginDomainProvider, entityOperationChecker, dataStoreServiceRegistrator,
                 new DefaultSessionManager<Session>(new SessionFactory(),
                         new LogMessagePrefixGenerator(), new DummyAuthenticationService(),
                         new RequestContextProviderAdapter(new IRequestContextProvider()
@@ -266,8 +248,25 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                                 {
                                     return null;
                                 }
-                            }), 30);
+                            }), 30));
+    }
 
+    ETLService(IAuthenticationService authenticationService,
+            ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
+            IPropertiesBatchManager propertiesBatchManager, ICommonBusinessObjectFactory boFactory,
+            IDataStoreServiceFactory dssFactory,
+            TrustedCrossOriginDomainsProvider trustedOriginDomainProvider,
+            IETLEntityOperationChecker entityOperationChecker,
+            IDataStoreServiceRegistrator dataStoreServiceRegistrator,
+            ISessionManager<Session> sessionManagerForEntityOperation)
+    {
+        super(authenticationService, sessionManager, daoFactory, propertiesBatchManager, boFactory);
+        this.daoFactory = daoFactory;
+        this.dssFactory = dssFactory;
+        this.trustedOriginDomainProvider = trustedOriginDomainProvider;
+        this.entityOperationChecker = entityOperationChecker;
+        this.dataStoreServiceRegistrator = dataStoreServiceRegistrator;
+        this.sessionManagerForEntityOperation = sessionManagerForEntityOperation;
     }
 
     @Override
@@ -1711,8 +1710,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return newSamples.size();
     }
 
-    private void checkInstanceSampleCreationAllowed(Session session,
-            List<NewSample> instanceSamples)
+    private void checkInstanceSampleCreationAllowed(Session session, List<NewSample> instanceSamples)
     {
         if (instanceSamples.isEmpty() == false)
         {
