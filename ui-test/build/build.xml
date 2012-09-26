@@ -27,8 +27,11 @@
 	
 	<target name="_run-testng-ui">
 
-		<condition property="internal-url" value="${ui-test.url}" else="">
-		    <isset property="ui-test.url"/>
+		<condition property="internal-as-url" value="${ui-test.as-url}" else="">
+		    <isset property="ui-test.as-url"/>
+		</condition>
+		<condition property="internal-dss-url" value="${ui-test.dss-url}" else="">
+		    <isset property="ui-test.dss-url"/>
 		</condition>
 
 		<testng classpath="${ecp}"
@@ -38,7 +41,8 @@
 			<xmlfileset dir="source/java" includes="${test.suite}" />
 			<jvmarg value="-Xmx1024M" />
 			<jvmarg value="-XX:MaxPermSize=512m" />
-	  	<jvmarg value="-Dui-test.url=${internal-url}" />
+	  	<jvmarg value="-Dui-test.as-url=${internal-as-url}" />
+		  <jvmarg value="-Dui-test.dss-url=${internal-dss-url}" />
 		</testng>
 
 		<fail if="${failure.property}" />

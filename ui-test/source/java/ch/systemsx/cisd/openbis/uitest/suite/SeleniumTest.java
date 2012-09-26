@@ -130,6 +130,10 @@ public abstract class SeleniumTest
             dssUrl = "http://localhost:8889";
         }
 
+        System.out.println("asUrl: " + asUrl);
+        System.out.println("dssUrl: " + dssUrl);
+        System.out.println("startPage: " + startPage);
+
         driver = new FirefoxDriver();
         setImplicitWaitToDefault();
         delete(new File("targets/dist"));
