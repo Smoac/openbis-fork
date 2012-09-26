@@ -433,12 +433,12 @@ public class DatabaseConfigurationContext implements DisposableBean
      */
     public final void setUrlHostPart(final String urlHostPart)
     {
-        if (urlHostPart != null && urlHostPart.length() == 0)
-        {
-            this.urlHostPart = null;
-        } else
+        if (isSet(urlHostPart))
         {
             this.urlHostPart = StringUtils.trim(urlHostPart);
+        } else
+        {
+            this.urlHostPart = null;
         }
     }
 
