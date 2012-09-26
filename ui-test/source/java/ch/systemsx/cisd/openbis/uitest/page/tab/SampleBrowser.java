@@ -100,7 +100,7 @@ public class SampleBrowser implements Browser<Sample>
     public String toString()
     {
         String s = "SampleBrowser\n==========\n";
+        s += "Sample Type Choices: " + sampleTypeList.getChoices() + "\n";
         return s + grid.toString();
     }
-
 }
