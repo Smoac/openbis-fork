@@ -43,6 +43,11 @@ public class WidgetContext
         element.click();
     }
 
+    public boolean isInteractable()
+    {
+        return element.isDisplayed() && element.isEnabled();
+    }
+
     public String getAttribute(String key)
     {
         return element.getAttribute(key);

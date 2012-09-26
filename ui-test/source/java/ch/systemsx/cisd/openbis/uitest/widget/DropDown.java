@@ -74,7 +74,14 @@ public class DropDown implements AtomicWidget, Fillable
     private List<WebElement> getChoiceElements()
     {
         context.click();
-        return SeleniumTest.driver.findElements(By.className("x-combo-list-item"));
+        List<WebElement> wlist =
+                SeleniumTest.driver.findElements(By.className("x-combo-list-item"));
+        if (wlist.size() == 0)
+        {
+            System.out.println("dropdown retry");
+            return getChoiceElements();
+        }
+        return wlist;
     }
 
     @Override

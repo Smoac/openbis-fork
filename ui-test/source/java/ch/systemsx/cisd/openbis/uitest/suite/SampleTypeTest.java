@@ -57,7 +57,7 @@ public class SampleTypeTest extends SeleniumTest
         assertThat(sampleBrowser(), doesNotShowInToolBar(sampleType));
     }
 
-    @Test(enabled = false)
+    @Test
     public void changingSampleTypeToBeListableMakesItVisibleInSampleBrowserDropDownMenu()
     {
         SampleType sampleType = create(aSampleType().thatIsNotListable());

@@ -18,12 +18,14 @@ package ch.systemsx.cisd.openbis.uitest.suite;
 
 import static org.hamcrest.CoreMatchers.not;
 
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 import org.hamcrest.Matcher;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -89,7 +91,7 @@ import ch.systemsx.cisd.openbis.uitest.type.VocabularyBuilder;
 
 public abstract class SeleniumTest
 {
-    public static int IMPLICIT_WAIT = 20;
+    public static int IMPLICIT_WAIT = 30;
 
     public static String ADMIN_USER = "selenium";
 
@@ -105,7 +107,7 @@ public abstract class SeleniumTest
 
     protected GuiApplicationRunner openbis;
 
-    private ApplicationRunner openbisApi;
+    private static ApplicationRunner openbisApi;
 
     @BeforeSuite
     public void initWebDriver() throws Exception
@@ -144,6 +146,13 @@ public abstract class SeleniumTest
         setImplicitWaitToDefault();
         delete(new File("targets/dist"));
         driver.manage().deleteAllCookies();
+
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Dimension screenResolution =
+                new Dimension((int) toolkit.getScreenSize().getWidth(), (int) toolkit
+                        .getScreenSize().getHeight());
+        driver.manage().window().setSize(screenResolution);
+
         driver.get(startPage);
 
         uid = new DictionaryUidGenerator(new File("resource/corncob_lowercase.txt"));

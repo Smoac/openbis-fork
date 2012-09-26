@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.uitest.widget;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 
-
 /**
  * @author anttil
  */
@@ -39,6 +38,20 @@ public class Text implements AtomicWidget, Fillable
 
     public void append(String text)
     {
+        if (context.isInteractable() == false)
+        {
+            System.out.println("text retry");
+            try
+            {
+                Thread.sleep(500);
+            } catch (InterruptedException ex)
+            {
+                // TODO Auto-generated catch block
+                ex.printStackTrace();
+            }
+            append(text);
+            return;
+        }
         context.sendKeys(text);
     }
 
