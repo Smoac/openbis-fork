@@ -189,7 +189,7 @@ public abstract class SeleniumTest
         // this is because of BIS-184
         sampleBrowser();
 
-        this.openbisApi.login(ADMIN_USER, ADMIN_PASSWORD);
+        openbisApi.login(ADMIN_USER, ADMIN_PASSWORD);
     }
 
     @AfterGroups(groups = "login-admin")
