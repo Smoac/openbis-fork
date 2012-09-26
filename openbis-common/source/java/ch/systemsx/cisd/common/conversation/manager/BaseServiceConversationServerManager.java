@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.conversation.manager;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,15 +45,20 @@ public abstract class BaseServiceConversationServerManager implements
 
     private ServiceConversationServer server;
 
-    private Map<ServiceConversationClientDetails, IServiceConversationClientManagerRemote> clientDetailsToClientMap =
-            new HashMap<ServiceConversationClientDetails, IServiceConversationClientManagerRemote>();
+    private Map<ServiceConversationClientDetails, IServiceConversationClientManagerRemote> clientDetailsToClientMap;
 
-    private Map<String, ServiceConversationClientDetails> conversationIdToClientDetailsMap =
-            new HashMap<String, ServiceConversationClientDetails>();
+    private Map<String, ServiceConversationClientDetails> conversationIdToClientDetailsMap;
 
     public BaseServiceConversationServerManager()
     {
         server = new ServiceConversationServer();
+
+        clientDetailsToClientMap =
+                Collections
+                        .synchronizedMap(new HashMap<ServiceConversationClientDetails, IServiceConversationClientManagerRemote>());
+        conversationIdToClientDetailsMap =
+                Collections
+                        .synchronizedMap(new HashMap<String, ServiceConversationClientDetails>());
     }
 
     /**

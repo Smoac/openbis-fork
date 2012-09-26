@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.conversation.manager;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,11 +42,19 @@ public class BaseServiceConversationClientManager implements
         IServiceConversationClientManagerRemote
 {
 
-    private Map<ClientConfig, ServiceConversationClientWithConversationTracking> clientConfigToClientMap =
-            new HashMap<ClientConfig, ServiceConversationClientWithConversationTracking>();
+    private Map<ClientConfig, ServiceConversationClientWithConversationTracking> clientConfigToClientMap;
 
-    private Map<String, ServiceConversationClientWithConversationTracking> conversationIdToClientMap =
-            new HashMap<String, ServiceConversationClientWithConversationTracking>();
+    private Map<String, ServiceConversationClientWithConversationTracking> conversationIdToClientMap;
+
+    public BaseServiceConversationClientManager()
+    {
+        clientConfigToClientMap =
+                Collections
+                        .synchronizedMap(new HashMap<ClientConfig, ServiceConversationClientWithConversationTracking>());
+        conversationIdToClientMap =
+                Collections
+                        .synchronizedMap(new HashMap<String, ServiceConversationClientWithConversationTracking>());
+    }
 
     @Override
     public void send(ServiceMessage message)
