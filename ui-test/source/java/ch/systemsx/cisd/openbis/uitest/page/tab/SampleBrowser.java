@@ -89,6 +89,14 @@ public class SampleBrowser implements Browser<Sample>
         {
             paging.settings();
             settings.showColumns("Code", column);
+            try
+            {
+                Thread.sleep(5000);
+            } catch (InterruptedException ex)
+            {
+                // TODO Auto-generated catch block
+                ex.printStackTrace();
+            }
             return select(sample).get(column);
         } else
         {

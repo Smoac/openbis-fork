@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
+import org.openqa.selenium.WebElement;
+
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.DeterminateAction;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
@@ -30,7 +32,7 @@ public class FilterToolBar implements Widget
 
     public void setCode(final String text, Refreshable refresher)
     {
-        final Text t = context.find(".//input[contains(@id, 'Code-input')]", Text.class);
+        final WebElement t = context.find(".//input[contains(@id, 'Code-input')]");
 
         new WaitForRefreshOf<Void>(refresher)
                 .after(new DeterminateAction<Void>()
@@ -38,7 +40,16 @@ public class FilterToolBar implements Widget
                         @Override
                         public Void execute()
                         {
-                            t.write(text);
+                            try
+                            {
+                                Thread.sleep(2000);
+                            } catch (InterruptedException ex)
+                            {
+                                // TODO Auto-generated catch block
+                                ex.printStackTrace();
+                            }
+                            t.clear();
+                            t.sendKeys(text);
                             return null;
                         }
                     }).withTimeoutOf(20);
@@ -47,8 +58,14 @@ public class FilterToolBar implements Widget
 
     public void reset()
     {
-        Button b = context.find(".//button[text()='Reset']", Button.class);
-        b.click();
+        WebElement b = context.find(".//button[text()='Reset']");
+        if (b.isEnabled() && b.isDisplayed())
+        {
+            b.click();
+        } else
+        {
+            reset();
+        }
     }
 
     @Override

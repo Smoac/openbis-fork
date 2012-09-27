@@ -67,6 +67,7 @@ public class PagingToolBar implements Widget, Refreshable
 
         if (currentText.contains("Loading"))
         {
+            displayText = currentText;
             return false;
         }
 

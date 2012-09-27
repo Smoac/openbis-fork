@@ -54,7 +54,7 @@ public class WaitForRefreshOf<T> extends FluentWait<Refreshable>
             try
             {
                 withTimeout(seconds, TimeUnit.SECONDS)
-                        .pollingEvery(100, TimeUnit.MILLISECONDS)
+                        .pollingEvery(50, TimeUnit.MILLISECONDS)
                         .until(new Predicate<Refreshable>()
                             {
                                 @Override
