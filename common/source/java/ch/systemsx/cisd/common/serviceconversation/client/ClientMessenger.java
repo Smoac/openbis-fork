@@ -155,7 +155,7 @@ class ClientMessenger implements IServiceConversation
         ServiceMessage message = responseMessageQueue.poll(timeout);
         while (message != null && message.getProgress() != null)
         {
-            operationLog.info(message.getProgress());
+            operationLog.debug(message.getProgress());
             message = responseMessageQueue.poll(timeout);
         }
         return message;
