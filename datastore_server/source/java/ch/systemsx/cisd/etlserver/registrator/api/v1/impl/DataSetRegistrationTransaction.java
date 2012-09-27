@@ -481,6 +481,10 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         state = new CommitedTransactionState<T>(liveState);
         invokeDidCommitTransaction();
 
+        if (commitSucceeded)
+        {
+            operationLog.info("Succesfully commited transaction");
+        }
         return commitSucceeded;
     }
 

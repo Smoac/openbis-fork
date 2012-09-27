@@ -56,8 +56,10 @@ def create_experiment_if_needed(transaction):
     return exp
 
 def createSamples(transaction):
+    sampleParent = transaction.createNewSample('/'+SPACE_CODE+'/SAMPLE_PARENT', SAMPLE_TYPE)
     for i in range(SAMPLES_COUNT):
         sample = transaction.createNewSample('/'+SPACE_CODE+'/SAMPLE'+str(i), SAMPLE_TYPE)
+        sample.setParentSampleIdentifiers([sampleParent.getSampleIdentifier()])
 
 def process(transaction):
     transaction.getRegistrationContext().getPersistentMap().put("start", time())

@@ -28,11 +28,11 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  * during development. Run this test on "before" and "after" versions of your code to measure the
  * performance changes.
  * <p>
- * It starts a dropbox that does nothing, but registers the given big number of samples with certain
- * type. Edit the constants in the dropbox script to change the number, and the type. The default
- * values are small, to avoid having a long-running test, that doesn't do much. You might also want
- * to update the timeout value in method <code>dataSetImportWaitDurationInSeconds()</code> if your
- * benchmark takes too much time.
+ * It starts a dropbox that registers the given big number of samples with certain type. Edit the
+ * constants in the dropbox script to change the number, and the type. The default values are small,
+ * to avoid having a long-running test, that doesn't do much. You might also want to update the
+ * timeout value in method <code>dataSetImportWaitDurationInSeconds()</code> if your benchmark takes
+ * too much time.
  * <p>
  * After the test completes it prints to the console how much time took the jython script part and
  * the registration in application server.

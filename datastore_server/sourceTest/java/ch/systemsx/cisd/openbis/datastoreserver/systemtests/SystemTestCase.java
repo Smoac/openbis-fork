@@ -68,6 +68,11 @@ public abstract class SystemTestCase extends AssertJUnit
 
     private static final String DATA_SET_IMPORTED_LOG_MARKER = "Successfully registered data set";
 
+    // this message appears if the dropbox has succesfully completed the registration, even if no
+    // datasets have been imported
+    private static final String REGISTRATION_FINISHED_LOG_MARKER =
+            "Succesfully commited transaction";
+
     protected static GenericWebApplicationContext applicationContext;
 
     protected File workingDirectory;
@@ -226,7 +231,8 @@ public abstract class SystemTestCase extends AssertJUnit
         {
             Thread.sleep(1000);
             logContent = logAppender.getLogContent();
-            if (logContent.contains(DATA_SET_IMPORTED_LOG_MARKER))
+            if (logContent.contains(DATA_SET_IMPORTED_LOG_MARKER)
+                    || logContent.contains(REGISTRATION_FINISHED_LOG_MARKER))
             {
                 dataSetImported = true;
             } else
