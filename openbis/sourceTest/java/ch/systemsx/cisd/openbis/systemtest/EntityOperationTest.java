@@ -663,7 +663,7 @@ public class EntityOperationTest extends SystemTestCase
                 new EntityOperationBuilder().sampleUpdate(sample).create();
 
         performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: "
-                + "\"None of method roles '[INSTANCE_ETL_SERVER, INSTANCE_ADMIN]' "
+                + "\"None of method roles '[INSTANCE_ADMIN, INSTANCE_ETL_SERVER]' "
                 + "could be found in roles of user '" + SPACE_ETL_SERVER_FOR_A + "'.\".");
     }
 
