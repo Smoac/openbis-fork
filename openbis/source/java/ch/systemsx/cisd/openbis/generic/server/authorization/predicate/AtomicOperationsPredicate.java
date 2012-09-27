@@ -80,6 +80,7 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
         sampleOwnerIdentifierPredicate.init(provider);
         experimentOwnerIdentifierPredicate.init(provider);
         dataSetUpdatesCollectionPredicate.init(provider);
+        newProjectPredicate.init(provider);
     }
 
     @Override
@@ -236,8 +237,7 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
 
         private Status evaluateMaterialUpdates()
         {
-            if (value.getMaterialUpdates() != null
-                    && value.getMaterialUpdates().size() > 0)
+            if (value.getMaterialUpdates() != null && value.getMaterialUpdates().size() > 0)
             {
                 return instanceWriteStatus;
             } else
