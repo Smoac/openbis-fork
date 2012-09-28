@@ -122,7 +122,7 @@
       <param name="project-path" value="" />
       <param name="plugin-kind" value="dss" />
   	</antcall>
-    <delete file="${dist}/core-plugins/core_plugins.properties"/>
+    <delete file="${dist}/core-plugins/core-plugins.properties"/>
   	<move todir="${dist.datastore_server}">
   		<fileset dir="${dist}">
   		  <include name="*.MD5"/>

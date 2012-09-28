@@ -151,7 +151,7 @@
     <checksum todir="${dist}" pattern="{0}  etc/{1}">
       <fileset dir="../screening/dist/etc">
         <include name="service.properties" />
-        <include name="core_plugins.properties" />
+        <include name="core-plugins.properties" />
       	<include name="tabular-data-graph.properties" />
         <include name="log.xml" />
         <include name="openBIS.keystore" />

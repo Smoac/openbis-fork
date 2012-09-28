@@ -21,7 +21,7 @@
 	    <param name="project-path" value="../deep_sequencing_unit/"/>
 	    <param name="plugin-kind" value="as"/>
 	  </antcall>
-    <copy todir="${dist}/core-plugins" file="dist/etc/core_plugins.properties"/>
+    <copy todir="${dist}/core-plugins" file="dist/etc/core-plugins.properties"/>
   </target>
 
 	<target name="dist" depends="clean">
@@ -61,7 +61,7 @@
       <param name="project-path" value="../screening/" />
       <param name="plugin-kind" value="dss" />
 		</antcall>
-	  <delete file="${dist}/core-plugins/core_plugins.properties"/>
+	  <delete file="${dist}/core-plugins/core-plugins.properties"/>
 		<antcall target="screening.add-stuff-to-dss-dist"/>
 		<antcall target="screening.compute-dss-checksum"/>
 		

@@ -210,7 +210,7 @@
 			</fileset>
 			<fileset dir="dist/server/etc">
 				<include name="log.xml" />
-				<include name="core_plugins.properties" />
+				<include name="core-plugins.properties" />
 			</fileset>
 		</checksum>
 	</target>
@@ -647,10 +647,10 @@
     <copy todir="${dist}/core-plugins">
       <fileset dir="${project-path}${core-plugins.folder}" erroronmissingdir="false"
                includesfile="${dist}/core-plugin-paths">
-        <exclude name="core_plugins.properties"/>
+        <exclude name="core-plugins.properties"/>
       </fileset>
       <fileset dir="${project-path}dist/server" erroronmissingdir="false">
-        <include name="core_plugins.properties"/>
+        <include name="core-plugins.properties"/>
       </fileset>
     </copy>
   	<delete file="${dist}/core-plugin-paths"/>
@@ -693,7 +693,7 @@
       <classes dir="${original.server.dist}">
         <include name="etc/log.xml" />
         <include name="etc/passwd" />
-        <include name="etc/core_plugins.properties" />
+        <include name="etc/core-plugins.properties" />
       </classes>
       <classes dir="${classes}">
         <include name="${build.info.filename}" />
