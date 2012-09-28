@@ -1,0 +1,596 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3649C8AA15EBB2950019AC55 /* CISDOBConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 3649C8A915EBB2950019AC55 /* CISDOBConnection.m */; };
+		3649C8AE15EC17D80019AC55 /* CISDOBJsonRpcCall.m in Sources */ = {isa = PBXBuildFile; fileRef = 3649C8AD15EC17D80019AC55 /* CISDOBJsonRpcCall.m */; };
+		3649C8E315ED13540019AC55 /* CISDOBJsonRpcCallTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 3649C8E215ED13540019AC55 /* CISDOBJsonRpcCallTest.m */; };
+		368077A515D0F78700843AD5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 368077A415D0F78700843AD5 /* Cocoa.framework */; };
+		368077AF15D0F78700843AD5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 368077AD15D0F78700843AD5 /* InfoPlist.strings */; };
+		368077B215D0F78700843AD5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 368077B115D0F78700843AD5 /* main.m */; };
+		368077B515D0F78700843AD5 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 368077B315D0F78700843AD5 /* Credits.rtf */; };
+		368077B815D0F78700843AD5 /* BisMacDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 368077B715D0F78700843AD5 /* BisMacDocument.m */; };
+		368077BB15D0F78700843AD5 /* BisMacDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 368077B915D0F78700843AD5 /* BisMacDocument.xib */; };
+		368077BE15D0F78700843AD5 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 368077BC15D0F78700843AD5 /* MainMenu.xib */; };
+		368077C115D0F78700843AD5 /* BisMacDocument.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 368077BF15D0F78700843AD5 /* BisMacDocument.xcdatamodeld */; };
+		368077C815D0F78700843AD5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 368077A415D0F78700843AD5 /* Cocoa.framework */; };
+		368077D015D0F78700843AD5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 368077CE15D0F78700843AD5 /* InfoPlist.strings */; };
+		368077D315D0F78700843AD5 /* BisMacTests.h in Resources */ = {isa = PBXBuildFile; fileRef = 368077D215D0F78700843AD5 /* BisMacTests.h */; };
+		368077D515D0F78700843AD5 /* BisMacTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 368077D415D0F78700843AD5 /* BisMacTests.m */; };
+		3680B1341611B5CE008BA207 /* CISDOBIpadService.m in Sources */ = {isa = PBXBuildFile; fileRef = 3680B1331611B5CE008BA207 /* CISDOBIpadService.m */; };
+		3680B13716120319008BA207 /* CISDOBAsyncCall.m in Sources */ = {isa = PBXBuildFile; fileRef = 3680B13616120319008BA207 /* CISDOBAsyncCall.m */; };
+		3680B13A1612E832008BA207 /* CISDOBIpadServiceTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 3680B1391612E832008BA207 /* CISDOBIpadServiceTest.m */; };
+		3680B13D1612E8B6008BA207 /* CISDOBAsyncTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 3680B13C1612E8B6008BA207 /* CISDOBAsyncTest.m */; };
+		3687CF5815DD4FE4009E3019 /* readme.md in Resources */ = {isa = PBXBuildFile; fileRef = 3687CF5715DD4FE4009E3019 /* readme.md */; };
+		36F108C6160A103E00D7B142 /* CISDOBLiveConnectionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F108C4160A04CA00D7B142 /* CISDOBLiveConnectionTest.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		368077C915D0F78700843AD5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3680779715D0F78600843AD5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3680779F15D0F78700843AD5;
+			remoteInfo = BisMac;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		3649C8A815EBB2950019AC55 /* CISDOBConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = CISDOBConnection.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		3649C8A915EBB2950019AC55 /* CISDOBConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CISDOBConnection.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		3649C8AC15EC17D80019AC55 /* CISDOBJsonRpcCall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBJsonRpcCall.h; sourceTree = "<group>"; };
+		3649C8AD15EC17D80019AC55 /* CISDOBJsonRpcCall.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBJsonRpcCall.m; sourceTree = "<group>"; };
+		3649C8AF15ECA4EA0019AC55 /* CISDOBShared.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBShared.h; sourceTree = "<group>"; };
+		3649C8E115ED13540019AC55 /* CISDOBJsonRpcCallTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBJsonRpcCallTest.h; sourceTree = "<group>"; };
+		3649C8E215ED13540019AC55 /* CISDOBJsonRpcCallTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBJsonRpcCallTest.m; sourceTree = "<group>"; };
+		368077A015D0F78700843AD5 /* BisMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BisMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		368077A415D0F78700843AD5 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		368077A715D0F78700843AD5 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		368077A815D0F78700843AD5 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		368077A915D0F78700843AD5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		368077AC15D0F78700843AD5 /* BisMac-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "BisMac-Info.plist"; sourceTree = "<group>"; };
+		368077AE15D0F78700843AD5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		368077B015D0F78700843AD5 /* BisMac-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BisMac-Prefix.pch"; sourceTree = "<group>"; };
+		368077B115D0F78700843AD5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		368077B415D0F78700843AD5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		368077B615D0F78700843AD5 /* BisMacDocument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BisMacDocument.h; sourceTree = "<group>"; };
+		368077B715D0F78700843AD5 /* BisMacDocument.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BisMacDocument.m; sourceTree = "<group>"; };
+		368077BA15D0F78700843AD5 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/BisMacDocument.xib; sourceTree = "<group>"; };
+		368077BD15D0F78700843AD5 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		368077C015D0F78700843AD5 /* BisMacDocument.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = BisMacDocument.xcdatamodel; sourceTree = "<group>"; };
+		368077C715D0F78700843AD5 /* BisMacTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BisMacTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		368077CD15D0F78700843AD5 /* BisMacTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "BisMacTests-Info.plist"; sourceTree = "<group>"; };
+		368077CF15D0F78700843AD5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		368077D115D0F78700843AD5 /* BisMacTests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BisMacTests-Prefix.pch"; sourceTree = "<group>"; };
+		368077D215D0F78700843AD5 /* BisMacTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BisMacTests.h; sourceTree = "<group>"; };
+		368077D415D0F78700843AD5 /* BisMacTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BisMacTests.m; sourceTree = "<group>"; };
+		368077DE15D0F78700843AD5 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
+		368077E015D0F78700843AD5 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		368077E215D0F78700843AD5 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		368077E415D0F78700843AD5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		3680B1321611B5CE008BA207 /* CISDOBIpadService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBIpadService.h; sourceTree = "<group>"; };
+		3680B1331611B5CE008BA207 /* CISDOBIpadService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBIpadService.m; sourceTree = "<group>"; };
+		3680B13516120319008BA207 /* CISDOBAsyncCall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBAsyncCall.h; sourceTree = "<group>"; };
+		3680B13616120319008BA207 /* CISDOBAsyncCall.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBAsyncCall.m; sourceTree = "<group>"; };
+		3680B1381612E832008BA207 /* CISDOBIpadServiceTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBIpadServiceTest.h; sourceTree = "<group>"; };
+		3680B1391612E832008BA207 /* CISDOBIpadServiceTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBIpadServiceTest.m; sourceTree = "<group>"; };
+		3680B13B1612E8B6008BA207 /* CISDOBAsyncTest.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBAsyncTest.h; sourceTree = "<group>"; tabWidth = 4; usesTabs = 0; wrapsLines = 1; };
+		3680B13C1612E8B6008BA207 /* CISDOBAsyncTest.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBAsyncTest.m; sourceTree = "<group>"; tabWidth = 4; usesTabs = 0; wrapsLines = 1; };
+		3687CF5715DD4FE4009E3019 /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
+		36F108C3160A04CA00D7B142 /* CISDOBLiveConnectionTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBLiveConnectionTest.h; sourceTree = "<group>"; };
+		36F108C4160A04CA00D7B142 /* CISDOBLiveConnectionTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CISDOBLiveConnectionTest.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3680779D15D0F78700843AD5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				368077A515D0F78700843AD5 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		368077C315D0F78700843AD5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				368077C815D0F78700843AD5 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		3649C8B015ECAB2A0019AC55 /* ThirdParty */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ThirdParty;
+			sourceTree = "<group>";
+		};
+		3680779515D0F78600843AD5 = {
+			isa = PBXGroup;
+			children = (
+				3687CF5515DD4FA1009E3019 /* BisKit */,
+				368077AA15D0F78700843AD5 /* BisMac */,
+				368077CB15D0F78700843AD5 /* BisMacTests */,
+				368077A315D0F78700843AD5 /* Frameworks */,
+				368077A115D0F78700843AD5 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		368077A115D0F78700843AD5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				368077A015D0F78700843AD5 /* BisMac.app */,
+				368077C715D0F78700843AD5 /* BisMacTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		368077A315D0F78700843AD5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				368077A415D0F78700843AD5 /* Cocoa.framework */,
+				368077DE15D0F78700843AD5 /* CoreServices.framework */,
+				368077E015D0F78700843AD5 /* CoreFoundation.framework */,
+				368077E215D0F78700843AD5 /* CoreData.framework */,
+				368077E415D0F78700843AD5 /* Foundation.framework */,
+				368077A615D0F78700843AD5 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		368077A615D0F78700843AD5 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				368077A715D0F78700843AD5 /* AppKit.framework */,
+				368077A815D0F78700843AD5 /* CoreData.framework */,
+				368077A915D0F78700843AD5 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		368077AA15D0F78700843AD5 /* BisMac */ = {
+			isa = PBXGroup;
+			children = (
+				368077B615D0F78700843AD5 /* BisMacDocument.h */,
+				368077B715D0F78700843AD5 /* BisMacDocument.m */,
+				368077B915D0F78700843AD5 /* BisMacDocument.xib */,
+				368077BC15D0F78700843AD5 /* MainMenu.xib */,
+				368077BF15D0F78700843AD5 /* BisMacDocument.xcdatamodeld */,
+				368077AB15D0F78700843AD5 /* Supporting Files */,
+			);
+			path = BisMac;
+			sourceTree = "<group>";
+		};
+		368077AB15D0F78700843AD5 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				368077AC15D0F78700843AD5 /* BisMac-Info.plist */,
+				368077AD15D0F78700843AD5 /* InfoPlist.strings */,
+				368077B015D0F78700843AD5 /* BisMac-Prefix.pch */,
+				368077B115D0F78700843AD5 /* main.m */,
+				368077B315D0F78700843AD5 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		368077CB15D0F78700843AD5 /* BisMacTests */ = {
+			isa = PBXGroup;
+			children = (
+				368077D215D0F78700843AD5 /* BisMacTests.h */,
+				368077D415D0F78700843AD5 /* BisMacTests.m */,
+				368077CC15D0F78700843AD5 /* Supporting Files */,
+			);
+			path = BisMacTests;
+			sourceTree = "<group>";
+		};
+		368077CC15D0F78700843AD5 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				368077CD15D0F78700843AD5 /* BisMacTests-Info.plist */,
+				368077CE15D0F78700843AD5 /* InfoPlist.strings */,
+				368077D115D0F78700843AD5 /* BisMacTests-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		3687CF5515DD4FA1009E3019 /* BisKit */ = {
+			isa = PBXGroup;
+			children = (
+				3649C8B015ECAB2A0019AC55 /* ThirdParty */,
+				3687CF5915DD50AE009E3019 /* Classes */,
+				3687CF5A15DD50BF009E3019 /* Tests */,
+				3687CF5715DD4FE4009E3019 /* readme.md */,
+			);
+			path = BisKit;
+			sourceTree = "<group>";
+		};
+		3687CF5915DD50AE009E3019 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				3649C8AF15ECA4EA0019AC55 /* CISDOBShared.h */,
+				3680B13516120319008BA207 /* CISDOBAsyncCall.h */,
+				3680B13616120319008BA207 /* CISDOBAsyncCall.m */,
+				3649C8A815EBB2950019AC55 /* CISDOBConnection.h */,
+				3649C8A915EBB2950019AC55 /* CISDOBConnection.m */,
+				3649C8AC15EC17D80019AC55 /* CISDOBJsonRpcCall.h */,
+				3649C8AD15EC17D80019AC55 /* CISDOBJsonRpcCall.m */,
+				3680B1321611B5CE008BA207 /* CISDOBIpadService.h */,
+				3680B1331611B5CE008BA207 /* CISDOBIpadService.m */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
+		3687CF5A15DD50BF009E3019 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				3680B13B1612E8B6008BA207 /* CISDOBAsyncTest.h */,
+				3680B13C1612E8B6008BA207 /* CISDOBAsyncTest.m */,
+				3649C8E115ED13540019AC55 /* CISDOBJsonRpcCallTest.h */,
+				3649C8E215ED13540019AC55 /* CISDOBJsonRpcCallTest.m */,
+				36F108C3160A04CA00D7B142 /* CISDOBLiveConnectionTest.h */,
+				36F108C4160A04CA00D7B142 /* CISDOBLiveConnectionTest.m */,
+				3680B1381612E832008BA207 /* CISDOBIpadServiceTest.h */,
+				3680B1391612E832008BA207 /* CISDOBIpadServiceTest.m */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3680779F15D0F78700843AD5 /* BisMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 368077FA15D0F78700843AD5 /* Build configuration list for PBXNativeTarget "BisMac" */;
+			buildPhases = (
+				3680779C15D0F78700843AD5 /* Sources */,
+				3680779D15D0F78700843AD5 /* Frameworks */,
+				3680779E15D0F78700843AD5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BisMac;
+			productName = BisMac;
+			productReference = 368077A015D0F78700843AD5 /* BisMac.app */;
+			productType = "com.apple.product-type.application";
+		};
+		368077C615D0F78700843AD5 /* BisMacTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 368077FD15D0F78700843AD5 /* Build configuration list for PBXNativeTarget "BisMacTests" */;
+			buildPhases = (
+				368077C215D0F78700843AD5 /* Sources */,
+				368077C315D0F78700843AD5 /* Frameworks */,
+				368077C415D0F78700843AD5 /* Resources */,
+				368077C515D0F78700843AD5 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				368077CA15D0F78700843AD5 /* PBXTargetDependency */,
+			);
+			name = BisMacTests;
+			productName = BisMacTests;
+			productReference = 368077C715D0F78700843AD5 /* BisMacTests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3680779715D0F78600843AD5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+			};
+			buildConfigurationList = 3680779A15D0F78600843AD5 /* Build configuration list for PBXProject "BisMac" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 3680779515D0F78600843AD5;
+			productRefGroup = 368077A115D0F78700843AD5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3680779F15D0F78700843AD5 /* BisMac */,
+				368077C615D0F78700843AD5 /* BisMacTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3680779E15D0F78700843AD5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				368077AF15D0F78700843AD5 /* InfoPlist.strings in Resources */,
+				368077B515D0F78700843AD5 /* Credits.rtf in Resources */,
+				368077BB15D0F78700843AD5 /* BisMacDocument.xib in Resources */,
+				368077BE15D0F78700843AD5 /* MainMenu.xib in Resources */,
+				3687CF5815DD4FE4009E3019 /* readme.md in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		368077C415D0F78700843AD5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				368077D015D0F78700843AD5 /* InfoPlist.strings in Resources */,
+				368077D315D0F78700843AD5 /* BisMacTests.h in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		368077C515D0F78700843AD5 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3680779C15D0F78700843AD5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				368077B215D0F78700843AD5 /* main.m in Sources */,
+				368077B815D0F78700843AD5 /* BisMacDocument.m in Sources */,
+				368077C115D0F78700843AD5 /* BisMacDocument.xcdatamodeld in Sources */,
+				3649C8AA15EBB2950019AC55 /* CISDOBConnection.m in Sources */,
+				3649C8AE15EC17D80019AC55 /* CISDOBJsonRpcCall.m in Sources */,
+				3680B1341611B5CE008BA207 /* CISDOBIpadService.m in Sources */,
+				3680B13716120319008BA207 /* CISDOBAsyncCall.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		368077C215D0F78700843AD5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36F108C6160A103E00D7B142 /* CISDOBLiveConnectionTest.m in Sources */,
+				368077D515D0F78700843AD5 /* BisMacTests.m in Sources */,
+				3649C8E315ED13540019AC55 /* CISDOBJsonRpcCallTest.m in Sources */,
+				3680B13A1612E832008BA207 /* CISDOBIpadServiceTest.m in Sources */,
+				3680B13D1612E8B6008BA207 /* CISDOBAsyncTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		368077CA15D0F78700843AD5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3680779F15D0F78700843AD5 /* BisMac */;
+			targetProxy = 368077C915D0F78700843AD5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		368077AD15D0F78700843AD5 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				368077AE15D0F78700843AD5 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		368077B315D0F78700843AD5 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				368077B415D0F78700843AD5 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		368077B915D0F78700843AD5 /* BisMacDocument.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				368077BA15D0F78700843AD5 /* en */,
+			);
+			name = BisMacDocument.xib;
+			sourceTree = "<group>";
+		};
+		368077BC15D0F78700843AD5 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				368077BD15D0F78700843AD5 /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		368077CE15D0F78700843AD5 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				368077CF15D0F78700843AD5 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		368077F515D0F78700843AD5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_OBJCPP_ARC_ABI = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		368077F615D0F78700843AD5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_OBJCPP_ARC_ABI = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		368077FB15D0F78700843AD5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "BisMac/BisMac-Prefix.pch";
+				INFOPLIST_FILE = "BisMac/BisMac-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		368077FC15D0F78700843AD5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "BisMac/BisMac-Prefix.pch";
+				INFOPLIST_FILE = "BisMac/BisMac-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		368077FE15D0F78700843AD5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/BisMac.app/Contents/MacOS/BisMac";
+				CLANG_ENABLE_OBJC_ARC = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "BisMacTests/BisMacTests-Prefix.pch";
+				INFOPLIST_FILE = "BisMacTests/BisMacTests-Info.plist";
+				OTHER_LDFLAGS = (
+					"-framework",
+					SenTestingKit,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		368077FF15D0F78700843AD5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/BisMac.app/Contents/MacOS/BisMac";
+				CLANG_ENABLE_OBJC_ARC = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "BisMacTests/BisMacTests-Prefix.pch";
+				INFOPLIST_FILE = "BisMacTests/BisMacTests-Info.plist";
+				OTHER_LDFLAGS = (
+					"-framework",
+					SenTestingKit,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3680779A15D0F78600843AD5 /* Build configuration list for PBXProject "BisMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				368077F515D0F78700843AD5 /* Debug */,
+				368077F615D0F78700843AD5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		368077FA15D0F78700843AD5 /* Build configuration list for PBXNativeTarget "BisMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				368077FB15D0F78700843AD5 /* Debug */,
+				368077FC15D0F78700843AD5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		368077FD15D0F78700843AD5 /* Build configuration list for PBXNativeTarget "BisMacTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				368077FE15D0F78700843AD5 /* Debug */,
+				368077FF15D0F78700843AD5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		368077BF15D0F78700843AD5 /* BisMacDocument.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				368077C015D0F78700843AD5 /* BisMacDocument.xcdatamodel */,
+			);
+			currentVersion = 368077C015D0F78700843AD5 /* BisMacDocument.xcdatamodel */;
+			path = BisMacDocument.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = 3680779715D0F78600843AD5 /* Project object */;
+}
