@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -34,7 +33,6 @@ import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.DummyAuthenticationService;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.common.collections.GroupingDAG;
 import ch.systemsx.cisd.common.conversation.context.ServiceConversationsThreadContext;
 import ch.systemsx.cisd.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -1688,46 +1686,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
      */
     private List<List<NewSample>> splitIntoDependencyGroups(List<NewSample> newSamples)
     {
-        HashMap<String, NewSample> identifierToSample = new HashMap<String, NewSample>();
-        HashMap<String, Collection<String>> adjacencyGraph =
-                new HashMap<String, Collection<String>>();
-        for (NewSample sample : newSamples)
-        {
-            identifierToSample.put(sample.getIdentifier(), sample);
-            adjacencyGraph.put(sample.getIdentifier(), new LinkedList<String>());
-        }
-
-        for (NewSample sample : newSamples)
-        {
-            if (sample.getContainerIdentifier() != null)
-            {
-                adjacencyGraph.get(sample.getContainerIdentifier()).add(sample.getIdentifier());
-            }
-            String[] parents = sample.getParentsOrNull();
-            if (parents != null)
-            {
-                for (String parent : parents)
-                {
-                    adjacencyGraph.get(parent).add(sample.getIdentifier());
-                }
-            }
-        }
-
-        List<List<String>> identifierGroups = GroupingDAG.groupByDepencies(adjacencyGraph);
-
-        List<List<NewSample>> sampleGroups = new LinkedList<List<NewSample>>();
-
-        for (List<String> listOfIdentifiers : identifierGroups)
-        {
-            List<NewSample> listOfSamples = new LinkedList<NewSample>();
-
-            for (String identifier : listOfIdentifiers)
-            {
-                listOfSamples.add(identifierToSample.get(identifier));
-            }
-            sampleGroups.add(listOfSamples);
-        }
-        return sampleGroups;
+        return SampleGroupingDAG.groupByDepencies(newSamples);
     }
 
     private void authorizeSampleCreation(Session session, List<NewSample> newSamples)
@@ -1840,20 +1799,24 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             IServiceConversationProgressListener progress, boolean authorize)
     {
         ArrayList<DataPE> dataSetsCreated = new ArrayList<DataPE>();
-        List<? extends NewExternalData> dataSetRegistrations =
-                operationDetails.getDataSetRegistrations();
+        @SuppressWarnings("unchecked")
+        List<NewExternalData> dataSetRegistrations =
+                (List<NewExternalData>) operationDetails.getDataSetRegistrations();
         if (authorize)
         {
             checkDataSetCreationAllowed(session, dataSetRegistrations);
         }
-        final NewExternalDataDAG dag = new NewExternalDataDAG(dataSetRegistrations);
-        final List<? extends NewExternalData> orderedRegistrations = dag.getOrderedRegistrations();
+        List<List<NewExternalData>> orderedRegistrations =
+                NewExternalDataDAG.groupByDepencies(dataSetRegistrations);
 
         int index = 0;
-        for (NewExternalData dataSet : orderedRegistrations)
+        for (List<NewExternalData> dependencyLevel : orderedRegistrations)
         {
-            registerDatasetInternal(session, dataSetsCreated, dataSet);
-            progress.update("createDataSets", orderedRegistrations.size(), ++index);
+            for (NewExternalData dataSet : dependencyLevel)
+            {
+                registerDatasetInternal(session, dataSetsCreated, dataSet);
+                progress.update("createDataSets", orderedRegistrations.size(), ++index);
+            }
         }
         return index;
     }

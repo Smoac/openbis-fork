@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
@@ -28,11 +29,29 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class NewExternalDataDAG extends EntityDAG<NewExternalData>
+public class NewExternalDataDAG extends EntityGroupingDAG<NewExternalData>
 {
-    public NewExternalDataDAG(List<? extends NewExternalData> dataSetRegistrations)
+    private NewExternalDataDAG(Collection<NewExternalData> dataSetRegistrations)
     {
         super(dataSetRegistrations);
+    }
+
+    /**
+     * Return the new data sets in the list of groups, where the earlier groups are independent of
+     * the latter ones.
+     * 
+     * @param dataSetRegistration The list of samples to create.
+     */
+    public static List<List<NewExternalData>> groupByDepencies(
+            Collection<NewExternalData> dataSetRegistration)
+    {
+        if (dataSetRegistration.size() == 0)
+        {
+            return Collections.emptyList();
+        }
+
+        NewExternalDataDAG dag = new NewExternalDataDAG(dataSetRegistration);
+        return dag.getDependencyGroups();
     }
 
     @Override
@@ -42,7 +61,7 @@ public class NewExternalDataDAG extends EntityDAG<NewExternalData>
     }
 
     @Override
-    protected Collection<String> getDependentEntitiesCodes(NewExternalData dataSet)
+    protected Collection<String> getDependencies(NewExternalData dataSet)
     {
         ArrayList<String> dependents = new ArrayList<String>();
 
@@ -58,6 +77,12 @@ public class NewExternalDataDAG extends EntityDAG<NewExternalData>
         }
 
         return dependents;
+    }
+
+    @Override
+    protected Collection<String> getDependent(NewExternalData item)
+    {
+        return null;
     }
 
 }
