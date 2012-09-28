@@ -46,6 +46,7 @@ import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedSto
 import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler;
 import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler.IFaultyPathDirectoryScanningHandlerDelegate;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler;
 import ch.systemsx.cisd.common.filesystem.IStoreItemFilter;
 import ch.systemsx.cisd.common.filesystem.LastModificationChecker;
@@ -103,6 +104,12 @@ public final class ETLDaemon
     public static final int INJECTED_POST_REGISTRATION_TASK_INTERVAL = 10;
 
     static final String NOTIFY_SUCCESSFUL_REGISTRATION = "notify-successful-registration";
+
+    /**
+     * The property name under which we specify a <code>long</code> for the high water mark for the
+     * recovery directory (in <i>kilobytes</i>).
+     */
+    public static final String RECOVERY_HIGHWATER_MARK_PROPERTY_KEY = "recovery-highwater-mark";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ETLDaemon.class);
@@ -235,8 +242,7 @@ public final class ETLDaemon
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         final Properties properties = parameters.getProperties();
         final boolean notifySuccessfulRegistration = getNotifySuccessfulRegistration(properties);
-        final HighwaterMarkWatcher highwaterMarkWatcher =
-                new HighwaterMarkWatcher(getHighwaterMark(properties));
+
         IDataSetValidator dataSetValidator = new DataSetValidator(properties);
         final Properties mailProperties = Parameters.createMailProperties(properties);
         final IMailClient mailClient = new MailClient(mailProperties);
@@ -246,8 +252,7 @@ public final class ETLDaemon
             File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
             ITopLevelDataSetRegistrator topLevelRegistrator =
                     createProcessingThread(parameters, threadParameters, openBISService,
-                            highwaterMarkWatcher, mailClient, dataSetValidator,
-                            notifySuccessfulRegistration);
+                            mailClient, dataSetValidator, notifySuccessfulRegistration);
             operationLog.info("[" + threadParameters.getThreadName() + "]: Data sets drop into '"
                     + incomingDataDirectory + "' will be stored in share "
                     + topLevelRegistrator.getGlobalState().getShareId() + ".");
@@ -308,6 +313,11 @@ public final class ETLDaemon
                 HostAwareFileWithHighwaterMark.HIGHWATER_MARK_PROPERTY_KEY, -1L);
     }
 
+    private final static long getRecoveryHighwaterMark(final Properties properties)
+    {
+        return PropertyUtils.getLong(properties, RECOVERY_HIGHWATER_MARK_PROPERTY_KEY, -1L);
+    }
+
     private final static boolean getNotifySuccessfulRegistration(final Properties properties)
     {
         return PropertyUtils.getBoolean(properties, NOTIFY_SUCCESSFUL_REGISTRATION, false);
@@ -315,14 +325,19 @@ public final class ETLDaemon
 
     private final static ITopLevelDataSetRegistrator createProcessingThread(
             final Parameters parameters, final ThreadParameters threadParameters,
-            final IEncapsulatedOpenBISService authorizedLimsService,
-            final HighwaterMarkWatcher highwaterMarkWatcher, final IMailClient mailClient,
-            final IDataSetValidator dataSetValidator,
-            final boolean notifySuccessfulRegistration)
+            final IEncapsulatedOpenBISService authorizedLimsService, final IMailClient mailClient,
+            final IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration)
     {
+        final HighwaterMarkWatcher highwaterMarkWatcher =
+                new HighwaterMarkWatcher(getHighwaterMark(parameters.getProperties()));
         final File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
         final File recoveryStateDirectory =
                 DssPropertyParametersUtil.getDssRecoveryStateDir(parameters.getProperties());
+
+        HostAwareFile hostAwareIncomingDataDirectory = new HostAwareFile(incomingDataDirectory);
+        HostAwareFileWithHighwaterMark hostAwareRecoveryStateDirectory =
+                new HostAwareFileWithHighwaterMark(recoveryStateDirectory.getPath(),
+                        getRecoveryHighwaterMark(parameters.getProperties()));
 
         final ITopLevelDataSetRegistrator pathHandler =
                 createTopLevelDataSetRegistrator(parameters.getProperties(), threadParameters,
@@ -330,7 +345,7 @@ public final class ETLDaemon
                         new DataSourceQueryService(), notifySuccessfulRegistration);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 createDirectoryScanningHandler(pathHandler, highwaterMarkWatcher,
-                        incomingDataDirectory, recoveryStateDirectory,
+                        hostAwareIncomingDataDirectory, hostAwareRecoveryStateDirectory,
                         threadParameters.reprocessFaultyDatasets(), pathHandler);
         FileFilter fileFilter =
                 createFileFilter(incomingDataDirectory, threadParameters.useIsFinishedMarkerFile(),
@@ -560,15 +575,16 @@ public final class ETLDaemon
 
     private final static HighwaterMarkDirectoryScanningHandler createDirectoryScanningHandler(
             final IStopSignaler stopSignaler, final HighwaterMarkWatcher highwaterMarkWatcher,
-            final File incomingDataDirectory, final File recoveryStateDirectory,
+            final HostAwareFile incomingDataDirectory, final HostAwareFile recoveryStateDirectory,
             boolean reprocessFaultyDatasets,
             IFaultyPathDirectoryScanningHandlerDelegate faultyPathHandlerDelegate)
     {
         final IDirectoryScanningHandler faultyPathHandler =
-                createFaultyPathHandler(stopSignaler, incomingDataDirectory,
+                createFaultyPathHandler(stopSignaler, incomingDataDirectory.getLocalFile(),
                         reprocessFaultyDatasets, faultyPathHandlerDelegate);
         return new HighwaterMarkDirectoryScanningHandler(faultyPathHandler, highwaterMarkWatcher,
-                incomingDataDirectory, recoveryStateDirectory);
+                new HostAwareFile[]
+                    { incomingDataDirectory, recoveryStateDirectory });
     }
 
     private static IDirectoryScanningHandler createFaultyPathHandler(
