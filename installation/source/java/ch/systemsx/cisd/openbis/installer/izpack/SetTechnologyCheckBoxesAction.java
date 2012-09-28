@@ -28,22 +28,27 @@ import com.izforge.izpack.data.PanelAction;
 /**
  * Action which sets the variables which are the values of check boxes on the technology page. If
  * the variable is already set nothing is done. Otherwise the behavior depends on whether this is
- * installation or upgrading. In case of installation the flag will be <code>false</code>. In case of
- * upgrading <code>service.properties</code> file of AS is scanned in order to check whether a certain
+ * installation or upgrading. In case of installation the flag will be <code>false</code>. In case
+ * of
+ * upgrading <code>service.properties</code> file of AS is scanned in order to check whether a
+ * certain
  * technology is enabled or not.
  * 
  * @author Franz-Josef Elmer
  */
 public class SetTechnologyCheckBoxesAction implements PanelAction
 {
+    static final String ENABLED_TECHNOLOGIES_KEY_LEGACY = "enabled-technologies";
+
     static final String ENABLED_TECHNOLOGIES_KEY = "enabled-modules";
-    
+
     private static interface ITechnologyChecker
     {
         String getTechnologyName();
+
         boolean isTechnologyEnabled(File installDir);
     }
-    
+
     private static final class SimpleTechnologyChecker implements ITechnologyChecker
     {
 
@@ -68,7 +73,19 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
             if (technologies == null)
             {
                 technologies =
+                        Utils.tryToGetCorePluginsProperty(installDir,
+                                ENABLED_TECHNOLOGIES_KEY_LEGACY);
+            }
+            if (technologies == null)
+            {
+                technologies =
                         Utils.tryToGetServicePropertyOfAS(installDir, ENABLED_TECHNOLOGIES_KEY);
+            }
+            if (technologies == null)
+            {
+                technologies =
+                        Utils.tryToGetServicePropertyOfAS(installDir,
+                                ENABLED_TECHNOLOGIES_KEY_LEGACY);
             }
             if (technologies != null)
             {
@@ -77,10 +94,10 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
             return false;
         }
     }
-    
+
     private final Map<String, ITechnologyChecker> technologyCheckers =
             new HashMap<String, ITechnologyChecker>();
-    
+
     public SetTechnologyCheckBoxesAction()
     {
         for (String technology : GlobalInstallationContext.TECHNOLOGIES)
@@ -88,7 +105,7 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
             registerTechnologyChecker(new SimpleTechnologyChecker(technology));
         }
     }
-    
+
     private void registerTechnologyChecker(ITechnologyChecker checker)
     {
         technologyCheckers.put(checker.getTechnologyName(), checker);
@@ -98,7 +115,7 @@ public class SetTechnologyCheckBoxesAction implements PanelAction
     public void initialize(PanelActionConfiguration configuration)
     {
     }
-    
+
     @Override
     public void executeAction(AutomatedInstallData data, AbstractUIHandler handler)
     {
