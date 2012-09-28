@@ -567,6 +567,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             updateSample(data, updates.getSampleIdentifierOrNull());
         } else
         {
+            data.setSample(null);
             updateExperiment(data, updates.getExperimentIdentifierOrNull());
         }
 

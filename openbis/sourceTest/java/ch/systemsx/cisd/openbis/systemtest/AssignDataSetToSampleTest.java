@@ -196,6 +196,17 @@ public class AssignDataSetToSampleTest extends BaseTest
         assertThat(component, is(inSample(sourceSample)));
     }
 
+    @Test
+    public void dataSetCanBeUnassignedFromSample() throws Exception
+    {
+        ExternalData data = create(aDataSet().inSample(sourceSample));
+
+        perform(anUpdateOf(data).removingSample());
+
+        assertThat(data, hasNoSample());
+        assertThat(data, is(inExperiment(sourceExperiment)));
+    }
+
     Space unrelatedAdmin;
 
     Space unrelatedObserver;
