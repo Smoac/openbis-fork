@@ -778,6 +778,8 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
+                    allowing(experimentDAO).getSampleCodes(with(any(ExperimentPE.class)));
+
                     one(genericBusinessObjectFactory).createExperimentBO(session);
                     will(returnValue(experimentBO));
 
