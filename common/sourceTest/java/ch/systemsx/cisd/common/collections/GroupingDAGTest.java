@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +36,49 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  */
 public class GroupingDAGTest extends AssertJUnit
 {
+
+    @Test
+    public void testPerformance()
+    {
+        int n = 100000;
+        HashMap<String, Collection<String>> adjacencyMap =
+                new HashMap<String, Collection<String>>();
+
+        List<String> superParentAdjacencyList = new LinkedList<String>();
+        for (int i = 0; i < n - 1; i++)
+        {
+            String childCode = "CHILD" + i;
+            superParentAdjacencyList.add(childCode);
+            adjacencyMap.put(childCode, new ArrayList<String>());
+        }
+        adjacencyMap.put("PARENT", superParentAdjacencyList);
+
+        adjacencyMap.put("CHAIN_0", new ArrayList<String>());
+
+        for (int i = 1; i < n; i++)
+        {
+            String childCode = "CHAIN_" + i;
+            adjacencyMap.put(childCode, Arrays.asList("CHAIN_" + (i - 1)));
+        }
+
+
+        List<List<String>> groups = sortTopologically(adjacencyMap);
+
+        assertAllEntitiesPresent(adjacencyMap.keySet(), groups);
+
+        assertEquals(n, groups.size());
+
+        assertEquals(2, groups.get(0).size()); // parent and first chain
+        groups.remove(0);
+
+        assertEquals(n, groups.get(0).size()); // children and one chain
+        groups.remove(0);
+
+        for (List<String> group : groups)
+        {
+            assertEquals(1, group.size());
+        }
+    }
 
     @Test
     public void testIndependent()

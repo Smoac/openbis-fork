@@ -18,7 +18,6 @@ package ch.systemsx.cisd.common.collections;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -55,16 +54,35 @@ public class GroupingDAG<T>
 
     private final Map<T, Collection<T>> graph;
 
-    private final PriorityQueue<T> queue;
+    private final PriorityQueue<PriorityItem> queue;
 
     private final List<List<T>> sortedGroups;
 
-    private class DependenciesComparator implements Comparator<T>
+    private class PriorityItem implements Comparable<PriorityItem>
     {
-        @Override
-        public int compare(T o1, T o2)
+        final T item;
+
+        final Integer priority;
+
+        /**
+         * Cretes the object with priority at the time of the object creation
+         */
+        public PriorityItem(T item)
         {
-            return dependenciesCount.get(o1).compareTo(dependenciesCount.get(o2));
+            this.item = item;
+            this.priority = dependenciesCount.get(item);
+        }
+
+        @Override
+        public int compareTo(PriorityItem o)
+        {
+            return priority.compareTo(o.priority);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "<" + item + ", " + priority + ">";
         }
     }
 
@@ -75,7 +93,7 @@ public class GroupingDAG<T>
     {
         this.graph = graph;
         this.dependenciesCount = new HashMap<T, Integer>();
-        this.queue = new PriorityQueue<T>(graph.size(), new DependenciesComparator());
+        this.queue = new PriorityQueue<PriorityItem>();
         this.sortedGroups = new LinkedList<List<T>>();
         initialize();
         sort();
@@ -129,25 +147,39 @@ public class GroupingDAG<T>
 
         for (T item : graph.keySet())
         {
-            queue.add(item);
+            queue.add(new PriorityItem(item));
         }
     }
 
+
+    // because the implementation of the priority queue does not allow to change priorities of items
+    // in the queue, instead we insert the same items several times.
+    // if the dependency count of the item is -1 - it means, that we have already used it
     private void sort()
     {
         while (!queue.isEmpty())
         {
             List<T> levelItems = new LinkedList<T>();
 
-            if (dependenciesCount.get(queue.peek()) > 0)
+            while (!queue.isEmpty() && peekCount() < 0)
+            {
+                queue.poll(); // remove the elements that are duplicated in the queue
+            }
+
+            if (peekCount() > 0)
             {
                 throw new UserFailureException("Circular dependency found!");
             }
 
-            while (!queue.isEmpty() && dependenciesCount.get(queue.peek()) == 0)
+            while (!queue.isEmpty() && peekCount() <= 0)
             {
-                T item = queue.poll();
-                levelItems.add(item);
+                T item = queue.poll().item;
+
+                if (dependenciesCount.get(item) == 0)
+                {
+                    levelItems.add(item);
+                    dependenciesCount.put(item, -1);
+                }
             }
             sortedGroups.add(levelItems);
 
@@ -157,6 +189,11 @@ public class GroupingDAG<T>
                 updateQueueAfterTheLevelCompleted(levelItems);
             }
         }
+    }
+
+    private Integer peekCount()
+    {
+        return dependenciesCount.get(queue.peek().item);
     }
 
     /**
@@ -175,11 +212,9 @@ public class GroupingDAG<T>
                 dependenciesCount.put(son, dependenciesCount.get(son) - 1);
             }
         }
-
         for (T son : allSonsInTheLevel)
         {
-            queue.remove(son);
-            queue.add(son);
+            queue.add(new PriorityItem(son));
         }
     }
 }
