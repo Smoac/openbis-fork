@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 
-import static ch.systemsx.cisd.common.test.RegExConstants.WILDCARD;
 import static ch.systemsx.cisd.common.test.RegExConstants.END_QUOTING;
 import static ch.systemsx.cisd.common.test.RegExConstants.START_QUOTING;
+import static ch.systemsx.cisd.common.test.RegExConstants.WILDCARD;
 
 import java.io.File;
 import java.util.Properties;
@@ -71,7 +71,7 @@ public class CorePluginsUtilsTest extends AbstractFileSystemTestCase
         File corePluginsFolder = new File(workingDirectory, "core-plugins");
         corePluginsFolder.mkdirs();
         String enabledTechnology = "tech-" + (int) (100 * Math.random());
-        String key = "enabled-technologies";
+        String key = "enabled-modules";
         FileUtilities.writeToFile(new File(corePluginsFolder,
                 CorePluginsUtils.CORE_PLUGINS_PROPERTIES_FILE), "  " + key + " =   "
                 + enabledTechnology + "   ");

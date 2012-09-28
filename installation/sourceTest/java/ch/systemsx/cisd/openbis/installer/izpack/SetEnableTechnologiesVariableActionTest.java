@@ -94,7 +94,7 @@ public class SetEnableTechnologiesVariableActionTest extends AbstractFileSystemT
         variables.setProperty(TECHNOLOGY_SCREENING, "true");
         
         updateEnabledTechnologyProperties(variables, false);
-        assertEquals("[, enabled-technologies = screening]",
+        assertEquals("[, enabled-modules = screening]",
                 FileUtilities.loadToStringList(corePluginsProperties).toString());
     }
 

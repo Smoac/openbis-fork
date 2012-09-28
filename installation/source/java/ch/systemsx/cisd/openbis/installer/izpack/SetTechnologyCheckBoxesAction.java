@@ -36,7 +36,7 @@ import com.izforge.izpack.data.PanelAction;
  */
 public class SetTechnologyCheckBoxesAction implements PanelAction
 {
-    static final String ENABLED_TECHNOLOGIES_KEY = "enabled-technologies";
+    static final String ENABLED_TECHNOLOGIES_KEY = "enabled-modules";
     
     private static interface ITechnologyChecker
     {
