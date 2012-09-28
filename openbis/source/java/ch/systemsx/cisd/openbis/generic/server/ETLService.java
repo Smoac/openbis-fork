@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,12 +30,11 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
-
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.DummyAuthenticationService;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.collections.GroupingDAG;
 import ch.systemsx.cisd.common.conversation.context.ServiceConversationsThreadContext;
 import ch.systemsx.cisd.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -1662,19 +1662,81 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             IServiceConversationProgressListener progress, boolean authorize)
     {
         List<NewSample> newSamples = operationDetails.getSampleRegistrations();
-        List<NewSample> containerSamples = new ArrayList<NewSample>();
-        List<NewSample> containedSamples = new ArrayList<NewSample>();
+
+        if (authorize)
+        {
+            authorizeSampleCreation(session, newSamples);
+        }
+        String userIdOrNull = operationDetails.tryUserIdOrNull();
+        PersonPE registratorOrNull = tryFindPersonForUserIdOrEmail(userIdOrNull);
+        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
+
+        List<List<NewSample>> sampleGroups = splitIntoDependencyGroups(newSamples);
+
+        for (List<NewSample> groupOfSamples : sampleGroups)
+        {
+            BatchOperationExecutor.executeInBatches(new SampleBatchRegistration(sampleTable,
+                    groupOfSamples, registratorOrNull), getBatchSize(operationDetails), progress,
+                    "createContainerSamples");
+        }
+        return newSamples.size();
+    }
+
+    /**
+     * Splits the samples using the grouping dag into groups, that can be executed in batches one
+     * after another, that samples in later batches depend only on the samples from earlier batches
+     */
+    private List<List<NewSample>> splitIntoDependencyGroups(List<NewSample> newSamples)
+    {
+        HashMap<String, NewSample> identifierToSample = new HashMap<String, NewSample>();
+        HashMap<String, Collection<String>> adjacencyGraph =
+                new HashMap<String, Collection<String>>();
+        for (NewSample sample : newSamples)
+        {
+            identifierToSample.put(sample.getIdentifier(), sample);
+            adjacencyGraph.put(sample.getIdentifier(), new LinkedList<String>());
+        }
+
+        for (NewSample sample : newSamples)
+        {
+            if (sample.getContainerIdentifier() != null)
+            {
+                adjacencyGraph.get(sample.getContainerIdentifier()).add(sample.getIdentifier());
+            }
+            String[] parents = sample.getParentsOrNull();
+            if (parents != null)
+            {
+                for (String parent : parents)
+                {
+                    adjacencyGraph.get(parent).add(sample.getIdentifier());
+                }
+            }
+        }
+
+        List<List<String>> identifierGroups = GroupingDAG.groupByDepencies(adjacencyGraph);
+
+        List<List<NewSample>> sampleGroups = new LinkedList<List<NewSample>>();
+
+        for (List<String> listOfIdentifiers : identifierGroups)
+        {
+            List<NewSample> listOfSamples = new LinkedList<NewSample>();
+
+            for (String identifier : listOfIdentifiers)
+            {
+                listOfSamples.add(identifierToSample.get(identifier));
+            }
+            sampleGroups.add(listOfSamples);
+        }
+        return sampleGroups;
+    }
+
+    private void authorizeSampleCreation(Session session, List<NewSample> newSamples)
+    {
         List<NewSample> instanceSamples = new ArrayList<NewSample>();
         List<NewSample> spaceSamples = new ArrayList<NewSample>();
+
         for (NewSample newSample : newSamples)
         {
-            if (StringUtils.isEmpty(newSample.getContainerIdentifierForNewSample()))
-            {
-                containerSamples.add(newSample);
-            } else
-            {
-                containedSamples.add(newSample);
-            }
             SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(newSample);
             if (sampleIdentifier.isDatabaseInstanceLevel())
             {
@@ -1685,29 +1747,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             }
         }
 
-        if (authorize)
-        {
-            checkInstanceSampleCreationAllowed(session, instanceSamples);
-            checkSpaceSampleCreationAllowed(session, spaceSamples);
-        }
-
-        String userIdOrNull = operationDetails.tryUserIdOrNull();
-        PersonPE registratorOrNull = tryFindPersonForUserIdOrEmail(userIdOrNull);
-
-        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
-
-        // in the first pass register samples without container to avoid dependency inversion
-        BatchOperationExecutor.executeInBatches(new SampleBatchRegistration(sampleTable,
-                containerSamples, registratorOrNull), getBatchSize(operationDetails), progress,
-                "createContainerSamples");
-
-        // register samples with a container identifier
-        // (container should have been created in the first pass)
-        BatchOperationExecutor.executeInBatches(new SampleBatchRegistration(sampleTable,
-                containedSamples, registratorOrNull), getBatchSize(operationDetails), progress,
-                "createContainedSamples");
-
-        return newSamples.size();
+        checkInstanceSampleCreationAllowed(session, instanceSamples);
+        checkSpaceSampleCreationAllowed(session, spaceSamples);
     }
 
     private void checkInstanceSampleCreationAllowed(Session session, List<NewSample> instanceSamples)
