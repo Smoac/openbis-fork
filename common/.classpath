@@ -37,7 +37,7 @@
 	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar" sourcepath="/libraries/spring/webmvc/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.4/gwt-servlet.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/third-party/stream-supporting-httpinvoker.jar" sourcepath="/libraries/spring/third-party/stream-supporting-httpinvoker-src.zip"/>
-	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/cisd-jhdf5-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/cisd-jhdf5-core.jar" sourcepath="/libraries/cisd-jhdf5/cisd-jhdf5-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/cisd-jhdf5-tools.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/hdf5-linux-intel.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/hdf5-macosx-intel.jar"/>
