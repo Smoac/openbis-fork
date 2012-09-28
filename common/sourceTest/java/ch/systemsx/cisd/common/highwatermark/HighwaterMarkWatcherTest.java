@@ -21,6 +21,7 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
@@ -116,17 +117,19 @@ public final class HighwaterMarkWatcherTest
     }
 
     @DataProvider(name = "freeSpaces")
-    public final Object[][] getFreeSpaces()
+    public final Object[][] getFreeSpaces(Method m)
     {
+        int size = Integer.parseInt(m.getName().substring(m.getName().indexOf("Below") + 5));
         return new Object[][]
             {
-                { 99, true },
-                { 100, false },
-                { 101, false } };
+                { size - 1, true },
+                { size, false },
+                { size + 1, false } };
     }
 
     @Test(dataProvider = "freeSpaces")
-    public final void testIsBelow(final long freeSpace, final boolean isBelow) throws IOException
+    public final void testIsBelow100(final long freeSpace, final boolean isBelow)
+            throws IOException
     {
         assertFalse(highwaterMarkWatcher.isBelow());
         highwaterMarkWatcher.setPath(DEFAULT_PATH);
@@ -134,6 +137,26 @@ public final class HighwaterMarkWatcherTest
             {
                 {
                     one(freeSpaceProvider).freeSpaceKb(DEFAULT_PATH);
+                    will(returnValue(freeSpace));
+                }
+            });
+        highwaterMarkWatcher.run();
+        assertEquals(isBelow, highwaterMarkWatcher.isBelow());
+        context.assertIsSatisfied();
+    }
+
+    @Test(dataProvider = "freeSpaces")
+    public final void testIsBelow50(final long freeSpace, final boolean isBelow) throws IOException
+    {
+        assertFalse(highwaterMarkWatcher.isBelow());
+
+        final HostAwareFileWithHighwaterMark path =
+                new HostAwareFileWithHighwaterMark(DEFAULT_PATH.getPath(), 50);
+        highwaterMarkWatcher.setPath(path);
+        context.checking(new Expectations()
+            {
+                {
+                    one(freeSpaceProvider).freeSpaceKb(path);
                     will(returnValue(freeSpace));
                 }
             });
@@ -201,11 +224,12 @@ public final class HighwaterMarkWatcherTest
         highwaterMarkWatcher.setPathAndRun(DEFAULT_PATH);
         final long missingSpace = DEFAULT_WATERMARK - freeSpaces[i];
         assertEquals(String.format(
-                HighwaterMarkWatcher.NotificationLogChangeListener.WARNING_LOG_FORMAT, DEFAULT_PATH
-                        .getPathDescription(), HighwaterMarkWatcher
-                        .displayKilobyteValue(DEFAULT_WATERMARK), HighwaterMarkWatcher
-                        .displayKilobyteValue(freeSpaces[i]), HighwaterMarkWatcher
-                        .displayKilobyteValue(missingSpace)), logRecorder.getLogContent());
+                HighwaterMarkWatcher.NotificationLogChangeListener.WARNING_LOG_FORMAT,
+                DEFAULT_PATH.getPathDescription(),
+                HighwaterMarkWatcher.displayKilobyteValue(DEFAULT_WATERMARK),
+                HighwaterMarkWatcher.displayKilobyteValue(freeSpaces[i]),
+                HighwaterMarkWatcher.displayKilobyteValue(missingSpace)),
+                logRecorder.getLogContent());
         // Space still "red". Do not inform the administrator. He already knows it.
         logRecorder.resetLogContent();
         highwaterMarkWatcher.setPathAndRun(DEFAULT_PATH);
@@ -215,10 +239,11 @@ public final class HighwaterMarkWatcherTest
         logRecorder.resetLogContent();
         highwaterMarkWatcher.setPathAndRun(DEFAULT_PATH);
         assertEquals(String.format(
-                HighwaterMarkWatcher.NotificationLogChangeListener.INFO_LOG_FORMAT, DEFAULT_PATH
-                        .getPathDescription(), HighwaterMarkWatcher
-                        .displayKilobyteValue(DEFAULT_WATERMARK), HighwaterMarkWatcher
-                        .displayKilobyteValue(freeSpaces[i])), logRecorder.getLogContent());
+                HighwaterMarkWatcher.NotificationLogChangeListener.INFO_LOG_FORMAT,
+                DEFAULT_PATH.getPathDescription(),
+                HighwaterMarkWatcher.displayKilobyteValue(DEFAULT_WATERMARK),
+                HighwaterMarkWatcher.displayKilobyteValue(freeSpaces[i])),
+                logRecorder.getLogContent());
         // Space still OK. Do not inform the administrator.
         logRecorder.resetLogContent();
         highwaterMarkWatcher.setPathAndRun(DEFAULT_PATH);

@@ -205,7 +205,8 @@ public final class HighwaterMarkWatcher implements Runnable
             throw new EnvironmentFailureException(errorMsg);
         }
         return new HighwaterMarkState(new HostAwareFileWithHighwaterMark(file.tryGetHost(), file
-                .getPath(), file.tryGetRsyncModule(), highwaterMarkInKb), freeSpaceInKb);
+.getPath(), file.tryGetRsyncModule(), getLocalHighWaterMark(file)),
+                freeSpaceInKb);
     }
 
     /**
@@ -224,7 +225,7 @@ public final class HighwaterMarkWatcher implements Runnable
     public final synchronized void run()
     {
         assert path != null : "Unspecified path";
-        if (highwaterMarkInKb < 0)
+        if (getLocalHighWaterMark(path) < 0)
         {
             return;
         }
@@ -243,13 +244,23 @@ public final class HighwaterMarkWatcher implements Runnable
                 operationLog.debug(String.format("Free space on '%s': %s, highwater mark: %s.",
                         state.hostAwareFileWithHighwaterMark.getPathDescription(),
                         displayKilobyteValue(state.freeSpace),
-                        displayKilobyteValue(highwaterMarkInKb)));
+                        displayKilobyteValue(getLocalHighWaterMark(path))));
             }
         } catch (final EnvironmentFailureException ex)
         {
             operationLog.error("The highwater mark watcher can not work properly "
                     + "due to an environment exception.", ex);
         }
+    }
+
+    /**
+     * @return the highwater mark from the file if it is aware of it, otherwise the default
+     *         highwater mark specified in the constructor
+     */
+    private long getLocalHighWaterMark(HostAwareFile file)
+    {
+        return (file instanceof HostAwareFileWithHighwaterMark) ? ((HostAwareFileWithHighwaterMark) file)
+                .getHighwaterMark() : highwaterMarkInKb;
     }
 
     //

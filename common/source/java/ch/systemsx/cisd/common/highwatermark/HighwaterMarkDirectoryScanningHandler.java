@@ -19,10 +19,10 @@ package ch.systemsx.cisd.common.highwatermark;
 import java.io.File;
 
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningHandlerInterceptor;
+import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
-import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
 
 /**
  * A <code>DirectoryScanningHandlerInterceptor</code> extension which bases its decision on the
@@ -39,11 +39,18 @@ public final class HighwaterMarkDirectoryScanningHandler extends
 {
     private final HighwaterMarkWatcher highwaterMarkWatcher;
 
-    private final File[] files;
+    private final HostAwareFile[] files;
 
     public HighwaterMarkDirectoryScanningHandler(
             final IDirectoryScanningHandler directoryScanningHandler,
             final HighwaterMarkWatcher highwaterMarkWatcher, final File... files)
+    {
+        this(directoryScanningHandler, highwaterMarkWatcher, convertToHostAwareFiles(files));
+    }
+
+    public HighwaterMarkDirectoryScanningHandler(
+            final IDirectoryScanningHandler directoryScanningHandler,
+            final HighwaterMarkWatcher highwaterMarkWatcher, final HostAwareFile[] files)
     {
         super(directoryScanningHandler);
         assert directoryScanningHandler != null : "Unspecified IDirectoryScanningHandler";
@@ -53,13 +60,23 @@ public final class HighwaterMarkDirectoryScanningHandler extends
         this.files = files;
     }
 
+    private static HostAwareFile[] convertToHostAwareFiles(final File... files)
+    {
+        HostAwareFile[] hostAwareFiles = new HostAwareFile[files.length];
+        for (int i = 0; i < files.length; i++)
+        {
+            hostAwareFiles[i] = new HostAwareFile(files[i]);
+        }
+        return hostAwareFiles;
+    }
+
     private final boolean mayHandle()
     {
         if (files.length < 1)
         {
             return isBelow() == false;
         }
-        for (final File file : files)
+        for (final HostAwareFile file : files)
         {
             if (isBelow(file))
             {
@@ -76,9 +93,9 @@ public final class HighwaterMarkDirectoryScanningHandler extends
         return highwaterMarkWatcher.isBelow();
     }
 
-    private final boolean isBelow(final File path)
+    private final boolean isBelow(final HostAwareFile path)
     {
-        highwaterMarkWatcher.setPathAndRun(new HostAwareFile(path));
+        highwaterMarkWatcher.setPathAndRun(path);
         return highwaterMarkWatcher.isBelow();
     }
 
