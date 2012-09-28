@@ -39,7 +39,7 @@ class EntityHistoryDAO extends AbstractDAO implements IEntityHistoryDAO
 {
     EntityHistoryDAO(PersistencyResources persistencyResources, DatabaseInstancePE databaseInstance)
     {
-        super(persistencyResources.getSessionFactoryOrNull(), databaseInstance);
+        super(persistencyResources.getSessionFactory(), databaseInstance);
     }
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,

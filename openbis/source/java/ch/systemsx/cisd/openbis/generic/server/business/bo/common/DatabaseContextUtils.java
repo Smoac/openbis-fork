@@ -44,7 +44,7 @@ public class DatabaseContextUtils
     public static DatabaseConfigurationContext getDatabaseContext(IDAOFactory daoFactory)
     {
         PersistencyResources persistencyResources = daoFactory.getPersistencyResources();
-        DatabaseConfigurationContext context = persistencyResources.getContextOrNull();
+        DatabaseConfigurationContext context = persistencyResources.getContext();
         if (context == null)
         {
             throw new ConfigurationFailureException("Missing database configuration context.");

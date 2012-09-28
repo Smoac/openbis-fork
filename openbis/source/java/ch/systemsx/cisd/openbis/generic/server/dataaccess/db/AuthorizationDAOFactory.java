@@ -123,7 +123,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     @Override
     public SessionFactory getSessionFactory()
     {
-        return persistencyResources.getSessionFactoryOrNull();
+        return persistencyResources.getSessionFactory();
     }
 
     private final DatabaseInstancePE getDatabaseInstanceId(final String databaseInstanceCode)
@@ -277,7 +277,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     @Override
     public void setBatchUpdateMode(boolean batchMode)
     {
-        SessionFactory sessionFactory = persistencyResources.getSessionFactoryOrNull();
+        SessionFactory sessionFactory = persistencyResources.getSessionFactory();
         Session currentSession = sessionFactory.getCurrentSession();
         HibernateUtils.setBatchUpdateMode(currentSession, batchMode);
     }
@@ -286,7 +286,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     @Override
     public Connection getConnection()
     {
-        final SessionFactory sessionFactory = persistencyResources.getSessionFactoryOrNull();
+        final SessionFactory sessionFactory = persistencyResources.getSessionFactory();
         return sessionFactory.getCurrentSession().connection();
     }
 

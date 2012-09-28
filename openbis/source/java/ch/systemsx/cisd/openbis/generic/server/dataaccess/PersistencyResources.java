@@ -28,33 +28,32 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextInd
  */
 public final class PersistencyResources
 {
-    private final DatabaseConfigurationContext contextOrNull;
+    private final DatabaseConfigurationContext context;
 
-    private final SessionFactory sessionFactoryOrNull;
+    private final SessionFactory sessionFactory;
 
     private final IFullTextIndexUpdateScheduler indexUpdateScheduler;
 
     private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
 
-    public PersistencyResources(DatabaseConfigurationContext contextOrNull,
-            SessionFactory sessionFactoryOrNull,
-            IFullTextIndexUpdateScheduler indexUpdateScheduler,
+    public PersistencyResources(DatabaseConfigurationContext context,
+            SessionFactory sessionFactory, IFullTextIndexUpdateScheduler indexUpdateScheduler,
             IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
     {
-        this.contextOrNull = contextOrNull;
-        this.sessionFactoryOrNull = sessionFactoryOrNull;
+        this.context = context;
+        this.sessionFactory = sessionFactory;
         this.indexUpdateScheduler = indexUpdateScheduler;
         this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
     }
 
-    public final DatabaseConfigurationContext getContextOrNull()
+    public final DatabaseConfigurationContext getContext()
     {
-        return contextOrNull;
+        return context;
     }
 
-    public final SessionFactory getSessionFactoryOrNull()
+    public final SessionFactory getSessionFactory()
     {
-        return sessionFactoryOrNull;
+        return sessionFactory;
     }
 
     public IFullTextIndexUpdateScheduler getIndexUpdateScheduler()

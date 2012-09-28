@@ -72,7 +72,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
             final PersistencyResources persistencyResources,
             final DatabaseInstancePE databaseInstance)
     {
-        super(persistencyResources.getSessionFactoryOrNull(), databaseInstance);
+        super(persistencyResources.getSessionFactory(), databaseInstance);
         this.entityKind = entityKind;
         this.dynamicPropertyEvaluationScheduler =
                 persistencyResources.getDynamicPropertyEvaluationScheduler();

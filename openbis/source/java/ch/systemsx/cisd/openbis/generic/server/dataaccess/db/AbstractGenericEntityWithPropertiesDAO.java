@@ -73,7 +73,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
             final PersistencyResources persistencyResources,
             final DatabaseInstancePE databaseInstance, final Class<T> entityClass)
     {
-        super(persistencyResources.getSessionFactoryOrNull(), databaseInstance, entityClass);
+        super(persistencyResources.getSessionFactory(), databaseInstance, entityClass);
         this.persistencyResources = persistencyResources;
     }
 
@@ -89,7 +89,7 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
     protected DataSource getDataSource()
     {
-        return persistencyResources.getContextOrNull().getDataSource();
+        return persistencyResources.getContext().getDataSource();
     }
 
     @Override
