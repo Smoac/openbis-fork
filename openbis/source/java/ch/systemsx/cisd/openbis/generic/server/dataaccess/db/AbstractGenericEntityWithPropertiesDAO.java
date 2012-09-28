@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.Collections;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.apache.log4j.Logger;
 import org.hibernate.SQLQuery;
 import org.hibernate.StatelessSession;
@@ -83,6 +85,11 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
     protected IDynamicPropertyEvaluationScheduler getDynamicPropertyEvaluatorScheduler()
     {
         return persistencyResources.getDynamicPropertyEvaluationScheduler();
+    }
+
+    protected DataSource getDataSource()
+    {
+        return persistencyResources.getContextOrNull().getDataSource();
     }
 
     @Override

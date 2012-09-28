@@ -66,7 +66,6 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -726,7 +725,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         ExperimentUpdateResult result = new ExperimentUpdateResult();
         ExperimentPE experiment = experimentBO.getExperiment();
         result.setModificationDate(experiment.getModificationDate());
-        result.setSamples(Code.extractCodes(experiment.getSamples()));
+        result.setSamples(getDAOFactory().getExperimentDAO().getSampleCodes(experiment));
         return result;
     }
 

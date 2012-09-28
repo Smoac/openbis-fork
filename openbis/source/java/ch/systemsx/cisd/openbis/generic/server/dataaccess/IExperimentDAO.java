@@ -95,6 +95,11 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
             throws DataAccessException;
 
     /**
+     * Return the codes of all samples assigned to <var>experiment</var>.
+     */
+    public List<String> getSampleCodes(ExperimentPE experiment);
+
+    /**
      * Try to obtain the experiment for the given <var>permId</var>. Returns <code>null</code>, if
      * no experiment with the given perm id exists.
      */

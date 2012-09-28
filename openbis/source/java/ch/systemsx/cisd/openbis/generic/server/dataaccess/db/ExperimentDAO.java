@@ -22,6 +22,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import net.lemnik.eodsql.QueryTool;
+import net.lemnik.eodsql.Select;
+import net.lemnik.eodsql.TransactionQuery;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -64,10 +68,26 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ExperimentDAO.class);
 
+    /**
+     * A query for fast access to ids and codes of samples of an experiment.
+     */
+    interface IExperimentSampleQuery extends TransactionQuery
+    {
+        @Select(sql = "select id from samples s where expe_id = ?{1}")
+        List<Long> getExperimentSampleIds(long experimentId);
+
+        @Select(sql = "select code from samples s where expe_id = ?{1}")
+        List<String> getExperimentSampleCodes(long experimentId);
+    }
+
+    private final IExperimentSampleQuery experimentSampleQuery;
+
     protected ExperimentDAO(final PersistencyResources persistencyResources,
             final DatabaseInstancePE databaseInstance)
     {
         super(persistencyResources, databaseInstance, ExperimentPE.class);
+        this.experimentSampleQuery =
+                QueryTool.getQuery(getDataSource(), IExperimentSampleQuery.class);
     }
 
     @Override
@@ -353,6 +373,17 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         return list;
     }
 
+    private List<Long> getSampleIds(ExperimentPE experiment)
+    {
+        return experimentSampleQuery.getExperimentSampleIds(experiment.getId());
+    }
+
+    @Override
+    public List<String> getSampleCodes(ExperimentPE experiment)
+    {
+        return experimentSampleQuery.getExperimentSampleCodes(experiment.getId());
+    }
+
     @Override
     public void createOrUpdateExperiment(ExperimentPE experiment, PersonPE modifier)
     {
@@ -365,8 +396,8 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         // Moving the experiment to other space affects the index data of attached samples, and also
         // might affect dynamic properties of attached samples.
         // Thus we trigger here dynamic properties evaluation, that in turn triggers reindexing.
-        scheduleDynamicPropertiesEvaluation(getDynamicPropertyEvaluatorScheduler(), SamplePE.class,
-                experiment.getSamples());
+        scheduleDynamicPropertiesEvaluationWithIds(getDynamicPropertyEvaluatorScheduler(),
+                SamplePE.class, getSampleIds(experiment));
     }
 
     @Override

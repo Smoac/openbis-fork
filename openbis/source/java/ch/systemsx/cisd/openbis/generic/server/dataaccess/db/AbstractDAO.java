@@ -420,6 +420,12 @@ public abstract class AbstractDAO extends HibernateDaoSupport
         return result;
     }
 
+    protected static <T extends IEntityInformationWithPropertiesHolder> void scheduleDynamicPropertiesEvaluationWithIds(
+            IDynamicPropertyEvaluationScheduler scheduler, Class<T> entityClass, List<Long> ids)
+    {
+        scheduleDynamicPropertiesEvaluationForIds(scheduler, entityClass, ids);
+    }
+
     protected static <T extends IEntityInformationWithPropertiesHolder> void scheduleDynamicPropertiesEvaluation(
             IDynamicPropertyEvaluationScheduler scheduler, Class<T> entityClass, List<T> entities)
     {
