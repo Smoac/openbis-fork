@@ -5,7 +5,7 @@ from ch.systemsx.cisd.common.mail import EMailAddress
 # sample type can be important, as it can contain validations for instance.
 # The values present here are not too high, so that the test runs quickly in normal circumstances.
 
-SAMPLES_COUNT = 100
+SAMPLES_COUNT = 50
 SAMPLE_TYPE = 'WELL'
 
 SPACE_CODE = "SAMPLE_BENCHMARK_SPACE"

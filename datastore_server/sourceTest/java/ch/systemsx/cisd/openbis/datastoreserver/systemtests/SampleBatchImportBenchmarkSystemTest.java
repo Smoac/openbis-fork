@@ -53,7 +53,7 @@ public class SampleBatchImportBenchmarkSystemTest extends SystemTestCase
     @Override
     protected int dataSetImportWaitDurationInSeconds()
     {
-        return 60;
+        return 120;
     }
 
     @Test
