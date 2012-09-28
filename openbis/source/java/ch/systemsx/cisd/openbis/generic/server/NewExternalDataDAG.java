@@ -17,12 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
 
-import ch.systemsx.cisd.common.collections.DAG;
-import ch.systemsx.cisd.common.conversation.context.ServiceConversationsThreadContext;
-import ch.systemsx.cisd.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
@@ -31,94 +28,35 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class NewExternalDataDAG
+public class NewExternalDataDAG extends EntityDAG<NewExternalData>
 {
-    private final List<? extends NewExternalData> dataSetRegistrations;
-
-    // For simplicity, we use the data set codes to construct the graph, so we need a map from
-    // codes to data sets
-    HashMap<String, NewExternalData> codeToDataMap = new HashMap<String, NewExternalData>();
-
-    HashMap<String, ArrayList<String>> dependencyGraph = new HashMap<String, ArrayList<String>>();
-
-    /**
-     * Create a DAG from the registrations.
-     * 
-     * @param dataSetRegistrations
-     */
     public NewExternalDataDAG(List<? extends NewExternalData> dataSetRegistrations)
     {
-        super();
-        this.dataSetRegistrations = dataSetRegistrations;
-        constructGraph();
+        super(dataSetRegistrations);
     }
 
-    /**
-     * @return The registrations ordered topologically such that each registrations comes after the
-     *         ones it depends on.
-     */
-    public List<? extends NewExternalData> getOrderedRegistrations()
+    @Override
+    protected String getCode(NewExternalData entity)
     {
-        DAG<String, ArrayList<String>> dag = new DAG<String, ArrayList<String>>(dependencyGraph);
-        List<String> sortedCodes = dag.sortTopologically();
-        ArrayList<NewExternalData> sortedData = new ArrayList<NewExternalData>();
-        for (String code : sortedCodes)
-        {
-            NewExternalData data = codeToDataMap.get(code);
-            // Some of the dependencies may be to *existing* data -- we don't care about those here.
-            if (null != data)
-            {
-                sortedData.add(data);
-            }
-        }
-
-        return sortedData;
+        return entity.getCode();
     }
 
-    /**
-     * Create a dependency graph that can be used for topological sorting.
-     */
-    private void constructGraph()
+    @Override
+    protected Collection<String> getDependentEntitiesCodes(NewExternalData dataSet)
     {
-        IServiceConversationProgressListener listener =
-                ServiceConversationsThreadContext.getProgressListener();
+        ArrayList<String> dependents = new ArrayList<String>();
 
-        int index = 0;
+        // All the parents are dependents
+        dependents.addAll(dataSet.getParentDataSetCodes());
 
-        for (NewExternalData dataSet : dataSetRegistrations)
+        if (dataSet instanceof NewContainerDataSet)
         {
-            String dataSetCode = dataSet.getCode();
-            codeToDataMap.put(dataSetCode, dataSet);
-
-            // There may already be dependents for this data set -- get them or initialize the
-            // dependents
-            ArrayList<String> dependents = getDependentsList(dataSetCode);
-
-            // All the parents are dependents
-            dependents.addAll(dataSet.getParentDataSetCodes());
-
-            if (dataSet instanceof NewContainerDataSet)
-            {
-                // All contained data sets are dependents
-                List<String> containedDataSetCodes =
-                        ((NewContainerDataSet) dataSet).getContainedDataSetCodes();
-                dependents.addAll(containedDataSetCodes);
-            }
-
-            dependencyGraph.put(dataSet.getCode(), dependents);
-
-            listener.update("constructGraph", dataSetRegistrations.size(), ++index);
+            // All contained data sets are dependents
+            List<String> containedDataSetCodes =
+                    ((NewContainerDataSet) dataSet).getContainedDataSetCodes();
+            dependents.addAll(containedDataSetCodes);
         }
-    }
 
-    private ArrayList<String> getDependentsList(String dataSetCode)
-    {
-        ArrayList<String> dependents = dependencyGraph.get(dataSetCode);
-        if (null == dependents)
-        {
-            dependents = new ArrayList<String>();
-            dependencyGraph.put(dataSetCode, dependents);
-        }
         return dependents;
     }
 
