@@ -21,9 +21,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.systemsx.cisd.common.db.SQLStateUtils;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.exception.SampleUniqueCodeViolationException;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.exception.SampleUniqueSubcodeViolationException;
 
 /**
  * Extracts information about an actual cause of sample related DataAccessException.
@@ -73,10 +74,7 @@ public class SampleDataAccessExceptionTranslator
         UniqueViolationMessage message = UniqueViolationMessage.get(exception);
         if (message != null)
         {
-            throw new DataIntegrityViolationException(
-                    String.format(
-                            "Insert/Update of Sample (Code: %s) failed because sample with the same code already exists.",
-                            message.getSampleCode()));
+            throw new SampleUniqueCodeViolationException(message.getSampleCode(), exception);
         }
     }
 
@@ -85,10 +83,7 @@ public class SampleDataAccessExceptionTranslator
         UniqueViolationMessage message = UniqueViolationMessage.get(exception);
         if (message != null)
         {
-            throw new DataIntegrityViolationException(
-                    String.format(
-                            "Insert/Update of Sample (Code: %s) failed because sample of the same type with the same subcode already exists.",
-                            message.getSampleCode()));
+            throw new SampleUniqueSubcodeViolationException(message.getSampleCode(), exception);
         }
     }
 
