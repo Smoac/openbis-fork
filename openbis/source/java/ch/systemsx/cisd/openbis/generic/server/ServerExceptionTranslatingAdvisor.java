@@ -29,6 +29,7 @@ import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.ThreadDump;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
@@ -79,6 +80,7 @@ public class ServerExceptionTranslatingAdvisor extends DefaultPointcutAdvisor
                 return invocation.proceed();
             } catch (NestedRuntimeException ex)
             {
+                dumpThreadsIfDatabaseProblem(ex);
                 if (ex instanceof TransactionSystemException || ex instanceof DataAccessException)
                 {
                     throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
@@ -87,6 +89,16 @@ public class ServerExceptionTranslatingAdvisor extends DefaultPointcutAdvisor
                     throw ex; // don't expose query syntax errors etc.
                 }
             }
+        }
+    }
+
+    private static void dumpThreadsIfDatabaseProblem(Exception ex)
+    {
+        String message = ex.getMessage();
+        if (message.contains("deadlock detected")
+                || message.contains("Row was updated or deleted by another transaction"))
+        {
+            ThreadDump.dumpAllThreads();
         }
     }
 
