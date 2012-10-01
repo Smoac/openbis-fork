@@ -27,7 +27,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
 {
 
     /** @see GenericObjectPool#DEFAULT_MAX_ACTIVE */
-    private static final int DEFAULT_MAX_ACTIVE = 100;
+    private static final int DEFAULT_MAX_ACTIVE = 20;
 
     /** @see GenericObjectPool#DEFAULT_MAX_IDLE */
     private static final int DEFAULT_MAX_IDLE = DEFAULT_MAX_ACTIVE;
