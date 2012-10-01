@@ -49,6 +49,10 @@ public class BasicDataSourceFactory implements IDataSourceFactory
 
     private int activeNumConnectionsLogThreshold = DEFAULT_ACTIVE_NUM_CONNECTIONS_LOG_THRESHOLD;
     
+    private boolean activeNumConnectionLogThresholdIsDefault = true;
+    
+    private boolean maxIdleIsDefault = true;
+    
     private boolean logStackTraceOnConnectionLogging = false;
 
     //
@@ -96,6 +100,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     public void setMaxIdle(int maxIdle)
     {
         this.maxIdle = maxIdle;
+        this.maxIdleIsDefault = false;
     }
 
     @Override
@@ -108,6 +113,14 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     public void setMaxActive(int maxActive)
     {
         this.maxActive = maxActive;
+        if (activeNumConnectionLogThresholdIsDefault)
+        {
+            this.activeNumConnectionsLogThreshold = (int) (0.8 * maxActive);
+        }
+        if (maxIdleIsDefault)
+        {
+            this.maxIdle = maxActive;
+        }
     }
 
     @Override
@@ -132,6 +145,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     public void setActiveNumConnectionsLogThreshold(int activeConnectionsLogThreshold)
     {
         this.activeNumConnectionsLogThreshold = activeConnectionsLogThreshold;
+        this.activeNumConnectionLogThresholdIsDefault = false;
     }
 
     @Override
