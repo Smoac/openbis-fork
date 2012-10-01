@@ -11,7 +11,7 @@ The service-demo example core-plugin technology demonstrates the integration bet
 Services
 --------
 
-The example includes an aggregation service, example-aggregation-service, and an ingestion service, example-ingestion-service. The example-aggregation-service returns a table that contains the parameters pass in the by the caller. 
+The example includes an aggregation service, example-aggregation-service, and an ingestion service, example-ingestion-service. The example-aggregation-service returns a table that contains the parameters pass in the by the caller. To install the example, add the service-demo folder to the openBIS core-plugins folder. Include "service-demo" in the `enabled-technologies` property in the AS and DSS service.properties files. 
 
 The example-ingestion-service registers a sample of type `LIBRARY`. This script assumes that there is an experiment with the identifier `/TEST/TEST-PROJECT/DEMO-EXP-HCS` and a sample type `LIBRARY`. This experiment and sample type are automatically installed by the openBIS installer in a fresh installation. If they do not exist in your installation, you will need to change the script to register a sample type that exists and associate it with an experiment that exists.
 
@@ -28,9 +28,9 @@ The ingestion webapp is available at the url: {server url}/ingestion (e.g., http
 crud-demo
 =========
 
-The crud-demo example core-plugin technology demonstrates how to implement a simple CRUD (create, update, delete) app using an aggregation and ingestion service.
+The crud-demo example core-plugin technology demonstrates how to implement a simple CRUD (create, read, update, delete) app using an aggregation and ingestion service.
 
-To install the demo, add the crud-demo the openBIS core-plugins folder. You will additionally need to create a symbolic link from the `datastore_server/lib` folder to `crud.jar` in the folder crud-demo/1/dss/data-sources/crud-db/crud.jar. E.g., in the DSS lib folder:
+To install the demo, add the crud-demo folder to the openBIS core-plugins folder. Include "crud-demo" in the `enabled-technologies` property in the AS and DSS service.properties files. You will additionally need to create a symbolic link from the `datastore_server/lib` folder to `crud.jar` in the folder crud-demo/1/dss/data-sources/crud-db/crud.jar. E.g., in the DSS lib folder:
 
 	ln -s ../../core-plugins/crud-demo/1/dss/data-sources/crud-db/crud.jar ./
 
