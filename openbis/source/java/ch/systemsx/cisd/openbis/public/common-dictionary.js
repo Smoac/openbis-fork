@@ -381,6 +381,7 @@ var common = {
   managed: "Managed",
   is_dynamic: "Dynamic?",
   is_managed: "Managed?",
+  is_shown_in_editor_view: "Shown in Editor View?",
   script: "Script",
   scriptable: "Handled by Script",
   unassign_button_label: "Release Assignment",

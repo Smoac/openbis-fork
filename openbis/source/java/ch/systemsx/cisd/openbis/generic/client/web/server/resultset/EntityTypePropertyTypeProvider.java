@@ -22,6 +22,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTyp
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.IS_DYNAMIC;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.IS_MANAGED;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.IS_MANDATORY;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.IS_SHOWN_IN_EDITOR_VIEW;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.LABEL;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.ORDINAL;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.PROPERTY_TYPE_CODE;
@@ -74,6 +75,7 @@ public class EntityTypePropertyTypeProvider extends
         builder.addColumn(SECTION);
         builder.addColumn(IS_DYNAMIC);
         builder.addColumn(IS_MANAGED);
+        builder.addColumn(IS_SHOWN_IN_EDITOR_VIEW);
         builder.addColumn(SCRIPT);
         for (EntityTypePropertyType<?> etpt : entityTypePropertyTypes)
         {
@@ -90,6 +92,8 @@ public class EntityTypePropertyTypeProvider extends
             builder.column(SECTION).addString(etpt.getSection());
             builder.column(IS_DYNAMIC).addString(SimpleYesNoRenderer.render(etpt.isDynamic()));
             builder.column(IS_MANAGED).addString(SimpleYesNoRenderer.render(etpt.isManaged()));
+            builder.column(IS_SHOWN_IN_EDITOR_VIEW).addString(
+                    SimpleYesNoRenderer.render(etpt.isShownInEditView()));
             Script script = etpt.getScript();
             if (script != null)
             {
