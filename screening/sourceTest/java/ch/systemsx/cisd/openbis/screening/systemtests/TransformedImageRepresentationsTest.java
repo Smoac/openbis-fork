@@ -151,4 +151,10 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
         return 6000;
     }
 
+    @Override
+    protected boolean checkLogContentForFinishedDataSetRegistration(String logContent)
+    {
+        return logContent.contains("Post registration of 4. of 4 data sets");
+    }
+
 }

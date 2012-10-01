@@ -231,8 +231,7 @@ public abstract class SystemTestCase extends AssertJUnit
         {
             Thread.sleep(1000);
             logContent = logAppender.getLogContent();
-            if (logContent.contains(DATA_SET_IMPORTED_LOG_MARKER)
-                    || logContent.contains(REGISTRATION_FINISHED_LOG_MARKER))
+            if (checkLogContentForFinishedDataSetRegistration(logContent))
             {
                 dataSetImported = true;
             } else
@@ -247,6 +246,12 @@ public abstract class SystemTestCase extends AssertJUnit
             fail("Failed to determine whether data set import was successful:" + logContent);
         }
 
+    }
+
+    protected boolean checkLogContentForFinishedDataSetRegistration(String logContent)
+    {
+        return logContent.contains(DATA_SET_IMPORTED_LOG_MARKER)
+                || logContent.contains(REGISTRATION_FINISHED_LOG_MARKER);
     }
 
     /**
