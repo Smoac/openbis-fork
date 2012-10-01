@@ -49,6 +49,11 @@ public class RelationshipServiceStub implements IRelationshipService
     }
 
     @Override
+    public void checkCanUnassignSampleFromExperiment(IAuthSession session, SamplePE sample)
+    {
+    }
+
+    @Override
     public void unassignSampleFromExperiment(IAuthSession session, SamplePE sample)
     {
     }

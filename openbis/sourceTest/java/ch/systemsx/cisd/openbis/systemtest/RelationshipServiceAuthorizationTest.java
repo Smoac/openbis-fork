@@ -632,15 +632,28 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
 
     GuardedDomain destination = new SpaceDomain(instance);
 
-    AuthorizationRule spaceAdminOrSpaceEtlServer = and(
-            or(rule(source, RoleWithHierarchy.SPACE_POWER_USER),
-                    rule(source, RoleWithHierarchy.SPACE_ETL_SERVER)),
-            or(rule(destination, RoleWithHierarchy.SPACE_POWER_USER),
-                    rule(destination, RoleWithHierarchy.SPACE_ETL_SERVER)));
+    private static AuthorizationRule spaceAdminOrSpaceEtlServer(GuardedDomain domain)
+    {
+        return or(rule(domain, RoleWithHierarchy.SPACE_POWER_USER),
+                rule(domain, RoleWithHierarchy.SPACE_ETL_SERVER));
+    }
 
-    AuthorizationRule spaceAdminOrSpaceEtlServerSingle = or(
-            rule(source, RoleWithHierarchy.SPACE_POWER_USER),
-            rule(source, RoleWithHierarchy.SPACE_ETL_SERVER));
+    AuthorizationRule spaceAdminOrSpaceEtlServer = and(spaceAdminOrSpaceEtlServer(source),
+            spaceAdminOrSpaceEtlServer(destination));
+
+    AuthorizationRule spaceAdminOrSpaceEtlServerSingle = spaceAdminOrSpaceEtlServer(source);
+
+    private static AuthorizationRule spaceUserOrBetter(GuardedDomain domain)
+    {
+        return or(rule(domain, RoleWithHierarchy.SPACE_USER),
+                rule(domain, RoleWithHierarchy.SPACE_POWER_USER),
+                rule(domain, RoleWithHierarchy.SPACE_ETL_SERVER));
+    }
+
+    AuthorizationRule spaceUserOrBetter = and(spaceUserOrBetter(source),
+            spaceUserOrBetter(destination));
+
+    AuthorizationRule spaceUserOrBetterSingle = spaceUserOrBetter(source);
 
     AuthorizationRule instanceEtlServer = rule(instance, RoleWithHierarchy.INSTANCE_ETL_SERVER);
 
@@ -675,15 +688,15 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     @DataProvider(name = "rolesAllowedToAssignSampleToExperiment")
     RoleWithHierarchy[][] rolesAllowedToAssignSampleToExperiment()
     {
-        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServer, source,
-                destination, instance);
+        return RolePermutator.getAcceptedPermutations(spaceUserOrBetter, source, destination,
+                instance);
     }
 
     @DataProvider(name = "rolesNotAllowedToAssignSampleToExperiment")
     RoleWithHierarchy[][] rolesNotAllowedToAssignSampleToExperiment()
     {
-        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServer), source,
-                destination, instance);
+        return RolePermutator.getAcceptedPermutations(not(spaceUserOrBetter), source, destination,
+                instance);
     }
 
     @DataProvider(name = "rolesAllowedToUnassignSampleFromExperiment")
@@ -770,15 +783,15 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     @DataProvider(name = "rolesAllowedToAddParentToSample")
     RoleWithHierarchy[][] rolesAllowedToAddParentToSample()
     {
-        return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServer, source,
-                destination, instance);
+        return RolePermutator.getAcceptedPermutations(spaceUserOrBetter, source, destination,
+                instance);
     }
 
     @DataProvider(name = "rolesNotAllowedToAddParentToSample")
     RoleWithHierarchy[][] rolesNotAllowedToAddParentToSample()
     {
-        return RolePermutator.getAcceptedPermutations(not(spaceAdminOrSpaceEtlServer), source,
-                destination, instance);
+        return RolePermutator.getAcceptedPermutations(not(spaceUserOrBetter), source, destination,
+                instance);
     }
 
     @DataProvider(name = "rolesAllowedRemoveParentFromSample")

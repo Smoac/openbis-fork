@@ -63,12 +63,21 @@ public interface IRelationshipService
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
-        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
+        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER,
+                RoleWithHierarchy.SPACE_USER })
     @Capability("ASSIGN_SAMPLE_TO_EXPERIMENT")
     public void assignSampleToExperiment(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class)
             SamplePE sample, @AuthorizationGuard(guardClass = ExperimentPEPredicate.class)
             ExperimentPE experiment);
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
+    @Capability("UNASSIGN_SAMPLE_FROM_EXPERIMENT")
+    public void checkCanUnassignSampleFromExperiment(IAuthSession session,
+            @AuthorizationGuard(guardClass = SamplePEPredicate.class)
+            SamplePE sample);
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
@@ -124,7 +133,8 @@ public interface IRelationshipService
 
     @Transactional(propagation = Propagation.MANDATORY)
     @RolesAllowed(value =
-        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER })
+        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_POWER_USER,
+                RoleWithHierarchy.SPACE_USER })
     @Capability("ADD_PARENT_TO_SAMPLE")
     public void addParentToSample(IAuthSession session,
             @AuthorizationGuard(guardClass = SamplePEPredicate.class)

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business;
 
+import javax.annotation.Resource;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
@@ -46,6 +48,13 @@ public class RelationshipService implements IRelationshipService
 
     private DAOFactory daoFactory;
 
+    /**
+     * Reference to this instance of service, but as a spring bean, so that we can call methods of
+     * this service and run the additional authorization.
+     */
+    @Resource(name = "relationship-service")
+    private IRelationshipService service;
+
     @Override
     public void assignExperimentToProject(IAuthSession session, ExperimentPE experiment,
             ProjectPE project)
@@ -68,12 +77,23 @@ public class RelationshipService implements IRelationshipService
     public void assignSampleToExperiment(IAuthSession session, SamplePE sample,
             ExperimentPE experiment)
     {
+        if (sample.getExperiment() != null)
+        {
+            service.checkCanUnassignSampleFromExperiment(session, sample);
+        }
+
         sample.setExperiment(experiment);
 
         for (DataPE dataset : sample.getDatasets())
         {
             dataset.setExperiment(experiment);
         }
+    }
+
+    @Override
+    public void checkCanUnassignSampleFromExperiment(IAuthSession session, SamplePE sample)
+    {
+        // all the logic is done by the authorization mechanism
     }
 
     @Override
