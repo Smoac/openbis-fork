@@ -314,13 +314,6 @@ public interface IEncapsulatedOpenBISService
     public long drawANewUniqueID();
 
     /**
-     * Creates a new unique ID for the specified entity kind. It is guaranteed to be unique for that
-     * entity kind.
-     */
-    @ManagedAuthentication
-    public long drawANewUniqueID(EntityKind entityKind);
-    
-    /**
      * Creates a list of specified size with new unique ID for the specified entity kind.
      */
     @ManagedAuthentication
@@ -409,7 +402,7 @@ public interface IEncapsulatedOpenBISService
      */
     @ManagedAuthentication
     public SessionContextDTO tryGetSession(String sessionToken);
-    
+
     /**
      * See @{link {@link IETLLIMSService#checkSession(String)}.
      */

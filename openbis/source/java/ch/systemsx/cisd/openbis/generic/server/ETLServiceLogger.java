@@ -103,14 +103,6 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public long drawANewUniqueID(String sessionToken, EntityKind entityKind)
-            throws UserFailureException
-    {
-        logTracking(sessionToken, "drawANewUniqueID", "ENTITY_KIND(%s)", entityKind);
-        return 0;
-    }
-
-    @Override
     public DatabaseInstance getHomeDatabaseInstance(String sessionToken)
     {
         return null;

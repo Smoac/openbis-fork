@@ -80,6 +80,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleVal
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SpaceValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityCodeGenerator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
@@ -2046,7 +2047,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public String generateCode(String sessionToken, String prefix, EntityKind entityKind)
     {
         checkSession(sessionToken);
-        return prefix + getDAOFactory().getCodeSequenceDAO().getNextCodeSequenceId(entityKind);
+        return new EntityCodeGenerator(getDAOFactory()).generateCode(prefix, entityKind);
     }
 
     @Override

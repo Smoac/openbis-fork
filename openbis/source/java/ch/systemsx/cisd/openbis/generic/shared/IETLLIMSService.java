@@ -332,14 +332,6 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public long drawANewUniqueID(String sessionToken) throws UserFailureException;
 
     /**
-     * Draw a new unique ID for the specified entity kind. The returned value is guaranteed to be
-     * unique.
-     */
-    @Transactional
-    public long drawANewUniqueID(String sessionToken, EntityKind entityKind)
-            throws UserFailureException;
-
-    /**
      * Lists samples codes filtered by specified criteria, see {@link ListSamplesByPropertyCriteria}
      * to see the details.
      */

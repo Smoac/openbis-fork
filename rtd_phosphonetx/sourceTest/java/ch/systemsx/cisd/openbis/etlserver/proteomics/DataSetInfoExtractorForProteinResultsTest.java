@@ -56,20 +56,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=DataSetInfoExtractorForProteinResults.class)
+@Friend(toClasses = DataSetInfoExtractorForProteinResults.class)
 public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSystemTestCase
 {
     private static final String PARENT_DATA_SET_CODES_KEY =
             DataSetInfoExtractorForProteinResults.PARENT_DATA_SET_CODES.toUpperCase();
 
     private Mockery context;
+
     private IEncapsulatedOpenBISService service;
+
     private File dataSet;
-    
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -78,7 +78,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         dataSet = new File(workingDirectory, "space1&project1");
         dataSet.mkdirs();
     }
-    
+
     @AfterMethod
     public void afterMethod()
     {
@@ -86,7 +86,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWithNonDefaultExperimentTypeAndPropertiesFileName()
     {
@@ -111,14 +111,14 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
             });
 
         IDataSetInfoExtractor extractor = createExtractor(properties);
-        
+
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
-        
+
         assertEquals("/SPACE1/PROJECT1/E4711", info.getExperimentIdentifier().toString());
         assertEquals("[1, 2, 3, 4]", info.getParentDataSetCodes().toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegistrationWithOneMandatoryProperty()
     {
@@ -142,8 +142,8 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
                                 if (item instanceof NewExperiment)
                                 {
                                     NewExperiment experiment = (NewExperiment) item;
-                                    assertEquals(DEFAULT_EXPERIMENT_TYPE_CODE, experiment
-                                            .getExperimentTypeCode());
+                                    assertEquals(DEFAULT_EXPERIMENT_TYPE_CODE,
+                                            experiment.getExperimentTypeCode());
                                     IEntityProperty[] properties = experiment.getProperties();
                                     assertEquals(1, properties.length);
                                     assertEquals("answer", properties[0].getPropertyType()
@@ -174,7 +174,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
     public void testRegistrationWithMissingMandatoryProperty()
     {
         prepare(DEFAULT_EXPERIMENT_TYPE_CODE);
-        
+
         IDataSetInfoExtractor extractor = createExtractor(new Properties());
         try
         {
@@ -184,10 +184,10 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         {
             assertEquals("The following mandatory properties are missed: [answer]", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWithParentDataSetsDefinedByBaseExperiment()
     {
@@ -207,25 +207,25 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
                                     "EXP1"));
                     Experiment experiment = new ExperimentBuilder().id(123789L).getExperiment();
                     will(returnValue(experiment));
-                    
+
                     one(service).listDataSetsByExperimentID(experiment.getId());
                     ExternalData ds1 = new DataSetBuilder().code("ds1").getDataSet();
                     ExternalData ds2 = new DataSetBuilder().code("ds2").getDataSet();
                     will(returnValue(Arrays.asList(ds1, ds2)));
-                    
+
                     one(service).registerExperiment(with(any(NewExperiment.class)));
                 }
             });
 
         IDataSetInfoExtractor extractor = createExtractor(properties);
-        
+
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
-        
+
         assertEquals("/SPACE1/PROJECT1/E4711", info.getExperimentIdentifier().toString());
         assertEquals("[ds1, ds2]", info.getParentDataSetCodes().toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWithUnkownBaseExperiment()
     {
@@ -247,9 +247,9 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
 
                 }
             });
-        
+
         IDataSetInfoExtractor extractor = createExtractor(properties);
-        
+
         try
         {
             extractor.getDataSetInformation(dataSet, service);
@@ -260,7 +260,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         }
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWithUnkownParentDataSets()
     {
@@ -289,7 +289,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         }
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWithParentDataSetsSeparatedBySpaces()
     {
@@ -348,15 +348,15 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         assertEquals("[ds1, ds2]", info.getParentDataSetCodes().toString());
         context.assertIsSatisfied();
     }
-    
+
     private void prepare(final String experimentType)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(service).drawANewUniqueID(EntityKind.EXPERIMENT);
+                    one(service).generateCodes("E", EntityKind.EXPERIMENT, 1);
                     will(returnValue(4711L));
-                    
+
                     one(service).getExperimentType(experimentType);
                     ExperimentType type = new ExperimentType();
                     ExperimentTypePropertyType etpt = new ExperimentTypePropertyType();
@@ -369,12 +369,12 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
                 }
             });
     }
-    
+
     private void prepareGetDataSet(final String dataSetCode)
     {
         prepareGetDataSet(dataSetCode, new DataSetBuilder().code(dataSetCode).getDataSet());
     }
-    
+
     private void prepareGetDataSet(final String dataSetCode, final ExternalData data)
     {
         context.checking(new Expectations()
@@ -385,7 +385,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
                 }
             });
     }
-    
+
     private IDataSetInfoExtractor createExtractor(Properties properties)
     {
         return new DataSetInfoExtractorForProteinResults(properties, service);

@@ -18,9 +18,12 @@ package ch.systemsx.cisd.openbis.systemtest;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import junit.framework.Assert;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -44,9 +47,24 @@ public class CodeGenerationTest extends SystemTestCase
     @BeforeMethod
     public void setSequences()
     {
-        simpleJdbcTemplate.queryForLong("select setval('code_seq', 8)");
-        simpleJdbcTemplate.queryForLong("select setval('experiment_code_seq', 100)");
-        simpleJdbcTemplate.queryForLong("select setval('sample_code_seq', 200)");
+        setCodeSequence(8);
+        setExperimentCodeSequence(100);
+        setSampleCodeSequence(200);
+    }
+
+    private void setCodeSequence(int value)
+    {
+        simpleJdbcTemplate.queryForLong("select setval('code_seq', " + value + ")");
+    }
+
+    private void setExperimentCodeSequence(int value)
+    {
+        simpleJdbcTemplate.queryForLong("select setval('experiment_code_seq', " + value + ")");
+    }
+
+    private void setSampleCodeSequence(int value)
+    {
+        simpleJdbcTemplate.queryForLong("select setval('sample_code_seq', " + value + ")");
     }
 
     @Test
@@ -58,6 +76,34 @@ public class CodeGenerationTest extends SystemTestCase
         assertEquals("E-102", commonClientService.generateCode("E-", EntityKind.EXPERIMENT));
         assertEquals("S-201", commonClientService.generateCode("S-", EntityKind.SAMPLE));
         assertEquals("S-202", commonClientService.generateCode("S-", EntityKind.SAMPLE));
+    }
+
+    @Test
+    public void testCommonClientServiceGenerateCodeWhenSomeCodesAreAlreadyUsed()
+    {
+        logIntoCommonClientService();
+
+        // Experiments EXP10 and EXP11 already exist
+        setExperimentCodeSequence(10);
+        assertEquals("EXP12", commonClientService.generateCode("EXP", EntityKind.EXPERIMENT));
+        assertEquals("EXP13", commonClientService.generateCode("EXP", EntityKind.EXPERIMENT));
+
+        // Samples A10 .. A22 already exist
+        setSampleCodeSequence(10);
+        assertEquals("A23", commonClientService.generateCode("A", EntityKind.SAMPLE));
+        assertEquals("A24", commonClientService.generateCode("A", EntityKind.SAMPLE));
+
+        // Materials AD3 and AD5 already exist
+        setCodeSequence(3);
+        assertEquals("AD4", commonClientService.generateCode("AD", EntityKind.MATERIAL));
+        assertEquals("AD6", commonClientService.generateCode("AD", EntityKind.MATERIAL));
+
+        // Data sets 20120628092259000-22 .. 20120628092259000-25 already exist
+        setCodeSequence(22);
+        assertEquals("20120628092259000-26",
+                commonClientService.generateCode("20120628092259000-", EntityKind.DATA_SET));
+        assertEquals("20120628092259000-27",
+                commonClientService.generateCode("20120628092259000-", EntityKind.DATA_SET));
     }
 
     @Test
@@ -77,11 +123,21 @@ public class CodeGenerationTest extends SystemTestCase
                         .toString());
     }
 
-    @Test
-    public void testETLServiceDrawANewUniqueID()
+    @Test(timeOut = 1000)
+    public void testGenericServerGenerateManyCodesWhenSomeCodesAreAlreadyUsed()
     {
-        assertEquals(9, etlService.drawANewUniqueID(systemSessionToken));
-        assertEquals(201, etlService.drawANewUniqueID(systemSessionToken, EntityKind.SAMPLE));
+        setSampleCodeSequence(10);
+        genericServer.generateCodes(systemSessionToken, "A", EntityKind.SAMPLE, 1000);
+    }
+
+    @Test
+    public void testGenericServerGenerateCodesWhenSomeCodesAreAlreadyUsed()
+    {
+        // Samples A10 .. A22 already exist
+        setSampleCodeSequence(10);
+        List<String> codes =
+                genericServer.generateCodes(systemSessionToken, "A", EntityKind.SAMPLE, 5);
+        Assert.assertEquals(Arrays.asList("A23", "A24", "A25", "A26", "A27"), codes);
     }
 
     @Test
@@ -95,11 +151,14 @@ public class CodeGenerationTest extends SystemTestCase
     @Test
     public void testAutomaticCreationOfSampleCodesInBatchSampleRegistration()
     {
+        // Samples A10 .. A22 already exist
+        setSampleCodeSequence(10);
+
         String sessionID = logIntoCommonClientService().getSessionID();
         uploadFile("testAutomaticCreationOfSampleCodesInBatchSampleRegistration.txt",
                 "experiment\tCOMMENT\n" + "/CISD/NEMO/EXP1\tA\n" + "/CISD/NEMO/EXP1\tB\n");
         SampleType sampleType = new SampleType();
-        sampleType.setGeneratedCodePrefix("SAMPLE-");
+        sampleType.setGeneratedCodePrefix("A");
         sampleType.setCode("CELL_PLATE");
 
         genericClientService.registerSamples(sampleType, SESSION_KEY, "/CISD", false);
@@ -124,7 +183,6 @@ public class CodeGenerationTest extends SystemTestCase
             builder.append(sample.getIdentifier()).append(":").append(sample.getProperties());
             builder.append("\n");
         }
-        assertEquals("/CISD/SAMPLE-201:[COMMENT: A]\n" + "/CISD/SAMPLE-202:[COMMENT: B]\n",
-                builder.toString());
+        assertEquals("/CISD/A23:[COMMENT: A]\n" + "/CISD/A24:[COMMENT: B]\n", builder.toString());
     }
 }

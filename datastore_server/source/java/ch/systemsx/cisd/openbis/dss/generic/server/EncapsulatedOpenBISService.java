@@ -440,12 +440,6 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public long drawANewUniqueID(EntityKind entityKind)
-    {
-        return service.drawANewUniqueID(session.getSessionToken(), entityKind);
-    }
-
-    @Override
     public ExternalData tryGetDataSet(String dataSetCode) throws UserFailureException
     {
         return service.tryGetDataSet(session.getSessionToken(), dataSetCode);

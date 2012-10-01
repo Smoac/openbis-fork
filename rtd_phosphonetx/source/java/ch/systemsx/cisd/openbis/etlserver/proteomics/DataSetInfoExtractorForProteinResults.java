@@ -41,25 +41,38 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoExtractorWithService
 {
-    @Private static final String EXPERIMENT_TYPE_CODE_KEY = "experiment-type-code";
-    @Private static final String EXPERIMENT_PROPERTIES_FILE_NAME_KEY = "experiment-properties-file-name";
-    @Private static final String DEFAULT_EXPERIMENT_TYPE_CODE = "MS_SEARCH";
-    @Private static final String SEPARATOR_KEY = "separator";
-    @Private static final String DEFAULT_SEPARATOR = "&";
-    @Private static final String DEFAULT_EXPERIMENT_PROPERTIES_FILE_NAME = "search.properties";
+    @Private
+    static final String EXPERIMENT_TYPE_CODE_KEY = "experiment-type-code";
+
+    @Private
+    static final String EXPERIMENT_PROPERTIES_FILE_NAME_KEY = "experiment-properties-file-name";
+
+    @Private
+    static final String DEFAULT_EXPERIMENT_TYPE_CODE = "MS_SEARCH";
+
+    @Private
+    static final String SEPARATOR_KEY = "separator";
+
+    @Private
+    static final String DEFAULT_SEPARATOR = "&";
+
+    @Private
+    static final String DEFAULT_EXPERIMENT_PROPERTIES_FILE_NAME = "search.properties";
+
     static final String PARENT_DATA_SET_CODES = "parent-data-set-codes";
+
     static final String EXPERIMENT_IDENTIFIER_KEY = "base-experiment";
-    
+
     private final String separator;
+
     private final String experimentPropertiesFileName;
+
     private final String experimentTypeCode;
-    
+
     public DataSetInfoExtractorForProteinResults(Properties properties)
     {
         this(properties, ServiceProvider.getOpenBISService());
@@ -72,7 +85,8 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
         experimentPropertiesFileName =
                 properties.getProperty(EXPERIMENT_PROPERTIES_FILE_NAME_KEY,
                         DEFAULT_EXPERIMENT_PROPERTIES_FILE_NAME);
-        experimentTypeCode = properties.getProperty(EXPERIMENT_TYPE_CODE_KEY, DEFAULT_EXPERIMENT_TYPE_CODE);
+        experimentTypeCode =
+                properties.getProperty(EXPERIMENT_TYPE_CODE_KEY, DEFAULT_EXPERIMENT_TYPE_CODE);
     }
 
     @Override
@@ -85,13 +99,13 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
         if (items.length < 2)
         {
             throw new UserFailureException(
-                    "The name of the data set should have at least two parts separated by '" + separator
-                            + "': " + name);
+                    "The name of the data set should have at least two parts separated by '"
+                            + separator + "': " + name);
         }
         ProjectIdentifier projectIdentifier = new ProjectIdentifier(items[0], items[1]);
+        String experimentCode = service.generateCodes("E", EntityKind.EXPERIMENT, 1).get(0);
         ExperimentIdentifier experimentIdentifier =
-                new ExperimentIdentifier(projectIdentifier, "E"
-                        + service.drawANewUniqueID(EntityKind.EXPERIMENT));
+                new ExperimentIdentifier(projectIdentifier, experimentCode);
         NewExperiment experiment =
                 new NewExperiment(experimentIdentifier.toString(), experimentTypeCode);
         ExperimentType experimentType = service.getExperimentType(experimentTypeCode);
@@ -117,8 +131,8 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
     }
 
     /**
-     * Returns data set codes either from the first argument or if <code>null</code> from
-     * the data sets of the specified experiment. 
+     * Returns data set codes either from the first argument or if <code>null</code> from the data
+     * sets of the specified experiment.
      */
     static ParentDataSetCodes getParentDataSetCodes(String parentDataSetCodesOrNull,
             String baseExperimentIdentifier, IEncapsulatedOpenBISService service)
@@ -160,7 +174,7 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
         String errorMessage = builder.length() > 0 ? builder.toString() : null;
         return new ParentDataSetCodes(parentDataSetCodes, errorMessage);
     }
-    
+
     private String getProperty(Properties properties, String key)
     {
         String property = properties.getProperty(key);
@@ -170,7 +184,7 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
         }
         return property;
     }
-    
+
     private Properties loadSearchProperties(File propertiesFile)
     {
         Properties properties;

@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationServerManagerLocal;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityCodeGenerator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
@@ -369,16 +370,6 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         checkSession(sessionToken);
         return daoFactory.getCodeSequenceDAO().getNextCodeSequenceId();
-    }
-
-    @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public long drawANewUniqueID(String sessionToken,
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind)
-            throws UserFailureException
-    {
-        checkSession(sessionToken);
-        return daoFactory.getCodeSequenceDAO().getNextCodeSequenceId(entityKind);
     }
 
     @Override
@@ -1154,12 +1145,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind, int number)
     {
         checkSession(sessionToken);
-        ArrayList<String> result = new ArrayList<String>();
-        for (int i = 0; i < number; i++)
-        {
-            result.add(prefix + daoFactory.getCodeSequenceDAO().getNextCodeSequenceId(entityKind));
-        }
-        return result;
+        return new EntityCodeGenerator(daoFactory).generateCodes(prefix, entityKind, number);
     }
 
     @Override
