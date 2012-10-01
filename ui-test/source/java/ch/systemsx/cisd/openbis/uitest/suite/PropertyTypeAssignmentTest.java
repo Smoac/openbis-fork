@@ -37,7 +37,7 @@ public class PropertyTypeAssignmentTest extends SeleniumTest
     {
         PropertyTypeAssignment assignment = create(aSamplePropertyTypeAssignment());
 
-        assertThat(propertyTypeAssignmentBrowser(), lists(assignment));
+        assertThat(browserEntryOf(assignment), exists());
     }
 
     @Test
@@ -55,7 +55,7 @@ public class PropertyTypeAssignmentTest extends SeleniumTest
                 .thatIsMandatory()
                 .havingInitialValueOf("Test Initial Value"));
 
-        assertThat(cell(sample, propertyType.getLabel()).of(sampleBrowser()),
-                displays("Test Initial Value"));
+        assertThat(browserEntryOf(sample), containsValue(propertyType.getLabel(),
+                "Test Initial Value"));
     }
 }

@@ -16,7 +16,7 @@ public class ProjectTest extends SeleniumTest
     {
         Project project = create(aProject());
 
-        assertThat(projectBrowser(), lists(project));
+        assertThat(browserEntryOf(project), exists());
     }
 
 }

@@ -21,6 +21,7 @@ import java.util.List;
 import org.openqa.selenium.WebElement;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
+import ch.systemsx.cisd.openbis.uitest.type.Browsable;
 
 /**
  * @author anttil
@@ -48,6 +49,11 @@ public class SettingsDialog implements Widget
         }
 
         context.find("//*[@class='x-window-bl']//button[text()='OK']").click();
+    }
+
+    public void showColumnsOf(Browsable browsable)
+    {
+        showColumns(browsable.getColumns().toArray(new String[0]));
     }
 
     @Override

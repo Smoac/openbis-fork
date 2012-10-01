@@ -42,7 +42,7 @@ public class ExperimentTest extends SeleniumTest
 
         Experiment experiment = create(anExperiment().in(project).withSamples(sample));
 
-        assertThat(cell(sample, "Experiment").of(sampleBrowser()), displays(experiment.getCode()));
-        assertThat(cell(sample, "Project").of(sampleBrowser()), displays(project.getCode()));
+        assertThat(browserEntryOf(sample), containsValue("Experiment", experiment.getCode()));
+        assertThat(browserEntryOf(sample), containsValue("Project", project.getCode()));
     }
 }

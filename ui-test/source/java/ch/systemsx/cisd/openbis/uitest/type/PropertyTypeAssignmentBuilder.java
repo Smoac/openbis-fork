@@ -81,7 +81,9 @@ public class PropertyTypeAssignmentBuilder implements Builder<PropertyTypeAssign
             entityType = new SampleTypeBuilder(openbis).create();
         }
 
-        return openbis.create(build());
+        PropertyTypeAssignment assignment = openbis.create(build());
+        entityType.getPropertyTypeAssignments().add(assignment);
+        return assignment;
     }
 
     @Override

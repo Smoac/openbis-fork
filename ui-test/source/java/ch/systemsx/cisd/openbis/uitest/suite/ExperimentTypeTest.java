@@ -16,7 +16,7 @@ public class ExperimentTypeTest extends SeleniumTest
     {
         ExperimentType type = create(anExperimentType());
 
-        assertThat(experimentTypeBrowser(), lists(type));
+        assertThat(browserEntryOf(type), exists());
     }
 
 }

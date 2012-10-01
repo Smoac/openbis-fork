@@ -20,30 +20,48 @@ import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
 import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserCell;
+import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 
 /**
  * @author anttil
  */
-public class CellLinksToMatcher extends TypeSafeMatcher<BrowserCell>
+public class CellContentMatcher extends TypeSafeMatcher<BrowserRow>
 {
+
+    private String column;
 
     private String expected;
 
-    public CellLinksToMatcher(String url)
+    private boolean link;
+
+    public CellContentMatcher(String column, String value, boolean link)
     {
-        expected = url;
+        this.column = column;
+        this.expected = value;
+        this.link = link;
     }
 
     @Override
     public void describeTo(Description description)
     {
-        description.appendText("A cell linking to " + this.expected);
+        description.appendText(
+                "A cell in column " + column + (link ? " linking to " : " displaying ") + expected);
     }
 
     @Override
-    public boolean matchesSafely(BrowserCell actual)
+    public boolean matchesSafely(BrowserRow row)
     {
-        return expected.equals(actual.getUrl());
-    }
+        if (row.exists() == false)
+        {
+            return false;
+        }
 
+        BrowserCell actual = row.get(column);
+        if (actual == null)
+        {
+            return false;
+        }
+
+        return expected.equalsIgnoreCase(link ? actual.getUrl() : actual.getText());
+    }
 }

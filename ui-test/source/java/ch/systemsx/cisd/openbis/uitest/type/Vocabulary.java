@@ -16,9 +16,11 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserCell;
+import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 
 /**
@@ -43,18 +45,6 @@ public class Vocabulary implements Browsable
     }
 
     @Override
-    public boolean isRepresentedBy(BrowserRow row)
-    {
-        BrowserCell codeCell = row.get("Code");
-        return codeCell != null && codeCell.getText().equalsIgnoreCase(this.code);
-    }
-
-    @Override
-    public String toString()
-    {
-        return "Vocabulary " + this.code + ": " + this.terms;
-    }
-
     public String getCode()
     {
         return code;
@@ -88,5 +78,39 @@ public class Vocabulary implements Browsable
     void setUrl(String url)
     {
         this.url = url;
+    }
+
+    @Override
+    public BrowserRow getBrowserContent(GuiApplicationRunner openbis)
+    {
+        return openbis.browseTo(this);
+    }
+
+    @Override
+    public Collection<String> getColumns()
+    {
+        return Arrays.asList("Code", "Description", "URL Template");
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Vocabulary " + this.code + ": " + this.terms;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return code.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (o instanceof Vocabulary)
+        {
+            return ((Vocabulary) o).getCode().equals(code);
+        }
+        return false;
     }
 }

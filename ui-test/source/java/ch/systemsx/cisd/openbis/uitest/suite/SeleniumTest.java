@@ -22,6 +22,7 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import org.hamcrest.Matcher;
@@ -39,31 +40,20 @@ import org.testng.annotations.BeforeSuite;
 import ch.systemsx.cisd.openbis.uitest.infra.application.ApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.infra.application.PublicApiApplicationRunner;
-import ch.systemsx.cisd.openbis.uitest.infra.matcher.BrowserListsElementMatcher;
-import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellDisplaysMatcher;
-import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellLinksToMatcher;
+import ch.systemsx.cisd.openbis.uitest.infra.dsl.DslSampleBrowser;
+import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellContentMatcher;
+import ch.systemsx.cisd.openbis.uitest.infra.matcher.CollectionContainsMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.PageMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.RegisterSampleFormContainsInputsForPropertiesMatcher;
-import ch.systemsx.cisd.openbis.uitest.infra.matcher.SampleBrowserSampleTypeDropDownMenuMatcher;
+import ch.systemsx.cisd.openbis.uitest.infra.matcher.RowExistsMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.SampleHasDataSetsMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.screenshot.FileScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.infra.uid.DictionaryUidGenerator;
 import ch.systemsx.cisd.openbis.uitest.infra.uid.UidGenerator;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.PageProxy;
-import ch.systemsx.cisd.openbis.uitest.page.tab.Browser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserCell;
-import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.ProjectBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeAssignmentBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterSample;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.Trash;
-import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.Browsable;
 import ch.systemsx.cisd.openbis.uitest.type.Builder;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
@@ -187,7 +177,7 @@ public abstract class SeleniumTest
             }), uid);
         openbis.login(ADMIN_USER, ADMIN_PASSWORD);
         // this is because of BIS-184
-        sampleBrowser();
+        openbis.browseToSampleBrowser();
 
         openbisApi.login(ADMIN_USER, ADMIN_PASSWORD);
     }
@@ -241,60 +231,25 @@ public abstract class SeleniumTest
         f.delete();
     }
 
-    protected SampleBrowser sampleBrowser()
+    protected DslSampleBrowser sampleBrowser()
     {
-        return openbis.browseToSampleBrowser();
+        return new DslSampleBrowser(openbis.browseToSampleBrowser());
     }
 
-    protected ExperimentBrowser experimentBrowser()
+    protected <T extends Browsable> BrowserRow browserEntryOf(T browsable)
     {
-        return openbis.browseToExperimentBrowser();
+        return browsable.getBrowserContent(openbis);
     }
 
-    protected Trash trash()
+    protected void emptyTrash()
     {
-        return openbis.browseToTrash();
-    }
-
-    protected SampleTypeBrowser sampleTypeBrowser()
-    {
-        return openbis.browseToSampleTypeBrowser();
-    }
-
-    protected ExperimentTypeBrowser experimentTypeBrowser()
-    {
-        return openbis.browseToExperimentTypeBrowser();
-    }
-
-    protected VocabularyBrowser vocabularyBrowser()
-    {
-        return openbis.browseToVocabularyBrowser();
-    }
-
-    protected PropertyTypeBrowser propertyTypeBrowser()
-    {
-        return openbis.browseToPropertyTypeBrowser();
-    }
-
-    protected SpaceBrowser spaceBrowser()
-    {
-        return openbis.browseToSpaceBrowser();
-    }
-
-    protected ProjectBrowser projectBrowser()
-    {
-        return openbis.browseToProjectBrowser();
+        openbis.browseToTrash().empty();
     }
 
     protected RegisterSample sampleRegistrationPageFor(SampleType type)
     {
         openbis.browseToRegisterSample().selectSampleType(type);
         return pageProxy.get(RegisterSample.class);
-    }
-
-    protected PropertyTypeAssignmentBrowser propertyTypeAssignmentBrowser()
-    {
-        return openbis.browseToPropertyTypeAssignmentBrowser();
     }
 
     protected Matcher<Sample> hasDataSets(DataSet... datasets)
@@ -307,69 +262,39 @@ public abstract class SeleniumTest
         return new PageMatcher(pageClass, pageProxy);
     }
 
-    protected Matcher<SampleBrowser> showsInToolBar(SampleType sampleType)
-    {
-        return new SampleBrowserSampleTypeDropDownMenuMatcher(sampleType);
-    }
-
-    protected Matcher<SampleBrowser> doesNotShowInToolBar(SampleType sampleType)
-    {
-        return not(new SampleBrowserSampleTypeDropDownMenuMatcher(sampleType));
-    }
-
-    protected <T extends Browsable, U extends Browser<T>> Matcher<U> lists(T browsable)
-    {
-        return new BrowserListsElementMatcher<T, U>(browsable);
-    }
-
-    protected <T extends Browsable, U extends Browser<T>> Matcher<U> doesNotList(T browsable)
-    {
-        return not(new BrowserListsElementMatcher<T, U>(browsable));
-    }
-
     protected Matcher<RegisterSample> hasInputsForProperties(PropertyType... fields)
     {
         return new RegisterSampleFormContainsInputsForPropertiesMatcher(fields);
     }
 
-    protected <T extends Browsable> CellExtractor<T> cell(T browsable, String column)
+    protected Matcher<BrowserRow> containsValue(String column, String value)
     {
-        return new CellExtractor<T>(browsable, column);
+        return new CellContentMatcher(column, value, false);
     }
 
-    protected class CellExtractor<T extends Browsable>
+    protected Matcher<BrowserRow> exists()
     {
-        private final T browsable;
-
-        private final String column;
-
-        public CellExtractor(T browsable, String column)
-        {
-            this.browsable = browsable;
-            this.column = column;
-        }
-
-        public BrowserCell of(Browser<T> browser)
-        {
-            browser.filter(browsable);
-            try
-            {
-                return browser.cell(browsable, column);
-            } finally
-            {
-                browser.resetFilters();
-            }
-        }
+        return new RowExistsMatcher();
     }
 
-    protected Matcher<BrowserCell> linksTo(String url)
+    protected Matcher<BrowserRow> doesNotExist()
     {
-        return new CellLinksToMatcher(url);
+        return not(new RowExistsMatcher());
     }
 
-    protected Matcher<BrowserCell> displays(String text)
+    protected Matcher<BrowserRow> containsLink(String column, String value)
     {
-        return new CellDisplaysMatcher(text);
+        return new CellContentMatcher(column, value, true);
+    }
+
+    protected <T> Matcher<Collection<T>> contains(T t)
+    {
+        return new CollectionContainsMatcher<T>(t);
+    }
+
+    protected <T> Matcher<Collection<T>> doesNotContain(T t)
+    {
+        return not(new CollectionContainsMatcher<T>(t));
     }
 
     protected <T> T create(Builder<T> builder)

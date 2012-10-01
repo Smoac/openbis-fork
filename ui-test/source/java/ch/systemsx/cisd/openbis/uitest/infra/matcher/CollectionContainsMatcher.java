@@ -16,22 +16,20 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra.matcher;
 
+import java.util.Collection;
+
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
-
-import ch.systemsx.cisd.openbis.uitest.page.tab.Browser;
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
-import ch.systemsx.cisd.openbis.uitest.type.Browsable;
 
 /**
  * @author anttil
  */
-public class BrowserListsElementMatcher<T extends Browsable, U extends Browser<T>>
-        extends TypeSafeMatcher<U>
+public class CollectionContainsMatcher<T> extends TypeSafeMatcher<Collection<T>>
 {
+
     private T expected;
 
-    public BrowserListsElementMatcher(T expected)
+    public CollectionContainsMatcher(T expected)
     {
         this.expected = expected;
     }
@@ -39,27 +37,13 @@ public class BrowserListsElementMatcher<T extends Browsable, U extends Browser<T
     @Override
     public void describeTo(Description description)
     {
-        description.appendText("Browser that contains element " + this.expected);
+        description.appendText("A collection containing item " + expected.toString());
     }
 
     @Override
-    public boolean matchesSafely(U browser)
+    public boolean matchesSafely(Collection<T> collection)
     {
-        browser.filter(expected);
-        try
-        {
-            BrowserRow row = browser.select(expected);
-
-            if (row.exists())
-            {
-                return expected.isRepresentedBy(row);
-            } else
-            {
-                return false;
-            }
-        } finally
-        {
-            browser.resetFilters();
-        }
+        return collection.contains(expected);
     }
+
 }

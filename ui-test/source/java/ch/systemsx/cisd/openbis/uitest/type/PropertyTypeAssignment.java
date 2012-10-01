@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserCell;
+import java.util.Arrays;
+import java.util.Collection;
+
+import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 
 /**
@@ -42,30 +45,12 @@ public class PropertyTypeAssignment implements Browsable
         this.initialValue = initialValue;
     }
 
-    @Override
-    public boolean isRepresentedBy(BrowserRow row)
-    {
-        BrowserCell propertyTypeCode = row.get("Property Type Code");
-        BrowserCell entityTypeCode = row.get("Entity Type");
-
-        return propertyTypeCode != null &&
-                entityTypeCode != null &&
-                propertyTypeCode.getText().equalsIgnoreCase(propertyType.getCode()) &&
-                entityTypeCode.getText().equalsIgnoreCase(entityType.getCode());
-    }
-
-    @Override
-    public String toString()
-    {
-        return "PropertyTypeAssignment [" + this.propertyType + ", " + this.entityType + "]";
-    }
-
     public PropertyType getPropertyType()
     {
         return propertyType;
     }
 
-    public EntityType getSampleType()
+    public EntityType getEntityType()
     {
         return entityType;
     }
@@ -79,4 +64,50 @@ public class PropertyTypeAssignment implements Browsable
     {
         return initialValue;
     }
+
+    @Override
+    public BrowserRow getBrowserContent(GuiApplicationRunner openbis)
+    {
+        return openbis.browseTo(this);
+    }
+
+    @Override
+    public Collection<String> getColumns()
+    {
+        return Arrays.asList("Property Type Code", "Entity Type", "Mandatory?");
+    }
+
+    @Override
+    public String getCode()
+    {
+        return propertyType.getCode();
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = 17;
+        result = 31 * result + propertyType.getCode().hashCode();
+        result = 31 * result + entityType.getCode().hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (o instanceof PropertyTypeAssignment)
+        {
+            PropertyTypeAssignment assignment = (PropertyTypeAssignment) o;
+            return assignment.getPropertyType().getCode().equals(propertyType.getCode()) &&
+                    assignment.getEntityType().getCode().equals(entityType.getCode());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "PropertyTypeAssignment [" + this.propertyType + ", " + this.entityType + "]";
+    }
+
 }

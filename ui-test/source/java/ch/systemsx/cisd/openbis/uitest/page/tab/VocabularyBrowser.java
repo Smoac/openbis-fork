@@ -24,8 +24,9 @@ import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
+import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class VocabularyBrowser implements Browser<Vocabulary>
+public class VocabularyBrowser extends Browser<Vocabulary>
 {
     @Locate("openbis_vocabulary-browser-grid")
     private Grid grid;
@@ -47,6 +48,10 @@ public class VocabularyBrowser implements Browser<Vocabulary>
     @Locate("deletion-confirmation-dialog")
     private DeletionConfirmationBox confimDeletion;
 
+    @Lazy
+    @Locate("openbis_tab-panelvocabulary-browser-grid")
+    private SettingsDialog settings;
+
     public void add()
     {
         add.click();
@@ -59,35 +64,27 @@ public class VocabularyBrowser implements Browser<Vocabulary>
     }
 
     @Override
-    public BrowserRow select(Vocabulary vocabulary)
+    public Grid getGrid()
     {
-        return grid.select("Code", vocabulary.getCode());
+        return grid;
     }
 
     @Override
-    public BrowserCell cell(Vocabulary vocabulary, String column)
+    public PagingToolBar getPaging()
     {
-        return select(vocabulary).get(column);
+        return paging;
     }
 
     @Override
-    public void filter(Vocabulary vocabulary)
+    public FilterToolBar getFilters()
     {
-        paging.filters();
-        filters.setCode(vocabulary.getCode(), paging);
+        return filters;
     }
 
     @Override
-    public void resetFilters()
+    public SettingsDialog getSettings()
     {
-        paging.filters();
-        filters.reset();
+        return settings;
     }
 
-    @Override
-    public String toString()
-    {
-        String s = "VocabularyBrowser\n==========\n";
-        return s + grid.toString();
-    }
 }

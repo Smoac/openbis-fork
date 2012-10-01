@@ -18,58 +18,28 @@ package ch.systemsx.cisd.openbis.uitest.page.tab;
 
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.type.SampleType;
-import ch.systemsx.cisd.openbis.uitest.widget.Button;
-import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
+import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class SampleTypeBrowser extends Browser<SampleType>
+public class DataSetTypeBrowser extends Browser<DataSetType>
 {
-    @Locate("add-entity-type-SAMPLE")
-    private Button add;
 
-    @Locate("edit-entity-type-SAMPLE")
-    private Button edit;
-
-    @Locate("delete-entity-type-SAMPLE")
-    private Button delete;
-
-    @Locate("openbis_sample-type-browser-grid")
+    @Locate("openbis_data-set-type-browser-grid")
     private Grid grid;
 
-    @Locate("openbis_sample-type-browser-grid-paging-toolbar")
+    @Locate("openbis_data-set-type-browser-grid-paging-toolbar")
     private PagingToolBar paging;
 
     @Lazy
-    @Locate("openbis_sample-type-browser-grid-filter-toolbar")
+    @Locate("openbis_data-set-type-browser-grid-filter-toolbar")
     private FilterToolBar filters;
 
     @Lazy
-    @Locate("deletion-confirmation-dialog")
-    private DeletionConfirmationBox confimDeletion;
-
-    @Lazy
-    @Locate("openbis_tab-paneltype-browser-grid-SAMPLE")
+    @Locate("openbis_tab-paneltype-browser-grid-DATA_SET")
     private SettingsDialog settings;
-
-    public void add()
-    {
-        add.click();
-    }
-
-    public void edit()
-    {
-        edit.click();
-    }
-
-    public void delete()
-    {
-        delete.click();
-        confimDeletion.confirm();
-    }
 
     @Override
     public Grid getGrid()
@@ -90,9 +60,15 @@ public class SampleTypeBrowser extends Browser<SampleType>
     }
 
     @Override
+    public String toString()
+    {
+        String s = "DataSetTypeBrowser\n==========\n";
+        return s + grid.toString();
+    }
+
+    @Override
     public SettingsDialog getSettings()
     {
         return settings;
     }
-
 }

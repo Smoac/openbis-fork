@@ -24,8 +24,9 @@ import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
+import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class ProjectBrowser implements Browser<Project>
+public class ProjectBrowser extends Browser<Project>
 {
 
     @Locate("openbis_project-browser-grid")
@@ -45,6 +46,10 @@ public class ProjectBrowser implements Browser<Project>
     @Locate("deletion-confirmation-dialog")
     private DeletionConfirmationBox confimDeletion;
 
+    @Lazy
+    @Locate("openbis_tab-panelproject-browser-grid")
+    private SettingsDialog settings;
+
     public void delete()
     {
         delete.click();
@@ -52,35 +57,27 @@ public class ProjectBrowser implements Browser<Project>
     }
 
     @Override
-    public BrowserRow select(Project project)
+    public Grid getGrid()
     {
-        return grid.select("Code", project.getCode());
+        return grid;
     }
 
     @Override
-    public BrowserCell cell(Project project, String column)
+    public PagingToolBar getPaging()
     {
-        return select(project).get(column);
+        return paging;
     }
 
     @Override
-    public void filter(Project project)
+    public FilterToolBar getFilters()
     {
-        paging.filters();
-        filters.setCode(project.getCode(), paging);
+        return filters;
     }
 
     @Override
-    public void resetFilters()
+    public SettingsDialog getSettings()
     {
-        paging.filters();
-        filters.reset();
+        return settings;
     }
 
-    @Override
-    public String toString()
-    {
-        String s = "ProjectBrowser\n==========\n";
-        return s + grid.toString();
-    }
 }

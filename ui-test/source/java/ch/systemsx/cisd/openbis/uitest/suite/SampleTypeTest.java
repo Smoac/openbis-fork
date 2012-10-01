@@ -46,7 +46,7 @@ public class SampleTypeTest extends SeleniumTest
     {
         SampleType sampleType = create(aSampleType());
 
-        assertThat(sampleTypeBrowser(), lists(sampleType));
+        assertThat(browserEntryOf(sampleType), exists());
     }
 
     @Test
@@ -54,7 +54,7 @@ public class SampleTypeTest extends SeleniumTest
     {
         SampleType sampleType = create(aSampleType().thatIsNotListable());
 
-        assertThat(sampleBrowser(), doesNotShowInToolBar(sampleType));
+        assertThat(sampleBrowser().availableSampleTypes(), doesNotContain(sampleType));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class SampleTypeTest extends SeleniumTest
 
         perform(anUpdateOf(sampleType).settingItListable());
 
-        assertThat(sampleBrowser(), showsInToolBar(sampleType));
+        assertThat(sampleBrowser().availableSampleTypes(), contains(sampleType));
     }
 
 }

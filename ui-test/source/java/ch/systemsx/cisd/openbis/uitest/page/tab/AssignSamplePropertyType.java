@@ -48,7 +48,7 @@ public class AssignSamplePropertyType
     public void fillWith(PropertyTypeAssignment assignment)
     {
         propertyType.select(assignment.getPropertyType().getLabel());
-        sampleType.select(assignment.getSampleType().getCode());
+        sampleType.select(assignment.getEntityType().getCode());
         mandatory.set(assignment.isMandatory());
 
         if (assignment.getInitialValue() != null && assignment.getInitialValue().length() > 0)

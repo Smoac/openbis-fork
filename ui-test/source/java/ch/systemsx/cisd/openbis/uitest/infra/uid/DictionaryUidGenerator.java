@@ -46,7 +46,9 @@ public class DictionaryUidGenerator implements UidGenerator
     @Override
     public String uid()
     {
-        return tokens.get((int) (Math.random() * tokens.size())) + "-" + UUID.randomUUID();
+        String uid = tokens.get((int) (Math.random() * tokens.size())) + "-" + UUID.randomUUID();
+        uid = uid.toUpperCase();
+        return uid;
     }
 
 }

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra.application;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.uitest.infra.uid.UidGenerator;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.PageProxy;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddExperimentTypeDialog;
@@ -35,6 +37,7 @@ import ch.systemsx.cisd.openbis.uitest.page.tab.AddPropertyType;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AssignSamplePropertyType;
 import ch.systemsx.cisd.openbis.uitest.page.tab.Browser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
+import ch.systemsx.cisd.openbis.uitest.page.tab.DataSetTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.LoginPage;
@@ -50,6 +53,7 @@ import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.Trash;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
+import ch.systemsx.cisd.openbis.uitest.type.Browsable;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
@@ -97,7 +101,7 @@ public class GuiApplicationRunner implements ApplicationRunner
     public void delete(Space space)
     {
         SpaceBrowser browser = browseToSpaceBrowser();
-        browser.filter(space);
+        browser.filterTo(space);
         BrowserRow row = browser.select(space);
         if (row.exists())
         {
@@ -118,7 +122,7 @@ public class GuiApplicationRunner implements ApplicationRunner
     public void delete(Project project)
     {
         ProjectBrowser browser = browseToProjectBrowser();
-        browser.filter(project);
+        browser.filterTo(project);
         BrowserRow row = browser.select(project);
         if (row.exists())
         {
@@ -130,7 +134,7 @@ public class GuiApplicationRunner implements ApplicationRunner
     public void delete(SampleType sampleType)
     {
         SampleTypeBrowser browser = browseToSampleTypeBrowser();
-        browser.filter(sampleType);
+        browser.filterTo(sampleType);
         BrowserRow row = browser.select(sampleType);
         if (row.exists())
         {
@@ -142,7 +146,7 @@ public class GuiApplicationRunner implements ApplicationRunner
     public void delete(ExperimentType experimentType)
     {
         ExperimentTypeBrowser browser = browseToExperimentTypeBrowser();
-        browser.filter(experimentType);
+        browser.filterTo(experimentType);
         BrowserRow row = browser.select(experimentType);
         if (row.exists())
         {
@@ -154,7 +158,7 @@ public class GuiApplicationRunner implements ApplicationRunner
     public void delete(PropertyType propertyType)
     {
         PropertyTypeBrowser browser = browseToPropertyTypeBrowser();
-        browser.filter(propertyType);
+        browser.filterTo(propertyType);
         BrowserRow row = browser.select(propertyType);
         if (row.exists())
         {
@@ -167,7 +171,7 @@ public class GuiApplicationRunner implements ApplicationRunner
     public void delete(Vocabulary vocabulary)
     {
         VocabularyBrowser browser = browseToVocabularyBrowser();
-        browser.filter(vocabulary);
+        browser.filterTo(vocabulary);
         BrowserRow row = browser.select(vocabulary);
         if (row.exists())
         {
@@ -253,7 +257,7 @@ public class GuiApplicationRunner implements ApplicationRunner
     public void update(SampleType sampleType)
     {
         SampleTypeBrowser browser = browseToSampleTypeBrowser();
-        browser.filter(sampleType);
+        browser.filterTo(sampleType);
         browser.select(sampleType);
         browser.edit();
         EditSampleTypeDialog dialog = proxy.get(EditSampleTypeDialog.class);
@@ -275,6 +279,84 @@ public class GuiApplicationRunner implements ApplicationRunner
         load(UserMenu.class).logout();
     }
 
+    public BrowserRow browseTo(Sample sample)
+    {
+        browseToSampleBrowser();
+        return getRow(SampleBrowser.class, sample);
+    }
+
+    public BrowserRow browseTo(SampleType type)
+    {
+        browseToSampleTypeBrowser();
+        return getRow(SampleTypeBrowser.class, type);
+    }
+
+    public BrowserRow browseTo(Vocabulary vocabulary)
+    {
+        browseToVocabularyBrowser();
+        return getRow(VocabularyBrowser.class, vocabulary);
+    }
+
+    public BrowserRow browseTo(Experiment experiment)
+    {
+        browseToExperimentBrowser();
+        return getRow(ExperimentBrowser.class, experiment);
+    }
+
+    public BrowserRow browseTo(ExperimentType type)
+    {
+        browseToExperimentTypeBrowser();
+        return getRow(ExperimentTypeBrowser.class, type);
+    }
+
+    public BrowserRow browseTo(Project project)
+    {
+        browseToProjectBrowser();
+        return getRow(ProjectBrowser.class, project);
+    }
+
+    public BrowserRow browseTo(PropertyTypeAssignment assignment)
+    {
+        browseToPropertyTypeAssignmentBrowser();
+        return getRow(PropertyTypeAssignmentBrowser.class, assignment);
+    }
+
+    public BrowserRow browseTo(PropertyType type)
+    {
+        browseToPropertyTypeBrowser();
+        return getRow(PropertyTypeBrowser.class, type);
+    }
+
+    public BrowserRow browseTo(Space space)
+    {
+        browseToSpaceBrowser();
+        return getRow(SpaceBrowser.class, space);
+    }
+
+    public BrowserRow browseTo(DataSetType type)
+    {
+        browseToDataSetTypeBrowser();
+        return getRow(DataSetTypeBrowser.class, type);
+    }
+
+    private <T extends Browsable> BrowserRow getRow(Class<? extends Browser<T>> browserClass,
+            T browsable)
+    {
+        load(browserClass).showColumnsOf(browsable);
+        load(browserClass).filterTo(browsable);
+        List<BrowserRow> rows = load(browserClass).getData();
+        if (rows.size() == 0)
+        {
+            return new BrowserRow();
+        } else if (rows.size() == 1)
+        {
+            return rows.get(0);
+        } else
+        {
+            throw new IllegalStateException("multiple rows found:\n" + rows);
+        }
+    }
+
     public SampleTypeBrowser browseToSampleTypeBrowser()
     {
         getMenus().admin();
@@ -289,6 +371,14 @@ public class GuiApplicationRunner implements ApplicationRunner
         load(AdminMenu.class).types();
         load(TypesMenu.class).experimentTypes();
         return getBrowser(ExperimentTypeBrowser.class);
+    }
+
+    public DataSetTypeBrowser browseToDataSetTypeBrowser()
+    {
+        getMenus().admin();
+        load(AdminMenu.class).types();
+        load(TypesMenu.class).experimentTypes();
+        return getBrowser(DataSetTypeBrowser.class);
     }
 
     public Trash browseToTrash()

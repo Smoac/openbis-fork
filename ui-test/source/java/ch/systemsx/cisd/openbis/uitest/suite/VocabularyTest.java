@@ -16,7 +16,7 @@ public class VocabularyTest extends SeleniumTest
     {
         Vocabulary vocabulary = create(aVocabulary());
 
-        assertThat(vocabularyBrowser(), lists(vocabulary));
+        assertThat(browserEntryOf(vocabulary), exists());
     }
 
 }

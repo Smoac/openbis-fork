@@ -36,12 +36,6 @@ public class DataSet
         this.experiment = experiment;
     }
 
-    @Override
-    public String toString()
-    {
-        return "DataSet " + this.code;
-    }
-
     public String getCode()
     {
         return code;
@@ -82,4 +76,25 @@ public class DataSet
         this.experiment = experiment;
     }
 
+    @Override
+    public int hashCode()
+    {
+        return code.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (o instanceof DataSet)
+        {
+            return ((DataSet) o).getCode().equals(code);
+        }
+        return false;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "DataSet " + this.code;
+    }
 }

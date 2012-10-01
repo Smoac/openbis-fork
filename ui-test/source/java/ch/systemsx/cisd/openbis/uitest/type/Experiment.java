@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
+import java.util.Arrays;
 import java.util.Collection;
 
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserCell;
+import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 
 /**
@@ -40,13 +41,6 @@ public class Experiment implements EntityType, Browsable
         this.code = code;
         this.project = project;
         this.samples = samples;
-    }
-
-    @Override
-    public boolean isRepresentedBy(BrowserRow row)
-    {
-        BrowserCell codeCell = row.get("Code");
-        return codeCell != null && codeCell.getText().equalsIgnoreCase(this.code);
     }
 
     @Override
@@ -83,5 +77,39 @@ public class Experiment implements EntityType, Browsable
     void setSamples(Collection<Sample> samples)
     {
         this.samples = samples;
+    }
+
+    @Override
+    public BrowserRow getBrowserContent(GuiApplicationRunner openbis)
+    {
+        return openbis.browseTo(this);
+    }
+
+    @Override
+    public Collection<String> getColumns()
+    {
+        return Arrays.asList("Code", "Project", "Experiment Type");
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (o instanceof Experiment)
+        {
+            return ((Experiment) o).getCode().equals(code);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return code.hashCode();
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Experiment " + code;
     }
 }

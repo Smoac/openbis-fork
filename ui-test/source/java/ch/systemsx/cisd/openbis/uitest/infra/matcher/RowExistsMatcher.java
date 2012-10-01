@@ -19,31 +19,24 @@ package ch.systemsx.cisd.openbis.uitest.infra.matcher;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserCell;
+import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 
 /**
  * @author anttil
  */
-public class CellDisplaysMatcher extends TypeSafeMatcher<BrowserCell>
+public class RowExistsMatcher extends TypeSafeMatcher<BrowserRow>
 {
-
-    private String expected;
-
-    public CellDisplaysMatcher(String string)
-    {
-        expected = string;
-    }
 
     @Override
     public void describeTo(Description description)
     {
-        description.appendText("A cell displaying  text'" + this.expected + "'");
+        description.appendText("A browser row that exists");
     }
 
     @Override
-    public boolean matchesSafely(BrowserCell actual)
+    public boolean matchesSafely(BrowserRow row)
     {
-        return expected.equalsIgnoreCase(actual.getText());
+        return row.exists();
     }
 
 }

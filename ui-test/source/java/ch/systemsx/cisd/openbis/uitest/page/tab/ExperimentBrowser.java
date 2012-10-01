@@ -24,16 +24,17 @@ import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
+import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
+import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 import ch.systemsx.cisd.openbis.uitest.widget.TreeGrid;
 
-public class ExperimentBrowser implements Browser<Experiment>
+public class ExperimentBrowser extends Browser<Experiment>
 {
     @Locate("openbis_select-project")
     private TreeGrid projectTree;
 
-    @SuppressWarnings("unused")
     @Locate("openbis_experiment-browser-grid-grid")
     private Grid grid;
 
@@ -44,9 +45,16 @@ public class ExperimentBrowser implements Browser<Experiment>
     @Locate("deletion-confirmation-dialog")
     private DeletionConfirmationBox deletionDialog;
 
-    @Lazy
     @Locate("openbis_experiment-browser-grid-grid-paging-toolbar")
     private PagingToolBar paging;
+
+    @Lazy
+    @Locate("openbis_experiment-browser-grid-grid-filter-toolbar")
+    private FilterToolBar filters;
+
+    @Lazy
+    @Locate("openbis_tab-panelentity-browser-grid")
+    private SettingsDialog settings;
 
     public boolean selectProject(final Project project)
     {
@@ -73,31 +81,27 @@ public class ExperimentBrowser implements Browser<Experiment>
     }
 
     @Override
-    public BrowserRow select(Experiment browsable)
+    public Grid getGrid()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return grid;
     }
 
     @Override
-    public BrowserCell cell(Experiment browsable, String column)
+    public PagingToolBar getPaging()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return paging;
     }
 
     @Override
-    public void filter(Experiment browsable)
+    public FilterToolBar getFilters()
     {
-        // TODO Auto-generated method stub
-
+        return filters;
     }
 
     @Override
-    public void resetFilters()
+    public SettingsDialog getSettings()
     {
-        // TODO Auto-generated method stub
-
+        return settings;
     }
 
 }

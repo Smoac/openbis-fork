@@ -16,43 +16,57 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
+import ch.systemsx.cisd.openbis.uitest.widget.Grid;
+import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
+import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class RoleAssignmentBrowser implements Browser<Experiment>
+public class RoleAssignmentBrowser extends Browser<Experiment>
 {
 
     @SuppressWarnings("unused")
     @Locate("openbis_role-browser_assign-button")
     private Button assignRoleButton;
 
+    @Locate("openbis_role-browser-grid")
+    private Grid grid;
+
+    @Locate("openbis_role-browser-grid-paging-toolbar")
+    private PagingToolBar paging;
+
+    @Lazy
+    @Locate("openbis_role-browser-grid-filter-toolbar")
+    private FilterToolBar filters;
+
+    @Lazy
+    @Locate("openbis_tab-panelrole-assignment-browser-grid")
+    private SettingsDialog settings;
+
     @Override
-    public BrowserRow select(Experiment browsable)
+    public Grid getGrid()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return grid;
     }
 
     @Override
-    public BrowserCell cell(Experiment browsable, String column)
+    public PagingToolBar getPaging()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return paging;
     }
 
     @Override
-    public void filter(Experiment browsable)
+    public FilterToolBar getFilters()
     {
-        // TODO Auto-generated method stub
-
+        return filters;
     }
 
     @Override
-    public void resetFilters()
+    public SettingsDialog getSettings()
     {
-        // TODO Auto-generated method stub
-
+        return settings;
     }
-
 }

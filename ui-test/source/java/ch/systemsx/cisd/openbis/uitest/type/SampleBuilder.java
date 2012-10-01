@@ -101,7 +101,7 @@ public class SampleBuilder implements Builder<Sample>
         for (PropertyTypeAssignment assignment : type.getPropertyTypeAssignments())
         {
             if (assignment.isMandatory()
-                    && properties.get(assignment.getPropertyType().getLabel()) == null)
+                    && properties.get(assignment.getPropertyType()) == null)
             {
                 throw new IllegalStateException("missing property");
             }

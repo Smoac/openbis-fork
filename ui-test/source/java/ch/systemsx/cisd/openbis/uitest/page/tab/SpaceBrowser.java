@@ -24,8 +24,9 @@ import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
+import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class SpaceBrowser implements Browser<Space>
+public class SpaceBrowser extends Browser<Space>
 {
 
     @Locate("openbis_space-browser-grid")
@@ -48,15 +49,13 @@ public class SpaceBrowser implements Browser<Space>
     @Locate("deletion-confirmation-dialog")
     private DeletionConfirmationBox confimDeletion;
 
+    @Lazy
+    @Locate("openbis_tab-panelspace-browser-grid")
+    private SettingsDialog settings;
+
     public void addSpace()
     {
         addSpace.click();
-    }
-
-    @Override
-    public BrowserRow select(Space space)
-    {
-        return grid.select("Code", space.getCode());
     }
 
     public void delete()
@@ -66,29 +65,26 @@ public class SpaceBrowser implements Browser<Space>
     }
 
     @Override
-    public BrowserCell cell(Space space, String column)
+    public Grid getGrid()
     {
-        return select(space).get(column);
+        return grid;
     }
 
     @Override
-    public void filter(final Space space)
+    public PagingToolBar getPaging()
     {
-        paging.filters();
-        filters.setCode(space.getCode(), paging);
+        return paging;
     }
 
     @Override
-    public void resetFilters()
+    public FilterToolBar getFilters()
     {
-        paging.filters();
-        filters.reset();
+        return filters;
     }
 
     @Override
-    public String toString()
+    public SettingsDialog getSettings()
     {
-        String s = "SpaceBrowser\n==========\n";
-        return s + grid.toString();
+        return settings;
     }
 }

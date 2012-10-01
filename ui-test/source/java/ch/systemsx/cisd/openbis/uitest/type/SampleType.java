@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
+import java.util.Arrays;
 import java.util.Collection;
 
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserCell;
+import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 
 /**
@@ -62,13 +63,6 @@ public class SampleType implements Browsable, EntityType
         this.showParentMetadata = showParentMetadata;
         this.generatedCodePrefix = generatedCodePrefix;
         this.propertyTypeAssignments = propertyTypeAssignments;
-    }
-
-    @Override
-    public boolean isRepresentedBy(BrowserRow row)
-    {
-        BrowserCell codeCell = row.get("Code");
-        return codeCell != null && codeCell.getText().equalsIgnoreCase(this.code);
     }
 
     @Override
@@ -171,5 +165,35 @@ public class SampleType implements Browsable, EntityType
     void setPropertyTypeAssignments(Collection<PropertyTypeAssignment> propertyTypeAssignments)
     {
         this.propertyTypeAssignments = propertyTypeAssignments;
+    }
+
+    @Override
+    public BrowserRow getBrowserContent(GuiApplicationRunner openbis)
+    {
+        return openbis.browseTo(this);
+    }
+
+    @Override
+    public Collection<String> getColumns()
+    {
+        return Arrays.asList("Code", "Description", "Database Instance", "Validation Script",
+                "Listable?", "Show Container?", "Show Parents?", "Unique Subcodes",
+                "Generate Codes Automatically", "Show Parent Metadata?", "Generated Code Prefix");
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return code.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof SampleType))
+        {
+            return false;
+        }
+        return code.equals(((SampleType) o).getCode());
     }
 }

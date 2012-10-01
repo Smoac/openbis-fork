@@ -16,13 +16,19 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
+import java.util.Collection;
 
+import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 
 /**
  * @author anttil
  */
 public interface Browsable
 {
-    public boolean isRepresentedBy(BrowserRow row);
+    public BrowserRow getBrowserContent(GuiApplicationRunner openbis);
+
+    public Collection<String> getColumns();
+
+    public String getCode();
 }

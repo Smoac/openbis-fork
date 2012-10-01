@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +89,33 @@ public class Grid implements Widget
                     new BrowserCell(element.getText(), element.getAttribute("href")));
         }
         return new BrowserRow(m);
+    }
+
+    public List<BrowserRow> getData()
+    {
+        List<String> columns = new ArrayList<String>();
+        for (WebElement column : getColumns())
+        {
+            columns.add(column.getText());
+        }
+
+        List<BrowserRow> result = new ArrayList<BrowserRow>();
+        Map<String, BrowserCell> map = new HashMap<String, BrowserCell>();
+        int index = 0;
+        for (WebElement element : getCells())
+        {
+            map.put(columns.get(index), new BrowserCell(element.getText(), element
+                    .getAttribute("href")));
+            index++;
+            if (index % columns.size() == 0)
+            {
+                result.add(new BrowserRow(map));
+                map = new HashMap<String, BrowserCell>();
+                index = 0;
+            }
+        }
+
+        return result;
     }
 
     private List<WebElement> getColumns()

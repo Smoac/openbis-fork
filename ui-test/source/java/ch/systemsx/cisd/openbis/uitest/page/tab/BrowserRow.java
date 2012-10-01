@@ -51,4 +51,16 @@ public class BrowserRow
         return this.row.get(columnName);
     }
 
+    @Override
+    public String toString()
+    {
+        if (exists)
+        {
+            return "A browser row with the following data: " + row;
+        } else
+        {
+            return "A row that does not exist";
+        }
+    }
+
 }

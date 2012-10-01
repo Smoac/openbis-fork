@@ -16,12 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra.application;
 
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
-import ch.systemsx.cisd.openbis.uitest.infra.uid.UidGenerator;
+import java.util.UUID;
+
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
@@ -37,48 +33,18 @@ import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 /**
  * @author anttil
  */
-public class PublicApiApplicationRunner implements ApplicationRunner
+public class DummyApplicationRunner implements ApplicationRunner
 {
-
-    private final UidGenerator uid;
-
-    private ICommonServer commonServer;
-
-    @SuppressWarnings("unused")
-    private IETLLIMSService etlService;
-
-    private IDssServiceRpcGeneric dss;
-
-    private String session;
-
-    public PublicApiApplicationRunner(String openbisUrl, String dssUrl, UidGenerator uid)
-    {
-        this.uid = uid;
-        this.commonServer =
-                HttpInvokerUtils.createServiceStub(ICommonServer.class,
-                        openbisUrl + "/openbis/rmi-common", 60000);
-        this.etlService =
-                HttpInvokerUtils.createServiceStub(IETLLIMSService.class,
-                        openbisUrl + "/openbis/rmi-etl", 60000);
-
-        this.dss =
-                HttpInvokerUtils.createStreamSupportingServiceStub(IDssServiceRpcGeneric.class,
-                        dssUrl + "/datastore_server/rmi-dss-api-v1", 60000);
-
-    }
 
     @Override
     public String uid()
     {
-        return uid.uid();
+        return UUID.randomUUID().toString();
     }
 
     @Override
     public void login(String userName, String password)
     {
-        this.session =
-                commonServer
-                        .tryToAuthenticate(userName, password).getSessionToken();
     }
 
     @Override
@@ -133,6 +99,7 @@ public class PublicApiApplicationRunner implements ApplicationRunner
     @Override
     public void delete(ExperimentType experimentType)
     {
+
     }
 
     @Override
@@ -160,7 +127,6 @@ public class PublicApiApplicationRunner implements ApplicationRunner
     @Override
     public Sample create(Sample sample)
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -179,28 +145,12 @@ public class PublicApiApplicationRunner implements ApplicationRunner
     @Override
     public DataSetType create(DataSetType type)
     {
-        commonServer.registerDataSetType(session, convertToPublicApi(type));
-        return type;
+        return null;
     }
 
     @Override
     public DataSet create(DataSet dataSet)
     {
-        DataSetCreator creator = new DataSetCreator("data set content");
-        String code = dss.putDataSet(session, creator.getMetadata(dataSet), creator.getData());
-        dataSet.setCode(code);
-        return dataSet;
+        return null;
     }
-
-    private ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType convertToPublicApi(
-            DataSetType type)
-    {
-        ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType dataSetType =
-                new ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType();
-
-        dataSetType.setCode(type.getCode());
-        dataSetType.setDataSetKind(DataSetKind.PHYSICAL);
-        return dataSetType;
-    }
-
 }

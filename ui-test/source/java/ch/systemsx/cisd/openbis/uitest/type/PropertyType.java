@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserCell;
+import java.util.Arrays;
+import java.util.Collection;
+
+import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 
 /**
@@ -24,7 +27,6 @@ import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
  */
 public class PropertyType implements Browsable
 {
-
     private final String code;
 
     private String label;
@@ -46,36 +48,6 @@ public class PropertyType implements Browsable
     }
 
     @Override
-    public boolean isRepresentedBy(BrowserRow row)
-    {
-        BrowserCell codeCell = row.get("Code");
-        return codeCell != null && codeCell.getText().equalsIgnoreCase(this.code);
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (!(o instanceof PropertyType))
-        {
-            return false;
-        }
-
-        PropertyType type = (PropertyType) o;
-        return type.getCode().equals(this.code);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return this.getCode().hashCode();
-    }
-
-    @Override
-    public String toString()
-    {
-        return "PropertyType " + code + " of type " + dataType;
-    }
-
     public String getCode()
     {
         return code;
@@ -121,4 +93,39 @@ public class PropertyType implements Browsable
         this.vocabulary = vocabulary;
     }
 
+    @Override
+    public BrowserRow getBrowserContent(GuiApplicationRunner openbis)
+    {
+        return openbis.browseTo(this);
+    }
+
+    @Override
+    public Collection<String> getColumns()
+    {
+        return Arrays.asList("Code", "Data Type", "Label", "Description", "Vocabulary");
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof PropertyType))
+        {
+            return false;
+        }
+
+        PropertyType type = (PropertyType) o;
+        return type.getCode().equals(this.code);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return this.getCode().hashCode();
+    }
+
+    @Override
+    public String toString()
+    {
+        return "PropertyType " + code + " of type " + dataType;
+    }
 }

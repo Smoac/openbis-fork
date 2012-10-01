@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class SampleBrowser implements Browser<Sample>
+public class SampleBrowser extends Browser<Sample>
 {
 
     @Locate("openbis_sample-browser_main-grid")
@@ -76,53 +76,32 @@ public class SampleBrowser implements Browser<Sample>
     }
 
     @Override
-    public BrowserRow select(Sample sample)
+    public Grid getGrid()
     {
-        return grid.select("Code", sample.getCode());
+        return grid;
     }
 
     @Override
-    public BrowserCell cell(Sample sample, String column)
+    public PagingToolBar getPaging()
     {
-        BrowserCell c = select(sample).get(column);
-        if (c == null)
-        {
-            paging.settings();
-            settings.showColumns("Code", column);
-            try
-            {
-                Thread.sleep(5000);
-            } catch (InterruptedException ex)
-            {
-                // TODO Auto-generated catch block
-                ex.printStackTrace();
-            }
-            return select(sample).get(column);
-        } else
-        {
-            return c;
-        }
+        return paging;
     }
 
     @Override
-    public void filter(Sample sample)
+    public FilterToolBar getFilters()
     {
-        paging.filters();
-        filters.setCode(sample.getCode(), paging);
-    }
-
-    @Override
-    public void resetFilters()
-    {
-        paging.filters();
-        filters.reset();
+        return filters;
     }
 
     @Override
     public String toString()
     {
-        String s = "SampleBrowser\n==========\n";
-        s += "Sample Type Choices: " + sampleTypeList.getChoices() + "\n";
-        return s + grid.toString();
+        return super.toString() + "\nSample Type Choices: " + sampleTypeList.getChoices() + "\n";
+    }
+
+    @Override
+    public SettingsDialog getSettings()
+    {
+        return settings;
     }
 }

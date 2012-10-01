@@ -37,7 +37,7 @@ public class SampleTest extends SeleniumTest
     {
         Sample sample = create(aSample());
 
-        assertThat(sampleBrowser(), lists(sample));
+        assertThat(browserEntryOf(sample), exists());
     }
 
     @Test
@@ -76,9 +76,9 @@ public class SampleTest extends SeleniumTest
         Sample sample =
                 create(aSample().ofType(sampleType).withProperty(vocabularyType, "mouse"));
 
-        assertThat(cell(sample, vocabularyType.getLabel()).of(sampleBrowser()), displays("mouse"));
-        assertThat(cell(sample, vocabularyType.getLabel()).of(sampleBrowser()),
-                linksTo("http://www.ask.com/web?q=MOUSE"));
+        assertThat(browserEntryOf(sample), containsValue(vocabularyType.getLabel(), "mouse"));
+        assertThat(browserEntryOf(sample), containsLink(vocabularyType.getLabel(),
+                "http://www.ask.com/web?q=MOUSE"));
     }
 
     @Test(enabled = false)

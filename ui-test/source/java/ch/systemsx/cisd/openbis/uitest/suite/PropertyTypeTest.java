@@ -34,6 +34,6 @@ public class PropertyTypeTest extends SeleniumTest
     {
         PropertyType propertyType = create(aBooleanPropertyType());
 
-        assertThat(propertyTypeBrowser(), lists(propertyType));
+        assertThat(browserEntryOf(propertyType), exists());
     }
 }

@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserCell;
+import java.util.Arrays;
+import java.util.Collection;
+
+import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 
 /**
@@ -38,12 +41,6 @@ public class Project implements Browsable
     }
 
     @Override
-    public boolean isRepresentedBy(BrowserRow row)
-    {
-        BrowserCell codeCell = row.get("Code");
-        return codeCell != null && codeCell.getText().equalsIgnoreCase(this.code);
-    }
-
     public String getCode()
     {
         return code;
@@ -67,6 +64,40 @@ public class Project implements Browsable
     void setDescription(String description)
     {
         this.description = description;
+    }
+
+    @Override
+    public BrowserRow getBrowserContent(GuiApplicationRunner openbis)
+    {
+        return openbis.browseTo(this);
+    }
+
+    @Override
+    public Collection<String> getColumns()
+    {
+        return Arrays.asList("Code", "Description", "Space");
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (o instanceof Project)
+        {
+            return ((Project) o).getCode().equals(code);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return code.hashCode();
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Project " + code;
     }
 
 }

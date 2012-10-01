@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserCell;
+import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 
 /**
@@ -27,7 +29,6 @@ import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
  */
 public class Sample implements EntityType, Browsable
 {
-
     private SampleType type;
 
     private final String code;
@@ -49,19 +50,6 @@ public class Sample implements EntityType, Browsable
         this.space = space;
         this.parents = parents;
         this.properties = properties;
-    }
-
-    @Override
-    public boolean isRepresentedBy(BrowserRow row)
-    {
-        BrowserCell codeCell = row.get("Code");
-        return codeCell != null && codeCell.getText().equalsIgnoreCase(this.code);
-    }
-
-    @Override
-    public String toString()
-    {
-        return "Sample " + this.code;
     }
 
     @Override
@@ -120,4 +108,44 @@ public class Sample implements EntityType, Browsable
         this.properties = properties;
     }
 
+    @Override
+    public BrowserRow getBrowserContent(GuiApplicationRunner openbis)
+    {
+        return openbis.browseTo(this);
+    }
+
+    @Override
+    public Collection<String> getColumns()
+    {
+        Collection<String> columns = new HashSet<String>();
+        columns.addAll(Arrays.asList("Code", "Experiment", "Parents", "Space", "Sample Type",
+                "Project"));
+        for (PropertyTypeAssignment propertyTypeAssignment : type.getPropertyTypeAssignments())
+        {
+            columns.add(propertyTypeAssignment.getPropertyType().getLabel());
+        }
+        return columns;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return code.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (o instanceof Sample)
+        {
+            return ((Sample) o).getCode().equals(code);
+        }
+        return false;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Sample " + this.code;
+    }
 }

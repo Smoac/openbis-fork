@@ -50,10 +50,6 @@ public class TreeGrid implements Widget
         }
 
         return false;
-        /*        
-         * throw new IllegalArgumentException("Selection " + label + " not found - these were found: "
-                        + found);
-                        */
     }
 
     @Override

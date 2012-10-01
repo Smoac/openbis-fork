@@ -24,8 +24,9 @@ import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
+import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class PropertyTypeBrowser implements Browser<PropertyType>
+public class PropertyTypeBrowser extends Browser<PropertyType>
 {
 
     @Locate("openbis_property-type-browser-grid")
@@ -49,6 +50,10 @@ public class PropertyTypeBrowser implements Browser<PropertyType>
     @Locate("deletion-confirmation-dialog")
     private DeletionConfirmationBox confimDeletion;
 
+    @Lazy
+    @Locate("openbis_tab-panelproperty-type-browser-grid")
+    private SettingsDialog settings;
+
     public void delete()
     {
         delete.click();
@@ -56,35 +61,27 @@ public class PropertyTypeBrowser implements Browser<PropertyType>
     }
 
     @Override
-    public BrowserRow select(PropertyType type)
+    public Grid getGrid()
     {
-        return grid.select("Code", type.getCode());
+        return grid;
     }
 
     @Override
-    public BrowserCell cell(PropertyType type, String column)
+    public PagingToolBar getPaging()
     {
-        return select(type).get(column);
+        return paging;
     }
 
     @Override
-    public void filter(PropertyType propertyType)
+    public FilterToolBar getFilters()
     {
-        paging.filters();
-        filters.setCode(propertyType.getCode(), paging);
+        return filters;
     }
 
     @Override
-    public void resetFilters()
+    public SettingsDialog getSettings()
     {
-        paging.filters();
-        filters.reset();
+        return settings;
     }
 
-    @Override
-    public String toString()
-    {
-        String s = "PropertyTypeBrowser\n==========\n";
-        return s + grid.toString();
-    }
 }

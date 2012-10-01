@@ -54,7 +54,7 @@ public class SprintTest extends SeleniumTest
                 assume(aVocabularyPropertyType(oldVocabulary).withCode("sprint-test.animal"));
 
         deleteExperimentsFrom(oldProject);
-        trash().empty();
+        emptyTrash();
         delete(oldProject);
         delete(oldSpace);
         delete(oldSampleType);
@@ -70,7 +70,7 @@ public class SprintTest extends SeleniumTest
 
         // 2) Space
         Space space = create(aSpace().withCode("sprint-test"));
-        assertThat(spaceBrowser(), lists(space));
+        assertThat(browserEntryOf(space), exists());
 
         // 3) Sample types and properties
         create(aSampleType().withCode("sprint test"));
@@ -83,11 +83,11 @@ public class SprintTest extends SeleniumTest
                         .thatIsNotListable()
                         .thatShowsContainer()
                         .thatShowsParents());
-        assertThat(sampleTypeBrowser(), lists(sampleType));
-        assertThat(sampleBrowser(), doesNotShowInToolBar(sampleType));
+        assertThat(browserEntryOf(sampleType), exists());
+        assertThat(sampleBrowser().availableSampleTypes(), doesNotContain(sampleType));
 
         perform(anUpdateOf(sampleType).settingItListable());
-        assertThat(sampleBrowser(), showsInToolBar(sampleType));
+        assertThat(sampleBrowser().availableSampleTypes(), contains(sampleType));
 
         Vocabulary vocabulary =
                 create(aVocabulary()
@@ -131,11 +131,10 @@ public class SprintTest extends SeleniumTest
                         .withProperty(varcharPropertyType, "some text")
                         .withProperty(animalPropertyType, "mouse"));
 
-        assertThat(sampleBrowser(), lists(sample));
-        assertThat(cell(sample, animalPropertyType.getLabel()).of(sampleBrowser()),
-                displays("mouse"));
-        assertThat(cell(sample, animalPropertyType.getLabel()).of(sampleBrowser()),
-                linksTo("http://www.ask.com/web?q=MOUSE"));
+        assertThat(browserEntryOf(sample), exists());
+        assertThat(browserEntryOf(sample), containsValue(animalPropertyType.getLabel(), "mouse"));
+        assertThat(browserEntryOf(sample), containsLink(animalPropertyType.getLabel(),
+                "http://www.ask.com/web?q=MOUSE"));
 
         // 5) Project and experiment
         Project project = create(aProject().withCode("P1").in(space));
@@ -144,7 +143,7 @@ public class SprintTest extends SeleniumTest
         Experiment experiment =
                 create(anExperiment().ofType(experimentType).in(project).withCode("exp1")
                         .withSamples(sample));
-        assertThat(cell(sample, "Experiment").of(sampleBrowser()), displays(experiment.getCode()));
-        assertThat(cell(sample, "Project").of(sampleBrowser()), displays(project.getCode()));
+        assertThat(browserEntryOf(sample), containsValue("Experiment", experiment.getCode()));
+        assertThat(browserEntryOf(sample), containsValue("Project", project.getCode()));
     }
 }

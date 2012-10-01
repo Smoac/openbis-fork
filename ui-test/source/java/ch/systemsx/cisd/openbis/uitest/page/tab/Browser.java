@@ -16,18 +16,61 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.tab;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.uitest.type.Browsable;
+import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
+import ch.systemsx.cisd.openbis.uitest.widget.Grid;
+import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
+import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
 /**
  * @author anttil
  */
-public interface Browser<T extends Browsable>
+public abstract class Browser<T extends Browsable>
 {
-    public BrowserRow select(T browsable);
 
-    public BrowserCell cell(T browsable, String column);
+    public abstract Grid getGrid();
 
-    public void filter(T browsable);
+    public abstract PagingToolBar getPaging();
 
-    public void resetFilters();
+    public abstract FilterToolBar getFilters();
+
+    public abstract SettingsDialog getSettings();
+
+    public final BrowserRow select(T browsable)
+    {
+        return getGrid().select("Code", browsable.getCode());
+    }
+
+    public final void filterTo(T browsable)
+    {
+        getPaging().filters();
+        getFilters().setCode(browsable.getCode(), getPaging());
+    }
+
+    public final void resetFilters()
+    {
+        getPaging().filters();
+        getFilters().reset();
+    }
+
+    public final void showColumnsOf(T browsable)
+    {
+        getPaging().settings();
+        getSettings().showColumnsOf(browsable);
+    }
+
+    public final List<BrowserRow> getData()
+    {
+        return getGrid().getData();
+    }
+
+    @Override
+    public String toString()
+    {
+        String s = getClass().getSimpleName() + "\n==========\n";
+        return s + getGrid().toString();
+    }
+
 }

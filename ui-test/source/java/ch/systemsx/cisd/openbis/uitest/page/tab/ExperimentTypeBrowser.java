@@ -24,8 +24,9 @@ import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
+import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class ExperimentTypeBrowser implements Browser<ExperimentType>
+public class ExperimentTypeBrowser extends Browser<ExperimentType>
 {
 
     @Locate("add-entity-type-EXPERIMENT")
@@ -52,6 +53,10 @@ public class ExperimentTypeBrowser implements Browser<ExperimentType>
     @Locate("deletion-confirmation-dialog")
     private DeletionConfirmationBox confimDeletion;
 
+    @Lazy
+    @Locate("openbis_tab-paneltype-browser-grid-EXPERIMENT")
+    private SettingsDialog settings;
+
     public void add()
     {
         add.click();
@@ -64,29 +69,21 @@ public class ExperimentTypeBrowser implements Browser<ExperimentType>
     }
 
     @Override
-    public BrowserRow select(ExperimentType experimentType)
+    public Grid getGrid()
     {
-        return grid.select("Code", experimentType.getCode());
+        return grid;
     }
 
     @Override
-    public BrowserCell cell(ExperimentType experimentType, String column)
+    public PagingToolBar getPaging()
     {
-        return select(experimentType).get(column);
+        return paging;
     }
 
     @Override
-    public void filter(final ExperimentType type)
+    public FilterToolBar getFilters()
     {
-        paging.filters();
-        filters.setCode(type.getCode(), paging);
-    }
-
-    @Override
-    public void resetFilters()
-    {
-        paging.filters();
-        filters.reset();
+        return filters;
     }
 
     @Override
@@ -96,4 +93,9 @@ public class ExperimentTypeBrowser implements Browser<ExperimentType>
         return s + grid.toString();
     }
 
+    @Override
+    public SettingsDialog getSettings()
+    {
+        return settings;
+    }
 }

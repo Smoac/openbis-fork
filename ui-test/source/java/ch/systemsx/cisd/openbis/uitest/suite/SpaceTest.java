@@ -16,7 +16,7 @@ public class SpaceTest extends SeleniumTest
     {
         Space space = create(aSpace());
 
-        assertThat(spaceBrowser(), lists(space));
+        assertThat(browserEntryOf(space), exists());
     }
 
     @Test
@@ -26,7 +26,6 @@ public class SpaceTest extends SeleniumTest
 
         delete(space);
 
-        assertThat(spaceBrowser(), doesNotList(space));
+        assertThat(browserEntryOf(space), doesNotExist());
     }
-
 }

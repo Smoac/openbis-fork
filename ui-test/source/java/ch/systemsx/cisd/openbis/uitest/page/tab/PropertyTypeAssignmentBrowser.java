@@ -23,8 +23,9 @@ import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
+import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class PropertyTypeAssignmentBrowser implements Browser<PropertyTypeAssignment>
+public class PropertyTypeAssignmentBrowser extends Browser<PropertyTypeAssignment>
 {
     @Locate("openbis_property-type-assignment-browser-grid")
     private Grid grid;
@@ -44,36 +45,32 @@ public class PropertyTypeAssignmentBrowser implements Browser<PropertyTypeAssign
     @Locate("openbis_property-type-assignment-browser-grid-filter-toolbar")
     private FilterToolBar filters;
 
+    @Lazy
+    @Locate("openbis_tab-panelproperty-type-assignment-browser-grid")
+    private SettingsDialog settings;
+
     @Override
-    public BrowserRow select(PropertyTypeAssignment assignment)
+    public Grid getGrid()
     {
-        return grid.select("Property Type Code", assignment.getPropertyType().getCode());
+        return grid;
     }
 
     @Override
-    public BrowserCell cell(PropertyTypeAssignment assignment, String column)
+    public PagingToolBar getPaging()
     {
-        return select(assignment).get(column);
+        return paging;
     }
 
     @Override
-    public void filter(PropertyTypeAssignment assignment)
+    public FilterToolBar getFilters()
     {
-        paging.filters();
-        filters.setCode(assignment.getPropertyType().getCode(), paging);
+        return filters;
     }
 
     @Override
-    public void resetFilters()
+    public SettingsDialog getSettings()
     {
-        paging.filters();
-        filters.reset();
+        return settings;
     }
 
-    @Override
-    public String toString()
-    {
-        String s = "PropertyTypeAssignmentBrowser\n==========\n";
-        return s + grid.toString();
-    }
 }
