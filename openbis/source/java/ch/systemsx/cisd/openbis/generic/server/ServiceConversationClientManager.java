@@ -19,7 +19,11 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.conversation.manager.BaseServiceConversationClientManager;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationApplicationServerClientId;
@@ -33,6 +37,10 @@ import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationD
 public class ServiceConversationClientManager extends BaseServiceConversationClientManager
         implements IServiceConversationClientManagerLocal
 {
+    private static final int DEFAULT_TIMEOUT = 5;
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ServiceConversationClientManager.class);
 
     private Map<String, Integer> dataStoreUrlToDataStoreTimeoutMap = new HashMap<String, Integer>();
 
@@ -42,7 +50,13 @@ public class ServiceConversationClientManager extends BaseServiceConversationCli
         String dataStoreServerUrl =
                 new ServiceConversationDataStoreUrl(dataStoreUrl).getServerUrl();
         Object applicationServerClientId = new ServiceConversationApplicationServerClientId();
-        int dataStoreTimeoutInMillis = dataStoreUrlToDataStoreTimeoutMap.get(dataStoreUrl);
+        Integer dataStoreTimeoutInMillis = dataStoreUrlToDataStoreTimeoutMap.get(dataStoreUrl);
+        if (dataStoreTimeoutInMillis == null)
+        {
+            operationLog.warn("No timeout defined for URL '" + dataStoreUrl
+                    + "'. Using default value of " + DEFAULT_TIMEOUT + " minutes.");
+            dataStoreTimeoutInMillis = DEFAULT_TIMEOUT * 60 * 1000;
+        }
 
         return getService(dataStoreServerUrl, IDataStoreService.class, sessionToken,
                 applicationServerClientId, dataStoreTimeoutInMillis);
