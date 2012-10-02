@@ -227,8 +227,6 @@ public class GeneralInformationChangingService extends
         return result;
     }
 
-    @Transactional(readOnly = false)
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @Override
     public int getMajorVersion()
     {
