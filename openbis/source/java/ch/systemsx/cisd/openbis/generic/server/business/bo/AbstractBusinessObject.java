@@ -49,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPostRegistrationDAO;
@@ -447,11 +446,5 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public IMetaprojectDAO getMetaprojectDAO()
     {
         return daoFactory.getMetaprojectDAO();
-    }
-
-    @Override
-    public IMetaprojectAssignmentDAO getMetaprojectAssignmentDAO()
-    {
-        return daoFactory.getMetaprojectAssignmentDAO();
     }
 }
