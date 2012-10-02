@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.TreeMap;
 
 /**
  * Simple implementation of {@link IDatasetLocationNode}.
@@ -32,7 +32,8 @@ public class DatasetLocationNode implements IDatasetLocationNode, Serializable
 
     private IDatasetLocation location;
 
-    private List<IDatasetLocationNode> contained = new ArrayList<IDatasetLocationNode>();
+    private TreeMap<String, IDatasetLocationNode> contained =
+            new TreeMap<String, IDatasetLocationNode>();
 
     public DatasetLocationNode(IDatasetLocation location)
     {
@@ -56,9 +57,9 @@ public class DatasetLocationNode implements IDatasetLocationNode, Serializable
     }
 
     @Override
-    public List<IDatasetLocationNode> getComponents()
+    public Collection<IDatasetLocationNode> getComponents()
     {
-        return contained;
+        return contained.values();
     }
 
     public void addContained(IDatasetLocationNode node)
@@ -67,7 +68,7 @@ public class DatasetLocationNode implements IDatasetLocationNode, Serializable
         {
             throw new IllegalArgumentException("Node cannot be null");
         }
-        contained.add(node);
+        contained.put(node.getLocation().getDataSetCode(), node);
     }
 
 }

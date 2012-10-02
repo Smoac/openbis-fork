@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.TreeMap;
 
 /**
  * Implementation of {@link IDatasetLocationNode} that uses {@link ExternalData} object as a source
@@ -60,7 +61,7 @@ public class ExternalDataLocationNode implements IDatasetLocationNode
     }
 
     @Override
-    public List<IDatasetLocationNode> getComponents()
+    public Collection<IDatasetLocationNode> getComponents()
     {
         if (isContainer() == false)
         {
@@ -72,15 +73,16 @@ public class ExternalDataLocationNode implements IDatasetLocationNode
 
         if (containedExternalDatas != null)
         {
-            List<IDatasetLocationNode> containedLocationNodes =
-                    new ArrayList<IDatasetLocationNode>(containedExternalDatas.size());
+            TreeMap<String, IDatasetLocationNode> containedLocationNodes =
+                    new TreeMap<String, IDatasetLocationNode>();
 
             for (ExternalData containedExternalData : containedExternalDatas)
             {
-                containedLocationNodes.add(new ExternalDataLocationNode(containedExternalData));
+                containedLocationNodes.put(containedExternalData.getCode(),
+                        new ExternalDataLocationNode(containedExternalData));
             }
 
-            return containedLocationNodes;
+            return containedLocationNodes.values();
         } else
         {
             return Collections.emptyList();

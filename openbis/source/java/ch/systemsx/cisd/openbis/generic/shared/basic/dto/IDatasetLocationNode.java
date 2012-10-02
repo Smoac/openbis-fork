@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
- * Stores information about a location of a data sets and its components.
+ * Stores information about a location of a data set and its components.
  * 
  * @author pkupczyk
  */
@@ -37,9 +37,9 @@ public interface IDatasetLocationNode
     boolean isContainer();
 
     /**
-     * Returns a list of component locations. For a data set that is not a container always returns
-     * an empty list. Never returns null.
+     * Returns a collection of component locations. For a data set that is not a container always
+     * returns an empty collection. Never returns null.
      */
-    List<IDatasetLocationNode> getComponents();
+    Collection<IDatasetLocationNode> getComponents();
 
 }

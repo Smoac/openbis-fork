@@ -29,9 +29,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import junit.framework.Assert;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -47,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
@@ -221,7 +225,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("20081105092259900-0", dataSets.get(0).getCode());
         assertEquals("STANDARD", dataSets.get(0).getDataStore().getCode());
         assertEquals(0, dataSets.get(0).getProperties().size());
-        assertEquals(17, dataSets.size());
+        assertEquals(23, dataSets.size());
     }
 
     @Test
@@ -383,7 +387,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("42", ((DataSet) dataSet).getShareId());
         assertEquals(4711L, ((DataSet) dataSet).getSize().longValue());
         assertEquals(DataSetArchivingStatus.AVAILABLE, ((DataSet) dataSet).getStatus());
-        assertEquals(23, list.size());
+        assertEquals(29, list.size());
     }
 
     @Test
@@ -406,7 +410,77 @@ public class DatasetListerTest extends AbstractDAOTest
         DataSetShareId dataSet2 = list.get(1);
         assertEquals("20081105092159111-1", dataSet2.getDataSetCode());
         assertEquals("42", dataSet2.getShareId());
-        assertEquals(25, list.size());
+        assertEquals(31, list.size());
+    }
+
+    @Test
+    public void testListLocationsByDatasetCodeForRootContainer()
+    {
+        IDatasetLocationNode root = lister.listLocationsByDatasetCode("ROOT_CONTAINER");
+        Iterator<IDatasetLocationNode> rootComponents = root.getComponents().iterator();
+        assertContainerLocation(root, "ROOT_CONTAINER", 2);
+
+        IDatasetLocationNode container1 = rootComponents.next();
+        Iterator<IDatasetLocationNode> container1Components = container1.getComponents().iterator();
+
+        assertContainerLocation(container1, "CONTAINER_1", 2);
+        assertComponentLocation(container1Components.next(), "COMPONENT_1A",
+                "contained/COMPONENT_1A");
+        assertComponentLocation(container1Components.next(), "COMPONENT_1B",
+                "contained/COMPONENT_1B");
+
+        IDatasetLocationNode container2 = rootComponents.next();
+        Iterator<IDatasetLocationNode> container2Components = container2.getComponents().iterator();
+
+        assertContainerLocation(container2, "CONTAINER_2", 1);
+        assertComponentLocation(container2Components.next(), "COMPONENT_2A",
+                "contained/COMPONENT_2A");
+    }
+
+    @Test
+    public void testListLocationsByDatasetCodeForContainer()
+    {
+        IDatasetLocationNode container = lister.listLocationsByDatasetCode("CONTAINER_1");
+        Iterator<IDatasetLocationNode> containerComponents = container.getComponents().iterator();
+        assertContainerLocation(container, "CONTAINER_1", 2);
+
+        assertComponentLocation(containerComponents.next(), "COMPONENT_1A",
+                "contained/COMPONENT_1A");
+        assertComponentLocation(containerComponents.next(), "COMPONENT_1B",
+                "contained/COMPONENT_1B");
+    }
+
+    @Test
+    public void testListLocationsByDatasetCodeForComponent()
+    {
+        IDatasetLocationNode component = lister.listLocationsByDatasetCode("COMPONENT_1A");
+        assertComponentLocation(component, "COMPONENT_1A", "contained/COMPONENT_1A");
+    }
+
+    @Test
+    public void testListLocationsByDatasetCodeForNotExisting()
+    {
+        IDatasetLocationNode component =
+                lister.listLocationsByDatasetCode("COMPONENT_NOT_EXISTING");
+        Assert.assertNull(component);
+    }
+
+    private void assertContainerLocation(IDatasetLocationNode containerNode, String containerCode,
+            int numberOfComponents)
+    {
+        Assert.assertTrue(containerNode.isContainer());
+        Assert.assertEquals(containerCode, containerNode.getLocation().getDataSetCode());
+        Assert.assertNull(containerNode.getLocation().getDataSetLocation());
+        Assert.assertEquals(numberOfComponents, containerNode.getComponents().size());
+    }
+
+    private void assertComponentLocation(IDatasetLocationNode componentNode, String componentCode,
+            String componentLocation)
+    {
+        Assert.assertFalse(componentNode.isContainer());
+        Assert.assertEquals(componentCode, componentNode.getLocation().getDataSetCode());
+        Assert.assertEquals(componentLocation, componentNode.getLocation().getDataSetLocation());
+        Assert.assertEquals(0, componentNode.getComponents().size());
     }
 
     private void assertSameDataSetsForSameCode(Map<String, ExternalData> dataSetsByCode,
