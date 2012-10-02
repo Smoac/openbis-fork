@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.MetaprojectIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.MetaprojectPredicate;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -177,7 +178,9 @@ public class GeneralInformationChangingService extends
     @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void deleteMetaproject(String sessionToken, Long metaprojectId)
+    public void deleteMetaproject(String sessionToken,
+            @AuthorizationGuard(guardClass = MetaprojectIdPredicate.class)
+            Long metaprojectId)
     {
         server.deleteMetaproject(sessionToken, new TechId(metaprojectId));
     }
@@ -185,8 +188,9 @@ public class GeneralInformationChangingService extends
     @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void addToMetaproject(String sessionToken, Long metaprojectId,
-            Collection<Experiment> experiments, Collection<Sample> samples,
+    public void addToMetaproject(String sessionToken,
+            @AuthorizationGuard(guardClass = MetaprojectIdPredicate.class)
+            Long metaprojectId, Collection<Experiment> experiments, Collection<Sample> samples,
             Collection<DataSet> dataSets, Collection<Material> materials)
     {
         server.addToMetaproject(sessionToken, new TechId(metaprojectId),
@@ -197,8 +201,9 @@ public class GeneralInformationChangingService extends
     @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void removeFromMetaproject(String sessionToken, Long metaprojectId,
-            Collection<Experiment> experiments, Collection<Sample> samples,
+    public void removeFromMetaproject(String sessionToken,
+            @AuthorizationGuard(guardClass = MetaprojectIdPredicate.class)
+            Long metaprojectId, Collection<Experiment> experiments, Collection<Sample> samples,
             Collection<DataSet> dataSets, Collection<Material> materials)
     {
         server.removeFromMetaproject(sessionToken, new TechId(metaprojectId),
