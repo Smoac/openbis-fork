@@ -3506,6 +3506,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void addToMetaproject(String sessionToken,
             @AuthorizationGuard(guardClass = MetaprojectTechIdPredicate.class)
             TechId metaprojectId, List<TechId> experiments, List<TechId> samples,
@@ -3525,6 +3526,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void removeFromMetaproject(String sessionToken,
             @AuthorizationGuard(guardClass = MetaprojectTechIdPredicate.class)
             TechId metaprojectId, List<TechId> experiments, List<TechId> samples,
@@ -3544,6 +3546,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void deleteMetaproject(String sessionToken,
             @AuthorizationGuard(guardClass = MetaprojectTechIdPredicate.class)
             TechId metaprojectId)
@@ -3555,6 +3558,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public Metaproject registerMetaproject(String sessionToken,
             @AuthorizationGuard(guardClass = MetaprojectPredicate.class)
             Metaproject metaproject)
@@ -3574,6 +3578,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public Metaproject updateMetaproject(String sessionToken,
             @AuthorizationGuard(guardClass = MetaprojectPredicate.class)
             Metaproject metaproject)
