@@ -16,6 +16,13 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.FluentWait;
+
+import com.google.common.base.Predicate;
+
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 
 /**
@@ -38,10 +45,23 @@ public class PagingToolBar implements Widget, Refreshable
     public void settings()
     {
         Button b = context.find(".//button[text()='Settings']", Button.class);
-        if (!b.isPressed())
-        {
-            b.click();
-        }
+
+        new FluentWait<WebElement>(context)
+            {
+
+            }.withTimeout(30, TimeUnit.SECONDS).pollingEvery(100, TimeUnit.MILLISECONDS).until(
+                new Predicate<WebElement>()
+                    {
+
+                        @Override
+                        public boolean apply(WebElement element)
+                        {
+                            System.out.println("waiting for paging toolbar to get enabled");
+                            return !context.getAttribute("class").contains("x-item-disabled");
+                        }
+                    });
+
+        b.click();
     }
 
     @Override

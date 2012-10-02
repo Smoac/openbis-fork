@@ -45,6 +45,10 @@ public class SettingsDialog implements Widget
             if (l.size() > 0)
             {
                 l.get(0).click();
+            } else
+            {
+                throw new IllegalStateException("Could not find column " + name
+                        + " from settings dialog!");
             }
         }
 
