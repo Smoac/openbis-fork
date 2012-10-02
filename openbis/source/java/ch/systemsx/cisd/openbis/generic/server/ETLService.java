@@ -2150,7 +2150,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public boolean doesUserHaveRole(String token, String user, String roleCode, String spaceOrNull)
     {
-        return new AuthorizationServiceUtils(daoFactory).doesUserHaveRole(user, roleCode,
+        return new AuthorizationServiceUtils(daoFactory, user).doesUserHaveRole(roleCode,
                 spaceOrNull);
     }
 
@@ -2158,7 +2158,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<String> filterToVisibleDataSets(String token, String user, List<String> dataSetCodes)
     {
-        return new AuthorizationServiceUtils(daoFactory).filterDataSetCodes(user, dataSetCodes);
+        return new AuthorizationServiceUtils(daoFactory, user).filterDataSetCodes(dataSetCodes);
     }
 
     @Override
@@ -2166,14 +2166,14 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     public List<String> filterToVisibleExperiments(String token, String user,
             List<String> experimentIds)
     {
-        return new AuthorizationServiceUtils(daoFactory).filterExperimentIds(user, experimentIds);
+        return new AuthorizationServiceUtils(daoFactory, user).filterExperimentIds(experimentIds);
     }
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<String> filterToVisibleSamples(String token, String user, List<String> sampleIds)
     {
-        return new AuthorizationServiceUtils(daoFactory).filterSampleIds(user, sampleIds);
+        return new AuthorizationServiceUtils(daoFactory, user).filterSampleIds(sampleIds);
     }
 
     @Override

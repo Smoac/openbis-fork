@@ -33,6 +33,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 
 /**
@@ -42,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementS
  */
 @SuppressWarnings("unused")
 @JsonObject("DataSet")
-public final class DataSet implements Serializable
+public final class DataSet implements Serializable, IIdHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -60,6 +61,8 @@ public final class DataSet implements Serializable
      */
     public static final class DataSetInitializer
     {
+        private Long id;
+
         private String code;
 
         private String sampleIdentifierOrNull;
@@ -89,6 +92,16 @@ public final class DataSet implements Serializable
         private HashMap<String, String> properties = new HashMap<String, String>();
 
         private EntityRegistrationDetails registrationDetails;
+
+        public Long getId()
+        {
+            return id;
+        }
+
+        public void setId(Long id)
+        {
+            this.id = id;
+        }
 
         public String getCode()
         {
@@ -245,6 +258,8 @@ public final class DataSet implements Serializable
         }
     }
 
+    private Long id;
+
     private String code;
 
     private String experimentIdentifier;
@@ -285,6 +300,7 @@ public final class DataSet implements Serializable
      */
     public DataSet(DataSetInitializer initializer)
     {
+        this.id = initializer.getId();
         InitializingChecks.checkValidString(initializer.getCode(), "Unspecified code.");
         this.code = initializer.getCode();
 
@@ -314,7 +330,16 @@ public final class DataSet implements Serializable
     }
 
     /**
-     * Returns the sample code;
+     * Returns tech id of the data set.
+     */
+    @Override
+    public Long getId()
+    {
+        return id;
+    }
+
+    /**
+     * Returns the data set code;
      */
     public String getCode()
     {

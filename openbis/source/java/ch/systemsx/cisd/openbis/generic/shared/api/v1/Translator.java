@@ -337,6 +337,7 @@ public class Translator
             EnumSet<Connections> connectionsToGet)
     {
         DataSetInitializer initializer = new DataSetInitializer();
+        initializer.setId(externalDatum.getId());
         initializer.setCode(externalDatum.getCode());
         initializer.setExperimentIdentifier(externalDatum.getExperiment().getIdentifier());
         initializer.setSampleIdentifierOrNull(externalDatum.getSampleIdentifier());
@@ -463,6 +464,7 @@ public class Translator
     {
         MaterialInitializer mi = new MaterialInitializer();
 
+        mi.setId(material.getId());
         mi.setMaterialCode(material.getCode());
 
         MaterialTypeIdentifier typeIdentifier =

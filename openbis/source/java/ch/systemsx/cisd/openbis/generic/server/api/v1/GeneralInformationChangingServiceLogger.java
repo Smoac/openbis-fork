@@ -16,15 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
+import java.util.Collection;
 import java.util.Map;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -80,6 +86,51 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
     }
 
     @Override
+    public Metaproject createMetaproject(String sessionToken, String name, String description)
+    {
+        logAccess(sessionToken, "createMetaproject NAME(%s) DESCRIPTION(%s)", name, description);
+        return null;
+    }
+
+    @Override
+    public Metaproject updateMetaproject(String sessionToken, Metaproject metaproject)
+    {
+        String name = metaproject == null ? "null" : metaproject.getName();
+        logAccess(sessionToken, "updateMetaproject METAPROJECT(%s)", name);
+        return null;
+    }
+
+    @Override
+    public void deleteMetaproject(String sessionToken, Long metaprojectId)
+    {
+        logAccess(sessionToken, "deleteMetaproject METAPROJECT_ID(%s)", metaprojectId.toString());
+    }
+
+    @Override
+    public void addToMetaproject(String sessionToken, Long metaprojectId,
+            Collection<Experiment> experiments, Collection<Sample> samples,
+            Collection<DataSet> dataSets, Collection<Material> materials)
+    {
+        logAccess(
+                sessionToken,
+                "addToMetaproject METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
+                metaprojectId.toString(), abbreviate(experiments), abbreviate(samples),
+                abbreviate(dataSets), abbreviate(materials));
+    }
+
+    @Override
+    public void removeFromMetaproject(String sessionToken, Long metaprojectId,
+            Collection<Experiment> experiments, Collection<Sample> samples,
+            Collection<DataSet> dataSets, Collection<Material> materials)
+    {
+        logAccess(
+                sessionToken,
+                "removeFromMetaproject METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
+                metaprojectId.toString(), abbreviate(experiments), abbreviate(samples),
+                abbreviate(dataSets), abbreviate(materials));
+    }
+
+    @Override
     public int getMajorVersion()
     {
         return 0;
@@ -90,5 +141,4 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
     {
         return 0;
     }
-
 }

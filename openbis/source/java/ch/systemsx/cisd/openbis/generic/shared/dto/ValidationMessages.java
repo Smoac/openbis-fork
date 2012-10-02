@@ -238,6 +238,10 @@ public final class ValidationMessages
     public static final String REGISTRATION_ID_NOT_NULL_MESSAGE = "Regirtation id"
             + CAN_NOT_BE_NULL;
 
+    public static final String OWNER_NOT_NULL_MESSAGE = "Owner" + CAN_NOT_BE_NULL;
+
+    public static final String METAPROJECT_NOT_NULL_MESSAGE = "Metaproject" + CAN_NOT_BE_NULL;
+
     private ValidationMessages()
     {
         // Can not be instantiated.

@@ -77,6 +77,8 @@ public interface IAuthorizationDAOFactory
 
     public IDeletionDAO getDeletionDAO();
 
+    public IMetaprojectDAO getMetaprojectDAO();
+
     /**
      * Returns the JDBC connection.
      */

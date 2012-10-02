@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
@@ -149,6 +150,11 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
      * Fetches all deletions with given tech ids.
      */
     public List<DeletionPE> getDeletions(List<TechId> deletionIds);
+
+    /**
+     * Fetches metaproject with given tech id.
+     */
+    public MetaprojectPE getMetaproject(TechId id);
 
     /**
      * Returns the JDBC connection.

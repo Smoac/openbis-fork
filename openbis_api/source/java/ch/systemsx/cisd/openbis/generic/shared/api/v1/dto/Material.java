@@ -17,19 +17,21 @@
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
  * @author jakubs
  */
 @SuppressWarnings("unused")
 @JsonObject("MaterialGeneric")
-public class Material extends MaterialIdentifier
+public class Material extends MaterialIdentifier implements IIdHolder
 {
     private static final long serialVersionUID = 1L;
+
+    private Long id;
 
     private Map<String, String> properties;
 
@@ -40,6 +42,8 @@ public class Material extends MaterialIdentifier
     public static final class MaterialInitializer
     {
         private MaterialTypeIdentifier materialTypeIdentifier;
+
+        private Long id;
 
         private String materialCode;
 
@@ -57,6 +61,16 @@ public class Material extends MaterialIdentifier
         public void setMaterialTypeIdentifier(MaterialTypeIdentifier materialTypeIdentifier)
         {
             this.materialTypeIdentifier = materialTypeIdentifier;
+        }
+
+        public Long getId()
+        {
+            return id;
+        }
+
+        public void setId(Long id)
+        {
+            this.id = id;
         }
 
         public String getMaterialCode()
@@ -104,9 +118,16 @@ public class Material extends MaterialIdentifier
     public Material(MaterialInitializer initializer)
     {
         super(initializer.getMaterialTypeIdentifier(), initializer.getMaterialCode());
+        this.id = initializer.getId();
         this.properties = initializer.getProperties();
         this.materialProperties = initializer.getMaterialProperties();
         this.registrationDetails = initializer.getRegistrationDetails();
+    }
+
+    @Override
+    public Long getId()
+    {
+        return id;
     }
 
     /**

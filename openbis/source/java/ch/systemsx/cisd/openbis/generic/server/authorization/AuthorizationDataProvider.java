@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
@@ -462,6 +463,12 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     public List<DeletionPE> getDeletions(List<TechId> deletionIds)
     {
         return daoFactory.getDeletionDAO().findAllById(TechId.asLongs(deletionIds));
+    }
+
+    @Override
+    public MetaprojectPE getMetaproject(TechId id)
+    {
+        return daoFactory.getMetaprojectDAO().getByTechId(id);
     }
 
     /**

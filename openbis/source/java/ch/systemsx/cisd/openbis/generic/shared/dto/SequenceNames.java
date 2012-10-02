@@ -133,6 +133,10 @@ public final class SequenceNames
 
     public static final String ENTITY_OPERATIONS_LOG_SEQUENCE = "ENTITY_OPERATIONS_LOG_ID_SEQ";
 
+    public static final String METAPROJECTS_SEQUENCE = "METAPROJECT_ID_SEQ";
+
+    public static final String METAPROJECT_ASSIGNMENTS_SEQUENCE = "METAPROJECT_ASSIGNMENT_ID_SEQ";
+
     private SequenceNames()
     {
         // Can not be instantiated.

@@ -76,6 +76,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -1336,4 +1338,51 @@ public interface ICommonServer extends IServer
     @Transactional()
     public void createOrUpdateExternalDataManagementSystem(String sessionToken,
             ExternalDataManagementSystem edms);
+
+    /**
+     * Lists all metaprojects registered for given user.
+     */
+    @Transactional(readOnly = true)
+    public List<Metaproject> listMetaprojects(String sessionToken);
+
+    /**
+     * Returns object containing all entities assigned to given metaproject.
+     */
+    @Transactional(readOnly = true)
+    public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
+            Metaproject metaproject);
+
+    /**
+     * Adds specified entities to given metaproject.
+     */
+    @Transactional
+    public void addToMetaproject(String sessionToken, TechId metaprojectId,
+            List<TechId> experiments, List<TechId> samples, List<TechId> dataSets,
+            List<TechId> materials);
+
+    /**
+     * Removes specified entities to given metaproject.
+     */
+    @Transactional
+    public void removeFromMetaproject(String sessionToken, TechId metaprojectId,
+            List<TechId> experiments, List<TechId> samples, List<TechId> dataSets,
+            List<TechId> materials);
+
+    /**
+     * Deletes given metaproject.
+     */
+    @Transactional
+    public void deleteMetaproject(String sessionToken, TechId metaprojectId);
+
+    /**
+     * Registers a new metaproject.
+     */
+    @Transactional
+    public Metaproject registerMetaproject(String sessionToken, Metaproject metaproject);
+
+    /**
+     * Updates existing metaprojest.
+     */
+    @Transactional
+    public Metaproject updateMetaproject(String sessionToken, Metaproject metaproject);
 }

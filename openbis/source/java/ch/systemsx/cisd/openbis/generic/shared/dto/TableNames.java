@@ -163,6 +163,10 @@ public final class TableNames
 
     public static final String ENTITY_OPERATIONS_LOG_TABLE = "entity_operations_log";
 
+    public static final String METAPROJECTS_TABLE = "METAPROJECTS";
+
+    public static final String METAPROJECT_ASSIGNMENTS_TABLE = "METAPROJECT_ASSIGNMENTS";
+
     private TableNames()
     {
         // This class can not be instantiated.

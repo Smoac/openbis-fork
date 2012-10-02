@@ -65,6 +65,8 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetUp
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DeletionTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ListSampleCriteriaPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.MetaprojectPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.MetaprojectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.RevertDeletionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdCollectionPredicate;
@@ -98,6 +100,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMetaprojectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
@@ -121,6 +124,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityHistoryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataManagementSystemDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SampleDataAccessExceptionTranslator;
@@ -201,6 +205,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -262,6 +268,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropert
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -301,6 +309,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataManagement
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PropertyTypeTranslator;
@@ -3426,5 +3435,162 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         edmsDAO.createOrUpdateExternalDataManagementSystem(ExternalDataManagementSystemTranslator
                 .translate(edms, edmsPE));
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public List<Metaproject> listMetaprojects(String sessionToken)
+    {
+        Session session = getSession(sessionToken);
+
+        IDAOFactory daoFactory = getDAOFactory();
+        IMetaprojectDAO metaprojectDAO = daoFactory.getMetaprojectDAO();
+        PersonPE owner = session.tryGetPerson();
+
+        List<MetaprojectPE> metaprojectPEs = metaprojectDAO.listMetaprojects(owner);
+
+        return MetaprojectTranslator.translate(metaprojectPEs);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
+            @AuthorizationGuard(guardClass = MetaprojectPredicate.class)
+            Metaproject metaproject)
+    {
+        checkSession(sessionToken);
+        String baseIndexURL = getBaseIndexURL(sessionToken);
+
+        IDAOFactory daoFactory = getDAOFactory();
+        IMetaprojectDAO metaprojectDAO = daoFactory.getMetaprojectDAO();
+
+        if (metaproject.getId() == null)
+        {
+            throw new UserFailureException("The ID of metaproject cannot be null.");
+        }
+
+        MetaprojectPE metaprojectPE = metaprojectDAO.getByTechId(new TechId(metaproject.getId()));
+
+        MetaprojectAssignments metaprojectAssignments = new MetaprojectAssignments();
+        List<Experiment> experiments = new ArrayList<Experiment>();
+        List<Sample> samples = new ArrayList<Sample>();
+        List<ExternalData> dataSets = new ArrayList<ExternalData>();
+        List<Material> materials = new ArrayList<Material>();
+
+        for (MetaprojectAssignmentPE metaprojectAssignment : metaprojectPE.getAssignments())
+        {
+            if (metaprojectAssignment.getExperiment() != null)
+            {
+                experiments.add(ExperimentTranslator.translate(
+                        metaprojectAssignment.getExperiment(), baseIndexURL));
+            } else if (metaprojectAssignment.getSample() != null)
+            {
+                samples.add(SampleTranslator.translate(metaprojectAssignment.getSample(),
+                        baseIndexURL));
+            } else if (metaprojectAssignment.getData() != null)
+            {
+                dataSets.add(DataSetTranslator.translate(metaprojectAssignment.getData(),
+                        baseIndexURL));
+            } else if (metaprojectAssignment.getMaterial() != null)
+            {
+                materials.add(MaterialTranslator.translate(metaprojectAssignment.getMaterial()));
+            }
+        }
+
+        metaprojectAssignments.setExperiments(experiments);
+        metaprojectAssignments.setSamples(samples);
+        metaprojectAssignments.setDataSets(dataSets);
+        metaprojectAssignments.setMaterials(materials);
+
+        return metaprojectAssignments;
+    }
+
+    @Override
+    public void addToMetaproject(String sessionToken,
+            @AuthorizationGuard(guardClass = MetaprojectTechIdPredicate.class)
+            TechId metaprojectId, List<TechId> experiments, List<TechId> samples,
+            List<TechId> dataSets, List<TechId> materials)
+    {
+        Session session = getSession(sessionToken);
+
+        IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
+
+        metaprojectBO.loadDataByTechId(metaprojectId);
+        metaprojectBO.addExperiments(experiments);
+        metaprojectBO.addSamples(samples);
+        metaprojectBO.addDataSets(dataSets);
+        metaprojectBO.addMaterials(materials);
+
+        metaprojectBO.save();
+    }
+
+    @Override
+    public void removeFromMetaproject(String sessionToken,
+            @AuthorizationGuard(guardClass = MetaprojectTechIdPredicate.class)
+            TechId metaprojectId, List<TechId> experiments, List<TechId> samples,
+            List<TechId> dataSets, List<TechId> materials)
+    {
+        Session session = getSession(sessionToken);
+
+        IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
+
+        metaprojectBO.loadDataByTechId(metaprojectId);
+        metaprojectBO.removeExperiments(experiments);
+        metaprojectBO.removeSamples(samples);
+        metaprojectBO.removeDataSets(dataSets);
+        metaprojectBO.removeMaterials(materials);
+
+        metaprojectBO.save();
+    }
+
+    @Override
+    public void deleteMetaproject(String sessionToken,
+            @AuthorizationGuard(guardClass = MetaprojectTechIdPredicate.class)
+            TechId metaprojectId)
+    {
+        Session session = getSession(sessionToken);
+
+        IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
+        metaprojectBO.deleteByTechId(metaprojectId);
+    }
+
+    @Override
+    public Metaproject registerMetaproject(String sessionToken,
+            @AuthorizationGuard(guardClass = MetaprojectPredicate.class)
+            Metaproject metaproject)
+    {
+        Session session = getSession(sessionToken);
+
+        IDAOFactory daoFactory = getDAOFactory();
+        IMetaprojectDAO metaprojectDAO = daoFactory.getMetaprojectDAO();
+
+        PersonPE owner = session.tryGetPerson();
+
+        MetaprojectPE metaprojectPE = new MetaprojectPE();
+        metaprojectPE.setOwner(owner);
+        MetaprojectTranslator.translate(metaproject, metaprojectPE);
+        metaprojectDAO.createOrUpdateMetaproject(metaprojectPE);
+        return MetaprojectTranslator.translate(metaprojectPE);
+    }
+
+    @Override
+    public Metaproject updateMetaproject(String sessionToken,
+            @AuthorizationGuard(guardClass = MetaprojectPredicate.class)
+            Metaproject metaproject)
+    {
+        checkSession(sessionToken);
+
+        IDAOFactory daoFactory = getDAOFactory();
+        IMetaprojectDAO metaprojectDAO = daoFactory.getMetaprojectDAO();
+
+        if (metaproject.getId() == null)
+        {
+            throw new UserFailureException("The ID of metaproject for update cannot be null.");
+        }
+        MetaprojectPE metaprojectPE = metaprojectDAO.getByTechId(new TechId(metaproject.getId()));
+
+        MetaprojectTranslator.translate(metaproject, metaprojectPE);
+        metaprojectDAO.createOrUpdateMetaproject(metaprojectPE);
+        return MetaprojectTranslator.translate(metaprojectPE);
     }
 }

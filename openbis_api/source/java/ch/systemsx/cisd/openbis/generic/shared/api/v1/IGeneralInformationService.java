@@ -31,12 +31,14 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
@@ -93,8 +95,7 @@ public interface IGeneralInformationService extends IRpcService
             String sessionToken, String databaseInstanceCodeOrNull);
 
     /**
-     * Return all samples that match the search criteria.
-     * This is a short cut for
+     * Return all samples that match the search criteria. This is a short cut for
      * 
      * <pre>
      * searchForSamples(sessionToken, searchCritera, EnumSet.of(SampleFetchOption.PROPERTIES))
@@ -160,17 +161,16 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.18
      */
     public List<Sample> searchForSamplesOnBehalfOfUser(String sessionToken,
-            SearchCriteria searchCriteria,
-            EnumSet<SampleFetchOption> fetchOptions, String userId);
+            SearchCriteria searchCriteria, EnumSet<SampleFetchOption> fetchOptions, String userId);
 
     /**
-     * Returns a filtered list of <var>allSamples</var> containing those samples which are
-     * visible to <var>userId</var>.
+     * Returns a filtered list of <var>allSamples</var> containing those samples which are visible
+     * to <var>userId</var>.
      * 
      * @param allSamples The list of samples that should be filtered.
      * @param userId The user that the samples should be visible to that survive the filtering.
-     * @return The filtered list of <var>allSamples</var> containing those samples which are
-     *         visible to <var>userId</var>.
+     * @return The filtered list of <var>allSamples</var> containing those samples which are visible
+     *         to <var>userId</var>.
      * @since 1.18
      */
     public List<Sample> filterSamplesVisibleToUser(String sessionToken, List<Sample> allSamples,
@@ -257,8 +257,7 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.18
      */
     public List<Experiment> filterExperimentsVisibleToUser(String sessionToken,
-            List<Experiment> allExperiments,
-            String userId);
+            List<Experiment> allExperiments, String userId);
 
     /**
      * Return the data sets attached to the specified sample, optionally including child samples.
@@ -396,8 +395,8 @@ public interface IGeneralInformationService extends IRpcService
 
     /**
      * Return all data sets matching specified search criteria and visible to user
-     * <var>userId</var>. Note, that for returned container
-     * data sets the contained data sets have only code, type and registration date set.
+     * <var>userId</var>. Note, that for returned container data sets the contained data sets have
+     * only code, type and registration date set.
      * <p>
      * May only be called by users who are <code>INSTANCE_OBSERVER</code>.
      * 
@@ -453,5 +452,14 @@ public interface IGeneralInformationService extends IRpcService
      * Returns all material fulfilling specified search criteria.
      */
     public List<Material> searchForMaterials(String sessionToken, SearchCriteria searchCriteria);
-    
+
+    /**
+     * Lists all metaprojects belonging to current user.
+     */
+    public List<Metaproject> listMetaprojects(String sessionToken);
+
+    /**
+     * Returns all entities tagged with given metaproject.
+     */
+    public MetaprojectAssignments getMetaproject(String sessionToken, Metaproject metaproject);
 }

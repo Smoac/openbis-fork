@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvalua
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomColumnDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
@@ -90,6 +91,8 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 
     private final IDeletionDAO deletionDAO;
 
+    private final IMetaprojectDAO metaprojectDAO;
+
     public AuthorizationDAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory,
             final IFullTextIndexUpdateScheduler indexUpdateScheduler,
@@ -112,6 +115,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         queryDAO = new QueryDAO(sessionFactory, homeDatabaseInstance);
         relationshipTypeDAO = new RelationshipTypeDAO(sessionFactory, homeDatabaseInstance);
         deletionDAO = new DeletionDAO(sessionFactory, homeDatabaseInstance, persistencyResources);
+        metaprojectDAO = new MetaprojectDAO(sessionFactory, homeDatabaseInstance);
     }
 
     @Override
@@ -269,6 +273,12 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         return deletionDAO;
     }
 
+    @Override
+    public IMetaprojectDAO getMetaprojectDAO()
+    {
+        return metaprojectDAO;
+    }
+
     /**
      * Configures current session settings for batch update mode.
      * 
@@ -289,5 +299,4 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         final SessionFactory sessionFactory = persistencyResources.getSessionFactory();
         return sessionFactory.getCurrentSession().connection();
     }
-
 }

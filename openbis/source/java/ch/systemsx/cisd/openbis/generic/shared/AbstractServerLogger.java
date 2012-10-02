@@ -81,6 +81,10 @@ public abstract class AbstractServerLogger implements IServer
 
     protected String abbreviate(Collection<?> c)
     {
+        if (c == null)
+        {
+            return "null";
+        }
         return CollectionUtils.abbreviate(c, 10);
     }
 

@@ -168,6 +168,7 @@ public class DataSetLister implements IDataSetLister
                         dataSet.spe_code, dataSet.pre_code, dataSet.ex_code);
 
         DataSetInitializer initializer = new DataSetInitializer();
+        initializer.setId(dataSet.ds_id);
         initializer.setCode(dataSet.ds_code);
         initializer.setDataSetTypeCode(dataSet.dt_code);
         initializer.setContainerDataSet(DataSetKind.CONTAINER.name().equals(

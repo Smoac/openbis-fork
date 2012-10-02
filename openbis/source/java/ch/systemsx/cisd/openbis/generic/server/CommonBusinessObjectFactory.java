@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMetaprojectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
@@ -64,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.MetaprojectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.PropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.PropertyTypeTable;
@@ -289,5 +291,11 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public IDataStoreBO createDataStoreBO(Session session)
     {
         return new DataStoreBO(getDaoFactory(), session, getDSSFactory());
+    }
+
+    @Override
+    public IMetaprojectBO createMetaprojectBO(Session session)
+    {
+        return new MetaprojectBO(getDaoFactory(), session);
     }
 }

@@ -27,7 +27,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 
 /**
@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
  */
 @SuppressWarnings("unused")
 @JsonObject("Experiment")
-public final class Experiment implements Serializable, IIdentifierHolder
+public final class Experiment implements Serializable, IIdentifierHolder, IIdHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -184,6 +184,7 @@ public final class Experiment implements Serializable, IIdentifierHolder
     /**
      * Returns the experiment id.
      */
+    @Override
     public Long getId()
     {
         return id;

@@ -78,6 +78,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -1457,6 +1459,68 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logAccess(sessionToken, "createOrUpdateExternalDataManagementSystem CODE(%s)",
                 edms.getCode());
 
+    }
+
+    @Override
+    public List<Metaproject> listMetaprojects(String sessionToken)
+    {
+        logAccess(sessionToken, "listMetaprojects");
+        return null;
+    }
+
+    @Override
+    public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
+            Metaproject metaproject)
+    {
+        String name = metaproject == null ? "null" : metaproject.getName();
+        logAccess(sessionToken, "getMetaprojectAssignemtns METAPROJECT(%s)", name);
+        return null;
+    }
+
+    @Override
+    public void addToMetaproject(String sessionToken, TechId metaprojectId,
+            List<TechId> experiments, List<TechId> samples, List<TechId> dataSets,
+            List<TechId> materials)
+    {
+        logAccess(
+                sessionToken,
+                "addToMetaproject METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
+                metaprojectId.toString(), abbreviate(experiments), abbreviate(samples),
+                abbreviate(dataSets), abbreviate(materials));
+    }
+
+    @Override
+    public void removeFromMetaproject(String sessionToken, TechId metaprojectId,
+            List<TechId> experiments, List<TechId> samples, List<TechId> dataSets,
+            List<TechId> materials)
+    {
+        logAccess(
+                sessionToken,
+                "removeFromMetaproject METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
+                metaprojectId.toString(), abbreviate(experiments), abbreviate(samples),
+                abbreviate(dataSets), abbreviate(materials));
+    }
+
+    @Override
+    public void deleteMetaproject(String sessionToken, TechId metaprojectId)
+    {
+        logAccess(sessionToken, "deleteMetaproject METAPROJECT_ID(%s)", metaprojectId.toString());
+    }
+
+    @Override
+    public Metaproject registerMetaproject(String sessionToken, Metaproject metaproject)
+    {
+        String name = metaproject == null ? "null" : metaproject.getName();
+        logAccess(sessionToken, "registerMetaproject METAPROJECT(%s)", name);
+        return null;
+    }
+
+    @Override
+    public Metaproject updateMetaproject(String sessionToken, Metaproject metaproject)
+    {
+        String name = metaproject == null ? "null" : metaproject.getName();
+        logAccess(sessionToken, "updateMetaproject METAPROJECT(%s)", name);
+        return null;
     }
 
 }

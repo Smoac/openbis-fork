@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnVa
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentListPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.MetaprojectPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleListPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePredicate;
@@ -75,6 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -91,6 +93,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -323,8 +326,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     @Capability("SEARCH_ON_BEHALF_OF_USER")
     public List<Sample> searchForSamplesOnBehalfOfUser(String sessionToken,
-            SearchCriteria searchCriteria,
-            EnumSet<SampleFetchOption> fetchOptions, String userId)
+            SearchCriteria searchCriteria, EnumSet<SampleFetchOption> fetchOptions, String userId)
     {
         final List<Sample> unfilteredSamples =
                 searchForSamples(sessionToken, searchCriteria, fetchOptions);
@@ -534,8 +536,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     @Capability("SEARCH_ON_BEHALF_OF_USER")
     public List<Experiment> filterExperimentsVisibleToUser(String sessionToken,
-            List<Experiment> allExperiments,
-            String userId)
+            List<Experiment> allExperiments, String userId)
     {
         checkSession(sessionToken);
 
@@ -672,8 +673,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     @Capability("SEARCH_ON_BEHALF_OF_USER")
-    public List<DataSet> listDataSetsOnBehalfOfUser(String sessionToken,
-            List<Sample> samples, EnumSet<Connections> connections, String userId)
+    public List<DataSet> listDataSetsOnBehalfOfUser(String sessionToken, List<Sample> samples,
+            EnumSet<Connections> connections, String userId)
     {
         final List<DataSet> unfilteredDatasets = listDataSets(sessionToken, samples, connections);
         // Filter for user
@@ -973,4 +974,31 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translateMaterials(materials);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public List<Metaproject> listMetaprojects(String sessionToken)
+    {
+        return commonServer.listMetaprojects(sessionToken);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public MetaprojectAssignments getMetaproject(String sessionToken,
+            @AuthorizationGuard(guardClass = MetaprojectPredicate.class)
+            Metaproject metaproject)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments assignments =
+                commonServer.getMetaprojectAssignments(sessionToken, metaproject);
+
+        MetaprojectAssignments result = new MetaprojectAssignments();
+        result.setExperiments(Translator.translateExperiments(assignments.getExperiments()));
+        result.setSamples(Translator.translateSamples(assignments.getSamples()));
+        result.setDataSets(Translator.translate(assignments.getDataSets(),
+                EnumSet.noneOf(Connections.class)));
+        result.setMaterials(Translator.translateMaterials(assignments.getMaterials()));
+
+        return result;
+    }
 }

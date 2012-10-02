@@ -203,9 +203,11 @@ public final class DefaultAccessController implements IAccessController
     /**
      * Retains {@link RoleWithIdentifier}s with {@link RoleWithIdentifier#getRole()} included in the
      * set of {@link RoleWithHierarchy}s.
+     * 
+     * @return retained user roles
      */
-    public static void retainMatchingRoleWithIdentifiers(final List<RoleWithIdentifier> userRoles,
-            final Set<RoleWithHierarchy> methodRoles)
+    public static List<RoleWithIdentifier> retainMatchingRoleWithIdentifiers(
+            final List<RoleWithIdentifier> userRoles, final Set<RoleWithHierarchy> methodRoles)
     {
         Iterator<RoleWithIdentifier> it = userRoles.iterator();
         while (it.hasNext())
@@ -216,5 +218,6 @@ public final class DefaultAccessController implements IAccessController
                 it.remove();
             }
         }
+        return userRoles;
     }
 }

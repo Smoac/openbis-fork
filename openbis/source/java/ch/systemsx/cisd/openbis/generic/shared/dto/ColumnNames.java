@@ -326,6 +326,14 @@ public final class ColumnNames
 
     public static final String URL_TEMPLATE_COLUMN = "url_template";
 
+    public static final String OWNER = "owner";
+
+    public static final String CREATION_DATE_COLUMN = "creation_date";
+
+    public static final String METAPROJECT_ID_COLUMN = "mepr_id";
+
+    public static final String IS_PRIVATE_COLUMN = "private";
+
     private ColumnNames()
     {
         // Can not be instantiated.

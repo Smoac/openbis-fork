@@ -115,4 +115,10 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
 
     /** Returns an implementation of {@link IExternalDataManagementSystemDAO}. */
     public IExternalDataManagementSystemDAO getExternalDataManagementSystemDAO();
+
+    /** Returns an implementation of {@link IMetaprojectDAO}. */
+    public IMetaprojectDAO getMetaprojectDAO();
+
+    /** Returns an implementation of {@link IMetaprojectAssignmentDAO}. */
+    public IMetaprojectAssignmentDAO getMetaprojectAssignmentDAO();
 }

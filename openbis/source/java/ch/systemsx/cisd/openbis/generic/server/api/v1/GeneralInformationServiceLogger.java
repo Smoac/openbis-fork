@@ -34,12 +34,14 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -108,8 +110,7 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
             String experimentIdentifierString, String userId)
     {
         logAccess(sessionToken, "list-samples-for-experiment-on-behalf-of-user",
-                "EXPERIMENT_IDENTIFIER(%s)", "USER(%s)",
-                experimentIdentifierString, userId);
+                "EXPERIMENT_IDENTIFIER(%s)", "USER(%s)", experimentIdentifierString, userId);
         return null;
     }
 
@@ -134,8 +135,8 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
             SearchCriteria searchCriteria, EnumSet<SampleFetchOption> fetchOptions, String userId)
     {
         logAccess(sessionToken, "search-for-samples-on-behalf-of-user",
-                "SEARCH_CRITERIA(%s) FETCH_OPTIONS(%s) USER(%S)",
-                searchCriteria, fetchOptions, userId);
+                "SEARCH_CRITERIA(%s) FETCH_OPTIONS(%s) USER(%S)", searchCriteria, fetchOptions,
+                userId);
         return null;
     }
 
@@ -143,8 +144,8 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public List<Sample> filterSamplesVisibleToUser(String sessionToken, List<Sample> allSamples,
             String userId)
     {
-        logAccess(sessionToken, "filter-samples-visible-to-user", "SAMPLES(%s)",
-                "USER(%S)", abbreviate(allSamples), userId);
+        logAccess(sessionToken, "filter-samples-visible-to-user", "SAMPLES(%s)", "USER(%S)",
+                abbreviate(allSamples), userId);
         return null;
     }
 
@@ -230,8 +231,8 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
             EnumSet<Connections> connectionsToGet, String userId)
     {
         logAccess(sessionToken, "list-data-sets-on-behalf-of-user",
-                "SAMPLES(%s) CONNECTIONS(%s) USER(%S)",
-                abbreviate(samples), connectionsToGet, userId);
+                "SAMPLES(%s) CONNECTIONS(%s) USER(%S)", abbreviate(samples), connectionsToGet,
+                userId);
         return null;
     }
 
@@ -272,8 +273,8 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public List<DataSet> filterDataSetsVisibleToUser(String sessionToken,
             List<DataSet> allDataSets, String userId)
     {
-        logAccess(sessionToken, "filter-data-sets-visible-to-user", "DATASETS(%s)",
-                "USER(%S)", abbreviate(allDataSets), userId);
+        logAccess(sessionToken, "filter-data-sets-visible-to-user", "DATASETS(%s)", "USER(%S)",
+                abbreviate(allDataSets), userId);
         return null;
     }
 
@@ -287,8 +288,7 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
 
     @Override
     public List<Experiment> filterExperimentsVisibleToUser(String sessionToken,
-            List<Experiment> allExperiments,
-            String userId)
+            List<Experiment> allExperiments, String userId)
     {
         logAccess(sessionToken, "filter-experiments-visible-to-user", "EXPERIMENTS(%s)",
                 "USER(%s)", abbreviate(allExperiments), userId);
@@ -350,6 +350,21 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public List<Material> searchForMaterials(String sessionToken, SearchCriteria searchCriteria)
     {
         logAccess(sessionToken, "search-for-materials", "SEARCH_CRITERIA(%s)", searchCriteria);
+        return null;
+    }
+
+    @Override
+    public List<Metaproject> listMetaprojects(String sessionToken)
+    {
+        logAccess(sessionToken, "listMetaprojects");
+        return null;
+    }
+
+    @Override
+    public MetaprojectAssignments getMetaproject(String sessionToken, Metaproject metaproject)
+    {
+        String name = metaproject == null ? "null" : metaproject.getName();
+        logAccess(sessionToken, "getMetaproject METAPROJECT(%s)", name);
         return null;
     }
 

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,24 +37,28 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * The class containing some authorizing methods used in ETLService
+ * The class containing some authorizing methods
  * 
  * @author Jakub Straszewski
  */
 public class AuthorizationServiceUtils
 {
-    IDAOFactory daoFactory;
+    private final IDAOFactory daoFactory;
 
-    public AuthorizationServiceUtils(IDAOFactory daoFactory)
+    private final PersonPE user;
+
+    private final List<RoleWithIdentifier> userRoles;
+
+    public AuthorizationServiceUtils(IDAOFactory daoFactory, String userId)
     {
         this.daoFactory = daoFactory;
+
+        this.user = getUserByName(userId);
+        this.userRoles = DefaultAccessController.getUserRoles(user);
     }
 
-    public boolean doesUserHaveRole(String user, String roleCode, String spaceOrNull)
+    public boolean doesUserHaveRole(String roleCode, String spaceOrNull)
     {
-        // get the user by name
-        PersonPE person = getUserByName(user);
-
         RoleWithHierarchy methodRole;
         try
         {
@@ -80,16 +85,17 @@ public class AuthorizationServiceUtils
             }
         }
 
-        if (person.getAllPersonRoles().size() == 0)
+        if (user.getAllPersonRoles().size() == 0)
         {
             return false;
         }
 
-        final List<RoleWithIdentifier> userRoles = DefaultAccessController.getUserRoles(person);
         // getRoles() takes all the roles stronger/equal than the role
-        DefaultAccessController.retainMatchingRoleWithIdentifiers(userRoles, methodRole.getRoles());
+        List<RoleWithIdentifier> retainedUserRoles =
+                DefaultAccessController.retainMatchingRoleWithIdentifiers(
+                        new ArrayList<RoleWithIdentifier>(userRoles), methodRole.getRoles());
 
-        if (userRoles.size() == 0)
+        if (retainedUserRoles.size() == 0)
         {
             return false;
         }
@@ -101,7 +107,7 @@ public class AuthorizationServiceUtils
             predicate.init(new AuthorizationDataProvider(daoFactory));
 
             final Status status =
-                    predicate.evaluate(person, userRoles, new SpaceIdentifier(spaceOrNull));
+                    predicate.evaluate(user, retainedUserRoles, new SpaceIdentifier(spaceOrNull));
 
             return (status.getFlag().equals(StatusFlag.OK));
         }
@@ -109,9 +115,9 @@ public class AuthorizationServiceUtils
 
     }
 
-    private PersonPE getUserByName(String user)
+    private PersonPE getUserByName(String userId)
     {
-        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(user);
+        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userId);
         if (person == null)
         {
             throw new IllegalArgumentException("The user with id " + user + " doesn't exist");
@@ -119,15 +125,12 @@ public class AuthorizationServiceUtils
         return person;
     }
 
-    public List<String> filterDataSetCodes(String user, List<String> dataSetCodes)
+    public List<String> filterDataSetCodes(List<String> dataSetCodes)
     {
-        PersonPE person = getUserByName(user);
-        List<RoleWithIdentifier> userRoles = DefaultAccessController.getUserRoles(person);
-
         LinkedList<String> resultList = new LinkedList<String>();
         for (String dataSetCode : dataSetCodes)
         {
-            if (canAccessDataSet(person, userRoles, dataSetCode))
+            if (canAccessDataSet(dataSetCode))
             {
                 resultList.add(dataSetCode);
             }
@@ -135,27 +138,23 @@ public class AuthorizationServiceUtils
         return resultList;
     }
 
-    private boolean canAccessDataSet(PersonPE person, List<RoleWithIdentifier> allowedRoles,
-            String dataSetCode)
+    private boolean canAccessDataSet(String dataSetCode)
     {
         DataSetCodePredicate predicate = new DataSetCodePredicate();
 
         predicate.init(new AuthorizationDataProvider(daoFactory));
 
-        final Status status = predicate.evaluate(person, allowedRoles, dataSetCode);
+        final Status status = predicate.evaluate(user, userRoles, dataSetCode);
 
         return (status.getFlag().equals(StatusFlag.OK));
     }
 
-    public List<String> filterExperimentIds(String user, List<String> experimentIds)
+    public List<String> filterExperimentIds(List<String> experimentIds)
     {
-        PersonPE person = getUserByName(user);
-        List<RoleWithIdentifier> userRoles = DefaultAccessController.getUserRoles(person);
-
         LinkedList<String> resultList = new LinkedList<String>();
         for (String experimentId : experimentIds)
         {
-            if (canAccessExperiment(person, userRoles, experimentId))
+            if (canAccessExperiment(experimentId))
             {
                 resultList.add(experimentId);
             }
@@ -163,29 +162,23 @@ public class AuthorizationServiceUtils
         return resultList;
     }
 
-    private boolean canAccessExperiment(PersonPE person, List<RoleWithIdentifier> allowedRoles,
-            String experimentId)
+    private boolean canAccessExperiment(String experimentId)
     {
         ExperimentIdentifierPredicate predicate = new ExperimentIdentifierPredicate();
 
         predicate.init(new AuthorizationDataProvider(daoFactory));
 
-        final Status status = predicate.evaluate(person, allowedRoles, experimentId);
+        final Status status = predicate.evaluate(user, userRoles, experimentId);
 
         return (status.getFlag().equals(StatusFlag.OK));
     }
 
-    public List<String> filterSampleIds(String user, List<String> sampleIds)
+    public List<String> filterSampleIds(List<String> sampleIds)
     {
-        final DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder> predicate =
-                createSampleOwnerPredicate();
-        final PersonPE person = getUserByName(user);
-        final List<RoleWithIdentifier> userRoles = DefaultAccessController.getUserRoles(person);
-
         final LinkedList<String> resultList = new LinkedList<String>();
         for (String sampleIdentifier : sampleIds)
         {
-            if (canAccessSample(predicate, person, userRoles, sampleIdentifier))
+            if (canAccessSample(sampleIdentifier))
             {
                 resultList.add(sampleIdentifier);
             }
@@ -193,12 +186,19 @@ public class AuthorizationServiceUtils
         return resultList;
     }
 
+    private boolean canAccessSample(String sampleIdentifier)
+    {
+        final DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder> predicate =
+                createSampleOwnerPredicate(daoFactory);
+
+        return canAccessSample(predicate, sampleIdentifier);
+    }
+
     private boolean canAccessSample(
             final DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder> predicate,
-            final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final String sampleIdentifier)
     {
-        final Status status = predicate.evaluate(person, allowedRoles, new IIdentifierHolder()
+        final Status status = predicate.evaluate(user, userRoles, new IIdentifierHolder()
             {
                 @Override
                 public String getIdentifier()
@@ -210,7 +210,8 @@ public class AuthorizationServiceUtils
         return Status.OK.equals(status);
     }
 
-    private DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder> createSampleOwnerPredicate()
+    private static DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder> createSampleOwnerPredicate(
+            IDAOFactory daoFactory)
     {
         final DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder> predicate =
                 new DelegatedPredicate<SampleOwnerIdentifier, IIdentifierHolder>(

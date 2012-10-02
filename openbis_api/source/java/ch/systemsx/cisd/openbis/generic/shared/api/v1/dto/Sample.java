@@ -33,6 +33,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 
 /**
@@ -42,20 +43,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
  */
 @SuppressWarnings("unused")
 @JsonObject("Sample")
-public final class Sample implements Serializable, IIdentifierHolder
+public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
 {
     private static final long serialVersionUID = 1L;
-    
+
     private static class Reference
     {
         private final Long id;
+
         private final Map<Long, Sample> repository;
+
         Reference(Long id, Map<Long, Sample> repository)
         {
             this.id = id;
             this.repository = repository;
         }
-        
+
         Sample resolve()
         {
             return repository.get(id);
@@ -93,12 +96,13 @@ public final class Sample implements Serializable, IIdentifierHolder
 
         private EntityRegistrationDetails registrationDetails;
 
-        private EnumSet<SampleFetchOption> retrievedFetchOptions = EnumSet.noneOf(SampleFetchOption.class);
-        
+        private EnumSet<SampleFetchOption> retrievedFetchOptions = EnumSet
+                .noneOf(SampleFetchOption.class);
+
         private List<Reference> parentReferences;
 
         private List<Sample> parents = Collections.emptyList();
-        
+
         private List<Reference> childReferences;
 
         private List<Sample> children = Collections.emptyList();
@@ -279,7 +283,7 @@ public final class Sample implements Serializable, IIdentifierHolder
     private List<Reference> parentReferences = Collections.emptyList();
 
     private List<Sample> parents;
-    
+
     private List<Reference> childReferences = Collections.emptyList();
 
     private List<Sample> children;
@@ -341,6 +345,7 @@ public final class Sample implements Serializable, IIdentifierHolder
     /**
      * Returns the sample id.
      */
+    @Override
     public Long getId()
     {
         return id;
@@ -537,8 +542,7 @@ public final class Sample implements Serializable, IIdentifierHolder
         if (retrievedFetchOptions.contains(SampleFetchOption.CHILDREN))
         {
             builder.append("children", getChildren());
-        }
-        else
+        } else
         {
             builder.append("children=?");
         }

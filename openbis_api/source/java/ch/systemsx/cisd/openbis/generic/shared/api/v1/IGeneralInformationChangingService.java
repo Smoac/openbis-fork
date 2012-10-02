@@ -16,12 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1;
 
+import java.util.Collection;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.api.IRpcService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 
 /**
  * Service for changing general informations.
@@ -68,17 +74,77 @@ public interface IGeneralInformationChangingService extends IRpcService
      * Returns the persistent settings for a given custom web app.
      * 
      * @param webAppId The id of the custom web app to get the display settings for.
-     * 
      * @since 1.2
      */
     public WebAppSettings getWebAppSettings(String sessionToken, String webAppId);
-    
+
     /**
      * Sets the persistent settings for a given custom web app.
-     * @param webAppSettings The new display settings
      * 
+     * @param webAppSettings The new display settings
      * @since 1.2
      */
     public void setWebAppSettings(String sessionToken, WebAppSettings webAppSettings);
 
+    /**
+     * Creates a new metaproject.
+     * 
+     * @param name Name of the metaproject
+     * @param description Description of the metaproject
+     * @return Newly created metaproject
+     * @since 1.3
+     */
+    public Metaproject createMetaproject(String sessionToken, String name, String description);
+
+    /**
+     * Updates existing metaproject.
+     * 
+     * @param metaproject Metaproject that should be updated
+     * @return Updated metaproject
+     * @since 1.3
+     */
+    public Metaproject updateMetaproject(String sessionToken, Metaproject metaproject);
+
+    /**
+     * Deletes existing metaproject.
+     * 
+     * @param metaprojectId Tech Id of metaproject to delete
+     * @since 1.3
+     */
+    public void deleteMetaproject(String sessionToken, Long metaprojectId);
+
+    /**
+     * Adds given entities to existing metaproject.
+     * 
+     * @param metaprojectId Tech Id of metaproject
+     * @param experiments List of experiments that should be added to the metaproject or
+     *            <code>null</code>
+     * @param samples List of samples that should be added to the metaproject or <code>null</code>
+     * @param dataSets List of data sets that should be added to the metaproject or
+     *            <code>null</code>
+     * @param materials List of materials that should be added to the metaproject or
+     *            <code>null</code>
+     * @since 1.3
+     */
+    public void addToMetaproject(String sessionToken, Long metaprojectId,
+            Collection<Experiment> experiments, Collection<Sample> samples,
+            Collection<DataSet> dataSets, Collection<Material> materials);
+
+    /**
+     * Removes given entities to existing metaproject.
+     * 
+     * @param metaprojectId Tech Id of metaproject
+     * @param experiments List of experiments that should be removed from the metaproject or
+     *            <code>null</code>
+     * @param samples List of samples that should be removed from the metaproject or
+     *            <code>null</code>
+     * @param dataSets List of data sets that should be removed from the metaproject or
+     *            <code>null</code>
+     * @param materials List of materials that should be removed from the metaproject or
+     *            <code>null</code>
+     * @since 1.3
+     */
+    public void removeFromMetaproject(String sessionToken, Long metaprojectId,
+            Collection<Experiment> experiments, Collection<Sample> samples,
+            Collection<DataSet> dataSets, Collection<Material> materials);
 }
