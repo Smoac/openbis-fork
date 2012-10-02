@@ -32,8 +32,8 @@ import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
@@ -89,19 +89,19 @@ public class HierarchicalContentProviderTest extends AssertJUnit
     {
         final String dataSetCode = "DS_CODE";
 
-        final DataSet data = new DataSet();
-        data.setCode(dataSetCode);
+        final DatasetLocation dataLocation = new DatasetLocation(dataSetCode, "LOCATION");
+        final DatasetLocationNode data = new DatasetLocationNode(dataLocation);
         final File dataRootFile = new File("DS_FILE");
         final RecordingMatcher<IDelegatedAction> actionMatcher = RecordingMatcher.create();
         context.checking(new Expectations()
             {
                 {
 
-                    one(openbisService).tryGetDataSet(dataSetCode);
+                    one(openbisService).tryGetDataSetLocation(dataSetCode);
                     will(returnValue(data));
 
                     one(shareIdManager).lock(dataSetCode);
-                    one(directoryProvider).getDataSetDirectory(data);
+                    one(directoryProvider).getDataSetDirectory(data.getLocation());
                     will(returnValue(dataRootFile));
 
                     one(hierarchicalContentFactory).asHierarchicalContent(with(same(dataRootFile)),
@@ -127,44 +127,46 @@ public class HierarchicalContentProviderTest extends AssertJUnit
     @Test
     void testAsContentFromContainerCode()
     {
-        final String containerCode = "CONTAINER_CODE";
-        final ContainerDataSet container = new ContainerDataSet();
-        container.setCode(containerCode);
+        final String dataSet1Code = "DS_CODE_1";
+        final String dataSet2Code = "DS_CODE_2";
+        final String dataSet3Code = "DS_CODE_3";
 
-        final DataSet dataSet1 = new DataSet();
-        final DataSet dataSet2 = new DataSet();
-        final DataSet dataSet3 = new DataSet();
-        final String componentCode1 = "DS_CODE_1";
-        final String componentCode2 = "DS_CODE_2";
-        final String componentCode3 = "DS_CODE_3";
-        dataSet1.setCode(componentCode1);
-        dataSet2.setCode(componentCode2);
-        dataSet3.setCode(componentCode3);
         final File dataSetRootFile1 = new File("DS_FILE_1");
         final File dataSetRootFile2 = new File("DS_FILE_2");
         final File dataSetRootFile3 = new File("DS_FILE_3");
 
-        container.getContainedDataSets().add(dataSet1);
-        container.getContainedDataSets().add(dataSet2);
-        container.getContainedDataSets().add(dataSet3);
+        final DatasetLocation dataSet1Location = new DatasetLocation(dataSet1Code, "LOCATION_1");
+        final DatasetLocation dataSet2Location = new DatasetLocation(dataSet2Code, "LOCATION_2");
+        final DatasetLocation dataSet3Location = new DatasetLocation(dataSet3Code, "LOCATION_3");
+
+        final DatasetLocationNode dataSet1 = new DatasetLocationNode(dataSet1Location);
+        final DatasetLocationNode dataSet2 = new DatasetLocationNode(dataSet2Location);
+        final DatasetLocationNode dataSet3 = new DatasetLocationNode(dataSet3Location);
+
+        final String containerCode = "CONTAINER_CODE";
+        final DatasetLocation containerLocation = new DatasetLocation(containerCode, null);
+        final DatasetLocationNode container = new DatasetLocationNode(containerLocation);
+        container.addContained(dataSet1);
+        container.addContained(dataSet2);
+        container.addContained(dataSet3);
 
         final RecordingMatcher<IDelegatedAction> actionMatcher = RecordingMatcher.create();
         context.checking(new Expectations()
             {
                 {
-                    one(openbisService).tryGetDataSet(containerCode);
+                    one(openbisService).tryGetDataSetLocation(containerCode);
                     will(returnValue(container));
 
-                    one(shareIdManager).lock(componentCode1);
-                    one(directoryProvider).getDataSetDirectory(dataSet1);
+                    one(shareIdManager).lock(dataSet1Code);
+                    one(directoryProvider).getDataSetDirectory(dataSet1.getLocation());
                     will(returnValue(dataSetRootFile1));
 
-                    one(shareIdManager).lock(componentCode2);
-                    one(directoryProvider).getDataSetDirectory(dataSet2);
+                    one(shareIdManager).lock(dataSet2Code);
+                    one(directoryProvider).getDataSetDirectory(dataSet2.getLocation());
                     will(returnValue(dataSetRootFile2));
 
-                    one(shareIdManager).lock(componentCode3);
-                    one(directoryProvider).getDataSetDirectory(dataSet3);
+                    one(shareIdManager).lock(dataSet3Code);
+                    one(directoryProvider).getDataSetDirectory(dataSet3.getLocation());
                     will(returnValue(dataSetRootFile3));
 
                     IHierarchicalContent content1 = new DummyHierarchicalContent();
@@ -182,7 +184,7 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                     one(hierarchicalContentFactory).asHierarchicalContent(
                             with(same(dataSetRootFile3)), with(actionMatcher));
                     will(throwException(new IllegalArgumentException("")));
-                    one(shareIdManager).releaseLock(componentCode3);
+                    one(shareIdManager).releaseLock(dataSet3Code);
 
                     one(hierarchicalContentFactory).asVirtualHierarchicalContent(
                             Arrays.asList(content1, content2)); // no content for dataSet3
@@ -197,14 +199,14 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(shareIdManager).releaseLock(componentCode1);
+                    one(shareIdManager).releaseLock(dataSet1Code);
                 }
             });
         actionMatcher.getRecordedObjects().get(0).execute();
         context.checking(new Expectations()
             {
                 {
-                    one(shareIdManager).releaseLock(componentCode2);
+                    one(shareIdManager).releaseLock(dataSet2Code);
                 }
             });
         actionMatcher.getRecordedObjects().get(1).execute();
@@ -227,7 +229,7 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(openbisService).tryGetDataSet(dataSetCode);
+                    one(openbisService).tryGetDataSetLocation(dataSetCode);
                     will(returnValue(null));
                 }
             });

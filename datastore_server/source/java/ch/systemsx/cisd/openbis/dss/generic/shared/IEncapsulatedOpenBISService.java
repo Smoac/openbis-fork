@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -75,6 +76,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  */
 public interface IEncapsulatedOpenBISService
 {
+
+    /**
+     * Tries to get the data set location for the specified data set code, using the ETL server's
+     * session token.
+     */
+    @ManagedAuthentication
+    public IDatasetLocationNode tryGetDataSetLocation(final String dataSetCode)
+            throws UserFailureException;
+
     /**
      * Tries to get the data set for the specified data set code, using the ETL server's session
      * token.

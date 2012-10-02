@@ -29,10 +29,10 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoDBAwareHierarchicalContentFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 
 /**
  * The default implementation of {@link IHierarchicalContentProvider}.
@@ -78,24 +78,28 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
     @Override
     public IHierarchicalContent asContent(String dataSetCode)
     {
-        ExternalData externalData = openbisService.tryGetDataSet(dataSetCode);
-        if (externalData == null)
+        IDatasetLocationNode locationNode = openbisService.tryGetDataSetLocation(dataSetCode);
+        if (locationNode == null)
         {
             operationLog.error(String.format("Data set '%s' not found in openBIS server.",
                     dataSetCode));
             throw new IllegalArgumentException("Unknown data set: " + dataSetCode);
         }
-        return asContent(externalData);
+        return asContent(locationNode);
     }
 
     @Override
-    public IHierarchicalContent asContent(ExternalData externalData)
+    public IHierarchicalContent asContent(ExternalData dataSet)
     {
-        if (externalData.isContainer())
+        return asContent(new ExternalDataLocationNode(dataSet));
+    }
+
+    private IHierarchicalContent asContent(IDatasetLocationNode locationNode)
+    {
+        if (locationNode.isContainer())
         {
-            ContainerDataSet container = externalData.tryGetAsContainerDataSet();
             List<IHierarchicalContent> componentContents = new ArrayList<IHierarchicalContent>();
-            for (ExternalData component : container.getContainedDataSets())
+            for (IDatasetLocationNode component : locationNode.getComponents())
             {
                 IHierarchicalContent componentContent = tryCreateComponentContent(component);
                 if (componentContent != null)
@@ -106,25 +110,28 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
             return getHierarchicalContentFactory().asVirtualHierarchicalContent(componentContents);
         } else
         {
-            return asContent(asDataSetLocation(externalData));
+            return asContent(locationNode.getLocation());
         }
     }
 
-    private IHierarchicalContent tryCreateComponentContent(ExternalData component)
+    private IHierarchicalContent tryCreateComponentContent(
+            IDatasetLocationNode componentLocationNode)
     {
         try
         {
-            if (component.isContainer())
+            if (componentLocationNode.isContainer())
             {
-                return asContent(component.getCode());
+                return asContent(componentLocationNode);
             } else
             {
-                return asContent(asDataSetLocation(component));
+                return asContent(componentLocationNode.getLocation());
             }
         } catch (IllegalArgumentException ex)
         {
-            operationLog.info("ignoring contained data set " + component.getCode() + ": "
-                    + ex.getMessage());
+            operationLog
+                    .info("ignoring contained data set "
+                            + componentLocationNode.getLocation().getDataSetCode() + ": "
+                            + ex.getMessage());
             return null;
         }
     }
@@ -175,18 +182,6 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
             hierarchicalContentFactory = PathInfoDBAwareHierarchicalContentFactory.create();
         }
         return hierarchicalContentFactory;
-    }
-
-    private static IDatasetLocation asDataSetLocation(ExternalData externalData)
-    {
-        DataSet dataSet = externalData.tryGetAsDataSet();
-        if (dataSet == null)
-        {
-            throw new IllegalArgumentException(
-                    "Couldn't retrieve full data set infomation from data set "
-                            + externalData.getCode());
-        }
-        return dataSet;
     }
 
 }

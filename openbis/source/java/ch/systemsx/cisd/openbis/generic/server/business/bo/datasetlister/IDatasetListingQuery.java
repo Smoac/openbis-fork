@@ -299,4 +299,12 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet entityIds);
 
+    @Select(sql = "WITH RECURSIVE connected_data(id, code, ctnr_id) AS ("
+            + "    SELECT d.id, d.code, d.ctnr_id, ed.location FROM data AS d LEFT OUTER JOIN external_data AS ed ON d.id = ed.data_id WHERE d.code = ?{1}"
+            + "  UNION ALL"
+            + "    SELECT d.id, d.code, d.ctnr_id, ed.location"
+            + "    FROM connected_data AS cd INNER JOIN data AS d ON cd.id = d.ctnr_id LEFT OUTER JOIN external_data AS ed ON d.id = ed.data_id"
+            + ")" + "SELECT * FROM connected_data")
+    public DataIterator<DatasetLocationNodeRecord> listLocationsByDatasetCode(String datasetCode);
+
 }

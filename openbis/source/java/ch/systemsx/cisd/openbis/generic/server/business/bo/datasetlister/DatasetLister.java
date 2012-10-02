@@ -63,12 +63,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
@@ -945,4 +948,42 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return result;
     }
 
+    @Override
+    public IDatasetLocationNode listLocationsByDatasetCode(String datasetCode)
+    {
+        DataIterator<DatasetLocationNodeRecord> queryResult =
+                query.listLocationsByDatasetCode(datasetCode);
+
+        Map<Long, DatasetLocationNode> nodeMap = new HashMap<Long, DatasetLocationNode>();
+        DatasetLocationNode rootNode = null;
+
+        while (queryResult.hasNext())
+        {
+            DatasetLocationNodeRecord record = queryResult.next();
+
+            DatasetLocation location = new DatasetLocation();
+            location.setDatasetCode(record.code);
+            location.setDataSetLocation(record.location);
+
+            DatasetLocationNode node = new DatasetLocationNode(location);
+
+            if (record.ctnr_id != null)
+            {
+                DatasetLocationNode parentNode = nodeMap.get(record.ctnr_id);
+                if (parentNode != null)
+                {
+                    parentNode.addContained(node);
+                }
+            }
+
+            nodeMap.put(record.id, node);
+
+            if (rootNode == null)
+            {
+                rootNode = node;
+            }
+        }
+
+        return rootNode;
+    }
 }

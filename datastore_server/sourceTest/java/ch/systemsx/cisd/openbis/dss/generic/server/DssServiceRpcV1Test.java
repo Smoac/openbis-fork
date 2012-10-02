@@ -81,8 +81,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -698,14 +699,14 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 
     private void prepareGetDataSet()
     {
-        final DataSet dataSet = new DataSet();
-        dataSet.setCode(DATA_SET_CODE);
-        dataSet.setLocation(DatasetLocationUtil.getDatasetLocationPath(DATA_SET_CODE,
-                DB_INSTANCE_UUID));
+        final DatasetLocation dataSetLocation =
+                new DatasetLocation(DATA_SET_CODE, DatasetLocationUtil.getDatasetLocationPath(
+                        DATA_SET_CODE, DB_INSTANCE_UUID));
+        final DatasetLocationNode dataSet = new DatasetLocationNode(dataSetLocation);
         context.checking(new Expectations()
             {
                 {
-                    one(openBisService).tryGetDataSet(DATA_SET_CODE);
+                    one(openBisService).tryGetDataSetLocation(DATA_SET_CODE);
                     will(returnValue(dataSet));
                 }
             });

@@ -33,6 +33,16 @@ public class DatasetLocation implements IDatasetLocation, Serializable, ICodeHol
 
     private String dataSetLocation;
 
+    public DatasetLocation()
+    {
+    }
+
+    public DatasetLocation(String datasetCode, String dataSetLocation)
+    {
+        this.datasetCode = datasetCode;
+        this.dataSetLocation = dataSetLocation;
+    }
+
     @Override
     public String getDataSetLocation()
     {

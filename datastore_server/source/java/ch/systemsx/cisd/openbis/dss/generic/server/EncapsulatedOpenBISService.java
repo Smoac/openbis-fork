@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -437,6 +438,13 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public long drawANewUniqueID()
     {
         return service.drawANewUniqueID(session.getSessionToken());
+    }
+
+    @Override
+    public IDatasetLocationNode tryGetDataSetLocation(String dataSetCode)
+            throws UserFailureException
+    {
+        return service.tryGetDataSetLocation(session.getSessionToken(), dataSetCode);
     }
 
     @Override

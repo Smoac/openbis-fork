@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -299,6 +300,14 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
             throws UserFailureException
     {
         logAccess(sessionToken, "checkSpaceAccess", "SPACE(%s)", spaceId);
+    }
+
+    @Override
+    public IDatasetLocationNode tryGetDataSetLocation(String sessionToken, String dataSetCode)
+            throws UserFailureException
+    {
+        logAccess(sessionToken, "tryGetDataSetLocation", "DATA_SET(%s)", dataSetCode);
+        return null;
     }
 
     @Override

@@ -118,6 +118,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
@@ -950,6 +951,21 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             List<String> datasetCodes)
     {
         return super.unarchiveDatasets(sessionToken, datasetCodes);
+    }
+
+    @Override
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public IDatasetLocationNode tryGetDataSetLocation(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            String dataSetCode) throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        assert dataSetCode != null : "Unspecified data set code.";
+
+        Session session = getSession(sessionToken);
+        IDatasetLister lister = businessObjectFactory.createDatasetLister(session);
+        return lister.listLocationsByDatasetCode(dataSetCode);
     }
 
     @Override

@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -595,10 +596,11 @@ public class DatasetDownloadServletTest
             {
                 {
                     Map<String, Boolean> accessMap = new HashMap<String, Boolean>();
-                    checkAndSetAttribute(this, AbstractDatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY,
-                            accessMap);
+                    checkAndSetAttribute(this,
+                            AbstractDatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY, accessMap);
 
-                    one(httpSession).getAttribute(AbstractDatasetDownloadServlet.DATA_SET_SESSION_KEY);
+                    one(httpSession).getAttribute(
+                            AbstractDatasetDownloadServlet.DATA_SET_SESSION_KEY);
                     Map<String, ExternalData> map = new HashMap<String, ExternalData>();
                     map.put(externalData.getCode(), externalData);
                     will(Expectations.returnValue(map));
@@ -679,7 +681,7 @@ public class DatasetDownloadServletTest
     private void prepareForObtainingDataSetFromServer(final ExternalData externalData)
     {
         prepareCreateSession();
-        prepareTryGetDataset(externalData);
+        prepareTryGetDatasetLocation(externalData);
     }
 
     private void prepareCreateSession()
@@ -706,13 +708,19 @@ public class DatasetDownloadServletTest
             });
     }
 
-    private void prepareTryGetDataset(final ExternalData externalData)
+    private void prepareTryGetDatasetLocation(final ExternalData externalData)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(openbisService).tryGetDataSet(EXAMPLE_DATA_SET_CODE);
-                    will(returnValue(externalData));
+                    one(openbisService).tryGetDataSetLocation(EXAMPLE_DATA_SET_CODE);
+                    if (externalData == null)
+                    {
+                        will(returnValue(null));
+                    } else
+                    {
+                        will(returnValue(new ExternalDataLocationNode(externalData)));
+                    }
                 }
             });
     }
@@ -737,14 +745,14 @@ public class DatasetDownloadServletTest
                             new HashMap<String, ExternalDataPE>());
 
                     Map<String, Boolean> map = new HashMap<String, Boolean>();
-                    checkAndSetAttribute(this, AbstractDatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY,
-                            map);
+                    checkAndSetAttribute(this,
+                            AbstractDatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY, map);
 
                     one(openbisService).checkDataSetAccess(EXAMPLE_SESSION_ID,
                             EXAMPLE_DATA_SET_CODE);
 
-                    getSessionAttribute(this, AbstractDatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY,
-                            map);
+                    getSessionAttribute(this,
+                            AbstractDatasetDownloadServlet.DATA_SET_ACCESS_SESSION_KEY, map);
                 }
             });
     }

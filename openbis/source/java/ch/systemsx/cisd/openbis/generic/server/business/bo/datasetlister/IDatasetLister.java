@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityP
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
@@ -107,6 +108,11 @@ public interface IDatasetLister
      * @return Datasets connected to the samples with the specified ids
      */
     List<ExternalData> listBySampleIds(Collection<Long> sampleIds);
+
+    /**
+     * @return Location of the specified data set.
+     */
+    IDatasetLocationNode listLocationsByDatasetCode(String datasetCode);
 
     /**
      * @return properties of given type for given dataset ids
