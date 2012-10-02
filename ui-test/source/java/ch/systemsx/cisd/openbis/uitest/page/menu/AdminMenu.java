@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.page.menu;
 
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.Link;
 
@@ -31,11 +32,43 @@ public class AdminMenu
     @Locate("ADMINISTRATION_MENU_MANAGE_TYPES")
     private Link types;
 
+    @Lazy
+    @Locate("openbis_top-menu_SAMPLE_MENU_TYPES")
+    private Link sampleTypes;
+
+    @Lazy
+    @Locate("openbis_top-menu_EXPERIMENT_MENU_TYPES")
+    private Link experimentTypes;
+
+    @Lazy
+    @Locate("openbis_top-menu_DATA_SET_MENU_TYPES")
+    private Link dataSetTypes;
+
     @Locate("ADMINISTRATION_MENU_MANAGE_PROPERTY_TYPES")
     private Link metadata;
 
+    @Lazy
+    @Locate("openbis_top-menu_PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES")
+    private Link browsePropertyTypes;
+
+    @Lazy
+    @Locate("openbis_top-menu_PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS")
+    private Link browsePropertyTypeAssignments;
+
+    @Lazy
+    @Locate("openbis_top-menu_PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES")
+    private Link newPropertyType;
+
+    @Lazy
+    @Locate("openbis_top-menu_PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE")
+    private Link assignToSampleType;
+
     @Locate("ADMINISTRATION_MENU_MANAGE_AUTHORIZATION")
     private Link authorization;
+
+    @Lazy
+    @Locate("openbis_top-menu_AUTHORIZATION_MENU_ROLES")
+    private Link roles;
 
     public void spaces()
     {
@@ -47,18 +80,51 @@ public class AdminMenu
         vocabularies.click();
     }
 
-    public void types()
+    public void sampleTypes()
     {
         types.highlight();
+        sampleTypes.click();
     }
 
-    public void metadata()
+    public void experimentTypes()
+    {
+        types.highlight();
+        experimentTypes.click();
+    }
+
+    public void dataSetTypes()
+    {
+        types.highlight();
+        dataSetTypes.click();
+    }
+
+    public void browsePropertyTypes()
     {
         metadata.highlight();
+        browsePropertyTypes.click();
     }
 
-    public void authorization()
+    public void browsePropertyTypeAssignments()
+    {
+        metadata.highlight();
+        browsePropertyTypeAssignments.click();
+    }
+
+    public void newPropertyType()
+    {
+        metadata.highlight();
+        newPropertyType.click();
+    }
+
+    public void assignPropertyTypeToSampleType()
+    {
+        metadata.highlight();
+        assignToSampleType.click();
+    }
+
+    public void roles()
     {
         authorization.highlight();
+        roles.click();
     }
 }

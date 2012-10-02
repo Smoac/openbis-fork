@@ -26,12 +26,9 @@ import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSpaceDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddVocabularyDialog;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.EditSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
-import ch.systemsx.cisd.openbis.uitest.page.menu.AuthorizationMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.BrowseMenu;
-import ch.systemsx.cisd.openbis.uitest.page.menu.MetadataMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.NewMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.TopBar;
-import ch.systemsx.cisd.openbis.uitest.page.menu.TypesMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.UserMenu;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AddPropertyType;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AssignSamplePropertyType;
@@ -254,6 +251,20 @@ public class GuiApplicationRunner implements ApplicationRunner
     }
 
     @Override
+    public DataSetType create(DataSetType type)
+    {
+        throw new UnsupportedOperationException(
+                "Data set type creation through GUI not implemented yet");
+    }
+
+    @Override
+    public DataSet create(DataSet dataSet)
+    {
+        throw new UnsupportedOperationException(
+                "Data set creation through GUI not implemented yet");
+    }
+
+    @Override
     public void update(SampleType sampleType)
     {
         SampleTypeBrowser browser = browseToSampleTypeBrowser();
@@ -360,31 +371,28 @@ public class GuiApplicationRunner implements ApplicationRunner
     public SampleTypeBrowser browseToSampleTypeBrowser()
     {
         getMenus().admin();
-        load(AdminMenu.class).types();
-        load(TypesMenu.class).sampleTypes();
+        load(AdminMenu.class).sampleTypes();
         return getBrowser(SampleTypeBrowser.class);
     }
 
     public ExperimentTypeBrowser browseToExperimentTypeBrowser()
     {
         getMenus().admin();
-        load(AdminMenu.class).types();
-        load(TypesMenu.class).experimentTypes();
+        load(AdminMenu.class).experimentTypes();
         return getBrowser(ExperimentTypeBrowser.class);
     }
 
     public DataSetTypeBrowser browseToDataSetTypeBrowser()
     {
         getMenus().admin();
-        load(AdminMenu.class).types();
-        load(TypesMenu.class).experimentTypes();
+        load(AdminMenu.class).dataSetTypes();
         return getBrowser(DataSetTypeBrowser.class);
     }
 
-    public Trash browseToTrash()
+    public void emptyTrash()
     {
         getMenus().trash();
-        return load(Trash.class);
+        load(Trash.class).empty();
     }
 
     public AddSampleTypeDialog browseToAddSampleTypeDialog()
@@ -437,8 +445,7 @@ public class GuiApplicationRunner implements ApplicationRunner
     public RoleAssignmentBrowser browseToRoleAssignmentBrowser()
     {
         getMenus().admin();
-        load(AdminMenu.class).authorization();
-        load(AuthorizationMenu.class).roles();
+        load(AdminMenu.class).roles();
         return getBrowser(RoleAssignmentBrowser.class);
     }
 
@@ -458,32 +465,28 @@ public class GuiApplicationRunner implements ApplicationRunner
     public PropertyTypeBrowser browseToPropertyTypeBrowser()
     {
         getMenus().admin();
-        load(AdminMenu.class).metadata();
-        load(MetadataMenu.class).propertyTypes();
+        load(AdminMenu.class).browsePropertyTypes();
         return getBrowser(PropertyTypeBrowser.class);
     }
 
     public AddPropertyType browseToAddPropertyType()
     {
         getMenus().admin();
-        load(AdminMenu.class).metadata();
-        load(MetadataMenu.class).newPropertyType();
+        load(AdminMenu.class).newPropertyType();
         return load(AddPropertyType.class);
     }
 
     public AssignSamplePropertyType browseToAssignSamplePropertyType()
     {
         getMenus().admin();
-        load(AdminMenu.class).metadata();
-        load(MetadataMenu.class).assignToSampleType();
+        load(AdminMenu.class).assignPropertyTypeToSampleType();
         return load(AssignSamplePropertyType.class);
     }
 
     public PropertyTypeAssignmentBrowser browseToPropertyTypeAssignmentBrowser()
     {
         getMenus().admin();
-        load(AdminMenu.class).metadata();
-        load(MetadataMenu.class).propertyTypeAssignments();
+        load(AdminMenu.class).browsePropertyTypeAssignments();
         return getBrowser(PropertyTypeAssignmentBrowser.class);
     }
 
@@ -523,19 +526,5 @@ public class GuiApplicationRunner implements ApplicationRunner
     private <T> T load(Class<T> clazz)
     {
         return proxy.get(clazz);
-    }
-
-    @Override
-    public DataSetType create(DataSetType type)
-    {
-        throw new UnsupportedOperationException(
-                "Data set type creation through GUI not implemented yet");
-    }
-
-    @Override
-    public DataSet create(DataSet dataSet)
-    {
-        throw new UnsupportedOperationException(
-                "Data set creation through GUI not implemented yet");
     }
 }

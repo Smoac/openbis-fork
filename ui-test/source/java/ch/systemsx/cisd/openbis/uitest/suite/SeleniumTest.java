@@ -243,10 +243,10 @@ public abstract class SeleniumTest
 
     protected void emptyTrash()
     {
-        openbis.browseToTrash().empty();
+        openbis.emptyTrash();
     }
 
-    protected RegisterSample sampleRegistrationPageFor(SampleType type)
+    public RegisterSample sampleRegistrationPageFor(SampleType type)
     {
         openbis.browseToRegisterSample().selectSampleType(type);
         return pageProxy.get(RegisterSample.class);
