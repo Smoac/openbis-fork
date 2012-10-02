@@ -45,7 +45,7 @@ public class Dynamic implements Widget
             AtomicWidget w = (AtomicWidget) widget;
             if (!w.getTagName().equals(context.getTagName()))
             {
-                widget.setContext(new WidgetContext(context.find(".//" + w.getTagName())));
+                widget.setContext((WidgetContext) context.find(".//" + w.getTagName()));
                 return widget;
             }
         }

@@ -27,7 +27,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotProxy;
 import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.widget.AtomicWidget;
@@ -138,8 +137,7 @@ public class PageProxy
                             }
                         }
 
-                        widget.setContext(new WidgetContext((WebElement) ScreenShotProxy
-                                .newInstance(element, shotter)));
+                        widget.setContext(new WidgetContext(element, shotter));
                         field.set(t, widget);
                     } catch (IllegalArgumentException ex)
                     {

@@ -16,30 +16,39 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra.webdriver;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 
+import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.widget.AtomicWidget;
 
 /**
  * @author anttil
  */
-public class WidgetContext
+public class WidgetContext implements WebElement
 {
 
-    public WebElement element;
+    private WebElement element;
 
-    public WidgetContext(WebElement element)
+    private ScreenShotter shotter;
+
+    public WidgetContext(WebElement element, ScreenShotter shotter)
     {
         this.element = element;
+        this.shotter = shotter;
     }
 
+    @Override
     public void click()
     {
+        shotter.screenshot();
         element.click();
     }
 
@@ -48,11 +57,13 @@ public class WidgetContext
         return element.isDisplayed() && element.isEnabled();
     }
 
+    @Override
     public String getAttribute(String key)
     {
         return element.getAttribute(key);
     }
 
+    @Override
     public String getTagName()
     {
         return element.getTagName();
@@ -63,14 +74,16 @@ public class WidgetContext
         element.sendKeys(keys);
     }
 
+    @Override
     public void clear()
     {
+        shotter.screenshot();
         element.clear();
     }
 
     public WebElement find(String xpath)
     {
-        return element.findElement(By.xpath(xpath));
+        return new WidgetContext(element.findElement(By.xpath(xpath)), shotter);
     }
 
     public <T extends AtomicWidget> T find(String xpath, Class<T> widgetClass)
@@ -92,19 +105,98 @@ public class WidgetContext
         {
             e = e.findElement(By.xpath(".//" + t.getTagName()));
         }
-        t.setContext(new WidgetContext(e));
+        t.setContext(new WidgetContext(e, shotter));
         return t;
     }
 
     public List<WebElement> findAll(String xpath)
     {
-        return element.findElements(By.xpath(xpath));
+        List<WebElement> result = new ArrayList<WebElement>();
+        for (WebElement e : element.findElements(By.xpath(xpath)))
+        {
+            result.add(new WidgetContext(e, shotter));
+        }
+        return result;
     }
 
     public void mouseOver()
     {
+        shotter.screenshot();
         Actions builder = new Actions(SeleniumTest.driver);
         builder.moveToElement(element).build().perform();
+    }
+
+    @Override
+    public WebElement findElement(By arg0)
+    {
+        return new WidgetContext(element.findElement(arg0), shotter);
+    }
+
+    @Override
+    public List<WebElement> findElements(By arg0)
+    {
+        List<WebElement> result = new ArrayList<WebElement>();
+        for (WebElement e : element.findElements(arg0))
+        {
+            result.add(new WidgetContext(e, shotter));
+        }
+        return result;
+    }
+
+    @Override
+    public String getCssValue(String arg0)
+    {
+        return element.getCssValue(arg0);
+    }
+
+    @Override
+    public Point getLocation()
+    {
+        return element.getLocation();
+    }
+
+    @Override
+    public Dimension getSize()
+    {
+        return element.getSize();
+    }
+
+    @Override
+    public String getText()
+    {
+        return element.getText();
+    }
+
+    @Override
+    public boolean isDisplayed()
+    {
+        return element.isDisplayed();
+    }
+
+    @Override
+    public boolean isEnabled()
+    {
+        return element.isEnabled();
+    }
+
+    @Override
+    public boolean isSelected()
+    {
+        return element.isSelected();
+    }
+
+    @Override
+    public void sendKeys(CharSequence... arg0)
+    {
+        shotter.screenshot();
+        element.sendKeys(arg0);
+    }
+
+    @Override
+    public void submit()
+    {
+        shotter.screenshot();
+        element.submit();
     }
 
 }

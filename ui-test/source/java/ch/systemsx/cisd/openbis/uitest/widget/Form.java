@@ -59,7 +59,7 @@ public class Form implements Widget
                     e = e.findElement(By.xpath(".//" + w.getTagName()));
                 }
 
-                w.setContext(new WidgetContext(e));
+                w.setContext((WidgetContext) e);
                 return w;
             }
         }
