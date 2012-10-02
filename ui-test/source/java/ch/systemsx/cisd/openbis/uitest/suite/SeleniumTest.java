@@ -177,7 +177,7 @@ public abstract class SeleniumTest
             }), uid);
         openbis.login(ADMIN_USER, ADMIN_PASSWORD);
         // this is because of BIS-184
-        openbis.browseToSampleBrowser();
+        openbis.browseToSampleBrowser().allSpaces();
 
         openbisApi.login(ADMIN_USER, ADMIN_PASSWORD);
     }

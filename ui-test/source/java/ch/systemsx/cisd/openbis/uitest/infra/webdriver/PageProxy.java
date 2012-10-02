@@ -154,6 +154,27 @@ public class PageProxy
                         ex.printStackTrace();
                         throw new RuntimeException(ex);
                     }
+
+                }
+
+                Context context = field.getAnnotation(Context.class);
+                if (context != null)
+                {
+                    field.setAccessible(true);
+                    try
+                    {
+                        field.set(t, new WidgetContext(SeleniumTest.driver.findElement(By
+                                .xpath("/html")),
+                                shotter));
+                    } catch (IllegalArgumentException ex)
+                    {
+                        ex.printStackTrace();
+                        throw new RuntimeException(ex);
+                    } catch (IllegalAccessException ex)
+                    {
+                        ex.printStackTrace();
+                        throw new RuntimeException(ex);
+                    }
                 }
             }
 

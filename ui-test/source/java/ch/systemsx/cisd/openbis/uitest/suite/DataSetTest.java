@@ -40,6 +40,8 @@ public class DataSetTest extends SeleniumTest
 
         System.out.println(dataset.getCode());
 
+        // assertThat(detailsOf(sample), containsDataSet(dataset));
+
         // assertThat(dataSetBrowserOf(sample), lists(dataset));
     }
 

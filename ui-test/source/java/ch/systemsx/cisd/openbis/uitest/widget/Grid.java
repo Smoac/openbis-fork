@@ -93,11 +93,7 @@ public class Grid implements Widget
 
     public List<BrowserRow> getData()
     {
-        List<String> columns = new ArrayList<String>();
-        for (WebElement column : getColumns())
-        {
-            columns.add(column.getText());
-        }
+        List<String> columns = getColumnNames();
 
         List<BrowserRow> result = new ArrayList<BrowserRow>();
         Map<String, BrowserCell> map = new HashMap<String, BrowserCell>();
@@ -116,6 +112,16 @@ public class Grid implements Widget
         }
 
         return result;
+    }
+
+    public List<String> getColumnNames()
+    {
+        List<String> columns = new ArrayList<String>();
+        for (WebElement column : getColumns())
+        {
+            columns.add(column.getText());
+        }
+        return columns;
     }
 
     private List<WebElement> getColumns()

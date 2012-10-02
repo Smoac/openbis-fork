@@ -14,49 +14,31 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.widget;
+package ch.systemsx.cisd.openbis.uitest.page.menu;
 
+import org.openqa.selenium.WebElement;
+
+import ch.systemsx.cisd.openbis.uitest.infra.webdriver.Context;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 
-/**
- * @author anttil
- */
-public class Text implements AtomicWidget, Fillable
+public class TabBar
 {
+    @Context
     private WidgetContext context;
 
-    public void write(String text)
+    public boolean selectTab(String label)
     {
-        context.clear();
-        context.sendKeys(text);
-    }
 
-    public void clear()
-    {
-        context.clear();
-    }
-
-    public void append(String text)
-    {
-        context.sendKeys(text);
-    }
-
-    @Override
-    public void fillWith(String string)
-    {
-        write(string);
-    }
-
-    @Override
-    public void setContext(WidgetContext context)
-    {
-        this.context = context;
-    }
-
-    @Override
-    public String getTagName()
-    {
-        return "input";
+        for (WebElement link : context
+                .findAll("//li[starts-with(@id, 'openbis_main-tab-panel__')]"))
+        {
+            if (link.getText().equals(label))
+            {
+                link.click();
+                return true;
+            }
+        }
+        return false;
     }
 
 }

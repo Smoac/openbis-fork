@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.uitest.page.dialog.EditSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.BrowseMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.NewMenu;
+import ch.systemsx.cisd.openbis.uitest.page.menu.TabBar;
 import ch.systemsx.cisd.openbis.uitest.page.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.page.menu.UserMenu;
 import ch.systemsx.cisd.openbis.uitest.page.tab.AddPropertyType;
@@ -104,6 +105,7 @@ public class GuiApplicationRunner implements ApplicationRunner
         {
             browser.delete();
         }
+        browser.resetFilters();
     }
 
     public void deleteExperimentsFrom(Project project)
@@ -125,6 +127,7 @@ public class GuiApplicationRunner implements ApplicationRunner
         {
             browser.delete();
         }
+        browser.resetFilters();
     }
 
     @Override
@@ -137,6 +140,7 @@ public class GuiApplicationRunner implements ApplicationRunner
         {
             browser.delete();
         }
+        browser.resetFilters();
     }
 
     @Override
@@ -149,6 +153,7 @@ public class GuiApplicationRunner implements ApplicationRunner
         {
             browser.delete();
         }
+        browser.resetFilters();
     }
 
     @Override
@@ -174,6 +179,7 @@ public class GuiApplicationRunner implements ApplicationRunner
         {
             browser.delete();
         }
+        browser.resetFilters();
     }
 
     @Override
@@ -274,6 +280,7 @@ public class GuiApplicationRunner implements ApplicationRunner
         EditSampleTypeDialog dialog = proxy.get(EditSampleTypeDialog.class);
         dialog.fillWith(sampleType);
         dialog.save();
+        browser.resetFilters();
     }
 
     @Override
@@ -356,42 +363,64 @@ public class GuiApplicationRunner implements ApplicationRunner
         load(browserClass).showColumnsOf(browsable);
         load(browserClass).filterTo(browsable);
         List<BrowserRow> rows = load(browserClass).getData();
-        if (rows.size() == 0)
+        try
         {
-            return new BrowserRow();
-        } else if (rows.size() == 1)
+            if (rows.size() == 0)
+            {
+                return new BrowserRow();
+            } else if (rows.size() == 1)
+            {
+                return rows.get(0);
+            } else
+            {
+                throw new IllegalStateException("multiple rows found:\n" + rows);
+            }
+        } finally
         {
-            return rows.get(0);
-        } else
-        {
-            throw new IllegalStateException("multiple rows found:\n" + rows);
+            load(browserClass).resetFilters();
         }
     }
 
     public SampleTypeBrowser browseToSampleTypeBrowser()
     {
-        getMenus().admin();
-        load(AdminMenu.class).sampleTypes();
+        boolean success = load(TabBar.class).selectTab("Sample Types");
+        if (!success)
+        {
+            getMenus().admin();
+            load(AdminMenu.class).sampleTypes();
+        }
         return getBrowser(SampleTypeBrowser.class);
     }
 
     public ExperimentTypeBrowser browseToExperimentTypeBrowser()
     {
-        getMenus().admin();
-        load(AdminMenu.class).experimentTypes();
+        boolean success = load(TabBar.class).selectTab("Experiment Types");
+        if (!success)
+        {
+            getMenus().admin();
+            load(AdminMenu.class).experimentTypes();
+        }
         return getBrowser(ExperimentTypeBrowser.class);
     }
 
     public DataSetTypeBrowser browseToDataSetTypeBrowser()
     {
-        getMenus().admin();
-        load(AdminMenu.class).dataSetTypes();
+        boolean success = load(TabBar.class).selectTab("Data Set Types");
+        if (!success)
+        {
+            getMenus().admin();
+            load(AdminMenu.class).dataSetTypes();
+        }
         return getBrowser(DataSetTypeBrowser.class);
     }
 
     public void emptyTrash()
     {
-        getMenus().trash();
+        boolean success = load(TabBar.class).selectTab("Trash");
+        if (!success)
+        {
+            getMenus().trash();
+        }
         load(Trash.class).empty();
     }
 
@@ -409,15 +438,23 @@ public class GuiApplicationRunner implements ApplicationRunner
 
     public SpaceBrowser browseToSpaceBrowser()
     {
-        getMenus().admin();
-        load(AdminMenu.class).spaces();
+        boolean success = load(TabBar.class).selectTab("Space Browser");
+        if (!success)
+        {
+            getMenus().admin();
+            load(AdminMenu.class).spaces();
+        }
         return getBrowser(SpaceBrowser.class);
     }
 
     public ProjectBrowser browseToProjectBrowser()
     {
-        getMenus().browse();
-        load(BrowseMenu.class).projects();
+        boolean success = load(TabBar.class).selectTab("Project Browser");
+        if (!success)
+        {
+            getMenus().browse();
+            load(BrowseMenu.class).projects();
+        }
         return getBrowser(ProjectBrowser.class);
     }
 
@@ -429,30 +466,45 @@ public class GuiApplicationRunner implements ApplicationRunner
 
     public SampleBrowser browseToSampleBrowser()
     {
-        getMenus().browse();
-        load(BrowseMenu.class).samples();
-        load(SampleBrowser.class).allSpaces();
+        boolean success = load(TabBar.class).selectTab("Sample Browser");
+        if (!success)
+        {
+            getMenus().browse();
+            load(BrowseMenu.class).samples();
+        }
         return getBrowser(SampleBrowser.class);
     }
 
     public ExperimentBrowser browseToExperimentBrowser()
     {
-        getMenus().browse();
-        load(BrowseMenu.class).experiments();
+        boolean success = load(TabBar.class).selectTab("Experiment Browser");
+        if (!success)
+        {
+            getMenus().browse();
+            load(BrowseMenu.class).experiments();
+        }
         return load(ExperimentBrowser.class);
     }
 
     public RoleAssignmentBrowser browseToRoleAssignmentBrowser()
     {
-        getMenus().admin();
-        load(AdminMenu.class).roles();
+        boolean success = load(TabBar.class).selectTab("Role Assignment Browser");
+        if (!success)
+        {
+            getMenus().admin();
+            load(AdminMenu.class).roles();
+        }
         return getBrowser(RoleAssignmentBrowser.class);
     }
 
     public VocabularyBrowser browseToVocabularyBrowser()
     {
-        getMenus().admin();
-        load(AdminMenu.class).vocabularies();
+        boolean success = load(TabBar.class).selectTab("Vocabulary Browser");
+        if (!success)
+        {
+            getMenus().admin();
+            load(AdminMenu.class).vocabularies();
+        }
         return getBrowser(VocabularyBrowser.class);
     }
 
@@ -464,50 +516,78 @@ public class GuiApplicationRunner implements ApplicationRunner
 
     public PropertyTypeBrowser browseToPropertyTypeBrowser()
     {
-        getMenus().admin();
-        load(AdminMenu.class).browsePropertyTypes();
+        boolean success = load(TabBar.class).selectTab("Property Types");
+        if (!success)
+        {
+            getMenus().admin();
+            load(AdminMenu.class).browsePropertyTypes();
+        }
         return getBrowser(PropertyTypeBrowser.class);
     }
 
     public AddPropertyType browseToAddPropertyType()
     {
-        getMenus().admin();
-        load(AdminMenu.class).newPropertyType();
+        boolean success = load(TabBar.class).selectTab("Property Type Registration");
+        if (!success)
+        {
+            getMenus().admin();
+            load(AdminMenu.class).newPropertyType();
+        }
         return load(AddPropertyType.class);
     }
 
     public AssignSamplePropertyType browseToAssignSamplePropertyType()
     {
-        getMenus().admin();
-        load(AdminMenu.class).assignPropertyTypeToSampleType();
+        boolean success = load(TabBar.class).selectTab("Assign Sample Property Type");
+        if (!success)
+        {
+            getMenus().admin();
+            load(AdminMenu.class).assignPropertyTypeToSampleType();
+        }
         return load(AssignSamplePropertyType.class);
     }
 
     public PropertyTypeAssignmentBrowser browseToPropertyTypeAssignmentBrowser()
     {
-        getMenus().admin();
-        load(AdminMenu.class).browsePropertyTypeAssignments();
+        boolean success = load(TabBar.class).selectTab("Property Type Assignments");
+        if (!success)
+        {
+            getMenus().admin();
+            load(AdminMenu.class).browsePropertyTypeAssignments();
+        }
         return getBrowser(PropertyTypeAssignmentBrowser.class);
     }
 
     public RegisterSample browseToRegisterSample()
     {
-        getMenus().newMenu();
-        load(NewMenu.class).sample();
+        boolean success = load(TabBar.class).selectTab("Sample Registration");
+        if (!success)
+        {
+            getMenus().newMenu();
+            load(NewMenu.class).sample();
+        }
         return load(RegisterSample.class);
     }
 
     public RegisterExperiment browseToRegisterExperiment()
     {
-        getMenus().newMenu();
-        load(NewMenu.class).experiment();
+        boolean success = load(TabBar.class).selectTab("Experiment Registration");
+        if (!success)
+        {
+            getMenus().newMenu();
+            load(NewMenu.class).experiment();
+        }
         return load(RegisterExperiment.class);
     }
 
     public RegisterProject browseToRegisterProject()
     {
-        getMenus().newMenu();
-        load(NewMenu.class).project();
+        boolean success = load(TabBar.class).selectTab("Project Registration");
+        if (!success)
+        {
+            getMenus().newMenu();
+            load(NewMenu.class).project();
+        }
         return load(RegisterProject.class);
     }
 
@@ -519,7 +599,6 @@ public class GuiApplicationRunner implements ApplicationRunner
     private <T extends Browser<?>> T getBrowser(Class<T> clazz)
     {
         T browser = load(clazz);
-        browser.resetFilters();
         return browser;
     }
 

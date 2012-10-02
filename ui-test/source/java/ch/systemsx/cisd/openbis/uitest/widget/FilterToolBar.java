@@ -40,14 +40,6 @@ public class FilterToolBar implements Widget
                         @Override
                         public Void execute()
                         {
-                            try
-                            {
-                                Thread.sleep(2000);
-                            } catch (InterruptedException ex)
-                            {
-                                // TODO Auto-generated catch block
-                                ex.printStackTrace();
-                            }
                             t.clear();
                             t.sendKeys(text);
                             return null;
@@ -59,13 +51,7 @@ public class FilterToolBar implements Widget
     public void reset()
     {
         WebElement b = context.find(".//button[text()='Reset']");
-        if (b.isEnabled() && b.isDisplayed())
-        {
-            b.click();
-        } else
-        {
-            reset();
-        }
+        b.click();
     }
 
     @Override
