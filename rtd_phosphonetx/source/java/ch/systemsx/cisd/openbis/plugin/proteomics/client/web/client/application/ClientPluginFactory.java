@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.application
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -44,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.DelegatedClientPlugin;
@@ -165,11 +168,13 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
 
         @Override
         public DatabaseModificationAwareWidget createRegistrationForEntityType(
-                ExperimentType entityType, ActionContext context)
+                ExperimentType entityType,
+                Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+                ActionContext context)
         {
             GenericExperimentRegistrationForm form =
-                    new GenericExperimentRegistrationForm(getGenericViewContext(), context,
-                            entityType);
+                    new GenericExperimentRegistrationForm(getGenericViewContext(),
+                            inputWidgetDescriptions, context, entityType);
             return new DatabaseModificationAwareWidget(form, form);
         }
 

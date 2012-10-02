@@ -184,6 +184,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ValidationException;
@@ -393,6 +394,14 @@ public final class CommonClientService extends AbstractClientService implements
 
     // --------- methods preparing exported content. Note: GWT does not support
     // generic methods :(
+
+    @Override
+    public Map<String, List<IManagedInputWidgetDescription>> listManagedInputWidgetDescriptions(
+            EntityType entityType)
+    {
+        final String sessionToken = getSessionToken();
+        return commonServer.listManagedInputWidgetDescriptions(sessionToken, entityType);
+    }
 
     @Override
     public String prepareExportSamples(TableExportCriteria<TableModelRowWithObject<Sample>> criteria)

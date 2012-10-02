@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -53,7 +55,8 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
     private GenericExperimentEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
             IIdAndCodeHolder identifiable)
     {
-        super(viewContext, new ActionContext(), identifiable);
+        super(viewContext, Collections.<String, List<IManagedInputWidgetDescription>> emptyMap(),
+                new ActionContext(), identifiable);
         setRevertButtonVisible(true);
     }
 

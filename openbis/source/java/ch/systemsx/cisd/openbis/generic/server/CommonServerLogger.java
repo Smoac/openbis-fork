@@ -101,6 +101,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.ICorePluginResourceLoader;
@@ -251,6 +252,15 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public final List<SampleType> listSampleTypes(final String sessionToken)
     {
         logAccess(sessionToken, "list_sample_types");
+        return null;
+    }
+
+    @Override
+    public Map<String, List<IManagedInputWidgetDescription>> listManagedInputWidgetDescriptions(
+            String sessionToken, EntityType entityType)
+    {
+        logAccess(sessionToken, "list_managed_input_widget_descriptions", "TYPE(%s)",
+                entityType.getCode());
         return null;
     }
 

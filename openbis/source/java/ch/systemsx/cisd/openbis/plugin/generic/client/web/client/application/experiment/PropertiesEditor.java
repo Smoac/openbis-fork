@@ -21,6 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
@@ -35,10 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 /**
  * @author Izabela Adamczyk
@@ -132,6 +132,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         final String label =
                 PropertyTypeRenderer.getDisplayName(etpt.getPropertyType(), propertyTypes);
         final String propertyTypeCode = etpt.getPropertyType().getCode();
+        boolean isManaged = etpt.isManaged();
         field =
                 PropertyFieldFactory.createField(etpt.getPropertyType(), isMandatory, label,
                         createFormFieldId(getId(), propertyTypeCode), value, viewContext);

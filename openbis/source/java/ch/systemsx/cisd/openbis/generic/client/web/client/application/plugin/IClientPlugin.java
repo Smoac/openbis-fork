@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
@@ -24,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 
 /**
  * The client plugin.
@@ -49,6 +53,7 @@ public interface IClientPlugin<T extends BasicEntityType, I extends IIdAndCodeHo
      * Shows a registration form for entities of given <var>entityType</var>.
      */
     public DatabaseModificationAwareWidget createRegistrationForEntityType(final T entityType,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
             final ActionContext context);
 
     /**

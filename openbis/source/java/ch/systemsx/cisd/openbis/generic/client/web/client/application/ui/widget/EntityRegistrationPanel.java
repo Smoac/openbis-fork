@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -30,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -45,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 
 /**
  * The {@link LayoutContainer} extension for registering an entity.
@@ -112,8 +115,7 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
         final EntityType entityType = entityTypeModel.get(ModelDataPropertyNames.OBJECT);
         if (registrationWidget == null || shouldAskForCloseConfirmation() == false)
         {
-            showRegistrationForm(entityType);
-            previousSelection.update(entityTypeModel);
+            showAndUpdateRegistrationForm(entityTypeModel, entityType);
         } else
         {
             new ConfirmationDialog(viewContext.getMessage(Dict.CONFIRM_TITLE),
@@ -122,8 +124,7 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
                     @Override
                     protected void onYes()
                     {
-                        showRegistrationForm(entityType);
-                        previousSelection.update(entityTypeModel);
+                        showAndUpdateRegistrationForm(entityTypeModel, entityType);
                     }
 
                     @Override
@@ -139,7 +140,25 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
         }
     }
 
-    private void showRegistrationForm(final EntityType entityType)
+    private void showAndUpdateRegistrationForm(final T entityTypeModel, final EntityType entityType)
+    {
+        viewContext.getService().listManagedInputWidgetDescriptions(
+                entityType,
+                new AbstractAsyncCallback<Map<String, List<IManagedInputWidgetDescription>>>(
+                        viewContext)
+                    {
+                        @Override
+                        protected void process(
+                                Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions)
+                        {
+                            showRegistrationForm(entityType, inputWidgetDescriptions);
+                            previousSelection.update(entityTypeModel);
+                        }
+                    });
+    }
+
+    private void showRegistrationForm(final EntityType entityType,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions)
     {
         removeAll();
         final IClientPlugin<EntityType, IIdAndCodeHolder> clientPlugin =
@@ -147,7 +166,8 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
                         .getClientPluginFactory(entityKind, entityType)
                         .createClientPlugin(entityKind);
         registrationWidget =
-                clientPlugin.createRegistrationForEntityType(entityType, actionContext);
+                clientPlugin.createRegistrationForEntityType(entityType, inputWidgetDescriptions,
+                        actionContext);
         add(registrationWidget.get());
         layout();
     }

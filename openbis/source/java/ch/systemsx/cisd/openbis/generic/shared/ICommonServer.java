@@ -98,6 +98,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
@@ -261,6 +262,10 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     public List<SampleType> listSampleTypes(String sessionToken);
+
+    @Transactional(readOnly = true)
+    public Map<String, List<IManagedInputWidgetDescription>> listManagedInputWidgetDescriptions(
+            String sessionToken, EntityType entityType);
 
     /**
      * Lists samples using given configuration.

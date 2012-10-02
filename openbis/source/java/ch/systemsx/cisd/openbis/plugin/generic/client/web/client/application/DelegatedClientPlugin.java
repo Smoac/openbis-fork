@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
@@ -27,10 +30,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 
 /**
- * delegates all operations to generic plugin, should be subclasssed and the needed
- * functionality can override the default behaviour
+ * delegates all operations to generic plugin, should be subclasssed and the needed functionality
+ * can override the default behaviour
  */
 public class DelegatedClientPlugin<T extends BasicEntityType> implements
         IClientPlugin<T, IIdAndCodeHolder>
@@ -52,8 +56,7 @@ public class DelegatedClientPlugin<T extends BasicEntityType> implements
     }
 
     @Override
-    public AbstractTabItemFactory createEntityViewer(
-            final IEntityInformationHolderWithPermId entity)
+    public AbstractTabItemFactory createEntityViewer(final IEntityInformationHolderWithPermId entity)
     {
         return delegator.createEntityViewer(entity);
     }
@@ -78,8 +81,10 @@ public class DelegatedClientPlugin<T extends BasicEntityType> implements
 
     @Override
     public DatabaseModificationAwareWidget createRegistrationForEntityType(T entityType,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
             ActionContext context)
     {
-        return delegator.createRegistrationForEntityType(entityType, context);
+        return delegator.createRegistrationForEntityType(entityType, inputWidgetDescriptions,
+                context);
     }
 }

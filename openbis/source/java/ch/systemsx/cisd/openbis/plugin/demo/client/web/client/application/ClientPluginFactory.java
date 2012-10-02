@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.Component;
@@ -46,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm;
 
@@ -161,7 +164,9 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
 
         @Override
         public final DatabaseModificationAwareWidget createRegistrationForEntityType(
-                final SampleType sampleType, final ActionContext context)
+                final SampleType sampleType,
+                Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+                final ActionContext context)
         {
             GenericSampleRegistrationForm form =
                     new GenericSampleRegistrationForm(new GenericViewContext(getViewContext()

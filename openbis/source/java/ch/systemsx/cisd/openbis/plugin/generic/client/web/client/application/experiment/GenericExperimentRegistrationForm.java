@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 
@@ -29,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyT
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -44,9 +46,10 @@ public final class GenericExperimentRegistrationForm extends
 
     public GenericExperimentRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
             final ActionContext context, final ExperimentType experimentType)
     {
-        super(viewContext, context);
+        super(viewContext, inputWidgetDescriptions, context);
         setResetButtonVisible(true);
         this.experimentType = experimentType;
     }

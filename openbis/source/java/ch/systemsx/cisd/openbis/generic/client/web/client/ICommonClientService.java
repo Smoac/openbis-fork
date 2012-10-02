@@ -111,6 +111,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 
@@ -246,6 +247,9 @@ public interface ICommonClientService extends IClientService
      * Returns a list of sample types.
      */
     public List<SampleType> listSampleTypes() throws UserFailureException;
+
+    public Map<String, List<IManagedInputWidgetDescription>> listManagedInputWidgetDescriptions(
+            EntityType entityType) throws UserFailureException;
 
     /**
      * Returns a list of samples matching given criteria.

@@ -113,6 +113,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 
@@ -197,6 +198,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#listSampleTypes() */
     public void listSampleTypes(AsyncCallback<List<SampleType>> asyncCallback);
+
+    /** @see ICommonClientService#listManagedInputWidgetDescriptions(EntityType) */
+    public void listManagedInputWidgetDescriptions(EntityType entityType,
+            AsyncCallback<Map<String, List<IManagedInputWidgetDescription>>> asyncCallback);
 
     /** @see ICommonClientService#listFileTypes() */
     public void listFileTypes(AsyncCallback<List<FileFormatType>> asyncCallback);

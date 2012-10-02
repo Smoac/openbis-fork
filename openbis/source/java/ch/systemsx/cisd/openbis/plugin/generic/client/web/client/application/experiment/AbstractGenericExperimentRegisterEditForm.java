@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.application.fra
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -59,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 
@@ -97,18 +99,24 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
 
     private LabelField templateField;
 
+    private final Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions;
+
     protected AbstractGenericExperimentRegisterEditForm(
-            IViewContext<IGenericClientServiceAsync> viewContext, ActionContext context)
+            IViewContext<IGenericClientServiceAsync> viewContext,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+            ActionContext context)
     {
-        this(viewContext, context, null);
+        this(viewContext, inputWidgetDescriptions, context, null);
     }
 
     protected AbstractGenericExperimentRegisterEditForm(
-            IViewContext<IGenericClientServiceAsync> viewContext, ActionContext actionContext,
-            IIdAndCodeHolder identifiable)
+            IViewContext<IGenericClientServiceAsync> viewContext,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+            ActionContext actionContext, IIdAndCodeHolder identifiable)
     {
         super(viewContext, identifiable, EntityKind.EXPERIMENT);
 
+        this.inputWidgetDescriptions = inputWidgetDescriptions;
         simpleId = createSimpleId(identifiable, EntityKind.EXPERIMENT);
         attachmentsSessionKey = simpleId + "_attachments";
         samplesSessionKey = simpleId + "_samples";

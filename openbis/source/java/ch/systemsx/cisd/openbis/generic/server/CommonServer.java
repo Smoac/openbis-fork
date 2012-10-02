@@ -194,6 +194,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTextInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedUiActionDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -229,6 +230,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
@@ -592,8 +594,50 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         checkSession(sessionToken);
         final List<SampleTypePE> sampleTypes = getDAOFactory().getSampleTypeDAO().listSampleTypes();
         Collections.sort(sampleTypes);
-        return SampleTypeTranslator.translate(sampleTypes,
-                new HashMap<PropertyTypePE, PropertyType>());
+        List<SampleType> translateSampleTypes =
+                SampleTypeTranslator.translate(sampleTypes,
+                        new HashMap<PropertyTypePE, PropertyType>());
+
+        return translateSampleTypes;
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public Map<String, List<IManagedInputWidgetDescription>> listManagedInputWidgetDescriptions(
+            String sessionToken, EntityType entityType)
+    {
+        checkSession(sessionToken);
+
+        List<? extends EntityTypePropertyType<?>> assignedPropertyTypes =
+                entityType.getAssignedPropertyTypes();
+        HashMap<String, List<IManagedInputWidgetDescription>> result =
+                new HashMap<String, List<IManagedInputWidgetDescription>>();
+        for (EntityTypePropertyType<?> entityTypePropertyType : assignedPropertyTypes)
+        {
+            String propertyTypeCode = entityTypePropertyType.getPropertyType().getCode();
+            if (entityTypePropertyType.isManaged())
+            {
+                String script = entityTypePropertyType.getScript().getScript();
+                ManagedPropertyEvaluator evaluator =
+                        ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script);
+                List<String> batchColumnNames = evaluator.getBatchColumnNames();
+                if (batchColumnNames.isEmpty() == false)
+                {
+                    List<IManagedInputWidgetDescription> descriptions =
+                            new ArrayList<IManagedInputWidgetDescription>();
+                    for (String batchColumnName : batchColumnNames)
+                    {
+                        ManagedTextInputWidgetDescription description =
+                                new ManagedTextInputWidgetDescription();
+                        description.setLabel(batchColumnName);
+                        descriptions.add(description);
+                    }
+                    result.put(propertyTypeCode, descriptions);
+                }
+            }
+
+        }
+        return result;
     }
 
     @Override

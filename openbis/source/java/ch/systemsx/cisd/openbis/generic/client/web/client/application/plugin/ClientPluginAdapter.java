@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
@@ -24,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 
 /**
  * A dummy {@link IClientPlugin} implementation which throws {@link UnsupportedOperationException}
@@ -59,6 +63,7 @@ public class ClientPluginAdapter<E extends BasicEntityType, I extends IIdAndCode
 
     @Override
     public DatabaseModificationAwareWidget createRegistrationForEntityType(final E entityType,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
             final ActionContext context)
     {
         throw new UnsupportedOperationException("Not yet implemented.");

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.user.client.ui.Widget;
@@ -50,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetBatchUpdateForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer;
@@ -215,7 +218,9 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
 
         @Override
         public final DatabaseModificationAwareWidget createRegistrationForEntityType(
-                final SampleType sampleType, final ActionContext context)
+                final SampleType sampleType,
+                Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+                final ActionContext context)
         {
             GenericSampleRegistrationForm form =
                     new GenericSampleRegistrationForm(getViewContext(), sampleType, context);
@@ -251,7 +256,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     @Override
                     public String getId()
                     {
-                        return AbstractGenericEntityRegistrationForm.createId(identifiable, EntityKind.SAMPLE);
+                        return AbstractGenericEntityRegistrationForm.createId(identifiable,
+                                EntityKind.SAMPLE);
                     }
 
                     @Override
@@ -352,7 +358,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     @Override
                     public String getId()
                     {
-                        return AbstractGenericEntityRegistrationForm.createId(identifiable, EntityKind.MATERIAL);
+                        return AbstractGenericEntityRegistrationForm.createId(identifiable,
+                                EntityKind.MATERIAL);
                     }
 
                     @Override
@@ -429,10 +436,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
 
         @Override
         public DatabaseModificationAwareWidget createRegistrationForEntityType(
-                ExperimentType entityType, ActionContext context)
+                ExperimentType entityType,
+                Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+                ActionContext context)
         {
             GenericExperimentRegistrationForm form =
-                    new GenericExperimentRegistrationForm(getViewContext(), context, entityType);
+                    new GenericExperimentRegistrationForm(getViewContext(),
+                            inputWidgetDescriptions, context, entityType);
             return new DatabaseModificationAwareWidget(form, form);
         }
 
@@ -553,7 +563,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     @Override
                     public String getId()
                     {
-                        return AbstractGenericEntityRegistrationForm.createId(identifiable, EntityKind.DATA_SET);
+                        return AbstractGenericEntityRegistrationForm.createId(identifiable,
+                                EntityKind.DATA_SET);
                     }
 
                     @Override
