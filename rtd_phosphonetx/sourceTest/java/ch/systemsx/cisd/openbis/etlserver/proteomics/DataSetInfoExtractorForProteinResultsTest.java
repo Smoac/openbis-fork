@@ -24,6 +24,7 @@ import static ch.systemsx.cisd.openbis.etlserver.proteomics.DataSetInfoExtractor
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Properties;
 
 import org.hamcrest.BaseMatcher;
@@ -355,7 +356,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
             {
                 {
                     one(service).generateCodes("E", EntityKind.EXPERIMENT, 1);
-                    will(returnValue(4711L));
+                    will(returnValue(Collections.singletonList("E4711")));
 
                     one(service).getExperimentType(experimentType);
                     ExperimentType type = new ExperimentType();
