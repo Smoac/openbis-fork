@@ -79,14 +79,12 @@ public final class DataSetListDeletionConfirmationDialog extends
             final DisplayedOrSelectedDatasetCriteria uploadCriteria =
                     selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
             getViewContext().getCommonService().deleteDataSets(uploadCriteria, reason.getValue(),
-                    deletionType, getForceNotExistingLocationsValue(),
-                    getForceDisallowedTypesValue(), deletionCallback);
+                    deletionType, getForceDisallowedTypesValue(), deletionCallback);
         } else
         {
             getViewContext().getCommonService().deleteDataSet(
                     singleData.getObjectOrNull().getCode(), reason.getValue(), deletionType,
-                    getForceNotExistingLocationsValue(), getForceDisallowedTypesValue(),
-                    deletionCallback);
+                    getForceDisallowedTypesValue(), deletionCallback);
         }
     }
 
@@ -118,11 +116,6 @@ public final class DataSetListDeletionConfirmationDialog extends
             forceOptions = new DeletionForceOptions(viewContext);
             formPanel.add(forceOptions);
         }
-    }
-
-    private boolean getForceNotExistingLocationsValue()
-    {
-        return forceOptions != null ? forceOptions.getForceNotExistingLocationsValue() : false;
     }
 
     private boolean getForceDisallowedTypesValue()

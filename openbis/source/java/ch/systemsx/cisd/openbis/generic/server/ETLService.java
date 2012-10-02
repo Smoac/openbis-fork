@@ -2063,7 +2063,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         Session session = getSession(sessionToken);
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
-        permanentlyDeleteDataSets(session, dataSetTable, dataSetCodes, reason, true, false);
+        permanentlyDeleteDataSets(session, dataSetTable, dataSetCodes, reason, false);
     }
 
     @Override

@@ -58,7 +58,6 @@ public final class EmptyTrashConfirmationDialog extends
     protected void executeConfirmedAction()
     {
         viewContext.getCommonService().emptyTrash(
-                forceOptions.getForceNotExistingLocationsValue(),
                 forceOptions.getForceDisallowedTypesValue(),
                 AsyncCallbackWithProgressBar.decorate(callback,
                         viewContext.getMessage(Dict.EMPTY_TRASH_PROGRESS)));

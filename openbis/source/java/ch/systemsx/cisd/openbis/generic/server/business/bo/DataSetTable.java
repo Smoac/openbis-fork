@@ -291,8 +291,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     }
 
     @Override
-    public void deleteLoadedDataSets(String reason, boolean forceNotExistingLocations,
-            boolean forceDisallowedTypes)
+    public void deleteLoadedDataSets(String reason, boolean forceDisallowedTypes)
     {
         assertDatasetsAreDeletable(dataSets);
         assertDatasetsWithDisallowedTypes(dataSets, forceDisallowedTypes);
@@ -301,7 +300,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         Map<DataStorePE, List<ExternalDataPE>> availableDatasets =
                 filterAvailableDatasets(allToBeDeleted);
 
-        assertDataSetsAreKnown(availableDatasets, forceNotExistingLocations);
+        assertDataSetsAreKnown(availableDatasets, true);
         for (Map.Entry<DataStorePE, List<DataPE>> entry : allToBeDeleted.entrySet())
         {
             List<DataPE> allDataSets = entry.getValue();

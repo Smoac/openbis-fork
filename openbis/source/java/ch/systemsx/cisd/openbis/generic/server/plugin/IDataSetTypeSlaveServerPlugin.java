@@ -43,7 +43,7 @@ public interface IDataSetTypeSlaveServerPlugin
      */
     @Deprecated
     public void permanentlyDeleteDataSets(Session session, List<DataPE> dataSets, String reason,
-            boolean forceNotExistingLocations, boolean forceDisallowedTypes);
+            boolean forceDisallowedTypes);
 
     /**
      * Updates properties of given data sets.

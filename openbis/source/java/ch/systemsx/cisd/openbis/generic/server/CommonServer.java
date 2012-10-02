@@ -1532,11 +1532,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Capability("DELETE_DATASET")
     public void deleteDataSets(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> dataSetCodes, String reason, DeletionType type,
-            boolean forceNotExistingLocations, boolean isTrashEnabled)
+            List<String> dataSetCodes, String reason, DeletionType type, boolean isTrashEnabled)
     {
-        deleteDataSetsCommon(sessionToken, dataSetCodes, reason, type, forceNotExistingLocations,
-                false, isTrashEnabled);
+        deleteDataSetsCommon(sessionToken, dataSetCodes, reason, type, false, isTrashEnabled);
     }
 
     @Override
@@ -1544,17 +1542,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Capability("FORCE_DELETE_DATASET")
     public void deleteDataSetsForced(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
-            List<String> dataSetCodes, String reason, DeletionType type,
-            boolean forceNotExistingLocations, boolean isTrashEnabled)
+            List<String> dataSetCodes, String reason, DeletionType type, boolean isTrashEnabled)
     {
-        deleteDataSetsCommon(sessionToken, dataSetCodes, reason, type, forceNotExistingLocations,
-                true, isTrashEnabled);
+        deleteDataSetsCommon(sessionToken, dataSetCodes, reason, type, true, isTrashEnabled);
     }
 
     @SuppressWarnings("deprecation")
     private void deleteDataSetsCommon(String sessionToken, List<String> dataSetCodes,
-            String reason, DeletionType type, boolean forceNotExistingLocations,
-            boolean forceDisallowedTypes, boolean isTrashEnabled)
+            String reason, DeletionType type, boolean forceDisallowedTypes, boolean isTrashEnabled)
     {
         // TODO 2011-08-09, Piotr Buczek: simplify it when we remove the switch turning off trash
         // provide data set ids directly (no need to use codes)
@@ -1570,13 +1565,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                             businessObjectFactory.createDeletedDataSetTable(session);
                     deletedDataSetTable.loadByDataSetCodes(dataSetCodes);
                     deletedDataSetTable.permanentlyDeleteLoadedDataSets(reason,
-                            forceNotExistingLocations, forceDisallowedTypes);
+                            forceDisallowedTypes);
                 } else
                 {
                     final IDataSetTable dataSetTable =
                             businessObjectFactory.createDataSetTable(session);
                     permanentlyDeleteDataSets(session, dataSetTable, dataSetCodes, reason,
-                            forceNotExistingLocations, forceDisallowedTypes);
+                            forceDisallowedTypes);
                 }
                 break;
             case TRASH:
@@ -3238,9 +3233,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Capability("PURGE")
     public void deletePermanently(final String sessionToken,
             @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class)
-            final List<TechId> deletionIds, boolean forceNotExistingLocations)
+            final List<TechId> deletionIds)
     {
-        deletePermanentlyCommon(sessionToken, deletionIds, forceNotExistingLocations, false);
+        deletePermanentlyCommon(sessionToken, deletionIds, false);
     }
 
     @Override
@@ -3248,13 +3243,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Capability("FORCE_PURGE")
     public void deletePermanentlyForced(final String sessionToken,
             @AuthorizationGuard(guardClass = DeletionTechIdCollectionPredicate.class)
-            final List<TechId> deletionIds, boolean forceNotExistingLocations)
+            final List<TechId> deletionIds)
     {
-        deletePermanentlyCommon(sessionToken, deletionIds, forceNotExistingLocations, true);
+        deletePermanentlyCommon(sessionToken, deletionIds, true);
     }
 
     private void deletePermanentlyCommon(String sessionToken, List<TechId> deletionIds,
-            boolean forceNotExistingLocations, boolean forceDisallowedTypes)
+            boolean forceDisallowedTypes)
     {
         checkSession(sessionToken);
 
@@ -3269,7 +3264,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             List<TechId> singletonList = Collections.singletonList(deletionId);
             List<String> trashedDataSets = deletionDAO.findTrashedDataSetCodes(singletonList);
             deleteDataSetsCommon(sessionToken, trashedDataSets, deletionReason, deletionType,
-                    forceNotExistingLocations, forceDisallowedTypes, true);
+                    forceDisallowedTypes, true);
 
             // we need to first delete components and then containers not to break constraints
             List<TechId> trashedComponentSamples =

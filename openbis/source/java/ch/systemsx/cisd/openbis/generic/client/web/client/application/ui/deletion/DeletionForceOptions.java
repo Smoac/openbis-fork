@@ -35,16 +35,10 @@ public class DeletionForceOptions extends Composite
 
     private FieldSet fieldSet;
 
-    private DeletionForceCheckBox forceNotExistingLocations;
-
     private DeletionForceCheckBox forceDisallowedTypes;
 
     public DeletionForceOptions(IViewContext<?> viewContext)
     {
-        forceNotExistingLocations = new DeletionForceCheckBox();
-        forceNotExistingLocations.setText(viewContext.getMessage(Dict.DELETING_FORCE));
-        forceNotExistingLocations.setTooltip(viewContext.getMessage(Dict.DELETING_FORCE_TOOLTIP));
-
         forceDisallowedTypes = new DeletionForceCheckBox();
         forceDisallowedTypes.setText(viewContext.getMessage(Dict.DELETING_FORCE_DISALLOWED_TYPES));
         forceDisallowedTypes.setTooltip(viewContext
@@ -52,7 +46,6 @@ public class DeletionForceOptions extends Composite
 
         Panel panel = new VerticalPanel();
         panel.addStyleName("deletionForceOptions");
-        panel.add(forceNotExistingLocations);
         panel.add(forceDisallowedTypes);
 
         fieldSet = new FieldSet();
@@ -64,18 +57,12 @@ public class DeletionForceOptions extends Composite
                 @Override
                 public void handleEvent(BaseEvent be)
                 {
-                    forceNotExistingLocations.setValue(false);
                     forceDisallowedTypes.setValue(false);
                 }
             });
         fieldSet.add(panel);
 
         initWidget(fieldSet);
-    }
-
-    public boolean getForceNotExistingLocationsValue()
-    {
-        return fieldSet.isExpanded() ? forceNotExistingLocations.getValue() : false;
     }
 
     public boolean getForceDisallowedTypesValue()

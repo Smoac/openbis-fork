@@ -179,7 +179,7 @@ public class DeletionTestCase extends SystemTestCase
         }
         commonServer.deleteExperiments(sessionToken, TechId.createList(existingExperiments),
                 REASON, DeletionType.TRASH);
-        commonServer.deletePermanently(sessionToken, TechId.createList(listDeletions()), false);
+        commonServer.deletePermanently(sessionToken, TechId.createList(listDeletions()));
     }
 
     @Test
@@ -216,7 +216,7 @@ public class DeletionTestCase extends SystemTestCase
         commonServer.deleteExperiments(sessionToken, Collections.singletonList(experimentId),
                 REASON, DeletionType.TRASH);
         final TechId deletionId2 = TechId.create(listDeletions().get(0));
-        commonServer.deletePermanently(sessionToken, Collections.singletonList(deletionId2), false);
+        commonServer.deletePermanently(sessionToken, Collections.singletonList(deletionId2));
         assertExperimentDoesNotExist(e1.getCode());
         assertSamplesDoNotExist(registeredSamplesThatShouldBeDeleted);
     }
@@ -280,7 +280,7 @@ public class DeletionTestCase extends SystemTestCase
         commonServer.deleteSamples(sessionToken, Collections.singletonList(sampleId), REASON,
                 DeletionType.TRASH);
         final TechId deletionId2 = TechId.create(listDeletions().get(0));
-        commonServer.deletePermanently(sessionToken, Collections.singletonList(deletionId2), false);
+        commonServer.deletePermanently(sessionToken, Collections.singletonList(deletionId2));
         assertExperimentExists("E1");
         assertSamplesDoNotExist(Collections.singletonList(s14));
         assertSamplesExist(registeredSamples);

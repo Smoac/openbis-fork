@@ -669,13 +669,11 @@ public interface ICommonClientService extends IClientService
     /** Deletes/Trashes the specified data sets. */
     public void deleteDataSets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason,
-            DeletionType deletionType, boolean forceNotExistingLocations,
-            boolean forceDisallowedTypes) throws UserFailureException;
+            DeletionType deletionType, boolean forceDisallowedTypes) throws UserFailureException;
 
     /** Deletes/Trashes the specified data set. */
     public void deleteDataSet(String singleData, String reason, DeletionType deletionType,
-            boolean forceNotExistingLocations, boolean forceDisallowedTypes)
-            throws UserFailureException;
+            boolean forceDisallowedTypes) throws UserFailureException;
 
     /**
      * Deletes/Trashes the specified samples. NOTE: this is a stale version used only for samples
@@ -1138,14 +1136,13 @@ public interface ICommonClientService extends IClientService
     /**
      * Permanently deletes entities moved to trash with specified deletions.
      */
-    public void deletePermanently(List<TechId> deletionIds, boolean forceNotExistingLocations,
-            boolean forceDisallowedTypes) throws UserFailureException;
+    public void deletePermanently(List<TechId> deletionIds, boolean forceDisallowedTypes)
+            throws UserFailureException;
 
     /**
      * Permanently deletes all entities moved to trash.
      */
-    public void emptyTrash(boolean forceNotExistingLocations, boolean forceDisallowedTypes)
-            throws UserFailureException;
+    public void emptyTrash(boolean forceDisallowedTypes) throws UserFailureException;
 
     /**
      * Performs custom import operation

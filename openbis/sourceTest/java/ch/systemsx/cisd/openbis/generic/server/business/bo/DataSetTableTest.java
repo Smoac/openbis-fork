@@ -41,7 +41,6 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionUnknownLocationsException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEventBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
@@ -262,7 +261,8 @@ public final class DataSetTableTest extends AbstractBOTest
             });
     }
 
-    @Test(expectedExceptions = DataSetDeletionUnknownLocationsException.class)
+    // this test is to document, that even if the dataset storage does not exist - it can still be
+    // deleted from database
     public void testDeleteLoadedDataSetsButOneDataSetIsUnknown()
     {
         final ExternalDataPE d1 = createDataSet("d1", dss1);
@@ -276,15 +276,14 @@ public final class DataSetTableTest extends AbstractBOTest
 
                     one(dataStoreServiceConversational2).getKnownDataSets(
                             with(dss2.getSessionToken()),
-                            with(createDatasetDescriptionsMatcher(d2)), with(false));
+                            with(createDatasetDescriptionsMatcher(d2)), with(true));
                     will(returnValue(Arrays.asList()));
                 }
             });
 
         DataSetTable dataSetTable = createDataSetTable();
         dataSetTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false, false);
-        dataSetTable.deleteLoadedDataSets("", false, false);
-        fail("UserFailureException expected");
+        dataSetTable.deleteLoadedDataSets("", false);
     }
 
     @Test
@@ -309,7 +308,7 @@ public final class DataSetTableTest extends AbstractBOTest
                 .loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false, false);
         try
         {
-            dataSetTable.deleteLoadedDataSets("", false, false);
+            dataSetTable.deleteLoadedDataSets("", false);
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
@@ -344,7 +343,7 @@ public final class DataSetTableTest extends AbstractBOTest
                             createDatasetDescriptionsMatcher(d2);
 
                     one(dataStoreServiceConversational2).getKnownDataSets(
-                            with(dss2.getSessionToken()), with(dataSets), with(false));
+                            with(dss2.getSessionToken()), with(dataSets), with(true));
                     will(returnValue(Arrays.asList(d2.getLocation())));
 
                     PersonPE person = EXAMPLE_SESSION.tryGetPerson();
@@ -357,7 +356,7 @@ public final class DataSetTableTest extends AbstractBOTest
 
         DataSetTable dataSetTable = createDataSetTable();
         dataSetTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()), false, false);
-        dataSetTable.deleteLoadedDataSets(reason, false, false);
+        dataSetTable.deleteLoadedDataSets(reason, false);
     }
 
     private EventPE createDeletionEvent(ExternalDataPE dataset, PersonPE person, String reason)

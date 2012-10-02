@@ -65,7 +65,6 @@ public final class PermanentDeletionConfirmationDialog extends
     {
         viewContext.getCommonService().deletePermanently(
                 TechId.createList(data),
-                forceOptions.getForceNotExistingLocationsValue(),
                 forceOptions.getForceDisallowedTypesValue(),
                 AsyncCallbackWithProgressBar.decorate(callback,
                         viewContext.getMessage(Dict.PREMANENT_DELETIONS_PROGRESS)));

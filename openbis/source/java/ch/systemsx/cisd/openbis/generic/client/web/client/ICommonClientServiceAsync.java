@@ -570,17 +570,16 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /**
      * @see ICommonClientService#deleteDataSets(DisplayedOrSelectedDatasetCriteria, String,
-     *      DeletionType, boolean, boolean)
+     *      DeletionType, boolean)
      */
     public void deleteDataSets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason,
-            DeletionType deletionType, boolean forceNotExistingLocations,
-            boolean forceDisallowedTypes, AsyncCallback<Void> asyncCallback);
-
-    /** @see ICommonClientService#deleteDataSet(String, String, DeletionType, boolean, boolean) */
-    public void deleteDataSet(String singleData, String reason, DeletionType deletionType,
-            boolean forceNotExistingLocations, boolean forceDisallowedTypes,
+            DeletionType deletionType, boolean forceDisallowedTypes,
             AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#deleteDataSet(String, String, DeletionType, boolean) */
+    public void deleteDataSet(String singleData, String reason, DeletionType deletionType,
+            boolean forceDisallowedTypes, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteSamples(List, String, DeletionType) */
     public void deleteSamples(List<TechId> sampleIds, String reason, DeletionType deletionType,
@@ -1043,16 +1042,15 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void revertDeletions(List<TechId> deletionIds, AsyncCallback<Void> callback);
 
     /**
-     * @see ICommonClientService#deletePermanently(List, boolean, boolean)
+     * @see ICommonClientService#deletePermanently(List, boolean)
      */
-    public void deletePermanently(List<TechId> deletionIds, boolean forceNotExistingLocations,
-            boolean forceDisallowedTypes, AsyncCallback<Void> callback);
+    public void deletePermanently(List<TechId> deletionIds, boolean forceDisallowedTypes,
+            AsyncCallback<Void> callback);
 
     /**
-     * @see ICommonClientService#emptyTrash(boolean, boolean)
+     * @see ICommonClientService#emptyTrash(boolean)
      */
-    public void emptyTrash(boolean forceNotExistingLocations, boolean forceDisallowedTypes,
-            AsyncCallback<Void> callback);
+    public void emptyTrash(boolean forceDisallowedTypes, AsyncCallback<Void> callback);
 
     /**
      * @see ICommonClientService#performCustomImport(String, String)

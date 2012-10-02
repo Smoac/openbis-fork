@@ -680,24 +680,24 @@ public interface ICommonServer extends IServer
     /**
      * Deletes/Trashes specified data sets. This method CANNOT delete data sets with
      * deletion_disallow flag set to true in their type (compare with
-     * {@link #deleteDataSetsForced(String, List, String, DeletionType, boolean, boolean)}).
+     * {@link #deleteDataSetsForced(String, List, String, DeletionType, boolean)}).
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.DATA_SET, ObjectKind.DELETION })
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason,
-            DeletionType type, boolean forceNotExistingLocations, boolean isTrashEnabled);
+            DeletionType type, boolean isTrashEnabled);
 
     /**
      * Deletes/Trashes specified data sets. It CAN delete data sets with deletion_disallow flag set
      * to true in their type (compare with
-     * {@link #deleteDataSets(String, List, String, DeletionType, boolean, boolean)}).
+     * {@link #deleteDataSets(String, List, String, DeletionType, boolean)}).
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.DATA_SET, ObjectKind.DELETION })
     public void deleteDataSetsForced(String sessionToken, List<String> dataSetCodes, String reason,
-            DeletionType type, boolean forceNotExistingLocations, boolean isTrashEnabled);
+            DeletionType type, boolean isTrashEnabled);
 
     /**
      * Deletes/Trashes specified samples.
@@ -1279,24 +1279,22 @@ public interface ICommonServer extends IServer
     /**
      * Permanently deletes entities moved to trash in specified deletions. This method CANNOT delete
      * data sets with deletion_disallow flag set to true in their type (compare with
-     * {@link #deletePermanentlyForced(String, List, boolean)})
+     * {@link #deletePermanentlyForced(String, List)})
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
-    public void deletePermanently(final String sessionToken, final List<TechId> deletionIds,
-            boolean forceNotExistingLocations);
+    public void deletePermanently(final String sessionToken, final List<TechId> deletionIds);
 
     /**
      * Permanently deletes entities moved to trash in specified deletions. It CAN delete data sets
      * with deletion_disallow flag set to true in their type (compare with
-     * {@link #deletePermanently(String, List, boolean)}).
+     * {@link #deletePermanently(String, List)}).
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
         { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
-    public void deletePermanentlyForced(final String sessionToken, final List<TechId> deletionIds,
-            boolean forceNotExistingLocations);
+    public void deletePermanentlyForced(final String sessionToken, final List<TechId> deletionIds);
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.

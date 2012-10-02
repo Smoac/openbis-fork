@@ -1406,7 +1406,7 @@ public final class CommonClientService extends AbstractClientService implements
 
     @Override
     public void deleteDataSet(String singleData, String reason, DeletionType deletionType,
-            boolean forceNotExistingLocations, boolean forceDisallowedTypes)
+            boolean forceDisallowedTypes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
@@ -1415,19 +1415,18 @@ public final class CommonClientService extends AbstractClientService implements
         if (forceDisallowedTypes)
         {
             commonServer.deleteDataSetsForced(sessionToken, dataSetCodes, reason, deletionType,
-                    forceNotExistingLocations, isTrashEnabled());
+                    isTrashEnabled());
         } else
         {
             commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType,
-                    forceNotExistingLocations, isTrashEnabled());
+                    isTrashEnabled());
         }
     }
 
     @Override
     public void deleteDataSets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason,
-            DeletionType deletionType, boolean forceNotExistingLocations,
-            boolean forceDisallowedTypes)
+            DeletionType deletionType, boolean forceDisallowedTypes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
@@ -1436,11 +1435,11 @@ public final class CommonClientService extends AbstractClientService implements
         if (forceDisallowedTypes)
         {
             commonServer.deleteDataSetsForced(sessionToken, dataSetCodes, reason, deletionType,
-                    forceNotExistingLocations, isTrashEnabled());
+                    isTrashEnabled());
         } else
         {
             commonServer.deleteDataSets(sessionToken, dataSetCodes, reason, deletionType,
-                    forceNotExistingLocations, isTrashEnabled());
+                    isTrashEnabled());
         }
     }
 
@@ -2473,28 +2472,24 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public void deletePermanently(List<TechId> deletionIds, boolean forceNotExistingLocations,
-            boolean forceDisallowedTypes)
+    public void deletePermanently(List<TechId> deletionIds, boolean forceDisallowedTypes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         if (forceDisallowedTypes)
         {
-            commonServer.deletePermanentlyForced(getSessionToken(), deletionIds,
-                    forceNotExistingLocations);
+            commonServer.deletePermanentlyForced(getSessionToken(), deletionIds);
         } else
         {
-            commonServer.deletePermanently(getSessionToken(), deletionIds,
-                    forceNotExistingLocations);
+            commonServer.deletePermanently(getSessionToken(), deletionIds);
         }
     }
 
     @Override
-    public void emptyTrash(boolean forceNotExistingLocations, boolean forceDisallowedTypes)
+    public void emptyTrash(boolean forceDisallowedTypes)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         List<Deletion> deletions = commonServer.listDeletions(getSessionToken(), false);
-        deletePermanently(TechId.createList(deletions), forceNotExistingLocations,
-                forceDisallowedTypes);
+        deletePermanently(TechId.createList(deletions), forceDisallowedTypes);
     }
 
     @Override

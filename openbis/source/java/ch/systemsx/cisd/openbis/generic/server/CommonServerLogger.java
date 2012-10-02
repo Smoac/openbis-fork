@@ -691,20 +691,18 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     @Override
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason,
-            DeletionType type, boolean forceNotExistingLocations, boolean isTrashEnabled)
+            DeletionType type, boolean isTrashEnabled)
     {
-        logTracking(sessionToken, "delete_data_sets",
-                "TYPE(%s) CODES(%s) REASON(%s) FORCE_NOT_EXISTING_LOCATIONS(%s)", type,
-                abbreviate(dataSetCodes), reason, forceNotExistingLocations);
+        logTracking(sessionToken, "delete_data_sets", "TYPE(%s) CODES(%s) REASON(%s)", type,
+                abbreviate(dataSetCodes), reason);
     }
 
     @Override
     public void deleteDataSetsForced(String sessionToken, List<String> dataSetCodes, String reason,
-            DeletionType type, boolean forceNotExistingLocations, boolean isTrashEnabled)
+            DeletionType type, boolean isTrashEnabled)
     {
-        logTracking(sessionToken, "delete_data_sets_forced",
-                "TYPE(%s) CODES(%s) REASON(%s) FORCE_NOT_EXISTING_LOCATIONS(%s)", type,
-                abbreviate(dataSetCodes), reason, forceNotExistingLocations);
+        logTracking(sessionToken, "delete_data_sets_forced", "TYPE(%s) CODES(%s) REASON(%s)", type,
+                abbreviate(dataSetCodes), reason);
     }
 
     @Override
@@ -1365,20 +1363,15 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public void deletePermanently(String sessionToken, List<TechId> deletionIds,
-            boolean forceNotExistingLocations)
+    public void deletePermanently(String sessionToken, List<TechId> deletionIds)
     {
-        logTracking(sessionToken, "deletePermanently", "ID(%s), FORCE_NOT_EXISTING_LOCATIONS(%s)",
-                abbreviate(deletionIds), forceNotExistingLocations);
+        logTracking(sessionToken, "deletePermanently", "ID(%s)", abbreviate(deletionIds));
     }
 
     @Override
-    public void deletePermanentlyForced(String sessionToken, List<TechId> deletionIds,
-            boolean forceNotExistingLocations)
+    public void deletePermanentlyForced(String sessionToken, List<TechId> deletionIds)
     {
-        logTracking(sessionToken, "deletePermanentlyForced",
-                "ID(%s), FORCE_NOT_EXISTING_LOCATIONS(%s)", abbreviate(deletionIds),
-                forceNotExistingLocations);
+        logTracking(sessionToken, "deletePermanentlyForced", "ID(%s)", abbreviate(deletionIds));
     }
 
     @Override

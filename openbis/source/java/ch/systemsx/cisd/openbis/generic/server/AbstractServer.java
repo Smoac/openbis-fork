@@ -249,8 +249,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     @Deprecated
     /** @deprecated this is legacy code permanently deleting data sets one by one omitting trash */
     protected void permanentlyDeleteDataSets(Session session, IDataSetTable dataSetTable,
-            List<String> dataSetCodes, String reason, boolean forceNotExistingLocations,
-            boolean forceDisallowedTypes)
+            List<String> dataSetCodes, String reason, boolean forceDisallowedTypes)
     {
         // TODO 2011-06-21, Piotr Buczek: loading less for deletion would probably be faster
 
@@ -296,7 +295,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             DataSetTypePE dataSetType = entry.getKey();
             IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
             plugin.permanentlyDeleteDataSets(session, entry.getValue(), reason,
-                    forceNotExistingLocations, forceDisallowedTypes);
+                    forceDisallowedTypes);
         }
     }
 
