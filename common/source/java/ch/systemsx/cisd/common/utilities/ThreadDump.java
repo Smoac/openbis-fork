@@ -17,10 +17,13 @@
 package ch.systemsx.cisd.common.utilities;
 
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.Thread.State;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.apache.log4j.Logger;
 
 /**
  * Helper class which dumps all threads onto the console or a {@link PrintWriter}.
@@ -40,6 +43,22 @@ public class ThreadDump
     }
     
     /**
+     * Dumps all threads onto the specified logger as an INFO message.
+     */
+    public static void dumpAllThreads(Logger logger)
+    {
+        if (logger.isInfoEnabled() == false)
+        {
+            return;
+        }
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        dumpAllThreads(writer);
+        writer.flush();
+        logger.info("Thread dump:\n" + stringWriter.toString());
+    }
+    
+    /**
      * Dumps all threads onto the specified writer.
      */
     public static void dumpAllThreads(PrintWriter writer)
@@ -50,8 +69,8 @@ public class ThreadDump
         {
             Thread thread = entry.getKey();
             State state = thread.getState();
-            writer.println(thread + " state: " + State.valueOf(state.name()) + " daemon: "
-                    + thread.isDaemon() + " alive: " + thread.isAlive() + " interrupted: "
+            writer.println(thread + ", state:" + State.valueOf(state.name()) + ", daemon:"
+                    + thread.isDaemon() + ", alive:" + thread.isAlive() + ", interrupted:"
                     + thread.isInterrupted());
             StackTraceElement[] stackTraceElements = entry.getValue();
             for (StackTraceElement stackTraceElement : stackTraceElements)

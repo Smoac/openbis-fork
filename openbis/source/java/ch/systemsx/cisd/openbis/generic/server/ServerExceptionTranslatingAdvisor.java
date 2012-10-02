@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.log4j.Logger;
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
@@ -29,6 +30,8 @@ import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ThreadDump;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
@@ -49,6 +52,9 @@ public class ServerExceptionTranslatingAdvisor extends DefaultPointcutAdvisor
 {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ServerExceptionTranslatingAdvisor.class);
 
     public ServerExceptionTranslatingAdvisor()
     {
@@ -98,7 +104,7 @@ public class ServerExceptionTranslatingAdvisor extends DefaultPointcutAdvisor
         if (message.contains("deadlock detected")
                 || message.contains("Row was updated or deleted by another transaction"))
         {
-            ThreadDump.dumpAllThreads();
+            ThreadDump.dumpAllThreads(operationLog);
         }
     }
 
