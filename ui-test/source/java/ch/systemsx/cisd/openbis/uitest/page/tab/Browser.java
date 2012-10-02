@@ -45,6 +45,7 @@ public abstract class Browser<T extends Browsable>
 
     public final BrowserRow select(T browsable)
     {
+        waitForPagingToolBar();
         return getGrid().select("Code", browsable.getCode());
     }
 
@@ -68,12 +69,14 @@ public abstract class Browser<T extends Browsable>
         {
             return;
         }
+        waitForPagingToolBar();
         getPaging().settings();
         getSettings().showColumnsOf(browsable);
     }
 
     public final List<BrowserRow> getData()
     {
+        waitForPagingToolBar();
         return getGrid().getData();
     }
 
