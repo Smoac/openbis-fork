@@ -29,9 +29,13 @@ public final class ExternalDataValidator extends AbstractValidator<ExternalData>
 {
     private final IValidator<Space> groupValidator;
 
+    private final IValidator<ExternalData> storageConfirmedValidator;
+
     public ExternalDataValidator()
     {
         groupValidator = new SpaceValidator();
+
+        storageConfirmedValidator = new StorageConfirmedForAdminValidator();
     }
 
     //
@@ -42,6 +46,7 @@ public final class ExternalDataValidator extends AbstractValidator<ExternalData>
     public final boolean doValidation(final PersonPE person, final ExternalData value)
     {
         final Space space = value.getExperiment().getProject().getSpace();
-        return groupValidator.isValid(person, space);
+        return groupValidator.isValid(person, space)
+                && storageConfirmedValidator.isValid(person, value);
     }
 }

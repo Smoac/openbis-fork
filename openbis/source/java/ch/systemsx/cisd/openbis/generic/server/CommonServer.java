@@ -674,6 +674,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<ExternalData> listSampleExternalData(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
@@ -688,6 +689,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<ExternalData> listExperimentExternalData(final String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
             final TechId experimentId, boolean showOnlyDirectlyConnected)
