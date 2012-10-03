@@ -20,7 +20,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.TopBar;
@@ -37,9 +36,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 /**
  * @author anttil
  */
-@Test(groups =
-    { "sprint-test" })
-public class SprintTest extends SeleniumTest
+public class SprintTest extends SprintSuiteTest
 {
 
     @Test

@@ -20,16 +20,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 /**
  * @author anttil
  */
-@Test(groups =
-    { "login-admin" })
-public class SampleTypeTest extends SeleniumTest
+public class SampleTypeTest extends MainSuiteTest
 {
 
     @Test

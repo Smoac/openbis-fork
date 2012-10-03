@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import org.openqa.selenium.NoSuchElementException;
 
 import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.infra.uid.UidGenerator;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.PageProxy;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddExperimentTypeDialog;
@@ -78,10 +79,26 @@ public class GuiApplicationRunner implements ApplicationRunner
 
     private UidGenerator uid;
 
-    public GuiApplicationRunner(PageProxy proxy, UidGenerator uid)
+    public GuiApplicationRunner(UidGenerator uid)
     {
-        this.proxy = proxy;
+        this.proxy = new PageProxy(new ScreenShotter()
+            {
+                @Override
+                public void screenshot()
+                {
+                }
+            });
         this.uid = uid;
+    }
+
+    public void setScreenShotter(ScreenShotter shotter)
+    {
+        proxy.setScreenShotter(shotter);
+    }
+
+    public void screenshot()
+    {
+        proxy.screenshot();
     }
 
     @Override

@@ -20,7 +20,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
@@ -29,9 +28,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Space;
 /**
  * @author anttil
  */
-@Test(groups =
-    { "login-admin" })
-public class ExperimentTest extends SeleniumTest
+public class ExperimentTest extends MainSuiteTest
 {
 
     @Test

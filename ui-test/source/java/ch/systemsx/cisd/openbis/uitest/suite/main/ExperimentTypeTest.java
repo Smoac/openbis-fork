@@ -4,12 +4,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 
-@Test(groups =
-    { "login-admin" })
-public class ExperimentTypeTest extends SeleniumTest
+public class ExperimentTypeTest extends MainSuiteTest
 {
 
     @Test

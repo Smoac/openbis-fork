@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.uitest.suite.main;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
@@ -26,9 +25,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Sample;
 /**
  * @author anttil
  */
-@Test(groups =
-    { "login-admin" })
-public class DataSetTest extends SeleniumTest
+public class DataSetTest extends MainSuiteTest
 {
 
     @Test(enabled = false)

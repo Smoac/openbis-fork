@@ -32,10 +32,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
-import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.BeforeTest;
 
 import ch.systemsx.cisd.openbis.uitest.infra.application.ApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
@@ -50,7 +48,6 @@ import ch.systemsx.cisd.openbis.uitest.infra.screenshot.FileScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.infra.uid.DictionaryUidGenerator;
 import ch.systemsx.cisd.openbis.uitest.infra.uid.UidGenerator;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.PageProxy;
 import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterSample;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleDetails;
@@ -91,11 +88,7 @@ public abstract class SeleniumTest
 
     private static UidGenerator uid;
 
-    private PageProxy pageProxy;
-
-    private ScreenShotter shotter;
-
-    private GuiApplicationRunner openbis;
+    private static GuiApplicationRunner openbis;
 
     private static ApplicationRunner openbisApi;
 
@@ -147,6 +140,14 @@ public abstract class SeleniumTest
 
         uid = new DictionaryUidGenerator(new File("resource/corncob_lowercase.txt"));
         openbisApi = new PublicApiApplicationRunner(asUrl, dssUrl, uid);
+        openbis = new GuiApplicationRunner(uid);
+
+    }
+
+    @AfterSuite
+    public void closeBrowser()
+    {
+        driver.quit();
     }
 
     public static void setImplicitWait(long amount, TimeUnit unit)
@@ -159,60 +160,24 @@ public abstract class SeleniumTest
         driver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT, TimeUnit.SECONDS);
     }
 
-    @AfterSuite
-    public void closeBrowser()
-    {
-        driver.quit();
-    }
-
-    @BeforeTest(groups =
-        { "login-admin", "sprint-test" })
-    public void loginAsAdmin()
-    {
-        System.out.println("LOGIN");
-        this.openbis = new GuiApplicationRunner(new PageProxy(new ScreenShotter()
-            {
-                @Override
-                public void screenshot()
-                {
-                }
-            }), uid);
-        openbis.login(ADMIN_USER, ADMIN_PASSWORD);
-        // this is because of BIS-184
-        openbis.browseToSampleBrowser().allSpaces();
-
-        openbisApi.login(ADMIN_USER, ADMIN_PASSWORD);
-    }
-
-    @AfterTest(groups =
-        { "login-admin", "sprint-test" })
     public void logout()
     {
-        System.out.println("LOGOUT!");
-        this.openbis = new GuiApplicationRunner(new PageProxy(new ScreenShotter()
-            {
-                @Override
-                public void screenshot()
-                {
-                }
-            }), uid);
         openbis.logout();
     }
 
     @BeforeMethod(alwaysRun = true)
     public void initPageProxy(Method method)
     {
-        this.shotter =
+        ScreenShotter shotter =
                 new FileScreenShotter((TakesScreenshot) driver, "targets/dist/"
                         + this.getClass().getSimpleName() + "/" + method.getName());
-        this.pageProxy = new PageProxy(shotter);
-        this.openbis = new GuiApplicationRunner(this.pageProxy, uid);
+        openbis.setScreenShotter(shotter);
     }
 
     @AfterMethod(alwaysRun = true)
     public void takeScreenShot() throws IOException
     {
-        shotter.screenshot();
+        openbis.screenshot();
     }
 
     private void delete(File f)
@@ -254,7 +219,7 @@ public abstract class SeleniumTest
     public RegisterSample sampleRegistrationPageFor(SampleType type)
     {
         openbis.browseToRegisterSample().selectSampleType(type);
-        return pageProxy.get(RegisterSample.class);
+        return assumePage(RegisterSample.class);
     }
 
     public String loggedInAs()

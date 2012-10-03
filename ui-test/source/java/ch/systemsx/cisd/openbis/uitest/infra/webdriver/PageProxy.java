@@ -111,4 +111,14 @@ public class PageProxy
             throw new RuntimeException(e);
         }
     }
+
+    public void setScreenShotter(ScreenShotter shotter)
+    {
+        this.shotter = shotter;
+    }
+
+    public void screenshot()
+    {
+        shotter.screenshot();
+    }
 }

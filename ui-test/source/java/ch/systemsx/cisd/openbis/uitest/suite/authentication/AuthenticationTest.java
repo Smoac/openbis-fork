@@ -11,8 +11,6 @@ import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
 
-@Test(groups =
-    { "no-login" })
 public class AuthenticationTest extends SeleniumTest
 {
 

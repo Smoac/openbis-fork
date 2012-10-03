@@ -20,7 +20,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
@@ -29,9 +28,7 @@ import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 /**
  * @author anttil
  */
-@Test(groups =
-    { "login-admin" })
-public class PropertyTypeAssignmentTest extends SeleniumTest
+public class PropertyTypeAssignmentTest extends MainSuiteTest
 {
     @Test
     public void newPropertyTypeAssignmentIsListedInPropertyTypeAssignmentBrowser() throws Exception

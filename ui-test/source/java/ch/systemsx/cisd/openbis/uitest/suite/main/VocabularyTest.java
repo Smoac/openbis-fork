@@ -4,12 +4,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 
-@Test(groups =
-    { "login-admin" })
-public class VocabularyTest extends SeleniumTest
+public class VocabularyTest extends MainSuiteTest
 {
 
     @Test

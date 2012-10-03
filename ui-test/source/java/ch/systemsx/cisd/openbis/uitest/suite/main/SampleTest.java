@@ -20,7 +20,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
@@ -29,9 +28,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 /**
  * @author anttil
  */
-@Test(groups =
-    { "login-admin" })
-public class SampleTest extends SeleniumTest
+public class SampleTest extends MainSuiteTest
 {
     @Test
     public void newSampleIsListedInSampleBrowser() throws Exception
