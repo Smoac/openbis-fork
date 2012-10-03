@@ -71,6 +71,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		364D5098161C6A3600A739B0 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
 		36F71E74161C3AE900C87277 /* openBIS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = openBIS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		36F71E78161C3AE900C87277 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		36F71E7A161C3AE900C87277 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -191,6 +192,7 @@
 		36F71E80161C3AE900C87277 /* openBIS */ = {
 			isa = PBXGroup;
 			children = (
+				364D5098161C6A3600A739B0 /* readme.md */,
 				36F71E89161C3AE900C87277 /* CISDOBAppDelegate.h */,
 				36F71E8A161C3AE900C87277 /* CISDOBAppDelegate.m */,
 				36F71E92161C3AE900C87277 /* MainStoryboard_iPhone.storyboard */,
@@ -682,6 +684,7 @@
 				36F71F24161C4AA000C87277 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
