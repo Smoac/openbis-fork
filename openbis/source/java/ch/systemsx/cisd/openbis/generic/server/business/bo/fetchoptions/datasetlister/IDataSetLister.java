@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreForDataSets;
 
 /**
  * @author pkupczyk
@@ -27,7 +28,20 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 public interface IDataSetLister
 {
 
+    /**
+     * Returns the data set meta data for the given <var>dataSetCodes</var> with the given
+     * <var>dataSetFetchOptions</var>.
+     * 
+     * @return One data set meta data object for each entry in <var>dataSetCodes</var>.
+     */
     public List<DataSet> getDataSetMetaData(List<String> dataSetCodes,
             DataSetFetchOptions dataSetFetchOptions);
+
+    /**
+     * Returns the base URLs (download URLs) for a set of <var>dataSetCodes</var>.
+     * 
+     * @return The list of data stores, each with the list of data set codes it has stored.
+     */
+    public List<DataStoreForDataSets> getDataStoreBaseURLs(List<String> dataSetCodes);
 
 }

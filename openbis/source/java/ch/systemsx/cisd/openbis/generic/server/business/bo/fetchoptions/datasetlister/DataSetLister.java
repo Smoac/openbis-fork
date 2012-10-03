@@ -25,6 +25,8 @@ import java.util.Map;
 
 import net.lemnik.eodsql.QueryTool;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -32,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
@@ -310,6 +313,23 @@ public class DataSetLister implements IDataSetLister
                 dataSetInitializer.setChildrenCodes(childrenCodes);
             }
         }
+    }
+
+    @Override
+    public List<DataStoreForDataSets> getDataStoreBaseURLs(List<String> dataSetCodes)
+    {
+        final String[] dataSetCodesArray = dataSetCodes.toArray(new String[dataSetCodes.size()]);
+        final List<DataSetDownloadRecord> records = query.getDownloadInfos(dataSetCodesArray);
+        final List<DataStoreForDataSets> result =
+                new ArrayList<DataStoreForDataSets>(records.size());
+        for (DataSetDownloadRecord r : records)
+        {
+            final String[] dataSetCodeArray =
+                    StringUtils.split(r.data_set_codes.substring(1, r.data_set_codes.length() - 1),
+                            ',');
+            result.add(new DataStoreForDataSets(r.download_url, dataSetCodeArray));
+        }
+        return result;
     }
 
 }

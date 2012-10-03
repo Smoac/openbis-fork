@@ -23,6 +23,7 @@ import static junit.framework.Assert.assertTrue;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,17 +32,22 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import net.lemnik.eodsql.QueryTool;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
@@ -106,6 +112,42 @@ public class DataSetListerTest extends AbstractDAOTest
         List<DataSet> result = lister.getDataSetMetaData(codes, fetchOptions);
 
         assertEqualToDataSetMetaDataWithCodes(codes, fetchOptions, result);
+    }
+
+    @Test
+    public void testGetDataStoreBaseURLs()
+    {
+        DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
+        QueryTool
+                .update(context.getDataSource(),
+                        "update data_stores set download_url='http://download_1' where code='STANDARD'");
+        final long newDataStoreId =
+                (Long) QueryTool
+                        .select(context.getDataSource(),
+                                "insert into data_stores (id,dbin_id,code,download_url,remote_url,session_token)"
+                                        + " values (nextval('data_store_id_seq'),1,'DSS2','http://download_2','','') returning id")
+                        .get(0).get("id");
+        QueryTool.update(context.getDataSource(),
+                "update data set dast_id = ?{1} where code = ?{2}", newDataStoreId,
+                "20081105092259000-20");
+        QueryTool.update(context.getDataSource(),
+                "update data set dast_id = ?{1} where code = ?{2}", newDataStoreId,
+                "20081105092259000-21");
+
+        List<String> codes = new ArrayList<String>();
+        codes.add("20081105092159188-3");
+        codes.add("20081105092159111-1");
+        codes.add("20081105092259000-19");
+        codes.add("20081105092259000-20");
+        codes.add("20081105092259000-21");
+        List<DataStoreForDataSets> result = lister.getDataStoreBaseURLs(codes);
+        assertEquals("http://download_1", result.get(0).getDataStoreBaseURL());
+        assertEquals(
+                Arrays.asList("20081105092159188-3", "20081105092159111-1", "20081105092259000-19"),
+                result.get(0).getDataSetCodes());
+        assertEquals("http://download_2", result.get(1).getDataStoreBaseURL());
+        assertEquals(Arrays.asList("20081105092259000-20", "20081105092259000-21"), result.get(1)
+                .getDataSetCodes());
     }
 
     @Test
