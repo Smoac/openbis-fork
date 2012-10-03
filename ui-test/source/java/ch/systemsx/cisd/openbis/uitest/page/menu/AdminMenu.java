@@ -63,6 +63,9 @@ public class AdminMenu
     @Locate("openbis_top-menu_PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE")
     private Link assignToSampleType;
 
+    @Locate("openbis_top-menu_SCRIPT_MENU_BROWSE")
+    private Link scripts;
+
     @Locate("ADMINISTRATION_MENU_MANAGE_AUTHORIZATION")
     private Link authorization;
 
@@ -120,6 +123,11 @@ public class AdminMenu
     {
         metadata.highlight();
         assignToSampleType.click();
+    }
+
+    public void scripts()
+    {
+        scripts.click();
     }
 
     public void roles()

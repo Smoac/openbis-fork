@@ -111,6 +111,7 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
         }
 
         this.nameField = new VarcharField(viewContext.getMessage(Dict.NAME), true);
+        this.nameField.setId(getId()+"-script-registration-name");
         this.scriptExecution =
                 new ScriptExecutionFramework(viewContext, asValidable(formPanel), entityKindOrNull);
         this.entityKindField =
@@ -126,8 +127,11 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
                             scriptExecution.updateEntityKind(entityKindField.tryGetEntityKind());
                         }
                     });
+        entityKindField.setId(getId()+"-script-registration-entity-kind");
         this.descriptionField = AbstractRegistrationDialog.createDescriptionField(viewContext);
+        this.descriptionField.setId(getId()+"-script-registration-description");
         this.scriptField = createScriptField(viewContext);
+        this.scriptField.setId(getId()+"-script-registration-script-content");
 
         scriptField.addListener(Events.Change, new Listener<BaseEvent>()
             {

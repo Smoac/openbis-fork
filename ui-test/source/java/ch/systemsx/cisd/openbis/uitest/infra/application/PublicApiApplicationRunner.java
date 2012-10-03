@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.type.Script;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 
@@ -220,6 +221,12 @@ public class PublicApiApplicationRunner implements ApplicationRunner
         {
             return null;
         }
+    }
+
+    @Override
+    public Script create(Script script)
+    {
+        return null;
     }
 
 }

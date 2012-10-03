@@ -72,6 +72,8 @@ import ch.systemsx.cisd.openbis.uitest.type.SampleBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.type.SampleTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.SampleTypeUpdateBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.ScriptBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.ScriptType;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
 import ch.systemsx.cisd.openbis.uitest.type.SpaceBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.UpdateBuilder;
@@ -170,6 +172,8 @@ public abstract class SeleniumTest
     @BeforeMethod(alwaysRun = true)
     public void initPageProxy(Method method)
     {
+        System.out.println("--- " + method.getDeclaringClass().getSimpleName() + "."
+                + method.getName() + "() STARTS ---");
         ScreenShotter shotter =
                 new FileScreenShotter((TakesScreenshot) driver, "targets/dist/"
                         + this.getClass().getSimpleName() + "/" + method.getName());
@@ -177,9 +181,11 @@ public abstract class SeleniumTest
     }
 
     @AfterMethod(alwaysRun = true)
-    public void takeScreenShot() throws IOException
+    public void takeScreenShot(Method method) throws IOException
     {
         openbis.screenshot();
+        System.out.println("--- " + method.getDeclaringClass().getSimpleName() + "."
+                + method.getName() + "() ENDS ---");
     }
 
     private void delete(File f)
@@ -408,6 +414,11 @@ public abstract class SeleniumTest
     protected DataSetBuilder aDataSet()
     {
         return new DataSetBuilder(openbisApi);
+    }
+
+    protected ScriptBuilder anEntityValidationScript()
+    {
+        return new ScriptBuilder(openbis, ScriptType.ENTITY_VALIDATOR);
     }
 
     protected SampleTypeUpdateBuilder anUpdateOf(SampleType type)

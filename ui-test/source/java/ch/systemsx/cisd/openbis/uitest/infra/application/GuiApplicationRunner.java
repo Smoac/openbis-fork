@@ -50,9 +50,11 @@ import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterExperiment;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterProject;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterSample;
+import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterScript;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.ScriptBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.Trash;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
@@ -66,6 +68,7 @@ import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.type.Script;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 
@@ -292,6 +295,15 @@ public class GuiApplicationRunner implements ApplicationRunner
     }
 
     @Override
+    public Script create(Script script)
+    {
+        RegisterScript register = browseToRegisterScript();
+        register.fillWith(script);
+        register.save();
+        return script;
+    }
+
+    @Override
     public void update(SampleType sampleType)
     {
         SampleTypeBrowser browser = browseToSampleTypeBrowser();
@@ -334,6 +346,12 @@ public class GuiApplicationRunner implements ApplicationRunner
     {
         browseToVocabularyBrowser();
         return getRow(VocabularyBrowser.class, vocabulary);
+    }
+
+    public BrowserRow browseTo(Script script)
+    {
+        browseToScriptBrowser();
+        return getRow(ScriptBrowser.class, script);
     }
 
     public BrowserRow browseTo(Experiment experiment)
@@ -529,6 +547,17 @@ public class GuiApplicationRunner implements ApplicationRunner
         return getBrowser(VocabularyBrowser.class);
     }
 
+    public ScriptBrowser browseToScriptBrowser()
+    {
+        boolean success = load(TabBar.class).selectTab("Scripts");
+        if (!success)
+        {
+            getMenus().admin();
+            load(AdminMenu.class).scripts();
+        }
+        return getBrowser(ScriptBrowser.class);
+    }
+
     public AddVocabularyDialog browseToAddVocabularyDialog()
     {
         browseToVocabularyBrowser().add();
@@ -588,6 +617,12 @@ public class GuiApplicationRunner implements ApplicationRunner
             load(NewMenu.class).sample();
         }
         return load(RegisterSample.class);
+    }
+
+    public RegisterScript browseToRegisterScript()
+    {
+        browseToScriptBrowser().add();
+        return load(RegisterScript.class);
     }
 
     public RegisterExperiment browseToRegisterExperiment()
