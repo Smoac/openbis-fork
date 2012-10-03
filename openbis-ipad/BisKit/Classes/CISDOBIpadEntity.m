@@ -35,6 +35,31 @@
 @dynamic entityType;
 @dynamic propertiesJson;
 
+- (NSArray *)properties
+{
+    [self willAccessValueForKey: @"properties"];
+    NSMutableArray *properties = [self primitiveValueForKey: @"properties"];
+    [self didAccessValueForKey: @"properties"];
+    
+    if (nil == properties) {
+        NSError *error;
+        NSDictionary *propertiesDict = [NSJSONSerialization JSONObjectWithData: [self.propertiesJson dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: &error];
+        properties = [[NSMutableArray alloc] init];
+        for (NSString *key in [propertiesDict allKeys]) {
+            NSDictionary *property = [NSDictionary dictionaryWithObjectsAndKeys:
+                key, @"key",
+                [propertiesDict valueForKey: key], @"value", nil];
+            [properties addObject: property];
+        }
+        if (error) {
+            NSLog(@"Could not deserialize properties %@", error);
+        }
+        [self setPrimitiveValue: properties forKey: @"properties"];
+    }
+    
+    return properties;
+}
+
 - (void)initializeFromRawEntity:(CISDOBIpadRawEntity *)rawEntity
 {
     self.summaryHeader = rawEntity.summaryHeader;

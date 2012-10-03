@@ -22,10 +22,12 @@
 //
 
 #import "CISDOBDetailViewController.h"
+#import "CISDOBIpadEntity.h"
 
 @interface CISDOBDetailViewController ()
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
 - (void)configureView;
+- (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath;
 @end
 
 @implementation CISDOBDetailViewController
@@ -49,10 +51,14 @@
 - (void)configureView
 {
     // Update the user interface for the detail item.
-
-    if (self.detailItem) {
-        self.detailDescriptionLabel.text = [[self.detailItem valueForKey:@"summaryHeader"] description];
-    }
+    if (!self.detailItem) return;
+    
+    self.summaryHeaderLabel.text = [[self.detailItem valueForKey:@"summaryHeader"] description];
+    self.summaryLabel.text = [[self.detailItem valueForKey:@"summary"] description];
+    self.identifierLabel.text = [[self.detailItem valueForKey:@"identifier"] description];
+    self.propertiesLabel.text = [[self.detailItem valueForKey:@"propertiesJson"] description];
+    
+    [self.propertiesTableView reloadData];
 }
 
 - (void)viewDidLoad
@@ -83,5 +89,57 @@
     [self.navigationItem setLeftBarButtonItem:nil animated:YES];
     self.masterPopoverController = nil;
 }
+
+#pragma mark - Table View (Properties)
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if (!self.detailItem) return 0;
+    
+    return [_detailItem.properties count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Property" forIndexPath:indexPath]; //  This only works in iOS 6,
+//    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell"]; // iOS5
+    [self configureCell:cell atIndexPath:indexPath];
+    return cell;
+}
+
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return NO;
+}
+
+- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return NO;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+
+}
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+
+}
+
+- (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
+{
+    if (!self.detailItem) return;
+    NSDictionary *object = [self.detailItem.properties objectAtIndex: [indexPath indexAtPosition: 0]];
+    cell.textLabel.text = [object valueForKey:@"key"];
+    cell.detailTextLabel.text = [object valueForKey:@"value"];
+}
+
 
 @end

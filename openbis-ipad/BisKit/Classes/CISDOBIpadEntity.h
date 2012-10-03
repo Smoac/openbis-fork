@@ -38,6 +38,7 @@
 @property (nonatomic, retain) NSString * entityKind;
 @property (nonatomic, retain) NSString * entityType;
 @property (nonatomic, retain) NSString * propertiesJson;
+@property (readonly)          NSArray * properties;
 
 // Actions
 //! Take the values from the raw entity.

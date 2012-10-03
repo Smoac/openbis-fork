@@ -23,9 +23,15 @@
 
 #import <UIKit/UIKit.h>
 
+@class CISDOBIpadEntity;
 @interface CISDOBDetailViewController : UIViewController <UISplitViewControllerDelegate>
 
-@property (strong, nonatomic) id detailItem;
+@property (strong, nonatomic) CISDOBIpadEntity *detailItem;
 
-@property (weak, nonatomic) IBOutlet UILabel *detailDescriptionLabel;
+@property (weak, nonatomic) IBOutlet UITableView *propertiesTableView;
+
+@property (weak, nonatomic) IBOutlet UILabel *summaryHeaderLabel;
+@property (weak, nonatomic) IBOutlet UILabel *summaryLabel;
+@property (weak, nonatomic) IBOutlet UILabel *identifierLabel;
+@property (weak, nonatomic) IBOutlet UILabel *propertiesLabel;
 @end

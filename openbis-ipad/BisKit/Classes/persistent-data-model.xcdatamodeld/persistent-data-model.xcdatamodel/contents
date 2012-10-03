@@ -5,11 +5,12 @@
         <attribute name="entityType" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="permId" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
+        <attribute name="properties" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="propertiesJson" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="summary" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="summaryHeader" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="CISDOBIpadEntity" positionX="160" positionY="192" width="128" height="150"/>
+        <element name="CISDOBIpadEntity" positionX="160" positionY="192" width="128" height="165"/>
     </elements>
 </model>
