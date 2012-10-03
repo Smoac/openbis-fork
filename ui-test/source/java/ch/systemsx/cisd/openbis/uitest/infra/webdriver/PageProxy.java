@@ -66,8 +66,8 @@ public class PageProxy
                         {
                             System.out.println("STALE REFERENCE - RELOADING "
                                     + self.getClass().getSimpleName());
-                            init(clazz, (T) self);
-                            return proceed.invoke(self, args);
+                            T t = get(clazz);
+                            return proceed.invoke(t, args);
                         } else
                         {
                             throw e.getTargetException();
