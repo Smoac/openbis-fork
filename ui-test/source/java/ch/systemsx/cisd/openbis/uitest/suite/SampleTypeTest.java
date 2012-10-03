@@ -36,9 +36,9 @@ public class SampleTypeTest extends SeleniumTest
     {
         create(aSampleType().withCode("invalid code"));
 
-        assertThat(browser(), isShowing(AddSampleTypeDialog.class));
+        assertThat(browser(), displays(AddSampleTypeDialog.class));
 
-        get(AddSampleTypeDialog.class).cancel();
+        assumePage(AddSampleTypeDialog.class).cancel();
     }
 
     @Test

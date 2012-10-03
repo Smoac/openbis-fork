@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.uitest.infra.application.PublicApiApplicationRun
 import ch.systemsx.cisd.openbis.uitest.infra.dsl.DslSampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellContentMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.CollectionContainsMatcher;
-import ch.systemsx.cisd.openbis.uitest.infra.matcher.PageMatcher;
+import ch.systemsx.cisd.openbis.uitest.infra.matcher.CurrentPageMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.RegisterSampleFormContainsInputsForPropertiesMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.RowExistsMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.SampleHasDataSetsMatcher;
@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.uitest.infra.uid.UidGenerator;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.PageProxy;
 import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterSample;
+import ch.systemsx.cisd.openbis.uitest.page.tab.SampleDetails;
 import ch.systemsx.cisd.openbis.uitest.type.Browsable;
 import ch.systemsx.cisd.openbis.uitest.type.Builder;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
@@ -95,7 +96,7 @@ public abstract class SeleniumTest
 
     private ScreenShotter shotter;
 
-    protected GuiApplicationRunner openbis;
+    private GuiApplicationRunner openbis;
 
     private static ApplicationRunner openbisApi;
 
@@ -211,16 +212,6 @@ public abstract class SeleniumTest
         shotter.screenshot();
     }
 
-    public <T> T get(Class<T> clazz)
-    {
-        return this.pageProxy.get(clazz);
-    }
-
-    protected WebDriver browser()
-    {
-        return driver;
-    }
-
     private void delete(File f)
     {
         if (f.isDirectory())
@@ -231,6 +222,11 @@ public abstract class SeleniumTest
         f.delete();
     }
 
+    protected void login(String user, String password)
+    {
+        openbis.login(user, password);
+    }
+
     protected DslSampleBrowser sampleBrowser()
     {
         return new DslSampleBrowser(openbis.browseToSampleBrowser());
@@ -239,6 +235,12 @@ public abstract class SeleniumTest
     protected <T extends Browsable> BrowserRow browserEntryOf(T browsable)
     {
         return browsable.getBrowserContent(openbis);
+    }
+
+    protected SampleDetails detailsOf(Sample sample)
+    {
+        // return openbis.browseToDetailsOf(sample);
+        return null;
     }
 
     protected void emptyTrash()
@@ -252,14 +254,29 @@ public abstract class SeleniumTest
         return pageProxy.get(RegisterSample.class);
     }
 
+    public String loggedInAs()
+    {
+        return openbis.loggedInAs();
+    }
+
+    public <T> T assumePage(Class<T> pageClass)
+    {
+        return openbis.load(pageClass);
+    }
+
+    public GuiApplicationRunner browser()
+    {
+        return openbis;
+    }
+
+    public Matcher<GuiApplicationRunner> displays(Class<?> pageClass)
+    {
+        return new CurrentPageMatcher(pageClass);
+    }
+
     protected Matcher<Sample> hasDataSets(DataSet... datasets)
     {
         return new SampleHasDataSetsMatcher(openbis, datasets);
-    }
-
-    protected Matcher<WebDriver> isShowing(Class<?> pageClass)
-    {
-        return new PageMatcher(pageClass, pageProxy);
     }
 
     protected Matcher<RegisterSample> hasInputsForProperties(PropertyType... fields)

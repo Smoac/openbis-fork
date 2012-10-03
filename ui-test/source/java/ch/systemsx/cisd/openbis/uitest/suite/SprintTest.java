@@ -21,6 +21,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
+import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
+import ch.systemsx.cisd.openbis.uitest.page.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
@@ -39,7 +41,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 public class SprintTest extends SeleniumTest
 {
 
-    @Test(enabled = false)
+    @Test
     public void basic()
     {
         // 0) Cleanup
@@ -65,8 +67,9 @@ public class SprintTest extends SeleniumTest
         delete(oldVocabulary);
 
         // 1) Login and authorization
-        openbis.browseToRoleAssignmentBrowser();
-        assertThat(browser(), isShowing(RoleAssignmentBrowser.class));
+        assumePage(TopBar.class).admin();
+        assumePage(AdminMenu.class).roles();
+        assertThat(browser(), displays(RoleAssignmentBrowser.class));
 
         // 2) Space
         Space space = create(aSpace().withCode("sprint-test"));
@@ -74,8 +77,8 @@ public class SprintTest extends SeleniumTest
 
         // 3) Sample types and properties
         create(aSampleType().withCode("sprint test"));
-        assertThat(browser(), isShowing(AddSampleTypeDialog.class));
-        get(AddSampleTypeDialog.class).cancel();
+        assertThat(browser(), displays(AddSampleTypeDialog.class));
+        assumePage(AddSampleTypeDialog.class).cancel();
 
         SampleType sampleType =
                 create(aSampleType()
@@ -101,7 +104,6 @@ public class SprintTest extends SeleniumTest
                         .withLabel("Sprint Test Text")
                         .withDescription("some text"));
 
-        @SuppressWarnings("unused")
         PropertyType realPropertyType =
                 create(aRealPropertyType()
                         .withCode("SPRINT-TEST.REAL")
@@ -145,5 +147,16 @@ public class SprintTest extends SeleniumTest
                         .withSamples(sample));
         assertThat(browserEntryOf(sample), containsValue("Experiment", experiment.getCode()));
         assertThat(browserEntryOf(sample), containsValue("Project", project.getCode()));
+
+        deleteExperimentsFrom(project);
+        emptyTrash();
+        delete(project);
+        delete(space);
+        delete(sampleType);
+        delete(experimentType);
+        delete(varcharPropertyType);
+        delete(realPropertyType);
+        delete(animalPropertyType);
+        delete(vocabulary);
     }
 }

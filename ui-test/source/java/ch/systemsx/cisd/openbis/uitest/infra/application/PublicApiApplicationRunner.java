@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.infra.application;
 
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -51,6 +52,8 @@ public class PublicApiApplicationRunner implements ApplicationRunner
 
     private String session;
 
+    private String lastSuccessfulLogin;
+
     public PublicApiApplicationRunner(String openbisUrl, String dssUrl, UidGenerator uid)
     {
         this.uid = uid;
@@ -76,9 +79,13 @@ public class PublicApiApplicationRunner implements ApplicationRunner
     @Override
     public void login(String userName, String password)
     {
-        this.session =
+        session =
                 commonServer
                         .tryToAuthenticate(userName, password).getSessionToken();
+        if (session != null)
+        {
+            lastSuccessfulLogin = userName;
+        }
     }
 
     @Override
@@ -160,7 +167,6 @@ public class PublicApiApplicationRunner implements ApplicationRunner
     @Override
     public Sample create(Sample sample)
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -201,6 +207,19 @@ public class PublicApiApplicationRunner implements ApplicationRunner
         dataSetType.setCode(type.getCode());
         dataSetType.setDataSetKind(DataSetKind.PHYSICAL);
         return dataSetType;
+    }
+
+    @Override
+    public String loggedInAs()
+    {
+        try
+        {
+            commonServer.checkSession(session);
+            return lastSuccessfulLogin;
+        } catch (InvalidSessionException e)
+        {
+            return null;
+        }
     }
 
 }

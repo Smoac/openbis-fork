@@ -14,42 +14,35 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.widget;
+package ch.systemsx.cisd.openbis.uitest.infra.matcher;
 
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
+
+import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
 
 /**
  * @author anttil
  */
-public class Button implements AtomicWidget
+public class CurrentPageMatcher extends TypeSafeMatcher<GuiApplicationRunner>
 {
 
-    private WidgetContext context;
+    private final Class<?> pageClass;
 
-    public void click()
+    public CurrentPageMatcher(Class<?> pageClass)
     {
-        context.click();
-    }
-
-    public boolean isPressed()
-    {
-        return "true".equalsIgnoreCase(context.getAttribute("aria-pressed"));
+        this.pageClass = pageClass;
     }
 
     @Override
-    public String getTagName()
+    public void describeTo(Description description)
     {
-        return "button";
+        description.appendText("Browser showing page " + pageClass.getSimpleName());
     }
 
     @Override
-    public void setContext(WidgetContext context)
+    public boolean matchesSafely(GuiApplicationRunner openbis)
     {
-        this.context = context;
-    }
-
-    public String getText()
-    {
-        return context.getText();
+        return openbis.tryLoad(pageClass) != null;
     }
 }

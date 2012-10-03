@@ -40,6 +40,8 @@ public interface ApplicationRunner
 
     public void logout();
 
+    public String loggedInAs();
+
     public Space create(Space space);
 
     public void delete(Space space);

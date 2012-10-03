@@ -184,7 +184,7 @@ public class SampleType implements Browsable, EntityType
     @Override
     public int hashCode()
     {
-        return code.hashCode();
+        return code.toUpperCase().hashCode();
     }
 
     @Override
@@ -194,6 +194,6 @@ public class SampleType implements Browsable, EntityType
         {
             return false;
         }
-        return code.equals(((SampleType) o).getCode());
+        return code.equalsIgnoreCase(((SampleType) o).getCode());
     }
 }

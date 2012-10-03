@@ -17,6 +17,9 @@
 package ch.systemsx.cisd.openbis.uitest.infra.application;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.NoSuchElementException;
 
 import ch.systemsx.cisd.openbis.uitest.infra.uid.UidGenerator;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.PageProxy;
@@ -51,6 +54,7 @@ import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.Trash;
 import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
+import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.Browsable;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
@@ -602,8 +606,43 @@ public class GuiApplicationRunner implements ApplicationRunner
         return browser;
     }
 
-    private <T> T load(Class<T> clazz)
+    public <T> T load(Class<T> clazz)
     {
         return proxy.get(clazz);
+    }
+
+    public <T> T tryLoad(Class<T> clazz)
+    {
+        return tryLoad(clazz, SeleniumTest.IMPLICIT_WAIT, TimeUnit.SECONDS);
+    }
+
+    public <T> T tryLoad(Class<T> clazz, long timeout, TimeUnit unit)
+    {
+        SeleniumTest.setImplicitWait(timeout, unit);
+        try
+        {
+            return load(clazz);
+        } catch (NoSuchElementException e)
+        {
+            e.printStackTrace();
+            return null;
+        } finally
+        {
+            SeleniumTest.setImplicitWaitToDefault();
+        }
+
+    }
+
+    @Override
+    public String loggedInAs()
+    {
+        TopBar t = tryLoad(TopBar.class);
+        if (t != null)
+        {
+            return t.getUserName();
+        } else
+        {
+            return null;
+        }
     }
 }

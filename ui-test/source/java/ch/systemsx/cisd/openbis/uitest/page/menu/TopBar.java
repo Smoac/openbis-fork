@@ -68,4 +68,9 @@ public class TopBar
     {
         newMenu.click();
     }
+
+    public String getUserName()
+    {
+        return userMenu.getText();
+    }
 }

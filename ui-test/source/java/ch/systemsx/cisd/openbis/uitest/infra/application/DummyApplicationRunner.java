@@ -153,4 +153,10 @@ public class DummyApplicationRunner implements ApplicationRunner
     {
         return null;
     }
+
+    @Override
+    public String loggedInAs()
+    {
+        return null;
+    }
 }
