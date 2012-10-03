@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.server.business.dataaccess.db.h2;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -32,7 +34,14 @@ public class UpdateAccountingOnUpdateUserTrigger extends AbstractUserTrigger
     @Override
     public void fire(Connection conn, Object[] oldRow, Object[] newRow) throws SQLException
     {
-        final String newUserCode = (String) newRow[userCodeIndex];
+        final String newUserCode;
+        try
+        {
+            newUserCode = ((BufferedReader) newRow[userCodeIndex]).readLine();
+        } catch (IOException ex)
+        {
+            throw new SQLException(ex);
+        }
         // Simulate NOT NULL constraint on USERS.QUOTA_GROUP_ID.
         // Implementation note: H2 checks constraints before calling the BEFORE ROW triggers,
         // thus we can't use the normal constraint mechanism or else we would get a constraint
