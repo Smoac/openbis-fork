@@ -17,8 +17,14 @@
 package ch.systemsx.cisd.openbis.uitest.infra.webdriver;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import javassist.util.proxy.MethodHandler;
+import javassist.util.proxy.ProxyFactory;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 
 import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
@@ -41,11 +47,63 @@ public class PageProxy
     @SuppressWarnings("unchecked")
     public <T> T get(final Class<T> clazz)
     {
+
+        ProxyFactory factory = new ProxyFactory();
+        factory.setSuperclass(clazz);
+
+        MethodHandler handler = new MethodHandler()
+            {
+                @Override
+                public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args)
+                        throws Throwable
+                {
+                    try
+                    {
+                        return proceed.invoke(self, args);
+                    } catch (InvocationTargetException e)
+                    {
+                        if (e.getTargetException() instanceof StaleElementReferenceException)
+                        {
+                            System.out.println("STALE REFERENCE - RELOADING " + self);
+                            init(clazz, (T) self);
+                            return proceed.invoke(self, args);
+                        } else
+                        {
+                            throw e.getTargetException();
+                        }
+                    }
+                }
+            };
+
+        T t;
         try
         {
-            T t = clazz.newInstance();
+            t = (T) factory.create(new Class<?>[0], new Object[0], handler);
+        } catch (IllegalArgumentException ex1)
+        {
+            throw new RuntimeException(ex1);
+        } catch (NoSuchMethodException ex1)
+        {
+            throw new RuntimeException(ex1);
+        } catch (InstantiationException ex1)
+        {
+            throw new RuntimeException(ex1);
+        } catch (IllegalAccessException ex1)
+        {
+            throw new RuntimeException(ex1);
+        } catch (InvocationTargetException ex1)
+        {
+            throw new RuntimeException(ex1);
+        }
 
-            Class<T> pageClass = clazz;
+        return init(clazz, t);
+    }
+
+    private <T> T init(final Class<T> clazz, T t)
+    {
+        try
+        {
+            Class<?> pageClass = clazz;
             while (pageClass != null)
             {
                 for (Field field : pageClass.getDeclaredFields())
@@ -102,7 +160,7 @@ public class PageProxy
                     }
                 }
 
-                pageClass = (Class<T>) pageClass.getSuperclass();
+                pageClass = pageClass.getSuperclass();
             }
 
             return t;
