@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 //
-//  CIDOBIpadEntity.h
+//  CISDOBIpadEntity.h
 //  BisMac
 //
 //  Created by Ramakrishnan  Chandrasekhar on 10/1/12.
@@ -25,7 +25,7 @@
 #import <CoreData/CoreData.h>
 
 
-@interface CIDOBIpadEntity : NSManagedObject
+@interface CISDOBIpadEntity : NSManagedObject
 
 @property (nonatomic, retain) NSString * summaryHeader;
 @property (nonatomic, retain) NSString * summary;

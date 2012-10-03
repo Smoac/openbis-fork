@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 //
-//  CIDOBIpadEntity.m
+//  CISDOBIpadEntity.m
 //  BisMac
 //
 //  Created by Ramakrishnan  Chandrasekhar on 10/1/12.
 //
 //
 
-#import "CIDOBIpadEntity.h"
+#import "CISDOBIpadEntity.h"
 
 
-@implementation CIDOBIpadEntity
+@implementation CISDOBIpadEntity
 
 @dynamic summaryHeader;
 @dynamic summary;
