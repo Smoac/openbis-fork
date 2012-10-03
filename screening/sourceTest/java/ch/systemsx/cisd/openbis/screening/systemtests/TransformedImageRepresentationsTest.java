@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -154,7 +156,11 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
     @Override
     protected boolean checkLogContentForFinishedDataSetRegistration(String logContent)
     {
-        return logContent.contains("Post registration of 4. of 4 data sets");
+        String pattern = "Post registration of ([0-9]*)\\. of \\1 data sets";
+        // matches "Post registration of n. of n data sets"
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(logContent);
+        return m.find();
     }
 
 }
