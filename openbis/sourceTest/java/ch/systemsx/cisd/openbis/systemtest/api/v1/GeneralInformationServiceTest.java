@@ -611,7 +611,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertDataSets(
                 "[20081105092259000-18, 20081105092259000-19, 20081105092259000-20, 20081105092259000-21, 20081105092259000-8, 20081105092259000-9, "
                         + "20081105092259900-0, 20081105092259900-1, 20081105092359990-2, "
-                        + "20110509092359990-10, 20110509092359990-11, 20110509092359990-12]",
+                        + "20110509092359990-10, 20110509092359990-11, 20110509092359990-12, COMPONENT_1A, COMPONENT_1B, COMPONENT_2A, CONTAINER_1, CONTAINER_2, ROOT_CONTAINER]",
                 dataSets);
         List<String> parentCodes = new ArrayList<String>(dataSets.get(5).getParentCodes());
         Collections.sort(parentCodes);

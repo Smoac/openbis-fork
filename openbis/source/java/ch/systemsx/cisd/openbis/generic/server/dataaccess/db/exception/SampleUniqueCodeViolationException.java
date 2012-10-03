@@ -24,9 +24,9 @@ public class SampleUniqueCodeViolationException extends SampleUniqueCodeViolatio
 
     private static final long serialVersionUID = 1L;
 
-    public SampleUniqueCodeViolationException(String sampleCode, Throwable cause)
+    public SampleUniqueCodeViolationException(String sampleCode)
     {
-        super(sampleCode, getMessage(sampleCode), cause);
+        super(sampleCode, getMessage(sampleCode));
     }
 
     private static String getMessage(String sampleCode)

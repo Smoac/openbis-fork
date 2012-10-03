@@ -123,7 +123,7 @@ public class CodeGenerationTest extends SystemTestCase
                         .toString());
     }
 
-    @Test(timeOut = 1000)
+    @Test
     public void testGenericServerGenerateManyCodesWhenSomeCodesAreAlreadyUsed()
     {
         setSampleCodeSequence(10);

@@ -74,7 +74,7 @@ public class SampleDataAccessExceptionTranslator
         UniqueViolationMessage message = UniqueViolationMessage.get(exception);
         if (message != null)
         {
-            throw new SampleUniqueCodeViolationException(message.getSampleCode(), exception);
+            throw new SampleUniqueCodeViolationException(message.getSampleCode());
         }
     }
 
@@ -83,7 +83,7 @@ public class SampleDataAccessExceptionTranslator
         UniqueViolationMessage message = UniqueViolationMessage.get(exception);
         if (message != null)
         {
-            throw new SampleUniqueSubcodeViolationException(message.getSampleCode(), exception);
+            throw new SampleUniqueSubcodeViolationException(message.getSampleCode());
         }
     }
 

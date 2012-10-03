@@ -28,9 +28,9 @@ public class SampleUniqueCodeViolationExceptionAbstract extends DataIntegrityVio
 
     private String sampleCode;
 
-    public SampleUniqueCodeViolationExceptionAbstract(String sampleCode, String msg, Throwable cause)
+    public SampleUniqueCodeViolationExceptionAbstract(String sampleCode, String msg)
     {
-        super(msg, cause);
+        super(msg);
 
         if (sampleCode == null)
         {

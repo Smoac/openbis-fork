@@ -152,7 +152,7 @@ public final class SampleDAOTest extends AbstractDAOTest
             fail("DataIntegrityViolationException expected");
         } catch (DataIntegrityViolationException e)
         {
-            assertEquals("Insert/Update of Sample (Code: WELL1) failed because "
+            assertEquals("Insert/Update of sample (code: WELL1) failed because "
                     + "sample with the same code already exists.", e.getMessage());
         }
     }
@@ -182,7 +182,7 @@ public final class SampleDAOTest extends AbstractDAOTest
             fail("DataIntegrityViolationException expected");
         } catch (DataIntegrityViolationException e)
         {
-            assertEquals("Insert/Update of Sample (Code: WELL1) failed because "
+            assertEquals("Insert/Update of sample (code: WELL1) failed because "
                     + "sample of the same type with the same subcode already exists.",
                     e.getMessage());
         }
@@ -209,7 +209,7 @@ public final class SampleDAOTest extends AbstractDAOTest
             fail("DataIntegrityViolationException expected");
         } catch (DataIntegrityViolationException e)
         {
-            assertEquals("Insert/Update of Sample (Code: S_CODE) failed because "
+            assertEquals("Insert/Update of sample (code: S_CODE) failed because "
                     + "sample with the same code already exists.", e.getMessage());
         }
     }
