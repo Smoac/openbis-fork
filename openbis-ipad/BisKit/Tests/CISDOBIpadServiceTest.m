@@ -59,12 +59,12 @@
     call = [_service loginUser: GetDefaultUserName() password: GetDefaultUserPassword()];
     [self configureAndRunCallSynchronously: call];
     
-//    call = [_service listAllEntities];
-//    [self configureAndRunCallSynchronously: call];
+    call = [_service listAllEntities];
+    [self configureAndRunCallSynchronously: call];
     
-//    STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
-//    NSArray *rows = [_callResult objectForKey: @"rows"];
-//    STAssertTrue([rows count] > 0, @"The Pad service should have returned some entities.");
+    STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
+    NSArray *rawEntities = _callResult;
+    STAssertTrue([rawEntities count] > 0, @"The Pad service should have returned some entities.");
 }
 
 @end

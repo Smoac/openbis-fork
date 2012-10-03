@@ -32,7 +32,7 @@ enum CISOBIpadServiceErrorCode {
 };
 
 /**
- * A facade for accessing openBIS iPad UI module.
+ * \brief A facade for accessing openBIS iPad UI module.
  *
  * All calls to the connection are made asynchronously. Thus, the calls all return async call objects which can be configured.
  */
@@ -52,7 +52,27 @@ enum CISOBIpadServiceErrorCode {
 //! Log the user into the openBIS instance
 - (CISDOBAsyncCall *)loginUser:(NSString *)user password:(NSString *)password;
 
-//! Get all entities from the openBIS ipad service.
+//! Get all entities from the openBIS ipad service. The success message will be invoked with a collection of CISDOBIpadRawEntity objects.
 - (CISDOBAsyncCall *)listAllEntities;
+
+@end
+
+
+/**
+ * \brief An abstraction of the data returned from the ipad module of the openBIS server.
+ */
+@interface CISDOBIpadRawEntity : NSObject {
+@private
+    // Internal state
+    NSArray*    _content;
+}
+
+@property(readonly) NSString *summaryHeader;
+@property(readonly) NSString *summary;
+@property(readonly) NSString *identifier;
+@property(readonly) NSString *permId;
+@property(readonly) NSString *entityKind;
+@property(readonly) NSString *entityType;
+@property(readonly) NSDictionary *properties;
 
 @end

@@ -41,6 +41,13 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 
 @end
 
+// Internal methods
+@interface CISDOBIpadRawEntity (CISDOBIpadRawEntityPrivate)
+
+- (id)initWithContent:(NSArray *)content;
+
+@end
+
 
 @implementation CISDOBIpadService
 
@@ -98,10 +105,31 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
     [connectionCall start];
 }
 
+- (CISDOBIpadServiceCall *)iPadCallWrappingConnectionCall:(CISDOBAsyncCall *)connectionCall
+{
+    CISDOBIpadServiceCall *iPadCall = [[CISDOBIpadServiceCall alloc] initWithService: self connectionCall: connectionCall];
+    
+    connectionCall.fail = ^(NSError *error) { if (iPadCall.fail) iPadCall.fail(error); };
+    
+    return iPadCall;
+}
+
+- (NSArray *)rawEntitiesFromResult:(NSDictionary *)result
+{
+    NSMutableArray *rawEntities = [[NSMutableArray alloc] init];
+    NSArray *rows = [result objectForKey: @"rows"];
+    for (NSArray *row in rows) {
+        CISDOBIpadRawEntity* rawEntity = [[CISDOBIpadRawEntity alloc] initWithContent: row];
+        [rawEntities addObject: rawEntity];
+    }
+    
+    return rawEntities;
+}
+
 - (CISDOBAsyncCall *)loginUser:(NSString *)user password:(NSString *)password
 {
     CISDOBAsyncCall *connectionCall = [_connection loginUser: user password: password];
-    CISDOBIpadServiceCall *iPadCall = [[CISDOBIpadServiceCall alloc] initWithService: self connectionCall: connectionCall];
+    CISDOBIpadServiceCall *iPadCall = [self iPadCallWrappingConnectionCall: connectionCall];
     
     connectionCall.success = ^(id result) {
         // Note that we are logged in, but wait until we figure out if the ipad is supported
@@ -109,18 +137,25 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
         _isLoggedIn = YES;
         [self determineIsIpadSupported: iPadCall];
     };
-    connectionCall.fail = ^(NSError *error) { if (iPadCall.fail) iPadCall.fail(error); };
-    
+
     return iPadCall;
 }
 
 - (CISDOBAsyncCall *)listAllEntities;
 {
-    CISDOBAsyncCall *call = [_connection
+    CISDOBAsyncCall *connectionCall = [_connection
         createReportFromDataStore: [_ipadReadService objectForKey: @"dataStoreCode"]
         aggregationService: [_ipadReadService objectForKey: @"serviceKey"]
         parameters: nil];
-    return call;
+    CISDOBIpadServiceCall *iPadCall = [self iPadCallWrappingConnectionCall: connectionCall];
+    
+    connectionCall.success = ^(id result) {
+        if (iPadCall.success) {
+            iPadCall.success([self rawEntitiesFromResult: result]);
+        }
+    };
+    
+    return iPadCall;
 }
 
 @end
@@ -141,5 +176,26 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 {
     [_connectionCall start];
 }
+
+@end
+
+@implementation CISDOBIpadRawEntity
+
+- (id)initWithContent:(NSArray *)content
+{
+    if (!(self = [super init])) return nil;
+    
+    _content = content;
+
+    return self;
+}
+
+- (NSString *)summaryHeader { return [_content objectAtIndex: 0]; }
+- (NSString *)summary { return [_content objectAtIndex: 1]; }
+- (NSString *)identifier { return [_content objectAtIndex: 2]; }
+- (NSString *)permId { return [_content objectAtIndex: 3]; }
+- (NSString *)entityKind { return [_content objectAtIndex: 4]; }
+- (NSString *)entityType { return [_content objectAtIndex: 5]; }
+- (NSDictionary *)properties { return [_content objectAtIndex: 6]; }
 
 @end
