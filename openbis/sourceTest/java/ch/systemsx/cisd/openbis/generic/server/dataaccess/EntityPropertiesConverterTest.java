@@ -34,7 +34,6 @@ import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBOTest;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.CollectionMatcher;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyValueValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -64,6 +63,8 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
     private static final String VARCHAR_PROPERTY_TYPE_CODE = "color";
 
     private static final String SAMPLE_TYPE_CODE = "MASTER_PLATE";
+
+    private static final String SAMPLE_TYPE2_CODE = "SAMPLE_TYPE2";
 
     private IPropertyValueValidator propertyValueValidator;
 
@@ -213,6 +214,11 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     final SampleTypePE sampleType = createSampleType(SAMPLE_TYPE_CODE);
                     final SampleTypePropertyTypePE sampleTypePropertyTypePE =
                             createETPT(VARCHAR_PROPERTY_TYPE_CODE, sampleType);
+                    sampleTypePropertyTypePE.setMandatory(true);
+
+                    final SampleTypePE sampleType2 = createSampleType(SAMPLE_TYPE2_CODE);
+                    final SampleTypePropertyTypePE sampleTypePropertyTypePE2 =
+                            createETPT(VARCHAR_PROPERTY_TYPE_CODE, sampleType2);
 
                     this.allowing(daoFactory).getEntityPropertyTypeDAO(EntityKind.SAMPLE);
                     this.will(Expectations.returnValue(entityPropertyTypeDAO));
@@ -221,16 +227,19 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     this.will(Expectations.returnValue(entityTypeDAO));
 
                     this.atLeast(1).of(entityTypeDAO).listEntityTypes();
-                    this.will(Expectations.returnValue(Collections.singletonList(sampleType)));
+                    this.will(Expectations.returnValue(Arrays.asList(sampleType, sampleType2)));
 
                     this.allowing(entityPropertyTypeDAO).listEntityPropertyTypes(sampleType);
-                    this.will(Expectations.returnValue(Collections
-                            .singletonList(sampleTypePropertyTypePE)));
+                    this.will(Expectations.returnValue(Arrays.asList(sampleTypePropertyTypePE)));
+
+                    this.allowing(entityPropertyTypeDAO).listEntityPropertyTypes(sampleType2);
+                    this.will(Expectations.returnValue(Arrays.asList(sampleTypePropertyTypePE2)));
 
                     one(propertyTypeDAO).tryFindPropertyTypeByCode(VARCHAR_PROPERTY_TYPE_CODE);
                     will(returnValue(propertyTypePE));
 
-                    one(propertyValueValidator).validatePropertyValue(propertyTypePE, "blue");
+                    atLeast(1).of(propertyValueValidator).validatePropertyValue(propertyTypePE,
+                            "blue");
 
                     CollectionMatcher<Set<String>> dynamicPropertiesMatcher =
                             new CollectionMatcher<Set<String>>(new HashSet<String>(
@@ -241,17 +250,35 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     {
                         listOfProperties.add(p);
                     }
-                    one(placeholderCreator).addDynamicPropertiesPlaceholders(
+                    exactly(2).of(placeholderCreator).addDynamicPropertiesPlaceholders(
                             with(definedPropertiesMatcher), with(dynamicPropertiesMatcher));
-                    one(placeholderCreator).addManagedPropertiesPlaceholders(
+                    exactly(2).of(placeholderCreator).addManagedPropertiesPlaceholders(
                             with(definedPropertiesMatcher), with(dynamicPropertiesMatcher));
                 }
-
             });
-        final List<EntityPropertyPE> convertedProperties =
+
+        List<EntityPropertyPE> convertedProperties =
                 entityPropertiesConverter.convertProperties(properties, SAMPLE_TYPE_CODE,
                         ManagerTestTool.EXAMPLE_PERSON);
-        assertEquals(1, convertedProperties.size());
+
+        assertEquals(
+                "[SamplePropertyPE{entityTypePropertyType="
+                        + "SampleTypePropertyTypePE{managedInternally=false,mandatory=true,"
+                        + "propertyType=COLOR,entityType=SampleTypePE{code=MASTER_PLATE,description=<null>,"
+                        + "databaseInstance=DatabaseInstancePE{code=MY_DATABASE_INSTANCE},"
+                        + "listable=<null>,containerHierarchyDepth=<null>,"
+                        + "generatedFromHierarchyDepth=<null>},ordinal=<null>,"
+                        + "section=<null>,dynamic=false,managed=false},value=}]",
+                convertedProperties.toString());
+
+        // Check that for sample type SAMPLE_TYPE2_CODE property is not mandatory as for previous
+        // sample type. This checks that for same property type but different sample types the
+        // right sample-type-property-type has been picked
+        properties[0].setValue(null);
+        convertedProperties =
+                entityPropertiesConverter.convertProperties(properties, SAMPLE_TYPE2_CODE,
+                        ManagerTestTool.EXAMPLE_PERSON);
+
         context.assertIsSatisfied();
     }
 
