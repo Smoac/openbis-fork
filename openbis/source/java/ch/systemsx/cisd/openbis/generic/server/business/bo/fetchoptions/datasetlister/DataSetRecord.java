@@ -36,6 +36,8 @@ public class DataSetRecord
 
     public String dt_data_set_kind;
 
+    public Boolean ed_sc;
+
     public String ex_code;
 
     public String sa_code;

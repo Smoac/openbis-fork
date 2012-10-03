@@ -68,6 +68,8 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
 
     protected String sessionToken;
 
+    protected String userSessionToken;
+
     protected IGeneralInformationService createService()
     {
         return TestJsonServiceFactory.createGeneralInfoService();
@@ -78,6 +80,8 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
     {
         generalInformationService = createService();
         sessionToken = generalInformationService.tryToAuthenticateForAllServices("test", "a");
+        userSessionToken =
+                generalInformationService.tryToAuthenticateForAllServices("test_role", "a");
     }
 
     @AfterMethod
@@ -325,6 +329,19 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         List<DataSet> result =
                 generalInformationService.listDataSetsForSample(sessionToken, samples.get(0), true);
         assertEquals(true, result.size() > 0);
+    }
+
+    @Test
+    public void testListDataSetsForSampleForRegularUserDoesntIncludeStorageNonConfirmed()
+    {
+        // Search for Samples first
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createPropertyMatch("ORGANISM", "HUMAN"));
+        List<Sample> samples = generalInformationService.searchForSamples(userSessionToken, sc);
+        List<DataSet> result =
+                generalInformationService.listDataSetsForSample(userSessionToken, samples.get(0),
+                        true);
+        assertEquals(0, result.size());
     }
 
     @Test

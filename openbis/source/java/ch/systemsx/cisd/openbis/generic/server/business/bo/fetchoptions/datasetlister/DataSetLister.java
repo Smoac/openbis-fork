@@ -173,6 +173,11 @@ public class DataSetLister implements IDataSetLister
         initializer.setDataSetTypeCode(dataSet.dt_code);
         initializer.setContainerDataSet(DataSetKind.CONTAINER.name().equals(
                 dataSet.dt_data_set_kind));
+        initializer.setStorageConfirmed(dataSet.ed_sc == null || dataSet.ed_sc); // if there's no
+                                                                                 // external data
+                                                                                 // than the storage
+                                                                                 // is considered
+                                                                                 // confirmed
         initializer.setLinkDataSet(DataSetKind.LINK.name().equals(dataSet.dt_data_set_kind));
         if (initializer.isLinkDataSet())
         {

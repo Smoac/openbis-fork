@@ -342,6 +342,8 @@ public class Translator
         initializer.setExperimentIdentifier(externalDatum.getExperiment().getIdentifier());
         initializer.setSampleIdentifierOrNull(externalDatum.getSampleIdentifier());
         initializer.setDataSetTypeCode(externalDatum.getDataSetType().getCode());
+        initializer.setStorageConfirmed(externalDatum.isStorageConfirmation());
+
         List<IEntityProperty> properties = externalDatum.getProperties();
         for (IEntityProperty prop : properties)
         {

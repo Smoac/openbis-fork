@@ -32,14 +32,16 @@ public class DataSetByExperimentIdentifierValidator extends AbstractValidator<Da
     @Override
     public boolean doValidation(PersonPE person, final DataSet value)
     {
-        return validator.isValid(person, new IIdentifierHolder()
-            {
-                @Override
-                public String getIdentifier()
-                {
-                    return value.getExperimentIdentifier();
-                }
-            });
+
+        return StorageConfirmedForAdminValidator.isValid(person, value.isStorageConfirmed())
+                && validator.isValid(person, new IIdentifierHolder()
+                    {
+                        @Override
+                        public String getIdentifier()
+                        {
+                            return value.getExperimentIdentifier();
+                        }
+                    });
     }
 
 }

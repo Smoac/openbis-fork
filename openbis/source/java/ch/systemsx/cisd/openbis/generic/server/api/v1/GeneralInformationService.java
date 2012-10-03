@@ -864,12 +864,13 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
         // filter by user
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
-        final DataSetByExperimentIdentifierValidator validator =
+        final DataSetByExperimentIdentifierValidator experimentIdentifierValidator =
                 new DataSetByExperimentIdentifierValidator();
+
         final ArrayList<DataSet> dataSets = new ArrayList<DataSet>(allDataSets.size());
         for (DataSet dataSet : allDataSets)
         {
-            if (validator.doValidation(person, dataSet))
+            if (experimentIdentifierValidator.doValidation(person, dataSet))
             {
                 dataSets.add(dataSet);
             }
