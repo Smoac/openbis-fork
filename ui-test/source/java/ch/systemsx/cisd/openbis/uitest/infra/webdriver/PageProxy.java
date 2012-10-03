@@ -64,7 +64,8 @@ public class PageProxy
                     {
                         if (e.getTargetException() instanceof StaleElementReferenceException)
                         {
-                            System.out.println("STALE REFERENCE - RELOADING " + self);
+                            System.out.println("STALE REFERENCE - RELOADING "
+                                    + self.getClass().getSimpleName());
                             init(clazz, (T) self);
                             return proceed.invoke(self, args);
                         } else
