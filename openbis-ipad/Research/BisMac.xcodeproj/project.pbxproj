@@ -217,7 +217,8 @@
 				3687CF5A15DD50BF009E3019 /* Tests */,
 				3687CF5715DD4FE4009E3019 /* readme.md */,
 			);
-			path = BisKit;
+			name = BisKit;
+			path = ../BisKit;
 			sourceTree = "<group>";
 		};
 		3687CF5915DD50AE009E3019 /* Classes */ = {
