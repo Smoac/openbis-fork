@@ -39,7 +39,6 @@
 
 - (void)tearDown
 {
-    // Tear-down code here.
     [_service release], _service = nil;
     [super tearDown];
 }
