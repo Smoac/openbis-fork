@@ -1,0 +1,505 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		36F71E79161C3AE900C87277 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E78161C3AE900C87277 /* UIKit.framework */; };
+		36F71E7B161C3AE900C87277 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7A161C3AE900C87277 /* Foundation.framework */; };
+		36F71E7D161C3AE900C87277 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7C161C3AE900C87277 /* CoreGraphics.framework */; };
+		36F71E7F161C3AE900C87277 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7E161C3AE900C87277 /* CoreData.framework */; };
+		36F71E85161C3AE900C87277 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 36F71E83161C3AE900C87277 /* InfoPlist.strings */; };
+		36F71E87161C3AE900C87277 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71E86161C3AE900C87277 /* main.m */; };
+		36F71E8B161C3AE900C87277 /* CISDOBAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71E8A161C3AE900C87277 /* CISDOBAppDelegate.m */; };
+		36F71E8D161C3AE900C87277 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 36F71E8C161C3AE900C87277 /* Default.png */; };
+		36F71E8F161C3AE900C87277 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 36F71E8E161C3AE900C87277 /* Default@2x.png */; };
+		36F71E91161C3AE900C87277 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 36F71E90161C3AE900C87277 /* Default-568h@2x.png */; };
+		36F71E94161C3AE900C87277 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 36F71E92161C3AE900C87277 /* MainStoryboard_iPhone.storyboard */; };
+		36F71E97161C3AE900C87277 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 36F71E95161C3AE900C87277 /* MainStoryboard_iPad.storyboard */; };
+		36F71E9A161C3AE900C87277 /* openBIS.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 36F71E98161C3AE900C87277 /* openBIS.xcdatamodeld */; };
+		36F71E9D161C3AE900C87277 /* CISDOBMasterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71E9C161C3AE900C87277 /* CISDOBMasterViewController.m */; };
+		36F71EA0161C3AE900C87277 /* CISDOBDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71E9F161C3AE900C87277 /* CISDOBDetailViewController.m */; };
+		36F71EA8161C3AEA00C87277 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71EA7161C3AEA00C87277 /* SenTestingKit.framework */; };
+		36F71EA9161C3AEA00C87277 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E78161C3AE900C87277 /* UIKit.framework */; };
+		36F71EAA161C3AEA00C87277 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7A161C3AE900C87277 /* Foundation.framework */; };
+		36F71EAB161C3AEA00C87277 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7E161C3AE900C87277 /* CoreData.framework */; };
+		36F71EB3161C3AEA00C87277 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 36F71EB1161C3AEA00C87277 /* InfoPlist.strings */; };
+		36F71EB6161C3AEA00C87277 /* openBISTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71EB5161C3AEA00C87277 /* openBISTests.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		36F71EAC161C3AEA00C87277 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36F71E6B161C3AE900C87277 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 36F71E73161C3AE900C87277;
+			remoteInfo = openBIS;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		36F71E74161C3AE900C87277 /* openBIS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = openBIS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		36F71E78161C3AE900C87277 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		36F71E7A161C3AE900C87277 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		36F71E7C161C3AE900C87277 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		36F71E7E161C3AE900C87277 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		36F71E82161C3AE900C87277 /* openBIS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "openBIS-Info.plist"; sourceTree = "<group>"; };
+		36F71E84161C3AE900C87277 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		36F71E86161C3AE900C87277 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		36F71E88161C3AE900C87277 /* openBIS-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "openBIS-Prefix.pch"; sourceTree = "<group>"; };
+		36F71E89161C3AE900C87277 /* CISDOBAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CISDOBAppDelegate.h; sourceTree = "<group>"; };
+		36F71E8A161C3AE900C87277 /* CISDOBAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CISDOBAppDelegate.m; sourceTree = "<group>"; };
+		36F71E8C161C3AE900C87277 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		36F71E8E161C3AE900C87277 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
+		36F71E90161C3AE900C87277 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		36F71E93161C3AE900C87277 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
+		36F71E96161C3AE900C87277 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
+		36F71E99161C3AE900C87277 /* openBIS.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = openBIS.xcdatamodel; sourceTree = "<group>"; };
+		36F71E9B161C3AE900C87277 /* CISDOBMasterViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CISDOBMasterViewController.h; sourceTree = "<group>"; };
+		36F71E9C161C3AE900C87277 /* CISDOBMasterViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CISDOBMasterViewController.m; sourceTree = "<group>"; };
+		36F71E9E161C3AE900C87277 /* CISDOBDetailViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CISDOBDetailViewController.h; sourceTree = "<group>"; };
+		36F71E9F161C3AE900C87277 /* CISDOBDetailViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CISDOBDetailViewController.m; sourceTree = "<group>"; };
+		36F71EA6161C3AEA00C87277 /* openBISTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = openBISTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		36F71EA7161C3AEA00C87277 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		36F71EB0161C3AEA00C87277 /* openBISTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "openBISTests-Info.plist"; sourceTree = "<group>"; };
+		36F71EB2161C3AEA00C87277 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		36F71EB4161C3AEA00C87277 /* openBISTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = openBISTests.h; sourceTree = "<group>"; };
+		36F71EB5161C3AEA00C87277 /* openBISTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = openBISTests.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		36F71E71161C3AE900C87277 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36F71E79161C3AE900C87277 /* UIKit.framework in Frameworks */,
+				36F71E7B161C3AE900C87277 /* Foundation.framework in Frameworks */,
+				36F71E7D161C3AE900C87277 /* CoreGraphics.framework in Frameworks */,
+				36F71E7F161C3AE900C87277 /* CoreData.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		36F71EA2161C3AEA00C87277 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36F71EA8161C3AEA00C87277 /* SenTestingKit.framework in Frameworks */,
+				36F71EA9161C3AEA00C87277 /* UIKit.framework in Frameworks */,
+				36F71EAA161C3AEA00C87277 /* Foundation.framework in Frameworks */,
+				36F71EAB161C3AEA00C87277 /* CoreData.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		36F71E69161C3AE900C87277 = {
+			isa = PBXGroup;
+			children = (
+				36F71E80161C3AE900C87277 /* openBIS */,
+				36F71EAE161C3AEA00C87277 /* openBISTests */,
+				36F71E77161C3AE900C87277 /* Frameworks */,
+				36F71E75161C3AE900C87277 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		36F71E75161C3AE900C87277 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				36F71E74161C3AE900C87277 /* openBIS.app */,
+				36F71EA6161C3AEA00C87277 /* openBISTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		36F71E77161C3AE900C87277 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				36F71E78161C3AE900C87277 /* UIKit.framework */,
+				36F71E7A161C3AE900C87277 /* Foundation.framework */,
+				36F71E7C161C3AE900C87277 /* CoreGraphics.framework */,
+				36F71E7E161C3AE900C87277 /* CoreData.framework */,
+				36F71EA7161C3AEA00C87277 /* SenTestingKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		36F71E80161C3AE900C87277 /* openBIS */ = {
+			isa = PBXGroup;
+			children = (
+				36F71E89161C3AE900C87277 /* CISDOBAppDelegate.h */,
+				36F71E8A161C3AE900C87277 /* CISDOBAppDelegate.m */,
+				36F71E92161C3AE900C87277 /* MainStoryboard_iPhone.storyboard */,
+				36F71E95161C3AE900C87277 /* MainStoryboard_iPad.storyboard */,
+				36F71E9B161C3AE900C87277 /* CISDOBMasterViewController.h */,
+				36F71E9C161C3AE900C87277 /* CISDOBMasterViewController.m */,
+				36F71E9E161C3AE900C87277 /* CISDOBDetailViewController.h */,
+				36F71E9F161C3AE900C87277 /* CISDOBDetailViewController.m */,
+				36F71E98161C3AE900C87277 /* openBIS.xcdatamodeld */,
+				36F71E81161C3AE900C87277 /* Supporting Files */,
+			);
+			path = openBIS;
+			sourceTree = "<group>";
+		};
+		36F71E81161C3AE900C87277 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				36F71E82161C3AE900C87277 /* openBIS-Info.plist */,
+				36F71E83161C3AE900C87277 /* InfoPlist.strings */,
+				36F71E86161C3AE900C87277 /* main.m */,
+				36F71E88161C3AE900C87277 /* openBIS-Prefix.pch */,
+				36F71E8C161C3AE900C87277 /* Default.png */,
+				36F71E8E161C3AE900C87277 /* Default@2x.png */,
+				36F71E90161C3AE900C87277 /* Default-568h@2x.png */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		36F71EAE161C3AEA00C87277 /* openBISTests */ = {
+			isa = PBXGroup;
+			children = (
+				36F71EB4161C3AEA00C87277 /* openBISTests.h */,
+				36F71EB5161C3AEA00C87277 /* openBISTests.m */,
+				36F71EAF161C3AEA00C87277 /* Supporting Files */,
+			);
+			path = openBISTests;
+			sourceTree = "<group>";
+		};
+		36F71EAF161C3AEA00C87277 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				36F71EB0161C3AEA00C87277 /* openBISTests-Info.plist */,
+				36F71EB1161C3AEA00C87277 /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		36F71E73161C3AE900C87277 /* openBIS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 36F71EB9161C3AEA00C87277 /* Build configuration list for PBXNativeTarget "openBIS" */;
+			buildPhases = (
+				36F71E70161C3AE900C87277 /* Sources */,
+				36F71E71161C3AE900C87277 /* Frameworks */,
+				36F71E72161C3AE900C87277 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = openBIS;
+			productName = openBIS;
+			productReference = 36F71E74161C3AE900C87277 /* openBIS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		36F71EA5161C3AEA00C87277 /* openBISTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 36F71EBC161C3AEA00C87277 /* Build configuration list for PBXNativeTarget "openBISTests" */;
+			buildPhases = (
+				36F71EA1161C3AEA00C87277 /* Sources */,
+				36F71EA2161C3AEA00C87277 /* Frameworks */,
+				36F71EA3161C3AEA00C87277 /* Resources */,
+				36F71EA4161C3AEA00C87277 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				36F71EAD161C3AEA00C87277 /* PBXTargetDependency */,
+			);
+			name = openBISTests;
+			productName = openBISTests;
+			productReference = 36F71EA6161C3AEA00C87277 /* openBISTests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		36F71E6B161C3AE900C87277 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = CISDOB;
+				LastUpgradeCheck = 0450;
+				ORGANIZATIONNAME = "ETHZ, CISD";
+			};
+			buildConfigurationList = 36F71E6E161C3AE900C87277 /* Build configuration list for PBXProject "openBIS" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 36F71E69161C3AE900C87277;
+			productRefGroup = 36F71E75161C3AE900C87277 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				36F71E73161C3AE900C87277 /* openBIS */,
+				36F71EA5161C3AEA00C87277 /* openBISTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		36F71E72161C3AE900C87277 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36F71E85161C3AE900C87277 /* InfoPlist.strings in Resources */,
+				36F71E8D161C3AE900C87277 /* Default.png in Resources */,
+				36F71E8F161C3AE900C87277 /* Default@2x.png in Resources */,
+				36F71E91161C3AE900C87277 /* Default-568h@2x.png in Resources */,
+				36F71E94161C3AE900C87277 /* MainStoryboard_iPhone.storyboard in Resources */,
+				36F71E97161C3AE900C87277 /* MainStoryboard_iPad.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		36F71EA3161C3AEA00C87277 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36F71EB3161C3AEA00C87277 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		36F71EA4161C3AEA00C87277 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		36F71E70161C3AE900C87277 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36F71E87161C3AE900C87277 /* main.m in Sources */,
+				36F71E8B161C3AE900C87277 /* CISDOBAppDelegate.m in Sources */,
+				36F71E9A161C3AE900C87277 /* openBIS.xcdatamodeld in Sources */,
+				36F71E9D161C3AE900C87277 /* CISDOBMasterViewController.m in Sources */,
+				36F71EA0161C3AE900C87277 /* CISDOBDetailViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		36F71EA1161C3AEA00C87277 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36F71EB6161C3AEA00C87277 /* openBISTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		36F71EAD161C3AEA00C87277 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 36F71E73161C3AE900C87277 /* openBIS */;
+			targetProxy = 36F71EAC161C3AEA00C87277 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		36F71E83161C3AE900C87277 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				36F71E84161C3AE900C87277 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		36F71E92161C3AE900C87277 /* MainStoryboard_iPhone.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				36F71E93161C3AE900C87277 /* en */,
+			);
+			name = MainStoryboard_iPhone.storyboard;
+			sourceTree = "<group>";
+		};
+		36F71E95161C3AE900C87277 /* MainStoryboard_iPad.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				36F71E96161C3AE900C87277 /* en */,
+			);
+			name = MainStoryboard_iPad.storyboard;
+			sourceTree = "<group>";
+		};
+		36F71EB1161C3AEA00C87277 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				36F71EB2161C3AEA00C87277 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		36F71EB7161C3AEA00C87277 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		36F71EB8161C3AEA00C87277 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		36F71EBA161C3AEA00C87277 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "openBIS/openBIS-Prefix.pch";
+				INFOPLIST_FILE = "openBIS/openBIS-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		36F71EBB161C3AEA00C87277 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "openBIS/openBIS-Prefix.pch";
+				INFOPLIST_FILE = "openBIS/openBIS-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		36F71EBD161C3AEA00C87277 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/openBIS.app/openBIS";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "openBIS/openBIS-Prefix.pch";
+				INFOPLIST_FILE = "openBISTests/openBISTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		36F71EBE161C3AEA00C87277 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/openBIS.app/openBIS";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "openBIS/openBIS-Prefix.pch";
+				INFOPLIST_FILE = "openBISTests/openBISTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		36F71E6E161C3AE900C87277 /* Build configuration list for PBXProject "openBIS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				36F71EB7161C3AEA00C87277 /* Debug */,
+				36F71EB8161C3AEA00C87277 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		36F71EB9161C3AEA00C87277 /* Build configuration list for PBXNativeTarget "openBIS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				36F71EBA161C3AEA00C87277 /* Debug */,
+				36F71EBB161C3AEA00C87277 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		36F71EBC161C3AEA00C87277 /* Build configuration list for PBXNativeTarget "openBISTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				36F71EBD161C3AEA00C87277 /* Debug */,
+				36F71EBE161C3AEA00C87277 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		36F71E98161C3AE900C87277 /* openBIS.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				36F71E99161C3AE900C87277 /* openBIS.xcdatamodel */,
+			);
+			currentVersion = 36F71E99161C3AE900C87277 /* openBIS.xcdatamodel */;
+			path = openBIS.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = 36F71E6B161C3AE900C87277 /* Project object */;
+}
