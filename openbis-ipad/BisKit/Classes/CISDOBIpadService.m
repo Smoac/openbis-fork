@@ -190,12 +190,15 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
     return self;
 }
 
-- (NSString *)summaryHeader { return [_content objectAtIndex: 0]; }
-- (NSString *)summary { return [_content objectAtIndex: 1]; }
-- (NSString *)identifier { return [_content objectAtIndex: 2]; }
-- (NSString *)permId { return [_content objectAtIndex: 3]; }
-- (NSString *)entityKind { return [_content objectAtIndex: 4]; }
-- (NSString *)entityType { return [_content objectAtIndex: 5]; }
-- (NSDictionary *)properties { return [_content objectAtIndex: 6]; }
+- (NSString *)stringContentValueAtIndex:(NSUInteger)index { return [[_content objectAtIndex: index] objectForKey: @"value"]; }
+
+
+- (NSString *)summaryHeader { return [self stringContentValueAtIndex: 0]; }
+- (NSString *)summary { return [self stringContentValueAtIndex: 1]; }
+- (NSString *)identifier { return [self stringContentValueAtIndex: 2]; }
+- (NSString *)permId { return [self stringContentValueAtIndex: 3]; }
+- (NSString *)entityKind { return [self stringContentValueAtIndex: 4]; }
+- (NSString *)entityType { return [self stringContentValueAtIndex: 5]; }
+- (NSString *)properties { return [self stringContentValueAtIndex: 6]; }
 
 @end

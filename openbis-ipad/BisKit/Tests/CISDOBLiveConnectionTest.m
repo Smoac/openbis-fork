@@ -63,8 +63,11 @@
 - (void)assertServiceDataRowIsParsable:(NSArray *)row
 {
     // The only column we need to check is the properties column, which is the last one.
-    NSDictionary *jsonProperties = [row objectAtIndex: [row count] - 1];
-    STAssertNotNil(jsonProperties, @"Properties should have been parsed");
+    NSDictionary *propertiesRow = [row objectAtIndex: [row count] - 1];
+    NSString *propertiesValue = [propertiesRow objectForKey: @"value"];
+    NSError *error;
+    NSDictionary *jsonProperties = [NSJSONSerialization JSONObjectWithData:[propertiesValue dataUsingEncoding: NSUTF8StringEncoding] options: 0 error:&error];
+    STAssertNotNil(jsonProperties, @"Properties should have been parsed, %@", error);
 }
 
 - (void)testLoginAndListServices
