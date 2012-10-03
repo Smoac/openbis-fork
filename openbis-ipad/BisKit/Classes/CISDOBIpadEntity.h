@@ -25,6 +25,10 @@
 #import <CoreData/CoreData.h>
 
 
+/**
+ * \brief A persistent version of an entity from the iPad server.
+ */
+@class CISDOBIpadRawEntity;
 @interface CISDOBIpadEntity : NSManagedObject
 
 @property (nonatomic, retain) NSString * summaryHeader;
@@ -34,5 +38,9 @@
 @property (nonatomic, retain) NSString * entityKind;
 @property (nonatomic, retain) NSString * entityType;
 @property (nonatomic, retain) NSString * propertiesJson;
+
+// Actions
+//! Take the values from the raw entity.
+- (void)initializeFromRawEntity:(CISDOBIpadRawEntity *)rawEntity;
 
 @end

@@ -20,11 +20,11 @@
 //  Created by Ramakrishnan  Chandrasekhar on 10/2/12.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import "CISDOBAsyncTest.h"
 
 // Test the persistence of iPad entities.
 @class CISDOBIpadService;
-@interface CISDOBIpadEntityTest : SenTestCase
+@interface CISDOBIpadEntityTest : CISDOBAsyncTest
 
 @property(strong) CISDOBIpadService *service;
 @property(strong) NSURL *databaseUrl;
