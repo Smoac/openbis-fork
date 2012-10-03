@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		364D509E161C6ADB00A739B0 /* openBISData.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 364D509C161C6ADB00A739B0 /* openBISData.sqlite */; };
 		36F71E79161C3AE900C87277 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E78161C3AE900C87277 /* UIKit.framework */; };
 		36F71E7B161C3AE900C87277 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7A161C3AE900C87277 /* Foundation.framework */; };
 		36F71E7D161C3AE900C87277 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7C161C3AE900C87277 /* CoreGraphics.framework */; };
@@ -19,7 +20,6 @@
 		36F71E91161C3AE900C87277 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 36F71E90161C3AE900C87277 /* Default-568h@2x.png */; };
 		36F71E94161C3AE900C87277 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 36F71E92161C3AE900C87277 /* MainStoryboard_iPhone.storyboard */; };
 		36F71E97161C3AE900C87277 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 36F71E95161C3AE900C87277 /* MainStoryboard_iPad.storyboard */; };
-		36F71E9A161C3AE900C87277 /* openBIS.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 36F71E98161C3AE900C87277 /* openBIS.xcdatamodeld */; };
 		36F71E9D161C3AE900C87277 /* CISDOBMasterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71E9C161C3AE900C87277 /* CISDOBMasterViewController.m */; };
 		36F71EA0161C3AE900C87277 /* CISDOBDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71E9F161C3AE900C87277 /* CISDOBDetailViewController.m */; };
 		36F71EA8161C3AEA00C87277 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71EA7161C3AEA00C87277 /* SenTestingKit.framework */; };
@@ -44,7 +44,6 @@
 		36F71F2E161C4F0400C87277 /* CISDOBIpadService.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ED2161C453D00C87277 /* CISDOBIpadService.m */; };
 		36F71F30161C4F0400C87277 /* CISDOBJsonRpcCall.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ED4161C453D00C87277 /* CISDOBJsonRpcCall.m */; };
 		36F71F32161C4F0400C87277 /* persistent-data-model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ED6161C453D00C87277 /* persistent-data-model.xcdatamodeld */; };
-		36F71F34161C631700C87277 /* openBISData.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 36F71F33161C631700C87277 /* openBISData.sqlite */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +71,7 @@
 
 /* Begin PBXFileReference section */
 		364D5098161C6A3600A739B0 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
+		364D509C161C6ADB00A739B0 /* openBISData.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = openBISData.sqlite; sourceTree = "<group>"; };
 		36F71E74161C3AE900C87277 /* openBIS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = openBIS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		36F71E78161C3AE900C87277 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		36F71E7A161C3AE900C87277 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -88,7 +88,6 @@
 		36F71E90161C3AE900C87277 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		36F71E93161C3AE900C87277 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
 		36F71E96161C3AE900C87277 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
-		36F71E99161C3AE900C87277 /* openBIS.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = openBIS.xcdatamodel; sourceTree = "<group>"; };
 		36F71E9B161C3AE900C87277 /* CISDOBMasterViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CISDOBMasterViewController.h; sourceTree = "<group>"; };
 		36F71E9C161C3AE900C87277 /* CISDOBMasterViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CISDOBMasterViewController.m; sourceTree = "<group>"; };
 		36F71E9E161C3AE900C87277 /* CISDOBDetailViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CISDOBDetailViewController.h; sourceTree = "<group>"; };
@@ -117,7 +116,6 @@
 		36F71F1C161C4AA000C87277 /* openBISData-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "openBISData-Prefix.pch"; sourceTree = "<group>"; };
 		36F71F20161C4AA000C87277 /* openBISData.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = openBISData.1; sourceTree = "<group>"; };
 		36F71F25161C4AE900C87277 /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
-		36F71F33161C631700C87277 /* openBISData.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = openBISData.sqlite; path = Research/openBISData.sqlite; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,6 +153,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		364D509A161C6ADB00A739B0 /* DevData */ = {
+			isa = PBXGroup;
+			children = (
+				364D509C161C6ADB00A739B0 /* openBISData.sqlite */,
+			);
+			path = DevData;
+			sourceTree = SOURCE_ROOT;
+		};
 		36F71E69161C3AE900C87277 = {
 			isa = PBXGroup;
 			children = (
@@ -201,7 +207,7 @@
 				36F71E9C161C3AE900C87277 /* CISDOBMasterViewController.m */,
 				36F71E9E161C3AE900C87277 /* CISDOBDetailViewController.h */,
 				36F71E9F161C3AE900C87277 /* CISDOBDetailViewController.m */,
-				36F71E98161C3AE900C87277 /* openBIS.xcdatamodeld */,
+				364D509A161C6ADB00A739B0 /* DevData */,
 				36F71E81161C3AE900C87277 /* Supporting Files */,
 			);
 			path = openBIS;
@@ -291,7 +297,6 @@
 		36F71F1B161C4AA000C87277 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				36F71F33161C631700C87277 /* openBISData.sqlite */,
 				36F71F1C161C4AA000C87277 /* openBISData-Prefix.pch */,
 			);
 			name = "Supporting Files";
@@ -393,7 +398,7 @@
 				36F71E91161C3AE900C87277 /* Default-568h@2x.png in Resources */,
 				36F71E94161C3AE900C87277 /* MainStoryboard_iPhone.storyboard in Resources */,
 				36F71E97161C3AE900C87277 /* MainStoryboard_iPad.storyboard in Resources */,
-				36F71F34161C631700C87277 /* openBISData.sqlite in Resources */,
+				364D509E161C6ADB00A739B0 /* openBISData.sqlite in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -430,7 +435,6 @@
 			files = (
 				36F71E87161C3AE900C87277 /* main.m in Sources */,
 				36F71E8B161C3AE900C87277 /* CISDOBAppDelegate.m in Sources */,
-				36F71E9A161C3AE900C87277 /* openBIS.xcdatamodeld in Sources */,
 				36F71E9D161C3AE900C87277 /* CISDOBMasterViewController.m in Sources */,
 				36F71EA0161C3AE900C87277 /* CISDOBDetailViewController.m in Sources */,
 				36F71EE4161C453D00C87277 /* CISDOBAsyncCall.m in Sources */,
@@ -532,7 +536,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -553,7 +557,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -689,16 +693,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		36F71E98161C3AE900C87277 /* openBIS.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				36F71E99161C3AE900C87277 /* openBIS.xcdatamodel */,
-			);
-			currentVersion = 36F71E99161C3AE900C87277 /* openBIS.xcdatamodel */;
-			path = openBIS.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
 		36F71ED6161C453D00C87277 /* persistent-data-model.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
