@@ -1,7 +1,17 @@
 <suite name="All" verbose="2" >
-  <test name="All" annotations="JDK">
+  <test name="Main" annotations="JDK">
     <packages>
-      <package name="ch.systemsx.cisd.openbis.uitest.suite.*" />
+      <package name="ch.systemsx.cisd.openbis.uitest.suite.main.*" />
+    </packages>
+  </test>
+  <test name="Sprint" annotations="JDK">
+    <packages>
+      <package name="ch.systemsx.cisd.openbis.uitest.suite.sprint.*" />
+    </packages>
+  </test>
+  <test name="Authentication" annotations="JDK">
+    <packages>
+      <package name="ch.systemsx.cisd.openbis.uitest.suite.authentication.*" />
     </packages>
   </test>
 </suite>

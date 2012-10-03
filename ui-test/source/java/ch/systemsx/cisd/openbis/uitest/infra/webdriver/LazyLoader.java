@@ -23,14 +23,16 @@ import java.lang.reflect.Method;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
 
-public class WebElementProxy implements InvocationHandler
+public class LazyLoader implements InvocationHandler
 {
 
     private String id;
 
     private String tag;
+
+    private WebElement element;
 
     public static Object newInstance(String id, String tag)
     {
@@ -38,10 +40,10 @@ public class WebElementProxy implements InvocationHandler
                 WebElement.class.getClassLoader(),
                 new Class<?>[]
                     { WebElement.class },
-                new WebElementProxy(id, tag));
+                new LazyLoader(id, tag));
     }
 
-    private WebElementProxy(String id, String tag)
+    private LazyLoader(String id, String tag)
     {
         this.id = id;
         this.tag = tag;
@@ -52,12 +54,17 @@ public class WebElementProxy implements InvocationHandler
     {
         try
         {
-            WebElement e = SeleniumTest.driver.findElement(By.id(id));
-            if (tag != null && !tag.equals(e.getTagName()))
+            if (element == null)
             {
-                e = e.findElement(By.xpath(".//" + tag));
+                WebElement e = SeleniumTest.driver.findElement(By.id(id));
+                if (tag != null && !tag.equals(e.getTagName()))
+                {
+                    e = e.findElement(By.xpath(".//" + tag));
+                }
+
+                element = e;
             }
-            return m.invoke(e, args);
+            return m.invoke(element, args);
         } catch (InvocationTargetException e)
         {
             throw e.getTargetException();

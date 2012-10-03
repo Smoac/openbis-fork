@@ -1,10 +1,11 @@
-package ch.systemsx.cisd.openbis.uitest.suite;
+package ch.systemsx.cisd.openbis.uitest.suite.authentication;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.page.dialog.InvalidPasswordDialog;
 import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
 import ch.systemsx.cisd.openbis.uitest.page.menu.TopBar;
@@ -12,7 +13,7 @@ import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
 
 @Test(groups =
     { "no-login" })
-public class AuthorizationTest extends SeleniumTest
+public class AuthenticationTest extends SeleniumTest
 {
 
     @Test

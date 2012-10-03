@@ -14,35 +14,36 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.suite;
+package ch.systemsx.cisd.openbis.uitest.suite.main;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.uitest.type.DataSet;
+import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
+import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
+import ch.systemsx.cisd.openbis.uitest.type.Space;
 
 /**
  * @author anttil
  */
 @Test(groups =
     { "login-admin" })
-public class DataSetTest extends SeleniumTest
+public class ExperimentTest extends SeleniumTest
 {
 
-    @Test(enabled = false)
-    public void newDataSetIsListedInDetailedViewOfTheSample() throws Exception
+    @Test
+    public void creatingExperimentWithSampleChangesTheSample() throws Exception
     {
-        Experiment experiment = create(anExperiment());
-        Sample sample = create(aSample().in(experiment));
+        Space space = create(aSpace());
+        Project project = create(aProject().in(space));
+        Sample sample = create(aSample().in(space));
 
-        DataSet dataset = create(aDataSet().in(sample));
+        Experiment experiment = create(anExperiment().in(project).withSamples(sample));
 
-        System.out.println(dataset.getCode());
-
-        // assertThat(detailsOf(sample), containsDataSet(dataset));
-
-        // assertThat(dataSetBrowserOf(sample), lists(dataset));
+        assertThat(browserEntryOf(sample), containsValue("Experiment", experiment.getCode()));
+        assertThat(browserEntryOf(sample), containsValue("Project", project.getCode()));
     }
-
 }

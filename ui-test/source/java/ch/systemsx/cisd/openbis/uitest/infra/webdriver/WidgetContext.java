@@ -25,8 +25,8 @@ import org.openqa.selenium.Point;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 
+import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
-import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.widget.AtomicWidget;
 
 /**

@@ -25,10 +25,10 @@ import java.util.concurrent.TimeUnit;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserCell;
 import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
-import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 
 /**
  * @author anttil

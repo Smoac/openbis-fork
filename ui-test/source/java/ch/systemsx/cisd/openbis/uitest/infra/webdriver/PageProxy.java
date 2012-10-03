@@ -17,18 +17,12 @@
 package ch.systemsx.cisd.openbis.uitest.infra.webdriver;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import javassist.util.proxy.MethodHandler;
-import javassist.util.proxy.ProxyFactory;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 
+import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
-import ch.systemsx.cisd.openbis.uitest.suite.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.widget.AtomicWidget;
 import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
@@ -47,71 +41,17 @@ public class PageProxy
     @SuppressWarnings("unchecked")
     public <T> T get(final Class<T> clazz)
     {
-
-        ProxyFactory factory = new ProxyFactory();
-        factory.setSuperclass(clazz);
-
-        MethodHandler handler = new MethodHandler()
-            {
-                @Override
-                public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args)
-                        throws Throwable
-                {
-                    try
-                    {
-                        return proceed.invoke(self, args);
-                    } catch (InvocationTargetException e)
-                    {
-                        if (e.getTargetException() instanceof StaleElementReferenceException)
-                        {
-                            initLocateFields(clazz, (T) self);
-                            return proceed.invoke(self, args);
-                        } else
-                        {
-                            throw e.getTargetException();
-                        }
-                    }
-                }
-            };
-
-        T t;
         try
         {
-            t = (T) factory.create(new Class<?>[0], new Object[0], handler);
-        } catch (IllegalArgumentException ex1)
-        {
-            throw new RuntimeException(ex1);
-        } catch (NoSuchMethodException ex1)
-        {
-            throw new RuntimeException(ex1);
-        } catch (InstantiationException ex1)
-        {
-            throw new RuntimeException(ex1);
-        } catch (IllegalAccessException ex1)
-        {
-            throw new RuntimeException(ex1);
-        } catch (InvocationTargetException ex1)
-        {
-            throw new RuntimeException(ex1);
-        }
+            T t = clazz.newInstance();
 
-        initLocateFields(clazz, t);
-
-        return t;
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> void initLocateFields(Class<T> clazz, T t)
-    {
-        Class<T> pageClass = clazz;
-        while (pageClass != null)
-        {
-            for (Field field : pageClass.getDeclaredFields())
+            Class<T> pageClass = clazz;
+            while (pageClass != null)
             {
-                Locate locate = field.getAnnotation(Locate.class);
-                if (locate != null)
+                for (Field field : pageClass.getDeclaredFields())
                 {
-                    try
+                    Locate locate = field.getAnnotation(Locate.class);
+                    if (locate != null)
                     {
                         field.setAccessible(true);
                         Widget widget = (Widget) field.getType().newInstance();
@@ -126,7 +66,7 @@ public class PageProxy
                         if (field.getAnnotation(Lazy.class) != null)
                         {
                             element =
-                                    (WebElement) WebElementProxy.newInstance(locate.value(),
+                                    (WebElement) LazyLoader.newInstance(locate.value(),
                                             tagName);
                         } else
                         {
@@ -139,46 +79,36 @@ public class PageProxy
 
                         widget.setContext(new WidgetContext(element, shotter));
                         field.set(t, widget);
-                    } catch (IllegalArgumentException ex)
-                    {
-                        // TODO Auto-generated catch block
-                        ex.printStackTrace();
-                        throw ex;
-                    } catch (IllegalAccessException ex)
-                    {
-                        ex.printStackTrace();
-                        throw new RuntimeException(ex);
-                    } catch (InstantiationException ex)
-                    {
-                        // TODO Auto-generated catch block
-                        ex.printStackTrace();
-                        throw new RuntimeException(ex);
                     }
 
-                }
-
-                Context context = field.getAnnotation(Context.class);
-                if (context != null)
-                {
-                    field.setAccessible(true);
-                    try
+                    Context context = field.getAnnotation(Context.class);
+                    if (context != null)
                     {
-                        field.set(t, new WidgetContext(SeleniumTest.driver.findElement(By
-                                .xpath("/html")),
-                                shotter));
-                    } catch (IllegalArgumentException ex)
-                    {
-                        ex.printStackTrace();
-                        throw new RuntimeException(ex);
-                    } catch (IllegalAccessException ex)
-                    {
-                        ex.printStackTrace();
-                        throw new RuntimeException(ex);
+                        field.setAccessible(true);
+                        try
+                        {
+                            field.set(t, new WidgetContext(SeleniumTest.driver.findElement(By
+                                    .xpath("/html")),
+                                    shotter));
+                        } catch (IllegalArgumentException ex)
+                        {
+                            ex.printStackTrace();
+                            throw new RuntimeException(ex);
+                        } catch (IllegalAccessException ex)
+                        {
+                            ex.printStackTrace();
+                            throw new RuntimeException(ex);
+                        }
                     }
                 }
+
+                pageClass = (Class<T>) pageClass.getSuperclass();
             }
 
-            pageClass = (Class<T>) pageClass.getSuperclass();
+            return t;
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
         }
     }
 }

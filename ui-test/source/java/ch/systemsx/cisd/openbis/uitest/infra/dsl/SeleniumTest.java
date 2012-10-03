@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.suite;
+package ch.systemsx.cisd.openbis.uitest.infra.dsl;
 
 import static org.hamcrest.CoreMatchers.not;
 
@@ -30,17 +30,16 @@ import org.openqa.selenium.Dimension;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.testng.annotations.AfterGroups;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
 
 import ch.systemsx.cisd.openbis.uitest.infra.application.ApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.infra.application.PublicApiApplicationRunner;
-import ch.systemsx.cisd.openbis.uitest.infra.dsl.DslSampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellContentMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.CollectionContainsMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.matcher.CurrentPageMatcher;
@@ -166,9 +165,11 @@ public abstract class SeleniumTest
         driver.quit();
     }
 
-    @BeforeGroups(groups = "login-admin")
+    @BeforeTest(groups =
+        { "login-admin", "sprint-test" })
     public void loginAsAdmin()
     {
+        System.out.println("LOGIN");
         this.openbis = new GuiApplicationRunner(new PageProxy(new ScreenShotter()
             {
                 @Override
@@ -183,9 +184,11 @@ public abstract class SeleniumTest
         openbisApi.login(ADMIN_USER, ADMIN_PASSWORD);
     }
 
-    @AfterGroups(groups = "login-admin")
+    @AfterTest(groups =
+        { "login-admin", "sprint-test" })
     public void logout()
     {
+        System.out.println("LOGOUT!");
         this.openbis = new GuiApplicationRunner(new PageProxy(new ScreenShotter()
             {
                 @Override
