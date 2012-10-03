@@ -28,6 +28,18 @@
 		36F71EAB161C3AEA00C87277 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7E161C3AE900C87277 /* CoreData.framework */; };
 		36F71EB3161C3AEA00C87277 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 36F71EB1161C3AEA00C87277 /* InfoPlist.strings */; };
 		36F71EB6161C3AEA00C87277 /* openBISTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71EB5161C3AEA00C87277 /* openBISTests.m */; };
+		36F71EE4161C453D00C87277 /* CISDOBAsyncCall.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ECC161C453D00C87277 /* CISDOBAsyncCall.m */; };
+		36F71EE5161C453D00C87277 /* CISDOBConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ECE161C453D00C87277 /* CISDOBConnection.m */; };
+		36F71EE6161C453D00C87277 /* CISDOBIpadEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ED0161C453D00C87277 /* CISDOBIpadEntity.m */; };
+		36F71EE7161C453D00C87277 /* CISDOBIpadService.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ED2161C453D00C87277 /* CISDOBIpadService.m */; };
+		36F71EE8161C453D00C87277 /* CISDOBJsonRpcCall.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ED4161C453D00C87277 /* CISDOBJsonRpcCall.m */; };
+		36F71EE9161C453D00C87277 /* persistent-data-model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ED6161C453D00C87277 /* persistent-data-model.xcdatamodeld */; };
+		36F71EEA161C453D00C87277 /* readme.md in Resources */ = {isa = PBXBuildFile; fileRef = 36F71ED8161C453D00C87277 /* readme.md */; };
+		36F71F16161C4AA000C87277 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7E161C3AE900C87277 /* CoreData.framework */; };
+		36F71F17161C4AA000C87277 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7A161C3AE900C87277 /* Foundation.framework */; };
+		36F71F1A161C4AA000C87277 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71F19161C4AA000C87277 /* main.m */; };
+		36F71F21161C4AA000C87277 /* openBISData.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 36F71F20161C4AA000C87277 /* openBISData.1 */; };
+		36F71F26161C4AE900C87277 /* readme.md in Resources */ = {isa = PBXBuildFile; fileRef = 36F71F25161C4AE900C87277 /* readme.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,6 +51,19 @@
 			remoteInfo = openBIS;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		36F71F12161C4AA000C87277 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+				36F71F21161C4AA000C87277 /* openBISData.1 in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		36F71E74161C3AE900C87277 /* openBIS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = openBIS.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -68,6 +93,24 @@
 		36F71EB2161C3AEA00C87277 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		36F71EB4161C3AEA00C87277 /* openBISTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = openBISTests.h; sourceTree = "<group>"; };
 		36F71EB5161C3AEA00C87277 /* openBISTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = openBISTests.m; sourceTree = "<group>"; };
+		36F71ECB161C453D00C87277 /* CISDOBAsyncCall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBAsyncCall.h; sourceTree = "<group>"; };
+		36F71ECC161C453D00C87277 /* CISDOBAsyncCall.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBAsyncCall.m; sourceTree = "<group>"; };
+		36F71ECD161C453D00C87277 /* CISDOBConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBConnection.h; sourceTree = "<group>"; };
+		36F71ECE161C453D00C87277 /* CISDOBConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBConnection.m; sourceTree = "<group>"; };
+		36F71ECF161C453D00C87277 /* CISDOBIpadEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBIpadEntity.h; sourceTree = "<group>"; };
+		36F71ED0161C453D00C87277 /* CISDOBIpadEntity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBIpadEntity.m; sourceTree = "<group>"; };
+		36F71ED1161C453D00C87277 /* CISDOBIpadService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBIpadService.h; sourceTree = "<group>"; };
+		36F71ED2161C453D00C87277 /* CISDOBIpadService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBIpadService.m; sourceTree = "<group>"; };
+		36F71ED3161C453D00C87277 /* CISDOBJsonRpcCall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBJsonRpcCall.h; sourceTree = "<group>"; };
+		36F71ED4161C453D00C87277 /* CISDOBJsonRpcCall.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBJsonRpcCall.m; sourceTree = "<group>"; };
+		36F71ED5161C453D00C87277 /* CISDOBShared.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBShared.h; sourceTree = "<group>"; };
+		36F71ED7161C453D00C87277 /* persistent-data-model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "persistent-data-model.xcdatamodel"; sourceTree = "<group>"; };
+		36F71ED8161C453D00C87277 /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
+		36F71F14161C4AA000C87277 /* openBISData */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = openBISData; sourceTree = BUILT_PRODUCTS_DIR; };
+		36F71F19161C4AA000C87277 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		36F71F1C161C4AA000C87277 /* openBISData-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "openBISData-Prefix.pch"; sourceTree = "<group>"; };
+		36F71F20161C4AA000C87277 /* openBISData.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = openBISData.1; sourceTree = "<group>"; };
+		36F71F25161C4AE900C87277 /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,14 +136,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		36F71F11161C4AA000C87277 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36F71F16161C4AA000C87277 /* CoreData.framework in Frameworks */,
+				36F71F17161C4AA000C87277 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		36F71E69161C3AE900C87277 = {
 			isa = PBXGroup;
 			children = (
+				36F71EC9161C453D00C87277 /* BisKit */,
 				36F71E80161C3AE900C87277 /* openBIS */,
 				36F71EAE161C3AEA00C87277 /* openBISTests */,
+				36F71EFA161C492600C87277 /* Research */,
 				36F71E77161C3AE900C87277 /* Frameworks */,
 				36F71E75161C3AE900C87277 /* Products */,
 			);
@@ -111,6 +165,7 @@
 			children = (
 				36F71E74161C3AE900C87277 /* openBIS.app */,
 				36F71EA6161C3AEA00C87277 /* openBISTests.octest */,
+				36F71F14161C4AA000C87277 /* openBISData */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -177,6 +232,62 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		36F71EC9161C453D00C87277 /* BisKit */ = {
+			isa = PBXGroup;
+			children = (
+				36F71ED8161C453D00C87277 /* readme.md */,
+				36F71ECA161C453D00C87277 /* Classes */,
+			);
+			name = BisKit;
+			path = ../BisKit;
+			sourceTree = "<group>";
+		};
+		36F71ECA161C453D00C87277 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				36F71ECB161C453D00C87277 /* CISDOBAsyncCall.h */,
+				36F71ECC161C453D00C87277 /* CISDOBAsyncCall.m */,
+				36F71ECD161C453D00C87277 /* CISDOBConnection.h */,
+				36F71ECE161C453D00C87277 /* CISDOBConnection.m */,
+				36F71ECF161C453D00C87277 /* CISDOBIpadEntity.h */,
+				36F71ED0161C453D00C87277 /* CISDOBIpadEntity.m */,
+				36F71ED1161C453D00C87277 /* CISDOBIpadService.h */,
+				36F71ED2161C453D00C87277 /* CISDOBIpadService.m */,
+				36F71ED3161C453D00C87277 /* CISDOBJsonRpcCall.h */,
+				36F71ED4161C453D00C87277 /* CISDOBJsonRpcCall.m */,
+				36F71ED5161C453D00C87277 /* CISDOBShared.h */,
+				36F71ED6161C453D00C87277 /* persistent-data-model.xcdatamodeld */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
+		36F71EFA161C492600C87277 /* Research */ = {
+			isa = PBXGroup;
+			children = (
+				36F71F25161C4AE900C87277 /* readme.md */,
+				36F71F18161C4AA000C87277 /* openBISData */,
+			);
+			path = Research;
+			sourceTree = "<group>";
+		};
+		36F71F18161C4AA000C87277 /* openBISData */ = {
+			isa = PBXGroup;
+			children = (
+				36F71F19161C4AA000C87277 /* main.m */,
+				36F71F20161C4AA000C87277 /* openBISData.1 */,
+				36F71F1B161C4AA000C87277 /* Supporting Files */,
+			);
+			path = openBISData;
+			sourceTree = "<group>";
+		};
+		36F71F1B161C4AA000C87277 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				36F71F1C161C4AA000C87277 /* openBISData-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -216,6 +327,23 @@
 			productReference = 36F71EA6161C3AEA00C87277 /* openBISTests.octest */;
 			productType = "com.apple.product-type.bundle";
 		};
+		36F71F13161C4AA000C87277 /* openBISData */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 36F71F22161C4AA000C87277 /* Build configuration list for PBXNativeTarget "openBISData" */;
+			buildPhases = (
+				36F71F10161C4AA000C87277 /* Sources */,
+				36F71F11161C4AA000C87277 /* Frameworks */,
+				36F71F12161C4AA000C87277 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = openBISData;
+			productName = openBISData;
+			productReference = 36F71F14161C4AA000C87277 /* openBISData */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -240,6 +368,7 @@
 			targets = (
 				36F71E73161C3AE900C87277 /* openBIS */,
 				36F71EA5161C3AEA00C87277 /* openBISTests */,
+				36F71F13161C4AA000C87277 /* openBISData */,
 			);
 		};
 /* End PBXProject section */
@@ -255,6 +384,8 @@
 				36F71E91161C3AE900C87277 /* Default-568h@2x.png in Resources */,
 				36F71E94161C3AE900C87277 /* MainStoryboard_iPhone.storyboard in Resources */,
 				36F71E97161C3AE900C87277 /* MainStoryboard_iPad.storyboard in Resources */,
+				36F71EEA161C453D00C87277 /* readme.md in Resources */,
+				36F71F26161C4AE900C87277 /* readme.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -294,6 +425,12 @@
 				36F71E9A161C3AE900C87277 /* openBIS.xcdatamodeld in Sources */,
 				36F71E9D161C3AE900C87277 /* CISDOBMasterViewController.m in Sources */,
 				36F71EA0161C3AE900C87277 /* CISDOBDetailViewController.m in Sources */,
+				36F71EE4161C453D00C87277 /* CISDOBAsyncCall.m in Sources */,
+				36F71EE5161C453D00C87277 /* CISDOBConnection.m in Sources */,
+				36F71EE6161C453D00C87277 /* CISDOBIpadEntity.m in Sources */,
+				36F71EE7161C453D00C87277 /* CISDOBIpadService.m in Sources */,
+				36F71EE8161C453D00C87277 /* CISDOBJsonRpcCall.m in Sources */,
+				36F71EE9161C453D00C87277 /* persistent-data-model.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -302,6 +439,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				36F71EB6161C3AEA00C87277 /* openBISTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		36F71F10161C4AA000C87277 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36F71F1A161C4AA000C87277 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -373,7 +518,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -394,7 +539,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -458,6 +603,36 @@
 			};
 			name = Release;
 		};
+		36F71F23161C4AA000C87277 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Research/openBISData/openBISData-Prefix.pch";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		36F71F24161C4AA000C87277 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Research/openBISData/openBISData-Prefix.pch";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -477,12 +652,22 @@
 				36F71EBB161C3AEA00C87277 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		36F71EBC161C3AEA00C87277 /* Build configuration list for PBXNativeTarget "openBISTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				36F71EBD161C3AEA00C87277 /* Debug */,
 				36F71EBE161C3AEA00C87277 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		36F71F22161C4AA000C87277 /* Build configuration list for PBXNativeTarget "openBISData" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				36F71F23161C4AA000C87277 /* Debug */,
+				36F71F24161C4AA000C87277 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 		};
@@ -496,6 +681,16 @@
 			);
 			currentVersion = 36F71E99161C3AE900C87277 /* openBIS.xcdatamodel */;
 			path = openBIS.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+		36F71ED6161C453D00C87277 /* persistent-data-model.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				36F71ED7161C453D00C87277 /* persistent-data-model.xcdatamodel */,
+			);
+			currentVersion = 36F71ED7161C453D00C87277 /* persistent-data-model.xcdatamodel */;
+			path = "persistent-data-model.xcdatamodeld";
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

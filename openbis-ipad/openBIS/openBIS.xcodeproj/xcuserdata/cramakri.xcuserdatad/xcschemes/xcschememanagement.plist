@@ -9,6 +9,11 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>openBISdata.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
@@ -18,6 +23,16 @@
 			<true/>
 		</dict>
 		<key>36F71EA5161C3AEA00C87277</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>36F71EFE161C498300C87277</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>36F71F13161C4AA000C87277</key>
 		<dict>
 			<key>primary</key>
 			<true/>
