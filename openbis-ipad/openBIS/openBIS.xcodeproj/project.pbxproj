@@ -40,6 +40,12 @@
 		36F71F1A161C4AA000C87277 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71F19161C4AA000C87277 /* main.m */; };
 		36F71F21161C4AA000C87277 /* openBISData.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 36F71F20161C4AA000C87277 /* openBISData.1 */; };
 		36F71F26161C4AE900C87277 /* readme.md in Resources */ = {isa = PBXBuildFile; fileRef = 36F71F25161C4AE900C87277 /* readme.md */; };
+		36F71F28161C4F0400C87277 /* CISDOBAsyncCall.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ECC161C453D00C87277 /* CISDOBAsyncCall.m */; };
+		36F71F2A161C4F0400C87277 /* CISDOBConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ECE161C453D00C87277 /* CISDOBConnection.m */; };
+		36F71F2C161C4F0400C87277 /* CISDOBIpadEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ED0161C453D00C87277 /* CISDOBIpadEntity.m */; };
+		36F71F2E161C4F0400C87277 /* CISDOBIpadService.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ED2161C453D00C87277 /* CISDOBIpadService.m */; };
+		36F71F30161C4F0400C87277 /* CISDOBJsonRpcCall.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ED4161C453D00C87277 /* CISDOBJsonRpcCall.m */; };
+		36F71F32161C4F0400C87277 /* persistent-data-model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ED6161C453D00C87277 /* persistent-data-model.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -446,6 +452,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				36F71F28161C4F0400C87277 /* CISDOBAsyncCall.m in Sources */,
+				36F71F2A161C4F0400C87277 /* CISDOBConnection.m in Sources */,
+				36F71F2C161C4F0400C87277 /* CISDOBIpadEntity.m in Sources */,
+				36F71F2E161C4F0400C87277 /* CISDOBIpadService.m in Sources */,
+				36F71F30161C4F0400C87277 /* CISDOBJsonRpcCall.m in Sources */,
+				36F71F32161C4F0400C87277 /* persistent-data-model.xcdatamodeld in Sources */,
 				36F71F1A161C4AA000C87277 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
