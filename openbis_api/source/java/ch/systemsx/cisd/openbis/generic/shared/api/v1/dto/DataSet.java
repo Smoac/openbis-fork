@@ -93,6 +93,8 @@ public final class DataSet implements Serializable, IIdHolder
 
         private EntityRegistrationDetails registrationDetails;
 
+        private boolean isStorageConfirmed = true;
+
         public Long getId()
         {
             return id;
@@ -256,6 +258,17 @@ public final class DataSet implements Serializable, IIdHolder
         {
             this.externalDataManagementSystem = externalDataManagementSystem;
         }
+
+        public boolean isStorageConfirmed()
+        {
+            return isStorageConfirmed;
+        }
+
+        public void setStorageConfirmed(boolean isStorageConfirmed)
+        {
+            this.isStorageConfirmed = isStorageConfirmed;
+        }
+
     }
 
     private Long id;
@@ -271,6 +284,8 @@ public final class DataSet implements Serializable, IIdHolder
     private boolean containerDataSet;
 
     private boolean linkDataSet;
+
+    private boolean storageConfirmed;
 
     private String externalDataSetCode;
 
@@ -327,6 +342,7 @@ public final class DataSet implements Serializable, IIdHolder
         this.externalDataSetCode = initializer.getExternalDataSetCode();
         this.externalDataSetLink = initializer.getExternalDataSetLink();
         this.externalDataManagementSystem = initializer.getExternalDataManagementSystem();
+        this.storageConfirmed = initializer.isStorageConfirmed();
     }
 
     /**
@@ -614,4 +630,15 @@ public final class DataSet implements Serializable, IIdHolder
             }
         }
     }
+
+    public boolean isStorageConfirmed()
+    {
+        return storageConfirmed;
+    }
+
+    public void setStorageConfirmed(boolean storageConfirmed)
+    {
+        this.storageConfirmed = storageConfirmed;
+    }
+
 }
