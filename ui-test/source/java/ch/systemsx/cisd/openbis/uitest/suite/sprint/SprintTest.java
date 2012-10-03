@@ -85,10 +85,10 @@ public class SprintTest extends SprintSuiteTest
                         .thatShowsContainer()
                         .thatShowsParents());
         assertThat(browserEntryOf(sampleType), exists());
-        assertThat(sampleBrowser().availableSampleTypes(), doesNotContain(sampleType));
+        assertThat(sampleTypesInSampleBrowser(), doNotContain(sampleType));
 
         perform(anUpdateOf(sampleType).settingItListable());
-        assertThat(sampleBrowser().availableSampleTypes(), contains(sampleType));
+        assertThat(sampleTypesInSampleBrowser(), contain(sampleType));
 
         Vocabulary vocabulary =
                 create(aVocabulary()

@@ -20,10 +20,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
@@ -73,9 +76,23 @@ public class DropDown implements AtomicWidget, Fillable
 
     private List<WebElement> getChoiceElements()
     {
-        context.click();
+
+        SeleniumTest.setImplicitWait(0, TimeUnit.SECONDS);
         List<WebElement> wlist =
                 SeleniumTest.driver.findElements(By.className("x-combo-list-item"));
+        SeleniumTest.setImplicitWaitToDefault();
+
+        context.click();
+
+        if (wlist.size() == 0)
+        {
+            wlist = SeleniumTest.driver.findElements(By.className("x-combo-list-item"));
+        } else
+        {
+            WebDriverWait wait = new WebDriverWait(SeleniumTest.driver, SeleniumTest.IMPLICIT_WAIT);
+            wait.until(ExpectedConditions.stalenessOf(wlist.get(0)));
+        }
+
         if (wlist.size() == 0)
         {
             System.out.println("dropdown retry");

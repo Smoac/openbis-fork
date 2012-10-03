@@ -52,7 +52,7 @@ public class SampleTypeTest extends MainSuiteTest
     {
         SampleType sampleType = create(aSampleType().thatIsNotListable());
 
-        assertThat(sampleBrowser().availableSampleTypes(), doesNotContain(sampleType));
+        assertThat(sampleTypesInSampleBrowser(), doNotContain(sampleType));
     }
 
     @Test
@@ -62,7 +62,7 @@ public class SampleTypeTest extends MainSuiteTest
 
         perform(anUpdateOf(sampleType).settingItListable());
 
-        assertThat(sampleBrowser().availableSampleTypes(), contains(sampleType));
+        assertThat(sampleTypesInSampleBrowser(), contain(sampleType));
     }
 
 }

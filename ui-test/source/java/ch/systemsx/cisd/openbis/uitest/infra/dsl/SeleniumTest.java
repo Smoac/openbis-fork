@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.hamcrest.Matcher;
@@ -195,9 +197,15 @@ public abstract class SeleniumTest
         openbis.login(user, password);
     }
 
-    protected DslSampleBrowser sampleBrowser()
+    protected Collection<SampleType> sampleTypesInSampleBrowser()
     {
-        return new DslSampleBrowser(openbis.browseToSampleBrowser());
+        Set<SampleType> types = new HashSet<SampleType>();
+
+        for (String code : openbis.browseToSampleBrowser().getSampleTypes())
+        {
+            types.add(new SampleTypeBuilder(openbis).withCode(code).build());
+        }
+        return types;
     }
 
     protected <T extends Browsable> BrowserRow browserEntryOf(T browsable)
@@ -272,12 +280,12 @@ public abstract class SeleniumTest
         return new CellContentMatcher(column, value, true);
     }
 
-    protected <T> Matcher<Collection<T>> contains(T t)
+    protected <T> Matcher<Collection<T>> contain(T t)
     {
         return new CollectionContainsMatcher<T>(t);
     }
 
-    protected <T> Matcher<Collection<T>> doesNotContain(T t)
+    protected <T> Matcher<Collection<T>> doNotContain(T t)
     {
         return not(new CollectionContainsMatcher<T>(t));
     }
