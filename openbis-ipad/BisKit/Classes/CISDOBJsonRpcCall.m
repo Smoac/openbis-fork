@@ -69,7 +69,12 @@ NSString *const CISOBJsonRpcResponseObjectKey = @"CISOBJsonRpcResponseObjectKey"
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     [request setHTTPMethod:@"POST"];
-    [request setValue: [NSString stringWithFormat:@"%li", [httpBody length]]  forHTTPHeaderField:@"Content-Legth"];        
+#if TARGET_OS_IPHONE
+    [request setValue: [NSString stringWithFormat:@"%i", [httpBody length]]  forHTTPHeaderField:@"Content-Length"];
+#else
+    [request setValue: [NSString stringWithFormat:@"%li", [httpBody length]]  forHTTPHeaderField:@"Content-Length"];
+#endif
+    
     [request setHTTPBody: httpBody];
         
     // Check that the connection can be created
