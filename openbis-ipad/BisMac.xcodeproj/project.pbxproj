@@ -28,6 +28,8 @@
 		3680B13D1612E8B6008BA207 /* CISDOBAsyncTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 3680B13C1612E8B6008BA207 /* CISDOBAsyncTest.m */; };
 		3687CF5815DD4FE4009E3019 /* readme.md in Resources */ = {isa = PBXBuildFile; fileRef = 3687CF5715DD4FE4009E3019 /* readme.md */; };
 		36F108C6160A103E00D7B142 /* CISDOBLiveConnectionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F108C4160A04CA00D7B142 /* CISDOBLiveConnectionTest.m */; };
+		36F71E4C1619829300C87277 /* persistent-data-model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 36F71E4A1619829300C87277 /* persistent-data-model.xcdatamodeld */; };
+		36F71E4F1619834600C87277 /* CIDOBIpadEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71E4E1619834600C87277 /* CIDOBIpadEntity.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,6 +86,9 @@
 		3687CF5715DD4FE4009E3019 /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
 		36F108C3160A04CA00D7B142 /* CISDOBLiveConnectionTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBLiveConnectionTest.h; sourceTree = "<group>"; };
 		36F108C4160A04CA00D7B142 /* CISDOBLiveConnectionTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CISDOBLiveConnectionTest.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		36F71E4B1619829300C87277 /* persistent-data-model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "persistent-data-model.xcdatamodel"; sourceTree = "<group>"; };
+		36F71E4D1619834600C87277 /* CIDOBIpadEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CIDOBIpadEntity.h; sourceTree = "<group>"; };
+		36F71E4E1619834600C87277 /* CIDOBIpadEntity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CIDOBIpadEntity.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -215,15 +220,15 @@
 		3687CF5915DD50AE009E3019 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				3649C8AF15ECA4EA0019AC55 /* CISDOBShared.h */,
-				3680B13516120319008BA207 /* CISDOBAsyncCall.h */,
-				3680B13616120319008BA207 /* CISDOBAsyncCall.m */,
+				36F71E58161983B500C87277 /* Core */,
+				36F71E541619837800C87277 /* JSON-RPC */,
 				3649C8A815EBB2950019AC55 /* CISDOBConnection.h */,
 				3649C8A915EBB2950019AC55 /* CISDOBConnection.m */,
-				3649C8AC15EC17D80019AC55 /* CISDOBJsonRpcCall.h */,
-				3649C8AD15EC17D80019AC55 /* CISDOBJsonRpcCall.m */,
 				3680B1321611B5CE008BA207 /* CISDOBIpadService.h */,
 				3680B1331611B5CE008BA207 /* CISDOBIpadService.m */,
+				36F71E4A1619829300C87277 /* persistent-data-model.xcdatamodeld */,
+				36F71E4D1619834600C87277 /* CIDOBIpadEntity.h */,
+				36F71E4E1619834600C87277 /* CIDOBIpadEntity.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -231,16 +236,51 @@
 		3687CF5A15DD50BF009E3019 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				3680B13B1612E8B6008BA207 /* CISDOBAsyncTest.h */,
-				3680B13C1612E8B6008BA207 /* CISDOBAsyncTest.m */,
-				3649C8E115ED13540019AC55 /* CISDOBJsonRpcCallTest.h */,
-				3649C8E215ED13540019AC55 /* CISDOBJsonRpcCallTest.m */,
+				36F71E59161983C300C87277 /* Core */,
+				36F71E561619838100C87277 /* JSON-RPC */,
 				36F108C3160A04CA00D7B142 /* CISDOBLiveConnectionTest.h */,
 				36F108C4160A04CA00D7B142 /* CISDOBLiveConnectionTest.m */,
 				3680B1381612E832008BA207 /* CISDOBIpadServiceTest.h */,
 				3680B1391612E832008BA207 /* CISDOBIpadServiceTest.m */,
 			);
 			path = Tests;
+			sourceTree = "<group>";
+		};
+		36F71E541619837800C87277 /* JSON-RPC */ = {
+			isa = PBXGroup;
+			children = (
+				3649C8AC15EC17D80019AC55 /* CISDOBJsonRpcCall.h */,
+				3649C8AD15EC17D80019AC55 /* CISDOBJsonRpcCall.m */,
+			);
+			name = "JSON-RPC";
+			sourceTree = "<group>";
+		};
+		36F71E561619838100C87277 /* JSON-RPC */ = {
+			isa = PBXGroup;
+			children = (
+				3649C8E115ED13540019AC55 /* CISDOBJsonRpcCallTest.h */,
+				3649C8E215ED13540019AC55 /* CISDOBJsonRpcCallTest.m */,
+			);
+			name = "JSON-RPC";
+			sourceTree = "<group>";
+		};
+		36F71E58161983B500C87277 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				3649C8AF15ECA4EA0019AC55 /* CISDOBShared.h */,
+				3680B13516120319008BA207 /* CISDOBAsyncCall.h */,
+				3680B13616120319008BA207 /* CISDOBAsyncCall.m */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
+		36F71E59161983C300C87277 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				3680B13B1612E8B6008BA207 /* CISDOBAsyncTest.h */,
+				3680B13C1612E8B6008BA207 /* CISDOBAsyncTest.m */,
+			);
+			name = Core;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -360,6 +400,8 @@
 				3649C8AE15EC17D80019AC55 /* CISDOBJsonRpcCall.m in Sources */,
 				3680B1341611B5CE008BA207 /* CISDOBIpadService.m in Sources */,
 				3680B13716120319008BA207 /* CISDOBAsyncCall.m in Sources */,
+				36F71E4C1619829300C87277 /* persistent-data-model.xcdatamodeld in Sources */,
+				36F71E4F1619834600C87277 /* CIDOBIpadEntity.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -587,6 +629,16 @@
 			);
 			currentVersion = 368077C015D0F78700843AD5 /* BisMacDocument.xcdatamodel */;
 			path = BisMacDocument.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+		36F71E4A1619829300C87277 /* persistent-data-model.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				36F71E4B1619829300C87277 /* persistent-data-model.xcdatamodel */,
+			);
+			currentVersion = 36F71E4B1619829300C87277 /* persistent-data-model.xcdatamodel */;
+			path = "persistent-data-model.xcdatamodeld";
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};
