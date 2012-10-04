@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.datamover.common;
 
+import ch.systemsx.cisd.common.filesystem.IStopSignaler;
 import ch.systemsx.cisd.common.filesystem.IStoreHandler;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
-import ch.systemsx.cisd.common.utilities.IStopSignaler;
 
 /**
  * Moves items in the file store.

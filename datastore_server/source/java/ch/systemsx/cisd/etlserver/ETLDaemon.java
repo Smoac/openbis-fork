@@ -51,6 +51,7 @@ import ch.systemsx.cisd.common.filesystem.highwatermark.HostAwareFileWithHighwat
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler;
+import ch.systemsx.cisd.common.filesystem.IStopSignaler;
 import ch.systemsx.cisd.common.filesystem.IStoreItemFilter;
 import ch.systemsx.cisd.common.filesystem.LastModificationChecker;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
@@ -68,7 +69,6 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
-import ch.systemsx.cisd.common.utilities.IStopSignaler;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.etlserver.plugins.DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask;
 import ch.systemsx.cisd.etlserver.postregistration.PostRegistrationMaintenanceTask;

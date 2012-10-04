@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.filesystem;
 
 /**
  * A role that allows to signal that a worker was stopped. 

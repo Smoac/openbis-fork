@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.filesystem;
 
-import ch.systemsx.cisd.common.utilities.IStopSignaler;
 
 /**
  * Handles items in the file store.

@@ -18,7 +18,6 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.utilities.IStopSignaler;
 
 /**
  * A role for handling paths. The paths are supposed to go away when they have been handled
