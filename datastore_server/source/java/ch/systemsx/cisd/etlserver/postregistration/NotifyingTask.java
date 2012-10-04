@@ -20,7 +20,8 @@ import java.io.File;
 import java.util.Properties;
 import java.util.Set;
 
-import ch.systemsx.cisd.bds.StringUtils;
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
