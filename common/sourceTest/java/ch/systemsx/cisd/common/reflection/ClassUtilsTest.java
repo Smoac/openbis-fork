@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.reflection;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -37,6 +37,7 @@ import org.testng.remote.SuiteSlave;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.TimingParametersTest;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
+import ch.systemsx.cisd.common.utilities.IClassFilter;
 
 /**
  * Test cases for the {@link ClassUtils} class.
