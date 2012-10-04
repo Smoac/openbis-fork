@@ -31,7 +31,10 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -40,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  * The class containing some authorizing methods
  * 
  * @author Jakub Straszewski
+ * @author Pawel Glyzewski
  */
 public class AuthorizationServiceUtils
 {
@@ -51,9 +55,14 @@ public class AuthorizationServiceUtils
 
     public AuthorizationServiceUtils(IDAOFactory daoFactory, String userId)
     {
+        this(daoFactory, getUserByName(daoFactory, userId));
+    }
+
+    public AuthorizationServiceUtils(IDAOFactory daoFactory, PersonPE user)
+    {
         this.daoFactory = daoFactory;
 
-        this.user = getUserByName(userId);
+        this.user = user;
         this.userRoles = DefaultAccessController.getUserRoles(user);
     }
 
@@ -115,12 +124,12 @@ public class AuthorizationServiceUtils
 
     }
 
-    private PersonPE getUserByName(String userId)
+    private static PersonPE getUserByName(IDAOFactory daoFactory, String userId)
     {
         PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userId);
         if (person == null)
         {
-            throw new IllegalArgumentException("The user with id " + user + " doesn't exist");
+            throw new IllegalArgumentException("The user with id " + userId + " doesn't exist");
         }
         return person;
     }
@@ -136,6 +145,11 @@ public class AuthorizationServiceUtils
             }
         }
         return resultList;
+    }
+
+    public boolean canAccessDataSet(DataPE dataSet)
+    {
+        return canAccessDataSet(dataSet.getCode());
     }
 
     private boolean canAccessDataSet(String dataSetCode)
@@ -162,6 +176,11 @@ public class AuthorizationServiceUtils
         return resultList;
     }
 
+    public boolean canAccessExperiment(ExperimentPE experimentPE)
+    {
+        return canAccessExperiment(experimentPE.getIdentifier());
+    }
+
     private boolean canAccessExperiment(String experimentId)
     {
         ExperimentIdentifierPredicate predicate = new ExperimentIdentifierPredicate();
@@ -184,6 +203,11 @@ public class AuthorizationServiceUtils
             }
         }
         return resultList;
+    }
+
+    public boolean canAccessSample(SamplePE sample)
+    {
+        return canAccessSample(sample.getIdentifier());
     }
 
     private boolean canAccessSample(String sampleIdentifier)

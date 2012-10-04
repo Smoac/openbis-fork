@@ -64,6 +64,8 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
 
         private EntityRegistrationDetails registrationDetails;
 
+        private boolean isStub;
+
         private HashMap<String, String> properties = new HashMap<String, String>();
 
         public void setId(Long id)
@@ -135,6 +137,11 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
         {
             return registrationDetails;
         }
+
+        public void setIsStub(boolean isStub)
+        {
+            this.isStub = isStub;
+        }
     }
 
     private Long id;
@@ -151,6 +158,8 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
 
     private HashMap<String, String> properties;
 
+    private boolean isStub;
+
     /**
      * Creates a new instance with the provided initializer
      * 
@@ -164,21 +173,28 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
         InitializingChecks.checkValidString(initializer.getPermId(), "Unspecified permanent id.");
         this.permId = initializer.getPermId();
 
-        InitializingChecks.checkValidString(initializer.getCode(), "Unspecified code.");
-        this.code = initializer.getCode();
+        if (initializer.isStub)
+        {
+            this.isStub = true;
+        } else
+        {
+            InitializingChecks.checkValidString(initializer.getCode(), "Unspecified code.");
+            this.code = initializer.getCode();
 
-        InitializingChecks.checkValidString(initializer.getIdentifier(), "Unspecified identifier.");
-        this.identifier = initializer.getIdentifier();
+            InitializingChecks.checkValidString(initializer.getIdentifier(),
+                    "Unspecified identifier.");
+            this.identifier = initializer.getIdentifier();
 
-        InitializingChecks.checkValidString(initializer.getExperimentTypeCode(),
-                "Unspecified experiment type code.");
-        this.experimentTypeCode = initializer.getExperimentTypeCode();
+            InitializingChecks.checkValidString(initializer.getExperimentTypeCode(),
+                    "Unspecified experiment type code.");
+            this.experimentTypeCode = initializer.getExperimentTypeCode();
 
-        InitializingChecks.checkValidRegistrationDetails(initializer.getRegistrationDetails(),
-                "Unspecified entity registration details.");
-        this.registrationDetails = initializer.getRegistrationDetails();
+            InitializingChecks.checkValidRegistrationDetails(initializer.getRegistrationDetails(),
+                    "Unspecified entity registration details.");
+            this.registrationDetails = initializer.getRegistrationDetails();
 
-        this.properties = initializer.getProperties();
+            this.properties = initializer.getProperties();
+        }
     }
 
     /**
@@ -233,6 +249,11 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
         return Collections.unmodifiableMap(properties);
     }
 
+    public boolean isStub()
+    {
+        return isStub;
+    }
+
     @Override
     public boolean equals(Object obj)
     {
@@ -263,9 +284,16 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
     public String toString()
     {
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
-        builder.append(getIdentifier());
-        builder.append(getExperimentTypeCode());
-        builder.append(getProperties());
+        if (isStub())
+        {
+            builder.append("STUB");
+            builder.append(getPermId());
+        } else
+        {
+            builder.append(getIdentifier());
+            builder.append(getExperimentTypeCode());
+            builder.append(getProperties());
+        }
         return builder.toString();
     }
 
@@ -309,5 +337,10 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
     private void setProperties(HashMap<String, String> properties)
     {
         this.properties = properties;
+    }
+
+    private void setStub(boolean isStub)
+    {
+        this.isStub = isStub;
     }
 }

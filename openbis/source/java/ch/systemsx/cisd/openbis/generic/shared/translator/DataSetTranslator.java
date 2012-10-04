@@ -135,6 +135,31 @@ public class DataSetTranslator
         return result;
     }
 
+    public static ExternalData translateWithoutRevealingData(DataPE dataPE)
+    {
+        ExternalData externalData = null;
+        if (dataPE.isContainer())
+        {
+            externalData = new ContainerDataSet(true);
+        } else if (dataPE.isLinkData())
+        {
+            externalData = new LinkDataSet(true);
+        } else if (dataPE instanceof ExternalDataPE)
+        {
+            externalData = new DataSet(true);
+        } else
+        {
+            throw new IllegalArgumentException("Data set " + dataPE.getCode()
+                    + " is neither a container nor a real data set.");
+        }
+
+        externalData.setId(HibernateUtils.getId(dataPE));
+        externalData.setCode(dataPE.getCode());
+        externalData.setDataSetProperties(new ArrayList<IEntityProperty>());
+
+        return externalData;
+    }
+
     public static ExternalData translate(DataPE dataPE, String baseIndexURL,
             final LoadableFields... withExperimentFields)
     {

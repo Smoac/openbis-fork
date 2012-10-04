@@ -23,7 +23,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  */
 public class DataSet extends ExternalData implements IDatasetLocation
 {
-
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private Boolean complete;
@@ -41,6 +40,16 @@ public class DataSet extends ExternalData implements IDatasetLocation
     private LocatorType locatorType;
 
     private FileFormatType fileFormatType;
+
+    public DataSet()
+    {
+        this(false);
+    }
+
+    public DataSet(boolean isStub)
+    {
+        super(isStub);
+    }
 
     @Override
     public DataSet tryGetAsDataSet()

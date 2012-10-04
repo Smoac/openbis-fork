@@ -27,6 +27,11 @@ public class PlaceholderDataSet extends ExternalData
 
     private static final long serialVersionUID = 1L;
 
+    public PlaceholderDataSet()
+    {
+        super(false);
+    }
+
     @Override
     public boolean isPlaceHolderDataSet()
     {

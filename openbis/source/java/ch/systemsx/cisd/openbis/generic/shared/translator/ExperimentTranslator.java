@@ -70,6 +70,17 @@ public final class ExperimentTranslator
         }
     }
 
+    public final static Experiment translateWithoutRevealingData(final ExperimentPE experiment)
+    {
+        final Experiment result = new Experiment(true);
+
+        result.setId(HibernateUtils.getId(experiment));
+        result.setPermId(experiment.getPermId());
+        result.setProperties(new ArrayList<IEntityProperty>());
+
+        return result;
+    }
+
     public final static Experiment translate(final ExperimentPE experiment, String baseIndexURL,
             final LoadableFields... withFields)
     {
@@ -139,8 +150,7 @@ public final class ExperimentTranslator
         result.setDescription(experimentType.getDescription());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
                 .getDatabaseInstance()));
-        result.setValidationScript(ScriptTranslator.translate(experimentType
-                .getValidationScript()));
+        result.setValidationScript(ScriptTranslator.translate(experimentType.getValidationScript()));
 
         result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
                 experimentType.getExperimentTypePropertyTypes(), result, cacheOrNull));

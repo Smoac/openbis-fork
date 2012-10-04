@@ -30,6 +30,16 @@ public class LinkDataSet extends ExternalData
 
     private String externalCode;
 
+    public LinkDataSet()
+    {
+        this(false);
+    }
+
+    public LinkDataSet(boolean isStub)
+    {
+        super(isStub);
+    }
+
     public ExternalDataManagementSystem getExternalDataManagementSystem()
     {
         return externalDataManagementSystem;

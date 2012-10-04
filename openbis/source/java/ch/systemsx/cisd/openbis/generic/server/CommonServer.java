@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
@@ -304,6 +305,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityHistoryTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataManagementSystemTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
@@ -3451,7 +3453,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             @AuthorizationGuard(guardClass = MetaprojectPredicate.class)
             Metaproject metaproject)
     {
-        checkSession(sessionToken);
+        Session session = getSession(sessionToken);
         String baseIndexURL = getBaseIndexURL(sessionToken);
 
         IDAOFactory daoFactory = getDAOFactory();
@@ -3464,6 +3466,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         MetaprojectPE metaprojectPE = metaprojectDAO.getByTechId(new TechId(metaproject.getId()));
 
+        AuthorizationServiceUtils authorizationUtils =
+                new AuthorizationServiceUtils(daoFactory, session.tryGetPerson());
         MetaprojectAssignments metaprojectAssignments = new MetaprojectAssignments();
         List<Experiment> experiments = new ArrayList<Experiment>();
         List<Sample> samples = new ArrayList<Sample>();
@@ -3474,16 +3478,38 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             if (metaprojectAssignment.getExperiment() != null)
             {
-                experiments.add(ExperimentTranslator.translate(
-                        metaprojectAssignment.getExperiment(), baseIndexURL));
+                if (authorizationUtils.canAccessExperiment(metaprojectAssignment.getExperiment()))
+                {
+                    experiments.add(ExperimentTranslator.translate(
+                            metaprojectAssignment.getExperiment(), baseIndexURL,
+                            LoadableFields.PROPERTIES));
+                } else
+                {
+                    experiments.add(ExperimentTranslator
+                            .translateWithoutRevealingData(metaprojectAssignment.getExperiment()));
+                }
             } else if (metaprojectAssignment.getSample() != null)
             {
-                samples.add(SampleTranslator.translate(metaprojectAssignment.getSample(),
-                        baseIndexURL));
+                if (authorizationUtils.canAccessSample(metaprojectAssignment.getSample()))
+                {
+                    samples.add(SampleTranslator.translate(metaprojectAssignment.getSample(),
+                            baseIndexURL));
+                } else
+                {
+                    samples.add(SampleTranslator
+                            .translateWithoutRevealingData(metaprojectAssignment.getSample()));
+                }
             } else if (metaprojectAssignment.getData() != null)
             {
-                dataSets.add(DataSetTranslator.translate(metaprojectAssignment.getData(),
-                        baseIndexURL));
+                if (authorizationUtils.canAccessDataSet(metaprojectAssignment.getData()))
+                {
+                    dataSets.add(DataSetTranslator.translate(metaprojectAssignment.getData(),
+                            baseIndexURL));
+                } else
+                {
+                    dataSets.add(DataSetTranslator
+                            .translateWithoutRevealingData(metaprojectAssignment.getData()));
+                }
             } else if (metaprojectAssignment.getMaterial() != null)
             {
                 materials.add(MaterialTranslator.translate(metaprojectAssignment.getMaterial()));

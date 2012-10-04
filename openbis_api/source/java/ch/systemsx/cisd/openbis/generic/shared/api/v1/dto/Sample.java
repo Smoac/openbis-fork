@@ -107,6 +107,8 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
 
         private List<Sample> children = Collections.emptyList();
 
+        private boolean isStub;
+
         public void setId(Long id)
         {
             this.id = id;
@@ -256,6 +258,11 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
                 childReferences.add(new Reference(childID, repository));
             }
         }
+
+        public void setStub(boolean isStub)
+        {
+            this.isStub = isStub;
+        }
     }
 
     private Long id;
@@ -288,6 +295,8 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
 
     private List<Sample> children;
 
+    private boolean isStub;
+
     /**
      * Creates a new instance with the provided initializer
      * 
@@ -303,42 +312,49 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
         InitializingChecks.checkValidString(initializer.getPermId(), "Unspecified permanent id.");
         this.permId = initializer.getPermId();
 
-        InitializingChecks.checkValidString(initializer.getCode(), "Unspecified code.");
-        this.code = initializer.getCode();
-
-        InitializingChecks.checkValidString(initializer.getIdentifier(), "Unspecified identifier.");
-        this.identifier = initializer.getIdentifier();
-
-        this.experimentIdentifierOrNull = initializer.getExperimentIdentifierOrNull();
-
-        InitializingChecks.checkValidLong(initializer.getSampleTypeId(),
-                "Unspecified sample type id.");
-        this.sampleTypeId = initializer.getSampleTypeId();
-
-        InitializingChecks.checkValidString(initializer.getSampleTypeCode(),
-                "Unspecified sample type code.");
-        this.sampleTypeCode = initializer.getSampleTypeCode();
-
-        this.properties = initializer.getProperties();
-
-        InitializingChecks.checkValidRegistrationDetails(initializer.getRegistrationDetails(),
-                "Unspecified entity registration details.");
-        this.registrationDetails = initializer.getRegistrationDetails();
-
-        this.retrievedFetchOptions = initializer.getRetrievedFetchOptions();
-        if (initializer.parentReferences != null)
+        if (initializer.isStub)
         {
-            this.parentReferences = initializer.parentReferences;
+            this.isStub = true;
         } else
         {
-            this.parents = initializer.getParents();
-        }
-        if (initializer.childReferences != null)
-        {
-            this.childReferences = initializer.childReferences;
-        } else
-        {
-            this.children = initializer.getChildren();
+            InitializingChecks.checkValidString(initializer.getCode(), "Unspecified code.");
+            this.code = initializer.getCode();
+
+            InitializingChecks.checkValidString(initializer.getIdentifier(),
+                    "Unspecified identifier.");
+            this.identifier = initializer.getIdentifier();
+
+            this.experimentIdentifierOrNull = initializer.getExperimentIdentifierOrNull();
+
+            InitializingChecks.checkValidLong(initializer.getSampleTypeId(),
+                    "Unspecified sample type id.");
+            this.sampleTypeId = initializer.getSampleTypeId();
+
+            InitializingChecks.checkValidString(initializer.getSampleTypeCode(),
+                    "Unspecified sample type code.");
+            this.sampleTypeCode = initializer.getSampleTypeCode();
+
+            this.properties = initializer.getProperties();
+
+            InitializingChecks.checkValidRegistrationDetails(initializer.getRegistrationDetails(),
+                    "Unspecified entity registration details.");
+            this.registrationDetails = initializer.getRegistrationDetails();
+
+            this.retrievedFetchOptions = initializer.getRetrievedFetchOptions();
+            if (initializer.parentReferences != null)
+            {
+                this.parentReferences = initializer.parentReferences;
+            } else
+            {
+                this.parents = initializer.getParents();
+            }
+            if (initializer.childReferences != null)
+            {
+                this.childReferences = initializer.childReferences;
+            } else
+            {
+                this.children = initializer.getChildren();
+            }
         }
     }
 
@@ -493,6 +509,11 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
         }
     }
 
+    public boolean isStub()
+    {
+        return this.isStub;
+    }
+
     @Override
     public boolean equals(Object obj)
     {
@@ -523,28 +544,35 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
     public String toString()
     {
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
-        builder.append(getIdentifier());
-        builder.append(getSampleTypeCode());
-        if (retrievedFetchOptions.contains(SampleFetchOption.PROPERTIES))
+        if (isStub())
         {
-            builder.append(getProperties());
+            builder.append("STUB");
+            builder.append(getPermId());
         } else
         {
-            builder.append("properties=?");
-        }
-        if (retrievedFetchOptions.contains(SampleFetchOption.PARENTS))
-        {
-            builder.append("parents", getParents());
-        } else
-        {
-            builder.append("parents=?");
-        }
-        if (retrievedFetchOptions.contains(SampleFetchOption.CHILDREN))
-        {
-            builder.append("children", getChildren());
-        } else
-        {
-            builder.append("children=?");
+            builder.append(getIdentifier());
+            builder.append(getSampleTypeCode());
+            if (retrievedFetchOptions.contains(SampleFetchOption.PROPERTIES))
+            {
+                builder.append(getProperties());
+            } else
+            {
+                builder.append("properties=?");
+            }
+            if (retrievedFetchOptions.contains(SampleFetchOption.PARENTS))
+            {
+                builder.append("parents", getParents());
+            } else
+            {
+                builder.append("parents=?");
+            }
+            if (retrievedFetchOptions.contains(SampleFetchOption.CHILDREN))
+            {
+                builder.append("children", getChildren());
+            } else
+            {
+                builder.append("children=?");
+            }
         }
         return builder.toString();
     }
@@ -643,4 +671,8 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
         this.children = children;
     }
 
+    private void setStub(boolean isStub)
+    {
+        this.isStub = isStub;
+    }
 }

@@ -55,6 +55,18 @@ public class Experiment extends CodeWithRegistrationAndModificationDate<Experime
 
     private ExperimentFetchOptions fetchOptions;
 
+    private final boolean isStub;
+
+    public Experiment()
+    {
+        this(false);
+    }
+
+    public Experiment(boolean isStub)
+    {
+        this.isStub = isStub;
+    }
+
     public String getPermlink()
     {
         return permlink;
@@ -205,4 +217,8 @@ public class Experiment extends CodeWithRegistrationAndModificationDate<Experime
         return permId;
     }
 
+    public boolean isStub()
+    {
+        return isStub;
+    }
 }

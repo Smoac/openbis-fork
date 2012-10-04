@@ -73,6 +73,18 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
 
     private String subCode;
 
+    private final boolean isStub;
+
+    public Sample()
+    {
+        this(false);
+    }
+
+    public Sample(boolean isStub)
+    {
+        this.isStub = isStub;
+    }
+
     public String getSubCode()
     {
         return subCode;
@@ -303,6 +315,11 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
     public String getPermId()
     {
         return permId;
+    }
+
+    public boolean isStub()
+    {
+        return isStub;
     }
 
     @Override

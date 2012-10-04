@@ -95,6 +95,8 @@ public final class DataSet implements Serializable, IIdHolder
 
         private boolean isStorageConfirmed = true;
 
+        private boolean isStub;
+
         public Long getId()
         {
             return id;
@@ -269,6 +271,10 @@ public final class DataSet implements Serializable, IIdHolder
             this.isStorageConfirmed = isStorageConfirmed;
         }
 
+        public void setStub(boolean isStub)
+        {
+            this.isStub = isStub;
+        }
     }
 
     private Long id;
@@ -308,6 +314,8 @@ public final class DataSet implements Serializable, IIdHolder
 
     private DataSetFetchOptions fetchOptions;
 
+    private boolean isStub;
+
     /**
      * Creates a new instance with the provided initializer
      * 
@@ -319,30 +327,36 @@ public final class DataSet implements Serializable, IIdHolder
         InitializingChecks.checkValidString(initializer.getCode(), "Unspecified code.");
         this.code = initializer.getCode();
 
-        this.experimentIdentifier = initializer.getExperimentIdentifier();
+        if (initializer.isStub)
+        {
+            this.isStub = true;
+        } else
+        {
+            this.experimentIdentifier = initializer.getExperimentIdentifier();
 
-        this.sampleIdentifierOrNull = initializer.getSampleIdentifierOrNull();
+            this.sampleIdentifierOrNull = initializer.getSampleIdentifierOrNull();
 
-        InitializingChecks.checkValidString(initializer.getDataSetTypeCode(),
-                "Unspecified data set type code.");
-        this.dataSetTypeCode = initializer.getDataSetTypeCode();
+            InitializingChecks.checkValidString(initializer.getDataSetTypeCode(),
+                    "Unspecified data set type code.");
+            this.dataSetTypeCode = initializer.getDataSetTypeCode();
 
-        this.properties = initializer.getProperties();
+            this.properties = initializer.getProperties();
 
-        this.retrievedConnections = initializer.getRetrievedConnections();
-        this.parentCodes = initializer.getParentCodes();
-        this.childrenCodes = initializer.getChildrenCodes();
+            this.retrievedConnections = initializer.getRetrievedConnections();
+            this.parentCodes = initializer.getParentCodes();
+            this.childrenCodes = initializer.getChildrenCodes();
 
-        InitializingChecks.checkValidRegistrationDetails(initializer.getRegistrationDetails(),
-                "Unspecified entity registration details.");
-        this.registrationDetails = initializer.getRegistrationDetails();
-        this.containerDataSet = initializer.isContainerDataSet();
-        this.containedDataSets = initializer.getContainedDataSets();
-        this.linkDataSet = initializer.isLinkDataSet();
-        this.externalDataSetCode = initializer.getExternalDataSetCode();
-        this.externalDataSetLink = initializer.getExternalDataSetLink();
-        this.externalDataManagementSystem = initializer.getExternalDataManagementSystem();
-        this.storageConfirmed = initializer.isStorageConfirmed();
+            InitializingChecks.checkValidRegistrationDetails(initializer.getRegistrationDetails(),
+                    "Unspecified entity registration details.");
+            this.registrationDetails = initializer.getRegistrationDetails();
+            this.containerDataSet = initializer.isContainerDataSet();
+            this.containedDataSets = initializer.getContainedDataSets();
+            this.linkDataSet = initializer.isLinkDataSet();
+            this.externalDataSetCode = initializer.getExternalDataSetCode();
+            this.externalDataSetLink = initializer.getExternalDataSetLink();
+            this.externalDataManagementSystem = initializer.getExternalDataManagementSystem();
+            this.storageConfirmed = initializer.isStorageConfirmed();
+        }
     }
 
     /**
@@ -514,17 +528,24 @@ public final class DataSet implements Serializable, IIdHolder
     public String toString()
     {
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
-        builder.append(getCode());
-        builder.append(getExperimentIdentifier());
-        builder.append(getSampleIdentifierOrNull());
-        builder.append(getDataSetTypeCode());
-
-        // Append properties alphabetically for consistency
-        TreeMap<String, String> sortedProps = new TreeMap<String, String>(getProperties());
-        builder.append(sortedProps.toString());
-        if (retrievedConnections.contains(Connections.PARENTS))
+        if (isStub())
         {
-            builder.append(getParentCodes());
+            builder.append("STUB");
+            builder.append(getCode());
+        } else
+        {
+            builder.append(getCode());
+            builder.append(getExperimentIdentifier());
+            builder.append(getSampleIdentifierOrNull());
+            builder.append(getDataSetTypeCode());
+
+            // Append properties alphabetically for consistency
+            TreeMap<String, String> sortedProps = new TreeMap<String, String>(getProperties());
+            builder.append(sortedProps.toString());
+            if (retrievedConnections.contains(Connections.PARENTS))
+            {
+                builder.append(getParentCodes());
+            }
         }
         return builder.toString();
     }
@@ -641,4 +662,13 @@ public final class DataSet implements Serializable, IIdHolder
         this.storageConfirmed = storageConfirmed;
     }
 
+    public boolean isStub()
+    {
+        return isStub;
+    }
+
+    private void setStub(boolean isStub)
+    {
+        this.isStub = isStub;
+    }
 }

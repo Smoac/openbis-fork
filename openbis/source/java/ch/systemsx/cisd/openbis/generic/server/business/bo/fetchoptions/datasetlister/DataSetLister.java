@@ -181,6 +181,7 @@ public class DataSetLister implements IDataSetLister
                                                                                  // than the storage
                                                                                  // is considered
                                                                                  // confirmed
+        initializer.setStub(false);
         initializer.setLinkDataSet(DataSetKind.LINK.name().equals(dataSet.dt_data_set_kind));
         if (initializer.isLinkDataSet())
         {

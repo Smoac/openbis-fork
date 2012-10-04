@@ -84,6 +84,13 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
 
     private boolean storageConfirmation;
 
+    private final boolean isStub;
+
+    public ExternalData(boolean isStub)
+    {
+        this.isStub = isStub;
+    }
+
     /**
      * @return true if the data set is available for viewing/editing.
      */
@@ -387,6 +394,11 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
     public String getSourceType()
     {
         return SourceType.create(isDerived()).name();
+    }
+
+    public boolean isStub()
+    {
+        return this.isStub;
     }
 
     private static final class DataSetComponentsComparator implements Comparator<ExternalData>

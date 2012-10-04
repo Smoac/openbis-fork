@@ -298,6 +298,7 @@ public class SampleLister implements ISampleLister
         }
         Sample.SampleInitializer initializer = new Sample.SampleInitializer();
         initializer.setId(sampleRecord.s_id);
+        initializer.setStub(false);
         String spaceCode = sampleRecord.sp_code;
         initializer.setSpaceCode(spaceCode);
         String sampleCode = sampleRecord.s_code;

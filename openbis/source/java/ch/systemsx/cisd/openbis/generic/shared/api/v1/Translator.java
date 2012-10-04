@@ -118,13 +118,17 @@ public class Translator
     {
         SampleInitializer initializer = new SampleInitializer();
         initializer.setId(privateSample.getId());
+        initializer.setStub(privateSample.isStub());
         initializer.setSpaceCode(privateSample.getSpace() != null ? privateSample.getSpace()
                 .getCode() : null);
         initializer.setPermId(privateSample.getPermId());
         initializer.setCode(privateSample.getCode());
         initializer.setIdentifier(privateSample.getIdentifier());
-        initializer.setSampleTypeId(privateSample.getSampleType().getId());
-        initializer.setSampleTypeCode(privateSample.getSampleType().getCode());
+        if (privateSample.getSampleType() != null)
+        {
+            initializer.setSampleTypeId(privateSample.getSampleType().getId());
+            initializer.setSampleTypeCode(privateSample.getSampleType().getCode());
+        }
         List<IEntityProperty> properties = privateSample.getProperties();
         for (IEntityProperty prop : properties)
         {
@@ -166,7 +170,11 @@ public class Translator
         initializer.setPermId(privateExperiment.getPermId());
         initializer.setCode(privateExperiment.getCode());
         initializer.setIdentifier(privateExperiment.getIdentifier());
-        initializer.setExperimentTypeCode(privateExperiment.getExperimentType().getCode());
+        initializer.setIsStub(privateExperiment.isStub());
+        if (privateExperiment.getExperimentType() != null)
+        {
+            initializer.setExperimentTypeCode(privateExperiment.getExperimentType().getCode());
+        }
         List<IEntityProperty> properties = privateExperiment.getProperties();
         for (IEntityProperty prop : properties)
         {
@@ -339,10 +347,17 @@ public class Translator
         DataSetInitializer initializer = new DataSetInitializer();
         initializer.setId(externalDatum.getId());
         initializer.setCode(externalDatum.getCode());
-        initializer.setExperimentIdentifier(externalDatum.getExperiment().getIdentifier());
+        if (externalDatum.getExperiment() != null)
+        {
+            initializer.setExperimentIdentifier(externalDatum.getExperiment().getIdentifier());
+        }
         initializer.setSampleIdentifierOrNull(externalDatum.getSampleIdentifier());
-        initializer.setDataSetTypeCode(externalDatum.getDataSetType().getCode());
+        if (externalDatum.getDataSetType() != null)
+        {
+            initializer.setDataSetTypeCode(externalDatum.getDataSetType().getCode());
+        }
         initializer.setStorageConfirmed(externalDatum.isStorageConfirmation());
+        initializer.setStub(externalDatum.isStub());
 
         List<IEntityProperty> properties = externalDatum.getProperties();
         for (IEntityProperty prop : properties)

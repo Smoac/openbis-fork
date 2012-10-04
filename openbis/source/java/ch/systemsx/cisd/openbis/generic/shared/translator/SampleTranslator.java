@@ -57,6 +57,17 @@ public final class SampleTranslator
         return list;
     }
 
+    public final static Sample translateWithoutRevealingData(SamplePE samplePE)
+    {
+        final Sample result = new Sample(true);
+
+        result.setPermId(samplePE.getPermId());
+        result.setId(HibernateUtils.getId(samplePE));
+        result.setProperties(new ArrayList<IEntityProperty>());
+
+        return result;
+    }
+
     public final static Sample translate(final SamplePE samplePE, String baseIndexURL)
     {
         return translate(samplePE, baseIndexURL, true, false);

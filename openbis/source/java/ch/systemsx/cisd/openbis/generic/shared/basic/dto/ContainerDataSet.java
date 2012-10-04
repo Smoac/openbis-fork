@@ -31,6 +31,16 @@ public class ContainerDataSet extends ExternalData
 
     private List<ExternalData> containedDataSets = new ArrayList<ExternalData>();
 
+    public ContainerDataSet()
+    {
+        this(false);
+    }
+
+    public ContainerDataSet(boolean isStub)
+    {
+        super(isStub);
+    }
+
     @Override
     public boolean isContainer()
     {
