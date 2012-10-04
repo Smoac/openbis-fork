@@ -20,8 +20,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.uitest.page.layout.VocabularyBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
+import ch.systemsx.cisd.openbis.uitest.layout.VocabularyBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.page.VocabularyBrowser;
 
 /**
  * @author anttil

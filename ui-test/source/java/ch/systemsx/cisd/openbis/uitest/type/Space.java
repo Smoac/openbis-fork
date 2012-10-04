@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.Arrays;
 import java.util.Collection;
 
-import ch.systemsx.cisd.openbis.uitest.page.layout.SpaceBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
+import ch.systemsx.cisd.openbis.uitest.layout.SpaceBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.page.SpaceBrowser;
 
 /**
  * @author anttil

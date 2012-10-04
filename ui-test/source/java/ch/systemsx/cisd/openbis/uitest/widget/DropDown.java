@@ -28,8 +28,8 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
 
 /**
  * @author anttil

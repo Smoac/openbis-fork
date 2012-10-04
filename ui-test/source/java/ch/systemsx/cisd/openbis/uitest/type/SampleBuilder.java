@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.uitest.infra.application.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
 
 /**
  * @author anttil

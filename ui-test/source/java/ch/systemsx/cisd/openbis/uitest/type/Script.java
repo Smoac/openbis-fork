@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.Arrays;
 import java.util.Collection;
 
-import ch.systemsx.cisd.openbis.uitest.page.layout.ScriptBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.page.tab.ScriptBrowser;
+import ch.systemsx.cisd.openbis.uitest.layout.ScriptBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.page.ScriptBrowser;
 
 /**
  * @author anttil

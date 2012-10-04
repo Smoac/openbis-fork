@@ -20,10 +20,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
-import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
-import ch.systemsx.cisd.openbis.uitest.page.menu.TopBar;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
+import ch.systemsx.cisd.openbis.uitest.menu.AdminMenu;
+import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
+import ch.systemsx.cisd.openbis.uitest.page.AddSampleTypeDialog;
+import ch.systemsx.cisd.openbis.uitest.page.RoleAssignmentBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 import ch.systemsx.cisd.openbis.uitest.type.Project;

@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.uitest.widget;
 
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.DeterminateAction;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WaitForRefreshOf;
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
+import ch.systemsx.cisd.openbis.uitest.webdriver.DeterminateAction;
+import ch.systemsx.cisd.openbis.uitest.webdriver.WaitForRefreshOf;
+import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
 
 /**
  * @author anttil

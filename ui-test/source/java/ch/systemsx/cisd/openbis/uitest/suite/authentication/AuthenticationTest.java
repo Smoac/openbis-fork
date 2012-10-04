@@ -5,11 +5,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.page.dialog.InvalidPasswordDialog;
-import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
-import ch.systemsx.cisd.openbis.uitest.page.menu.TopBar;
-import ch.systemsx.cisd.openbis.uitest.page.tab.RoleAssignmentBrowser;
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.menu.AdminMenu;
+import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
+import ch.systemsx.cisd.openbis.uitest.page.InvalidPasswordDialog;
+import ch.systemsx.cisd.openbis.uitest.page.RoleAssignmentBrowser;
 
 public class AuthenticationTest extends SeleniumTest
 {

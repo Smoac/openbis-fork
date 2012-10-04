@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
+import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
 
 
 /**

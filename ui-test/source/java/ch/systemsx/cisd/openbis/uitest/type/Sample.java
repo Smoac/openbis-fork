@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.uitest.page.layout.SampleBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
+import ch.systemsx.cisd.openbis.uitest.layout.SampleBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.page.SampleBrowser;
 
 /**
  * @author anttil

@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.Arrays;
 import java.util.Collection;
 
-import ch.systemsx.cisd.openbis.uitest.page.layout.PropertyTypeBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
+import ch.systemsx.cisd.openbis.uitest.layout.PropertyTypeBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.page.PropertyTypeBrowser;
 
 /**
  * @author anttil

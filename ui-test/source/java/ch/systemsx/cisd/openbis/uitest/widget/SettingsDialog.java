@@ -20,8 +20,8 @@ import java.util.List;
 
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.infra.webdriver.WidgetContext;
 import ch.systemsx.cisd.openbis.uitest.type.Browsable;
+import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
 
 /**
  * @author anttil

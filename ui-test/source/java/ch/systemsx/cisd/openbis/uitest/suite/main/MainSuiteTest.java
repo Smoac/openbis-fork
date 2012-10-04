@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.uitest.suite.main;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 
-import ch.systemsx.cisd.openbis.uitest.infra.dsl.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.page.menu.BrowseMenu;
-import ch.systemsx.cisd.openbis.uitest.page.menu.TopBar;
-import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.menu.BrowseMenu;
+import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
+import ch.systemsx.cisd.openbis.uitest.page.SampleBrowser;
 
 /**
  * @author anttil
