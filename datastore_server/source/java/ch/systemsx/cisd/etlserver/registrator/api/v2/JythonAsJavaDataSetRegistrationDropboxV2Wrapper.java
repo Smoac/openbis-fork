@@ -23,7 +23,7 @@ import org.python.core.PyObject;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
-import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
+import ch.systemsx.cisd.common.jython.PythonInterpreter;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.JythonUtils;

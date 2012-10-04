@@ -21,8 +21,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
 import ch.systemsx.cisd.common.jython.JythonScriptSplitter;
+import ch.systemsx.cisd.common.jython.PythonInterpreter;
 
 /**
  * A class for running python scripts that register master data.

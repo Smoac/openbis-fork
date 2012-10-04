@@ -41,7 +41,7 @@ public class DataSetRegistrationServiceV2<T extends DataSetInformation> extends
     {
         super(registrator, incomingDataSetFile, userProvidedDataSetInformationOrNull,
                 globalCleanAfterwardsAction, delegate,
-                new ch.systemsx.cisd.common.interpreter.PythonInterpreter()
+                new ch.systemsx.cisd.common.jython.PythonInterpreter()
                     {
                         @Override
                         public void set(String name, Object value)

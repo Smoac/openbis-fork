@@ -30,7 +30,7 @@ import org.python.core.PyDictionary;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
 
-import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
+import ch.systemsx.cisd.common.jython.PythonInterpreter;
 import ch.systemsx.cisd.common.utilities.JythonUtils;
 
 /**

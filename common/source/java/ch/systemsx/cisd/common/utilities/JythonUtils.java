@@ -25,7 +25,7 @@ import org.python.core.PyFunction;
 import org.python.core.PyObject;
 import org.python.core.PySequenceList;
 
-import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
+import ch.systemsx.cisd.common.jython.PythonInterpreter;
 
 /**
  * Jython utility methods.

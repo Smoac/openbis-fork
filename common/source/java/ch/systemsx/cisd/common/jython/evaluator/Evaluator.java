@@ -39,7 +39,7 @@ import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
 import org.python.core.PyTraceback;
 
-import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
+import ch.systemsx.cisd.common.jython.PythonInterpreter;
 import ch.systemsx.cisd.common.shared.basic.utils.CommaSeparatedListBuilder;
 
 /**

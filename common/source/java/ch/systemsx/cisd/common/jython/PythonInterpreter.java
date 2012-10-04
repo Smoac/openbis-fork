@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.interpreter;
+package ch.systemsx.cisd.common.jython;
 
 import org.apache.log4j.Logger;
 import org.python.core.PyObject;

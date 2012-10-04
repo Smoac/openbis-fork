@@ -25,7 +25,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.interpreter.PythonInterpreter;
 
 /**
  * @author pkupczyk
