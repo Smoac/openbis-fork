@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.common.annotation.CollectionMapping;
+import ch.systemsx.cisd.common.reflection.CollectionMapping;
 
 /**
  * A {@link EntityType} extension for <i>Sample Type</i>.

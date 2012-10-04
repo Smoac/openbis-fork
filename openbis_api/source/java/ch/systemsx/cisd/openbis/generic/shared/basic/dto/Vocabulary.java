@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.annotation.CollectionMapping;
+import ch.systemsx.cisd.common.reflection.CollectionMapping;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**

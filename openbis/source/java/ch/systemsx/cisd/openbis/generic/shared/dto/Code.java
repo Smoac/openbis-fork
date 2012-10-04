@@ -24,7 +24,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.common.annotation.BeanProperty;
+import ch.systemsx.cisd.common.parser.BeanProperty;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import ch.systemsx.cisd.common.annotation.CollectionMapping;
+import ch.systemsx.cisd.common.reflection.CollectionMapping;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 

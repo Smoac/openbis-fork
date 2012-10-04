@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import ch.systemsx.cisd.common.annotation.BeanProperty;
+import ch.systemsx.cisd.common.parser.BeanProperty;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**

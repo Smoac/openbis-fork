@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
-import ch.systemsx.cisd.common.annotation.BeanProperty;
+import ch.systemsx.cisd.common.parser.BeanProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 
 /**

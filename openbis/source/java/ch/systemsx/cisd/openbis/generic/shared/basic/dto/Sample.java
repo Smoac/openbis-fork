@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import ch.systemsx.cisd.common.annotation.CollectionMapping;
+import ch.systemsx.cisd.common.reflection.CollectionMapping;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityWithDeletionInformation;

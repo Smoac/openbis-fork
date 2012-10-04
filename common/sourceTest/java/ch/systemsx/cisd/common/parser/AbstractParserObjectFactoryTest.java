@@ -23,7 +23,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.annotation.BeanProperty;
 
 /**
  * Test cases for corresponding {@link AbstractParserObjectFactory} class.

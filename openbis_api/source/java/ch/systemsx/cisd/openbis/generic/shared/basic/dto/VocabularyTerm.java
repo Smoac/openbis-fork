@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import ch.systemsx.cisd.common.annotation.BeanProperty;
+import ch.systemsx.cisd.common.parser.BeanProperty;
 
 /**
  * A vocabulary term.

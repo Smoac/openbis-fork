@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.annotation;
+package ch.systemsx.cisd.common.reflection;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
