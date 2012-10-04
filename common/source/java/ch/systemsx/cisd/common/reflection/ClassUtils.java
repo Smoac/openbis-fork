@@ -42,7 +42,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.utilities.IClassFilter;
 
 /**
  * Operations on classes using reflection.

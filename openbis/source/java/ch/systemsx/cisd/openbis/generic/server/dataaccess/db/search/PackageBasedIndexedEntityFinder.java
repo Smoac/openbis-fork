@@ -23,7 +23,7 @@ import java.util.Set;
 import org.hibernate.search.annotations.Indexed;
 
 import ch.systemsx.cisd.common.reflection.ClassUtils;
-import ch.systemsx.cisd.common.utilities.IClassFilter;
+import ch.systemsx.cisd.common.reflection.IClassFilter;
 
 /**
  * A {@link IIndexedEntityFinder} based on a package name specified in the constructor.
