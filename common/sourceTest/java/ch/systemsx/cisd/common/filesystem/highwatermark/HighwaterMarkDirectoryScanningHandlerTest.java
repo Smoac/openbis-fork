@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.highwatermark;
+package ch.systemsx.cisd.common.filesystem.highwatermark;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -37,6 +37,8 @@ import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
 import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler.HandleInstruction;
 import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler.HandleInstructionFlag;
+import ch.systemsx.cisd.common.filesystem.highwatermark.HighwaterMarkDirectoryScanningHandler;
+import ch.systemsx.cisd.common.filesystem.highwatermark.HighwaterMarkWatcher;
 
 /**
  * Test cases for the {@link HighwaterMarkDirectoryScanningHandler}.

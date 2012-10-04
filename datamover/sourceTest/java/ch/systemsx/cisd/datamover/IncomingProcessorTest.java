@@ -44,7 +44,7 @@ import ch.systemsx.cisd.common.concurrent.TimerTaskWithListeners;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
-import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
+import ch.systemsx.cisd.common.filesystem.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;

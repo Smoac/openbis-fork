@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IStoreHandler;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkDirectoryScanningHandler;
+import ch.systemsx.cisd.common.filesystem.highwatermark.HighwaterMarkDirectoryScanningHandler;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;

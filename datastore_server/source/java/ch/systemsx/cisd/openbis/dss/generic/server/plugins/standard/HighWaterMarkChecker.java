@@ -5,8 +5,8 @@ import java.io.Serializable;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.HighwaterMarkState;
+import ch.systemsx.cisd.common.filesystem.highwatermark.HighwaterMarkWatcher;
+import ch.systemsx.cisd.common.filesystem.highwatermark.HighwaterMarkWatcher.HighwaterMarkState;
 
 /**
  * Checks if the space available is larger than specified value.

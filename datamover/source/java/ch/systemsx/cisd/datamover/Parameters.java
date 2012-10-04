@@ -41,7 +41,7 @@ import ch.systemsx.cisd.args4j.spi.Setter;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
-import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
+import ch.systemsx.cisd.common.filesystem.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;

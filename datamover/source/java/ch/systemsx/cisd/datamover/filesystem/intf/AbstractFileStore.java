@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
-import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
+import ch.systemsx.cisd.common.filesystem.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.datamover.DatamoverConstants;
 
 /**

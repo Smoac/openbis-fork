@@ -19,7 +19,7 @@ package ch.systemsx.cisd.datamover.filesystem;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
+import ch.systemsx.cisd.common.filesystem.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.AbstractFileStore;

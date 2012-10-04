@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.highwatermark;
+package ch.systemsx.cisd.common.filesystem.highwatermark;
 
 import java.io.File;
 import java.io.IOException;

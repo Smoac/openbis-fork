@@ -21,7 +21,7 @@ import ch.systemsx.cisd.common.exceptions.StatusWithResult;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.ILastModificationChecker;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
+import ch.systemsx.cisd.common.filesystem.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 
