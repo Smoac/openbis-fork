@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.string;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

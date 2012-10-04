@@ -32,7 +32,7 @@ import ch.systemsx.cisd.cifex.rpc.server.IExtendedCIFEXRPCService;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exception.InvalidSessionException;
-import ch.systemsx.cisd.common.utilities.Template;
+import ch.systemsx.cisd.common.string.Template;
 
 /**
  * @author Franz-Josef Elmer

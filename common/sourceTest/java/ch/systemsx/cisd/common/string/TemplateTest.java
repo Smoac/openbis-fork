@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.string;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
@@ -22,6 +22,8 @@ import static org.testng.AssertJUnit.fail;
 import java.util.Set;
 
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.string.Template;
 
 /**
  * Test cases for the {@link Template}.

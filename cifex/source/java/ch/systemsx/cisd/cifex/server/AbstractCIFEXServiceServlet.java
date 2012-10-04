@@ -40,7 +40,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
-import ch.systemsx.cisd.common.utilities.Template;
+import ch.systemsx.cisd.common.string.Template;
 
 /**
  * An abstract <code>HttpServlet</code> extension.

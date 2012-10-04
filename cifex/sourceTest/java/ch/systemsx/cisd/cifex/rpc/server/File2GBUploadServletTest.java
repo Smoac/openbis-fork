@@ -38,7 +38,7 @@ import ch.systemsx.cisd.cifex.server.AbstractFileUploadDownloadServlet;
 import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.common.utilities.Template;
+import ch.systemsx.cisd.common.string.Template;
 
 /**
  * @author Franz-Josef Elmer

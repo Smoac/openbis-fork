@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.cifex.server.AbstractFileUploadDownloadServlet;
 import ch.systemsx.cisd.common.exception.InvalidSessionException;
-import ch.systemsx.cisd.common.utilities.Template;
+import ch.systemsx.cisd.common.string.Template;
 
 /**
  * A class that creates the JNLP file for the Bouncy Caste Crypto extension. 

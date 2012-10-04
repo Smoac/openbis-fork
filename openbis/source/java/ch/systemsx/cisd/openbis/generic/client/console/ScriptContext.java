@@ -22,7 +22,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import ch.systemsx.cisd.common.utilities.Template;
+import ch.systemsx.cisd.common.string.Template;
 
 /**
  * 
