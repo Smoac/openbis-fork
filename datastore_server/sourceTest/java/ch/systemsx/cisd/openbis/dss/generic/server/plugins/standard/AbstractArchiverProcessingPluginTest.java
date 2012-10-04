@@ -39,7 +39,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
-import ch.systemsx.cisd.common.utilities.LogUtils;
+import ch.systemsx.cisd.common.logging.LogUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin.DatasetProcessingStatuses;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin.Operation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;

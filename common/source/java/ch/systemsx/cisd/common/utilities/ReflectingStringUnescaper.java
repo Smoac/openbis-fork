@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.logging.LogUtils;
 
 /**
  * Performs HTML unescaping the string fields of an object. Its implementation is based on

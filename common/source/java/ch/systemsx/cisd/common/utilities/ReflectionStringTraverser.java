@@ -32,6 +32,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.logging.LogUtils;
 
 /**
  * Allows to change all non-final and non-static strings referenced within the specified object. If
