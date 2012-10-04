@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
  * Creates a criterion for a boolean field. Accepts following values: "true", "yes", "false", "no".
- * For other values is returns null.
+ * For other values is returns "*".
  * 
  * @author pkupczyk
  */
@@ -36,7 +36,7 @@ public class SearchFieldBooleanCriterionFactory implements ISearchFieldCriterion
             return new DetailedSearchCriterion(field, "false");
         } else
         {
-            return null;
+            return new DetailedSearchCriterion(field, "*");
         }
     }
 
