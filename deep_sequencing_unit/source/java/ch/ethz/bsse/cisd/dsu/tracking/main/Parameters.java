@@ -16,13 +16,13 @@
 
 package ch.ethz.bsse.cisd.dsu.tracking.main;
 
-import static ch.systemsx.cisd.common.utilities.PropertyUtils.getMandatoryProperty;
+import static ch.systemsx.cisd.common.properties.PropertyUtils.getMandatoryProperty;
 
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 
 /**
  * @author Tomasz Pylak

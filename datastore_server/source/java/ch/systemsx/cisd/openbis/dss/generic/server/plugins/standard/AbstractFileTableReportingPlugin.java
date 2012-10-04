@@ -32,7 +32,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.parser.ParsingException;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ExcelFileReader;

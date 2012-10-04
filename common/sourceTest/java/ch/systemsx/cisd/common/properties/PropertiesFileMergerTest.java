@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.properties;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,6 +26,8 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.properties.PropertiesFileMerger;
+import ch.systemsx.cisd.common.utilities.IExitHandler;
 
 /**
  * 

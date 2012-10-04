@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.io.hierarchical_content.IHierarchicalContentFacto
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.etlserver.postregistration.ICleanupTask;
 import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTask;
 import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTaskExecutor;

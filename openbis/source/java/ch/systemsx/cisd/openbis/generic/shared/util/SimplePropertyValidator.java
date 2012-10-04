@@ -29,8 +29,8 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.common.utilities.PropertyUtils.Boolean;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils.Boolean;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ValidationUtilities.HyperlinkValidationHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;

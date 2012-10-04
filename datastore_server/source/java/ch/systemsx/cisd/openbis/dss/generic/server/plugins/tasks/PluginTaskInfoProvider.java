@@ -20,8 +20,8 @@ import java.io.File;
 import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
-import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;

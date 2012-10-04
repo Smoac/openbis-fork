@@ -25,9 +25,9 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
-import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;

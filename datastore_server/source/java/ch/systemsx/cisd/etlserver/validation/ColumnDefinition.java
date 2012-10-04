@@ -20,9 +20,9 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
  * Definition of a column used by {@link DataSetValidatorForTSV}.

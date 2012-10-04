@@ -23,7 +23,7 @@ import static ch.systemsx.cisd.openbis.etlserver.proteomics.DataSetInfoExtractor
 import java.io.File;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;

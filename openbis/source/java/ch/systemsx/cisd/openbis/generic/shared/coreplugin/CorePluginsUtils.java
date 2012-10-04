@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 import java.io.File;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 
 /**

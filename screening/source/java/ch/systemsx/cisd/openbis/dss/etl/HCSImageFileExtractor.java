@@ -22,7 +22,7 @@ import java.util.Properties;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.etl.dto.UnparsedImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;

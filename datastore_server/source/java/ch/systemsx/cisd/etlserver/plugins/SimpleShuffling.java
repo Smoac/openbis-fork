@@ -32,7 +32,7 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.etlserver.postregistration.EagerShufflingTask;
 import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTask;
 import ch.systemsx.cisd.etlserver.postregistration.TaskExecutor;

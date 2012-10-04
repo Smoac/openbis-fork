@@ -21,7 +21,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.SystemUtils;
 
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 
 /**
  * Methods for persistent entries on the client side.

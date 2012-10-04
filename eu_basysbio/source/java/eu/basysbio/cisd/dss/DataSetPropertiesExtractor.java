@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**

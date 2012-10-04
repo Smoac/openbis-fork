@@ -20,7 +20,7 @@ import java.util.Properties;
 
 import javax.servlet.Servlet;
 
-import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 
 /**
  * Manager of {@link Servlet} properties.

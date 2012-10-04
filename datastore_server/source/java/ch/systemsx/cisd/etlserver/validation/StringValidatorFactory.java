@@ -18,7 +18,7 @@ package ch.systemsx.cisd.etlserver.validation;
 
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 
 /**
  * 

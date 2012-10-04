@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.fileconverter.TiffCompressionStrategy;
 import ch.systemsx.cisd.common.fileconverter.TiffCompressionStrategy.TiffCompressionMethod;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 
 /**
  * {@link ITransformator} that compresses TIFF files.

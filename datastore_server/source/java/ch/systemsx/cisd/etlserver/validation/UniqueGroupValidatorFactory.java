@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 
 /**
  * Creates {@link UniqueGroupValidator}.

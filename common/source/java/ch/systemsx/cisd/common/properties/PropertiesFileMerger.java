@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.properties;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,6 +31,8 @@ import org.apache.commons.io.IOUtils;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.utilities.IExitHandler;
+import ch.systemsx.cisd.common.utilities.SystemExit;
 
 /**
  * Helper class/application to merge properties file. It tries to replace property values by values

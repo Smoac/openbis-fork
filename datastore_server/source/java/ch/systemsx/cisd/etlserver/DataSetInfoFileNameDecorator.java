@@ -22,7 +22,7 @@ import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
 
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 

@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.CallableExecutor;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 
 /**
  * A class which is configured from properties and is able to execute a script from the command line

@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 
 /**
  * A singleton to keep application wide material-specific configuration.

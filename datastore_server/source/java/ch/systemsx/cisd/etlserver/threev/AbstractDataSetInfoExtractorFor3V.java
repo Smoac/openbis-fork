@@ -25,7 +25,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.DataSetNameEntitiesProvider;
 import ch.systemsx.cisd.etlserver.DefaultDataSetInfoExtractor;

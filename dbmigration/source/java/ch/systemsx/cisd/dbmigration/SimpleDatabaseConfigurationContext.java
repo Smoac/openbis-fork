@@ -25,7 +25,7 @@ import org.springframework.beans.factory.DisposableBean;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
-import static ch.systemsx.cisd.common.utilities.PropertyUtils.*;
+import static ch.systemsx.cisd.common.properties.PropertyUtils.*;
 
 /**
  * Configuration context for database operations.
