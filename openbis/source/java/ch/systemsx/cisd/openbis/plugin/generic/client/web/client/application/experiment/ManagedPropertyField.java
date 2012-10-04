@@ -116,16 +116,16 @@ public class ManagedPropertyField extends Field<List<Map<String, String>>>
         formPanel.setLabelWidth(AbstractRegistrationForm.DEFAULT_LABEL_WIDTH - SPACING - 2);
         formPanel.setFieldWidth(AbstractRegistrationForm.DEFAULT_FIELD_WIDTH);
         formPanel.setHeaderVisible(false);
-        Map<String, TextField<?>> inputFieldsByLabel = new HashMap<String, TextField<?>>();
+        Map<String, TextField<?>> inputFieldsByCode = new HashMap<String, TextField<?>>();
         ManagedPropertyFormHelper formHelper =
-                new ManagedPropertyFormHelper(viewContext, formPanel, inputFieldsByLabel);
+                new ManagedPropertyFormHelper(viewContext, formPanel, inputFieldsByCode);
         formHelper.fillForm(widgetDescriptions);
         final HorizontalPanel horizontalPanel = new HorizontalPanel();
         horizontalPanel.setSpacing(SPACING);
         horizontalPanel.add(formPanel);
         Button removeButton = new Button("-");
         removeButton.setToolTip("Delete this section.");
-        final Section section = new Section(inputFieldsByLabel);
+        final Section section = new Section(inputFieldsByCode);
         removeButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override

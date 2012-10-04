@@ -45,13 +45,14 @@ public abstract class ManagedInputWidgetDescription implements IManagedInputWidg
         return code;
     }
 
-    public void setCode(String code)
+    public IManagedInputWidgetDescription setCode(String code)
     {
         if (isBlank(code))
         {
             throw new IllegalArgumentException("Code is null or a blank string.");
         }
         this.code = code.toUpperCase();
+        return this;
     }
 
     @Override

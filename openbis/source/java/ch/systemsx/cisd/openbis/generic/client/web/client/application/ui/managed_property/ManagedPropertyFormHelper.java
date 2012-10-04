@@ -41,14 +41,14 @@ public class ManagedPropertyFormHelper
 
     private final FormPanel formPanel;
 
-    private final Map<String, TextField<?>> inputFieldsByLabel;
+    private final Map<String, TextField<?>> inputFieldsByCode;
 
     public ManagedPropertyFormHelper(IViewContext<?> viewContext, FormPanel formPanel,
-            Map<String, TextField<?>> inputFieldsByLabel)
+            Map<String, TextField<?>> inputFieldsByCode)
     {
         this.viewContext = viewContext;
         this.formPanel = formPanel;
-        this.inputFieldsByLabel = inputFieldsByLabel;
+        this.inputFieldsByCode = inputFieldsByCode;
 
     }
 
@@ -88,7 +88,7 @@ public class ManagedPropertyFormHelper
             }
             FieldUtil.setMandatoryFlag(field, inputDescription.isMandatory());
 
-            inputFieldsByLabel.put(label, field);
+            inputFieldsByCode.put(inputDescription.getCode(), field);
             formPanel.add(field);
         }
 

@@ -60,7 +60,7 @@ public final class ManagedPropertyGridActionDialog extends
 
     private final IManagedUiTableAction managedAction;
 
-    private final Map<String, TextField<?>> inputFieldsByLabel =
+    private final Map<String, TextField<?>> inputFieldsByCode =
             new LinkedHashMap<String, TextField<?>>();
 
     private final ManagedPropertyFormHelper formHelper;
@@ -77,7 +77,7 @@ public final class ManagedPropertyGridActionDialog extends
         this.callback = callback;
         this.managedAction = managedAction;
         setWidth(400);
-        formHelper = new ManagedPropertyFormHelper(viewContext, formPanel, inputFieldsByLabel)
+        formHelper = new ManagedPropertyFormHelper(viewContext, formPanel, inputFieldsByCode)
             {
                 @Override
                 protected void trySetBoundedValue(IManagedInputWidgetDescription inputDescription)
@@ -112,7 +112,7 @@ public final class ManagedPropertyGridActionDialog extends
         for (IManagedInputWidgetDescription inputDescription : managedAction
                 .getInputWidgetDescriptions())
         {
-            TextField<?> field = inputFieldsByLabel.get(inputDescription.getLabel());
+            TextField<?> field = inputFieldsByCode.get(inputDescription.getCode());
             Object fieldValue = field.getValue();
             String value = fieldValue == null ? null : field.getValue().toString().trim();
             if (fieldValue instanceof SimpleComboValue)
@@ -147,12 +147,12 @@ public final class ManagedPropertyGridActionDialog extends
                 && data.size() == 1)
         {
             String boundedColumnTitleOrNull =
-                    managedAction.getBindings().get(inputDescription.getLabel());
+                    managedAction.getBindings().get(inputDescription.getCode());
             if (boundedColumnTitleOrNull != null)
             {
                 if (viewContext.isLoggingEnabled())
                 {
-                    GWTUtils.displayInfo("found binding", inputDescription.getLabel() + "->"
+                    GWTUtils.displayInfo("found binding", inputDescription.getCode() + "->"
                             + boundedColumnTitleOrNull);
                 }
                 TableModelRowWithObject<ReportRowModel> selectedRow = data.get(0);
@@ -169,7 +169,7 @@ public final class ManagedPropertyGridActionDialog extends
                         inputDescription.setValue(value.toString());
                         if (viewContext.isLoggingEnabled())
                         {
-                            Info.display("bounded value", inputDescription.getLabel() + "=" + value);
+                            Info.display("bounded value", inputDescription.getCode() + "=" + value);
                         }
                         break;
                     }
