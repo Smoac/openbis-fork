@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
 
 /**

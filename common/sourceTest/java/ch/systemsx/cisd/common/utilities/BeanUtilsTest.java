@@ -38,6 +38,7 @@ import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
+import ch.systemsx.cisd.common.reflection.BeanUtils;
 
 /**
  * Test cases for the {@link BeanUtils} class.

@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.parser.ILine;
 import ch.systemsx.cisd.common.parser.ParserUtilities;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
-import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
 /**

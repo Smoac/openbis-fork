@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.reflection;
+
+import ch.systemsx.cisd.common.utilities.IClassFilter;
 
 /**
  * Useful utilities for working with class filters.

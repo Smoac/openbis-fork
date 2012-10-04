@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.reflection.BeanUtils;
 
 /**
  * Performs HTML escaping the string fields of an object. If desired, users can restrict the fields

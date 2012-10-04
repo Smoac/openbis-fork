@@ -21,7 +21,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
-import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.reflection.ClassUtils;
 
 /**
  * Utilities for {@link Timer}.

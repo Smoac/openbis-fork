@@ -36,6 +36,7 @@ import org.testng.remote.SuiteSlave;
 
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.TimingParametersTest;
+import ch.systemsx.cisd.common.reflection.ClassUtils;
 
 /**
  * Test cases for the {@link ClassUtils} class.

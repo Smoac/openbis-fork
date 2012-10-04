@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.converter.Converter;
 import ch.systemsx.cisd.common.converter.ConverterPool;
-import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.reflection.ClassUtils;
 
 /**
  * An abstract <code>IParserObjectFactory</code> which already implements and offers convenience

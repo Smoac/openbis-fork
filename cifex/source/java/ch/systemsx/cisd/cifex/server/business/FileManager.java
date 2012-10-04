@@ -76,7 +76,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.common.reflection.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.StringUtilities;
 import ch.systemsx.cisd.common.utilities.StringUtilities.IUniquenessChecker;

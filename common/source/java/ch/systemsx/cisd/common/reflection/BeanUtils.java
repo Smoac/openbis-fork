@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.reflection;
 
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -280,7 +280,7 @@ public final class BeanUtils
 
     /**
      * Convenience method for
-     * {@link #createBean(Class, Object, ch.systemsx.cisd.common.utilities.BeanUtils.Converter)}
+     * {@link #createBean(Class, Object, ch.systemsx.cisd.common.reflection.BeanUtils.Converter)}
      * where <var>converter</var> is <code>NULL_CONVERTER</code>.
      */
     public static <T> T fillBean(final Class<T> beanClass, final T beanInstance,
@@ -292,7 +292,7 @@ public final class BeanUtils
 
     /**
      * Convenience method for
-     * {@link #createBean(Class, Object, ch.systemsx.cisd.common.utilities.BeanUtils.Converter)}
+     * {@link #createBean(Class, Object, ch.systemsx.cisd.common.reflection.BeanUtils.Converter)}
      * where <var>converter</var> is <code>NULL_CONVERTER</code>.
      */
     public static <T> T createBean(final Class<T> beanClass, final Object sourceBean)
@@ -850,7 +850,7 @@ public final class BeanUtils
      * <li>If the value is of primitive type or one of the immutable types specified, then use it
      * tel quel</li>
      * <li>If the value is a complexe type, then it should be filled using
-     * {@link #fillBean(Class, Object, Map, Object, ch.systemsx.cisd.common.utilities.BeanUtils.AnnotationMap, ch.systemsx.cisd.common.utilities.BeanUtils.Converter)}
+     * {@link #fillBean(Class, Object, Map, Object, ch.systemsx.cisd.common.reflection.BeanUtils.AnnotationMap, ch.systemsx.cisd.common.reflection.BeanUtils.Converter)}
      * before using it</li>
      * </ol>
      * </p>

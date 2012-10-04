@@ -22,7 +22,7 @@ import java.util.Set;
 
 import org.hibernate.search.annotations.Indexed;
 
-import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.common.utilities.IClassFilter;
 
 /**

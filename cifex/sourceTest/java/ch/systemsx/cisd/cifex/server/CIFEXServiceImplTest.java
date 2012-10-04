@@ -59,8 +59,8 @@ import ch.systemsx.cisd.cifex.server.common.Password;
 import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
+import ch.systemsx.cisd.common.reflection.BeanUtils;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
-import ch.systemsx.cisd.common.utilities.BeanUtils;
 
 /**
  * Test cases for corresponding {@link CIFEXServiceImpl} class.
