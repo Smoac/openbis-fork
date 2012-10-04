@@ -17,11 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
+ * Controls availability of a search field.
+ * 
  * @author pkupczyk
  */
 public interface ISearchFieldAvailability
 {
 
-    public boolean isAvailable(Person person, PersonRoles personRoles);
+    /**
+     * Returns true if the search field should be available for the specified person and roles.
+     */
+    public boolean isAvailable(DetailedSearchField field, Person person, PersonRoles personRoles);
 
 }

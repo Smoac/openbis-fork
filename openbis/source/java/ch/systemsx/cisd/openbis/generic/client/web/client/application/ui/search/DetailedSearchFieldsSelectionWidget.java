@@ -235,7 +235,7 @@ public final class DetailedSearchFieldsSelectionWidget extends
                     field.getKind() != null ? field.getKind().getAvailability() : null;
 
             if (availability != null
-                    && availability.isAvailable(getPerson(), getPersonRoles()) == false)
+                    && availability.isAvailable(field.getField(), getPerson(), getPersonRoles()) == false)
             {
                 iterator.remove();
             }

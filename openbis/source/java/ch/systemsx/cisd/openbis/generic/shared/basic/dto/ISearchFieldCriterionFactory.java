@@ -16,13 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
 /**
+ * Creates a criterion for a search field.
+ * 
  * @author pkupczyk
  */
 public interface ISearchFieldCriterionFactory
 {
 
+    /**
+     * Creates a criterion for the search field and value.
+     */
     public DetailedSearchCriterion createCriterion(DetailedSearchField field, String value);
 
 }

@@ -17,13 +17,15 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
+ * Makes a search field available for an admin used.
+ * 
  * @author pkupczyk
  */
 public class SearchFieldAvailableForAdmins implements ISearchFieldAvailability
 {
 
     @Override
-    public boolean isAvailable(Person person, PersonRoles personRoles)
+    public boolean isAvailable(DetailedSearchField field, Person person, PersonRoles personRoles)
     {
         return personRoles.isAdmin();
     }

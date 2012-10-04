@@ -16,15 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
 /**
+ * Kind of field that can be used in detailed text queries.
+ * 
  * @author pkupczyk
  */
 public interface ISearchFieldKind
 {
 
+    /**
+     * Returns availability of the search field.
+     */
     ISearchFieldAvailability getAvailability();
 
+    /**
+     * Returns criterion factory of the search field.
+     */
     ISearchFieldCriterionFactory getCriterionFactory();
 
 }
