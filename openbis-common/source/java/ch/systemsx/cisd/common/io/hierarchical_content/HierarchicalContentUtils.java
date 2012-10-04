@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.io.hierarchical_content;
 
 import java.io.FilterInputStream;
 import java.io.IOException;

@@ -40,7 +40,6 @@ import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHDF5;
 import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient;
 import ch.systemsx.cisd.common.io.IOUtilities;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.common.utilities.HierarchicalContentUtils;
 import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 
 /**
