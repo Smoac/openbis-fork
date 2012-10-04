@@ -24,30 +24,31 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * The data store URL for a list of data sets.
- *
+ * 
+ * @since 1.19
  * @author Bernd Rinn
  */
 @JsonObject("DataStoreForDataSets")
 public class DataStoreForDataSets implements Serializable
 {
     private static final long serialVersionUID = 1L;
-    
-    private final String dataStoreBaseURL;
-    
+
+    private final String dataStoreDownloadURL;
+
     private final String[] dataSetCodes;
 
     public DataStoreForDataSets(String dataStoreBaseURL, String[] dataSetCodes)
     {
-        this.dataStoreBaseURL = dataStoreBaseURL;
+        this.dataStoreDownloadURL = dataStoreBaseURL;
         this.dataSetCodes = dataSetCodes;
     }
 
     /**
      * The base URL of the data store (can be used for download from a client).
      */
-    public String getDataStoreBaseURL()
+    public String getDataStoreDownloadURL()
     {
-        return dataStoreBaseURL;
+        return dataStoreDownloadURL;
     }
 
     /**

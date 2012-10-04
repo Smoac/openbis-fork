@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
@@ -220,7 +221,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Override
     public int getMinorVersion()
     {
-        return 18;
+        return 19;
     }
 
     private Map<String, List<RoleAssignmentPE>> getRoleAssignmentsPerSpace()
@@ -586,14 +587,27 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     {
         checkSession(sessionToken);
 
-        IDataDAO dataDAO = getDAOFactory().getDataDAO();
-        DataPE data = dataDAO.tryToFindDataSetByCode(dataSetCode);
-        if (data == null)
+        final IDataSetLister lister = new DataSetLister(getDAOFactory());
+        final List<DataStoreForDataSets> dataStores =
+                lister.getDataStoreBaseURLs(Collections.singletonList(dataSetCode));
+        if (dataStores.isEmpty())
         {
             return null;
         }
+        return dataStores.get(0).getDataStoreDownloadURL();
+    }
 
-        return data.getDataStore().getDownloadUrl();
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public List<DataStoreForDataSets> getDataStoreBaseURLs(String sessionToken,
+            List<String> dataSetCodes)
+    {
+        checkSession(sessionToken);
+
+        final IDataSetLister lister = new DataSetLister(getDAOFactory());
+        return lister.getDataStoreBaseURLs(dataSetCodes);
     }
 
     @Override
@@ -793,7 +807,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 DataSetFetchOption.CHILDREN))
         {
             checkSession(sessionToken);
-            IDataSetLister lister = new DataSetLister(getDAOFactory());
+            final IDataSetLister lister = new DataSetLister(getDAOFactory());
             return lister.getDataSetMetaData(dataSetCodes, dataSetFetchOptions);
         } else
         {
@@ -1002,4 +1016,5 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
         return result;
     }
+
 }

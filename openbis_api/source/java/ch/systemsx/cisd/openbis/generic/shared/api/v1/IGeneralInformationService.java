@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
@@ -287,6 +288,16 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.4
      */
     public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode);
+
+    /**
+     * Returns the download URL for the data store of specified data sets.
+     * 
+     * @return One entry for each data store that has data sets from <var>dataSetCodes</var>,
+     *         together with the data set codes that are in this data store.
+     * @since 1.19
+     */
+    public List<DataStoreForDataSets> getDataStoreBaseURLs(String sessionToken,
+            List<String> dataSetCodes);
 
     /**
      * Returns the URL for the default data store server for this openBIS AS.

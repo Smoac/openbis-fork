@@ -141,11 +141,12 @@ public class DataSetListerTest extends AbstractDAOTest
         codes.add("20081105092259000-20");
         codes.add("20081105092259000-21");
         List<DataStoreForDataSets> result = lister.getDataStoreBaseURLs(codes);
-        assertEquals("http://download_1", result.get(0).getDataStoreBaseURL());
+        assertEquals(2, result.size());
+        assertEquals("http://download_1", result.get(0).getDataStoreDownloadURL());
         assertEquals(
                 Arrays.asList("20081105092159188-3", "20081105092159111-1", "20081105092259000-19"),
                 result.get(0).getDataSetCodes());
-        assertEquals("http://download_2", result.get(1).getDataStoreBaseURL());
+        assertEquals("http://download_2", result.get(1).getDataStoreDownloadURL());
         assertEquals(Arrays.asList("20081105092259000-20", "20081105092259000-21"), result.get(1)
                 .getDataSetCodes());
     }

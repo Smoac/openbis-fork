@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
@@ -200,6 +201,15 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode)
     {
         logAccess(sessionToken, "get-data-store-base-url", "DATA_SET(%s)", dataSetCode);
+        return null;
+    }
+
+    @Override
+    public List<DataStoreForDataSets> getDataStoreBaseURLs(String sessionToken,
+            List<String> dataSetCodes)
+    {
+        logAccess(sessionToken, "get-data-store-base-urls", "DATA_SETS(%s)",
+                abbreviate(dataSetCodes));
         return null;
     }
 
