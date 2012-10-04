@@ -131,6 +131,8 @@ class IndexFieldNameHelper
                 return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
             case FILE_TYPE:
                 return SearchFieldConstants.PREFIX_FILE_FORMAT_TYPE + CODE;
+            case STORAGE_CONFIRMATION:
+                return SearchFieldConstants.STORAGE_CONFIRMATION;
             case REGISTRATION_DATE:
             case REGISTRATION_DATE_FROM:
             case REGISTRATION_DATE_UNTIL:

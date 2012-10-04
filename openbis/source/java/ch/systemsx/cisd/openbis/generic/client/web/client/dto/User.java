@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PersonRoles;
 
 /**
  * User information to be shown in Web client.
@@ -34,6 +35,8 @@ public final class User implements IsSerializable
     private String userEmail;
 
     private Person userPersonObject;
+
+    private PersonRoles userPersonRoles;
 
     public User()
     {
@@ -88,4 +91,15 @@ public final class User implements IsSerializable
     {
         this.userPersonObject = userPersonObject;
     }
+
+    public PersonRoles getUserPersonRoles()
+    {
+        return userPersonRoles;
+    }
+
+    public void setUserPersonRoles(PersonRoles userPersonRoles)
+    {
+        this.userPersonRoles = userPersonRoles;
+    }
+
 }

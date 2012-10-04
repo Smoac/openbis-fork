@@ -29,8 +29,11 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.constraints.Length;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
@@ -229,6 +232,7 @@ public final class ExternalDataPE extends DataPE
     }
 
     @Column(name = ColumnNames.STORAGE_CONFIRMATION)
+    @Field(name = SearchFieldConstants.STORAGE_CONFIRMATION, index = Index.UN_TOKENIZED, store = Store.YES)
     public boolean isStorageConfirmation()
     {
         return storageConfirmation;

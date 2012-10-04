@@ -89,6 +89,8 @@ public final class SearchFieldConstants
 
     public static final String FILE_DESCRIPTION = "description";
 
+    public static final String STORAGE_CONFIRMATION = "storage_confirmed";
+
     public static final String REGISTRATION_DATE = "registration_date";
 
     public static final String MODIFICATION_DATE = "modification_date";

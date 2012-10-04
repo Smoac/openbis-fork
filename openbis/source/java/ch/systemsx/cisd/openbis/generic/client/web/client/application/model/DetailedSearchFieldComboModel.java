@@ -17,20 +17,31 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISearchFieldKind;
 
 /** Model of combo box used in detailed entity search. */
 public class DetailedSearchFieldComboModel extends SimplifiedBaseModelData
 {
     private static final long serialVersionUID = 1L;
 
-    public DetailedSearchFieldComboModel(String code, DetailedSearchField field)
+    private static final String KIND = "kind";
+
+    public DetailedSearchFieldComboModel(String code, DetailedSearchField field,
+            ISearchFieldKind kind)
     {
         set(ModelDataPropertyNames.CODE, code);
         set(ModelDataPropertyNames.OBJECT, field);
+        set(KIND, kind);
     }
 
     public DetailedSearchField getField()
     {
         return get(ModelDataPropertyNames.OBJECT);
     }
+
+    public ISearchFieldKind getKind()
+    {
+        return get(KIND);
+    }
+
 }

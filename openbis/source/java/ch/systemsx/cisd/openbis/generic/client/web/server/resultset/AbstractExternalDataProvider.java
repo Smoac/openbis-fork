@@ -191,14 +191,15 @@ public abstract class AbstractExternalDataProvider extends
                 FileFormatType fileFormatType = realDataSet.getFileFormatType();
                 builder.column(FILE_FORMAT_TYPE).addString(
                         fileFormatType == null ? "" : fileFormatType.getCode());
+                builder.column(STORAGE_CONFIRMATION).addString(
+                        SimpleYesNoRenderer.render(dataSet.isStorageConfirmation()));
             }
             builder.column(PRODUCTION_DATE).addDate(dataSet.getProductionDate());
             builder.column(DATA_PRODUCER_CODE).addString(dataSet.getDataProducerCode());
             builder.column(DATA_STORE_CODE).addString(dataSet.getDataStore().getCode());
             builder.column(PERM_ID).addString(dataSet.getPermId());
             builder.column(SHOW_DETAILS_LINK).addString(dataSet.getPermlink());
-            builder.column(STORAGE_CONFIRMATION).addString(
-                    SimpleYesNoRenderer.render(dataSet.isStorageConfirmation()));
+
             IColumnGroup columnGroup = builder.columnGroup(PROPERTIES_PREFIX);
             DataSetType dataSetType = dataSet.getDataSetType();
             if (dataSetType != null)

@@ -36,10 +36,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DetailedSearchFieldComboModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CompareType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -202,43 +203,22 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
      */
     public DetailedSearchCriterion tryGetValue()
     {
+        String selectedValue = valueField.getValue();
+        DetailedSearchField selectedField = nameField.tryGetSelectedField();
+        ISearchFieldKind selectedKind = nameField.tryGetSelectedKind();
 
-        final String selectedValue = valueField.getValue();
-        final DetailedSearchField selectedFieldName = nameField.tryGetSelectedField();
-
-        if (selectedFieldName != null && StringUtils.isBlank(selectedValue) == false)
+        if (selectedField != null && StringUtils.isBlank(selectedValue) == false)
         {
-            String aCode = selectedFieldName.getAttributeCode();
-
-            CompareType compareType;
-            if ("REGISTRATION_DATE_UNTIL".equals(aCode))
+            if (selectedKind != null && selectedKind.getCriterionFactory() != null)
             {
-                compareType = CompareType.LESS_THAN_OR_EQUAL;
-            } else if ("REGISTRATION_DATE".equals(aCode))
-            {
-                compareType = CompareType.EQUALS;
-            } else if ("REGISTRATION_DATE_FROM".equals(aCode))
-            {
-                compareType = CompareType.MORE_THAN_OR_EQUAL;
-            } else if ("MODIFICATION_DATE_UNTIL".equals(aCode))
-            {
-                compareType = CompareType.LESS_THAN_OR_EQUAL;
-            } else if ("MODIFICATION_DATE".equals(aCode))
-            {
-                compareType = CompareType.EQUALS;
-            } else if ("MODIFICATION_DATE_FROM".equals(aCode))
-            {
-                compareType = CompareType.MORE_THAN_OR_EQUAL;
+                return selectedKind.getCriterionFactory().createCriterion(selectedField,
+                        selectedValue);
             } else
             {
-                return new DetailedSearchCriterion(selectedFieldName, selectedValue);
+                return new DetailedSearchCriterion(selectedField, selectedValue);
             }
-
-            return new DetailedSearchCriterion(selectedFieldName, compareType, selectedValue);
-
         }
         return null;
-
     }
 
     public String tryGetDescription()
@@ -266,13 +246,15 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
         DetailedSearchField field = criterion.getField();
         String searchString = criterion.getValue();
         String description = "";
+        ISearchFieldKind kind = null;
+
         switch (field.getKind())
         {
             case ATTRIBUTE:
-                description =
+                kind =
                         AttributeSearchFieldKindProvider.getAttributeFieldKind(
-                                nameField.getEntityKind(), field.getAttributeCode())
-                                .getDescription();
+                                nameField.getEntityKind(), field.getAttributeCode());
+                description = ((IAttributeSearchFieldKind) kind).getDescription();
                 break;
             case PROPERTY:
                 description = field.getPropertyCode();
@@ -288,7 +270,8 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
                 break;
         }
 
-        DetailedSearchFieldComboModel model = new DetailedSearchFieldComboModel(description, field);
+        DetailedSearchFieldComboModel model =
+                new DetailedSearchFieldComboModel(description, field, kind);
         nameField.setValue(model);
         valueField.setValue(searchString);
     }

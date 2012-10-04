@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,26 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-/**
- * Kind of field connected with an entity attribute that can be used in detailed text queries.
- * 
- * @author Piotr Buczek
- */
-public interface IAttributeSearchFieldKind extends ISearchFieldKind
-{
-    String getCode();
 
-    String getDescription();
+/**
+ * @author pkupczyk
+ */
+public class SearchFieldBooleanCriterionFactory implements ISearchFieldCriterionFactory
+{
+
+    @Override
+    public DetailedSearchCriterion createCriterion(DetailedSearchField field, String value)
+    {
+        if ("TRUE".equalsIgnoreCase(value) || "YES".equalsIgnoreCase(value))
+        {
+            return new DetailedSearchCriterion(field, "true");
+        } else if ("FALSE".equalsIgnoreCase(value) || "NO".equalsIgnoreCase(value))
+        {
+            return new DetailedSearchCriterion(field, "false");
+        } else
+        {
+            return null;
+        }
+    }
 
 }

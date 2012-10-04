@@ -347,8 +347,7 @@ public final class GWTUtils
      * 
      * @returns <code>null</code> if nothing is selected.
      */
-    private final static <T extends ModelData> T tryGetSingleSelectedModel(
-            final ComboBox<T> comboBox)
+    public final static <T extends ModelData> T tryGetSingleSelectedModel(final ComboBox<T> comboBox)
     {
         assert comboBox != null : "Unspecified combo box.";
         final List<T> selection = comboBox.getSelection();
@@ -362,20 +361,31 @@ public final class GWTUtils
     }
 
     /**
-     * Tries to return the selected object code (saved as {@link ModelDataPropertyNames#CODE} in the
-     * model) from the given {@link ComboBox}.
+     * Tries to return the selected object property from the given {@link ComboBox}.
      * 
      * @returns <code>null</code> if nothing is selected.
      */
-    public final static <T extends ModelData, O> String tryGetSingleSelectedCode(
-            final ComboBox<T> comboBox)
+    public final static <T extends ModelData, O> O tryGetSingleSelectedProperty(
+            final ComboBox<T> comboBox, String propertyName)
     {
         T selectedModel = GWTUtils.tryGetSingleSelectedModel(comboBox);
         if (selectedModel == null)
         {
             return null;
         }
-        return selectedModel.get(ModelDataPropertyNames.CODE);
+        return selectedModel.get(propertyName);
+    }
+
+    /**
+     * Tries to return the selected object code (saved as {@link ModelDataPropertyNames#CODE} in the
+     * model) from the given {@link ComboBox}.
+     * 
+     * @returns <code>null</code> if nothing is selected.
+     */
+    public final static <T extends ModelData> String tryGetSingleSelectedCode(
+            final ComboBox<T> comboBox)
+    {
+        return tryGetSingleSelectedProperty(comboBox, ModelDataPropertyNames.CODE);
     }
 
     /**
@@ -384,11 +394,9 @@ public final class GWTUtils
      * 
      * @returns <code>null</code> if nothing is selected.
      */
-    @SuppressWarnings("unchecked")
     public final static <T extends ModelData, O> O tryGetSingleSelected(final ComboBox<T> comboBox)
     {
-        final T selectedModel = tryGetSingleSelectedModel(comboBox);
-        return (O) (selectedModel != null ? selectedModel.get(ModelDataPropertyNames.OBJECT) : null);
+        return tryGetSingleSelectedProperty(comboBox, ModelDataPropertyNames.OBJECT);
     }
 
     /** Returns base URL to the index page of the application. */

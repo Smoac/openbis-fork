@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -42,6 +43,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISearchFieldAvailability;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PersonRoles;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -117,6 +122,12 @@ public final class DetailedSearchFieldsSelectionWidget extends
         return GWTUtils.tryGetSingleSelectedCode(this);
     }
 
+    public ISearchFieldKind tryGetSelectedKind()
+    {
+        DetailedSearchFieldComboModel model = GWTUtils.tryGetSingleSelectedModel(this);
+        return model != null ? model.getKind() : null;
+    }
+
     // NOTE: should be removed. See the todo for the whole class.
     public List<PropertyType> getAvailablePropertyTypes()
     {
@@ -146,7 +157,8 @@ public final class DetailedSearchFieldsSelectionWidget extends
         @Override
         protected void process(final TypedTableResultSet<PropertyType> result)
         {
-            List<TableModelRowWithObject<PropertyType>> rows = result.getResultSet().getList().extractOriginalObjects();
+            List<TableModelRowWithObject<PropertyType>> rows =
+                    result.getResultSet().getList().extractOriginalObjects();
             propertyTypes = new ArrayList<PropertyType>();
             for (TableModelRowWithObject<PropertyType> row : rows)
             {
@@ -215,6 +227,20 @@ public final class DetailedSearchFieldsSelectionWidget extends
         DetailedSearchField anyField = DetailedSearchField.createAnyField(allEntityPropertyCodes);
         addComplexFieldComboModel(result, anyField);
 
+        Iterator<DetailedSearchFieldComboModel> iterator = result.iterator();
+        while (iterator.hasNext())
+        {
+            DetailedSearchFieldComboModel field = iterator.next();
+            ISearchFieldAvailability availability =
+                    field.getKind() != null ? field.getKind().getAvailability() : null;
+
+            if (availability != null
+                    && availability.isAvailable(getPerson(), getPersonRoles()) == false)
+            {
+                iterator.remove();
+            }
+        }
+
         return result;
     }
 
@@ -241,14 +267,15 @@ public final class DetailedSearchFieldsSelectionWidget extends
             DetailedSearchField complexField)
     {
         assert complexField.getKind() != DetailedSearchFieldKind.ATTRIBUTE : "attribute field not allowed";
-        return new DetailedSearchFieldComboModel(getDisplayName(complexField), complexField);
+        return new DetailedSearchFieldComboModel(getDisplayName(complexField), complexField, null);
     }
 
     private static DetailedSearchFieldComboModel createAttributeFieldComboModel(
             DetailedSearchField attributeField, IAttributeSearchFieldKind attributeFieldKind)
     {
         assert attributeField.getKind() == DetailedSearchFieldKind.ATTRIBUTE : "attribute field required";
-        return new DetailedSearchFieldComboModel(getDisplayName(attributeFieldKind), attributeField);
+        return new DetailedSearchFieldComboModel(getDisplayName(attributeFieldKind),
+                attributeField, attributeFieldKind);
     }
 
     private List<String> addEntityPropertyTypes(final List<DetailedSearchFieldComboModel> result,
@@ -284,7 +311,7 @@ public final class DetailedSearchFieldsSelectionWidget extends
         String prefix = getDisplayName(searchField);
         String property = PropertyTypeRenderer.getDisplayName(propertyType, types);
         String code = prefix + " \'" + property + "\'";
-        return new DetailedSearchFieldComboModel(code, searchField);
+        return new DetailedSearchFieldComboModel(code, searchField, null);
     }
 
     private static String getDisplayName(DetailedSearchField complexField)
@@ -315,5 +342,15 @@ public final class DetailedSearchFieldsSelectionWidget extends
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return DatabaseModificationKind.any(ObjectKind.PROPERTY_TYPE);
+    }
+
+    private Person getPerson()
+    {
+        return viewContext.getModel().getSessionContext().getUser().getUserPersonObject();
+    }
+
+    private PersonRoles getPersonRoles()
+    {
+        return viewContext.getModel().getSessionContext().getUser().getUserPersonRoles();
     }
 }

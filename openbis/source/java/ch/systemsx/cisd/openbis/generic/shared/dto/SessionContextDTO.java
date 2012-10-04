@@ -21,6 +21,7 @@ import java.io.Serializable;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PersonRoles;
 
 /**
  * An extract from the Session object, used internally on the server side.
@@ -46,6 +47,8 @@ public class SessionContextDTO implements Serializable
     private boolean isAnonymous;
 
     private Person userPersonObject;
+
+    private PersonRoles userPersonRoles;
 
     public void setSessionToken(String sessionToken)
     {
@@ -125,5 +128,15 @@ public class SessionContextDTO implements Serializable
     public Person getUserPersonObject()
     {
         return userPersonObject;
+    }
+
+    public void setUserPersonRoles(PersonRoles userPersonRoles)
+    {
+        this.userPersonRoles = userPersonRoles;
+    }
+
+    public PersonRoles getUserPersonRoles()
+    {
+        return userPersonRoles;
     }
 }

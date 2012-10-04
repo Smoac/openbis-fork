@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,15 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * Kind of field connected with an entity attribute that can be used in detailed text queries.
- * 
- * @author Piotr Buczek
+ * @author pkupczyk
  */
-public interface IAttributeSearchFieldKind extends ISearchFieldKind
+public class SearchFieldAvailableForAdmins implements ISearchFieldAvailability
 {
-    String getCode();
 
-    String getDescription();
+    @Override
+    public boolean isAvailable(Person person, PersonRoles personRoles)
+    {
+        return personRoles.isAdmin();
+    }
 
 }
