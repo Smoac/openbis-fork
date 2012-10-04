@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.cifex.server.util;
 
-import static ch.systemsx.cisd.common.utilities.DateTimeUtils.extendUntilEndOfDay;
+import static ch.systemsx.cisd.common.time.DateTimeUtils.extendUntilEndOfDay;
 
 import java.util.Date;
 

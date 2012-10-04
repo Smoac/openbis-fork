@@ -25,7 +25,7 @@ import javax.swing.table.TableCellRenderer;
 
 import ch.systemsx.cisd.cifex.rpc.client.FileItem;
 import ch.systemsx.cisd.cifex.rpc.client.FileItemStatus;
-import ch.systemsx.cisd.common.utilities.DateTimeUtils;
+import ch.systemsx.cisd.common.time.DateTimeUtils;
 
 /**
  * @author Franz-Josef Elmer

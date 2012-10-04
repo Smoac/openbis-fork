@@ -30,7 +30,7 @@ import javax.swing.table.TableCellRenderer;
 
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClient.IDecryptionChecker;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo;
-import ch.systemsx.cisd.common.utilities.DateTimeUtils;
+import ch.systemsx.cisd.common.time.DateTimeUtils;
 
 /**
  * Displays a button or download status, depending on whether the file has been downloaded or not.

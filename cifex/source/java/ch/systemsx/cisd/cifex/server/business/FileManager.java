@@ -18,7 +18,7 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import static ch.systemsx.cisd.cifex.server.AbstractFileUploadDownloadServlet.MAX_FILENAME_LENGTH;
 import static ch.systemsx.cisd.cifex.server.util.ExpirationUtilities.fixExpiration;
-import static ch.systemsx.cisd.common.utilities.DateTimeUtils.extendUntilEndOfDay;
+import static ch.systemsx.cisd.common.time.DateTimeUtils.extendUntilEndOfDay;
 
 import java.io.File;
 import java.io.FileInputStream;

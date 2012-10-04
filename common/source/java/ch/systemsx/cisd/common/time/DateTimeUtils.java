@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.time;
 
 import java.text.DateFormat;
 import java.util.Calendar;

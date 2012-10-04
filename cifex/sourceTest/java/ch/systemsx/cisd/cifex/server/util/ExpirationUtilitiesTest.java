@@ -27,7 +27,7 @@ import java.util.Date;
 import org.apache.commons.lang.time.DateUtils;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.utilities.DateTimeUtils;
+import ch.systemsx.cisd.common.time.DateTimeUtils;
 
 /**
  * Test cases for {@link ExpirationUtilities}.

@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.parser.ParserException;
-import ch.systemsx.cisd.common.utilities.DateFormatThreadLocal;
+import ch.systemsx.cisd.common.time.DateFormatThreadLocal;
 
 /**
  * A data transfer object for a Uniprot database entry.

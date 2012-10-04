@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat;
 
 import org.apache.commons.lang.time.DateUtils;
 
-import ch.systemsx.cisd.common.utilities.DateFormatThreadLocal;
+import ch.systemsx.cisd.common.time.DateFormatThreadLocal;
 
 /**
  * Constants common to more than one CISD project.
