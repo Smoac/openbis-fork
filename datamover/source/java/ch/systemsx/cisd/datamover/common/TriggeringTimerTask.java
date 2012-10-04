@@ -21,9 +21,9 @@ import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.concurrent.SynchronizationMonitor;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.SynchronizationMonitor;
 
 /**
  * A role that triggers an {@link ITriggerable} when a given trigger file has been found.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.concurrent;
 
 /**
  * A pure monitor for us in <code>synchronized()</code> clauses.
