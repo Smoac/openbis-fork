@@ -81,12 +81,12 @@ public class ManagedPropertyField extends Field<List<Map<String, String>>>
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    addNewSection();
+                    addNewSection(sections.size());
                 }
             });
         addButton.setToolTip("Add a new section.");
         verticalPanel.add(addButton);
-        addNewSection();
+        addNewSection(0);
     }
 
     public Widget getWidget()
@@ -110,7 +110,7 @@ public class ManagedPropertyField extends Field<List<Map<String, String>>>
         return list;
     }
 
-    private void addNewSection()
+    private void addNewSection(int sectionIndex)
     {
         FormPanel formPanel = new FormPanel();
         formPanel.setLabelWidth(AbstractRegistrationForm.DEFAULT_LABEL_WIDTH - SPACING - 2);
@@ -123,9 +123,21 @@ public class ManagedPropertyField extends Field<List<Map<String, String>>>
         final HorizontalPanel horizontalPanel = new HorizontalPanel();
         horizontalPanel.setSpacing(SPACING);
         horizontalPanel.add(formPanel);
+        final Section section = new Section(inputFieldsByCode);
+        Button addBeforeButton = new Button("+");
+        addBeforeButton.setToolTip("Add a new section before this section.");
+        addBeforeButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    int index = sections.indexOf(section);
+                    addNewSection(index);
+                }
+            });
+        horizontalPanel.add(addBeforeButton);
         Button removeButton = new Button("-");
         removeButton.setToolTip("Delete this section.");
-        final Section section = new Section(inputFieldsByCode);
         removeButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override
@@ -150,8 +162,8 @@ public class ManagedPropertyField extends Field<List<Map<String, String>>>
                 }
             });
         horizontalPanel.add(removeButton);
-        sections.add(section);
-        verticalPanel.insert(horizontalPanel, verticalPanel.getItemCount() - 1);
+        sections.add(sectionIndex, section);
+        verticalPanel.insert(horizontalPanel, sectionIndex);
         verticalPanel.layout();
     }
 }
