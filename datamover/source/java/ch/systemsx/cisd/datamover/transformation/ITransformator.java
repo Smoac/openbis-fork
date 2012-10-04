@@ -18,7 +18,7 @@ package ch.systemsx.cisd.datamover.transformation;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exception.Status;
 
 /**
  * Interface of the data transformator.

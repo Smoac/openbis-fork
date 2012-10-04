@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.systemsx.cisd.common.exceptions;
+package ch.systemsx.cisd.common.exception;
 
 /**
  * The <code>EnvironmentFailureException</code> is the super class of all exceptions that have

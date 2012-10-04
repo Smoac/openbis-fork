@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exceptions;
-
-import ch.systemsx.cisd.common.shared.basic.IOptionalStackTraceLoggingException;
+package ch.systemsx.cisd.common.exception;
 
 /**
- * This <code>UserFailureException</code> extension signals that a session has expired.
+ * The status of an operation. To be used whenever a failure of an operation is signaled back via a
+ * return value rather than an exception.
  * 
- * @author Christian Ribeaud
+ * @author Bernd Rinn
  */
-public final class InvalidSessionException extends UserFailureException implements
-        IOptionalStackTraceLoggingException
+public enum StatusFlag
 {
-    private static final long serialVersionUID = 1L;
 
-    public InvalidSessionException(final String message)
-    {
-        super(message);
-    }
+    /** The operation has been successful. */
+    OK,
+    /** An error has occurred. Retrying the operation might remove the problem. */
+    RETRIABLE_ERROR,
+    /** An error has occurred. */
+    ERROR
 
 }

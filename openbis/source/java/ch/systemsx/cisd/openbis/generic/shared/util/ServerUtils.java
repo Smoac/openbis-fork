@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.exception.UserFailureException;
 
 /**
  * Tools to be used by servers.

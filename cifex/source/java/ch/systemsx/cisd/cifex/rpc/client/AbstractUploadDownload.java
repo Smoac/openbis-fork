@@ -30,9 +30,9 @@ import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
 import ch.systemsx.cisd.common.concurrent.IMonitoringProxyLogger;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.common.exceptions.MasqueradingException;
+import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exception.InvalidSessionException;
+import ch.systemsx.cisd.common.exception.MasqueradingException;
 
 /**
  * A common subclass for file upload and download.

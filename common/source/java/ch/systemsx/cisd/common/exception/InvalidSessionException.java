@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2007 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,23 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exceptions;
+package ch.systemsx.cisd.common.exception;
+
+import ch.systemsx.cisd.common.shared.basic.IOptionalStackTraceLoggingException;
 
 /**
- * @author Franz-Josef Elmer
+ * This <code>UserFailureException</code> extension signals that a session has expired.
+ * 
+ * @author Christian Ribeaud
  */
-public final class ExceptionWithStatus extends RuntimeException
+public final class InvalidSessionException extends UserFailureException implements
+        IOptionalStackTraceLoggingException
 {
     private static final long serialVersionUID = 1L;
 
-    private final Status status;
-
-    public ExceptionWithStatus(Status status)
+    public InvalidSessionException(final String message)
     {
-        super(status.tryGetErrorMessage());
-        this.status = status;
+        super(message);
     }
 
-    public ExceptionWithStatus(Status status, Exception ex)
-    {
-        super(ex);
-        this.status = status;
-    }
-
-    public Status getStatus()
-    {
-        return status;
-    }
 }

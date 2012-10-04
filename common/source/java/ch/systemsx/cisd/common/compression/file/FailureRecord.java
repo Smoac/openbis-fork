@@ -18,8 +18,8 @@ package ch.systemsx.cisd.common.compression.file;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.exceptions.StatusFlag;
+import ch.systemsx.cisd.common.exception.Status;
+import ch.systemsx.cisd.common.exception.StatusFlag;
 
 /**
  * A class that holds the information about a compression failure.

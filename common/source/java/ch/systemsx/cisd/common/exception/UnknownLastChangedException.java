@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2008 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exceptions;
+package ch.systemsx.cisd.common.exception;
 
 /**
- * Exception to be thrown when authentication of a service at another service fails.
- *
- * @author Franz-Josef Elmer
+ * Used to signal the error of getting last modification time of a store item
+ * 
+ * @author Tomasz Pylak
  */
-public class InvalidAuthenticationException extends HighLevelException
+public class UnknownLastChangedException extends EnvironmentFailureException
 {
     private static final long serialVersionUID = 1L;
 
-    public InvalidAuthenticationException(String message)
+    public UnknownLastChangedException(String errorMsg)
     {
-        super(message);
+        super(errorMsg);
     }
-
-    public InvalidAuthenticationException(String message, Throwable cause)
-    {
-        super(message, cause);
-    }
-
 }

@@ -21,7 +21,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.common.conversation.annotation.Conversational;
 import ch.systemsx.cisd.common.conversation.annotation.Progress;
-import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
+import ch.systemsx.cisd.common.exception.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;

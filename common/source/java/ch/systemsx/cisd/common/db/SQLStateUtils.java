@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.db;
 
 import java.sql.SQLException;
 
-import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
+import ch.systemsx.cisd.common.exception.ExceptionUtils;
 
 /**
  * Some utility methods regarding <i>SQL State</i>.

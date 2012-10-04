@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.ISessionFactory;
 import ch.systemsx.cisd.authentication.Principal;
-import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
+import ch.systemsx.cisd.common.exception.ExceptionUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;

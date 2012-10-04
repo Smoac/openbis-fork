@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.exception.UserFailureException;
 
 /**
  * Provides structured information from one row of the csv file.

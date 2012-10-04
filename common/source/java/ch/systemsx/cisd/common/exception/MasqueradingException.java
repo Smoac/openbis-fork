@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exceptions;
+package ch.systemsx.cisd.common.exception;
 
 /**
  * A <code>RuntimeException</code> extension which almost clones given <var>rootException</var>

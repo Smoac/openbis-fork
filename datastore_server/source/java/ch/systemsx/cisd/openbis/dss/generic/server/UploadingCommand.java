@@ -35,6 +35,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.cifex.rpc.client.FileWithOverrideName;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
@@ -88,7 +89,7 @@ class UploadingCommand implements IDataSetCommand
         }
 
         @Override
-        public void start(File file, long fileSize, Long fileIdOrNull)
+        public void start(File file, String operationName, long fileSize, Long fileIdOrNull)
         {
             if (operationLog.isInfoEnabled())
             {
@@ -343,7 +344,8 @@ class UploadingCommand implements IDataSetCommand
             String sessionToken = getCIFEXSession(cifex);
             ICIFEXUploader uploader = cifex.createUploader(sessionToken);
             uploader.addProgressListener(new ProgressListener(zipFile));
-            uploader.upload(Arrays.asList(zipFile), Constants.USER_ID_PREFIX + userID, comment);
+            uploader.upload(Arrays.asList(new FileWithOverrideName(zipFile, null)),
+                    Constants.USER_ID_PREFIX + userID, comment);
         } else
         {
             sendEMail("Couldn't create zip file " + zipFile.getName() + " with requested data sets");

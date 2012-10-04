@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exceptions;
+package ch.systemsx.cisd.common.exception;
 
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.exception.NotImplementedException;
+
 import static org.testng.AssertJUnit.*;
 
 /**

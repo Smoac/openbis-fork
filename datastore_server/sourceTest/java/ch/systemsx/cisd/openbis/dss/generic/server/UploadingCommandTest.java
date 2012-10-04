@@ -42,11 +42,12 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
+import ch.systemsx.cisd.cifex.rpc.client.FileWithOverrideName;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
-import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exception.AuthorizationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -386,7 +387,8 @@ public class UploadingCommandTest extends AssertJUnit
                         });
 
                     one(uploader).upload(
-                            Collections.singletonList(new File(TMP, ZIP_FILENAME + ".zip")),
+                            Collections.singletonList(new FileWithOverrideName(new File(TMP,
+                                    ZIP_FILENAME + ".zip"), null)),
                             "id:user", null);
                     will(new CustomAction("report 'finish' to listener")
                         {
@@ -444,7 +446,8 @@ public class UploadingCommandTest extends AssertJUnit
                         });
 
                     one(uploader).upload(
-                            Collections.singletonList(new File(TMP, ZIP_FILENAME + ".zip")),
+                            Collections.singletonList(new FileWithOverrideName(new File(TMP,
+                                    ZIP_FILENAME + ".zip"), null)),
                             "id:user", null);
                     will(new CustomAction("report 'finish' to listener")
                         {
@@ -542,7 +545,8 @@ public class UploadingCommandTest extends AssertJUnit
                         });
 
                     one(uploader).upload(
-                            Collections.singletonList(new File(TMP, ZIP_FILENAME + ".zip")),
+                            Collections.singletonList(new FileWithOverrideName(new File(TMP,
+                                    ZIP_FILENAME + ".zip"), null)),
                             "id:user", null);
                     will(new CustomAction("report 'abort' to listener")
                         {

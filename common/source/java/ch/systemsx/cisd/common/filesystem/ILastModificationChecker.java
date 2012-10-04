@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.filesystem;
 
-import ch.systemsx.cisd.common.exceptions.StatusWithResult;
+import ch.systemsx.cisd.common.exception.StatusWithResult;
 
 public interface ILastModificationChecker
 {

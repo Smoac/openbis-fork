@@ -22,7 +22,7 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 
 /**
  * Utilities for dealing with file encoding.

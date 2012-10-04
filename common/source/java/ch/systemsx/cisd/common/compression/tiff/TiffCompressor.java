@@ -21,7 +21,7 @@ import java.util.Collection;
 import ch.systemsx.cisd.common.compression.file.Compressor;
 import ch.systemsx.cisd.common.compression.file.FailureRecord;
 import ch.systemsx.cisd.common.compression.file.ICompressionMethod;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.fileconverter.FileConverter;
 
 /**

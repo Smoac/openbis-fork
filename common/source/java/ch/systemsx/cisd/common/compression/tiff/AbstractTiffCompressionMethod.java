@@ -21,8 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.common.compression.file.InPlaceCompressionMethod;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.fileconverter.TiffCompressionStrategy;
 
 /**

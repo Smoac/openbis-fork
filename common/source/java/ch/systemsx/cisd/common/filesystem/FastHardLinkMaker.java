@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
-import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exception.Status;
 
 /**
  * A {@link IFileImmutableCopier} that uses a native method to create hard links.

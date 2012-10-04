@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exceptions;
+package ch.systemsx.cisd.common.exception;
+
+import ch.systemsx.cisd.common.utilities.SystemExit;
 
 /**
- * Used to signal the error of getting last modification time of a store item
+ * Thrown by {@link SystemExit} instead of plain {@link RuntimeException}
  * 
- * @author Tomasz Pylak
+ * @author Izabela Adamczyk
  */
-public class UnknownLastChangedException extends EnvironmentFailureException
+public final class SystemExitException extends RuntimeException
 {
     private static final long serialVersionUID = 1L;
 
-    public UnknownLastChangedException(String errorMsg)
+    public SystemExitException(final String msg)
     {
-        super(errorMsg);
+        super(msg);
     }
+
 }

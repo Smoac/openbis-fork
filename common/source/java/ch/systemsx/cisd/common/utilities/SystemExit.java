@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.common.utilities;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exceptions.SystemExitException;
+import ch.systemsx.cisd.common.exception.SystemExitException;
 
 /**
  * Exit handler based on <code>System.exit()</code>.

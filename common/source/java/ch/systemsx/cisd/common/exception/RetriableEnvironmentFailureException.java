@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exceptions;
+package ch.systemsx.cisd.common.exception;
 
 /**
  * The <code>RetriableEnvironmentFailureException</code> is the super class of all exceptions that
@@ -63,7 +63,7 @@ public class RetriableEnvironmentFailureException extends EnvironmentFailureExce
     /**
      * Returns <code>true</code> to indicate that retrying the operation might help.
      * 
-     * @see ch.systemsx.cisd.common.exceptions.EnvironmentFailureException#isRetriable()
+     * @see ch.systemsx.cisd.common.exception.EnvironmentFailureException#isRetriable()
      */
     @Override
     public boolean isRetriable()

@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.parser;
 
 import java.util.Arrays;
 
-import ch.systemsx.cisd.common.exceptions.HighLevelException;
+import ch.systemsx.cisd.common.exception.HighLevelException;
 
 /**
  * Signals that an error has been unexpectedly reached while parsing.
