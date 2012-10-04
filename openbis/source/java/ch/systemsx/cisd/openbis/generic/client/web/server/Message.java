@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import org.apache.commons.lang.StringUtils;
 
