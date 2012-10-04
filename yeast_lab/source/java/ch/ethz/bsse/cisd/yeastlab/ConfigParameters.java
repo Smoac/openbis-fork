@@ -19,7 +19,7 @@ package ch.ethz.bsse.cisd.yeastlab;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 
 /**
  * Configuration parameters for the Generation Detection algorithm.
