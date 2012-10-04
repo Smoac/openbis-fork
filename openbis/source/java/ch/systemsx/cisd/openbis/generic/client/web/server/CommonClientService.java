@@ -44,7 +44,7 @@ import ch.systemsx.cisd.common.reflection.BeanUtils;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.string.ReflectingStringUnescaper;
-import ch.systemsx.cisd.common.utilities.UnicodeUtils;
+import ch.systemsx.cisd.common.string.UnicodeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;

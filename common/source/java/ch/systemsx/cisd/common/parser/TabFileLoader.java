@@ -42,7 +42,7 @@ import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.parser.DefaultLineTokenizer.PropertyKey;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
-import ch.systemsx.cisd.common.utilities.UnicodeUtils;
+import ch.systemsx.cisd.common.string.UnicodeUtils;
 
 /**
  * Convenient class to load (or iterate over) a tab file, a reader or a stream. The loader delivers

@@ -28,7 +28,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.io.DelegatedReader;
-import ch.systemsx.cisd.common.utilities.UnicodeUtils;
+import ch.systemsx.cisd.common.string.UnicodeUtils;
 import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetControlFileProcessor.ControlFileOverrideProperties;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.parser;
 import java.io.InputStream;
 import java.io.Reader;
 
-import ch.systemsx.cisd.common.utilities.UnicodeUtils;
+import ch.systemsx.cisd.common.string.UnicodeUtils;
 
 /**
  * @author Izabela Adamczyk

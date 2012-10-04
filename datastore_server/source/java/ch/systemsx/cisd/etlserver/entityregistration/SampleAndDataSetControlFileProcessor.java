@@ -38,7 +38,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.DelegatedReader;
 import ch.systemsx.cisd.common.mail.EMailAddress;
-import ch.systemsx.cisd.common.utilities.UnicodeUtils;
+import ch.systemsx.cisd.common.string.UnicodeUtils;
 import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetRegistrationGlobalState.SampleRegistrationMode;
 import ch.systemsx.cisd.etlserver.entityregistration.SampleDataSetPair.SampleDataSetPairProcessing;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;

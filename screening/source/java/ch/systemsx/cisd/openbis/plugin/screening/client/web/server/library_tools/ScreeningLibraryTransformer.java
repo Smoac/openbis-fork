@@ -26,7 +26,7 @@ import com.csvreader.CsvReader;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.UnicodeUtils;
+import ch.systemsx.cisd.common.string.UnicodeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider;
 
 /**

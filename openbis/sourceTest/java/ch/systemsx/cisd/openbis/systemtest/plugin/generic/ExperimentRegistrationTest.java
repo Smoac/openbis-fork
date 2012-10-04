@@ -29,7 +29,7 @@ import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.utilities.UnicodeUtils;
+import ch.systemsx.cisd.common.string.UnicodeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
