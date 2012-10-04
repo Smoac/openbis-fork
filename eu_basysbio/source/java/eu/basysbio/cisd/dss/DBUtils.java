@@ -22,8 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.reflection.BeanUtils;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 

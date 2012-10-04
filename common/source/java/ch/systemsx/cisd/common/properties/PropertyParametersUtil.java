@@ -21,7 +21,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 
 /**
  * Utility class to parse properties.

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.properties;
 
 import java.util.Properties;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.properties.ExtendedProperties;
 
 /**
  * Test cases for the {@link ExtendedProperties} class.
