@@ -28,14 +28,14 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.resource.IResource;
+import ch.systemsx.cisd.common.resource.IReleasable;
 import ch.systemsx.cisd.common.resource.Resources;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class DataSourceQueryService implements IDataSourceQueryService, IResource
+public class DataSourceQueryService implements IDataSourceQueryService, IReleasable
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSourceQueryService.class);
@@ -82,7 +82,7 @@ public class DataSourceQueryService implements IDataSourceQueryService, IResourc
         resources.clear();
     }
 
-    private static class DataSetResource implements IResource
+    private static class DataSetResource implements IReleasable
     {
 
         private DataSet<?> dataSet;

@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.common.resource.IResource;
+import ch.systemsx.cisd.common.resource.IReleasable;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class TopLevelDataSetRegistratorGlobalState implements IResource
+public class TopLevelDataSetRegistratorGlobalState implements IReleasable
 {
     // can be used from dropboxes
     public static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -407,9 +407,9 @@ public class TopLevelDataSetRegistratorGlobalState implements IResource
     @Override
     public void release()
     {
-        if (getDataSourceQueryService() instanceof IResource)
+        if (getDataSourceQueryService() instanceof IReleasable)
         {
-            ((IResource) getDataSourceQueryService()).release();
+            ((IReleasable) getDataSourceQueryService()).release();
         }
     }
 

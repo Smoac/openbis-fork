@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
-import ch.systemsx.cisd.common.utilities.IInitializable;
+import ch.systemsx.cisd.common.resource.IInitializable;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 
 /**

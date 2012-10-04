@@ -31,10 +31,10 @@ public class ResourcesTest
     {
         Mockery context = new Mockery();
 
-        final IResource failingResource1 = context.mock(IResource.class, "failingResource1");
-        final IResource failingResource2 = context.mock(IResource.class, "failingResource2");
-        final IResource notFailingResource1 = context.mock(IResource.class, "notFailingResource1");
-        final IResource notFailingResource2 = context.mock(IResource.class, "notFailingResource2");
+        final IReleasable failingResource1 = context.mock(IReleasable.class, "failingResource1");
+        final IReleasable failingResource2 = context.mock(IReleasable.class, "failingResource2");
+        final IReleasable notFailingResource1 = context.mock(IReleasable.class, "notFailingResource1");
+        final IReleasable notFailingResource2 = context.mock(IReleasable.class, "notFailingResource2");
 
         Resources resources = new Resources(null);
         resources.add(notFailingResource1);
@@ -67,7 +67,7 @@ public class ResourcesTest
     {
         Mockery context = new Mockery();
 
-        final IResource resource = context.mock(IResource.class);
+        final IReleasable resource = context.mock(IReleasable.class);
 
         Resources resources = new Resources(null);
         resources.add(resource);
@@ -90,7 +90,7 @@ public class ResourcesTest
     {
         Mockery context = new Mockery();
 
-        final IResource resource = context.mock(IResource.class);
+        final IReleasable resource = context.mock(IReleasable.class);
 
         Resources resources = new Resources(null);
         resources.add(resource);

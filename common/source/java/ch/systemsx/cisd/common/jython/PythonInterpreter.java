@@ -22,7 +22,7 @@ import org.python.core.PySystemState;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.resource.IResource;
+import ch.systemsx.cisd.common.resource.IReleasable;
 import ch.systemsx.cisd.common.resource.Resources;
 
 /**
@@ -49,9 +49,9 @@ public class PythonInterpreter extends org.python.util.PythonInterpreter
     public void set(String name, Object value)
     {
         super.set(name, value);
-        if (value instanceof IResource)
+        if (value instanceof IReleasable)
         {
-            resources.add((IResource) value);
+            resources.add((IReleasable) value);
         }
     }
 
@@ -59,9 +59,9 @@ public class PythonInterpreter extends org.python.util.PythonInterpreter
     public void set(String name, PyObject value)
     {
         super.set(name, value);
-        if (value instanceof IResource)
+        if (value instanceof IReleasable)
         {
-            resources.add((IResource) value);
+            resources.add((IReleasable) value);
         }
     }
 

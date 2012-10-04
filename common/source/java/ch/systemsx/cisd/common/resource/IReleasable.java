@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.resource;
 /**
  * @author pkupczyk
  */
-public interface IResource
+public interface IReleasable
 {
 
     public void release();
