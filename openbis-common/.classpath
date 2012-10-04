@@ -53,5 +53,7 @@
 	<classpathentry kind="lib" path="/libraries/jackson/jackson-core.jar" sourcepath="/libraries/jackson/jackson-core-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jackson/jackson-databind.jar" sourcepath="/libraries/jackson/jackson-databind-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jsonrpc4j/jsonrpc4j.jar" sourcepath="/libraries/jsonrpc4j/jsonrpc4j-sources.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/cisd-jhdf5-core.jar" sourcepath="/libraries/cisd-jhdf5/cisd-jhdf5-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/cisd-jhdf5-tools.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
