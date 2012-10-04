@@ -27,7 +27,7 @@ import org.w3c.dom.Document;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
-import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
+import ch.systemsx.cisd.common.xml.XMLInfraStructure;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;

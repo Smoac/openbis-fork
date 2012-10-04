@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.xml;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -30,6 +30,8 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import ch.systemsx.cisd.common.xml.XMLInfraStructure;
 
 /**
  * @author Franz-Josef Elmer

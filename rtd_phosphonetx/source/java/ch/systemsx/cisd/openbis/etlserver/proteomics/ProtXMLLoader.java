@@ -31,7 +31,7 @@ import org.xml.sax.SAXException;
 
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
+import ch.systemsx.cisd.common.xml.XMLInfraStructure;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ProteinProphetDetails;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ProteinSummary;
 

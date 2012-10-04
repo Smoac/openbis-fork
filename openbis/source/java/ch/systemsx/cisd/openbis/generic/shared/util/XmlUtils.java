@@ -43,7 +43,7 @@ import org.xml.sax.SAXException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
+import ch.systemsx.cisd.common.xml.XMLInfraStructure;
 
 /**
  * Utility methods for parsing, validating and transforming XML files.

@@ -32,7 +32,6 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
 
 /**
  * Loads an XML file to the bean of the specified class. The bean should be annotated with JAXB

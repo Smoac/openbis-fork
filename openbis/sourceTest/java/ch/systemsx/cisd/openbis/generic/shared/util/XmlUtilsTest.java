@@ -29,7 +29,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
+import ch.systemsx.cisd.common.xml.XMLInfraStructure;
 
 /**
  * Tests of {@link XmlUtils}.
