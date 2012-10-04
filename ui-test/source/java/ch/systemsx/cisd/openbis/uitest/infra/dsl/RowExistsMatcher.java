@@ -14,21 +14,29 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.type;
+package ch.systemsx.cisd.openbis.uitest.infra.dsl;
 
-import java.util.Collection;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 
-import ch.systemsx.cisd.openbis.uitest.page.layout.Location;
-import ch.systemsx.cisd.openbis.uitest.page.tab.Browser;
+import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 
 /**
  * @author anttil
  */
-public interface Browsable<T extends Browser<? extends Browsable<T>>>
+class RowExistsMatcher extends TypeSafeMatcher<BrowserRow>
 {
-    public Collection<String> getColumns();
 
-    public String getCode();
+    @Override
+    public void describeTo(Description description)
+    {
+        description.appendText("A browser row that exists");
+    }
 
-    public Location<? extends T> getBrowserLocation();
+    @Override
+    public boolean matchesSafely(BrowserRow row)
+    {
+        return row.exists();
+    }
+
 }

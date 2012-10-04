@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.Arrays;
 import java.util.Collection;
 
-import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
+import ch.systemsx.cisd.openbis.uitest.page.layout.ProjectBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.page.tab.ProjectBrowser;
 
 /**
  * @author anttil
  */
-public class Project implements Browsable
+public class Project implements Browsable<ProjectBrowser>
 {
     private final String code;
 
@@ -67,12 +67,6 @@ public class Project implements Browsable
     }
 
     @Override
-    public BrowserRow getBrowserContent(GuiApplicationRunner openbis)
-    {
-        return openbis.browseTo(this);
-    }
-
-    @Override
     public Collection<String> getColumns()
     {
         return Arrays.asList("Code", "Description", "Space");
@@ -98,6 +92,12 @@ public class Project implements Browsable
     public String toString()
     {
         return "Project " + code;
+    }
+
+    @Override
+    public ProjectBrowserLocation getBrowserLocation()
+    {
+        return new ProjectBrowserLocation();
     }
 
 }

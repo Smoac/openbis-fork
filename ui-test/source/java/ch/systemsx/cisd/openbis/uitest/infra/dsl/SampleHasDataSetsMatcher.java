@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra.matcher;
+package ch.systemsx.cisd.openbis.uitest.infra.dsl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Sample;
 /**
  * @author anttil
  */
-public class SampleHasDataSetsMatcher extends TypeSafeMatcher<Sample>
+class SampleHasDataSetsMatcher extends TypeSafeMatcher<Sample>
 {
 
     @SuppressWarnings("unused")

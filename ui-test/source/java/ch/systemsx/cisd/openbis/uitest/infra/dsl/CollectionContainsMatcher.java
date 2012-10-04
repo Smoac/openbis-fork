@@ -14,29 +14,36 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra.matcher;
+package ch.systemsx.cisd.openbis.uitest.infra.dsl;
+
+import java.util.Collection;
 
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
-
 /**
  * @author anttil
  */
-public class RowExistsMatcher extends TypeSafeMatcher<BrowserRow>
+class CollectionContainsMatcher<T> extends TypeSafeMatcher<Collection<T>>
 {
+
+    private T expected;
+
+    public CollectionContainsMatcher(T expected)
+    {
+        this.expected = expected;
+    }
 
     @Override
     public void describeTo(Description description)
     {
-        description.appendText("A browser row that exists");
+        description.appendText("A collection containing item " + expected.toString());
     }
 
     @Override
-    public boolean matchesSafely(BrowserRow row)
+    public boolean matchesSafely(Collection<T> collection)
     {
-        return row.exists();
+        return collection.contains(expected);
     }
 
 }

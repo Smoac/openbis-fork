@@ -14,21 +14,32 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.type;
+package ch.systemsx.cisd.openbis.uitest.page.layout;
 
-import java.util.Collection;
-
-import ch.systemsx.cisd.openbis.uitest.page.layout.Location;
-import ch.systemsx.cisd.openbis.uitest.page.tab.Browser;
+import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSampleTypeDialog;
 
 /**
  * @author anttil
  */
-public interface Browsable<T extends Browser<? extends Browsable<T>>>
+public class AddSampleTypeLocation implements Location<AddSampleTypeDialog>
 {
-    public Collection<String> getColumns();
 
-    public String getCode();
+    @Override
+    public void moveTo(GuiApplicationRunner openbis)
+    {
+        openbis.goTo(new SampleTypeBrowserLocation()).add();
+    }
 
-    public Location<? extends T> getBrowserLocation();
+    @Override
+    public String getTabName()
+    {
+        return null;
+    }
+
+    @Override
+    public Class<AddSampleTypeDialog> getPage()
+    {
+        return AddSampleTypeDialog.class;
+    }
 }

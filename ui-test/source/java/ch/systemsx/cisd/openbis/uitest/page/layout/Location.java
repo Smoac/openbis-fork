@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.type;
+package ch.systemsx.cisd.openbis.uitest.page.layout;
 
-import java.util.Collection;
-
-import ch.systemsx.cisd.openbis.uitest.page.layout.Location;
-import ch.systemsx.cisd.openbis.uitest.page.tab.Browser;
+import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
 
 /**
  * @author anttil
  */
-public interface Browsable<T extends Browser<? extends Browsable<T>>>
+public interface Location<T>
 {
-    public Collection<String> getColumns();
+    public String getTabName();
 
-    public String getCode();
+    public void moveTo(GuiApplicationRunner openbis);
 
-    public Location<? extends T> getBrowserLocation();
+    public Class<T> getPage();
 }

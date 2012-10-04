@@ -20,13 +20,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
+import ch.systemsx.cisd.openbis.uitest.page.layout.VocabularyBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.page.tab.VocabularyBrowser;
 
 /**
  * @author anttil
  */
-public class Vocabulary implements Browsable
+public class Vocabulary implements Browsable<VocabularyBrowser>
 {
     private final String code;
 
@@ -81,12 +81,6 @@ public class Vocabulary implements Browsable
     }
 
     @Override
-    public BrowserRow getBrowserContent(GuiApplicationRunner openbis)
-    {
-        return openbis.browseTo(this);
-    }
-
-    @Override
     public Collection<String> getColumns()
     {
         return Arrays.asList("Code", "Description", "URL Template");
@@ -112,5 +106,11 @@ public class Vocabulary implements Browsable
             return ((Vocabulary) o).getCode().equals(code);
         }
         return false;
+    }
+
+    @Override
+    public VocabularyBrowserLocation getBrowserLocation()
+    {
+        return new VocabularyBrowserLocation();
     }
 }

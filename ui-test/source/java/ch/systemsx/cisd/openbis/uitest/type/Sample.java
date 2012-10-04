@@ -21,13 +21,13 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
+import ch.systemsx.cisd.openbis.uitest.page.layout.SampleBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.page.tab.SampleBrowser;
 
 /**
  * @author anttil
  */
-public class Sample implements EntityType, Browsable
+public class Sample implements EntityType, Browsable<SampleBrowser>
 {
     private SampleType type;
 
@@ -109,12 +109,6 @@ public class Sample implements EntityType, Browsable
     }
 
     @Override
-    public BrowserRow getBrowserContent(GuiApplicationRunner openbis)
-    {
-        return openbis.browseTo(this);
-    }
-
-    @Override
     public Collection<String> getColumns()
     {
         Collection<String> columns = new HashSet<String>();
@@ -147,5 +141,11 @@ public class Sample implements EntityType, Browsable
     public String toString()
     {
         return "Sample " + this.code;
+    }
+
+    @Override
+    public SampleBrowserLocation getBrowserLocation()
+    {
+        return new SampleBrowserLocation();
     }
 }

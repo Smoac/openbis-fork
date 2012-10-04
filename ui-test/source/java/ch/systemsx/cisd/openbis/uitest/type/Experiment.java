@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.Arrays;
 import java.util.Collection;
 
-import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
+import ch.systemsx.cisd.openbis.uitest.page.layout.ExperimentBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.page.tab.ExperimentBrowser;
 
 /**
  * @author anttil
  */
-public class Experiment implements EntityType, Browsable
+public class Experiment implements EntityType, Browsable<ExperimentBrowser>
 {
     private ExperimentType type;
 
@@ -80,12 +80,6 @@ public class Experiment implements EntityType, Browsable
     }
 
     @Override
-    public BrowserRow getBrowserContent(GuiApplicationRunner openbis)
-    {
-        return openbis.browseTo(this);
-    }
-
-    @Override
     public Collection<String> getColumns()
     {
         return Arrays.asList("Code", "Project", "Experiment Type");
@@ -111,5 +105,11 @@ public class Experiment implements EntityType, Browsable
     public String toString()
     {
         return "Experiment " + code;
+    }
+
+    @Override
+    public ExperimentBrowserLocation getBrowserLocation()
+    {
+        return new ExperimentBrowserLocation();
     }
 }

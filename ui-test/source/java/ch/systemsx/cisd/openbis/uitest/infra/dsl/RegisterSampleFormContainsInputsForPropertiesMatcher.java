@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra.matcher;
+package ch.systemsx.cisd.openbis.uitest.infra.dsl;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 /**
  * @author anttil
  */
-public class RegisterSampleFormContainsInputsForPropertiesMatcher extends
+class RegisterSampleFormContainsInputsForPropertiesMatcher extends
         TypeSafeMatcher<RegisterSample>
 {
 
@@ -44,7 +44,8 @@ public class RegisterSampleFormContainsInputsForPropertiesMatcher extends
     public void describeTo(Description description)
     {
         description
-                .appendText("Properties " + this.properties + " asked for when registering a sample");
+                .appendText("Properties " + this.properties
+                        + " asked for when registering a sample");
     }
 
     @Override

@@ -14,21 +14,32 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.type;
+package ch.systemsx.cisd.openbis.uitest.page.layout;
 
-import java.util.Collection;
-
-import ch.systemsx.cisd.openbis.uitest.page.layout.Location;
-import ch.systemsx.cisd.openbis.uitest.page.tab.Browser;
+import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.page.dialog.AddSpaceDialog;
 
 /**
  * @author anttil
  */
-public interface Browsable<T extends Browser<? extends Browsable<T>>>
+public class AddSpaceDialogLocation implements Location<AddSpaceDialog>
 {
-    public Collection<String> getColumns();
 
-    public String getCode();
+    @Override
+    public void moveTo(GuiApplicationRunner openbis)
+    {
+        openbis.goTo(new SpaceBrowserLocation()).addSpace();
+    }
 
-    public Location<? extends T> getBrowserLocation();
+    @Override
+    public String getTabName()
+    {
+        return null;
+    }
+
+    @Override
+    public Class<AddSpaceDialog> getPage()
+    {
+        return AddSpaceDialog.class;
+    }
 }

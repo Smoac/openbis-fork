@@ -14,35 +14,35 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra.matcher;
-
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
+package ch.systemsx.cisd.openbis.uitest.page.layout;
 
 import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.page.menu.AdminMenu;
+import ch.systemsx.cisd.openbis.uitest.page.menu.TopBar;
+import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
 
 /**
  * @author anttil
  */
-public class CurrentPageMatcher extends TypeSafeMatcher<GuiApplicationRunner>
+public class PropertyTypeBrowserLocation implements Location<PropertyTypeBrowser>
 {
 
-    private final Class<?> pageClass;
-
-    public CurrentPageMatcher(Class<?> pageClass)
+    @Override
+    public void moveTo(GuiApplicationRunner openbis)
     {
-        this.pageClass = pageClass;
+        openbis.load(TopBar.class).admin();
+        openbis.load(AdminMenu.class).browsePropertyTypes();
     }
 
     @Override
-    public void describeTo(Description description)
+    public String getTabName()
     {
-        description.appendText("Browser showing page " + pageClass.getSimpleName());
+        return "Property Types";
     }
 
     @Override
-    public boolean matchesSafely(GuiApplicationRunner openbis)
+    public Class<PropertyTypeBrowser> getPage()
     {
-        return openbis.tryLoad(pageClass) != null;
+        return PropertyTypeBrowser.class;
     }
 }

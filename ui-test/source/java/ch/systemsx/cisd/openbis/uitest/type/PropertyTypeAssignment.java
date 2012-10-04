@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.Arrays;
 import java.util.Collection;
 
-import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
+import ch.systemsx.cisd.openbis.uitest.page.layout.PropertyTypeAssignmentBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeAssignmentBrowser;
 
 /**
  * @author anttil
  */
-public class PropertyTypeAssignment implements Browsable
+public class PropertyTypeAssignment implements Browsable<PropertyTypeAssignmentBrowser>
 {
 
     private PropertyType propertyType;
@@ -66,12 +66,6 @@ public class PropertyTypeAssignment implements Browsable
     }
 
     @Override
-    public BrowserRow getBrowserContent(GuiApplicationRunner openbis)
-    {
-        return openbis.browseTo(this);
-    }
-
-    @Override
     public Collection<String> getColumns()
     {
         return Arrays.asList("Property Type Code", "Entity Type", "Mandatory?");
@@ -108,6 +102,12 @@ public class PropertyTypeAssignment implements Browsable
     public String toString()
     {
         return "PropertyTypeAssignment [" + this.propertyType + ", " + this.entityType + "]";
+    }
+
+    @Override
+    public PropertyTypeAssignmentBrowserLocation getBrowserLocation()
+    {
+        return new PropertyTypeAssignmentBrowserLocation();
     }
 
 }

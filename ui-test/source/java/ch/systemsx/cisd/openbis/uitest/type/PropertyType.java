@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.Arrays;
 import java.util.Collection;
 
-import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
+import ch.systemsx.cisd.openbis.uitest.page.layout.PropertyTypeBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.page.tab.PropertyTypeBrowser;
 
 /**
  * @author anttil
  */
-public class PropertyType implements Browsable
+public class PropertyType implements Browsable<PropertyTypeBrowser>
 {
     private final String code;
 
@@ -94,12 +94,6 @@ public class PropertyType implements Browsable
     }
 
     @Override
-    public BrowserRow getBrowserContent(GuiApplicationRunner openbis)
-    {
-        return openbis.browseTo(this);
-    }
-
-    @Override
     public Collection<String> getColumns()
     {
         return Arrays.asList("Code", "Data Type", "Label", "Description", "Vocabulary");
@@ -127,5 +121,11 @@ public class PropertyType implements Browsable
     public String toString()
     {
         return "PropertyType " + code + " of type " + dataType;
+    }
+
+    @Override
+    public PropertyTypeBrowserLocation getBrowserLocation()
+    {
+        return new PropertyTypeBrowserLocation();
     }
 }

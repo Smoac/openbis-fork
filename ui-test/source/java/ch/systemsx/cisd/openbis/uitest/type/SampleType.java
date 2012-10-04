@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.Arrays;
 import java.util.Collection;
 
-import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
+import ch.systemsx.cisd.openbis.uitest.page.layout.SampleTypeBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.page.tab.SampleTypeBrowser;
 
 /**
  * @author anttil
  */
-public class SampleType implements Browsable, EntityType
+public class SampleType implements Browsable<SampleTypeBrowser>, EntityType
 {
 
     private final String code;
@@ -168,12 +168,6 @@ public class SampleType implements Browsable, EntityType
     }
 
     @Override
-    public BrowserRow getBrowserContent(GuiApplicationRunner openbis)
-    {
-        return openbis.browseTo(this);
-    }
-
-    @Override
     public Collection<String> getColumns()
     {
         return Arrays.asList("Code", "Description", "Database Instance", "Validation Script",
@@ -195,5 +189,11 @@ public class SampleType implements Browsable, EntityType
             return false;
         }
         return code.equalsIgnoreCase(((SampleType) o).getCode());
+    }
+
+    @Override
+    public SampleTypeBrowserLocation getBrowserLocation()
+    {
+        return new SampleTypeBrowserLocation();
     }
 }

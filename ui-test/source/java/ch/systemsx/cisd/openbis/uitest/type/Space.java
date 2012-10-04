@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.Arrays;
 import java.util.Collection;
 
-import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
+import ch.systemsx.cisd.openbis.uitest.page.layout.SpaceBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.page.tab.SpaceBrowser;
 
 /**
  * @author anttil
  */
-public class Space implements Browsable
+public class Space implements Browsable<SpaceBrowser>
 {
     private final String code;
 
@@ -54,12 +54,6 @@ public class Space implements Browsable
     }
 
     @Override
-    public BrowserRow getBrowserContent(GuiApplicationRunner openbis)
-    {
-        return openbis.browseTo(this);
-    }
-
-    @Override
     public Collection<String> getColumns()
     {
         return Arrays.asList("Code", "Description");
@@ -85,5 +79,11 @@ public class Space implements Browsable
     public String toString()
     {
         return "Space " + this.code;
+    }
+
+    @Override
+    public SpaceBrowserLocation getBrowserLocation()
+    {
+        return new SpaceBrowserLocation();
     }
 }

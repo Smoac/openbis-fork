@@ -40,16 +40,13 @@ import org.testng.annotations.BeforeSuite;
 import ch.systemsx.cisd.openbis.uitest.infra.application.ApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.infra.application.PublicApiApplicationRunner;
-import ch.systemsx.cisd.openbis.uitest.infra.matcher.CellContentMatcher;
-import ch.systemsx.cisd.openbis.uitest.infra.matcher.CollectionContainsMatcher;
-import ch.systemsx.cisd.openbis.uitest.infra.matcher.CurrentPageMatcher;
-import ch.systemsx.cisd.openbis.uitest.infra.matcher.RegisterSampleFormContainsInputsForPropertiesMatcher;
-import ch.systemsx.cisd.openbis.uitest.infra.matcher.RowExistsMatcher;
-import ch.systemsx.cisd.openbis.uitest.infra.matcher.SampleHasDataSetsMatcher;
 import ch.systemsx.cisd.openbis.uitest.infra.screenshot.FileScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.infra.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.infra.uid.DictionaryUidGenerator;
 import ch.systemsx.cisd.openbis.uitest.infra.uid.UidGenerator;
+import ch.systemsx.cisd.openbis.uitest.page.layout.RegisterSampleLocation;
+import ch.systemsx.cisd.openbis.uitest.page.layout.SampleBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.page.tab.Browser;
 import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 import ch.systemsx.cisd.openbis.uitest.page.tab.RegisterSample;
 import ch.systemsx.cisd.openbis.uitest.page.tab.SampleDetails;
@@ -207,16 +204,17 @@ public abstract class SeleniumTest
     {
         Set<SampleType> types = new HashSet<SampleType>();
 
-        for (String code : openbis.browseToSampleBrowser().getSampleTypes())
+        for (String code : openbis.goTo(new SampleBrowserLocation()).getSampleTypes())
         {
             types.add(new SampleTypeBuilder(openbis).withCode(code).build());
         }
         return types;
     }
 
-    protected <T extends Browsable> BrowserRow browserEntryOf(T browsable)
+    protected <T extends Browsable<U>, U extends Browser<T>> BrowserRow browserEntryOf(
+            T browsable)
     {
-        return browsable.getBrowserContent(openbis);
+        return openbis.getBrowserContentOf(browsable);
     }
 
     protected SampleDetails detailsOf(Sample sample)
@@ -232,7 +230,7 @@ public abstract class SeleniumTest
 
     public RegisterSample sampleRegistrationPageFor(SampleType type)
     {
-        openbis.browseToRegisterSample().selectSampleType(type);
+        openbis.goTo(new RegisterSampleLocation()).selectSampleType(type);
         return assumePage(RegisterSample.class);
     }
 

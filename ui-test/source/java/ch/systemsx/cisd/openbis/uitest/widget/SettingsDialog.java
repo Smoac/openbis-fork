@@ -55,7 +55,7 @@ public class SettingsDialog implements Widget
         context.find("//*[@class='x-window-bl']//button[text()='OK']").click();
     }
 
-    public void showColumnsOf(Browsable browsable)
+    public void showColumnsOf(Browsable<?> browsable)
     {
         showColumns(browsable.getColumns().toArray(new String[0]));
     }

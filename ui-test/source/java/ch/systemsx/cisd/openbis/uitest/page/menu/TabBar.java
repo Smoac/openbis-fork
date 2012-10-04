@@ -28,6 +28,10 @@ public class TabBar
 
     public boolean selectTab(String label)
     {
+        if (label == null)
+        {
+            return false;
+        }
 
         for (WebElement link : context
                 .findAll("//li[starts-with(@id, 'openbis_main-tab-panel__')]"))

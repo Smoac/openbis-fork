@@ -84,14 +84,13 @@ public class DropDown implements AtomicWidget, Fillable
 
         context.click();
 
-        if (wlist.size() == 0)
-        {
-            wlist = SeleniumTest.driver.findElements(By.className("x-combo-list-item"));
-        } else
+        if (wlist.size() != 0)
         {
             WebDriverWait wait = new WebDriverWait(SeleniumTest.driver, SeleniumTest.IMPLICIT_WAIT);
             wait.until(ExpectedConditions.stalenessOf(wlist.get(0)));
         }
+
+        wlist = SeleniumTest.driver.findElements(By.className("x-combo-list-item"));
 
         if (wlist.size() == 0)
         {

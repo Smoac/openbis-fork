@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.Arrays;
 import java.util.Collection;
 
-import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
-import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
+import ch.systemsx.cisd.openbis.uitest.page.layout.ScriptBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.page.tab.ScriptBrowser;
 
 /**
  * @author anttil
  */
-public class Script implements Browsable
+public class Script implements Browsable<ScriptBrowser>
 {
     private final String name;
 
@@ -92,12 +92,6 @@ public class Script implements Browsable
     }
 
     @Override
-    public BrowserRow getBrowserContent(GuiApplicationRunner openbis)
-    {
-        return openbis.browseTo(this);
-    }
-
-    @Override
     public Collection<String> getColumns()
     {
         return Arrays.asList("Name", "Description", "Entity Kind", "Script Type", "Script");
@@ -129,5 +123,11 @@ public class Script implements Browsable
     public String toString()
     {
         return "Script" + getCode();
+    }
+
+    @Override
+    public ScriptBrowserLocation getBrowserLocation()
+    {
+        return new ScriptBrowserLocation();
     }
 }

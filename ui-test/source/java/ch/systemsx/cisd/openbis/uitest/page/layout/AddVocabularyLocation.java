@@ -14,36 +14,32 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra.matcher;
+package ch.systemsx.cisd.openbis.uitest.page.layout;
 
-import java.util.Collection;
-
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
+import ch.systemsx.cisd.openbis.uitest.infra.application.GuiApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.page.dialog.AddVocabularyDialog;
 
 /**
  * @author anttil
  */
-public class CollectionContainsMatcher<T> extends TypeSafeMatcher<Collection<T>>
+public class AddVocabularyLocation implements Location<AddVocabularyDialog>
 {
 
-    private T expected;
-
-    public CollectionContainsMatcher(T expected)
+    @Override
+    public void moveTo(GuiApplicationRunner openbis)
     {
-        this.expected = expected;
+        openbis.goTo(new VocabularyBrowserLocation()).add();
     }
 
     @Override
-    public void describeTo(Description description)
+    public String getTabName()
     {
-        description.appendText("A collection containing item " + expected.toString());
+        return null;
     }
 
     @Override
-    public boolean matchesSafely(Collection<T> collection)
+    public Class<AddVocabularyDialog> getPage()
     {
-        return collection.contains(expected);
+        return AddVocabularyDialog.class;
     }
-
 }

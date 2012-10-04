@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.infra.matcher;
+package ch.systemsx.cisd.openbis.uitest.infra.dsl;
 
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.uitest.page.tab.BrowserRow;
 /**
  * @author anttil
  */
-public class CellContentMatcher extends TypeSafeMatcher<BrowserRow>
+class CellContentMatcher extends TypeSafeMatcher<BrowserRow>
 {
 
     private String column;

@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 /**
  * @author anttil
  */
-public abstract class Browser<T extends Browsable>
+public abstract class Browser<T extends Browsable<? extends Browser<T>>>
 {
 
     public abstract Grid getGrid();
@@ -65,11 +65,11 @@ public abstract class Browser<T extends Browsable>
 
     public final void showColumnsOf(T browsable)
     {
+        waitForPagingToolBar();
         if (getGrid().getColumnNames().containsAll(browsable.getColumns()))
         {
             return;
         }
-        waitForPagingToolBar();
         getPaging().settings();
         getSettings().showColumnsOf(browsable);
     }
