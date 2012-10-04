@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.collections.FilteredList;
 import ch.systemsx.cisd.common.collections.IModifiable;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.MethodUtils;
+import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;

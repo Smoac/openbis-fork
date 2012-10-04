@@ -29,7 +29,7 @@ import org.springframework.dao.DataAccessException;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.MethodUtils;
+import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;

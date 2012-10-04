@@ -21,6 +21,8 @@ import java.lang.reflect.Method;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.reflection.MethodUtils;
+
 /**
  * Test cases for the {@link MethodUtilsTest}.
  * 

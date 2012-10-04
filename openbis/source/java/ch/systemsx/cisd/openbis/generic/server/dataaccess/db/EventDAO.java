@@ -30,7 +30,7 @@ import org.springframework.jdbc.support.JdbcAccessor;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.MethodUtils;
+import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEventParser;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;

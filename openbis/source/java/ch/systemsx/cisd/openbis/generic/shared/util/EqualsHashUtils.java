@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
-import ch.systemsx.cisd.common.utilities.MethodUtils;
+import ch.systemsx.cisd.common.reflection.MethodUtils;
 
 /**
  * Utility class containing methods useful in defining equals and hashCode methods.

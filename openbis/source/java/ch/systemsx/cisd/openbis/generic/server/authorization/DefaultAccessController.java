@@ -36,7 +36,7 @@ import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.MethodUtils;
+import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;

@@ -50,7 +50,7 @@ import ch.systemsx.cisd.common.collections.ToStringDefaultConverter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.MethodUtils;
+import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
