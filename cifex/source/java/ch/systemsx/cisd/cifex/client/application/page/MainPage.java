@@ -60,7 +60,7 @@ import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan

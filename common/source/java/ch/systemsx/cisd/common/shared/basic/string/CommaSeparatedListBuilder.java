@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.shared.basic.utils;
+package ch.systemsx.cisd.common.shared.basic.string;
 
 import java.util.List;
 
 /**
  * Builder of a comma-separated list of stringified objects.
+ * <p>
+ * Can be used from GWT code.
  *
  * @author Franz-Josef Elmer
  */

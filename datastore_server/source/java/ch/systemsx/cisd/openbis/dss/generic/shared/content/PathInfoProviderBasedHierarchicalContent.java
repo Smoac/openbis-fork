@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.io.hierarchical_content.AbstractHierarchicalConte
 import ch.systemsx.cisd.common.io.hierarchical_content.HDF5ContainerBasedHierarchicalContentNode;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 

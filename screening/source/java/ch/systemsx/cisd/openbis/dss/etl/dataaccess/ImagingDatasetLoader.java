@@ -487,13 +487,13 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
     private boolean isFileAccessible(String pathPrefix, String pathSuffix, ImgImageDTO image)
     {
         String filePath = image.getFilePath();
-        if (ch.systemsx.cisd.common.shared.basic.utils.StringUtils.isNotBlank(pathPrefix))
+        if (ch.systemsx.cisd.common.shared.basic.string.StringUtils.isNotBlank(pathPrefix))
         {
             filePath =
                     pathPrefix
                             + "/"
                             + filePath
-                            + (ch.systemsx.cisd.common.shared.basic.utils.StringUtils
+                            + (ch.systemsx.cisd.common.shared.basic.string.StringUtils
                                     .isBlank(pathSuffix) ? "" : "." + pathSuffix);
         }
 

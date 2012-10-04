@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.commons.lang.time.DateUtils;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IDataSetTypeImmutable;

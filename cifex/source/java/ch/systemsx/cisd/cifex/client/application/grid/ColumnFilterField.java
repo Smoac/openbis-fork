@@ -21,7 +21,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.cifex.client.application.ui.IGridCellRendererNonPlainText;
 import ch.systemsx.cisd.cifex.client.application.utils.ObjectUtils;
-import ch.systemsx.cisd.common.shared.basic.AlternativesStringFilter;
+import ch.systemsx.cisd.common.shared.basic.string.AlternativesStringFilter;
 
 /**
  * A field to filter grid rows by the value of one specified column.

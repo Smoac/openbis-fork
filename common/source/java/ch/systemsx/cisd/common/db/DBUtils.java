@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.db;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
  * Useful utility method concerning database code.

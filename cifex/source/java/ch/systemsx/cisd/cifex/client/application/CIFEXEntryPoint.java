@@ -30,7 +30,7 @@ import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.application.ui.PageControllerHelper;
 import ch.systemsx.cisd.cifex.client.application.utils.GWTUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
  * Entry point of <i>GWT</i> <i>CIFEX</i>.

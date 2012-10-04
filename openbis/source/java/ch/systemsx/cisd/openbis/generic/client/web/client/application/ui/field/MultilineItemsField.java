@@ -30,7 +30,7 @@ import com.google.gwt.dom.client.TextAreaElement;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 
 /**

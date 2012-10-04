@@ -22,7 +22,7 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.geometry.SpatialPoint;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.imagereaders.ImageReaderTestCase;
 
 /**

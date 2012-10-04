@@ -28,7 +28,7 @@ import com.izforge.izpack.api.data.PanelActionConfiguration;
 import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.data.PanelAction;
 
-import ch.systemsx.cisd.common.shared.basic.utils.CommaSeparatedListBuilder;
+import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 
 /**
  * Action which sets the variable <code>ENABLED_TECHNOLOGIES_VARNAME</code> or updates

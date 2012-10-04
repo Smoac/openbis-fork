@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.exception;
 
-import ch.systemsx.cisd.common.shared.basic.IOptionalStackTraceLoggingException;
+import ch.systemsx.cisd.common.shared.basic.exception.IOptionalStackTraceLoggingException;
 
 /**
  * This <code>UserFailureException</code> extension signals that a session has expired.

@@ -38,7 +38,7 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
  * This class uses a variant of a trick described in the GWT discussion forum to support autofill.

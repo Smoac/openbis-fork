@@ -24,7 +24,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.imagereaders.bioformats.BioFormatsReaderLibrary;
 import ch.systemsx.cisd.imagereaders.ij.ImageJReaderLibrary;
 import ch.systemsx.cisd.imagereaders.imageio.ImageIOReaderLibrary;

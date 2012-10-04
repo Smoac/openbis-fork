@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.exception;
 
-import ch.systemsx.cisd.common.shared.basic.IOptionalStackTraceLoggingException;
+import ch.systemsx.cisd.common.shared.basic.exception.IOptionalStackTraceLoggingException;
 
 /**
  * This <code>UserFailureException</code> extension signals that a <code>Session</code> has expired.

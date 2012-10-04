@@ -21,6 +21,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.shared.basic.string.AlternativesStringFilter;
+
 /**
  * Test cases for {@link AlternativesStringFilter}.
  * 

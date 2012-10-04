@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
  * Helper class to create URL's with parameters. Characters in path, parameter names and values are

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.shared.basic.utils;
+package ch.systemsx.cisd.common.shared.basic.string;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Some utilities for <code>String</code>.
+ * <p>
+ * Can be used from GWT code.
  * 
  * @author Christian Ribeaud
  */

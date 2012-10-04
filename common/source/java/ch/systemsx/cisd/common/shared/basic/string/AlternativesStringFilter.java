@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.shared.basic;
+package ch.systemsx.cisd.common.shared.basic.string;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
 /**
  * A filter for <code>String</code> values. It supports:
@@ -34,8 +33,9 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
  * <li>Quoting by single ("'") and double ('"') quotes</li>
  * <li>Escaping of special characters (by '\')</li>
  * <li>Numerical comparisons (by '<', '>', '<=', '>=', '=')</li>
- * 
  * </ul>
+ * <p>
+ * Can be used from GWT code.
  * 
  * @author Bernd Rinn
  */

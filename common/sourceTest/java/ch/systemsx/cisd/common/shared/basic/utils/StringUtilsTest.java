@@ -22,7 +22,7 @@ import static org.testng.AssertJUnit.*;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
  * Tests for {@link StringUtils}.

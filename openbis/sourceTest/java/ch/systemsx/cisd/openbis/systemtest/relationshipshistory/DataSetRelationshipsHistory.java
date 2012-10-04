@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.systemtest.relationshipshistory;
 
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
  * @author Pawel Glyzewski

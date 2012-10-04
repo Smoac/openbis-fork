@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.shared.basic;
+package ch.systemsx.cisd.common.shared.basic.exception;
 
 /**
- * Marker inteface for exceptions whose stack trace can be omitted in logs.
+ * Marker interface for exceptions whose stack trace can be omitted in logs.
+ * <p>
+ * Can be used from GWT code.
  * 
  * @author Kaloyan Enimanev
  */

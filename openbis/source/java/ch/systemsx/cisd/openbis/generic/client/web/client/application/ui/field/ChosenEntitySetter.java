@@ -22,7 +22,7 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.form.TriggerField;
 
-import ch.systemsx.cisd.common.shared.basic.utils.CommaSeparatedListBuilder;
+import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 
 public abstract class ChosenEntitySetter<T> extends TriggerField<String> implements
         IChosenEntitiesSetter<T>

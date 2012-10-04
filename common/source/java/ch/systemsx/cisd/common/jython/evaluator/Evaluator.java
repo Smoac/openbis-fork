@@ -40,7 +40,7 @@ import org.python.core.PySystemState;
 import org.python.core.PyTraceback;
 
 import ch.systemsx.cisd.common.jython.PythonInterpreter;
-import ch.systemsx.cisd.common.shared.basic.utils.CommaSeparatedListBuilder;
+import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 
 /**
  * A class for evaluating expressions, based on Jython.

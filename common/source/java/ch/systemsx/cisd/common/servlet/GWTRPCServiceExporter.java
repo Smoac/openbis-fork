@@ -43,7 +43,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
-import ch.systemsx.cisd.common.shared.basic.IOptionalStackTraceLoggingException;
+import ch.systemsx.cisd.common.shared.basic.exception.IOptionalStackTraceLoggingException;
 
 /**
  * This component publishes an object (see {@link #getService()}) as a service to the <i>GWT</i>

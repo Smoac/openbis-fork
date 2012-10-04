@@ -31,7 +31,7 @@ import com.google.gwt.user.client.rpc.InvocationException;
 import com.google.gwt.user.client.rpc.StatusCodeException;
 
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
  * An abstract <code>AsyncCallback</code> implementations which only implements

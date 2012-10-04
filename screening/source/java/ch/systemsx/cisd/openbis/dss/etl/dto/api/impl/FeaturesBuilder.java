@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeaturesBuilder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;

@@ -21,7 +21,7 @@ import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.Screeni
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
