@@ -27,7 +27,7 @@
         factory-method="getResolvedProps">
     </bean>
     
-	<bean id="memory-monitor" class="ch.systemsx.cisd.common.jmx.JMXMemoryMonitorSpringBean" />
+	<bean id="memory-monitor" class="ch.systemsx.cisd.common.monitoring.JMXMemoryMonitorSpringBean" />
 
     <bean id="data-set-path-infos-provider" class="ch.systemsx.cisd.openbis.dss.generic.server.DatabaseBasedDataSetPathInfoProvider"/>
 

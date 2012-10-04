@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.ThreadDump;
+import ch.systemsx.cisd.common.monitoring.ThreadDump;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**

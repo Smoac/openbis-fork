@@ -17,7 +17,7 @@
 
     <bean id="exception-translator" class="ch.systemsx.cisd.openbis.generic.server.business.bo.NextExceptionFallbackExceptionTranslator" />
 
-	<bean id="memory-monitor" class="ch.systemsx.cisd.common.jmx.JMXMemoryMonitorSpringBean" />
+	<bean id="memory-monitor" class="ch.systemsx.cisd.common.monitoring.JMXMemoryMonitorSpringBean" />
 
     <bean id="transaction-manager"
         class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.OpenBISHibernateTransactionManager">

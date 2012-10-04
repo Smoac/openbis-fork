@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.jmx;
+package ch.systemsx.cisd.common.monitoring;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;

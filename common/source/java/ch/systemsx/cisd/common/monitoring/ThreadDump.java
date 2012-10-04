@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.monitoring;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
