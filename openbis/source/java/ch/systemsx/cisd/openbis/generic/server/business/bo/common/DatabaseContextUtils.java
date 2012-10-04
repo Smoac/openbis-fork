@@ -20,6 +20,7 @@ import java.sql.Connection;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 
@@ -32,7 +33,7 @@ public class DatabaseContextUtils
 {
 
     @SuppressWarnings("deprecation")
-    public static Connection getConnection(IDAOFactory daoFactory)
+    public static Connection getConnection(IAuthorizationDAOFactory daoFactory)
     {
         return daoFactory.getSessionFactory().getCurrentSession().connection();
     }
