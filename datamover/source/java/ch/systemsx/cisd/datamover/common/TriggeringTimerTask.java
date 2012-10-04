@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.datamover.common;
 
 import java.io.File;
 import java.util.TimerTask;
@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.SynchronizationMonitor;
 
 /**
  * A role that triggers an {@link ITriggerable} when a given trigger file has been found.

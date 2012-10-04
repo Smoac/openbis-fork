@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.ITerminable;
-import ch.systemsx.cisd.common.utilities.ITriggerable;
+import ch.systemsx.cisd.datamover.common.ITriggerable;
 
 /**
  * The <i>DataMover</i> shutdown hook.

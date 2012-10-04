@@ -35,10 +35,10 @@ import ch.systemsx.cisd.common.filesystem.highwatermark.HighwaterMarkDirectorySc
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
-import ch.systemsx.cisd.common.utilities.CompoundTriggerable;
 import ch.systemsx.cisd.common.utilities.ITerminable;
-import ch.systemsx.cisd.common.utilities.TriggeringTimerTask;
+import ch.systemsx.cisd.datamover.common.CompoundTriggerable;
 import ch.systemsx.cisd.datamover.common.StoreHandlerToMoverAdapter;
+import ch.systemsx.cisd.datamover.common.TriggeringTimerTask;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.RemoteMonitoredMoverFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;

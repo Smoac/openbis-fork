@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.datamover.common;
 
 /**
  * A role that allows to trigger some operation.

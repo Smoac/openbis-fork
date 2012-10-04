@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.SystemExit;
-import ch.systemsx.cisd.common.utilities.TriggeringTimerTask;
+import ch.systemsx.cisd.datamover.common.TriggeringTimerTask;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreSelfTestables;
 import ch.systemsx.cisd.datamover.filesystem.FileSysOperationsFactory;

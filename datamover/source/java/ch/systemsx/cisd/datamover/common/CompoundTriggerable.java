@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.datamover.common;
 
 /**
  * A <code>ITriggerable</code> that chains a sequence of one or more {@link ITriggerable}s.
