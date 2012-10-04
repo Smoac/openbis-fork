@@ -29,6 +29,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.ByteBufferRandomAccessFile;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
+import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
 import ch.systemsx.cisd.common.io.FileBasedContentNode;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
@@ -238,6 +239,96 @@ public class ImageUtilTest extends AssertJUnit
     public static BufferedImage loadImage(IHierarchicalContentNode content)
     {
         return ImageUtil.loadImage(content);
+    }
+
+    @Test
+    public void testGif() throws Exception
+    {
+        assertFileType("gif", "gif-example.gif");
+    }
+    
+    @Test
+    public void testJpg() throws Exception
+    {
+        assertFileType("jpg", "jpeg-example.jpg");
+    }
+    
+    @Test
+    public void testPng() throws Exception
+    {
+        assertFileType("png", "png-example.png");
+    }
+    
+    @Test
+    public void testTiff() throws Exception
+    {
+        assertFileType("tif", "tiff-example.tiff");
+    }
+    
+    @Test
+    public void testFileContainingOnlyOneUmlaut() throws Exception
+    {
+        assertFileType(null, "one-umlaut.txt");
+    }
+    
+    @Test
+    public void testMarkUnsupportedInputStream()
+    {
+        try
+        {
+            ImageUtil.tryToFigureOutFileTypeOf(new ByteBufferRandomAccessFile(1)
+                {
+                    @Override
+                    public boolean markSupported()
+                    {
+                        return false;
+                    }
+                });
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Input stream does not support marking. "
+                    + "Wrap input stream with a BufferedInputStream to solve the problem.",
+                    ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testInputStreamAtTheBeginning() throws Exception
+    {
+        byte[] bytes = "hello world".getBytes();
+        ByteBufferRandomAccessFile buffer = new ByteBufferRandomAccessFile(bytes);
+
+        ImageUtil.tryToFigureOutFileTypeOf(buffer);
+
+        assertEquals(0, buffer.getFilePointer());
+    }
+    
+    private void assertFileType(String expectedFileType, String fileName) throws Exception
+    {
+        RandomAccessFileImpl handle = null;
+        try
+        {
+            handle = new RandomAccessFileImpl(new File(dir, fileName), "r");
+            String type = ImageUtil.tryToFigureOutFileTypeOf(handle);
+            
+            assertEquals(expectedFileType, type);
+        } finally
+        {
+            closeQuetly(handle);
+        }
+
+    }
+
+    private void closeQuetly(RandomAccessFileImpl handle)
+    {
+        try {
+            handle.close();
+        } catch (Exception ex)
+        {
+            // keep quiet
+        }
+        
     }
 
 }
