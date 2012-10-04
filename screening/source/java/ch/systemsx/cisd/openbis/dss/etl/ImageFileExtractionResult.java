@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl;
 import java.io.File;
 import java.util.List;
 
-import ch.systemsx.cisd.bds.hcs.Geometry;
+import ch.systemsx.cisd.hcs.Geometry;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
 

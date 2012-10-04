@@ -21,7 +21,7 @@ import java.util.List;
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.Select;
 
-import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.hcs.Location;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongArrayMapper;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds.hcs;
+package ch.systemsx.cisd.hcs;
 
 import java.io.Serializable;
 

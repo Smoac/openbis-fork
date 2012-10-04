@@ -2,7 +2,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
 import java.io.Serializable;
 
-import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.hcs.Location;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**

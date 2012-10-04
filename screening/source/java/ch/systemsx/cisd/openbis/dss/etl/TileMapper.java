@@ -21,8 +21,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.bds.hcs.Geometry;
-import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.hcs.Geometry;
+import ch.systemsx.cisd.hcs.Location;
 
 /**
  * Defines the mapping from tile position to well location. Rows in the mapping string provided to

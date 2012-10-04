@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.images.dto;
 
-import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.hcs.Location;
 
 /**
  * Identifies one channel stack in a dataset, by well and tile location in HCS, tile location in

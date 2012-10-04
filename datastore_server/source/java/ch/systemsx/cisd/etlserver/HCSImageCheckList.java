@@ -21,9 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.systemsx.cisd.bds.hcs.Geometry;
-import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.hcs.Geometry;
+import ch.systemsx.cisd.hcs.Location;
 
 /**
  * Helper class to set the <code>is_complete</code> flag in the <i>BDS</i> library.

@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.images.dto;
 
 import java.util.List;
 
-import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference.HCSChannelStackByLocationReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference.MicroscopyChannelStackByLocationReference;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;

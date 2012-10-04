@@ -21,9 +21,9 @@ import static org.testng.AssertJUnit.fail;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.bds.hcs.PlateGeometry;
-import ch.systemsx.cisd.bds.hcs.WellGeometry;
+import ch.systemsx.cisd.hcs.Location;
+import ch.systemsx.cisd.hcs.PlateGeometry;
+import ch.systemsx.cisd.hcs.WellGeometry;
 
 /**
  * Test cases for corresponding {@link HCSImageCheckList} class.

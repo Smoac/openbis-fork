@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.bds.hcs;
+package ch.systemsx.cisd.hcs;
 
 
 /**
- * An <code>AbstractGeometry</code> implementation suitable for <i>Well</i>.
+ * An <code>AbstractGeometry</code> implementation suitable for <i>Plate</i>.
  * 
  * @author Christian Ribeaud
  */
-public final class WellGeometry extends Geometry
+public final class PlateGeometry extends Geometry
 {
 
     /**
-     * Directory name which contains the well geometry.
+     * Directory name which contains the plate geometry.
      * <p>
      */
-    public static final String WELL_GEOMETRY = "well_geometry";
+    public static final String PLATE_GEOMETRY = "plate_geometry";
 
-    public WellGeometry(final Geometry geometry)
+    public PlateGeometry(final Geometry geometry)
     {
         this(geometry.getRows(), geometry.getColumns());
     }
 
-    public WellGeometry(final int rows, final int columns)
+    public PlateGeometry(final int rows, final int columns)
     {
         super(rows, columns);
     }
@@ -46,7 +46,7 @@ public final class WellGeometry extends Geometry
      */
     public final static Geometry createFromString(final String toString)
     {
-        return new WellGeometry(Geometry.createFromString(toString));
+        return new PlateGeometry(Geometry.createFromString(toString));
     }
 
     //
@@ -56,7 +56,7 @@ public final class WellGeometry extends Geometry
     @Override
     protected final String getGeometryDirectoryName()
     {
-        return WELL_GEOMETRY;
+        return PLATE_GEOMETRY;
     }
 
 }

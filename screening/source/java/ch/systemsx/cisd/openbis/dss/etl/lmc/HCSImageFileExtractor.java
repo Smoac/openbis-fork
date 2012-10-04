@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl.lmc;
 
 import java.util.Properties;
 
-import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.hcs.Location;
 
 /**
  * A <code>IHCSImageFileExtractor</code> implementation suitable for <i>LMC</i>.

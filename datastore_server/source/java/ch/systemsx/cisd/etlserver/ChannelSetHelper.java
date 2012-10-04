@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import ch.systemsx.cisd.bds.hcs.Channel;
+import ch.systemsx.cisd.hcs.Channel;
 
 /**
  * Helps to construct a sorted set of {@link Channel}.

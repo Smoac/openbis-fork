@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.bds.hcs.Geometry;
+import ch.systemsx.cisd.hcs.Geometry;
 
 /**
  * Test cases for {@link TileMapper}.
