@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.datamover.filesystem.intf;
 
+import ch.systemsx.cisd.common.action.ITerminable;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
-import ch.systemsx.cisd.common.utilities.ITerminable;
 
 /**
  * @author Tomasz Pylak

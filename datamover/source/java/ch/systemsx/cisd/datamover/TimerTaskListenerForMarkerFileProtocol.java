@@ -24,8 +24,8 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.concurrent.DummyTimerTaskListener;
 import ch.systemsx.cisd.common.concurrent.ITimerTaskListener;
+import ch.systemsx.cisd.common.concurrent.ITimerTaskStatusProvider;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.utilities.ITimerTaskStatusProvider;
 
 /**
  * An implementation of {@link ITimerTaskListener} which creates an empty marker file before the

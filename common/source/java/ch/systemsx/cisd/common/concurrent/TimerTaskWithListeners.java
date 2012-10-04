@@ -20,7 +20,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TimerTask;
 
-import ch.systemsx.cisd.common.utilities.ITimerTaskStatusProvider;
 
 /**
  * Decorator of a {@link TimerTask} objects which allows to add {@link ITimerTaskListener} objects

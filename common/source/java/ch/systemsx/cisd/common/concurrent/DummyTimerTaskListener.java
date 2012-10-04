@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.concurrent;
 
-import ch.systemsx.cisd.common.utilities.ITimerTaskStatusProvider;
 
 /**
  * Dummy implementation of the timer task listener interface. Useful for subclassing.

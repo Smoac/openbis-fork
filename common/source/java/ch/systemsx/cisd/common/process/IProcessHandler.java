@@ -1,7 +1,7 @@
 package ch.systemsx.cisd.common.process;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
-import ch.systemsx.cisd.common.utilities.ITerminable;
+import ch.systemsx.cisd.common.action.ITerminable;
 
 /** 
  * Handler to a running process. Allows to wait for the result and stop the process.

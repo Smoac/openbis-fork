@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.action;
 
 /**
  * Use this interface to delegate any kind of action to a different part of code without adding an

@@ -34,13 +34,13 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.hdf5.HDF5Container;
 import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHDF5;
 import ch.systemsx.cisd.common.hdf5.HierarchicalStructureDuplicatorFileToHDF5.DuplicatorWriterClient;
 import ch.systemsx.cisd.common.io.IOUtilities;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 
 /**
  * Unit tests for {@link DefaultFileBasedHierarchicalContent}

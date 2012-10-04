@@ -32,8 +32,8 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.action.ITerminable;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
-import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.datamover.testhelper.FileStructEngine;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 

@@ -18,7 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import org.python.core.PyObject;
 
-import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
+import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.registrator.AbstractProgrammableTopLevelDataSetHandler;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;

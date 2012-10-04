@@ -18,10 +18,10 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 
+import ch.systemsx.cisd.common.action.ITerminable;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
-import ch.systemsx.cisd.common.utilities.ITerminable;
 
 /**
  * Interface that represents a role that copies files and directories to another directory, usually

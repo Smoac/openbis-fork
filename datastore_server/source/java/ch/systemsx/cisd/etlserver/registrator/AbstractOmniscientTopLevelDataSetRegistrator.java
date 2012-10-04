@@ -28,6 +28,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
+import ch.systemsx.cisd.common.action.AbstractDelegatedActionWithResult;
+import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
@@ -43,8 +45,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
-import ch.systemsx.cisd.common.utilities.AbstractDelegatedActionWithResult;
-import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.AbstractTopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.DataStrategyStore;
 import ch.systemsx.cisd.etlserver.DssUniqueFilenameGenerator;

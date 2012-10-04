@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2007 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
-
+package ch.systemsx.cisd.common.action;
 
 /**
- * Use this interface to delegate any kind of action to a different part of code without adding an
- * explicit dependency.
+ * A roles that allows the termination of an operation.
  * 
- * @author Tomasz Pylak
+ * @author Bernd Rinn
  */
-public interface IDelegatedAction
+public interface ITerminable
 {
-    public static IDelegatedAction DO_NOTHING = new IDelegatedAction()
-        {
-            @Override
-            public void execute()
-            {
-            }
-        };
+    /**
+     * Terminates the {@link ITerminable}.
+     * 
+     * @return <code>true</code> if and only if the {@link ITerminable} has terminated
+     *         successfully.
+     */
+    public boolean terminate();
 
-    void execute();
 }

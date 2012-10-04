@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.screening.server.plugins.jython;
 import java.io.File;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
+import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;

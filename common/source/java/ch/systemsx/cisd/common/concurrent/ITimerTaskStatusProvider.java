@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.concurrent;
 
 /**
  * A provider for status information about the last run of a {@link java.util.TimerTask}.

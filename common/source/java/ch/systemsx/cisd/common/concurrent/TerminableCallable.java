@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.StopException;
 import ch.systemsx.cisd.base.namedthread.ICallableNameProvider;
 import ch.systemsx.cisd.base.namedthread.NamedRunnable;
-import ch.systemsx.cisd.common.utilities.ITerminable;
+import ch.systemsx.cisd.common.action.ITerminable;
 
 /**
  * A wrapper for {@link Callable}s that offers a {@link #terminate()} method to safely terminated

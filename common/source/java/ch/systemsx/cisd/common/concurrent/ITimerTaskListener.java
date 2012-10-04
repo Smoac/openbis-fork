@@ -18,7 +18,6 @@ package ch.systemsx.cisd.common.concurrent;
 
 import java.util.TimerTask;
 
-import ch.systemsx.cisd.common.utilities.ITimerTaskStatusProvider;
 
 /**
  * Listener for {@link TimerTask} events.

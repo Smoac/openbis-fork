@@ -19,7 +19,7 @@ package ch.systemsx.cisd.common.concurrent;
 import java.util.concurrent.Future;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
-import ch.systemsx.cisd.common.utilities.ITerminable;
+import ch.systemsx.cisd.common.action.ITerminable;
 
 /**
  * An interface that combines {@link Future} and {@link ITerminable} and that can be used to control

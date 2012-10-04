@@ -18,10 +18,10 @@ package ch.systemsx.cisd.datamover;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.action.CompoundTerminable;
+import ch.systemsx.cisd.common.action.ITerminable;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.CompoundTerminable;
-import ch.systemsx.cisd.common.utilities.ITerminable;
 
 /**
  * The <i>DataMover</i> specific {@link CompoundTerminable} extension.

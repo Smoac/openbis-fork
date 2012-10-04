@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.path;
 
-import static ch.systemsx.cisd.common.utilities.IDelegatedAction.DO_NOTHING;
+import static ch.systemsx.cisd.common.action.IDelegatedAction.DO_NOTHING;
 
 import java.io.File;
 import java.lang.reflect.Method;

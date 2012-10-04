@@ -25,12 +25,12 @@ import java.util.Properties;
 import java.util.concurrent.locks.ReentrantLock;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.action.AbstractDelegatedActionWithResult;
+import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
-import ch.systemsx.cisd.common.utilities.AbstractDelegatedActionWithResult;
-import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.DssUniqueFilenameGenerator;
 import ch.systemsx.cisd.etlserver.DynamicTransactionQueryFactory;

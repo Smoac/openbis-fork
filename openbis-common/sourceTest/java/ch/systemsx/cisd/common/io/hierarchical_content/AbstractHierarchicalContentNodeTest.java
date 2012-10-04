@@ -24,9 +24,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.io.hierarchical_content.AbstractHierarchicalContentNode;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 
 /**
  * Tests for {@link AbstractHierarchicalContentNode}

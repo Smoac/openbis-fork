@@ -19,9 +19,9 @@ package ch.systemsx.cisd.common.io.hierarchical_content;
 import java.io.File;
 import java.util.List;
 
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 
 /**
  * @author Chandrasekhar Ramakrishnan

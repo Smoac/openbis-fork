@@ -20,9 +20,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.common.utilities.IDelegatedAction;
 import ch.systemsx.cisd.etlserver.IDataSetPathsInfoFeeder;
 
 /**

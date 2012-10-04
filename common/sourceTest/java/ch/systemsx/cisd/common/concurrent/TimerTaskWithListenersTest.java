@@ -25,7 +25,6 @@ import java.util.TimerTask;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.utilities.ITimerTaskStatusProvider;
 
 /**
  * 
