@@ -32,7 +32,7 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
  * 
  * @author Bernd Rinn
  */
-public class JMXMemoryMonitorSprintBean implements InitializingBean
+public class JMXMemoryMonitorSpringBean implements InitializingBean
 {
     private static final String MEMORY_MONITORING_INTERVAL_PROP =
             "memorymonitor-monitoring-interval";
@@ -43,7 +43,7 @@ public class JMXMemoryMonitorSprintBean implements InitializingBean
             "memorymonitor-high-watermark-percent";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            JMXMemoryMonitorSprintBean.class);
+            JMXMemoryMonitorSpringBean.class);
 
     private static final long MILLISECONDS = 1000L;
 
