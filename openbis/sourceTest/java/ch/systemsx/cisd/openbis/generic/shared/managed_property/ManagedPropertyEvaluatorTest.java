@@ -283,59 +283,123 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         assertEquals(expectedMandatory, widget.isMandatory());
     }
 
-    @Test
+    @Test(expectedExceptionsMessageRegExp = "Function updateFromBatchInput is not defined "
+            + "although function batchColumnNames is defined.", expectedExceptions = EvaluatorException.class)
     public void testScriptWithBatchColumnNamesFunctionButMissingUpdateFromBatchFunction()
     {
-        try
-        {
-            new ManagedPropertyEvaluator("def batchColumnNames():\n return ['A']");
-            fail("EvaluatorException expected");
-        } catch (EvaluatorException ex)
-        {
-            assertEquals("Function 'batchColumnNames' defined but not 'updateFromBatchInput'.",
-                    ex.getMessage());
-        }
+        new ManagedPropertyEvaluator("def batchColumnNames():\n return ['A']");
     }
 
-    @Test
+    @Test(expectedExceptionsMessageRegExp = "Function updateFromBatchInput is not defined "
+            + "although function inputWidgets is defined.", expectedExceptions = EvaluatorException.class)
+    public void testScriptWithInputWidgetsFunctionButMissingUpdateFromBatchFunction()
+    {
+        new ManagedPropertyEvaluator(
+                "def inputWidgets():\n return [inputWidgetFactory().createTextInputField('Field')]");
+    }
+
+    @Test(expectedExceptionsMessageRegExp = "Function updateFromBatchInput is not defined "
+            + "although functions batchColumnNames and inputWidgets are defined.", expectedExceptions = EvaluatorException.class)
+    public void testScriptWithInputWidgetsFunctionAndBatchColumnNamesFunctionButMissingUpdateFromBatchFunction()
+    {
+        new ManagedPropertyEvaluator("def inputWidgets():\n"
+                + " return [inputWidgetFactory().createTextInputField('Field')]\n"
+                + "def batchColumnNames():\n return ['A']");
+    }
+
+    @Test(expectedExceptionsMessageRegExp = "Function inputWidgets has returned a list "
+            + "where the 2. element is null.", expectedExceptions = EvaluatorException.class)
+    public void testScriptWithInputWidgetsFunctionWithANullElement()
+    {
+        new ManagedPropertyEvaluator("def inputWidgets():\n"
+                + " return [inputWidgetFactory().createTextInputField('A'), None]\n"
+                + "def updateFromBatchInput():\n  None");
+    }
+
+    @Test(expectedExceptionsMessageRegExp = "Function inputWidgets has returned a list where "
+            + "the 2. element isn't of type "
+            + "ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription "
+            + "but java.lang.String.", expectedExceptions = EvaluatorException.class)
+    public void testScriptWithInputWidgetsFunctionWithElementOfWrongType()
+    {
+        new ManagedPropertyEvaluator("def inputWidgets():\n"
+                + " return [inputWidgetFactory().createTextInputField('A'), 'B']\n"
+                + "def updateFromBatchInput():\n  None");
+    }
+
+    @Test(expectedExceptionsMessageRegExp = "Function 'batchColumnNames' doesn't return a List "
+            + "but an object of type 'java.lang.Integer': 42", expectedExceptions = EvaluatorException.class)
     public void testScriptWithBatchColumnNamesFunctionWhichDoesNotReturnAList()
     {
-        try
-        {
-            new ManagedPropertyEvaluator("def batchColumnNames():\n return 42\n"
-                    + "def updateFromBatchInput():\n  None");
-            fail("EvaluatorException expected");
-        } catch (EvaluatorException ex)
-        {
-            assertEquals("Function 'batchColumnNames' doesn't return a List "
-                    + "but an object of type 'java.lang.Integer': 42", ex.getMessage());
-        }
+        new ManagedPropertyEvaluator("def batchColumnNames():\n return 42\n"
+                + "def updateFromBatchInput():\n  None");
     }
 
-    @Test
-    public void testScriptWithBatchColumnNamesFunctionWhichReturnLowerCaseNames()
+    @Test(expectedExceptionsMessageRegExp = "There is already an input widget with code: A", expectedExceptions = EvaluatorException.class)
+    public void testScriptWithInputWidgetsFunctionWithNonUniqueCodes()
     {
-        try
-        {
-            new ManagedPropertyEvaluator(
-                    "def batchColumnNames():\n return ['abc', 'A', 'e42', 42]\n"
-                            + "def updateFromBatchInput():\n  None");
-            fail("EvaluatorException expected");
-        } catch (EvaluatorException ex)
-        {
-            assertEquals("The following batch column names "
-                    + "as returned by function 'batchColumnNames' "
-                    + "are not in upper case: [abc, e42]", ex.getMessage());
-        }
+        new ManagedPropertyEvaluator("def inputWidgets():\n" + " f = inputWidgetFactory()\n"
+                + " w1 = f.createTextInputField('a')\n" + " w2 = f.createTextInputField('Alpha')\n"
+                + " w2.code = 'A'\n" + " return [w1, w2]\n" + "def updateFromBatchInput():\n  None");
     }
 
     @Test
     public void testGetBatchColumnNamesScript()
     {
         ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def batchColumnNames():\n return ['A', 42]\n"
+                new ManagedPropertyEvaluator("def batchColumnNames():\n return ['A', 'Beta']\n"
                         + "def updateFromBatchInput():\n  None");
-        assertEquals("[A, 42]", evaluator.getBatchColumnNames().toString());
+        assertEquals("[A, BETA]", evaluator.getBatchColumnNames().toString());
+        List<IManagedInputWidgetDescription> inputWidgetDescriptions =
+                evaluator.getInputWidgetDescriptions();
+        assertEquals("A", inputWidgetDescriptions.get(0).getCode());
+        assertEquals("A", inputWidgetDescriptions.get(0).getLabel());
+        assertEquals(ManagedInputFieldType.TEXT, inputWidgetDescriptions.get(0)
+                .getManagedInputFieldType());
+        assertEquals("BETA", inputWidgetDescriptions.get(1).getCode());
+        assertEquals("Beta", inputWidgetDescriptions.get(1).getLabel());
+        assertEquals(ManagedInputFieldType.TEXT, inputWidgetDescriptions.get(1)
+                .getManagedInputFieldType());
+        assertEquals(2, inputWidgetDescriptions.size());
+    }
+
+    @Test
+    public void testGetInputWidgetsScript()
+    {
+        ManagedPropertyEvaluator evaluator =
+                new ManagedPropertyEvaluator(
+                        "def inputWidgets():\n"
+                                + " return [inputWidgetFactory().createComboBoxInputField('Field', ['A', 'B'])]\n"
+                                + "def updateFromBatchInput():\n  None");
+        assertEquals("[FIELD]", evaluator.getBatchColumnNames().toString());
+        List<IManagedInputWidgetDescription> inputWidgetDescriptions =
+                evaluator.getInputWidgetDescriptions();
+        assertEquals("FIELD", inputWidgetDescriptions.get(0).getCode());
+        assertEquals("Field", inputWidgetDescriptions.get(0).getLabel());
+        assertEquals("[A, B]",
+                ((ManagedComboBoxInputWidgetDescription) inputWidgetDescriptions.get(0))
+                        .getOptions().toString());
+        assertEquals(1, inputWidgetDescriptions.size());
+    }
+
+    @Test
+    public void testGetInputWidgetsScriptAndBatchColumnNamesScript()
+    {
+        ManagedPropertyEvaluator evaluator =
+                new ManagedPropertyEvaluator(
+                        "def batchColumnNames():\n return ['A', 'Beta']\n"
+                                + "def inputWidgets():\n"
+                                + " return [inputWidgetFactory().createComboBoxInputField('Field', ['A', 'B'])]\n"
+                                + "def updateFromBatchInput():\n  None");
+        assertEquals("[A, BETA]", evaluator.getBatchColumnNames().toString());
+        List<IManagedInputWidgetDescription> inputWidgetDescriptions =
+                evaluator.getInputWidgetDescriptions();
+        assertEquals("FIELD", inputWidgetDescriptions.get(0).getCode());
+        assertEquals("Field", inputWidgetDescriptions.get(0).getLabel());
+        assertEquals("[A, B]",
+                ((ManagedComboBoxInputWidgetDescription) inputWidgetDescriptions.get(0))
+                        .getOptions().toString());
+        assertEquals(1, inputWidgetDescriptions.size());
     }
 
     @Test

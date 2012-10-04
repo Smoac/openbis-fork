@@ -23,25 +23,18 @@ import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.Info;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedComboBoxInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedUiTableActionDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportRowModel;
@@ -70,6 +63,8 @@ public final class ManagedPropertyGridActionDialog extends
     private final Map<String, TextField<?>> inputFieldsByLabel =
             new LinkedHashMap<String, TextField<?>>();
 
+    private final ManagedPropertyFormHelper formHelper;
+
     public ManagedPropertyGridActionDialog(IViewContext<ICommonClientServiceAsync> viewContext,
             String editTitle, List<TableModelRowWithObject<ReportRowModel>> data,
             AsyncCallback<Void> callback, IEntityInformationHolder entity,
@@ -82,6 +77,14 @@ public final class ManagedPropertyGridActionDialog extends
         this.callback = callback;
         this.managedAction = managedAction;
         setWidth(400);
+        formHelper = new ManagedPropertyFormHelper(viewContext, formPanel, inputFieldsByLabel)
+            {
+                @Override
+                protected void trySetBoundedValue(IManagedInputWidgetDescription inputDescription)
+                {
+                    ManagedPropertyGridActionDialog.this.trySetBoundedValue(inputDescription);
+                }
+            };
     }
 
     @Override
@@ -130,44 +133,7 @@ public final class ManagedPropertyGridActionDialog extends
         formPanel.setLabelWidth(100);
         formPanel.setFieldWidth(200);
 
-        for (IManagedInputWidgetDescription inputDescription : managedAction
-                .getInputWidgetDescriptions())
-        {
-            trySetBoundedValue(inputDescription);
-            TextField<?> field;
-            switch (inputDescription.getManagedInputFieldType())
-            {
-                case TEXT:
-                    field = createTextField(inputDescription);
-                    break;
-                case MULTILINE_TEXT:
-                    field = createMultilineTextField(inputDescription);
-                    break;
-                case COMBO_BOX:
-                    field = createComboBoxField(inputDescription);
-                    break;
-                default:
-                    throw new UnsupportedOperationException(); // can't happen
-            }
-            final String label = inputDescription.getLabel();
-            if (label == null)
-            {
-                throwFailToCreateContentException("Label is not set in input widget description");
-            }
-            field.setFieldLabel(label);
-
-            if (inputDescription.getDescription() != null)
-            {
-                AbstractImagePrototype infoIcon =
-                        AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
-                FieldUtil.addInfoIcon(field, inputDescription.getDescription(),
-                        infoIcon.createImage());
-            }
-            FieldUtil.setMandatoryFlag(field, inputDescription.isMandatory());
-
-            inputFieldsByLabel.put(label, field);
-            formPanel.add(field);
-        }
+        formHelper.fillForm(managedAction.getInputWidgetDescriptions());
     }
 
     /**
@@ -210,61 +176,6 @@ public final class ManagedPropertyGridActionDialog extends
                 }
             }
         }
-    }
-
-    private TextField<?> createTextField(IManagedInputWidgetDescription inputDescription)
-    {
-        final TextField<String> field = new TextField<String>();
-        if (inputDescription.getValue() != null)
-        {
-            FieldUtil.setValueWithUnescaping(field, inputDescription.getValue());
-            field.updateOriginalValue(field.getValue());
-        }
-        return field;
-    }
-
-    private TextField<?> createMultilineTextField(IManagedInputWidgetDescription inputDescription)
-    {
-        final TextField<String> field =
-                new MultilineVarcharField(inputDescription.getLabel(), false);
-        if (inputDescription.getValue() != null)
-        {
-            FieldUtil.setValueWithUnescaping(field, inputDescription.getValue());
-            field.updateOriginalValue(field.getValue());
-        }
-        return field;
-    }
-
-    private TextField<?> createComboBoxField(IManagedInputWidgetDescription inputDescription)
-    {
-        final SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
-        comboBox.setTriggerAction(TriggerAction.ALL);
-        comboBox.setEditable(false);
-        comboBox.setForceSelection(true);
-        if (inputDescription instanceof ManagedComboBoxInputWidgetDescription)
-        {
-            final ManagedComboBoxInputWidgetDescription comboBoxDescription =
-                    (ManagedComboBoxInputWidgetDescription) inputDescription;
-            comboBox.add(comboBoxDescription.getOptions());
-
-            if (inputDescription.getValue() != null)
-            {
-                comboBox.setSimpleValue(inputDescription.getValue());
-                comboBox.updateOriginalValue(comboBox.getValue());
-            }
-            return comboBox;
-        } else
-        {
-            throwFailToCreateContentException("'" + inputDescription.getLabel()
-                    + "' description should be a subclass of ManagedComboBoxInputWidgetDescription");
-            return null;
-        }
-    }
-
-    private void throwFailToCreateContentException(String detailedErrorMsg)
-            throws UserFailureException
-    {
-        throw new UserFailureException("Failed to create content.", detailedErrorMsg);
     }
 
 }

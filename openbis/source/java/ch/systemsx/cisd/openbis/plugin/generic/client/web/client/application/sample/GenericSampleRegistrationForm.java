@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
@@ -27,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -38,9 +40,10 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
 {
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
             final SampleType sampleType, ActionContext actionContext)
     {
-        super(viewContext, actionContext);
+        super(viewContext, inputWidgetDescriptions, actionContext);
         setResetButtonVisible(true);
         this.sampleType = sampleType;
     }

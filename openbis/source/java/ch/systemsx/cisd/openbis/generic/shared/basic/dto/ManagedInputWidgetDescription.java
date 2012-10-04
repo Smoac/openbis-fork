@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 
 /**
@@ -24,6 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidget
 public abstract class ManagedInputWidgetDescription implements IManagedInputWidgetDescription
 {
     private static final long serialVersionUID = 1L;
+
+    private String code;
 
     private String label;
 
@@ -38,6 +42,21 @@ public abstract class ManagedInputWidgetDescription implements IManagedInputWidg
     //
 
     @Override
+    public String getCode()
+    {
+        return code;
+    }
+
+    public void setCode(String code)
+    {
+        if (StringUtils.isBlank(code))
+        {
+            throw new IllegalArgumentException("Code is null or a blank string.");
+        }
+        this.code = code.toUpperCase();
+    }
+
+    @Override
     public String getLabel()
     {
         return label;
@@ -45,7 +64,15 @@ public abstract class ManagedInputWidgetDescription implements IManagedInputWidg
 
     public void setLabel(String label)
     {
+        if (StringUtils.isBlank(label))
+        {
+            throw new IllegalArgumentException("Label is null or a blank string.");
+        }
         this.label = label;
+        if (code == null)
+        {
+            code = label.toUpperCase();
+        }
     }
 
     @Override

@@ -110,9 +110,11 @@ public final class GenericExperimentRegistrationForm extends
 
     @Override
     protected PropertiesEditor<ExperimentType, ExperimentTypePropertyType> createPropertiesEditor(
-            String id, IViewContext<ICommonClientServiceAsync> context)
+            String id, Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+            IViewContext<ICommonClientServiceAsync> context)
     {
-        ExperimentPropertyEditor editor = new ExperimentPropertyEditor(id, context);
+        ExperimentPropertyEditor editor =
+                new ExperimentPropertyEditor(id, inputWidgetDescriptions, context);
         return editor;
     }
 

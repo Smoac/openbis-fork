@@ -17,9 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -27,6 +28,8 @@ import ch.systemsx.cisd.common.evaluator.Evaluator;
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedUiActionDescriptionFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -38,6 +41,30 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
  */
 public class ManagedPropertyEvaluator
 {
+    private static final class UniqunessChecker
+    {
+        private final Set<String> codes = new HashSet<String>();
+
+        private final String type;
+
+        private final String codeName;
+
+        UniqunessChecker(String type, String codeName)
+        {
+            this.type = type;
+            this.codeName = codeName;
+        }
+
+        void check(String code)
+        {
+            if (codes.add(code) == false)
+            {
+                throw new EvaluatorException("There is already " + type + " with " + codeName
+                        + ": " + code);
+            }
+        }
+    }
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ManagedPropertyEvaluator.class);
 
@@ -57,6 +84,11 @@ public class ManagedPropertyEvaluator
     private static final String BATCH_COLUMN_NAMES_FUNCTION = "batchColumnNames";
 
     /**
+     * The name of the function that returns an array of @IManagedInputWidgetDescription.
+     */
+    private static final String INPUT_WIDGETS_FUNCTION = "inputWidgets";
+
+    /**
      * The name of the function that expects a map of bindings.
      */
     private static final String UPDATE_FROM_BATCH_INPUT_FUNCTION = "updateFromBatchInput";
@@ -71,45 +103,101 @@ public class ManagedPropertyEvaluator
 
     private final boolean updateFromBatchFunctionDefined;
 
+    private List<IManagedInputWidgetDescription> inputWidgetDescriptions;
+
     public ManagedPropertyEvaluator(String scriptExpression)
     {
         evaluator = new Evaluator("", ManagedPropertyFunctions.class, scriptExpression);
         updateFromBatchFunctionDefined = evaluator.hasFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION);
-        List<String> names = new ArrayList<String>();
-        if (evaluator.hasFunction(BATCH_COLUMN_NAMES_FUNCTION))
+        boolean batchColumnNamesFunctionDefined =
+                evaluator.hasFunction(BATCH_COLUMN_NAMES_FUNCTION);
+        boolean inputWidgetsFunctionDefined = evaluator.hasFunction(INPUT_WIDGETS_FUNCTION);
+        checkCombinationsOfDefinedFunctions(batchColumnNamesFunctionDefined,
+                inputWidgetsFunctionDefined);
+        columnNames = new ArrayList<String>();
+        inputWidgetDescriptions = new ArrayList<IManagedInputWidgetDescription>();
+        if (inputWidgetsFunctionDefined)
         {
-            if (updateFromBatchFunctionDefined == false)
+            List<?> widgets = evalFunction(INPUT_WIDGETS_FUNCTION);
+            UniqunessChecker uniqunessChecker = new UniqunessChecker("an input widget", "code");
+            for (int i = 0; i < widgets.size(); i++)
             {
-                throw new EvaluatorException("Function '" + BATCH_COLUMN_NAMES_FUNCTION
-                        + "' defined but not '" + UPDATE_FROM_BATCH_INPUT_FUNCTION + "'.");
+                Object widget = widgets.get(i);
+                if (widget == null)
+                {
+                    throw new EvaluatorException("Function " + INPUT_WIDGETS_FUNCTION
+                            + " has returned a list where the " + (i + 1) + ". element is null.");
+                }
+                if (widget instanceof IManagedInputWidgetDescription == false)
+                {
+                    throw new EvaluatorException("Function " + INPUT_WIDGETS_FUNCTION
+                            + " has returned a list where the " + (i + 1)
+                            + ". element isn't of type "
+                            + IManagedInputWidgetDescription.class.getName() + " but "
+                            + widget.getClass().getName() + ".");
+                }
+                IManagedInputWidgetDescription widgetDescription =
+                        (IManagedInputWidgetDescription) widget;
+                inputWidgetDescriptions.add(widgetDescription);
+                if (batchColumnNamesFunctionDefined == false)
+                {
+                    String code = widgetDescription.getCode();
+                    uniqunessChecker.check(code);
+                    columnNames.add(code);
+                }
             }
-            Object result = evaluator.evalFunction(BATCH_COLUMN_NAMES_FUNCTION);
-            if (result instanceof List == false)
-            {
-                throw new EvaluatorException("Function '" + BATCH_COLUMN_NAMES_FUNCTION
-                        + "' doesn't return a List but an object of type '"
-                        + result.getClass().getName() + "': " + result);
-            }
-            List<?> list = (List<?>) result;
-            List<String> notUpperCaseNames = new ArrayList<String>();
+        }
+        if (batchColumnNamesFunctionDefined)
+        {
+            List<?> list = evalFunction(BATCH_COLUMN_NAMES_FUNCTION);
+            UniqunessChecker uniqunessChecker =
+                    new UniqunessChecker("a batch column", "name in uppercase");
+            ManagedUiActionDescriptionFactory descriptionFactory =
+                    new ManagedUiActionDescriptionFactory();
             for (Object element : list)
             {
                 String columnName = element.toString();
-                if (columnName.toUpperCase().equals(columnName) == false)
+                String code = columnName.toUpperCase();
+                uniqunessChecker.check(code);
+                columnNames.add(code);
+                if (inputWidgetsFunctionDefined == false)
                 {
-                    notUpperCaseNames.add(columnName);
+                    inputWidgetDescriptions
+                            .add(descriptionFactory.createTextInputField(columnName));
                 }
-                names.add(columnName);
-            }
-            if (notUpperCaseNames.isEmpty() == false)
-            {
-                throw new EvaluatorException(
-                        "The following batch column names as returned by function '"
-                                + BATCH_COLUMN_NAMES_FUNCTION + "' are not in upper case: "
-                                + notUpperCaseNames);
             }
         }
-        columnNames = Collections.unmodifiableList(names);
+    }
+
+    private void checkCombinationsOfDefinedFunctions(boolean batchColumnNamesFunctionDefined,
+            boolean inputWidgetsFunctionDefined)
+    {
+        if ((batchColumnNamesFunctionDefined || inputWidgetsFunctionDefined)
+                && updateFromBatchFunctionDefined == false)
+        {
+            StringBuilder builder = new StringBuilder("Function ");
+            builder.append(UPDATE_FROM_BATCH_INPUT_FUNCTION);
+            builder.append(" is not defined although function");
+            boolean both = batchColumnNamesFunctionDefined && inputWidgetsFunctionDefined;
+            builder.append(both ? "s " : " ");
+            builder.append(batchColumnNamesFunctionDefined ? BATCH_COLUMN_NAMES_FUNCTION : "");
+            builder.append(both ? " and " : "");
+            builder.append(inputWidgetsFunctionDefined ? INPUT_WIDGETS_FUNCTION : "");
+            builder.append(both ? " are defined." : " is defined.");
+            throw new EvaluatorException(builder.toString());
+        }
+    }
+
+    private List<?> evalFunction(String functionName)
+    {
+        Object result = evaluator.evalFunction(functionName);
+        if (result instanceof List == false)
+        {
+            throw new EvaluatorException("Function '" + functionName
+                    + "' doesn't return a List but an object of type '"
+                    + result.getClass().getName() + "': " + result);
+        }
+        return (List<?>) result;
     }
 
     public void configureUI(IManagedProperty managedProperty, EntityPropertyPE entityPropertyPE)
@@ -140,6 +228,11 @@ public class ManagedPropertyEvaluator
     public List<String> getBatchColumnNames()
     {
         return columnNames;
+    }
+
+    public List<IManagedInputWidgetDescription> getInputWidgetDescriptions()
+    {
+        return inputWidgetDescriptions;
     }
 
     public void updateFromBatchInput(IManagedProperty managedProperty, Map<String, String> bindings)

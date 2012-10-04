@@ -16,19 +16,25 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material;
 
+import java.util.List;
+import java.util.Map;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
 public class MaterialPropertyEditor extends
         PropertiesEditor<MaterialType, MaterialTypePropertyType>
 {
 
-    public MaterialPropertyEditor(String id, IViewContext<ICommonClientServiceAsync> viewContext)
+    public MaterialPropertyEditor(String id,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+            IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(id, viewContext);
+        super(id, inputWidgetDescriptions, viewContext);
     }
 
 }

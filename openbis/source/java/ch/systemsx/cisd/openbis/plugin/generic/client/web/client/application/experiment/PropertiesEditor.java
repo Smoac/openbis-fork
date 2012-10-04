@@ -20,10 +20,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -39,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 
 /**
  * @author Izabela Adamczyk
@@ -54,6 +59,8 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
+    private final Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions;
+
     protected IEntityProperty createEntityProperty()
     {
         return new EntityProperty();
@@ -62,9 +69,12 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
     /**
      * Requires initial values of properties.
      */
-    protected PropertiesEditor(String id, IViewContext<ICommonClientServiceAsync> viewContext)
+    protected PropertiesEditor(String id,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+            IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.id = id;
+        this.inputWidgetDescriptions = inputWidgetDescriptions;
         this.viewContext = viewContext;
     }
 
@@ -129,13 +139,20 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         assert viewContext != null;
         final DatabaseModificationAwareField<?> field;
         final boolean isMandatory = etpt.isMandatory();
-        final String label =
-                PropertyTypeRenderer.getDisplayName(etpt.getPropertyType(), propertyTypes);
-        final String propertyTypeCode = etpt.getPropertyType().getCode();
-        boolean isManaged = etpt.isManaged();
-        field =
-                PropertyFieldFactory.createField(etpt.getPropertyType(), isMandatory, label,
-                        createFormFieldId(getId(), propertyTypeCode), value, viewContext);
+        PropertyType propertyType = etpt.getPropertyType();
+        final String label = PropertyTypeRenderer.getDisplayName(propertyType, propertyTypes);
+        final String propertyTypeCode = propertyType.getCode();
+        List<IManagedInputWidgetDescription> widgetDescriptions =
+                inputWidgetDescriptions.get(propertyTypeCode);
+        if (widgetDescriptions != null && widgetDescriptions.isEmpty() == false)
+        {
+            field = createManagedPropertySection(label, isMandatory, widgetDescriptions);
+        } else
+        {
+            field =
+                    PropertyFieldFactory.createField(propertyType, isMandatory, label,
+                            createFormFieldId(getId(), propertyTypeCode), value, viewContext);
+        }
         field.get().setData(ETPT, etpt);
         GWTUtils.setToolTip(field.get(), propertyTypeCode);
         // Hide any properties that are not to be shown in edit/update views (unless in debugging
@@ -145,6 +162,13 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
             FieldUtil.setVisibility(false, field.get());
         }
         return field;
+    }
+
+    private DatabaseModificationAwareField<?> createManagedPropertySection(String label,
+            boolean isMandatory, List<IManagedInputWidgetDescription> widgetDescriptions)
+    {
+        return DatabaseModificationAwareField.wrapUnaware(new ManagedPropertyField(viewContext,
+                label, isMandatory, widgetDescriptions));
     }
 
     private boolean isDebuggingModeEnabled()
@@ -177,8 +201,27 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
             if (etpt != null)
             {
                 final IEntityProperty entityProperty = createEntityProperty();
-                entityProperty.setValue(PropertyFieldFactory.valueToString(value));
-                entityProperty.setPropertyType(etpt.getPropertyType());
+                PropertyType propertyType = etpt.getPropertyType();
+                String valueAsString = PropertyFieldFactory.valueToString(value);
+                if (inputWidgetDescriptions.get(propertyType.getCode()) != null)
+                {
+                    JSONArray jsonArray = new JSONArray();
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, String>> rows = (List<Map<String, String>>) value;
+                    for (int i = 0; i < rows.size(); i++)
+                    {
+                        Map<String, String> row = rows.get(i);
+                        JSONObject jsonObject = new JSONObject();
+                        for (Entry<String, String> entry : row.entrySet())
+                        {
+                            jsonObject.put(entry.getKey(), new JSONString(entry.getValue()));
+                        }
+                        jsonArray.set(i, jsonObject);
+                    }
+                    valueAsString = jsonArray.toString();
+                }
+                entityProperty.setValue(valueAsString);
+                entityProperty.setPropertyType(propertyType);
                 properties.add(entityProperty);
             }
         }
@@ -227,7 +270,21 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
                 currentSectionFieldSet.add(field.get());
             } else
             {
-                form.add(field.get());
+                if (field.get() instanceof ManagedPropertyField)
+                {
+                    PropertyType propertyType = etpt.getPropertyType();
+                    String label = propertyType.getLabel();
+                    if (etpt.isMandatory())
+                    {
+                        label += " *";
+                    }
+                    FieldSet fieldSet = createSectionFieldSet(label);
+                    fieldSet.add(((ManagedPropertyField) field.get()).getWidget());
+                    form.add(fieldSet);
+                } else
+                {
+                    form.add(field.get());
+                }
             }
 
             previousSection = currentSection;
@@ -241,13 +298,13 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
 
     private FieldSet createSectionFieldSet(String sectionName)
     {
-        return new PropertiesSectionFileSet(sectionName);
+        return new PropertiesSectionFieldSet(sectionName);
     }
 
-    private static final class PropertiesSectionFileSet extends FieldSet
+    private static final class PropertiesSectionFieldSet extends FieldSet
     {
 
-        public PropertiesSectionFileSet(final String sectionName)
+        public PropertiesSectionFieldSet(final String sectionName)
         {
             createForm(sectionName);
         }

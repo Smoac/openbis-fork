@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.application.fra
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -62,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
@@ -107,16 +109,19 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     private Button saveUploadButton;
 
     protected AbstractGenericSampleRegisterEditForm(
-            IViewContext<IGenericClientServiceAsync> viewContext, ActionContext actionContext)
+            IViewContext<IGenericClientServiceAsync> viewContext,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+            ActionContext actionContext)
     {
-        this(viewContext, actionContext, null);
+        this(viewContext, inputWidgetDescriptions, actionContext, null);
     }
 
     protected AbstractGenericSampleRegisterEditForm(
-            IViewContext<IGenericClientServiceAsync> viewContext, ActionContext actionContext,
-            IIdAndCodeHolder identifiable)
+            IViewContext<IGenericClientServiceAsync> viewContext,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+            ActionContext actionContext, IIdAndCodeHolder identifiable)
     {
-        super(viewContext, identifiable, EntityKind.SAMPLE);
+        super(viewContext, inputWidgetDescriptions, identifiable, EntityKind.SAMPLE);
         this.simpleId = createSimpleId(identifiable, EntityKind.SAMPLE);
         this.attachmentsSessionKey = simpleId + "_attachments";
         List<String> sesionKeys = new ArrayList<String>();
@@ -252,9 +257,11 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     @Override
     protected PropertiesEditor<SampleType, SampleTypePropertyType> createPropertiesEditor(
-            String id, IViewContext<ICommonClientServiceAsync> context)
+            String id, Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+            IViewContext<ICommonClientServiceAsync> context)
     {
-        SamplePropertyEditor editor = new SamplePropertyEditor(id, context);
+        SamplePropertyEditor editor =
+                new SamplePropertyEditor(id, inputWidgetDescriptions, context);
         return editor;
     }
 

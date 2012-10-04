@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ma
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -31,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
@@ -57,7 +59,7 @@ public final class GenericMaterialEditForm extends
     private GenericMaterialEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
             IIdAndCodeHolder identifiable, boolean editMode)
     {
-        super(viewContext, identifiable, EntityKind.MATERIAL);
+        super(viewContext, null, identifiable, EntityKind.MATERIAL);
         setRevertButtonVisible(true);
     }
 
@@ -100,9 +102,11 @@ public final class GenericMaterialEditForm extends
 
     @Override
     protected PropertiesEditor<MaterialType, MaterialTypePropertyType> createPropertiesEditor(
-            String id, IViewContext<ICommonClientServiceAsync> context)
+            String id, Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+            IViewContext<ICommonClientServiceAsync> context)
     {
-        MaterialPropertyEditor editor = new MaterialPropertyEditor(id, context);
+        MaterialPropertyEditor editor =
+                new MaterialPropertyEditor(id, inputWidgetDescriptions, context);
         return editor;
     }
 

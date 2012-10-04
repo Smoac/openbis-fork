@@ -16,19 +16,24 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import java.util.List;
+import java.util.Map;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
-public class SamplePropertyEditor extends
-        PropertiesEditor<SampleType, SampleTypePropertyType>
+public class SamplePropertyEditor extends PropertiesEditor<SampleType, SampleTypePropertyType>
 {
 
-    public SamplePropertyEditor(String id, IViewContext<ICommonClientServiceAsync> viewContext)
+    public SamplePropertyEditor(String id,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+            IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(id, viewContext);
+        super(id, inputWidgetDescriptions, viewContext);
     }
 
 }

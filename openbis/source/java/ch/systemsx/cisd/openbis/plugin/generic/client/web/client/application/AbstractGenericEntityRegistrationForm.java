@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -40,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
@@ -68,6 +71,8 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
 
     protected PropertiesEditor<T, S> propertiesEditor;
 
+    private final Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions;
+
     // ---------------------------------------------------------------------------------------------
     // Constructors
     // ---------------------------------------------------------------------------------------------
@@ -76,11 +81,16 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
      */
     protected AbstractGenericEntityRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptionsOrNull,
             IIdAndCodeHolder identifiableOrNull, EntityKind entityKind)
     {
         super(viewContext, createId(identifiableOrNull, entityKind), DEFAULT_LABEL_WIDTH + 20,
                 DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
+        this.inputWidgetDescriptions =
+                inputWidgetDescriptionsOrNull == null ? Collections
+                        .<String, List<IManagedInputWidgetDescription>> emptyMap()
+                        : inputWidgetDescriptionsOrNull;
         this.entityKind = entityKind;
         this.techIdOrNull = TechId.create(identifiableOrNull);
     }
@@ -89,9 +99,11 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
      * For registering new entity.
      */
     protected AbstractGenericEntityRegistrationForm(
-            final IViewContext<IGenericClientServiceAsync> viewContext, EntityKind entityKind)
+            final IViewContext<IGenericClientServiceAsync> viewContext,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+            EntityKind entityKind)
     {
-        this(viewContext, null, entityKind);
+        this(viewContext, inputWidgetDescriptions, null, entityKind);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -176,7 +188,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     private final void createCommonFormFields()
     {
         propertiesEditor =
-                createPropertiesEditor(createId(techIdOrNull, entityKind),
+                createPropertiesEditor(createId(techIdOrNull, entityKind), inputWidgetDescriptions,
                         viewContext.getCommonViewContext());
         codeField =
                 new CodeFieldWithGenerator(viewContext, viewContext.getMessage(Dict.CODE),
@@ -311,6 +323,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
      * Returns the {@link PropertiesEditor} to be used for .
      */
     abstract protected PropertiesEditor<T, S> createPropertiesEditor(String string,
+            Map<String, List<IManagedInputWidgetDescription>> widgetDescriptions,
             IViewContext<ICommonClientServiceAsync> context);
 
 }

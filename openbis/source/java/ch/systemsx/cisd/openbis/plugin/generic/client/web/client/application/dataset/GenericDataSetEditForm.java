@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.application.fra
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -63,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
@@ -108,7 +110,7 @@ public final class GenericDataSetEditForm extends
     private GenericDataSetEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
             IIdAndCodeHolder identifiable)
     {
-        super(viewContext, identifiable, EntityKind.DATA_SET);
+        super(viewContext, null, identifiable, EntityKind.DATA_SET);
         setRevertButtonVisible(true);
         simpleId = createSimpleId(identifiable, EntityKind.DATA_SET);
     }
@@ -202,9 +204,11 @@ public final class GenericDataSetEditForm extends
 
     @Override
     protected PropertiesEditor<DataSetType, DataSetTypePropertyType> createPropertiesEditor(
-            String id, IViewContext<ICommonClientServiceAsync> context)
+            String id, Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+            IViewContext<ICommonClientServiceAsync> context)
     {
-        DataSetPropertyEditor editor = new DataSetPropertyEditor(id, context);
+        DataSetPropertyEditor editor =
+                new DataSetPropertyEditor(id, inputWidgetDescriptions, context);
         return editor;
     }
 

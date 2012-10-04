@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.application.wizard;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -42,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.AbstractGenericSampleRegisterEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.SamplePropertyEditor;
 import ch.systemsx.cisd.openbis.plugin.proteomics.client.web.client.IPhosphoNetXClientServiceAsync;
@@ -62,6 +65,9 @@ public class BiologicalSampleCreatingPage extends WizardPage<MsInjectionSampleAn
     private SpaceSelectionWidget spaceSelectionWidget;
     private SamplePropertyEditor samplePropertyEditor;
     private ExperimentChooserFieldAdaptor experimentField;
+
+    private Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions = Collections
+            .<String, List<IManagedInputWidgetDescription>> emptyMap();
 
     public BiologicalSampleCreatingPage(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             MsInjectionSampleAnnotationModel model)
@@ -134,7 +140,9 @@ public class BiologicalSampleCreatingPage extends WizardPage<MsInjectionSampleAn
                 viewContext.getCommonViewContext());
         formPanel.add(experimentField.getChooserField());
 
-        samplePropertyEditor = new SamplePropertyEditor("bio-s", viewContext.getCommonViewContext());
+        samplePropertyEditor =
+                new SamplePropertyEditor("bio-s", inputWidgetDescriptions,
+                        viewContext.getCommonViewContext());
         samplePropertyEditor.initWithoutProperties(types);
         samplePropertyEditor.addPropertyFieldsWithFieldsetToPanel(formPanel);
         formPanel.layout();

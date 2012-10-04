@@ -198,7 +198,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTextInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedUiActionDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -619,9 +618,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         List<? extends EntityTypePropertyType<?>> assignedPropertyTypes =
                 entityType.getAssignedPropertyTypes();
-        HashMap<String, List<IManagedInputWidgetDescription>> result =
+        return listManagedInputWidgetDescriptions(assignedPropertyTypes);
+    }
+
+    private Map<String, List<IManagedInputWidgetDescription>> listManagedInputWidgetDescriptions(
+            List<? extends EntityTypePropertyType<?>> propertyTypes)
+    {
+        Map<String, List<IManagedInputWidgetDescription>> result =
                 new HashMap<String, List<IManagedInputWidgetDescription>>();
-        for (EntityTypePropertyType<?> entityTypePropertyType : assignedPropertyTypes)
+        for (EntityTypePropertyType<?> entityTypePropertyType : propertyTypes)
         {
             String propertyTypeCode = entityTypePropertyType.getPropertyType().getCode();
             if (entityTypePropertyType.isManaged())
@@ -629,22 +634,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 String script = entityTypePropertyType.getScript().getScript();
                 ManagedPropertyEvaluator evaluator =
                         ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script);
-                List<String> batchColumnNames = evaluator.getBatchColumnNames();
-                if (batchColumnNames.isEmpty() == false)
+                List<IManagedInputWidgetDescription> inputWidgetDescriptions =
+                        evaluator.getInputWidgetDescriptions();
+                if (inputWidgetDescriptions.isEmpty() == false)
                 {
-                    List<IManagedInputWidgetDescription> descriptions =
-                            new ArrayList<IManagedInputWidgetDescription>();
-                    for (String batchColumnName : batchColumnNames)
-                    {
-                        ManagedTextInputWidgetDescription description =
-                                new ManagedTextInputWidgetDescription();
-                        description.setLabel(batchColumnName);
-                        descriptions.add(description);
-                    }
-                    result.put(propertyTypeCode, descriptions);
+                    result.put(propertyTypeCode, inputWidgetDescriptions);
                 }
             }
-
         }
         return result;
     }

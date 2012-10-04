@@ -16,19 +16,24 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
+import java.util.List;
+import java.util.Map;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
 
-public class DataSetPropertyEditor extends
-        PropertiesEditor<DataSetType, DataSetTypePropertyType>
+public class DataSetPropertyEditor extends PropertiesEditor<DataSetType, DataSetTypePropertyType>
 {
 
-    public DataSetPropertyEditor(String id, IViewContext<ICommonClientServiceAsync> viewContext)
+    public DataSetPropertyEditor(String id,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+            IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(id, viewContext);
+        super(id, inputWidgetDescriptions, viewContext);
     }
 
 }

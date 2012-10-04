@@ -26,6 +26,10 @@ import java.io.Serializable;
 // NOTE: All methods of this interface are part of the Managed Properties API.
 public interface IManagedInputWidgetDescription extends Serializable
 {
+    /**
+     * Returns the code of this input field.
+     */
+    String getCode();
 
     /**
      * @return label of this input field

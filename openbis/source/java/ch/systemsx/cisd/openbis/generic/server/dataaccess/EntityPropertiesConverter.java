@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -28,7 +29,10 @@ import java.util.Set;
 
 import org.hibernate.Session;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationStrategy;
@@ -38,7 +42,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFacto
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -50,6 +56,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 
 /**
  * The unique {@link IEntityPropertiesConverter} implementation.
@@ -63,6 +71,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public final class EntityPropertiesConverter implements IEntityPropertiesConverter
 {
+    private static final IKeyExtractor<PropertyTypePE, ExtendedEntityTypePropertyType> EXTENDED_ETPT_KEY_EXTRACTOR =
+            new IKeyExtractor<PropertyTypePE, ExtendedEntityTypePropertyType>()
+                {
+                    @Override
+                    public PropertyTypePE getKey(ExtendedEntityTypePropertyType etpt)
+                    {
+                        return etpt.getEntityTypePropertyTypePE().getPropertyType();
+                    }
+                };
 
     private static final String NO_ENTITY_PROPERTY_VALUE_FOR_S =
             "Value of mandatory property '%s' not specified.";
@@ -83,8 +100,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             new TableMap<String, PropertyTypePE>(
                     KeyExtractorFactory.getPropertyTypeByCodeKeyExtractor());
 
-    private Map<String /* Entity type code */, TableMap<PropertyTypePE, EntityTypePropertyTypePE>> entityTypePropertyTypesByEntityTypeAndPropertyType =
-            new HashMap<String, TableMap<PropertyTypePE, EntityTypePropertyTypePE>>();
+    private Map<String /* Entity type code */, TableMap<PropertyTypePE, ExtendedEntityTypePropertyType>> entityTypePropertyTypesByEntityTypeAndPropertyType =
+            new HashMap<String, TableMap<PropertyTypePE, ExtendedEntityTypePropertyType>>();
 
     private final ComplexPropertyValueHelper complexPropertyValueHelper;
 
@@ -189,26 +206,24 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return propertyType;
     }
 
-    private final EntityTypePropertyTypePE getEntityTypePropertyType(
+    private final ExtendedEntityTypePropertyType getEntityTypePropertyType(
             final EntityTypePE entityTypePE, final PropertyTypePE propertyType)
     {
         String entityTypeCode = entityTypePE.getCode();
-        TableMap<PropertyTypePE, EntityTypePropertyTypePE> map =
+        TableMap<PropertyTypePE, ExtendedEntityTypePropertyType> map =
                 entityTypePropertyTypesByEntityTypeAndPropertyType.get(entityTypeCode);
         if (map == null)
         {
-            IEntityPropertyTypeDAO entityPropertyTypeDAO =
-                    daoFactory.getEntityPropertyTypeDAO(entityKind);
-            List<EntityTypePropertyTypePE> entityPropertyTypes =
-                    entityPropertyTypeDAO.listEntityPropertyTypes(entityTypePE);
+            List<ExtendedEntityTypePropertyType> entityTypePropertyTypes =
+                    getEntityTypePropertyTypes(entityTypePE);
             map =
-                    new TableMap<PropertyTypePE, EntityTypePropertyTypePE>(entityPropertyTypes,
-                            EntityTypePropertyTypeByPropertyTypeKeyExtractor.INSTANCE,
+                    new TableMap<PropertyTypePE, ExtendedEntityTypePropertyType>(
+                            entityTypePropertyTypes, EXTENDED_ETPT_KEY_EXTRACTOR,
                             UniqueKeyViolationStrategy.KEEP_FIRST);
             entityTypePropertyTypesByEntityTypeAndPropertyType.put(entityTypeCode, map);
         }
 
-        final EntityTypePropertyTypePE entityTypePropertyType = map.tryGet(propertyType);
+        final ExtendedEntityTypePropertyType entityTypePropertyType = map.tryGet(propertyType);
 
         if (entityTypePropertyType == null)
         {
@@ -219,14 +234,32 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return entityTypePropertyType;
     }
 
+    private List<ExtendedEntityTypePropertyType> getEntityTypePropertyTypes(
+            EntityTypePE entityTypePE)
+    {
+        IEntityPropertyTypeDAO entityPropertyTypeDAO =
+                daoFactory.getEntityPropertyTypeDAO(entityKind);
+        List<EntityTypePropertyTypePE> entityPropertyTypes =
+                entityPropertyTypeDAO.listEntityPropertyTypes(entityTypePE);
+        List<ExtendedEntityTypePropertyType> result =
+                new ArrayList<ExtendedEntityTypePropertyType>();
+        for (EntityTypePropertyTypePE entityTypePropertyTypePE : entityPropertyTypes)
+        {
+            result.add(new ExtendedEntityTypePropertyType(entityTypePropertyTypePE));
+        }
+        return result;
+    }
+
     private final <T extends EntityPropertyPE> T tryConvertProperty(final PersonPE registrator,
             final EntityTypePE entityTypePE, final IEntityProperty property)
     {
         final String propertyCode = property.getPropertyType().getCode();
         final PropertyTypePE propertyType = getPropertyType(propertyCode);
         final String valueOrNull = property.tryGetAsString();
-        final EntityTypePropertyTypePE entityTypePropertyTypePE =
+        ExtendedEntityTypePropertyType extendedETPT =
                 getEntityTypePropertyType(entityTypePE, propertyType);
+        final EntityTypePropertyTypePE entityTypePropertyTypePE =
+                extendedETPT.getEntityTypePropertyTypePE();
         if (entityTypePropertyTypePE.isMandatory() && valueOrNull == null)
         {
             throw UserFailureException.fromTemplate(NO_ENTITY_PROPERTY_VALUE_FOR_S, propertyCode);
@@ -235,8 +268,9 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         {
             final String validated =
                     propertyValueValidator.validatePropertyValue(propertyType, valueOrNull);
+
             return createEntityProperty(registrator, propertyType, entityTypePropertyTypePE,
-                    validated);
+                    extendedETPT.translate(validated));
         }
         return null;
     }
@@ -517,27 +551,60 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     // Helper classes
     //
 
-    private final static class EntityTypePropertyTypeByPropertyTypeKeyExtractor implements
-            IKeyExtractor<PropertyTypePE, EntityTypePropertyTypePE>
+    private static final class ExtendedEntityTypePropertyType
     {
+        private final EntityTypePropertyTypePE entityTypePropertyTypePE;
 
-        static final EntityTypePropertyTypeByPropertyTypeKeyExtractor INSTANCE =
-                new EntityTypePropertyTypeByPropertyTypeKeyExtractor();
+        private final List<IManagedInputWidgetDescription> inputWidgetDescriptions;
 
-        private EntityTypePropertyTypeByPropertyTypeKeyExtractor()
+        private ManagedPropertyEvaluator evaluator;
+
+        ExtendedEntityTypePropertyType(EntityTypePropertyTypePE entityTypePropertyTypePE)
         {
-            // Can not be instantiated.
+            this.entityTypePropertyTypePE = entityTypePropertyTypePE;
+            if (entityTypePropertyTypePE.isManaged())
+            {
+                String script = entityTypePropertyTypePE.getScript().getScript();
+                evaluator = ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script);
+                inputWidgetDescriptions = evaluator.getInputWidgetDescriptions();
+            } else
+            {
+                inputWidgetDescriptions = Collections.emptyList();
+            }
         }
 
-        //
-        // IKeyExtractor
-        //
-
-        @Override
-        public final PropertyTypePE getKey(final EntityTypePropertyTypePE e)
+        public EntityTypePropertyTypePE getEntityTypePropertyTypePE()
         {
-            return e.getPropertyType();
+            return entityTypePropertyTypePE;
         }
+
+        @SuppressWarnings("unchecked")
+        String translate(String propertyValue)
+        {
+            if (inputWidgetDescriptions.isEmpty() || propertyValue == null
+                    || propertyValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
+            {
+                return propertyValue;
+            }
+            try
+            {
+                List<?> readValue = new ObjectMapper().readValue(propertyValue, List.class);
+                ManagedProperty managedProperty = new ManagedProperty();
+                for (Object row : readValue)
+                {
+                    if (row instanceof Map == false)
+                    {
+                        continue;
+                    }
+                    evaluator.updateFromBatchInput(managedProperty, (Map<String, String>) row);
+                }
+                return managedProperty.getValue();
+            } catch (Exception ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+
     }
 
     public interface IHibernateSessionProvider

@@ -16,18 +16,24 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import java.util.List;
+import java.util.Map;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 
 public class ExperimentPropertyEditor extends
         PropertiesEditor<ExperimentType, ExperimentTypePropertyType>
 {
 
-    public ExperimentPropertyEditor(String id, IViewContext<ICommonClientServiceAsync> viewContext)
+    public ExperimentPropertyEditor(String id,
+            Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+            IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(id, viewContext);
+        super(id, inputWidgetDescriptions, viewContext);
     }
 
 }

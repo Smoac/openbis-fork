@@ -99,8 +99,6 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
 
     private LabelField templateField;
 
-    private final Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions;
-
     protected AbstractGenericExperimentRegisterEditForm(
             IViewContext<IGenericClientServiceAsync> viewContext,
             Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
@@ -114,9 +112,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
             Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
             ActionContext actionContext, IIdAndCodeHolder identifiable)
     {
-        super(viewContext, identifiable, EntityKind.EXPERIMENT);
-
-        this.inputWidgetDescriptions = inputWidgetDescriptions;
+        super(viewContext, inputWidgetDescriptions, identifiable, EntityKind.EXPERIMENT);
         simpleId = createSimpleId(identifiable, EntityKind.EXPERIMENT);
         attachmentsSessionKey = simpleId + "_attachments";
         samplesSessionKey = simpleId + "_samples";
@@ -179,9 +175,11 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
 
     @Override
     protected PropertiesEditor<ExperimentType, ExperimentTypePropertyType> createPropertiesEditor(
-            String id, IViewContext<ICommonClientServiceAsync> context)
+            String id, Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
+            IViewContext<ICommonClientServiceAsync> context)
     {
-        ExperimentPropertyEditor editor = new ExperimentPropertyEditor(id, context);
+        ExperimentPropertyEditor editor =
+                new ExperimentPropertyEditor(id, inputWidgetDescriptions, context);
         return editor;
     }
 

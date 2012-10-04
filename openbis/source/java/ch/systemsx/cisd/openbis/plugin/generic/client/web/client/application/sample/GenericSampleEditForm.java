@@ -57,7 +57,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
     private GenericSampleEditForm(IViewContext<IGenericClientServiceAsync> viewContext,
             IIdAndCodeHolder identifiable)
     {
-        super(viewContext, new ActionContext(), identifiable);
+        super(viewContext, null, new ActionContext(), identifiable);
         setRevertButtonVisible(true);
     }
 
