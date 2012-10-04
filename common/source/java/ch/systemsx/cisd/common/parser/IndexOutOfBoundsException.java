@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.parser;
 
 import ch.systemsx.cisd.common.collections.CollectionStyle;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.utilities.StringUtilities;
+import ch.systemsx.cisd.common.string.StringUtilities;
 
 /**
  * A <code>ParserException</code> extension which signalizes a lookup index outside of the

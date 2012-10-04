@@ -69,8 +69,8 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.parser.Line;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
-import ch.systemsx.cisd.common.utilities.StringUtilities;
-import ch.systemsx.cisd.common.utilities.StringUtilities.IUniquenessChecker;
+import ch.systemsx.cisd.common.string.StringUtilities;
+import ch.systemsx.cisd.common.string.StringUtilities.IUniquenessChecker;
 
 /**
  * Some useful utility methods for files and directories.

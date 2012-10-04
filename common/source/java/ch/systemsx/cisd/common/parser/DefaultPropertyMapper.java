@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
-import ch.systemsx.cisd.common.utilities.StringUtilities;
+import ch.systemsx.cisd.common.string.StringUtilities;
 
 /**
  * A default <code>IPropertyMapper</code> implementation.

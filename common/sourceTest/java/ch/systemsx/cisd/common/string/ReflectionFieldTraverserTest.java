@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.string;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -29,7 +29,8 @@ import java.util.TreeSet;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.utilities.ReflectionStringTraverser.ReflectionFieldVisitor;
+import ch.systemsx.cisd.common.string.ReflectionStringTraverser;
+import ch.systemsx.cisd.common.string.ReflectionStringTraverser.ReflectionFieldVisitor;
 
 /**
  * Tests for {@link ReflectionStringTraverser}

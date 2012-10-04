@@ -28,7 +28,7 @@ import org.springframework.aop.support.StaticMethodMatcherPointcut;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
+import ch.systemsx.cisd.common.string.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
 

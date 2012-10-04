@@ -44,7 +44,7 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.Message;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.StringUtilities;
+import ch.systemsx.cisd.common.string.StringUtilities;
 
 /**
  * Servlet for uploading file into Cifex.

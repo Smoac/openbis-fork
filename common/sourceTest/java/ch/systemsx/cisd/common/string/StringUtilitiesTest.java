@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.string;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
@@ -25,7 +25,8 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.utilities.StringUtilities.IUniquenessChecker;
+import ch.systemsx.cisd.common.string.StringUtilities;
+import ch.systemsx.cisd.common.string.StringUtilities.IUniquenessChecker;
 
 /**
  * Test cases for the {@link StringUtilities}.

@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.string;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.string.ReflectingStringEscaper;
+import ch.systemsx.cisd.common.string.ReflectingStringUnescaper;
 
 /**
  * @author Piotr Buczek

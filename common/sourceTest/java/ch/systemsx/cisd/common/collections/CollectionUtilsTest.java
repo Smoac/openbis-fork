@@ -26,7 +26,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.utilities.StringUtilities;
+import ch.systemsx.cisd.common.string.StringUtilities;
 
 /**
  * Test cases for the {@link CollectionUtils} class.

@@ -26,8 +26,8 @@ import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.string.StringUtilities;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
-import ch.systemsx.cisd.common.utilities.StringUtilities;
 import ch.systemsx.cisd.common.utilities.SystemExit;
 
 /**

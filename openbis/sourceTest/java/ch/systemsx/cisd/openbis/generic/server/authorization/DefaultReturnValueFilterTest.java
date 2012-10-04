@@ -40,8 +40,8 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.string.StringUtilities;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
-import ch.systemsx.cisd.common.utilities.StringUtilities;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 

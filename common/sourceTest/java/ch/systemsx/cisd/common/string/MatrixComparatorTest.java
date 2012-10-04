@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.string;
 
 import java.util.Arrays;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.string.MatrixComparator;
 
 /**
  * Test cases for the {@link MatrixComparator}.

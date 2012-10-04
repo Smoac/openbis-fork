@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.string;
 
 import java.io.Serializable;
 import java.util.Comparator;
+
 
 /**
  * A <code>Comparator</code> implementation that is based on matrix labelling having the following
