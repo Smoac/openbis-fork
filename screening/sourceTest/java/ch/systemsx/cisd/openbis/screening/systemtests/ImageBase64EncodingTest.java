@@ -40,7 +40,7 @@ import com.googlecode.jsonrpc4j.Base64;
 import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
 import com.googlecode.jsonrpc4j.ProxyUtil;
 
-import ch.systemsx.cisd.common.collections.Modifiable;
+import ch.systemsx.cisd.common.collections.IModifiable;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
@@ -178,7 +178,7 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
         return 6000;
     }
     
-    private static class PlateImageReferenceList extends ArrayList<PlateImageReference> implements Modifiable
+    private static class PlateImageReferenceList extends ArrayList<PlateImageReference> implements IModifiable
     {
 
         private static final long serialVersionUID = 1845499753563383092L;

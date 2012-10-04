@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.FilteredList;
-import ch.systemsx.cisd.common.collections.Modifiable;
+import ch.systemsx.cisd.common.collections.IModifiable;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
@@ -113,7 +113,7 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
 
         final List<T> list;
 
-        if (returnValue instanceof Modifiable)
+        if (returnValue instanceof IModifiable)
         {
             list = returnValue;
         } else

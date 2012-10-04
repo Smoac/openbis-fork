@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
-import ch.systemsx.cisd.common.collections.Modifiable;
+import ch.systemsx.cisd.common.collections.IModifiable;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
@@ -328,7 +328,7 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
      */
 
     private static class FeatureInformationList extends ArrayList<FeatureInformation> implements
-            Modifiable
+            IModifiable
     {
         private static final long serialVersionUID = 1L;
 
@@ -339,7 +339,7 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     }
 
     private static class FeatureVectorDatasetList extends ArrayList<FeatureVectorDataset> implements
-            Modifiable
+            IModifiable
     {
         private static final long serialVersionUID = 1L;
 
@@ -350,7 +350,7 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     }
 
     private static class FeatureVectorWithDescriptionList extends
-            ArrayList<FeatureVectorWithDescription> implements Modifiable
+            ArrayList<FeatureVectorWithDescription> implements IModifiable
     {
         private static final long serialVersionUID = 1L;
 
@@ -361,7 +361,7 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     }
 
     private static class PlateImageReferenceList extends ArrayList<PlateImageReference> implements
-            Modifiable
+            IModifiable
     {
         private static final long serialVersionUID = 1L;
 
@@ -372,7 +372,7 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     }
 
     private static class MicroscopyImageReferenceList extends ArrayList<MicroscopyImageReference>
-            implements Modifiable
+            implements IModifiable
     {
         private static final long serialVersionUID = 1L;
 
@@ -383,7 +383,7 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     }
 
     private static class ImageDatasetMetadataList extends ArrayList<ImageDatasetMetadata> implements
-            Modifiable
+            IModifiable
     {
         private static final long serialVersionUID = 1L;
 
@@ -394,7 +394,7 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     }
 
     private static class DatasetImageRepresentationFormatsList extends
-            ArrayList<DatasetImageRepresentationFormats> implements Modifiable
+            ArrayList<DatasetImageRepresentationFormats> implements IModifiable
     {
         private static final long serialVersionUID = 1L;
 

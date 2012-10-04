@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import ch.systemsx.cisd.common.collections.Modifiable;
+import ch.systemsx.cisd.common.collections.IModifiable;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
@@ -206,7 +206,7 @@ public class ScreeningServerJson implements IScreeningApiServer
      */
 
     private static class FeatureVectorDatasetReferenceList extends
-            ArrayList<FeatureVectorDatasetReference> implements Modifiable
+            ArrayList<FeatureVectorDatasetReference> implements IModifiable
     {
         private static final long serialVersionUID = 1L;
 
@@ -217,7 +217,7 @@ public class ScreeningServerJson implements IScreeningApiServer
         }
     }
 
-    private static class PlateList extends ArrayList<Plate> implements Modifiable
+    private static class PlateList extends ArrayList<Plate> implements IModifiable
     {
         private static final long serialVersionUID = 1L;
 
@@ -227,7 +227,7 @@ public class ScreeningServerJson implements IScreeningApiServer
         }
     }
 
-    private static class PlateMetadataList extends ArrayList<PlateMetadata> implements Modifiable
+    private static class PlateMetadataList extends ArrayList<PlateMetadata> implements IModifiable
     {
         private static final long serialVersionUID = 1L;
 
@@ -238,7 +238,7 @@ public class ScreeningServerJson implements IScreeningApiServer
     }
 
     private static class ExperimentIdentifierList extends ArrayList<ExperimentIdentifier> implements
-            Modifiable
+            IModifiable
     {
         private static final long serialVersionUID = 1L;
 
@@ -249,7 +249,7 @@ public class ScreeningServerJson implements IScreeningApiServer
     }
 
     private static class ImageDatasetReferenceList extends ArrayList<ImageDatasetReference>
-            implements Modifiable
+            implements IModifiable
     {
         private static final long serialVersionUID = 1L;
 
@@ -260,7 +260,7 @@ public class ScreeningServerJson implements IScreeningApiServer
     }
 
     private static class IDatasetIdentifierList extends ArrayList<IDatasetIdentifier> implements
-            Modifiable
+            IModifiable
     {
         private static final long serialVersionUID = 1L;
 
@@ -271,7 +271,7 @@ public class ScreeningServerJson implements IScreeningApiServer
     }
 
     private static class PlateWellReferenceWithDatasetsList extends
-            ArrayList<PlateWellReferenceWithDatasets> implements Modifiable
+            ArrayList<PlateWellReferenceWithDatasets> implements IModifiable
     {
         private static final long serialVersionUID = 1L;
 
@@ -282,7 +282,7 @@ public class ScreeningServerJson implements IScreeningApiServer
         }
     }
 
-    private static class WellIdentifierList extends ArrayList<WellIdentifier> implements Modifiable
+    private static class WellIdentifierList extends ArrayList<WellIdentifier> implements IModifiable
     {
         private static final long serialVersionUID = 1L;
 
@@ -293,7 +293,7 @@ public class ScreeningServerJson implements IScreeningApiServer
     }
 
     private static class PlateWellMaterialMappingList extends ArrayList<PlateWellMaterialMapping>
-            implements Modifiable
+            implements IModifiable
     {
         private static final long serialVersionUID = 1L;
 

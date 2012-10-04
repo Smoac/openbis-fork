@@ -21,7 +21,7 @@ package ch.systemsx.cisd.common.collections;
  * 
  * @author pkupczyk
  */
-public interface Modifiable
+public interface IModifiable
 {
 
 }
