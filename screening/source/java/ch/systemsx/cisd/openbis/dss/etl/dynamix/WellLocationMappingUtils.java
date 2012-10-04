@@ -24,7 +24,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.common.parser.TabFileLoader;
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.common.reflection.AbstractHashable;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**

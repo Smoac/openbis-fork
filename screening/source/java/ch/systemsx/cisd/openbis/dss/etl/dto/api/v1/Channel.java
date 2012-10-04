@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.io.Serializable;
 
 import ch.systemsx.cisd.common.image.WavelengthColor;
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.common.reflection.AbstractHashable;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations.ImageTransformation;
 
 /**

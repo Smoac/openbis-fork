@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.common.reflection.AbstractHashable;
 
 /**
  * Immutable class which holds some meta data needed for handling tables stored in

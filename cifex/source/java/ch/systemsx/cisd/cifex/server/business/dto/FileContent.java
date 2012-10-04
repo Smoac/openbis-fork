@@ -18,7 +18,7 @@ package ch.systemsx.cisd.cifex.server.business.dto;
 
 import java.io.InputStream;
 
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.common.reflection.AbstractHashable;
 
 public final class FileContent extends AbstractHashable
 {

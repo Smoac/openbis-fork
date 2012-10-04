@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.io.Serializable;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.common.reflection.AbstractHashable;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**

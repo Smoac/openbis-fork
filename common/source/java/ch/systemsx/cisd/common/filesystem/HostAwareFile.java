@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.common.reflection.AbstractHashable;
 
 /**
  * A {@link java.io.File} that is aware of the host it is located on.

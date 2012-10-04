@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.common.reflection.AbstractHashable;
 import ch.systemsx.cisd.hcs.Location;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 

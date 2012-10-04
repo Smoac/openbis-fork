@@ -18,7 +18,7 @@ package ch.systemsx.cisd.cifex.rpc;
 
 import java.io.Serializable;
 
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.common.reflection.AbstractHashable;
 
 /**
  * A data transfer object for file preregistration information.

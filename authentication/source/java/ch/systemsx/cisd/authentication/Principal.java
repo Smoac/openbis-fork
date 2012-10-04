@@ -24,7 +24,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.common.reflection.AbstractHashable;
 
 /**
  * This class defines in its constructor minimum information that we must know about a

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.common.reflection.AbstractHashable;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 
 /**

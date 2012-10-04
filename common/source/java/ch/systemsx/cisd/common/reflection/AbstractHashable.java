@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.reflection;
 
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +22,8 @@ import java.util.Set;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 
 /**
  * If you want your class to behave correctly when used in {@link Map}s or {@link Set}s, you can
