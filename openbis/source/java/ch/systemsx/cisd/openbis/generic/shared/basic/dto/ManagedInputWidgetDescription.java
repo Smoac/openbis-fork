@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import org.apache.commons.lang.StringUtils;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 
 /**
@@ -49,7 +47,7 @@ public abstract class ManagedInputWidgetDescription implements IManagedInputWidg
 
     public void setCode(String code)
     {
-        if (StringUtils.isBlank(code))
+        if (isBlank(code))
         {
             throw new IllegalArgumentException("Code is null or a blank string.");
         }
@@ -64,7 +62,7 @@ public abstract class ManagedInputWidgetDescription implements IManagedInputWidg
 
     public void setLabel(String label)
     {
-        if (StringUtils.isBlank(label))
+        if (isBlank(label))
         {
             throw new IllegalArgumentException("Label is null or a blank string.");
         }
@@ -73,6 +71,11 @@ public abstract class ManagedInputWidgetDescription implements IManagedInputWidg
         {
             code = label.toUpperCase();
         }
+    }
+
+    private boolean isBlank(String string)
+    {
+        return string == null || string.trim().length() == 0;
     }
 
     @Override
