@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.TokenGenerator;
+import ch.systemsx.cisd.common.security.TokenGenerator;
 
 /**
  * Caches objects of type T. Uses key types K.

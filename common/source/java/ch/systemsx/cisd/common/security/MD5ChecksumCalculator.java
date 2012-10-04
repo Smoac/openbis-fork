@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.security;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -26,6 +26,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.twmacinta.util.MD5;
 import com.twmacinta.util.MD5InputStream;
+
 
 /**
  * A {@link IChecksumCalculator} implementation based on <i>MD5</i>.

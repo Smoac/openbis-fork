@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.security;
 
 import java.io.Serializable;
 import java.security.SecureRandom;

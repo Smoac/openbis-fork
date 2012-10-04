@@ -28,9 +28,9 @@ import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exception.InvalidSessionException;
+import ch.systemsx.cisd.common.security.TokenGenerator;
 import ch.systemsx.cisd.common.servlet.IActionLog.LogoutReason;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
-import ch.systemsx.cisd.common.utilities.TokenGenerator;
 
 /**
  * Manager of {@link Session} instances.

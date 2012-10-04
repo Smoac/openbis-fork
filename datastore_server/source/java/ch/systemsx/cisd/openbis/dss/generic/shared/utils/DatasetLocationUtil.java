@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 import java.io.File;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
-import ch.systemsx.cisd.common.utilities.MD5ChecksumCalculator;
+import ch.systemsx.cisd.common.security.MD5ChecksumCalculator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**

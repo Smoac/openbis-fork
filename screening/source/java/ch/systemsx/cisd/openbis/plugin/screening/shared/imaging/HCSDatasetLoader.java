@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.MD5ChecksumCalculator;
+import ch.systemsx.cisd.common.security.MD5ChecksumCalculator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;

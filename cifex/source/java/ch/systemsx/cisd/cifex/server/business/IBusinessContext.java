@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.utilities.PasswordGenerator;
+import ch.systemsx.cisd.common.security.PasswordGenerator;
 
 /**
  * Context needed by the business layer. Usually it is provided by some configuration parameters.

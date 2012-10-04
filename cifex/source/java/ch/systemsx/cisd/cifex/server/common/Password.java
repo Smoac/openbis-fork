@@ -18,8 +18,8 @@ package ch.systemsx.cisd.cifex.server.common;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.common.security.PasswordHasher;
 import ch.systemsx.cisd.common.string.StringUtilities;
-import ch.systemsx.cisd.common.utilities.PasswordHasher;
 
 /**
  * Stores a password and allows to match it against a password hash stored in the internal user

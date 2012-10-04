@@ -36,9 +36,9 @@ import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.security.TokenGenerator;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
-import ch.systemsx.cisd.common.utilities.TokenGenerator;
 
 /**
  * Default session manager. Needs

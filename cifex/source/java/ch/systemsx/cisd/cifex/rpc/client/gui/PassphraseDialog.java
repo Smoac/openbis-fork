@@ -42,7 +42,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
-import ch.systemsx.cisd.common.utilities.PasswordGenerator;
+import ch.systemsx.cisd.common.security.PasswordGenerator;
 
 /**
  * A dialog that allows the user to type in a passphrase.

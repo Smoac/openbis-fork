@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exception.InvalidAuthenticationException;
-import ch.systemsx.cisd.common.utilities.TokenGenerator;
+import ch.systemsx.cisd.common.security.TokenGenerator;
 
 /**
  * Class managing DSS session tokens. Each invocation of {@link #drawSessionToken()} generates a new

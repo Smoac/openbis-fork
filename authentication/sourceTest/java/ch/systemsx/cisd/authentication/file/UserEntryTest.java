@@ -23,7 +23,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.authentication.Principal;
-import ch.systemsx.cisd.common.utilities.PasswordHasher;
+import ch.systemsx.cisd.common.security.PasswordHasher;
 
 /**
  * Test cases for {@link UserEntry}.

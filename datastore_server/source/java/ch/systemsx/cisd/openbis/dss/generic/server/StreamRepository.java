@@ -25,9 +25,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.security.TokenGenerator;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
-import ch.systemsx.cisd.common.utilities.TokenGenerator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 
 /**

@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInvocationHandler;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.utilities.PasswordGenerator;
+import ch.systemsx.cisd.common.security.PasswordGenerator;
 
 /**
  * Provider of all manager objects.

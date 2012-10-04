@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.security;
 
 import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.utilities.TokenGenerator;
 
 import static org.testng.AssertJUnit.assertEquals;
 

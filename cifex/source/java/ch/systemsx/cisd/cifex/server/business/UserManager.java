@@ -44,8 +44,8 @@ import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.security.PasswordGenerator;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
-import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 
 /**

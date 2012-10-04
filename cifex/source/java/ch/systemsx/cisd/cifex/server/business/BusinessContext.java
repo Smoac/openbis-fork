@@ -23,7 +23,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.utilities.PasswordGenerator;
+import ch.systemsx.cisd.common.security.PasswordGenerator;
 
 /**
  * Bean implementing {@link IBusinessContext}.

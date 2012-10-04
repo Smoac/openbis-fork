@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.utilities.PasswordGenerator;
+import ch.systemsx.cisd.common.security.PasswordGenerator;
 
 /**
  * @author Franz-Josef Elmer

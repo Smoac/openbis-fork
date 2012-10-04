@@ -23,8 +23,8 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.cifex.server.common.Password;
+import ch.systemsx.cisd.common.security.PasswordHasher;
 import ch.systemsx.cisd.common.string.StringUtilities;
-import ch.systemsx.cisd.common.utilities.PasswordHasher;
 
 /**
  * Test cases for the {@link Password} class.

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.security;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.security.MD5ChecksumCalculator;
 
 /**
  * Tests for {@link MD5ChecksumCalculator}.

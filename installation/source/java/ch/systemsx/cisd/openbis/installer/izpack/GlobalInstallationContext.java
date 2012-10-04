@@ -20,7 +20,7 @@ import java.io.File;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
 
-import ch.systemsx.cisd.common.utilities.PasswordGenerator;
+import ch.systemsx.cisd.common.security.PasswordGenerator;
 
 /**
  * @author Kaloyan Enimanev
