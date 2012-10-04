@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.evaluator;
+package ch.systemsx.cisd.common.jython.evaluator;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

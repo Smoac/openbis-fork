@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
 
 import java.util.Map;
 
-import ch.systemsx.cisd.common.evaluator.EvaluatorException;
+import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 

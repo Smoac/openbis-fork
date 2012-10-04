@@ -26,7 +26,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.evaluator.Evaluator.ReturnType;
+import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
+import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.common.jython.evaluator.Evaluator.ReturnType;
 
 /**
  * Tests of the {@link Evaluator}.

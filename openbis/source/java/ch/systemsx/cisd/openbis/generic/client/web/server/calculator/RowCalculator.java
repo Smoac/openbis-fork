@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.common.evaluator.Evaluator;
+import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.calculator.AbstractCalculator;

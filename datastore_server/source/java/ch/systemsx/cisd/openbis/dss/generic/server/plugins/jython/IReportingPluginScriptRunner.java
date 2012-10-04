@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
 
 import java.util.List;
 
-import ch.systemsx.cisd.common.evaluator.EvaluatorException;
+import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 

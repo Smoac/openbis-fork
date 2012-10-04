@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
-import ch.systemsx.cisd.common.evaluator.EvaluatorException;
+import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;

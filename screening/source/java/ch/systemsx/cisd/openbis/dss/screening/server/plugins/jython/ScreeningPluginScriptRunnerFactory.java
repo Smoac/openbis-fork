@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.screening.server.plugins.jython;
 
-import ch.systemsx.cisd.common.evaluator.Evaluator;
+import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.PluginScriptRunnerFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
