@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 /**
  * Enum holding OS specific attributes like line separator etc.

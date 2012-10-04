@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import javax.servlet.http.HttpServletRequest;
 
-import ch.systemsx.cisd.common.utilities.OSKind;
 
 /**
  * Some utilities around <i>Http</i>.
