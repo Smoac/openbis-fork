@@ -64,7 +64,7 @@ import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.constraints.Length;
 
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
-import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;

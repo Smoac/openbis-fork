@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 
 /**
  * Abstract super class of all Data Transfer Objects (DTOs) with a unique ID.

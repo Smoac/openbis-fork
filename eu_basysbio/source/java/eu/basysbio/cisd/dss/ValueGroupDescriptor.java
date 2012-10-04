@@ -18,7 +18,7 @@ package eu.basysbio.cisd.dss;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 
 /**
  * A value group groups all value types of one data set file together.

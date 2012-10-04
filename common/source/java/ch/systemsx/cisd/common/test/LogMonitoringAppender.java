@@ -32,7 +32,7 @@ import org.apache.log4j.spi.ThrowableInformation;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 
 /**
  * A class that allows to monitor the log for unit tests.

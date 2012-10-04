@@ -20,7 +20,7 @@ import net.lemnik.eodsql.ResultColumn;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 
 /**
  * @author Tomasz Pylak

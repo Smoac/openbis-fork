@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 
 /**
  * A class that contains the result of the execution of a {@link Runnable} (or {@link Callable}) in

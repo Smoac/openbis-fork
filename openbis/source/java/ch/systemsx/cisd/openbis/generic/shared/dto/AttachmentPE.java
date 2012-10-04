@@ -55,7 +55,7 @@ import org.hibernate.validator.constraints.Length;
 import com.sun.org.apache.xerces.internal.impl.io.UTF8Reader;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;

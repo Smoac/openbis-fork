@@ -33,7 +33,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.dbmigration.java.MigrationStepAdapter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
