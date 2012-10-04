@@ -20,7 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreForDataSets;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
 
 /**
  * @author pkupczyk
@@ -38,10 +38,18 @@ public interface IDataSetLister
             DataSetFetchOptions dataSetFetchOptions);
 
     /**
-     * Returns the base URLs (download URLs) for a set of <var>dataSetCodes</var>.
+     * Returns the download URLs for a set of <var>dataSetCodes</var>.
      * 
-     * @return The list of data stores, each with the list of data set codes it has stored.
+     * @return The list of data store download URLs, each with the list of data set codes it has
+     *         stored.
      */
-    public List<DataStoreForDataSets> getDataStoreBaseURLs(List<String> dataSetCodes);
+    public List<DataStoreURLForDataSets> getDataStoreDownloadURLs(List<String> dataSetCodes);
 
+    /**
+     * Returns the remote URLs for a set of <var>dataSetCodes</var>.
+     * 
+     * @return The list of data store remote URLs, each with the list of data set codes it has
+     *         stored.
+     */
+    public List<DataStoreURLForDataSets> getDataStoreRemoteURLs(List<String> dataSetCodes);
 }

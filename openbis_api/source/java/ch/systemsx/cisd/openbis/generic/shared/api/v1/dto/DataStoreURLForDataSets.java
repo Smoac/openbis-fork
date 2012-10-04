@@ -23,36 +23,36 @@ import java.util.List;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * The data store URL for a list of data sets.
+ * The data store URL for a set of data sets.
  * 
  * @since 1.19
  * @author Bernd Rinn
  */
-@JsonObject("DataStoreForDataSets")
-public class DataStoreForDataSets implements Serializable
+@JsonObject("DataStoreURLForDataSets")
+public class DataStoreURLForDataSets implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final String dataStoreDownloadURL;
+    private final String dataStoreURL;
 
     private final String[] dataSetCodes;
 
-    public DataStoreForDataSets(String dataStoreBaseURL, String[] dataSetCodes)
+    public DataStoreURLForDataSets(String dataStoreBaseURL, String[] dataSetCodes)
     {
-        this.dataStoreDownloadURL = dataStoreBaseURL;
+        this.dataStoreURL = dataStoreBaseURL;
         this.dataSetCodes = dataSetCodes;
     }
 
     /**
-     * The base URL of the data store (can be used for download from a client).
+     * The base URL of the data store.
      */
-    public String getDataStoreDownloadURL()
+    public String getDataStoreURL()
     {
-        return dataStoreDownloadURL;
+        return dataStoreURL;
     }
 
     /**
-     * The list of data sets that can be found in this data store.
+     * A set of data sets that can be found in this data store.
      */
     public List<String> getDataSetCodes()
     {

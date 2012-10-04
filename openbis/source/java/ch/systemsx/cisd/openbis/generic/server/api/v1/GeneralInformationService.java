@@ -73,7 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreForDataSets;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
@@ -588,26 +588,26 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         checkSession(sessionToken);
 
         final IDataSetLister lister = new DataSetLister(getDAOFactory());
-        final List<DataStoreForDataSets> dataStores =
-                lister.getDataStoreBaseURLs(Collections.singletonList(dataSetCode));
+        final List<DataStoreURLForDataSets> dataStores =
+                lister.getDataStoreDownloadURLs(Collections.singletonList(dataSetCode));
         if (dataStores.isEmpty())
         {
             return null;
         }
-        return dataStores.get(0).getDataStoreDownloadURL();
+        return dataStores.get(0).getDataStoreURL();
     }
 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public List<DataStoreForDataSets> getDataStoreBaseURLs(String sessionToken,
+    public List<DataStoreURLForDataSets> getDataStoreBaseURLs(String sessionToken,
             List<String> dataSetCodes)
     {
         checkSession(sessionToken);
 
         final IDataSetLister lister = new DataSetLister(getDAOFactory());
-        return lister.getDataStoreBaseURLs(dataSetCodes);
+        return lister.getDataStoreDownloadURLs(dataSetCodes);
     }
 
     @Override

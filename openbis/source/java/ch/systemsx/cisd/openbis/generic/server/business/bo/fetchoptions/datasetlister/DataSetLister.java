@@ -29,12 +29,12 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreForDataSets;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
@@ -55,7 +55,7 @@ public class DataSetLister implements IDataSetLister
 
     private IDataSetListingQuery query;
 
-    public DataSetLister(IDAOFactory daoFactory)
+    public DataSetLister(IAuthorizationDAOFactory daoFactory)
     {
         this(QueryTool.getQuery(DatabaseContextUtils.getConnection(daoFactory),
                 IDataSetListingQuery.class));
@@ -316,18 +316,35 @@ public class DataSetLister implements IDataSetLister
     }
 
     @Override
-    public List<DataStoreForDataSets> getDataStoreBaseURLs(List<String> dataSetCodes)
+    public List<DataStoreURLForDataSets> getDataStoreDownloadURLs(List<String> dataSetCodes)
     {
         final String[] dataSetCodesArray = dataSetCodes.toArray(new String[dataSetCodes.size()]);
-        final List<DataSetDownloadRecord> records = query.getDownloadInfos(dataSetCodesArray);
-        final List<DataStoreForDataSets> result =
-                new ArrayList<DataStoreForDataSets>(records.size());
+        final List<DataSetDownloadRecord> records = query.getDownloadURLs(dataSetCodesArray);
+        final List<DataStoreURLForDataSets> result =
+                new ArrayList<DataStoreURLForDataSets>(records.size());
         for (DataSetDownloadRecord r : records)
         {
             final String[] dataSetCodeArray =
                     StringUtils.split(r.data_set_codes.substring(1, r.data_set_codes.length() - 1),
                             ',');
-            result.add(new DataStoreForDataSets(r.download_url, dataSetCodeArray));
+            result.add(new DataStoreURLForDataSets(r.download_url, dataSetCodeArray));
+        }
+        return result;
+    }
+
+    @Override
+    public List<DataStoreURLForDataSets> getDataStoreRemoteURLs(List<String> dataSetCodes)
+    {
+        final String[] dataSetCodesArray = dataSetCodes.toArray(new String[dataSetCodes.size()]);
+        final List<DataSetDownloadRecord> records = query.getRemoteURLs(dataSetCodesArray);
+        final List<DataStoreURLForDataSets> result =
+                new ArrayList<DataStoreURLForDataSets>(records.size());
+        for (DataSetDownloadRecord r : records)
+        {
+            final String[] dataSetCodeArray =
+                    StringUtils.split(r.data_set_codes.substring(1, r.data_set_codes.length() - 1),
+                            ',');
+            result.add(new DataStoreURLForDataSets(r.remote_url, dataSetCodeArray));
         }
         return result;
     }

@@ -20,6 +20,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreForDataSets;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
@@ -115,17 +116,18 @@ public class DataSetListerTest extends AbstractDAOTest
     }
 
     @Test
-    public void testGetDataStoreBaseURLs()
+    public void testGetDataStoreURLs()
     {
         DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
         QueryTool
                 .update(context.getDataSource(),
-                        "update data_stores set download_url='http://download_1' where code='STANDARD'");
+                        "update data_stores set download_url='http://download_1',remote_url='http://remote_1'"
+                                + " where code='STANDARD'");
         final long newDataStoreId =
                 (Long) QueryTool
                         .select(context.getDataSource(),
                                 "insert into data_stores (id,dbin_id,code,download_url,remote_url,session_token)"
-                                        + " values (nextval('data_store_id_seq'),1,'DSS2','http://download_2','','') returning id")
+                                        + " values (nextval('data_store_id_seq'),1,'DSS2','http://download_2','http://remote_2','') returning id")
                         .get(0).get("id");
         QueryTool.update(context.getDataSource(),
                 "update data set dast_id = ?{1} where code = ?{2}", newDataStoreId,
@@ -140,15 +142,45 @@ public class DataSetListerTest extends AbstractDAOTest
         codes.add("20081105092259000-19");
         codes.add("20081105092259000-20");
         codes.add("20081105092259000-21");
-        List<DataStoreForDataSets> result = lister.getDataStoreBaseURLs(codes);
+        List<DataStoreURLForDataSets> result = lister.getDataStoreDownloadURLs(codes);
         assertEquals(2, result.size());
-        assertEquals("http://download_1", result.get(0).getDataStoreDownloadURL());
-        assertEquals(
-                Arrays.asList("20081105092159188-3", "20081105092159111-1", "20081105092259000-19"),
-                result.get(0).getDataSetCodes());
-        assertEquals("http://download_2", result.get(1).getDataStoreDownloadURL());
-        assertEquals(Arrays.asList("20081105092259000-20", "20081105092259000-21"), result.get(1)
-                .getDataSetCodes());
+        for (DataStoreURLForDataSets url : result)
+        {
+            if (url.getDataStoreURL().equals("http://download_1"))
+            {
+                assertEquals(
+                        Arrays.asList("20081105092159188-3", "20081105092159111-1",
+                                "20081105092259000-19"),
+                        url.getDataSetCodes());
+            } else if (url.getDataStoreURL().equals("http://download_2"))
+            {
+                assertEquals(Arrays.asList("20081105092259000-20", "20081105092259000-21"), url
+                        .getDataSetCodes());
+            } else
+            {
+                fail("URL " + url + " not expected.");
+            }
+        }
+
+        result = lister.getDataStoreRemoteURLs(codes);
+        assertEquals(2, result.size());
+        for (DataStoreURLForDataSets url : result)
+        {
+            if (url.getDataStoreURL().equals("http://remote_1"))
+            {
+                assertEquals(
+                        Arrays.asList("20081105092159188-3", "20081105092159111-1",
+                                "20081105092259000-19"),
+                        url.getDataSetCodes());
+            } else if (url.getDataStoreURL().equals("http://remote_2"))
+            {
+                assertEquals(Arrays.asList("20081105092259000-20", "20081105092259000-21"), url
+                        .getDataSetCodes());
+            } else
+            {
+                fail("URL " + url + " not expected.");
+            }
+        }
     }
 
     @Test

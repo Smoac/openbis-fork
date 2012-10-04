@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreForDataSets;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
@@ -296,7 +296,7 @@ public interface IGeneralInformationService extends IRpcService
      *         together with the data set codes that are in this data store.
      * @since 1.19
      */
-    public List<DataStoreForDataSets> getDataStoreBaseURLs(String sessionToken,
+    public List<DataStoreURLForDataSets> getDataStoreBaseURLs(String sessionToken,
             List<String> dataSetCodes);
 
     /**

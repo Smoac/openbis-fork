@@ -17,13 +17,15 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.datasetlister;
 
 /**
- * Type for storing the download ULR for a set of data sets;
+ * Type for storing the download and remote ULR for a set of data sets;
  * 
  * @author Bernd Rinn
  */
 class DataSetDownloadRecord
 {
     String download_url;
+
+    String remote_url;
 
     String data_set_codes;
 }
