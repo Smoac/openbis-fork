@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.utilities;
+package ch.systemsx.cisd.common.reflection;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -27,7 +27,8 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
-import ch.systemsx.cisd.common.utilities.AnnotationUtils.Parameter;
+import ch.systemsx.cisd.common.reflection.AnnotationUtils;
+import ch.systemsx.cisd.common.reflection.AnnotationUtils.Parameter;
 
 /**
  * Test cases for the {@link AnnotationUtils} class.
@@ -128,7 +129,6 @@ public final class AnnotationUtilsTest
         @SuppressWarnings("unused")
         protected Object b;
 
-        @SuppressWarnings("unused")
         @BeanProperty
         protected void setA(final Object a)
         {

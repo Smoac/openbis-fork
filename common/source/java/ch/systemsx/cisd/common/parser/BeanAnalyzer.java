@@ -27,7 +27,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
-import ch.systemsx.cisd.common.utilities.AnnotationUtils;
+import ch.systemsx.cisd.common.reflection.AnnotationUtils;
 
 /**
  * A <i>Bean</i> class analyzer.
