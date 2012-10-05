@@ -151,7 +151,7 @@ public class JythonBasedReportingPluginTest extends AbstractFileSystemTestCase
         } catch (UserFailureException ex)
         {
             assertEquals("Chosen plugin failed to create a report: "
-                    + "ch.systemsx.cisd.common.evaluator.EvaluatorException: blabla",
+                    + "ch.systemsx.cisd.common.jython.evaluator.EvaluatorException: blabla",
                     ex.getMessage());
         }
 
