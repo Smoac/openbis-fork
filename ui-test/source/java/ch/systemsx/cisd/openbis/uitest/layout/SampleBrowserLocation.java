@@ -32,6 +32,7 @@ public class SampleBrowserLocation implements Location<SampleBrowser>
     {
         openbis.load(TopBar.class).browse();
         openbis.load(BrowseMenu.class).samples();
+        openbis.load(SampleBrowser.class).allSpaces();
     }
 
     @Override

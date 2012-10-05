@@ -234,7 +234,7 @@ public abstract class SeleniumTest
 
         for (String code : openbis.goTo(sampleBrowser()).getSampleTypes())
         {
-            types.add(new SampleTypeBuilder(openbis).withCode(code).build());
+            types.add(assume(aSampleType().withCode(code)));
         }
         return types;
     }
