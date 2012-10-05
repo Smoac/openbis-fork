@@ -496,7 +496,10 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         // users without any roles cannot login
         Set<RoleAssignmentPE> rolesAssignments = new HashSet<RoleAssignmentPE>();
-        rolesAssignments.add(new RoleAssignmentPE());
+        RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
+        roleAssignment.setRole(RoleCode.ADMIN);
+        roleAssignment.setDatabaseInstance(new DatabaseInstancePE());
+        rolesAssignments.add(roleAssignment);
         person.setRoleAssignments(rolesAssignments);
     }
 
