@@ -25,7 +25,7 @@
     <mkdir dir="${dist}"/> 
 	</target>
 	
-	<target name="jar" depends="create-dist-dir, compile">
+	<target name="jar" depends="create-dist-dir, compile, compile-tests">
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<jar destfile="${jar.file}">
