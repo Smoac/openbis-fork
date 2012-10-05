@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
@@ -193,7 +194,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
 
     private void addNewDataSetToContainer(IDataSet dataSet, IDataSetUpdatable container)
     {
-        List<String> contained = container.getContainedDataSetCodes();
+        List<String> contained = new LinkedList<String>(container.getContainedDataSetCodes());
         contained.add(dataSet.getDataSetCode());
         container.setContainedDataSetCodes(contained);
     }
