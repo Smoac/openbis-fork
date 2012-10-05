@@ -8,10 +8,11 @@ An Jython dropbox for importing HCS image datasets for use by the FeatureVectors
 """
 
 import os
+from java.io import File
 from java.util import Properties
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v2 import SimpleFeatureVectorDataConfig
-from java.io import File
-  
+from ch.systemsx.cisd.openbis.dss.etl.dto.api.v2 import FeatureListDataConfig
+
 def create_experiment(tr):
     space = tr.getSpace("TEST")
     if space == None:
@@ -62,4 +63,10 @@ def process(transaction):
   featureDataSet.setSample(plate)
   transaction.moveFile(featuresPath, featureDataSet)
   
-  print featureDataSet
+  config = FeatureListDataConfig()
+  config.setName("shortListOfFeatures");
+  config.setFeatureList(["feature1", "feature2"])
+  config.setContainerDataSet(featureDataSet)
+  
+  transaction.createNewFeatureListDataSet(config)
+  
