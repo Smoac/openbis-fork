@@ -22,7 +22,6 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,14 +33,14 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import net.lemnik.eodsql.QueryTool;
+import net.lemnik.eodsql.DynamicQuery;
+import net.lemnik.eodsql.TransactionQuery;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.ResourceNames;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -63,8 +62,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementS
 public class DataSetListerTest extends AbstractDAOTest
 {
 
+    interface IDataSetListingQueryDynamic extends IDataSetListingQuery, DynamicQuery,
+            TransactionQuery
+    {
+    }
+
     @Resource(name = ResourceNames.GENERAL_INFORMATION_SERVICE_SERVER)
     IGeneralInformationService service;
+
+    private IDataSetListingQueryDynamic query;
 
     private IDataSetLister lister;
 
@@ -74,9 +80,9 @@ public class DataSetListerTest extends AbstractDAOTest
     public void init() throws SQLException
     {
         sessionToken = service.tryToAuthenticateForAllServices("test", "password");
+        query = EntityListingTestUtils.createQuery(daoFactory, IDataSetListingQueryDynamic.class);
         lister =
-                new DataSetLister(EntityListingTestUtils.createQuery(daoFactory,
-                        IDataSetListingQuery.class));
+                new DataSetLister(query);
     }
 
     @Test
@@ -118,68 +124,71 @@ public class DataSetListerTest extends AbstractDAOTest
     @Test
     public void testGetDataStoreURLs()
     {
-        Connection conn = DatabaseContextUtils.getConnection(daoFactory);
-        QueryTool
-                .update(conn,
-                        "update data_stores set download_url='http://download_1',remote_url='http://remote_1'"
-                                + " where code='STANDARD'");
-        final long newDataStoreId =
-                (Long) QueryTool
-                        .select(conn,
-                                "insert into data_stores (id,dbin_id,code,download_url,remote_url,session_token)"
-                                        + " values (nextval('data_store_id_seq'),1,'DSS2','http://download_2','http://remote_2','') returning id")
-                        .get(0).get("id");
-        QueryTool.update(conn,
-                "update data set dast_id = ?{1} where code = ?{2}", newDataStoreId,
-                "20081105092259000-20");
-        QueryTool.update(conn,
-                "update data set dast_id = ?{1} where code = ?{2}", newDataStoreId,
-                "20081105092259000-21");
-
-        List<String> codes = new ArrayList<String>();
-        codes.add("20081105092159188-3");
-        codes.add("20081105092159111-1");
-        codes.add("20081105092259000-19");
-        codes.add("20081105092259000-20");
-        codes.add("20081105092259000-21");
-        List<DataStoreURLForDataSets> result = lister.getDataStoreDownloadURLs(codes);
-        assertEquals(2, result.size());
-        for (DataStoreURLForDataSets url : result)
+        try
         {
-            if (url.getDataStoreURL().equals("http://download_1"))
-            {
-                assertEquals(
-                        Arrays.asList("20081105092159188-3", "20081105092159111-1",
-                                "20081105092259000-19"),
-                        url.getDataSetCodes());
-            } else if (url.getDataStoreURL().equals("http://download_2"))
-            {
-                assertEquals(Arrays.asList("20081105092259000-20", "20081105092259000-21"), url
-                        .getDataSetCodes());
-            } else
-            {
-                fail("URL " + url + " not expected.");
-            }
-        }
+            query.update("update data_stores set download_url='http://download_1',remote_url='http://remote_1'"
+                    + " where code='STANDARD'");
+            final long newDataStoreId =
+                    (Long) query
+                            .select(
+                                    "insert into data_stores (id,dbin_id,code,download_url,remote_url,session_token)"
+                                            + " values (nextval('data_store_id_seq'),1,'DSS2','http://download_2','http://remote_2','') returning id")
+                            .get(0).get("id");
+            query.update(
+                    "update data set dast_id = ?{1} where code = ?{2}", newDataStoreId,
+                    "20081105092259000-20");
+            query.update(
+                    "update data set dast_id = ?{1} where code = ?{2}", newDataStoreId,
+                    "20081105092259000-21");
 
-        result = lister.getDataStoreRemoteURLs(codes);
-        assertEquals(2, result.size());
-        for (DataStoreURLForDataSets url : result)
-        {
-            if (url.getDataStoreURL().equals("http://remote_1"))
+            List<String> codes = new ArrayList<String>();
+            codes.add("20081105092159188-3");
+            codes.add("20081105092159111-1");
+            codes.add("20081105092259000-19");
+            codes.add("20081105092259000-20");
+            codes.add("20081105092259000-21");
+            List<DataStoreURLForDataSets> result = lister.getDataStoreDownloadURLs(codes);
+            assertEquals(2, result.size());
+            for (DataStoreURLForDataSets url : result)
             {
-                assertEquals(
-                        Arrays.asList("20081105092159188-3", "20081105092159111-1",
-                                "20081105092259000-19"),
-                        url.getDataSetCodes());
-            } else if (url.getDataStoreURL().equals("http://remote_2"))
-            {
-                assertEquals(Arrays.asList("20081105092259000-20", "20081105092259000-21"), url
-                        .getDataSetCodes());
-            } else
-            {
-                fail("URL " + url + " not expected.");
+                if (url.getDataStoreURL().equals("http://download_1"))
+                {
+                    assertEquals(
+                            Arrays.asList("20081105092159188-3", "20081105092159111-1",
+                                    "20081105092259000-19"),
+                            url.getDataSetCodes());
+                } else if (url.getDataStoreURL().equals("http://download_2"))
+                {
+                    assertEquals(Arrays.asList("20081105092259000-20", "20081105092259000-21"), url
+                            .getDataSetCodes());
+                } else
+                {
+                    fail("URL " + url + " not expected.");
+                }
             }
+
+            result = lister.getDataStoreRemoteURLs(codes);
+            assertEquals(2, result.size());
+            for (DataStoreURLForDataSets url : result)
+            {
+                if (url.getDataStoreURL().equals("http://remote_1"))
+                {
+                    assertEquals(
+                            Arrays.asList("20081105092159188-3", "20081105092159111-1",
+                                    "20081105092259000-19"),
+                            url.getDataSetCodes());
+                } else if (url.getDataStoreURL().equals("http://remote_2"))
+                {
+                    assertEquals(Arrays.asList("20081105092259000-20", "20081105092259000-21"), url
+                            .getDataSetCodes());
+                } else
+                {
+                    fail("URL " + url + " not expected.");
+                }
+            }
+        } finally
+        {
+            query.rollback();
         }
     }
 
