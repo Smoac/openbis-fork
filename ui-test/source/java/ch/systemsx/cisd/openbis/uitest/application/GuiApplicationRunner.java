@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.uitest.page.AddSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.AddSpaceDialog;
 import ch.systemsx.cisd.openbis.uitest.page.AddVocabularyDialog;
 import ch.systemsx.cisd.openbis.uitest.page.AssignSamplePropertyType;
+import ch.systemsx.cisd.openbis.uitest.page.Browsable;
 import ch.systemsx.cisd.openbis.uitest.page.Browser;
 import ch.systemsx.cisd.openbis.uitest.page.EditSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.ExperimentBrowser;
@@ -54,7 +55,7 @@ import ch.systemsx.cisd.openbis.uitest.page.RegisterScript;
 import ch.systemsx.cisd.openbis.uitest.page.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.Trash;
 import ch.systemsx.cisd.openbis.uitest.screenshot.ScreenShotter;
-import ch.systemsx.cisd.openbis.uitest.type.Browsable;
+import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
@@ -111,7 +112,7 @@ public class GuiApplicationRunner implements ApplicationRunner
     @Override
     public void delete(Space space)
     {
-        delete(new Browsable(space));
+        delete(new BrowsableWrapper(space));
     }
 
     public void deleteExperimentsFrom(Project project)
@@ -126,31 +127,31 @@ public class GuiApplicationRunner implements ApplicationRunner
     @Override
     public void delete(Project project)
     {
-        delete(new Browsable(project));
+        delete(new BrowsableWrapper(project));
     }
 
     @Override
     public void delete(SampleType sampleType)
     {
-        delete(new Browsable(sampleType));
+        delete(new BrowsableWrapper(sampleType));
     }
 
     @Override
     public void delete(ExperimentType experimentType)
     {
-        delete(new Browsable(experimentType));
+        delete(new BrowsableWrapper(experimentType));
     }
 
     @Override
     public void delete(PropertyType propertyType)
     {
-        delete(new Browsable(propertyType));
+        delete(new BrowsableWrapper(propertyType));
     }
 
     @Override
     public void delete(Vocabulary vocabulary)
     {
-        delete(new Browsable(vocabulary));
+        delete(new BrowsableWrapper(vocabulary));
     }
 
     private void delete(Browsable browsable)
@@ -268,10 +269,8 @@ public class GuiApplicationRunner implements ApplicationRunner
     @Override
     public void update(SampleType sampleType)
     {
-        Browsable b = new Browsable(sampleType);
-
+        Browsable b = new BrowsableWrapper(sampleType);
         SampleTypeBrowser browser = goTo(new SampleTypeBrowserLocation());
-        browser.filterTo(b);
         browser.select(b);
         browser.edit();
         EditSampleTypeDialog dialog = proxy.get(EditSampleTypeDialog.class);

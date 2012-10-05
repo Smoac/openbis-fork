@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.type.Browsable;
+import ch.systemsx.cisd.openbis.uitest.page.Browsable;
 import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
 
 /**
@@ -48,6 +48,30 @@ public class SettingsDialog implements Widget
             } else
             {
                 throw new IllegalStateException("Could not find column " + name
+                        + " from settings dialog!");
+            }
+        }
+
+        context.find("//*[@class='x-window-bl']//button[text()='OK']").click();
+    }
+
+    public void showFilters(String... filters)
+    {
+        context.find(".//*[text()='No Filters']").click();
+
+        for (String name : filters)
+        {
+            List<WebElement> l =
+                    context.findAll(".//div[text()='"
+                            + name
+                            + "']/../..//div[contains(@class, 'HAS_FILTER') and not(*)]");
+
+            if (l.size() > 0)
+            {
+                l.get(0).click();
+            } else
+            {
+                throw new IllegalStateException("Could not find filter " + name
                         + " from settings dialog!");
             }
         }

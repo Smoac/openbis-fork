@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.openqa.selenium.WebElement;
 
 import ch.systemsx.cisd.openbis.uitest.webdriver.DeterminateAction;
@@ -30,9 +35,9 @@ public class FilterToolBar implements Widget
 
     private WidgetContext context;
 
-    public void setCode(final String text, Refreshable refresher)
+    public void setFilter(String filter, final String text, Refreshable refresher)
     {
-        final WebElement t = context.find(".//input[contains(@id, 'Code-input')]");
+        final WebElement t = context.find(".//input[contains(@id, '" + filter + "-input')]");
 
         new WaitForRefreshOf<Void>(refresher)
                 .after(new DeterminateAction<Void>()
@@ -46,6 +51,21 @@ public class FilterToolBar implements Widget
                         }
                     }).withTimeoutOf(20);
 
+    }
+
+    public Collection<String> getVisibleFilters()
+    {
+        List<WebElement> elements =
+                context.findAll(".//input[not(contains(@id, 'grid-input'))]/..");
+
+        Set<String> filters = new HashSet<String>();
+        for (WebElement element : elements)
+        {
+            String id = element.getAttribute("id");
+            String[] split = id.split("-");
+            filters.add(split[split.length - 1]);
+        }
+        return filters;
     }
 
     public void reset()

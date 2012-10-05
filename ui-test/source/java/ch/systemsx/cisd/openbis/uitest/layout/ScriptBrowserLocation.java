@@ -31,7 +31,7 @@ public class ScriptBrowserLocation implements Location<ScriptBrowser>
     public void moveTo(GuiApplicationRunner openbis)
     {
         openbis.load(TopBar.class).admin();
-        openbis.load(AdminMenu.class).spaces();
+        openbis.load(AdminMenu.class).scripts();
     }
 
     @Override

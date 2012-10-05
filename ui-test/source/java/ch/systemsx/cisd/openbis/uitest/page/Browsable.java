@@ -14,33 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.suite.main;
+package ch.systemsx.cisd.openbis.uitest.page;
 
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import java.util.Collection;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.layout.Location;
 
 /**
  * @author anttil
  */
-public abstract class MainSuiteTest extends SeleniumTest
+public interface Browsable
 {
-    @BeforeTest
-    public void before()
-    {
-        login(ADMIN_USER, ADMIN_PASSWORD);
+    public Collection<String> getColumns();
 
-        // this is because of BIS-184
-        if (tabsContain(sampleBrowser()))
-        {
-            switchTabTo(sampleBrowser()).allSpaces();
-        }
-    }
+    public String getIdColumn();
 
-    @AfterTest
-    public void after()
-    {
-        logout();
-    }
+    public String getIdValue();
+
+    public Location<? extends Browser> getBrowserLocation();
 }

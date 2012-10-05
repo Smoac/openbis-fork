@@ -32,108 +32,131 @@ import ch.systemsx.cisd.openbis.uitest.layout.SampleTypeBrowserLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.ScriptBrowserLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.SpaceBrowserLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.VocabularyBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.page.Browsable;
 import ch.systemsx.cisd.openbis.uitest.page.Browser;
 
 /**
  * @author anttil
  */
-public class Browsable
+public class BrowsableWrapper implements Browsable
 {
     private Collection<String> columns;
 
-    private String code;
+    private String idColumn;
+
+    private String idValue;
 
     private Location<? extends Browser> browserLocation;
 
-    public Browsable(DataSetType dataSetType)
+    public BrowsableWrapper(DataSetType dataSetType)
     {
-        code = dataSetType.getCode();
+        idColumn = "Code";
+        idValue = dataSetType.getCode();
         columns = Arrays.asList("Code", "Description");
         browserLocation = new DataSetTypeBrowserLocation();
     }
 
-    public Browsable(Experiment experiment)
+    public BrowsableWrapper(Experiment experiment)
     {
-        code = experiment.getCode();
+        idColumn = "Code";
+        idValue = experiment.getCode();
         columns = Arrays.asList("Code", "Project", "Experiment Type");
         browserLocation = new ExperimentBrowserLocation();
     }
 
-    public Browsable(ExperimentType experimentType)
+    public BrowsableWrapper(ExperimentType experimentType)
     {
-        code = experimentType.getCode();
+        idColumn = "Code";
+        idValue = experimentType.getCode();
         columns = Arrays.asList("Code", "Description");
         browserLocation = new ExperimentTypeBrowserLocation();
     }
 
-    public Browsable(Project project)
+    public BrowsableWrapper(Project project)
     {
-        code = project.getCode();
+        idColumn = "Code";
+        idValue = project.getCode();
         columns = Arrays.asList("Code", "Description", "Space");
         browserLocation = new ProjectBrowserLocation();
     }
 
-    public Browsable(PropertyType type)
+    public BrowsableWrapper(PropertyType type)
     {
-        code = type.getCode();
+        idColumn = "Code";
+        idValue = type.getCode();
         columns = Arrays.asList("Code", "Data Type", "Label", "Description", "Vocabulary");
         browserLocation = new PropertyTypeBrowserLocation();
     }
 
-    public Browsable(PropertyTypeAssignment assignment)
+    public BrowsableWrapper(PropertyTypeAssignment assignment)
     {
-        code = assignment.getPropertyType().getCode();
+        idColumn = "Property Type Code";
+        idValue = assignment.getPropertyType().getCode();
         columns = Arrays.asList("Property Type Code", "Entity Type", "Mandatory?");
         browserLocation = new PropertyTypeAssignmentBrowserLocation();
     }
 
-    public Browsable(Sample sample)
+    public BrowsableWrapper(Sample sample)
     {
-        code = sample.getCode();
+        idColumn = "Code";
+        idValue = sample.getCode();
         columns = getColumns(sample);
         browserLocation = new SampleBrowserLocation();
     }
 
-    public Browsable(SampleType type)
+    public BrowsableWrapper(SampleType type)
     {
-        code = type.getCode();
+        idColumn = "Code";
+        idValue = type.getCode();
         columns = Arrays.asList("Code", "Description", "Database Instance", "Validation Script",
                 "Listable?", "Show Container?", "Show Parents?", "Unique Subcodes",
                 "Generate Codes Automatically", "Show Parent Metadata?", "Generated Code Prefix");
         browserLocation = new SampleTypeBrowserLocation();
     }
 
-    public Browsable(Script script)
+    public BrowsableWrapper(Script script)
     {
-        code = script.getCode();
+        idColumn = "Name";
+        idValue = script.getName();
         columns = Arrays.asList("Name", "Description", "Entity Kind", "Script Type", "Script");
         browserLocation = new ScriptBrowserLocation();
     }
 
-    public Browsable(Space space)
+    public BrowsableWrapper(Space space)
     {
-        code = space.getCode();
+        idColumn = "Code";
+        idValue = space.getCode();
         columns = Arrays.asList("Code", "Description");
         browserLocation = new SpaceBrowserLocation();
     }
 
-    public Browsable(Vocabulary vocabulary)
+    public BrowsableWrapper(Vocabulary vocabulary)
     {
-        code = vocabulary.getCode();
+        idColumn = "Code";
+        idValue = vocabulary.getCode();
         columns = Arrays.asList("Code", "Description", "URL Template");
         browserLocation = new VocabularyBrowserLocation();
     }
 
+    @Override
     public Collection<String> getColumns()
     {
         return this.columns;
     }
 
-    public String getCode()
+    @Override
+    public String getIdColumn()
     {
-        return this.code;
+        return this.idColumn;
     }
 
+    @Override
+    public String getIdValue()
+    {
+        return this.idValue;
+    }
+
+    @Override
     public Location<? extends Browser> getBrowserLocation()
     {
         return this.browserLocation;

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-
 /**
  * @author anttil
  */
@@ -86,23 +85,18 @@ public class Script
         this.content = content;
     }
 
-    public String getCode()
-    {
-        return name;
-    }
-
     @Override
     public int hashCode()
     {
-        return getCode().hashCode();
+        return getName().hashCode();
     }
 
     @Override
     public boolean equals(Object o)
     {
-        if (o instanceof Space)
+        if (o instanceof Script)
         {
-            return ((Space) o).getCode().equalsIgnoreCase(getCode());
+            return ((Script) o).getName().equalsIgnoreCase(getName());
         }
         return false;
     }
@@ -110,6 +104,6 @@ public class Script
     @Override
     public String toString()
     {
-        return "Script" + getCode();
+        return "Script" + getName();
     }
 }

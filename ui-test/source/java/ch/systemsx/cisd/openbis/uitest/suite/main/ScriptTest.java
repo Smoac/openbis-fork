@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.uitest.type.Script;
  */
 public class ScriptTest extends MainSuiteTest
 {
-    @Test(enabled = false)
-    public void newSampleIsListedInSampleBrowser() throws Exception
+    @Test
+    public void newScriptIsListedInScriptBrowser() throws Exception
     {
         Script script = create(anEntityValidationScript());
 

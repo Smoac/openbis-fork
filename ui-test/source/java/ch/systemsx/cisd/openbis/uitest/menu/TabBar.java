@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.menu;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+
 import org.openqa.selenium.WebElement;
 
 import ch.systemsx.cisd.openbis.uitest.webdriver.Context;
@@ -33,8 +37,7 @@ public class TabBar
             return false;
         }
 
-        for (WebElement link : context
-                .findAll("//li[starts-with(@id, 'openbis_main-tab-panel__')]"))
+        for (WebElement link : getTabLinks())
         {
             if (link.getText().equals(label))
             {
@@ -45,4 +48,18 @@ public class TabBar
         return false;
     }
 
+    public Collection<String> getTabs()
+    {
+        Collection<String> tabs = new HashSet<String>();
+        for (WebElement link : getTabLinks())
+        {
+            tabs.add(link.getText());
+        }
+        return tabs;
+    }
+
+    private List<WebElement> getTabLinks()
+    {
+        return context.findAll("//li[starts-with(@id, 'openbis_main-tab-panel__')]");
+    }
 }

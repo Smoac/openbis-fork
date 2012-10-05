@@ -20,9 +20,6 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.menu.BrowseMenu;
-import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
-import ch.systemsx.cisd.openbis.uitest.page.SampleBrowser;
 
 /**
  * @author anttil
@@ -33,10 +30,12 @@ public abstract class SprintSuiteTest extends SeleniumTest
     public void before()
     {
         login(ADMIN_USER, ADMIN_PASSWORD);
+
         // this is because of BIS-184
-        assumePage(TopBar.class).browse();
-        assumePage(BrowseMenu.class).samples();
-        assumePage(SampleBrowser.class).allSpaces();
+        if (tabsContain(sampleBrowser()))
+        {
+            switchTabTo(sampleBrowser()).allSpaces();
+        }
     }
 
     @AfterTest

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -23,7 +24,6 @@ import org.openqa.selenium.support.ui.FluentWait;
 
 import com.google.common.base.Predicate;
 
-import ch.systemsx.cisd.openbis.uitest.type.Browsable;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
@@ -47,8 +47,9 @@ public abstract class Browser
 
     public final BrowserRow select(Browsable browsable)
     {
-        waitForPagingToolBar();
-        return getGrid().select("Code", browsable.getCode());
+        filterTo(browsable);
+        showColumnsOf(browsable);
+        return getGrid().select("Code", browsable.getIdValue());
     }
 
     public final BrowserRow getRow(Browsable browsable)
@@ -74,13 +75,6 @@ public abstract class Browser
         }
     }
 
-    public final void filterTo(Browsable browsable)
-    {
-        waitForPagingToolBar();
-        getPaging().filters();
-        getFilters().setCode(browsable.getCode(), getPaging());
-    }
-
     public final void resetFilters()
     {
         waitForPagingToolBar();
@@ -88,7 +82,36 @@ public abstract class Browser
         getFilters().reset();
     }
 
-    public final void showColumnsOf(Browsable browsable)
+    public final void delete(Browsable browsable)
+    {
+        BrowserRow row = select(browsable);
+        if (row.exists())
+        {
+            delete();
+        }
+        resetFilters();
+    }
+
+    private void filterTo(Browsable browsable)
+    {
+        waitForPagingToolBar();
+        getPaging().filters();
+        showFiltersOf(browsable);
+        getFilters().setFilter(browsable.getIdColumn(), browsable.getIdValue(), getPaging());
+    }
+
+    private void showFiltersOf(Browsable browsable)
+    {
+        waitForPagingToolBar();
+        Collection<String> visibleFilters = getFilters().getVisibleFilters();
+        if (visibleFilters.contains(browsable.getIdColumn()) == false)
+        {
+            getPaging().settings();
+            getSettings().showFilters(browsable.getIdColumn());
+        }
+    }
+
+    private void showColumnsOf(Browsable browsable)
     {
         waitForPagingToolBar();
         if (getGrid().getColumnNames().containsAll(browsable.getColumns()))
@@ -103,25 +126,6 @@ public abstract class Browser
     {
         waitForPagingToolBar();
         return getGrid().getData();
-    }
-
-    public final void delete(Browsable browsable)
-    {
-        filterTo(browsable);
-        BrowserRow row = select(browsable);
-        if (row.exists())
-        {
-            delete();
-        }
-        resetFilters();
-
-    }
-
-    @Override
-    public String toString()
-    {
-        String s = getClass().getSimpleName() + "\n==========\n";
-        return s + getGrid().toString();
     }
 
     private void waitForPagingToolBar()
@@ -142,4 +146,10 @@ public abstract class Browser
                     });
     }
 
+    @Override
+    public String toString()
+    {
+        String s = getClass().getSimpleName() + "\n==========\n";
+        return s + getGrid().toString();
+    }
 }

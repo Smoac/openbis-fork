@@ -40,14 +40,17 @@ import org.testng.annotations.BeforeSuite;
 import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.application.GuiApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.application.PublicApiApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.layout.Location;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterSampleLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.SampleBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.menu.TabBar;
+import ch.systemsx.cisd.openbis.uitest.page.Browsable;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserRow;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterSample;
 import ch.systemsx.cisd.openbis.uitest.page.SampleDetails;
 import ch.systemsx.cisd.openbis.uitest.screenshot.FileScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.screenshot.ScreenShotter;
-import ch.systemsx.cisd.openbis.uitest.type.Browsable;
+import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
 import ch.systemsx.cisd.openbis.uitest.type.Builder;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetBuilder;
@@ -207,11 +210,29 @@ public abstract class SeleniumTest
         return openbis.loggedInAs();
     }
 
+    public boolean tabsContain(Location<?> location)
+    {
+        TabBar bar = assumePage(TabBar.class);
+        return bar.getTabs().contains(location.getTabName());
+    }
+
+    public <T> T switchTabTo(Location<T> location)
+    {
+        TabBar bar = assumePage(TabBar.class);
+        bar.selectTab(location.getTabName());
+        return assumePage(location.getPage());
+    }
+
+    protected SampleBrowserLocation sampleBrowser()
+    {
+        return new SampleBrowserLocation();
+    }
+
     protected Collection<SampleType> sampleTypesInSampleBrowser()
     {
         Set<SampleType> types = new HashSet<SampleType>();
 
-        for (String code : openbis.goTo(new SampleBrowserLocation()).getSampleTypes())
+        for (String code : openbis.goTo(sampleBrowser()).getSampleTypes())
         {
             types.add(new SampleTypeBuilder(openbis).withCode(code).build());
         }
@@ -220,52 +241,52 @@ public abstract class SeleniumTest
 
     protected BrowserRow browserEntryOf(DataSetType type)
     {
-        return getRow(new Browsable(type));
+        return getRow(new BrowsableWrapper(type));
     }
 
     protected BrowserRow browserEntryOf(ExperimentType type)
     {
-        return getRow(new Browsable(type));
+        return getRow(new BrowsableWrapper(type));
     }
 
     protected BrowserRow browserEntryOf(Project project)
     {
-        return getRow(new Browsable(project));
+        return getRow(new BrowsableWrapper(project));
     }
 
     protected BrowserRow browserEntryOf(PropertyType type)
     {
-        return getRow(new Browsable(type));
+        return getRow(new BrowsableWrapper(type));
     }
 
     protected BrowserRow browserEntryOf(PropertyTypeAssignment assignment)
     {
-        return getRow(new Browsable(assignment));
+        return getRow(new BrowsableWrapper(assignment));
     }
 
     protected BrowserRow browserEntryOf(SampleType type)
     {
-        return getRow(new Browsable(type));
+        return getRow(new BrowsableWrapper(type));
     }
 
     protected BrowserRow browserEntryOf(Sample sample)
     {
-        return getRow(new Browsable(sample));
+        return getRow(new BrowsableWrapper(sample));
     }
 
     protected BrowserRow browserEntryOf(Script script)
     {
-        return getRow(new Browsable(script));
+        return getRow(new BrowsableWrapper(script));
     }
 
     protected BrowserRow browserEntryOf(Space space)
     {
-        return getRow(new Browsable(space));
+        return getRow(new BrowsableWrapper(space));
     }
 
     protected BrowserRow browserEntryOf(Vocabulary vocabulary)
     {
-        return getRow(new Browsable(vocabulary));
+        return getRow(new BrowsableWrapper(vocabulary));
     }
 
     private BrowserRow getRow(Browsable browsable)
@@ -468,6 +489,16 @@ public abstract class SeleniumTest
     protected ScriptBuilder anEntityValidationScript()
     {
         return new ScriptBuilder(openbis, ScriptType.ENTITY_VALIDATOR);
+    }
+
+    protected ScriptBuilder aDynamicPropertyEvaluatorScript()
+    {
+        return new ScriptBuilder(openbis, ScriptType.DYNAMIC_PROPERTY_EVALUATOR);
+    }
+
+    protected ScriptBuilder aManagedPropertyHandlerScript()
+    {
+        return new ScriptBuilder(openbis, ScriptType.MANAGED_PROPERTY_HANDLER);
     }
 
     protected SampleTypeUpdateBuilder anUpdateOf(SampleType type)
