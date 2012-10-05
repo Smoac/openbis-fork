@@ -16,17 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.Arrays;
-import java.util.Collection;
-
-import ch.systemsx.cisd.openbis.uitest.layout.DataSetTypeBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.layout.Location;
-import ch.systemsx.cisd.openbis.uitest.page.DataSetTypeBrowser;
-
 /**
  * @author anttil
  */
-public class DataSetType implements Browsable<DataSetTypeBrowser>
+public class DataSetType
 {
     private final String code;
 
@@ -38,7 +31,6 @@ public class DataSetType implements Browsable<DataSetTypeBrowser>
         this.description = description;
     }
 
-    @Override
     public String getCode()
     {
         return code;
@@ -52,12 +44,6 @@ public class DataSetType implements Browsable<DataSetTypeBrowser>
     void setDescription(String description)
     {
         this.description = description;
-    }
-
-    @Override
-    public Collection<String> getColumns()
-    {
-        return Arrays.asList("Code", "Description");
     }
 
     @Override
@@ -80,11 +66,5 @@ public class DataSetType implements Browsable<DataSetTypeBrowser>
     public String toString()
     {
         return "DataSetType " + this.code;
-    }
-
-    @Override
-    public Location<? extends DataSetTypeBrowser> getBrowserLocation()
-    {
-        return new DataSetTypeBrowserLocation();
     }
 }

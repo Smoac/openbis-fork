@@ -16,16 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.Arrays;
-import java.util.Collection;
-
-import ch.systemsx.cisd.openbis.uitest.layout.PropertyTypeBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.page.PropertyTypeBrowser;
-
 /**
  * @author anttil
  */
-public class PropertyType implements Browsable<PropertyTypeBrowser>
+public class PropertyType
 {
     private final String code;
 
@@ -47,7 +41,6 @@ public class PropertyType implements Browsable<PropertyTypeBrowser>
         this.vocabulary = vocabulary;
     }
 
-    @Override
     public String getCode()
     {
         return code;
@@ -94,12 +87,6 @@ public class PropertyType implements Browsable<PropertyTypeBrowser>
     }
 
     @Override
-    public Collection<String> getColumns()
-    {
-        return Arrays.asList("Code", "Data Type", "Label", "Description", "Vocabulary");
-    }
-
-    @Override
     public boolean equals(Object o)
     {
         if (!(o instanceof PropertyType))
@@ -121,11 +108,5 @@ public class PropertyType implements Browsable<PropertyTypeBrowser>
     public String toString()
     {
         return "PropertyType " + code + " of type " + dataType;
-    }
-
-    @Override
-    public PropertyTypeBrowserLocation getBrowserLocation()
-    {
-        return new PropertyTypeBrowserLocation();
     }
 }

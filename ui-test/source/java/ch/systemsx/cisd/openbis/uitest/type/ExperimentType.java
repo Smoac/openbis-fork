@@ -16,16 +16,11 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.Arrays;
-import java.util.Collection;
-
-import ch.systemsx.cisd.openbis.uitest.layout.ExperimentTypeBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.page.ExperimentTypeBrowser;
 
 /**
  * @author anttil
  */
-public class ExperimentType implements Browsable<ExperimentTypeBrowser>
+public class ExperimentType
 {
     private final String code;
 
@@ -37,7 +32,6 @@ public class ExperimentType implements Browsable<ExperimentTypeBrowser>
         this.description = description;
     }
 
-    @Override
     public String getCode()
     {
         return code;
@@ -51,12 +45,6 @@ public class ExperimentType implements Browsable<ExperimentTypeBrowser>
     void setDescription(String description)
     {
         this.description = description;
-    }
-
-    @Override
-    public Collection<String> getColumns()
-    {
-        return Arrays.asList("Code", "Description");
     }
 
     @Override
@@ -79,11 +67,5 @@ public class ExperimentType implements Browsable<ExperimentTypeBrowser>
     public String toString()
     {
         return "ExperimentType " + code;
-    }
-
-    @Override
-    public ExperimentTypeBrowserLocation getBrowserLocation()
-    {
-        return new ExperimentTypeBrowserLocation();
     }
 }

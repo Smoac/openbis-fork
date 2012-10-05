@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
@@ -26,7 +25,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class VocabularyBrowser extends Browser<Vocabulary>
+public class VocabularyBrowser extends Browser
 {
     @Locate("openbis_vocabulary-browser-grid")
     private Grid grid;
@@ -57,6 +56,7 @@ public class VocabularyBrowser extends Browser<Vocabulary>
         add.click();
     }
 
+    @Override
     public void delete()
     {
         delete.click();

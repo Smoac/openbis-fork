@@ -16,16 +16,12 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.Arrays;
 import java.util.Collection;
-
-import ch.systemsx.cisd.openbis.uitest.layout.SampleTypeBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.page.SampleTypeBrowser;
 
 /**
  * @author anttil
  */
-public class SampleType implements Browsable<SampleTypeBrowser>, EntityType
+public class SampleType implements EntityType
 {
 
     private final String code;
@@ -168,14 +164,6 @@ public class SampleType implements Browsable<SampleTypeBrowser>, EntityType
     }
 
     @Override
-    public Collection<String> getColumns()
-    {
-        return Arrays.asList("Code", "Description", "Database Instance", "Validation Script",
-                "Listable?", "Show Container?", "Show Parents?", "Unique Subcodes",
-                "Generate Codes Automatically", "Show Parent Metadata?", "Generated Code Prefix");
-    }
-
-    @Override
     public int hashCode()
     {
         return code.toUpperCase().hashCode();
@@ -189,11 +177,5 @@ public class SampleType implements Browsable<SampleTypeBrowser>, EntityType
             return false;
         }
         return code.equalsIgnoreCase(((SampleType) o).getCode());
-    }
-
-    @Override
-    public SampleTypeBrowserLocation getBrowserLocation()
-    {
-        return new SampleTypeBrowserLocation();
     }
 }

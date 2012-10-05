@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
@@ -24,7 +23,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class DataSetTypeBrowser extends Browser<DataSetType>
+public class DataSetTypeBrowser extends Browser
 {
 
     @Locate("openbis_data-set-type-browser-grid")
@@ -70,5 +69,12 @@ public class DataSetTypeBrowser extends Browser<DataSetType>
     public SettingsDialog getSettings()
     {
         return settings;
+    }
+
+    @Override
+    protected void delete()
+    {
+        // TODO Auto-generated method stub
+
     }
 }

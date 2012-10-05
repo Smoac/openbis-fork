@@ -16,17 +16,12 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Set;
-
-import ch.systemsx.cisd.openbis.uitest.layout.VocabularyBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.page.VocabularyBrowser;
 
 /**
  * @author anttil
  */
-public class Vocabulary implements Browsable<VocabularyBrowser>
+public class Vocabulary
 {
     private final String code;
 
@@ -44,7 +39,6 @@ public class Vocabulary implements Browsable<VocabularyBrowser>
         this.url = url;
     }
 
-    @Override
     public String getCode()
     {
         return code;
@@ -81,12 +75,6 @@ public class Vocabulary implements Browsable<VocabularyBrowser>
     }
 
     @Override
-    public Collection<String> getColumns()
-    {
-        return Arrays.asList("Code", "Description", "URL Template");
-    }
-
-    @Override
     public String toString()
     {
         return "Vocabulary " + this.code + ": " + this.terms;
@@ -108,9 +96,4 @@ public class Vocabulary implements Browsable<VocabularyBrowser>
         return false;
     }
 
-    @Override
-    public VocabularyBrowserLocation getBrowserLocation()
-    {
-        return new VocabularyBrowserLocation();
-    }
 }

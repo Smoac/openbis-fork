@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
@@ -26,7 +25,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class SampleTypeBrowser extends Browser<SampleType>
+public class SampleTypeBrowser extends Browser
 {
     @Locate("add-entity-type-SAMPLE")
     private Button add;
@@ -65,6 +64,7 @@ public class SampleTypeBrowser extends Browser<SampleType>
         edit.click();
     }
 
+    @Override
     public void delete()
     {
         delete.click();

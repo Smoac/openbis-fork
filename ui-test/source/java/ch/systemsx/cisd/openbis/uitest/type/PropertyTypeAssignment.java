@@ -16,16 +16,11 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.Arrays;
-import java.util.Collection;
-
-import ch.systemsx.cisd.openbis.uitest.layout.PropertyTypeAssignmentBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.page.PropertyTypeAssignmentBrowser;
 
 /**
  * @author anttil
  */
-public class PropertyTypeAssignment implements Browsable<PropertyTypeAssignmentBrowser>
+public class PropertyTypeAssignment
 {
 
     private PropertyType propertyType;
@@ -66,18 +61,6 @@ public class PropertyTypeAssignment implements Browsable<PropertyTypeAssignmentB
     }
 
     @Override
-    public Collection<String> getColumns()
-    {
-        return Arrays.asList("Property Type Code", "Entity Type", "Mandatory?");
-    }
-
-    @Override
-    public String getCode()
-    {
-        return propertyType.getCode();
-    }
-
-    @Override
     public int hashCode()
     {
         int result = 17;
@@ -102,12 +85,6 @@ public class PropertyTypeAssignment implements Browsable<PropertyTypeAssignmentB
     public String toString()
     {
         return "PropertyTypeAssignment [" + this.propertyType + ", " + this.entityType + "]";
-    }
-
-    @Override
-    public PropertyTypeAssignmentBrowserLocation getBrowserLocation()
-    {
-        return new PropertyTypeAssignmentBrowserLocation();
     }
 
 }

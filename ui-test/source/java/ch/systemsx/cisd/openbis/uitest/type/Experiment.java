@@ -16,16 +16,12 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.Arrays;
 import java.util.Collection;
-
-import ch.systemsx.cisd.openbis.uitest.layout.ExperimentBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.page.ExperimentBrowser;
 
 /**
  * @author anttil
  */
-public class Experiment implements EntityType, Browsable<ExperimentBrowser>
+public class Experiment implements EntityType
 {
     private ExperimentType type;
 
@@ -80,12 +76,6 @@ public class Experiment implements EntityType, Browsable<ExperimentBrowser>
     }
 
     @Override
-    public Collection<String> getColumns()
-    {
-        return Arrays.asList("Code", "Project", "Experiment Type");
-    }
-
-    @Override
     public boolean equals(Object o)
     {
         if (o instanceof Experiment)
@@ -107,9 +97,4 @@ public class Experiment implements EntityType, Browsable<ExperimentBrowser>
         return "Experiment " + code;
     }
 
-    @Override
-    public ExperimentBrowserLocation getBrowserLocation()
-    {
-        return new ExperimentBrowserLocation();
-    }
 }

@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.uitest.application.GuiApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.application.PublicApiApplicationRunner;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterSampleLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.SampleBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.page.Browser;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserRow;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterSample;
 import ch.systemsx.cisd.openbis.uitest.page.SampleDetails;
@@ -52,6 +51,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Browsable;
 import ch.systemsx.cisd.openbis.uitest.type.Builder;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.uitest.type.ExperimentTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.type.ProjectBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignmentBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
@@ -67,6 +68,7 @@ import ch.systemsx.cisd.openbis.uitest.type.SampleBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.type.SampleTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.SampleTypeUpdateBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.Script;
 import ch.systemsx.cisd.openbis.uitest.type.ScriptBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.ScriptType;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
@@ -151,21 +153,6 @@ public abstract class SeleniumTest
         driver.quit();
     }
 
-    public static void setImplicitWait(long amount, TimeUnit unit)
-    {
-        driver.manage().timeouts().implicitlyWait(amount, unit);
-    }
-
-    public static void setImplicitWaitToDefault()
-    {
-        driver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT, TimeUnit.SECONDS);
-    }
-
-    public void logout()
-    {
-        openbis.logout();
-    }
-
     @BeforeMethod(alwaysRun = true)
     public void initPageProxy(Method method)
     {
@@ -195,9 +182,29 @@ public abstract class SeleniumTest
         f.delete();
     }
 
+    public static void setImplicitWait(long amount, TimeUnit unit)
+    {
+        driver.manage().timeouts().implicitlyWait(amount, unit);
+    }
+
+    public static void setImplicitWaitToDefault()
+    {
+        driver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT, TimeUnit.SECONDS);
+    }
+
+    public void logout()
+    {
+        openbis.logout();
+    }
+
     protected void login(String user, String password)
     {
         openbis.login(user, password);
+    }
+
+    public String loggedInAs()
+    {
+        return openbis.loggedInAs();
     }
 
     protected Collection<SampleType> sampleTypesInSampleBrowser()
@@ -211,10 +218,59 @@ public abstract class SeleniumTest
         return types;
     }
 
-    protected <T extends Browsable<U>, U extends Browser<T>> BrowserRow browserEntryOf(
-            T browsable)
+    protected BrowserRow browserEntryOf(DataSetType type)
     {
-        return openbis.getBrowserContentOf(browsable);
+        return getRow(new Browsable(type));
+    }
+
+    protected BrowserRow browserEntryOf(ExperimentType type)
+    {
+        return getRow(new Browsable(type));
+    }
+
+    protected BrowserRow browserEntryOf(Project project)
+    {
+        return getRow(new Browsable(project));
+    }
+
+    protected BrowserRow browserEntryOf(PropertyType type)
+    {
+        return getRow(new Browsable(type));
+    }
+
+    protected BrowserRow browserEntryOf(PropertyTypeAssignment assignment)
+    {
+        return getRow(new Browsable(assignment));
+    }
+
+    protected BrowserRow browserEntryOf(SampleType type)
+    {
+        return getRow(new Browsable(type));
+    }
+
+    protected BrowserRow browserEntryOf(Sample sample)
+    {
+        return getRow(new Browsable(sample));
+    }
+
+    protected BrowserRow browserEntryOf(Script script)
+    {
+        return getRow(new Browsable(script));
+    }
+
+    protected BrowserRow browserEntryOf(Space space)
+    {
+        return getRow(new Browsable(space));
+    }
+
+    protected BrowserRow browserEntryOf(Vocabulary vocabulary)
+    {
+        return getRow(new Browsable(vocabulary));
+    }
+
+    private BrowserRow getRow(Browsable browsable)
+    {
+        return openbis.goTo(browsable.getBrowserLocation()).getRow(browsable);
     }
 
     protected SampleDetails detailsOf(Sample sample)
@@ -232,11 +288,6 @@ public abstract class SeleniumTest
     {
         openbis.goTo(new RegisterSampleLocation()).selectSampleType(type);
         return assumePage(RegisterSample.class);
-    }
-
-    public String loggedInAs()
-    {
-        return openbis.loggedInAs();
     }
 
     public <T> T assumePage(Class<T> pageClass)

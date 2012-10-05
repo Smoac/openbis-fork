@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
@@ -25,7 +24,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class RoleAssignmentBrowser extends Browser<Experiment>
+public class RoleAssignmentBrowser extends Browser
 {
 
     @SuppressWarnings("unused")
@@ -68,5 +67,12 @@ public class RoleAssignmentBrowser extends Browser<Experiment>
     public SettingsDialog getSettings()
     {
         return settings;
+    }
+
+    @Override
+    protected void delete()
+    {
+        // TODO Auto-generated method stub
+
     }
 }

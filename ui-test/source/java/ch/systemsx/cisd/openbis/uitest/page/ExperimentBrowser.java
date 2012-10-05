@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Action;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
@@ -30,7 +29,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 import ch.systemsx.cisd.openbis.uitest.widget.TreeGrid;
 
-public class ExperimentBrowser extends Browser<Experiment>
+public class ExperimentBrowser extends Browser
 {
     @Locate("openbis_select-project")
     private TreeGrid projectTree;
@@ -102,6 +101,13 @@ public class ExperimentBrowser extends Browser<Experiment>
     public SettingsDialog getSettings()
     {
         return settings;
+    }
+
+    @Override
+    protected void delete()
+    {
+        // TODO Auto-generated method stub
+
     }
 
 }

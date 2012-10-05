@@ -16,18 +16,13 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
-
-import ch.systemsx.cisd.openbis.uitest.layout.SampleBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.page.SampleBrowser;
 
 /**
  * @author anttil
  */
-public class Sample implements EntityType, Browsable<SampleBrowser>
+public class Sample implements EntityType
 {
     private SampleType type;
 
@@ -109,19 +104,6 @@ public class Sample implements EntityType, Browsable<SampleBrowser>
     }
 
     @Override
-    public Collection<String> getColumns()
-    {
-        Collection<String> columns = new HashSet<String>();
-        columns.addAll(Arrays.asList("Code", "Experiment", "Parents", "Space", "Sample Type",
-                "Project"));
-        for (PropertyTypeAssignment propertyTypeAssignment : type.getPropertyTypeAssignments())
-        {
-            columns.add(propertyTypeAssignment.getPropertyType().getLabel());
-        }
-        return columns;
-    }
-
-    @Override
     public int hashCode()
     {
         return code.hashCode();
@@ -141,11 +123,5 @@ public class Sample implements EntityType, Browsable<SampleBrowser>
     public String toString()
     {
         return "Sample " + this.code;
-    }
-
-    @Override
-    public SampleBrowserLocation getBrowserLocation()
-    {
-        return new SampleBrowserLocation();
     }
 }

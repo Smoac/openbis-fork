@@ -16,16 +16,11 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.Arrays;
-import java.util.Collection;
-
-import ch.systemsx.cisd.openbis.uitest.layout.ProjectBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.page.ProjectBrowser;
 
 /**
  * @author anttil
  */
-public class Project implements Browsable<ProjectBrowser>
+public class Project
 {
     private final String code;
 
@@ -40,7 +35,6 @@ public class Project implements Browsable<ProjectBrowser>
         this.description = description;
     }
 
-    @Override
     public String getCode()
     {
         return code;
@@ -67,12 +61,6 @@ public class Project implements Browsable<ProjectBrowser>
     }
 
     @Override
-    public Collection<String> getColumns()
-    {
-        return Arrays.asList("Code", "Description", "Space");
-    }
-
-    @Override
     public boolean equals(Object o)
     {
         if (o instanceof Project)
@@ -93,11 +81,4 @@ public class Project implements Browsable<ProjectBrowser>
     {
         return "Project " + code;
     }
-
-    @Override
-    public ProjectBrowserLocation getBrowserLocation()
-    {
-        return new ProjectBrowserLocation();
-    }
-
 }

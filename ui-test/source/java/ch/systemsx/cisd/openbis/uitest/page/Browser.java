@@ -32,24 +32,49 @@ import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 /**
  * @author anttil
  */
-public abstract class Browser<T extends Browsable<? extends Browser<T>>>
+public abstract class Browser
 {
 
-    public abstract Grid getGrid();
+    protected abstract Grid getGrid();
 
-    public abstract PagingToolBar getPaging();
+    protected abstract PagingToolBar getPaging();
 
-    public abstract FilterToolBar getFilters();
+    protected abstract FilterToolBar getFilters();
 
-    public abstract SettingsDialog getSettings();
+    protected abstract SettingsDialog getSettings();
 
-    public final BrowserRow select(T browsable)
+    protected abstract void delete();
+
+    public final BrowserRow select(Browsable browsable)
     {
         waitForPagingToolBar();
         return getGrid().select("Code", browsable.getCode());
     }
 
-    public final void filterTo(T browsable)
+    public final BrowserRow getRow(Browsable browsable)
+    {
+        showColumnsOf(browsable);
+        filterTo(browsable);
+        List<BrowserRow> rows = getData();
+        try
+        {
+            if (rows.size() == 0)
+            {
+                return new BrowserRow();
+            } else if (rows.size() == 1)
+            {
+                return rows.get(0);
+            } else
+            {
+                throw new IllegalStateException("multiple rows found:\n" + rows);
+            }
+        } finally
+        {
+            resetFilters();
+        }
+    }
+
+    public final void filterTo(Browsable browsable)
     {
         waitForPagingToolBar();
         getPaging().filters();
@@ -63,7 +88,7 @@ public abstract class Browser<T extends Browsable<? extends Browser<T>>>
         getFilters().reset();
     }
 
-    public final void showColumnsOf(T browsable)
+    public final void showColumnsOf(Browsable browsable)
     {
         waitForPagingToolBar();
         if (getGrid().getColumnNames().containsAll(browsable.getColumns()))
@@ -74,10 +99,22 @@ public abstract class Browser<T extends Browsable<? extends Browser<T>>>
         getSettings().showColumnsOf(browsable);
     }
 
-    public final List<BrowserRow> getData()
+    private final List<BrowserRow> getData()
     {
         waitForPagingToolBar();
         return getGrid().getData();
+    }
+
+    public final void delete(Browsable browsable)
+    {
+        filterTo(browsable);
+        BrowserRow row = select(browsable);
+        if (row.exists())
+        {
+            delete();
+        }
+        resetFilters();
+
     }
 
     @Override

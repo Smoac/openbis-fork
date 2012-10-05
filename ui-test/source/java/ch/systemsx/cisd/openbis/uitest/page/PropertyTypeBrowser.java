@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
@@ -26,7 +25,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class PropertyTypeBrowser extends Browser<PropertyType>
+public class PropertyTypeBrowser extends Browser
 {
 
     @Locate("openbis_property-type-browser-grid")
@@ -54,6 +53,7 @@ public class PropertyTypeBrowser extends Browser<PropertyType>
     @Locate("openbis_tab-panelproperty-type-browser-grid")
     private SettingsDialog settings;
 
+    @Override
     public void delete()
     {
         delete.click();

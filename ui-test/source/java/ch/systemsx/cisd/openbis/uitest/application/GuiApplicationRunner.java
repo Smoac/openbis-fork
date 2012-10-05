@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.application;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.NoSuchElementException;
@@ -29,17 +28,12 @@ import ch.systemsx.cisd.openbis.uitest.layout.AddSpaceDialogLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.AddVocabularyLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.AssignSamplePropertyLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.ExperimentBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.layout.ExperimentTypeBrowserLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.Location;
-import ch.systemsx.cisd.openbis.uitest.layout.ProjectBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.layout.PropertyTypeBrowserLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterExperimentLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterProjectLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterSampleLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterScriptLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.SampleTypeBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.layout.SpaceBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.layout.VocabularyBrowserLocation;
 import ch.systemsx.cisd.openbis.uitest.menu.TabBar;
 import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.menu.UserMenu;
@@ -50,21 +44,15 @@ import ch.systemsx.cisd.openbis.uitest.page.AddSpaceDialog;
 import ch.systemsx.cisd.openbis.uitest.page.AddVocabularyDialog;
 import ch.systemsx.cisd.openbis.uitest.page.AssignSamplePropertyType;
 import ch.systemsx.cisd.openbis.uitest.page.Browser;
-import ch.systemsx.cisd.openbis.uitest.page.BrowserRow;
 import ch.systemsx.cisd.openbis.uitest.page.EditSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.ExperimentBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.ExperimentTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
-import ch.systemsx.cisd.openbis.uitest.page.ProjectBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.PropertyTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterExperiment;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterProject;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterSample;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterScript;
 import ch.systemsx.cisd.openbis.uitest.page.SampleTypeBrowser;
-import ch.systemsx.cisd.openbis.uitest.page.SpaceBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.Trash;
-import ch.systemsx.cisd.openbis.uitest.page.VocabularyBrowser;
 import ch.systemsx.cisd.openbis.uitest.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.type.Browsable;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
@@ -121,25 +109,9 @@ public class GuiApplicationRunner implements ApplicationRunner
     }
 
     @Override
-    public Space create(Space space)
-    {
-        AddSpaceDialog dialog = goTo(new AddSpaceDialogLocation());
-        dialog.fillWith(space);
-        dialog.save();
-        return space;
-    }
-
-    @Override
     public void delete(Space space)
     {
-        SpaceBrowser browser = goTo(new SpaceBrowserLocation());
-        browser.filterTo(space);
-        BrowserRow row = browser.select(space);
-        if (row.exists())
-        {
-            browser.delete();
-        }
-        browser.resetFilters();
+        delete(new Browsable(space));
     }
 
     public void deleteExperimentsFrom(Project project)
@@ -154,66 +126,46 @@ public class GuiApplicationRunner implements ApplicationRunner
     @Override
     public void delete(Project project)
     {
-        ProjectBrowser browser = goTo(new ProjectBrowserLocation());
-        browser.filterTo(project);
-        BrowserRow row = browser.select(project);
-        if (row.exists())
-        {
-            browser.delete();
-        }
-        browser.resetFilters();
+        delete(new Browsable(project));
     }
 
     @Override
     public void delete(SampleType sampleType)
     {
-        SampleTypeBrowser browser = goTo(new SampleTypeBrowserLocation());
-        browser.filterTo(sampleType);
-        BrowserRow row = browser.select(sampleType);
-        if (row.exists())
-        {
-            browser.delete();
-        }
-        browser.resetFilters();
+        delete(new Browsable(sampleType));
     }
 
     @Override
     public void delete(ExperimentType experimentType)
     {
-        ExperimentTypeBrowser browser = goTo(new ExperimentTypeBrowserLocation());
-        browser.filterTo(experimentType);
-        BrowserRow row = browser.select(experimentType);
-        if (row.exists())
-        {
-            browser.delete();
-        }
-        browser.resetFilters();
+        delete(new Browsable(experimentType));
     }
 
     @Override
     public void delete(PropertyType propertyType)
     {
-        PropertyTypeBrowser browser = goTo(new PropertyTypeBrowserLocation());
-        browser.filterTo(propertyType);
-        BrowserRow row = browser.select(propertyType);
-        if (row.exists())
-        {
-            browser.delete();
-        }
-        browser.resetFilters();
+        delete(new Browsable(propertyType));
     }
 
     @Override
     public void delete(Vocabulary vocabulary)
     {
-        VocabularyBrowser browser = goTo(new VocabularyBrowserLocation());
-        browser.filterTo(vocabulary);
-        BrowserRow row = browser.select(vocabulary);
-        if (row.exists())
-        {
-            browser.delete();
-        }
-        browser.resetFilters();
+        delete(new Browsable(vocabulary));
+    }
+
+    private void delete(Browsable browsable)
+    {
+        Browser browser = goTo(browsable.getBrowserLocation());
+        browser.delete(browsable);
+    }
+
+    @Override
+    public Space create(Space space)
+    {
+        AddSpaceDialog dialog = goTo(new AddSpaceDialogLocation());
+        dialog.fillWith(space);
+        dialog.save();
+        return space;
     }
 
     @Override
@@ -316,9 +268,11 @@ public class GuiApplicationRunner implements ApplicationRunner
     @Override
     public void update(SampleType sampleType)
     {
+        Browsable b = new Browsable(sampleType);
+
         SampleTypeBrowser browser = goTo(new SampleTypeBrowserLocation());
-        browser.filterTo(sampleType);
-        browser.select(sampleType);
+        browser.filterTo(b);
+        browser.select(b);
         browser.edit();
         EditSampleTypeDialog dialog = proxy.get(EditSampleTypeDialog.class);
         dialog.fillWith(sampleType);
@@ -347,30 +301,6 @@ public class GuiApplicationRunner implements ApplicationRunner
             location.moveTo(this);
         }
         return load(location.getPage());
-    }
-
-    public <T extends Browsable<U>, U extends Browser<T>> BrowserRow getBrowserContentOf(T browsable)
-    {
-        U browser = goTo(browsable.getBrowserLocation());
-        browser.showColumnsOf(browsable);
-        browser.filterTo(browsable);
-        List<BrowserRow> rows = browser.getData();
-        try
-        {
-            if (rows.size() == 0)
-            {
-                return new BrowserRow();
-            } else if (rows.size() == 1)
-            {
-                return rows.get(0);
-            } else
-            {
-                throw new IllegalStateException("multiple rows found:\n" + rows);
-            }
-        } finally
-        {
-            browser.resetFilters();
-        }
     }
 
     public void emptyTrash()

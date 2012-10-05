@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
@@ -25,7 +24,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class PropertyTypeAssignmentBrowser extends Browser<PropertyTypeAssignment>
+public class PropertyTypeAssignmentBrowser extends Browser
 {
     @Locate("openbis_property-type-assignment-browser-grid")
     private Grid grid;
@@ -71,6 +70,13 @@ public class PropertyTypeAssignmentBrowser extends Browser<PropertyTypeAssignmen
     public SettingsDialog getSettings()
     {
         return settings;
+    }
+
+    @Override
+    protected void delete()
+    {
+        // TODO Auto-generated method stub
+
     }
 
 }

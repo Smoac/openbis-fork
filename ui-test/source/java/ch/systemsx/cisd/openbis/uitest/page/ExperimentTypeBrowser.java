@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
@@ -26,7 +25,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class ExperimentTypeBrowser extends Browser<ExperimentType>
+public class ExperimentTypeBrowser extends Browser
 {
 
     @Locate("add-entity-type-EXPERIMENT")
@@ -62,6 +61,7 @@ public class ExperimentTypeBrowser extends Browser<ExperimentType>
         add.click();
     }
 
+    @Override
     public void delete()
     {
         delete.click();
@@ -84,13 +84,6 @@ public class ExperimentTypeBrowser extends Browser<ExperimentType>
     public FilterToolBar getFilters()
     {
         return filters;
-    }
-
-    @Override
-    public String toString()
-    {
-        String s = "ExperimentTypeBrowser\n==========\n";
-        return s + grid.toString();
     }
 
     @Override

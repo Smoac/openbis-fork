@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.uitest.page;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
@@ -29,7 +28,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class SampleBrowser extends Browser<Sample>
+public class SampleBrowser extends Browser
 {
 
     @Locate("openbis_sample-browser_main-grid")
@@ -103,5 +102,12 @@ public class SampleBrowser extends Browser<Sample>
     public SettingsDialog getSettings()
     {
         return settings;
+    }
+
+    @Override
+    protected void delete()
+    {
+        // TODO Auto-generated method stub
+
     }
 }

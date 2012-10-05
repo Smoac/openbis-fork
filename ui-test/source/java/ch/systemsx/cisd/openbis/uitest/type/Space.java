@@ -16,16 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.Arrays;
-import java.util.Collection;
-
-import ch.systemsx.cisd.openbis.uitest.layout.SpaceBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.page.SpaceBrowser;
-
 /**
  * @author anttil
  */
-public class Space implements Browsable<SpaceBrowser>
+public class Space
 {
     private final String code;
 
@@ -37,7 +31,6 @@ public class Space implements Browsable<SpaceBrowser>
         this.description = description;
     }
 
-    @Override
     public String getCode()
     {
         return code;
@@ -51,12 +44,6 @@ public class Space implements Browsable<SpaceBrowser>
     void setDescription(String description)
     {
         this.description = description;
-    }
-
-    @Override
-    public Collection<String> getColumns()
-    {
-        return Arrays.asList("Code", "Description");
     }
 
     @Override
@@ -79,11 +66,5 @@ public class Space implements Browsable<SpaceBrowser>
     public String toString()
     {
         return "Space " + this.code;
-    }
-
-    @Override
-    public SpaceBrowserLocation getBrowserLocation()
-    {
-        return new SpaceBrowserLocation();
     }
 }

@@ -16,16 +16,11 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import java.util.Arrays;
-import java.util.Collection;
-
-import ch.systemsx.cisd.openbis.uitest.layout.ScriptBrowserLocation;
-import ch.systemsx.cisd.openbis.uitest.page.ScriptBrowser;
 
 /**
  * @author anttil
  */
-public class Script implements Browsable<ScriptBrowser>
+public class Script
 {
     private final String name;
 
@@ -91,13 +86,6 @@ public class Script implements Browsable<ScriptBrowser>
         this.content = content;
     }
 
-    @Override
-    public Collection<String> getColumns()
-    {
-        return Arrays.asList("Name", "Description", "Entity Kind", "Script Type", "Script");
-    }
-
-    @Override
     public String getCode()
     {
         return name;
@@ -123,11 +111,5 @@ public class Script implements Browsable<ScriptBrowser>
     public String toString()
     {
         return "Script" + getCode();
-    }
-
-    @Override
-    public ScriptBrowserLocation getBrowserLocation()
-    {
-        return new ScriptBrowserLocation();
     }
 }

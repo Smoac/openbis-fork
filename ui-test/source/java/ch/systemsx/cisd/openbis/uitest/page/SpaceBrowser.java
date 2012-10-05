@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
-import ch.systemsx.cisd.openbis.uitest.type.Space;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
@@ -26,7 +25,7 @@ import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 
-public class SpaceBrowser extends Browser<Space>
+public class SpaceBrowser extends Browser
 {
 
     @Locate("openbis_space-browser-grid")
@@ -58,6 +57,7 @@ public class SpaceBrowser extends Browser<Space>
         addSpace.click();
     }
 
+    @Override
     public void delete()
     {
         delete.click();
