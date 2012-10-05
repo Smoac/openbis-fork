@@ -117,7 +117,14 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
     @Override
     public IExperimentImmutable getExperiment()
     {
+        if (experiment != null)
+        {
         return experiment;
+        } else if (sampleOrNull != null)
+        {
+            return sampleOrNull.getExperiment();
+        }
+        return null;
     }
 
     @Override
