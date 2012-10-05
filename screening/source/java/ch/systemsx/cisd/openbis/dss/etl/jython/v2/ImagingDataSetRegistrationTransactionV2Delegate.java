@@ -32,6 +32,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImageDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.FeatureListDataConfig;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IFeatureVectorDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IImagingDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.SimpleFeatureVectorDataConfig;
@@ -299,5 +300,11 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
             String externalDataManagementSystemCode)
     {
         return transaction.getExternalDataManagementSystem(externalDataManagementSystemCode);
+    }
+
+    @Override
+    public IDataSet createNewFeatureListDataSet(FeatureListDataConfig config)
+    {
+        return transaction.createNewFeatureListDataSet(config);
     }
 }

@@ -84,6 +84,10 @@ public class ScreeningConstants
     public static final String HCS_ANALYSIS_CONTAINER_DATASET_TYPE_PREFIX =
             "HCS_ANALYSIS_CONTAINER_WELL";
 
+    /** Prefix for types of the dataset which stores image analysis data. */
+    public static final String HCS_ANALYSIS_ANY_CONTAINER_DATASET_TYPE_PREFIX =
+            "HCS_ANALYSIS_CONTAINER";
+
     /** Type of the dataset which stores image analysis data, there should be at most one. */
     public static final String HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN = "HCS_IMAGE_ANALYSIS_DATA|" // legacy
             + (HCS_ANALYSIS_DATASET_TYPE_PREFIX + ".*")
@@ -158,6 +162,17 @@ public class ScreeningConstants
 
     /** type of the new analysis dataset */
     public static final String DEFAULT_ANALYSIS_WELL_DATASET_TYPE = "HCS_ANALYSIS_WELL_FEATURES";
+
+    /**
+     * The type containing the single feature grouping
+     */
+    public static final String ANALYSIS_FEATURE_LIST = "HCS_ANALYSIS_FEATURES_LIST";
+
+    /**
+     * The name of the directory in HCS_ANALYSIS_FEATURES_LIST dataset. (so that in container it is
+     * parallel to 'original' directory)
+     */
+    public static final String ANALYSIS_FEATURE_LIST_TOP_LEVEL_DIRECTORY_NAME = "feature_lists";
 
     /**
      * type of the analysis container dataset
