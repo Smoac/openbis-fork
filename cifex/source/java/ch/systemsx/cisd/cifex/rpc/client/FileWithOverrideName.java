@@ -62,4 +62,54 @@ public class FileWithOverrideName
         return encryptedFile;
     }
 
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((file == null) ? 0 : file.hashCode());
+        result =
+                prime * result + ((overrideNameOrNull == null) ? 0 : overrideNameOrNull.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == null)
+        {
+            return false;
+        }
+        if (getClass() != obj.getClass())
+        {
+            return false;
+        }
+        FileWithOverrideName other = (FileWithOverrideName) obj;
+        if (file == null)
+        {
+            if (other.file != null)
+            {
+                return false;
+            }
+        } else if (file.equals(other.file) == false)
+        {
+            return false;
+        }
+        if (overrideNameOrNull == null)
+        {
+            if (other.overrideNameOrNull != null)
+            {
+                return false;
+            }
+        } else if (!overrideNameOrNull.equals(other.overrideNameOrNull))
+        {
+            return false;
+        }
+        return true;
+    }
+
 }
