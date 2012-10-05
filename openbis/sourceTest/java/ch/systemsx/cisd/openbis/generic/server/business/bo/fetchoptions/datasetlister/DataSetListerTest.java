@@ -22,6 +22,7 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +40,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
@@ -118,21 +118,21 @@ public class DataSetListerTest extends AbstractDAOTest
     @Test
     public void testGetDataStoreURLs()
     {
-        DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
+        Connection conn = DatabaseContextUtils.getConnection(daoFactory);
         QueryTool
-                .update(context.getDataSource(),
+                .update(conn,
                         "update data_stores set download_url='http://download_1',remote_url='http://remote_1'"
                                 + " where code='STANDARD'");
         final long newDataStoreId =
                 (Long) QueryTool
-                        .select(context.getDataSource(),
+                        .select(conn,
                                 "insert into data_stores (id,dbin_id,code,download_url,remote_url,session_token)"
                                         + " values (nextval('data_store_id_seq'),1,'DSS2','http://download_2','http://remote_2','') returning id")
                         .get(0).get("id");
-        QueryTool.update(context.getDataSource(),
+        QueryTool.update(conn,
                 "update data set dast_id = ?{1} where code = ?{2}", newDataStoreId,
                 "20081105092259000-20");
-        QueryTool.update(context.getDataSource(),
+        QueryTool.update(conn,
                 "update data set dast_id = ?{1} where code = ?{2}", newDataStoreId,
                 "20081105092259000-21");
 
