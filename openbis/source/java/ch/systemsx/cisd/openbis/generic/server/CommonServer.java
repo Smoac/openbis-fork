@@ -3578,9 +3578,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public Metaproject registerMetaproject(String sessionToken,
-            @AuthorizationGuard(guardClass = MetaprojectPredicate.class)
-            Metaproject metaproject)
+    public Metaproject registerMetaproject(String sessionToken, Metaproject metaproject)
     {
         Session session = getSession(sessionToken);
 
