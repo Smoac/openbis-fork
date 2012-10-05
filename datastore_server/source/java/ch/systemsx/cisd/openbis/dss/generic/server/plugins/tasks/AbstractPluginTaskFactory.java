@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;

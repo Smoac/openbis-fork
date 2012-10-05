@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;

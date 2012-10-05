@@ -24,7 +24,7 @@ import org.hibernate.engine.SessionImplementor;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.proxy.LazyInitializer;
 
-import ch.systemsx.cisd.common.collections.UnmodifiableCollectionDecorator;
+import ch.systemsx.cisd.common.collection.UnmodifiableCollectionDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**

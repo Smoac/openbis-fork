@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
-import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
+import ch.systemsx.cisd.common.collection.ExtendedBlockingQueueFactory;
+import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 

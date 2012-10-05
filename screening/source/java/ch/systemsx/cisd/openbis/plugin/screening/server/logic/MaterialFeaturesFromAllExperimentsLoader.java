@@ -21,8 +21,8 @@ import java.util.List;
 
 import org.apache.commons.lang.time.StopWatch;
 
-import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.collections.CollectionUtils.ICollectionMappingFunction;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionUtils.ICollectionMappingFunction;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;

@@ -29,11 +29,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.collections.IKeyExtractor;
-import ch.systemsx.cisd.common.collections.TableMap;
-import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationException;
-import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationStrategy;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.collection.IKeyExtractor;
+import ch.systemsx.cisd.common.collection.TableMap;
+import ch.systemsx.cisd.common.collection.TableMap.UniqueKeyViolationException;
+import ch.systemsx.cisd.common.collection.TableMap.UniqueKeyViolationStrategy;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.parser.TabFileLoader;
 

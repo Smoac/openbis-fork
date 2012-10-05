@@ -32,8 +32,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataRetrievalFailureException;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.collections.IKeyExtractor;
-import ch.systemsx.cisd.common.collections.TableMap;
+import ch.systemsx.cisd.common.collection.IKeyExtractor;
+import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;

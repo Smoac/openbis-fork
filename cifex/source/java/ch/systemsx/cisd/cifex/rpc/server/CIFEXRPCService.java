@@ -56,7 +56,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exception.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;

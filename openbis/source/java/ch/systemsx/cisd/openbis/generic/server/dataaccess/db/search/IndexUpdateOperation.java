@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 import java.io.Serializable;
 import java.util.List;
 
-import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 
 /**
  * Encapsulates operation kind and data for an update operation to be performed on an index.

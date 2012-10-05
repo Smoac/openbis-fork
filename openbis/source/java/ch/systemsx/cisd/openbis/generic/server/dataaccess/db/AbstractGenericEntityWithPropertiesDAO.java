@@ -26,8 +26,8 @@ import org.hibernate.SQLQuery;
 import org.hibernate.StatelessSession;
 import org.springframework.dao.DataAccessException;
 
-import ch.systemsx.cisd.common.collections.CollectionStyle;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionStyle;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;

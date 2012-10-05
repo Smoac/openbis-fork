@@ -22,8 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.collections.CollectionUtils.ICollectionFilter;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionUtils.ICollectionFilter;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;

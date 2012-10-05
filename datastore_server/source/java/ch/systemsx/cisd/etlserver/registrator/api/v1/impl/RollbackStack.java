@@ -25,8 +25,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
-import ch.systemsx.cisd.common.collections.PersistentExtendedBlockingQueueDecorator;
+import ch.systemsx.cisd.common.collection.ExtendedBlockingQueueFactory;
+import ch.systemsx.cisd.common.collection.PersistentExtendedBlockingQueueDecorator;
 import ch.systemsx.cisd.etlserver.registrator.IRollbackStack;
 import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
 

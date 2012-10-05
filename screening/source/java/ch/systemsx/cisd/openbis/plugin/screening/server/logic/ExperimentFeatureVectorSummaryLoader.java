@@ -23,11 +23,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.collections.CollectionUtils.ICollectionMappingFunction;
-import ch.systemsx.cisd.common.collections.IKeyExtractor;
-import ch.systemsx.cisd.common.collections.TableMap;
-import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationStrategy;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.collection.IKeyExtractor;
+import ch.systemsx.cisd.common.collection.TableMap;
+import ch.systemsx.cisd.common.collection.CollectionUtils.ICollectionMappingFunction;
+import ch.systemsx.cisd.common.collection.TableMap.UniqueKeyViolationStrategy;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;

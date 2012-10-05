@@ -29,8 +29,8 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.spi.ThrowableInformation;
 
-import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.collections.IToStringConverter;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.collection.IToStringConverter;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 

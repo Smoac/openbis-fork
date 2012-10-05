@@ -28,7 +28,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.api.retry.RetryCaller;
 import ch.systemsx.cisd.common.api.retry.RetryProxyFactory;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exception.InvalidSessionException;
 import ch.systemsx.cisd.common.exception.UserFailureException;

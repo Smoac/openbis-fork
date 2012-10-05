@@ -24,9 +24,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
-import ch.systemsx.cisd.common.collections.ExtendedLinkedBlockingQueue;
-import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
+import ch.systemsx.cisd.common.collection.ExtendedBlockingQueueFactory;
+import ch.systemsx.cisd.common.collection.ExtendedLinkedBlockingQueue;
+import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 

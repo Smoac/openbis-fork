@@ -22,8 +22,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.common.collections.CollectionUtils.ICollectionFilter;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionUtils.ICollectionFilter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;

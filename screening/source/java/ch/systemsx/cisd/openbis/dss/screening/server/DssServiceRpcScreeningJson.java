@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
-import ch.systemsx.cisd.common.collections.IModifiable;
+import ch.systemsx.cisd.common.collection.IModifiable;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;

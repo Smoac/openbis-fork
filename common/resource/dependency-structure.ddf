@@ -9,8 +9,8 @@ check sets [db]
 [exception] = ${package}.exception.*
 check sets [exception]
 
-[collections] = ${package}.collections.*
-check sets [collections]
+[collection] = ${package}.collection.*
+check sets [collection]
 
 [logging] = ${package}.logging.*
 check sets [logging]
@@ -44,7 +44,7 @@ check sets [mail]
 
 layer layer0 = [io] [logging] [converter] [reflection]
 layer layer1 = [exception]  
-layer layer2 = [collections]
+layer layer2 = [collection]
 layer layer3 = [process] [mail] [properties] [monitoring]
 layer layer4 = [compression] [test]
 layer layer5 = [db] [parser]

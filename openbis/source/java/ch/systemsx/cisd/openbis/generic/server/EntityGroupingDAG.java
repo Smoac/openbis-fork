@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.collections.GroupingDAG;
+import ch.systemsx.cisd.common.collection.GroupingDAG;
 
 /**
  * Implementation of the topological sort to group entities in the groups of items.

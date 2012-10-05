@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import ch.systemsx.cisd.common.collections.IKeyExtractor;
-import ch.systemsx.cisd.common.collections.TableMap;
+import ch.systemsx.cisd.common.collection.IKeyExtractor;
+import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 
 /**

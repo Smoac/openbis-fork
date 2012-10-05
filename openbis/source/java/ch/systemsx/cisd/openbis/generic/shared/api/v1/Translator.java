@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1;
 
-import static ch.systemsx.cisd.common.collections.CollectionUtils.nullSafe;
+import static ch.systemsx.cisd.common.collection.CollectionUtils.nullSafe;
 
 import java.util.ArrayList;
 import java.util.Collection;

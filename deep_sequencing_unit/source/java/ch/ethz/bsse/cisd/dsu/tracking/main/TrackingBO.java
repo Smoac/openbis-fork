@@ -26,7 +26,7 @@ import ch.ethz.bsse.cisd.dsu.tracking.email.Email;
 import ch.ethz.bsse.cisd.dsu.tracking.email.EmailWithSummary;
 import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;

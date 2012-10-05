@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.concurrent.ITimerTaskStatusProvider;
 import ch.systemsx.cisd.common.exception.Status;
 import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler.HandleInstruction;

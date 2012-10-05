@@ -31,8 +31,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.collections.IKeyExtractor;
-import ch.systemsx.cisd.common.collections.TableMap;
+import ch.systemsx.cisd.common.collection.IKeyExtractor;
+import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;

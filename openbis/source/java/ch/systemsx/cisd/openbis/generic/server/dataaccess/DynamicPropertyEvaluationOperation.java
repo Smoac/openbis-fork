@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 import java.io.Serializable;
 import java.util.List;
 
-import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**

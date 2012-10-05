@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import ch.systemsx.cisd.common.collections.CollectionStyle;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionStyle;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.string.StringUtilities;
 
 /**

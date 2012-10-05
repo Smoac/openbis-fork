@@ -24,10 +24,10 @@ import java.util.regex.Pattern;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
-import ch.systemsx.cisd.common.collections.IKeyExtractor;
-import ch.systemsx.cisd.common.collections.IMultiKeyExtractor;
-import ch.systemsx.cisd.common.collections.TableMap;
-import ch.systemsx.cisd.common.collections.TableMapNonUniqueKey;
+import ch.systemsx.cisd.common.collection.IKeyExtractor;
+import ch.systemsx.cisd.common.collection.IMultiKeyExtractor;
+import ch.systemsx.cisd.common.collection.TableMap;
+import ch.systemsx.cisd.common.collection.TableMapNonUniqueKey;
 
 /**
  * Methods helpful in users management.

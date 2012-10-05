@@ -57,7 +57,7 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.shared.basic.dto.Message;
 import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;

@@ -26,7 +26,7 @@ import java.util.Set;
 import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;

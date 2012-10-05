@@ -62,8 +62,8 @@ import org.hibernate.validator.constraints.Length;
 
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
-import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
+import ch.systemsx.cisd.common.collection.UnmodifiableListDecorator;
+import ch.systemsx.cisd.common.collection.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;

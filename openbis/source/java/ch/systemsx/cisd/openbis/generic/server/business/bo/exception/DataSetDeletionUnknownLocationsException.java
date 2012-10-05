@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.exception;
 
 import java.util.List;
 
-import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 
 /**

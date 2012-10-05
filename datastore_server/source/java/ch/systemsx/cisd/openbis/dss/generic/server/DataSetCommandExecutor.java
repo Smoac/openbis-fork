@@ -24,8 +24,8 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
-import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
-import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
+import ch.systemsx.cisd.common.collection.ExtendedBlockingQueueFactory;
+import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.MailClientParameters;

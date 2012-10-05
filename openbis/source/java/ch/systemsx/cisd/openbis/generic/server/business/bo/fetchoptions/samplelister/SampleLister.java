@@ -32,8 +32,8 @@ import java.util.Map.Entry;
 
 import net.lemnik.eodsql.QueryTool;
 
-import ch.systemsx.cisd.common.collections.IKeyExtractor;
-import ch.systemsx.cisd.common.collections.TableMap;
+import ch.systemsx.cisd.common.collection.IKeyExtractor;
+import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.PropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;

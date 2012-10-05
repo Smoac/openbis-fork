@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.util;
 
-import ch.systemsx.cisd.common.collections.IKeyExtractor;
+import ch.systemsx.cisd.common.collection.IKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;

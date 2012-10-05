@@ -32,9 +32,9 @@ import net.lemnik.eodsql.DataIterator;
 import org.apache.commons.lang.ArrayUtils;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.collections.IKeyExtractor;
-import ch.systemsx.cisd.common.collections.TableMap;
-import ch.systemsx.cisd.common.collections.TableMap.UniqueKeyViolationStrategy;
+import ch.systemsx.cisd.common.collection.IKeyExtractor;
+import ch.systemsx.cisd.common.collection.TableMap;
+import ch.systemsx.cisd.common.collection.TableMap.UniqueKeyViolationStrategy;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;

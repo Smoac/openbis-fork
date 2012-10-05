@@ -40,7 +40,7 @@ import com.googlecode.jsonrpc4j.Base64;
 import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
 import com.googlecode.jsonrpc4j.ProxyUtil;
 
-import ch.systemsx.cisd.common.collections.IModifiable;
+import ch.systemsx.cisd.common.collection.IModifiable;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;

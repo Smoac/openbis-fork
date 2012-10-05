@@ -25,8 +25,8 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.collections.FilteredList;
-import ch.systemsx.cisd.common.collections.IModifiable;
+import ch.systemsx.cisd.common.collection.FilteredList;
+import ch.systemsx.cisd.common.collection.IModifiable;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
@@ -266,7 +266,7 @@ public final class DefaultReturnValueFilter implements IReturnValueFilter
     //
 
     private final static class ValidatorAdapter<T> implements
-            ch.systemsx.cisd.common.collections.IValidator<T>
+            ch.systemsx.cisd.common.collection.IValidator<T>
     {
 
         private final IValidator<T> validator;

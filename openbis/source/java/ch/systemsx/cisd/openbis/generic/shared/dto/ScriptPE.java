@@ -41,7 +41,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.validator.constraints.Length;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
+import ch.systemsx.cisd.common.collection.UnmodifiableListDecorator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;

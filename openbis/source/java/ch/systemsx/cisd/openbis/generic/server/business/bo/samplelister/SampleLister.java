@@ -29,7 +29,7 @@ import java.util.Set;
 import net.lemnik.eodsql.DataIterator;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.collections.IValidator;
+import ch.systemsx.cisd.common.collection.IValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
