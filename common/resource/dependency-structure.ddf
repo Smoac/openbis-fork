@@ -1,16 +1,13 @@
 {package} = ch.systemsx.cisd.common
 
-[annotation] = ${package}.annotation.*
-check sets [annotation]
-
 [converter] = ${package}.converter.*
 check sets [converter]
 
 [db] = ${package}.db.*
 check sets [db]
 
-[exceptions] = ${package}.exceptions.*
-check sets [exceptions]
+[exception] = ${package}.exception.*
+check sets [exception]
 
 [collections] = ${package}.collections.*
 check sets [collections]
@@ -20,6 +17,15 @@ check sets [logging]
 
 [parser] = ${package}.parser.*
 check sets [parser]
+
+[monitoring] = ${package}.monitoring.*
+check sets [monitoring]
+
+[properties] = ${package}.properties.*
+check sets [properties]
+
+[reflection] = ${package}.reflection.*
+check sets [reflection]
 
 [process] = ${package}.process.*
 check sets [process]
@@ -36,21 +42,13 @@ check sets [io]
 [mail] = ${package}.mail.*
 check sets [mail]
 
-layer layer0 = [io] [annotation] [exceptions] [logging] [converter]
-layer layer1 = [process] [mail] [collections]
-layer layer2 = [compression] [test]
-layer layer3 = [db] [parser]
+layer layer0 = [io] [logging] [converter] [reflection]
+layer layer1 = [exception]  
+layer layer2 = [collections]
+layer layer3 = [process] [mail] [properties] [monitoring]
+layer layer4 = [compression] [test]
+layer layer5 = [db] [parser]
 
-check layeringOf layer0 layer1 layer2
+check layeringOf layer0 layer1 layer2 layer3 layer4 layer5
 
 check [parser] independentOf ${package}.exceptions.UserFailureException
-
-##########################
-# Hierarchical Content API
-
-[hierarchical-content-api] = ${package}.io.hierarchical_content.api.*
-[java] = java* *.annotation.* *.exceptions.* ch.systemsx.cisd.base.io.IRandomAccessFile 
-[java-and-hierarchical-content-api] = [java] [hierarchical-content-api]
- 
-check sets [hierarchical-content-api]
-check [hierarchical-content-api] dependentOnlyOn [java-and-hierarchical-content-api] 
