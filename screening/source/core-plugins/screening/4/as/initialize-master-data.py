@@ -204,6 +204,10 @@ data_set_type_HCS_ANALYSIS_CONTAINER_WELL_FEATURES = tr.getOrCreateNewDataSetTyp
 data_set_type_HCS_ANALYSIS_CONTAINER_WELL_FEATURES.setDescription('Container for HCS image analysis well feature vectors.')
 data_set_type_HCS_ANALYSIS_CONTAINER_WELL_FEATURES.setContainerType(True)
 
+data_set_type_HCS_ANALYSIS_FEATURES_LIST = tr.getOrCreateNewDataSetType('HCS_ANALYSIS_FEATURES_LIST')
+data_set_type_HCS_ANALYSIS_FEATURES_LIST.setDescription('The list (or group) of features. The subset of features from feature vectors.')
+data_set_type_HCS_ANALYSIS_FEATURES_LIST.setContainerType(False)
+
 # Exists in the database by default
 #data_set_type_UNKNOWN = tr.getOrCreateNewDataSetType('UNKNOWN')
 #data_set_type_UNKNOWN.setDescription('Unknown')
