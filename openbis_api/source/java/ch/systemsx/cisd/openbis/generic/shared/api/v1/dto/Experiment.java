@@ -193,8 +193,9 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
                     "Unspecified entity registration details.");
             this.registrationDetails = initializer.getRegistrationDetails();
 
-            this.properties = initializer.getProperties();
         }
+
+        this.properties = initializer.getProperties();
     }
 
     /**

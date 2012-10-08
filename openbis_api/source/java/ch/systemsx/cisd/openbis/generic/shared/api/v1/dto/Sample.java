@@ -312,6 +312,8 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
         InitializingChecks.checkValidString(initializer.getPermId(), "Unspecified permanent id.");
         this.permId = initializer.getPermId();
 
+        this.retrievedFetchOptions = initializer.getRetrievedFetchOptions();
+
         if (initializer.isStub)
         {
             this.isStub = true;
@@ -340,7 +342,6 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
                     "Unspecified entity registration details.");
             this.registrationDetails = initializer.getRegistrationDetails();
 
-            this.retrievedFetchOptions = initializer.getRetrievedFetchOptions();
             if (initializer.parentReferences != null)
             {
                 this.parentReferences = initializer.parentReferences;

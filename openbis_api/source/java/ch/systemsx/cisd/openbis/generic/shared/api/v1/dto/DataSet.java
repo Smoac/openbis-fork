@@ -327,6 +327,8 @@ public final class DataSet implements Serializable, IIdHolder
         InitializingChecks.checkValidString(initializer.getCode(), "Unspecified code.");
         this.code = initializer.getCode();
 
+        this.retrievedConnections = initializer.getRetrievedConnections();
+
         if (initializer.isStub)
         {
             this.isStub = true;
@@ -342,7 +344,6 @@ public final class DataSet implements Serializable, IIdHolder
 
             this.properties = initializer.getProperties();
 
-            this.retrievedConnections = initializer.getRetrievedConnections();
             this.parentCodes = initializer.getParentCodes();
             this.childrenCodes = initializer.getChildrenCodes();
 
