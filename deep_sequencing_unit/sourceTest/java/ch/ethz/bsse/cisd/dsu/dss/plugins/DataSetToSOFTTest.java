@@ -66,7 +66,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 public class DataSetToSOFTTest<workingDirectory> extends AbstractFileSystemTestCase
 {
     private static final String SHARE_ID = "42";
+
     private static final String USER_EMAIL = "user@ho.me";
+
+    private static final String USER_ID = "test-user";
 
     private static final String SRF_FILE_NAME = "sample.srf";
 
@@ -96,8 +99,9 @@ public class DataSetToSOFTTest<workingDirectory> extends AbstractFileSystemTestC
         service = context.mock(IEncapsulatedOpenBISService.class);
         mailClient = context.mock(IMailClient.class);
         dataSetProcessingContext =
-                new DataSetProcessingContext(null, new MockDataSetDirectoryProvider(workingDirectory,
-                        SHARE_ID), new HashMap<String, String>(), mailClient, USER_EMAIL);
+                new DataSetProcessingContext(null, new MockDataSetDirectoryProvider(
+                        workingDirectory, SHARE_ID), new HashMap<String, String>(), mailClient,
+                        USER_ID, USER_EMAIL);
         File testFolder = new File(new File(workingDirectory, SHARE_ID), "test");
         testFolder.mkdirs();
         File sampleSrfFile = new File(testFolder, SRF_FILE_NAME);
