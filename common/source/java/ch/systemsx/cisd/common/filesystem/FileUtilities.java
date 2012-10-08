@@ -926,7 +926,18 @@ public final class FileUtilities
     {
         if (path.canWrite() == false && Unix.isOperational())
         {
-            Unix.setAccessMode(path.getPath(), (short) 0777);
+            try
+            {
+                Unix.setAccessMode(path.getPath(), (short) 0777);
+            } catch (IOExceptionUnchecked ex)
+            {
+                if (ex.getCause() != null
+                        && ex.getCause().getMessage().contains("No such file or directory"))
+                {
+                    return false;
+                }
+            }
+
         }
         return path.canWrite();
     }
