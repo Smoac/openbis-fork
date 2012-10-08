@@ -10,6 +10,7 @@ def add_headers(builder):
 	builder.addHeader("PERM_ID")
 	builder.addHeader("ENTITY_KIND")
 	builder.addHeader("ENTITY_TYPE")
+	builder.addHeader("IMAGE_URL")
 	builder.addHeader("PROPERTIES")
 
 
@@ -22,16 +23,22 @@ def add_row(builder, entry):
 	row.setCell("PERM_ID", entry.get("PERM_ID"))
 	row.setCell("ENTITY_KIND", entry.get("ENTITY_KIND"))
 	row.setCell("ENTITY_TYPE", entry.get("ENTITY_TYPE"))
+	row.setCell("IMAGE_URL", entry.get("IMAGE_URL"))
 	row.setCell("PROPERTIES", str(entry.get("PROPERTIES")))
 
 def material_to_dict(material):
 	material_dict = {}
 	material_dict['SUMMARY_HEADER'] = material.getCode()
-	material_dict['SUMMARY'] = material.getMaterialIdentifier()
+	material_dict['SUMMARY'] = material.getPropertyValue("DESC")
 	material_dict['IDENTIFIER'] = material.getMaterialIdentifier()
 	material_dict['PERM_ID'] = material.getMaterialIdentifier()
 	material_dict['ENTITY_KIND'] = 'MATERIAL'
 	material_dict['ENTITY_TYPE'] = material.getMaterialType()
+	if material.getMaterialType() == '5HT_COMPOUND':
+		chemblId =  material.getCode()
+		material_dict['IMAGE_URL'] = 'https://www.ebi.ac.uk/chemblws/compounds/%s/image' % chemblId
+	else:
+		material_dict['IMAGE_URL'] = ""	
 
 	prop_names = ["NAME", "PROT_NAME", "GENE_NAME", "LENGTH", "CHEMBL", "DESC"]
 	properties = dict((name, material.getPropertyValue(name)) for name in prop_names if material.getPropertyValue(name) is not None)
@@ -46,6 +53,7 @@ def sample_to_dict(five_ht_sample):
 	sample_dict['PERM_ID'] = five_ht_sample.getPermId()
 	sample_dict['ENTITY_KIND'] = 'SAMPLE'
 	sample_dict['ENTITY_TYPE'] = five_ht_sample.getSampleType()
+	sample_dict['IMAGE_URL'] = ""
 	prop_names = ["DESC"]
 	properties = dict((name, five_ht_sample.getPropertyValue(name)) for name in prop_names if five_ht_sample.getPropertyValue(name) is not None)
 	sample_dict['PROPERTIES'] = ObjectMapper().writeValueAsString(properties)

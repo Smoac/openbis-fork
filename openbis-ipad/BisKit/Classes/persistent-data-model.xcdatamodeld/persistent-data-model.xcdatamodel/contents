@@ -4,6 +4,7 @@
         <attribute name="entityKind" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="entityType" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
+        <attribute name="imageUrl" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="permId" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="properties" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="propertiesJson" optional="YES" attributeType="String" syncable="YES"/>
@@ -11,6 +12,6 @@
         <attribute name="summaryHeader" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
-        <element name="CISDOBIpadEntity" positionX="160" positionY="192" width="128" height="165"/>
+        <element name="CISDOBIpadEntity" positionX="160" positionY="192" width="128" height="180"/>
     </elements>
 </model>

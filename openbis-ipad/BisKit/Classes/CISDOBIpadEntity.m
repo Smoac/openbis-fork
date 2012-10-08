@@ -33,6 +33,7 @@
 @dynamic permId;
 @dynamic entityKind;
 @dynamic entityType;
+@dynamic imageUrl;
 @dynamic propertiesJson;
 
 - (NSArray *)properties
@@ -68,6 +69,7 @@
     self.permId = rawEntity.permId;
     self.entityKind = rawEntity.entityKind;
     self.entityType = rawEntity.entityType;
+    self.imageUrl = rawEntity.imageUrl;
     self.propertiesJson = rawEntity.properties;
 }
 

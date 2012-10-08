@@ -73,6 +73,7 @@ enum CISOBIpadServiceErrorCode {
 @property(readonly) NSString *permId;
 @property(readonly) NSString *entityKind;
 @property(readonly) NSString *entityType;
+@property(readonly) NSString *imageUrl;
 @property(readonly) NSString *properties; //<! The properties as a JSON string.
 
 @end
