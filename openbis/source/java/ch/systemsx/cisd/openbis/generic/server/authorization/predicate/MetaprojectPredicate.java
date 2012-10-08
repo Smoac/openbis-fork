@@ -16,41 +16,28 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
-import java.util.List;
-
-import ch.systemsx.cisd.common.exception.Status;
-import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
-import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * @author Pawel Glyzewski
  */
-public class MetaprojectPredicate extends AbstractPredicate<Metaproject>
+public class MetaprojectPredicate extends DelegatedPredicate<TechId, Metaproject>
 {
-    @Override
-    public void init(IAuthorizationDataProvider provider)
+    public MetaprojectPredicate()
     {
+        super(new MetaprojectTechIdPredicate());
+    }
+
+    @Override
+    public TechId tryConvert(Metaproject value)
+    {
+        return new TechId(value.getId());
     }
 
     @Override
     public String getCandidateDescription()
     {
         return "Metaproject";
-    }
-
-    @Override
-    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
-            Metaproject metaproject)
-    {
-        if (person.getUserId().equals(metaproject.getOwnerId()))
-        {
-            return Status.OK;
-        }
-
-        return Status.createError(String.format(
-                "User '%s' is not an owner of the metaproject '%s'.", person.getUserId(),
-                metaproject.getName()));
     }
 }
