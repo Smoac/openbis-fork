@@ -42,7 +42,9 @@ def process_uniprot(cols, targets, compounds, samples):
 		compound = bioactivity['ingredient_cmpd_chemblid']
 		if compound not in seen_compounds:
 			seen_compounds[compound] = True
-			compounds.write("%s\n" % compound)
+			compound_data = json.loads(urllib2.urlopen("https://www.ebi.ac.uk/chemblws/compounds/%s.json" % compound).read())
+			compound_info = compound_data['compound']
+			compounds.write("%(chemblId)s\t%(molecularFormula)s\t%(molecularWeight)s\t%(smiles)s\n" % compound_info)
 		samples.write("%s\t%s\t%s\n" % (target_info['accession'], compound, bioactivity['assay_description']))
 		index = index + 1
 		if index > 10:
@@ -54,7 +56,7 @@ with open("uniprot-human-serotonin.tab") as f:
 		# The targets header
 		targets.write("CODE\tNAME\tPROT_NAME\tGENE_NAME\tLENGTH\tCHEMBL\tDESC\n")
 		with open('compounds.tab', 'w') as compounds:
-			compounds.write("CODE\n")
+			compounds.write("CODE\tFORMULA\tWEIGHT\tSMILES\n")
 			with open('samples.tab', 'w') as samples:
 				samples.write("TARGET\tCOMPOUND\tDESC\n")
 				index = -1

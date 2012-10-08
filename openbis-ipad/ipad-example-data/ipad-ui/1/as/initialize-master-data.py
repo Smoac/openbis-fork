@@ -102,7 +102,22 @@ prop_type_COMPOUND.setManagedInternally(False)
 prop_type_COMPOUND.setInternalNamespace(False)
 prop_type_COMPOUND.setMaterialType(material_type_5HT_COMPOUND)
 
-print "Imported 7 Property Types" 
+prop_type_FORMULA = tr.getOrCreateNewPropertyType('FORMULA', DataType.VARCHAR)
+prop_type_FORMULA.setLabel('Chemical Formula')
+prop_type_FORMULA.setManagedInternally(False)
+prop_type_FORMULA.setInternalNamespace(False)
+
+prop_type_WEIGHT = tr.getOrCreateNewPropertyType('WEIGHT', DataType.REAL)
+prop_type_WEIGHT.setLabel('Molecular Weight')
+prop_type_WEIGHT.setManagedInternally(False)
+prop_type_WEIGHT.setInternalNamespace(False)
+
+prop_type_SMILES = tr.getOrCreateNewPropertyType('SMILES', DataType.VARCHAR)
+prop_type_SMILES.setLabel('Chemical Structure in SMILES Format')
+prop_type_SMILES.setManagedInternally(False)
+prop_type_SMILES.setInternalNamespace(False)
+
+print "Imported 10 Property Types" 
 
 # Assignments
 def assign(entity_type, property_type, position):
@@ -122,6 +137,10 @@ assign(material_type_5HT_TARGET, prop_type_LENGTH, 4)
 assign(material_type_5HT_TARGET, prop_type_CHEMBL, 5)
 assign(material_type_5HT_TARGET, prop_type_DESC, 6)
 
+assign(material_type_5HT_COMPOUND, prop_type_FORMULA, 1)
+assign(material_type_5HT_COMPOUND, prop_type_WEIGHT, 2)
+assign(material_type_5HT_COMPOUND, prop_type_SMILES, 3)
 
-print "Imported 9 Property Assignments" 
+
+print "Imported 12 Property Assignments" 
 print ("Import of Master Data finished.") 
