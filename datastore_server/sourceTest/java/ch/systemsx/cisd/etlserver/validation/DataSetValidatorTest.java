@@ -139,7 +139,7 @@ public class DataSetValidatorTest extends AbstractFileSystemTestCase
         } catch (ConfigurationFailureException ex)
         {
             assertEquals("Error occured while creating data set validator 'v': "
-                    + "ch.systemsx.cisd.common.exceptions.ConfigurationFailureException: "
+                    + "ch.systemsx.cisd.common.exception.ConfigurationFailureException: "
                     + "Couldn't create column definition 'col': " + "Invalid value-type: ??",
                     ex.getMessage());
         }
