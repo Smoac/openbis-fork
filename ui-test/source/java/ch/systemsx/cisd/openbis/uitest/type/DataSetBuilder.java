@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.functionality.Application;
+import ch.systemsx.cisd.openbis.uitest.functionality.CreateDataSet;
+import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
  * @author anttil
@@ -24,18 +26,17 @@ import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
 @SuppressWarnings("hiding")
 public class DataSetBuilder implements Builder<DataSet>
 {
-
-    private ApplicationRunner openbis;
-
     private DataSetType type;
 
     private Sample sample;
 
     private Experiment experiment;
 
-    public DataSetBuilder(ApplicationRunner openbis)
+    private UidGenerator uid;
+
+    public DataSetBuilder(UidGenerator uid)
     {
-        this.openbis = openbis;
+        this.uid = uid;
         this.sample = null;
         this.experiment = null;
     }
@@ -59,24 +60,18 @@ public class DataSetBuilder implements Builder<DataSet>
     }
 
     @Override
-    public DataSet create()
-    {
-        return openbis.create(build());
-    }
-
-    @Override
-    public DataSet build()
+    public DataSet build(Application openbis)
     {
         if (type == null)
         {
-            type = new DataSetTypeBuilder(openbis).create();
+            type = new DataSetTypeBuilder(uid).build(openbis);
         }
 
         if (sample == null && experiment == null)
         {
-            sample = new SampleBuilder(openbis).create();
+            sample = new SampleBuilder(uid).build(openbis);
         }
 
-        return new DataSet(type, sample, experiment);
+        return openbis.execute(new CreateDataSet(new DataSet(type, sample, experiment)));
     }
 }

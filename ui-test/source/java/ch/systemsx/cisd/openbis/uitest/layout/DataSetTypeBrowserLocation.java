@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.layout;
 
-import ch.systemsx.cisd.openbis.uitest.application.GuiApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.gui.Pages;
 import ch.systemsx.cisd.openbis.uitest.menu.AdminMenu;
 import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.page.DataSetTypeBrowser;
@@ -28,10 +28,10 @@ public class DataSetTypeBrowserLocation implements Location<DataSetTypeBrowser>
 {
 
     @Override
-    public void moveTo(GuiApplicationRunner openbis)
+    public void moveTo(Pages pages)
     {
-        openbis.load(TopBar.class).admin();
-        openbis.load(AdminMenu.class).dataSetTypes();
+        pages.load(TopBar.class).admin();
+        pages.load(AdminMenu.class).dataSetTypes();
     }
 
     @Override

@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.functionality.Application;
+import ch.systemsx.cisd.openbis.uitest.functionality.CreatePropertyType;
+import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
  * @author anttil
@@ -24,8 +26,6 @@ import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
 @SuppressWarnings("hiding")
 public class PropertyTypeBuilder implements Builder<PropertyType>
 {
-
-    private ApplicationRunner openbis;
 
     private String code;
 
@@ -37,19 +37,18 @@ public class PropertyTypeBuilder implements Builder<PropertyType>
 
     private Vocabulary vocabulary;
 
-    public PropertyTypeBuilder(ApplicationRunner openbis, PropertyTypeDataType type)
+    public PropertyTypeBuilder(UidGenerator uid, PropertyTypeDataType type)
     {
-        this.openbis = openbis;
-        this.code = openbis.uid();
+        this.code = uid.uid();
         this.label = "label of " + code;
         this.description = "description of " + code;
         this.dataType = type;
         this.vocabulary = null;
     }
 
-    public PropertyTypeBuilder(ApplicationRunner openbis, Vocabulary vocabulary)
+    public PropertyTypeBuilder(UidGenerator uid, Vocabulary vocabulary)
     {
-        this(openbis, PropertyTypeDataType.CONTROLLED_VOCABULARY);
+        this(uid, PropertyTypeDataType.CONTROLLED_VOCABULARY);
         this.vocabulary = vocabulary;
     }
 
@@ -72,15 +71,10 @@ public class PropertyTypeBuilder implements Builder<PropertyType>
     }
 
     @Override
-    public PropertyType create()
+    public PropertyType build(Application openbis)
     {
-        return openbis.create(build());
-    }
-
-    @Override
-    public PropertyType build()
-    {
-        return new PropertyType(code, label, description, dataType, vocabulary);
+        return openbis.execute(new CreatePropertyType(new PropertyType(code, label, description,
+                dataType, vocabulary)));
     }
 
 }

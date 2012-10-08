@@ -21,7 +21,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.functionality.Application;
+import ch.systemsx.cisd.openbis.uitest.functionality.CreateSample;
+import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
  * @author anttil
@@ -29,9 +31,6 @@ import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
 @SuppressWarnings("hiding")
 public class SampleBuilder implements Builder<Sample>
 {
-
-    private ApplicationRunner openbis;
-
     private SampleType type;
 
     private String code;
@@ -44,10 +43,12 @@ public class SampleBuilder implements Builder<Sample>
 
     private Map<PropertyType, Object> properties;
 
-    public SampleBuilder(ApplicationRunner openbis)
+    private UidGenerator uid;
+
+    public SampleBuilder(UidGenerator uid)
     {
-        this.openbis = openbis;
-        this.code = openbis.uid();
+        this.uid = uid;
+        this.code = uid.uid();
         this.properties = new HashMap<PropertyType, Object>();
         this.parents = new HashSet<Sample>();
     }
@@ -83,19 +84,19 @@ public class SampleBuilder implements Builder<Sample>
     }
 
     @Override
-    public Sample create()
+    public Sample build(Application openbis)
     {
         if (experiment != null)
         {
             space = experiment.getProject().getSpace();
         } else if (space == null)
         {
-            space = new SpaceBuilder(this.openbis).create();
+            space = new SpaceBuilder(uid).build(openbis);
         }
 
         if (type == null)
         {
-            type = new SampleTypeBuilder(this.openbis).create();
+            type = new SampleTypeBuilder(uid).build(openbis);
         }
 
         for (PropertyTypeAssignment assignment : type.getPropertyTypeAssignments())
@@ -107,12 +108,7 @@ public class SampleBuilder implements Builder<Sample>
             }
         }
 
-        return openbis.create(build());
-    }
-
-    @Override
-    public Sample build()
-    {
-        return new Sample(type, code, experiment, space, parents, properties);
+        return openbis.execute(new CreateSample(new Sample(type, code, experiment, space, parents,
+                properties)));
     }
 }

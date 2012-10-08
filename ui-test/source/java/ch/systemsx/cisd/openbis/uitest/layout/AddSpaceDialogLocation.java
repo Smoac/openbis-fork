@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.layout;
 
-import ch.systemsx.cisd.openbis.uitest.application.GuiApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.gui.Pages;
 import ch.systemsx.cisd.openbis.uitest.page.AddSpaceDialog;
 
 /**
@@ -26,9 +26,9 @@ public class AddSpaceDialogLocation implements Location<AddSpaceDialog>
 {
 
     @Override
-    public void moveTo(GuiApplicationRunner openbis)
+    public void moveTo(Pages pages)
     {
-        openbis.goTo(new SpaceBrowserLocation()).addSpace();
+        pages.goTo(new SpaceBrowserLocation()).addSpace();
     }
 
     @Override

@@ -19,12 +19,12 @@ package ch.systemsx.cisd.openbis.uitest.dsl;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-import ch.systemsx.cisd.openbis.uitest.application.GuiApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.gui.Pages;
 
 /**
  * @author anttil
  */
-class CurrentPageMatcher extends TypeSafeMatcher<GuiApplicationRunner>
+class CurrentPageMatcher extends TypeSafeMatcher<Pages>
 {
 
     private final Class<?> pageClass;
@@ -41,8 +41,8 @@ class CurrentPageMatcher extends TypeSafeMatcher<GuiApplicationRunner>
     }
 
     @Override
-    public boolean matchesSafely(GuiApplicationRunner openbis)
+    public boolean matchesSafely(Pages pages)
     {
-        return openbis.tryLoad(pageClass) != null;
+        return pages.tryLoad(pageClass) != null;
     }
 }

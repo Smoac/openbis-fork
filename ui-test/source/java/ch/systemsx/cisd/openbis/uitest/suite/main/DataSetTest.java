@@ -34,7 +34,7 @@ public class DataSetTest extends MainSuiteTest
         Experiment experiment = create(anExperiment());
         Sample sample = create(aSample().in(experiment));
 
-        DataSet dataset = create(aDataSet().in(sample));
+        DataSet dataset = using(publicApi(), create(aDataSet().in(sample)));
 
         System.out.println(dataset.getCode());
 

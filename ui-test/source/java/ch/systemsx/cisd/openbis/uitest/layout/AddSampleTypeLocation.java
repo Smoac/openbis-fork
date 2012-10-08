@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.layout;
 
-import ch.systemsx.cisd.openbis.uitest.application.GuiApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.gui.Pages;
 import ch.systemsx.cisd.openbis.uitest.page.AddSampleTypeDialog;
 
 /**
@@ -26,9 +26,9 @@ public class AddSampleTypeLocation implements Location<AddSampleTypeDialog>
 {
 
     @Override
-    public void moveTo(GuiApplicationRunner openbis)
+    public void moveTo(Pages pages)
     {
-        openbis.goTo(new SampleTypeBrowserLocation()).add();
+        pages.goTo(new SampleTypeBrowserLocation()).add();
     }
 
     @Override

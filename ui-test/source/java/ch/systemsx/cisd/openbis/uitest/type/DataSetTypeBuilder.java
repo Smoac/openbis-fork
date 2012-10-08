@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.functionality.Application;
+import ch.systemsx.cisd.openbis.uitest.functionality.CreateDataSetType;
+import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
  * @author anttil
@@ -25,16 +27,13 @@ import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
 public class DataSetTypeBuilder implements Builder<DataSetType>
 {
 
-    private ApplicationRunner openbis;
-
     private String code;
 
     private String description;
 
-    public DataSetTypeBuilder(ApplicationRunner openbis)
+    public DataSetTypeBuilder(UidGenerator uid)
     {
-        this.openbis = openbis;
-        this.code = openbis.uid();
+        this.code = uid.uid();
         this.description = "";
     }
 
@@ -45,14 +44,8 @@ public class DataSetTypeBuilder implements Builder<DataSetType>
     }
 
     @Override
-    public DataSetType create()
+    public DataSetType build(Application openbis)
     {
-        return openbis.create(build());
-    }
-
-    @Override
-    public DataSetType build()
-    {
-        return new DataSetType(code, description);
+        return openbis.execute(new CreateDataSetType(new DataSetType(code, description)));
     }
 }

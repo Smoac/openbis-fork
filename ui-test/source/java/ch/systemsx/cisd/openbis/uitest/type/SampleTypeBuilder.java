@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.Collection;
 import java.util.HashSet;
 
-import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.functionality.Application;
+import ch.systemsx.cisd.openbis.uitest.functionality.CreateSampleType;
+import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
  * @author anttil
@@ -27,8 +29,6 @@ import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
 @SuppressWarnings("hiding")
 public class SampleTypeBuilder implements Builder<SampleType>
 {
-
-    private ApplicationRunner openbis;
 
     private String code;
 
@@ -50,10 +50,9 @@ public class SampleTypeBuilder implements Builder<SampleType>
 
     private Collection<PropertyTypeAssignment> propertyTypeAssignments;
 
-    public SampleTypeBuilder(ApplicationRunner openbis)
+    public SampleTypeBuilder(UidGenerator uid)
     {
-        this.openbis = openbis;
-        this.code = openbis.uid();
+        this.code = uid.uid();
         this.description = "";
         this.listable = true;
         this.showsContainer = false;
@@ -96,16 +95,12 @@ public class SampleTypeBuilder implements Builder<SampleType>
     }
 
     @Override
-    public SampleType create()
+    public SampleType build(Application openbis)
     {
-        return openbis.create(build());
-    }
-
-    @Override
-    public SampleType build()
-    {
-        return new SampleType(code, description, listable, showsContainer, showsParents,
-                hasUniqueSubcodes, generatesCodes, showsParentMetadata, generatedCodePrefix,
-                propertyTypeAssignments);
+        return openbis.execute(new CreateSampleType(
+                new SampleType(code, description, listable, showsContainer, showsParents,
+                        hasUniqueSubcodes, generatesCodes, showsParentMetadata,
+                        generatedCodePrefix,
+                        propertyTypeAssignments)));
     }
 }

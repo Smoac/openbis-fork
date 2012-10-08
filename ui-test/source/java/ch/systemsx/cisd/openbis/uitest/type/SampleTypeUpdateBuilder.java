@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.functionality.Application;
+import ch.systemsx.cisd.openbis.uitest.functionality.UpdateSampleType;
 
 /**
  * @author anttil
@@ -24,13 +25,10 @@ import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
 public class SampleTypeUpdateBuilder implements UpdateBuilder
 {
 
-    private ApplicationRunner openbis;
-
     private SampleType type;
 
-    public SampleTypeUpdateBuilder(ApplicationRunner openbis, SampleType type)
+    public SampleTypeUpdateBuilder(SampleType type)
     {
-        this.openbis = openbis;
         this.type = type;
     }
 
@@ -47,8 +45,8 @@ public class SampleTypeUpdateBuilder implements UpdateBuilder
     }
 
     @Override
-    public void update()
+    public void update(Application openbis)
     {
-        openbis.update(type);
+        openbis.execute(new UpdateSampleType(type));
     }
 }

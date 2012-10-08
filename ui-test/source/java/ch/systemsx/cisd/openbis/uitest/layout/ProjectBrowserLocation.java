@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.layout;
 
-import ch.systemsx.cisd.openbis.uitest.application.GuiApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.gui.Pages;
 import ch.systemsx.cisd.openbis.uitest.menu.BrowseMenu;
 import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.page.ProjectBrowser;
@@ -28,10 +28,10 @@ public class ProjectBrowserLocation implements Location<ProjectBrowser>
 {
 
     @Override
-    public void moveTo(GuiApplicationRunner openbis)
+    public void moveTo(Pages pages)
     {
-        openbis.load(TopBar.class).browse();
-        openbis.load(BrowseMenu.class).projects();
+        pages.load(TopBar.class).browse();
+        pages.load(BrowseMenu.class).projects();
     }
 
     @Override

@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.layout;
 
-import ch.systemsx.cisd.openbis.uitest.application.GuiApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.gui.Pages;
 import ch.systemsx.cisd.openbis.uitest.menu.NewMenu;
 import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterProject;
@@ -28,10 +28,10 @@ public class RegisterProjectLocation implements Location<RegisterProject>
 {
 
     @Override
-    public void moveTo(GuiApplicationRunner openbis)
+    public void moveTo(Pages pages)
     {
-        openbis.load(TopBar.class).newMenu();
-        openbis.load(NewMenu.class).project();
+        pages.load(TopBar.class).newMenu();
+        pages.load(NewMenu.class).project();
     }
 
     @Override

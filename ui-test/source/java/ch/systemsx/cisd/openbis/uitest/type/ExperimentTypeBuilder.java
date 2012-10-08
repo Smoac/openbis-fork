@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.functionality.Application;
+import ch.systemsx.cisd.openbis.uitest.functionality.CreateExperimentType;
+import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
  * @author anttil
@@ -25,16 +27,13 @@ import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
 public class ExperimentTypeBuilder implements Builder<ExperimentType>
 {
 
-    private ApplicationRunner openbis;
-
     private String code;
 
     private String description;
 
-    public ExperimentTypeBuilder(ApplicationRunner openbis)
+    public ExperimentTypeBuilder(UidGenerator uid)
     {
-        this.openbis = openbis;
-        this.code = openbis.uid();
+        this.code = uid.uid();
         this.description = "";
     }
 
@@ -45,14 +44,8 @@ public class ExperimentTypeBuilder implements Builder<ExperimentType>
     }
 
     @Override
-    public ExperimentType create()
+    public ExperimentType build(Application openbis)
     {
-        return openbis.create(build());
-    }
-
-    @Override
-    public ExperimentType build()
-    {
-        return new ExperimentType(code, description);
+        return openbis.execute(new CreateExperimentType(new ExperimentType(code, description)));
     }
 }

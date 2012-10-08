@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.functionality.Application;
+import ch.systemsx.cisd.openbis.uitest.functionality.CreateSpace;
+import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
  * @author anttil
@@ -25,16 +27,13 @@ import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
 public class SpaceBuilder implements Builder<Space>
 {
 
-    private ApplicationRunner openbis;
-
     private String code;
 
     private String description;
 
-    public SpaceBuilder(ApplicationRunner openbis)
+    public SpaceBuilder(UidGenerator uid)
     {
-        this.openbis = openbis;
-        this.code = openbis.uid();
+        this.code = uid.uid();
         this.description = "";
     }
 
@@ -45,15 +44,9 @@ public class SpaceBuilder implements Builder<Space>
     }
 
     @Override
-    public Space create()
+    public Space build(Application openbis)
     {
-        return openbis.create(build());
-    }
-
-    @Override
-    public Space build()
-    {
-        return new Space(code, description);
+        return openbis.execute(new CreateSpace(new Space(code, description)));
     }
 
 }

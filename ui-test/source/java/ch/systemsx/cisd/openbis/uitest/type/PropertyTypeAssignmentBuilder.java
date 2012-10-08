@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.functionality.Application;
+import ch.systemsx.cisd.openbis.uitest.functionality.CreatePropertyTypeAssignment;
+import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
  * @author anttil
@@ -24,8 +26,6 @@ import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
 @SuppressWarnings("hiding")
 public class PropertyTypeAssignmentBuilder implements Builder<PropertyTypeAssignment>
 {
-
-    private ApplicationRunner openbis;
 
     private PropertyType propertyType;
 
@@ -35,9 +35,11 @@ public class PropertyTypeAssignmentBuilder implements Builder<PropertyTypeAssign
 
     private String initialValue;
 
-    public PropertyTypeAssignmentBuilder(ApplicationRunner openbis)
+    private UidGenerator uid;
+
+    public PropertyTypeAssignmentBuilder(UidGenerator uid)
     {
-        this.openbis = openbis;
+        this.uid = uid;
         this.propertyType = null;
         this.entityType = null;
         this.mandatory = false;
@@ -69,26 +71,26 @@ public class PropertyTypeAssignmentBuilder implements Builder<PropertyTypeAssign
     }
 
     @Override
-    public PropertyTypeAssignment create()
+    public PropertyTypeAssignment build(Application openbis)
     {
         if (propertyType == null)
         {
-            propertyType = new PropertyTypeBuilder(openbis, PropertyTypeDataType.BOOLEAN).create();
+            propertyType =
+                    new PropertyTypeBuilder(uid, PropertyTypeDataType.BOOLEAN).build(openbis);
         }
 
         if (entityType == null)
         {
-            entityType = new SampleTypeBuilder(openbis).create();
+            entityType = new SampleTypeBuilder(uid).build(openbis);
         }
 
-        PropertyTypeAssignment assignment = openbis.create(build());
+        PropertyTypeAssignment assignment =
+                openbis.execute(
+                        new CreatePropertyTypeAssignment(
+                                new PropertyTypeAssignment(propertyType, entityType, mandatory,
+                                        initialValue)));
         entityType.getPropertyTypeAssignments().add(assignment);
         return assignment;
     }
 
-    @Override
-    public PropertyTypeAssignment build()
-    {
-        return new PropertyTypeAssignment(propertyType, entityType, mandatory, initialValue);
-    }
 }

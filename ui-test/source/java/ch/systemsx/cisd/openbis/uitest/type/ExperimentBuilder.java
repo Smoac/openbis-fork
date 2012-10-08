@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
-import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.functionality.Application;
+import ch.systemsx.cisd.openbis.uitest.functionality.CreateExperiment;
+import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
  * @author anttil
@@ -28,8 +30,6 @@ import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
 @SuppressWarnings("hiding")
 public class ExperimentBuilder implements Builder<Experiment>
 {
-
-    private ApplicationRunner openbis;
 
     private ExperimentType type;
 
@@ -39,11 +39,13 @@ public class ExperimentBuilder implements Builder<Experiment>
 
     private Collection<Sample> samples;
 
-    public ExperimentBuilder(ApplicationRunner openbis)
+    private UidGenerator uid;
+
+    public ExperimentBuilder(UidGenerator uid)
     {
-        this.openbis = openbis;
+        this.uid = uid;
         this.type = null;
-        this.code = openbis.uid();
+        this.code = uid.uid();
         this.project = null;
         this.samples = new ArrayList<Sample>();
     }
@@ -77,24 +79,17 @@ public class ExperimentBuilder implements Builder<Experiment>
     }
 
     @Override
-    public Experiment create()
+    public Experiment build(Application openbis)
     {
         if (type == null)
         {
-            type = new ExperimentTypeBuilder(openbis).create();
+            type = new ExperimentTypeBuilder(uid).build(openbis);
         }
         if (project == null)
         {
-            project = new ProjectBuilder(openbis).create();
+            project = new ProjectBuilder(uid).build(openbis);
         }
 
-        return openbis.create(build());
+        return openbis.execute(new CreateExperiment(new Experiment(type, code, project, samples)));
     }
-
-    @Override
-    public Experiment build()
-    {
-        return new Experiment(type, code, project, samples);
-    }
-
 }

@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
+import ch.systemsx.cisd.openbis.uitest.functionality.Application;
+
 /**
  * @author anttil
  */
 public interface UpdateBuilder
 {
-    public void update();
+    public void update(Application openbis);
 }

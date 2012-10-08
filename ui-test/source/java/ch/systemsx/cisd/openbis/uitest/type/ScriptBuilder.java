@@ -16,15 +16,15 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.functionality.Application;
+import ch.systemsx.cisd.openbis.uitest.functionality.CreateScript;
+import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
  * @author anttil
  */
 public class ScriptBuilder implements Builder<Script>
 {
-
-    private ApplicationRunner openbis;
 
     private String name;
 
@@ -36,10 +36,9 @@ public class ScriptBuilder implements Builder<Script>
 
     private String content;
 
-    public ScriptBuilder(ApplicationRunner openbis, ScriptType type)
+    public ScriptBuilder(UidGenerator uid, ScriptType type)
     {
-        this.openbis = openbis;
-        this.name = openbis.uid();
+        this.name = uid.uid();
         this.type = type;
         this.kind = EntityKind.ALL;
         this.description = "Description of script " + name;
@@ -54,15 +53,10 @@ public class ScriptBuilder implements Builder<Script>
     }
 
     @Override
-    public Script create()
+    public Script build(Application openbis)
     {
-        return openbis.create(build());
-    }
-
-    @Override
-    public Script build()
-    {
-        return new Script(name, type, kind, description, content);
+        return openbis
+                .execute(new CreateScript(new Script(name, type, kind, description, content)));
     }
 
 }

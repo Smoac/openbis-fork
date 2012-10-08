@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.HashSet;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
+import ch.systemsx.cisd.openbis.uitest.functionality.Application;
+import ch.systemsx.cisd.openbis.uitest.functionality.CreateVocabulary;
+import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
  * @author anttil
@@ -27,8 +29,6 @@ import ch.systemsx.cisd.openbis.uitest.application.ApplicationRunner;
 @SuppressWarnings("hiding")
 public class VocabularyBuilder implements Builder<Vocabulary>
 {
-
-    private ApplicationRunner openbis;
 
     private String code;
 
@@ -38,10 +38,9 @@ public class VocabularyBuilder implements Builder<Vocabulary>
 
     private String url;
 
-    public VocabularyBuilder(ApplicationRunner openbis)
+    public VocabularyBuilder(UidGenerator uid)
     {
-        this.openbis = openbis;
-        this.code = openbis.uid();
+        this.code = uid.uid();
         this.description = "";
         this.terms = new HashSet<String>();
         this.terms.add("term1");
@@ -71,14 +70,8 @@ public class VocabularyBuilder implements Builder<Vocabulary>
     }
 
     @Override
-    public Vocabulary create()
+    public Vocabulary build(Application openbis)
     {
-        return openbis.create(build());
-    }
-
-    @Override
-    public Vocabulary build()
-    {
-        return new Vocabulary(code, description, terms, url);
+        return openbis.execute(new CreateVocabulary(new Vocabulary(code, description, terms, url)));
     }
 }

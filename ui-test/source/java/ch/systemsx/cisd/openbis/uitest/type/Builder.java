@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
+import ch.systemsx.cisd.openbis.uitest.functionality.Application;
+
 /**
  * @author anttil
  */
 public interface Builder<T>
 {
-    public T create();
-
-    public T build();
+    public T build(Application openbis);
 }
