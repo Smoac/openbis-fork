@@ -63,8 +63,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
     {
         this.store = store;
         File queueFile = getCommandQueueFile(queueDir);
-        commandQueue =
-                ExtendedBlockingQueueFactory.<IDataSetCommand> createSmartPersist(queueFile);
+        commandQueue = ExtendedBlockingQueueFactory.<IDataSetCommand> createSmartPersist(queueFile);
     }
 
     void setShareIdManager(IShareIdManager shareIdManager)
@@ -152,11 +151,11 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
     @Override
     public void scheduleProcessDatasets(IProcessingPluginTask task,
             List<DatasetDescription> datasets, Map<String, String> parameterBindings,
-            String userEmailOrNull, String sessionTokenOrNull,
+            String userId, String userEmailOrNull, String sessionTokenOrNull,
             DatastoreServiceDescription serviceDescription,
             MailClientParameters mailClientParameters)
     {
-        scheduleCommand(new ProcessDatasetsCommand(task, datasets, parameterBindings,
+        scheduleCommand(new ProcessDatasetsCommand(task, datasets, parameterBindings, userId,
                 userEmailOrNull, sessionTokenOrNull, serviceDescription, mailClientParameters));
     }
 

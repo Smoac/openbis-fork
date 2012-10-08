@@ -43,16 +43,18 @@ public class DataSetProcessingContext
 
     private final ISessionWorkspaceProvider sessionWorkspaceProviderOrNull;
 
+    private final String userId;
+
     /**
      * Creates an instance for specified directory provider, parameter bindings, e-mail client, and
      * optional user e-mail address and sessionToken.
      */
     public DataSetProcessingContext(IHierarchicalContentProvider contentProvider,
             IDataSetDirectoryProvider directoryProvider, Map<String, String> parameterBindings,
-            IMailClient mailClient, String userEmailOrNull)
+            IMailClient mailClient, String userId, String userEmailOrNull)
     {
-        this(contentProvider, directoryProvider, parameterBindings, mailClient, userEmailOrNull,
-                null);
+        this(contentProvider, directoryProvider, parameterBindings, mailClient, userId,
+                userEmailOrNull, null);
     }
 
     /**
@@ -61,9 +63,9 @@ public class DataSetProcessingContext
      */
     public DataSetProcessingContext(IHierarchicalContentProvider contentProvider,
             IDataSetDirectoryProvider directoryProvider, Map<String, String> parameterBindings,
-            IMailClient mailClient, String userEmailOrNull, String sessionTokenOrNull)
+            IMailClient mailClient, String userId, String userEmailOrNull, String sessionTokenOrNull)
     {
-        this(contentProvider, directoryProvider, null, parameterBindings, mailClient,
+        this(contentProvider, directoryProvider, null, parameterBindings, mailClient, userId,
                 userEmailOrNull, sessionTokenOrNull);
     }
 
@@ -74,13 +76,14 @@ public class DataSetProcessingContext
     public DataSetProcessingContext(IHierarchicalContentProvider contentProvider,
             IDataSetDirectoryProvider directoryProvider,
             ISessionWorkspaceProvider sessionWorkspaceProviderOrNull,
-            Map<String, String> parameterBindings,
-            IMailClient mailClient, String userEmailOrNull, String sessionTokenOrNull)
+            Map<String, String> parameterBindings, IMailClient mailClient, String userId,
+            String userEmailOrNull, String sessionTokenOrNull)
     {
         this.hierarchicalContentProvider = contentProvider;
         this.directoryProvider = directoryProvider;
         this.parameterBindings = parameterBindings;
         this.mailClient = mailClient;
+        this.userId = userId;
         this.userEmailOrNull = userEmailOrNull;
         this.sessionTokenOrNull = sessionTokenOrNull;
         this.sessionWorkspaceProviderOrNull = sessionWorkspaceProviderOrNull;
@@ -108,6 +111,11 @@ public class DataSetProcessingContext
     public final IMailClient getMailClient()
     {
         return mailClient;
+    }
+
+    public final String getUserId()
+    {
+        return userId;
     }
 
     public final String getUserEmailOrNull()

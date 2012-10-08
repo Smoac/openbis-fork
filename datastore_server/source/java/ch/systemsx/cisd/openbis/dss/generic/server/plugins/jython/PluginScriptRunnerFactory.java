@@ -67,8 +67,10 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     private final static String AUTHORIZATION_SERVICE = "authorizationService";
 
     private static final String CONTENT_PROVIDER_VARIABLE_NAME = "contentProvider";
-    
+
     private static final String SESSION_WORKSPACE_PROVIDER_NAME = "sessionWorkspaceProvider";
+
+    private static final String USER_ID = "userId";
 
     private final String scriptPath;
 
@@ -190,7 +192,9 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         evaluator.set(MAIL_SERVICE_VARIABLE_NAME, createMailService(context));
         evaluator.set(DATA_SOURCE_QUERY_SERVICE_VARIABLE_NAME, createDataSourceQueryService());
         evaluator.set(AUTHORIZATION_SERVICE, createAuthorizationService());
-        final ISessionWorkspaceProvider workspaceProvider = context.tryGetSessionWorkspaceProvider();
+        evaluator.set(USER_ID, context.getUserId());
+        final ISessionWorkspaceProvider workspaceProvider =
+                context.tryGetSessionWorkspaceProvider();
         if (workspaceProvider != null)
         {
             evaluator.set(SESSION_WORKSPACE_PROVIDER_NAME, workspaceProvider);

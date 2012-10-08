@@ -65,6 +65,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
     private static final String USER_EMAIL = "a@bc.de";
 
+    private static final String USER_ID = "test-user";
+
     private static final String DS1_LOCATION = "ds1";
 
     private static final String DS2_LOCATION = "ds2";
@@ -88,7 +90,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     private File sshExecutableDummy;
 
     private File rsyncExecutableDummy;
-    
+
     private File lnExecutableDummy;
 
     private Properties properties;
@@ -166,7 +168,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         ds4Data.mkdirs();
         dummyContext =
                 new DataSetProcessingContext(null, new MockDataSetDirectoryProvider(storeRoot,
-                        SHARE_ID), null, mailClient, USER_EMAIL);
+                        SHARE_ID), null, mailClient, USER_ID, USER_EMAIL);
         context.checking(new Expectations()
             {
                 {
@@ -306,11 +308,11 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test").getPath(), null, null,
-                            null);
+                    one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test").getPath(), null,
+                            null, null);
                     will(returnValue(Status.OK));
-                    one(copier).copyToRemote(ds2Data, getCanonicalFile("tmp/test").getPath(), null, null,
-                            null);
+                    one(copier).copyToRemote(ds2Data, getCanonicalFile("tmp/test").getPath(), null,
+                            null, null);
                     will(returnValue(Status.OK));
                 }
             });
@@ -337,8 +339,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copier).copyToRemote(ds3Data, getCanonicalFile("tmp/test").getPath(), null, null,
-                            null);
+                    one(copier).copyToRemote(ds3Data, getCanonicalFile("tmp/test").getPath(), null,
+                            null, null);
                     will(returnValue(Status.OK));
 
                     one(mailClient).sendEmailMessage(with(subjectRecorder), with(contentRecorder),
@@ -375,8 +377,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copier).copyToRemote(ds3Data, getCanonicalFile("tmp/test").getPath(), null, null,
-                            null);
+                    one(copier).copyToRemote(ds3Data, getCanonicalFile("tmp/test").getPath(), null,
+                            null, null);
                     will(returnValue(Status.createError("Oophs!")));
 
                     one(mailClient).sendEmailMessage(with(subjectRecorder), with(contentRecorder),
@@ -413,8 +415,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test").getPath(), null, null,
-                            null);
+                    one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test").getPath(), null,
+                            null, null);
                     will(returnValue(Status.OK));
 
                     one(mailClient).sendEmailMessage(with(subjectRecorder), with(contentRecorder),
@@ -451,8 +453,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test").getPath(), null, null,
-                            null);
+                    one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test").getPath(), null,
+                            null, null);
                     will(returnValue(Status.createError("Oophs!")));
 
                     one(mailClient).sendEmailMessage(with(subjectRecorder), with(contentRecorder),
@@ -488,12 +490,12 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copier).copyToRemote(ds1Data, getCanonicalFile(destination).getPath(), null, null,
-                            null);
+                    one(copier).copyToRemote(ds1Data, getCanonicalFile(destination).getPath(),
+                            null, null, null);
                     will(returnValue(Status.createError("error message")));
 
-                    one(copier).copyToRemote(ds2Data, getCanonicalFile(destination).getPath(), null, null,
-                            null);
+                    one(copier).copyToRemote(ds2Data, getCanonicalFile(destination).getPath(),
+                            null, null, null);
                     will(returnValue(Status.OK));
                 }
             });
@@ -524,8 +526,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         prepareCreateAndCheckCopier(null, null, 1, true);
         DataSetCopier dataSetCopier = createCopier();
 
-        ProcessingStatus processingStatus =
-                dataSetCopier.process(Arrays.asList(ds1), dummyContext);
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1), dummyContext);
 
         Status errorStatus = Status.createError(DataSetCopier.ALREADY_EXIST_MSG);
         assertError(processingStatus, errorStatus, ds1);
@@ -614,8 +615,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     one(sshCommandExecutor).exists("tmp/test/data.txt",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createFalse()));
-                    one(copier).copyToRemote(ds1Data, "tmp/test", "host", "abc",
-                            "abc-password");
+                    one(copier).copyToRemote(ds1Data, "tmp/test", "host", "abc", "abc-password");
                     will(returnValue(Status.OK));
                 }
             });
@@ -640,15 +640,13 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     one(sshCommandExecutor).exists("tmp/test/data.txt",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createFalse()));
-                    one(copier).copyToRemote(ds1Data, "tmp/test", "host", "abc",
-                            "abc-password");
+                    one(copier).copyToRemote(ds1Data, "tmp/test", "host", "abc", "abc-password");
                     will(returnValue(Status.createError("error message")));
 
                     one(sshCommandExecutor).exists("tmp/test/images",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createFalse()));
-                    one(copier).copyToRemote(ds2Data, "tmp/test", "host", "abc",
-                            "abc-password");
+                    one(copier).copyToRemote(ds2Data, "tmp/test", "host", "abc", "abc-password");
                     will(returnValue(Status.OK));
                 }
             });
@@ -664,13 +662,13 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testHardLinkCopyingNotPossibleForRemoteDestinations()
     {
         properties.setProperty(DESTINATION_KEY, "host:tmp/test");
         properties.setProperty(HARD_LINK_COPY_KEY, "true");
-        
+
         try
         {
             createCopier();
@@ -683,7 +681,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testHardLinkCopyingSucessfully()
     {
@@ -700,20 +698,19 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                 {
                     one(hardLinkMakerFactory).create(rsyncExecutableDummy, lnExecutableDummy);
                     will(returnValue(hardLinkMaker));
-                    
+
                     one(hardLinkMaker).copyImmutably(ds1Data, getCanonicalFile("tmp/test"), null);
                     will(returnValue(Status.OK));
-                    
+
                     one(mailClient).sendEmailMessage(with(subjectRecorder), with(contentRecorder),
                             with(new IsNull<EMailAddress>()), with(new IsNull<EMailAddress>()),
                             with(recipientsRecorder));
                 }
             });
         DataSetCopier dataSetCopier = createCopier();
-        
-        ProcessingStatus processingStatus =
-                dataSetCopier.process(Arrays.asList(ds1), dummyContext);
-        
+
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1), dummyContext);
+
         assertNoErrors(processingStatus);
         assertSuccessful(processingStatus, ds1);
         assertEquals(USER_EMAIL, recipientsRecorder.recordedObject()[0].tryGetEmailAddress());
@@ -727,7 +724,6 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    
     @Test
     public void testHardLinkCopyingWithRenamingSucessfully()
     {

@@ -49,6 +49,8 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
 
     private static final String USER_EMAIL = "a@bc.de";
 
+    private static final String USER_ID = "test-user";
+
     /**
      * An object for specifying which code paths should be tested.
      * 
@@ -154,7 +156,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
                         workingDirectory, fileProvider, pathInfoProvider);
         processingContext =
                 new DataSetProcessingContext(null, new MockDataSetDirectoryProvider(
-                        workingDirectory, SHARE_ID), null, mailClient, USER_EMAIL);
+                        workingDirectory, SHARE_ID), null, mailClient, USER_ID, USER_EMAIL);
     }
 
     @DataProvider(name = "oneLevelFileHierarchyTestCaseProvider")

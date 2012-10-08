@@ -71,7 +71,7 @@ public class ScreeningJythonBasedAggregationServiceReportingPluginTest extends
         screeningFacade = context.mock(IScreeningOpenbisServiceFacade.class);
         processingContext =
                 new DataSetProcessingContext(null, null, new HashMap<String, String>(), null,
-                        "test-user");
+                        "test-user", "test-user");
         store = new File(workingDirectory, "store");
         store.mkdirs();
         scriptFolder = new File("resource/test-data/" + getClass().getSimpleName());

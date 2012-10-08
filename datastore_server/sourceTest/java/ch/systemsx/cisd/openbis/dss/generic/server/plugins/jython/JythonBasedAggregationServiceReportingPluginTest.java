@@ -107,7 +107,7 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
         dbDataSet = context.mock(DataSet.class);
         processingContext =
                 new DataSetProcessingContext(contentProvider, null, new HashMap<String, String>(),
-                        mailClient, "test-user");
+                        mailClient, "test-user", "test-user");
         store = new File(workingDirectory, "store");
         store.mkdirs();
         scriptFolder =
@@ -214,30 +214,30 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
 
     private IReportingPluginTask createPlugin(String scriptFile)
     {
-        return new JythonAggregationService(new Properties(), store,
-                new PluginScriptRunnerFactory(new File(scriptFolder, scriptFile).getPath())
-                    {
-                        private static final long serialVersionUID = 1L;
+        return new JythonAggregationService(new Properties(), store, new PluginScriptRunnerFactory(
+                new File(scriptFolder, scriptFile).getPath())
+            {
+                private static final long serialVersionUID = 1L;
 
-                        @Override
-                        protected ISearchService createSearchService()
-                        {
-                            return searchService;
-                        }
+                @Override
+                protected ISearchService createSearchService()
+                {
+                    return searchService;
+                }
 
-                        @Override
-                        protected IDataSourceQueryService createDataSourceQueryService()
-                        {
-                            return queryService;
-                        }
+                @Override
+                protected IDataSourceQueryService createDataSourceQueryService()
+                {
+                    return queryService;
+                }
 
-                        @Override
-                        protected IAuthorizationService createAuthorizationService()
-                        {
-                            return authorizationService;
-                        }
+                @Override
+                protected IAuthorizationService createAuthorizationService()
+                {
+                    return authorizationService;
+                }
 
-                    });
+            });
     }
 
 }

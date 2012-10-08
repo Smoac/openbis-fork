@@ -68,24 +68,27 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
 
     private transient IMailClient mailClient;
 
+    private String userId;
+
     public ProcessDatasetsCommand(IProcessingPluginTask task, List<DatasetDescription> datasets,
-            Map<String, String> parameterBindings, String userEmailOrNull,
+            Map<String, String> parameterBindings, String userId, String userEmailOrNull,
             String sessionTokenOrNull, DatastoreServiceDescription serviceDescription,
             MailClientParameters mailClientParameters)
     {
-        this(task, datasets, parameterBindings, userEmailOrNull, sessionTokenOrNull,
+        this(task, datasets, parameterBindings, userId, userEmailOrNull, sessionTokenOrNull,
                 serviceDescription, new MailClient(mailClientParameters));
         this.mailClientParameters = mailClientParameters;
     }
 
     ProcessDatasetsCommand(IProcessingPluginTask task, List<DatasetDescription> datasets,
-            Map<String, String> parameterBindings, String userEmailOrNull,
+            Map<String, String> parameterBindings, String userId, String userEmailOrNull,
             String sessionTokenOrNull, DatastoreServiceDescription serviceDescription,
             IMailClient mailClient)
     {
         super(datasets);
         this.task = task;
         this.parameterBindings = parameterBindings;
+        this.userId = userId;
         this.userEmailOrNull = userEmailOrNull;
         this.sessionTokenOrNull = sessionTokenOrNull;
         this.serviceDescription = serviceDescription;
@@ -165,7 +168,8 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
         {
             DataSetProcessingContext context =
                     new DataSetProcessingContext(contentProvider, dataSetDirectoryProvider,
-                            parameterBindings, proxyMailClient, userEmailOrNull, sessionTokenOrNull);
+                            parameterBindings, proxyMailClient, userId, userEmailOrNull,
+                            sessionTokenOrNull);
             processingStatusOrNull = task.process(dataSets, context);
         } catch (RuntimeException e)
         {

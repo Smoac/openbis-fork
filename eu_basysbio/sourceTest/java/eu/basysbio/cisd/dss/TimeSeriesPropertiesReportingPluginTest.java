@@ -55,7 +55,7 @@ public class TimeSeriesPropertiesReportingPluginTest extends AbstractFileSystemT
         TableModel table =
                 plugin.createReport(Arrays.asList(ds1, ds2), new DataSetProcessingContext(null,
                         new MockDataSetDirectoryProvider(workingDirectory, SHARE_ID), null, null,
-                        null));
+                        "test-user", null));
         assertEquals("[CODE, TECHNICAL_REPLICATE_CODE_LIST, BIOLOGICAL_REPLICATE_CODE, "
                 + "TIME_SERIES_DATA_SET_TYPE, CEL_LOC, CG_LIST, "
                 + "CULTIVATION_METHOD_EXPERIMENT_CODE, EXPERIMENT_CODE, GENOTYPE, "

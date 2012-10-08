@@ -573,12 +573,17 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         String userSessionToken = session.getSessionToken();
         parameterBindings.put(Constants.USER_PARAMETER, session.tryGetPerson().getUserId());
         service.processDatasets(sessionToken, userSessionToken, datastoreServiceKey, locations,
-                parameterBindings, tryGetLoggedUserEmail());
+                parameterBindings, tryGetLoggedUserId(), tryGetLoggedUserEmail());
     }
 
     private String tryGetLoggedUserEmail()
     {
         return session.tryGetPerson() == null ? null : session.tryGetPerson().getEmail();
+    }
+
+    private String tryGetLoggedUserId()
+    {
+        return session.tryGetPerson() == null ? null : session.tryGetPerson().getUserId();
     }
 
     private ConfigurationFailureException createUnknownDataStoreServerException()
@@ -606,7 +611,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         String sessionToken = dataStore.getSessionToken();
         String userSessionToken = session.getSessionToken();
         return service.createReportFromDatasets(sessionToken, userSessionToken,
-                datastoreServiceKey, locations, tryGetLoggedUserEmail());
+                datastoreServiceKey, locations, tryGetLoggedUserId(), tryGetLoggedUserEmail());
     }
 
     private List<DatasetDescription> loadAvailableDatasetDescriptions(List<String> dataSetCodes)
@@ -737,7 +742,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     private interface IArchivingAction
     {
         public void execute(String sessionToken, IDataStoreService service,
-                List<DatasetDescription> descriptions, String userEmailOrNull);
+                List<DatasetDescription> descriptions, String userId, String userEmailOrNull);
 
         public DataSetArchivingStatus getStatusToRestoreOnFailure();
     }
@@ -748,9 +753,9 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             {
                 @Override
                 public void execute(String sessionToken, IDataStoreService service,
-                        List<DatasetDescription> descriptions, String userEmailOrNull)
+                        List<DatasetDescription> descriptions, String userId, String userEmailOrNull)
                 {
-                    service.unarchiveDatasets(sessionToken, descriptions, userEmailOrNull);
+                    service.unarchiveDatasets(sessionToken, descriptions, userId, userEmailOrNull);
                 }
 
                 @Override
@@ -770,9 +775,9 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             {
                 @Override
                 public void execute(String sessionToken, IDataStoreService service,
-                        List<DatasetDescription> descriptions, String userEmailOrNull)
+                        List<DatasetDescription> descriptions, String userId, String userEmailOrNull)
                 {
-                    service.archiveDatasets(sessionToken, descriptions, userEmailOrNull,
+                    service.archiveDatasets(sessionToken, descriptions, userId, userEmailOrNull,
                             removeFromDataStore);
                 }
 
@@ -835,10 +840,12 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             List<DatasetDescription> descriptions =
                     DataSetTranslator.translateToDescriptions(datasets);
             String sessionToken = dataStore.getSessionToken();
+            String userId = tryGetLoggedUserId();
             String userEmailOrNull = tryGetLoggedUserEmail();
             try
             {
-                archivingAction.execute(sessionToken, service, descriptions, userEmailOrNull);
+                archivingAction.execute(sessionToken, service, descriptions, userId,
+                        userEmailOrNull);
             } catch (Exception e)
             {
                 operationLog.error("Operation failed for the following data sets: "
@@ -1076,6 +1083,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         String sessionToken = dataStore.getSessionToken();
         String userSessionToken = session.getSessionToken();
         return service.createReportFromAggregationService(sessionToken, userSessionToken,
-                datastoreServiceKey, parameters, tryGetLoggedUserEmail());
+                datastoreServiceKey, parameters, tryGetLoggedUserId(), tryGetLoggedUserEmail());
     }
 }

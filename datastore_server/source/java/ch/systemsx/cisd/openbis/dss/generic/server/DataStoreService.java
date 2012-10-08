@@ -317,7 +317,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     @Override
     public TableModel createReportFromDatasets(String sessionToken, String userSessionToken,
-            String serviceKey, List<DatasetDescription> datasets, String userEmailOrNull)
+            String serviceKey, List<DatasetDescription> datasets, String userId,
+            String userEmailOrNull)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
@@ -338,7 +339,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                             new DataSetDirectoryProvider(storeRoot, manager),
                             new SessionWorkspaceProvider(pluginTaskInfoProvider
                                     .getSessionWorkspaceRootDir(), userSessionToken),
-                            new HashMap<String, String>(), mailClient, userEmailOrNull,
+                            new HashMap<String, String>(), mailClient, userId, userEmailOrNull,
                             userSessionToken));
 
         } finally
@@ -350,7 +351,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     @Override
     public void processDatasets(String sessionToken, String userSessionToken, String serviceKey,
             List<DatasetDescription> datasets, Map<String, String> parameterBindings,
-            String userEmailOrNull)
+            String userId, String userEmailOrNull)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
@@ -359,29 +360,29 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
         IProcessingPluginTask task = plugins.getPluginInstance(serviceKey);
         DatastoreServiceDescription pluginDescription = plugins.getPluginDescription(serviceKey);
-        commandExecutor.scheduleProcessDatasets(task, datasets, parameterBindings, userEmailOrNull,
-                userSessionToken, pluginDescription, mailClientParameters);
+        commandExecutor.scheduleProcessDatasets(task, datasets, parameterBindings, userId,
+                userEmailOrNull, userSessionToken, pluginDescription, mailClientParameters);
     }
 
     @Override
     public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
-            String userEmailOrNull)
+            String userId, String userEmailOrNull)
     {
         String description = "Unarchiving";
         IProcessingPluginTask task = new UnarchiveProcessingPluginTask(getArchiverPlugin());
 
-        scheduleTask(sessionToken, description, task, datasets, userEmailOrNull);
+        scheduleTask(sessionToken, description, task, datasets, userId, userEmailOrNull);
     }
 
     @Override
     public void archiveDatasets(String sessionToken, List<DatasetDescription> datasets,
-            String userEmailOrNull, boolean removeFromDataStore)
+            String userId, String userEmailOrNull, boolean removeFromDataStore)
     {
         String description = removeFromDataStore ? "Archiving" : "Copying data sets to archive";
         IProcessingPluginTask task =
                 new ArchiveProcessingPluginTask(getArchiverPlugin(), removeFromDataStore);
 
-        scheduleTask(sessionToken, description, task, datasets, userEmailOrNull);
+        scheduleTask(sessionToken, description, task, datasets, userId, userEmailOrNull);
     }
 
     @Override
@@ -400,7 +401,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     @Override
     public TableModel createReportFromAggregationService(String sessionToken,
             String userSessionToken, String serviceKey, Map<String, Object> parameters,
-            String userEmailOrNull)
+            String userId, String userEmailOrNull)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
         PluginTaskProvider<IReportingPluginTask> reportingPlugins =
@@ -416,7 +417,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                             new DataSetDirectoryProvider(storeRoot, manager),
                             new SessionWorkspaceProvider(pluginTaskInfoProvider
                                     .getSessionWorkspaceRootDir(), userSessionToken),
-                            new HashMap<String, String>(), mailClient, userEmailOrNull,
+                            new HashMap<String, String>(), mailClient, userId, userEmailOrNull,
                             userSessionToken));
 
         } finally
@@ -431,7 +432,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
 
     private void scheduleTask(String sessionToken, String description,
-            IProcessingPluginTask processingTask, List<DatasetDescription> datasets,
+            IProcessingPluginTask processingTask, List<DatasetDescription> datasets, String userId,
             String userEmailOrNull)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
@@ -439,7 +440,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 DatastoreServiceDescription.processing(description, description, null, null);
         Map<String, String> parameterBindings = Collections.<String, String> emptyMap();
         commandExecutor.scheduleProcessDatasets(processingTask, datasets, parameterBindings,
-                userEmailOrNull, sessionToken, pluginDescription, mailClientParameters);
+                userId, userEmailOrNull, sessionToken, pluginDescription, mailClientParameters);
     }
 
     private static class ArchiveProcessingPluginTask implements IProcessingPluginTask

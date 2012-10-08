@@ -63,13 +63,14 @@ public interface IDataSetCommandExecutor extends IDataSetDeleter
      * 
      * @param parameterBindings Contains at least the parameter {@link Constants#USER_PARAMETER}
      *            with the ID of the user who initiated processing.
+     * @param userId id of user who initiated the processing.
      * @param userEmailOrNull Email of user who initiated processing and will get a message after
      *            the processing is finished. It may be null if the user doesn't have email and no
      *            message will be send in such case.
      * @param sessionTokenOrNull The session token of the user that requested the processing.
      */
     void scheduleProcessDatasets(IProcessingPluginTask task, List<DatasetDescription> datasets,
-            Map<String, String> parameterBindings, String userEmailOrNull,
+            Map<String, String> parameterBindings, String userId, String userEmailOrNull,
             String sessionTokenOrNull, DatastoreServiceDescription serviceDescription,
             MailClientParameters mailClientParameters);
 }

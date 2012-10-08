@@ -41,7 +41,7 @@ public interface IDataStoreService
     /**
      * Every time this interface and related DTO's are changed, we should increment this number.
      */
-    public static final int VERSION = 8; // for release 137
+    public static final int VERSION = 9; // for release 142
 
     /**
      * Returns the version of this service.
@@ -84,7 +84,8 @@ public interface IDataStoreService
      */
     @Conversational(progress = Progress.AUTOMATIC)
     public TableModel createReportFromDatasets(String sessionToken, String userSessionToken,
-            String serviceKey, List<DatasetDescription> datasets, String userEmailOrNull);
+            String serviceKey, List<DatasetDescription> datasets, String userId,
+            String userEmailOrNull);
 
     /**
      * Schedules the processing task with the specified id for provided datasets and specified
@@ -93,17 +94,19 @@ public interface IDataStoreService
      * @param userSessionToken The session token of the user that initiated the processing.
      * @param parameterBindings Contains at least the parameter {@link Constants#USER_PARAMETER}
      *            with the ID of the user who initiated processing.
+     * @param userId id of user who initiated the processing.
      * @param userEmailOrNull Email of user who initiated processing and will get a message after
      *            the processing is finished. It may be null if the user doesn't have email and no
      *            message will be send in such case.
      */
     public void processDatasets(String sessionToken, String userSessionToken, String serviceKey,
             List<DatasetDescription> datasets, Map<String, String> parameterBindings,
-            String userEmailOrNull);
+            String userId, String userEmailOrNull);
 
     /**
      * Schedules archiving of provided datasets.
      * 
+     * @param userId id of user who initiated archiving.
      * @param userEmailOrNull Email of user who initiated archiving and will get a message after the
      *            task is finished. It may be null if the user doesn't have email and no message
      *            will be send in such case.
@@ -111,17 +114,18 @@ public interface IDataStoreService
      *            the data store after a successful archiving operation.
      */
     public void archiveDatasets(String sessionToken, List<DatasetDescription> datasets,
-            String userEmailOrNull, boolean removeFromDataStore);
+            String userId, String userEmailOrNull, boolean removeFromDataStore);
 
     /**
      * Schedules unarchiving of provided datasets.
      * 
+     * @param userId id of user who initiated unarchiving.
      * @param userEmailOrNull Email of user who initiated unarchiving and will get a message after
      *            the task is finished. It may be null if the user doesn't have email and no message
      *            will be send in such case.
      */
     public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
-            String userEmailOrNull);
+            String userId, String userEmailOrNull);
 
     /**
      * Gets the link from a service that supports the IReportingPluginTask#createLink method.
@@ -146,12 +150,12 @@ public interface IDataStoreService
      * @param serviceKey The service that produce the report.
      * @param parameters The parameters to the service.
      * @return A TableModel produced by the service.
-     * @since 7
+     * @since 9
      */
     @Conversational(progress = Progress.AUTOMATIC)
     public TableModel createReportFromAggregationService(String sessionToken,
             String userSessionToken, String serviceKey, Map<String, Object> parameters,
-            String userEmailOrNull);
+            String userId, String userEmailOrNull);
 
     public String putDataSet(String sessionToken, String dropboxName,
             CustomImportFile customImportFile);

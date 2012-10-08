@@ -125,38 +125,41 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
 
     @Override
     public TableModel createReportFromDatasets(String sessionToken, String userSessionToken,
-            String serviceKey, List<DatasetDescription> datasets,
+            String serviceKey, List<DatasetDescription> datasets, String userId,
             String userEmailOrNull)
     {
-        log("createReportFromDatasets", "USER_SESSION(%s) TASK_ID(%s) NO_OF_DATASETS(%s) EMAIL(%s)",
-                userSessionToken, serviceKey, datasets.size(), userEmailOrNull);
+        log("createReportFromDatasets",
+                "USER_SESSION(%s) TASK_ID(%s) NO_OF_DATASETS(%s) USER_ID (%s) EMAIL(%s)",
+                userSessionToken, serviceKey, datasets.size(), userId, userEmailOrNull);
         return null;
     }
 
     @Override
     public void processDatasets(String sessionToken, String userSessionToken, String serviceKey,
             List<DatasetDescription> datasets, Map<String, String> parameterBindings,
-            String userEmailOrNull)
+            String userId, String userEmailOrNull)
     {
         log("processDatasets",
-                "USER_SESSION(%s) TASK_ID(%s) NO_OF_DATASETS(%s) PARAMETERS(%s) USER_EMAIL(%s)",
-                userSessionToken, serviceKey, datasets.size(), parameterBindings, userEmailOrNull);
-    }
-
-    @Override
-    public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
-            String userEmailOrNull)
-    {
-        log("activateDatasets", "NO_OF_DATASETS(%s) USER_EMAIL(%s)", datasets.size(),
+                "USER_SESSION(%s) TASK_ID(%s) NO_OF_DATASETS(%s) PARAMETERS(%s) USER_ID (%s)  USER_EMAIL(%s)",
+                userSessionToken, serviceKey, datasets.size(), parameterBindings, userId,
                 userEmailOrNull);
     }
 
     @Override
-    public void archiveDatasets(String sessionToken, List<DatasetDescription> datasets,
-            String userEmailOrNull, boolean removeFromDataStore)
+    public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
+            String userId, String userEmailOrNull)
     {
-        log("archiveDatasets", "NO_OF_DATASETS(%s) USER_EMAIL(%s) REMOVE_FROM_DATA_STORE(%s)",
-                datasets.size(), userEmailOrNull, removeFromDataStore);
+        log("activateDatasets", "NO_OF_DATASETS(%s) USER_ID (%s) USER_EMAIL(%s)", datasets.size(),
+                userId, userEmailOrNull);
+    }
+
+    @Override
+    public void archiveDatasets(String sessionToken, List<DatasetDescription> datasets,
+            String userId, String userEmailOrNull, boolean removeFromDataStore)
+    {
+        log("archiveDatasets",
+                "NO_OF_DATASETS(%s) USER_ID (%s) USER_EMAIL(%s) REMOVE_FROM_DATA_STORE(%s)",
+                datasets.size(), userId, userEmailOrNull, removeFromDataStore);
     }
 
     @Override
@@ -170,10 +173,11 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
     @Override
     public TableModel createReportFromAggregationService(String sessionToken,
             String userSessionToken, String serviceKey, Map<String, Object> parameters,
-            String userEmailOrNull)
+            String userId, String userEmailOrNull)
     {
-        log("createReportFromAggregationService", "USER_SESSION(%s) SERVICE(%s) PARAMETERS(%s) EMAIL(%s)",
-                userSessionToken, serviceKey, parameters, userEmailOrNull);
+        log("createReportFromAggregationService",
+                "USER_SESSION(%s) SERVICE(%s) PARAMETERS(%s) USER_ID(%s) EMAIL(%s)",
+                userSessionToken, serviceKey, parameters, userId, userEmailOrNull);
         return null;
     }
 

@@ -59,7 +59,6 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
 
     private DataSetProcessingContext processingContext;
 
-
     @BeforeMethod
     public void beforeMethod()
     {
@@ -71,52 +70,53 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
         datasetDescription.setDataSetCode("ds1");
         datasetDescription.setMainDataSetPattern(".*");
         datasetDescription.setDataSetLocation(dataSetInStore.getName());
-        
+
         processingContext =
                 new DataSetProcessingContext(getMockHierarchicalContentProvider(),
-                        new MockDataSetDirectoryProvider(store, SHARE_ID), null, null, null);
+                        new MockDataSetDirectoryProvider(store, SHARE_ID), null, null, "test-user",
+                        null);
     }
 
     private IHierarchicalContentProvider getMockHierarchicalContentProvider()
     {
-        return 
-                new IHierarchicalContentProvider()
-        {
-            private DefaultFileBasedHierarchicalContentFactory hierarchicalContentFactory =
-                    new DefaultFileBasedHierarchicalContentFactory();
-
-            @Override
-            public IHierarchicalContent asContent(File datasetDirectory)
+        return new IHierarchicalContentProvider()
             {
-                return hierarchicalContentFactory.asHierarchicalContent(datasetDirectory,
-                        IDelegatedAction.DO_NOTHING);
-            }
+                private DefaultFileBasedHierarchicalContentFactory hierarchicalContentFactory =
+                        new DefaultFileBasedHierarchicalContentFactory();
 
-            @Override
-            public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
-            {
-                return getContent(datasetLocation.getDataSetLocation());
-            }
+                @Override
+                public IHierarchicalContent asContent(File datasetDirectory)
+                {
+                    return hierarchicalContentFactory.asHierarchicalContent(datasetDirectory,
+                            IDelegatedAction.DO_NOTHING);
+                }
 
-            public IHierarchicalContent getContent(String location)
-            {
+                @Override
+                public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
+                {
+                    return getContent(datasetLocation.getDataSetLocation());
+                }
+
+                public IHierarchicalContent getContent(String location)
+                {
                     return asContent(new File(new File(store, SHARE_ID), location));
-            }
+                }
 
-            @Override
-            public IHierarchicalContent asContent(ExternalData dataSet)
-            {
-                return getContent(dataSet.getCode());
-            }
+                @Override
+                public IHierarchicalContent asContent(ExternalData dataSet)
+                {
+                    return getContent(dataSet.getCode());
+                }
 
-            @Override
-            public IHierarchicalContent asContent(String dataSetCode) throws IllegalArgumentException
-            {
+                @Override
+                public IHierarchicalContent asContent(String dataSetCode)
+                        throws IllegalArgumentException
+                {
                     return getContent("dataset-" + dataSetCode);
-            }
-        };
+                }
+            };
     }
-    
+
     @Test
     public void testCreateReport()
     {

@@ -161,7 +161,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         factories.logConfigurations();
         IReportingPluginTask pluginInstance1 = factories.getPluginInstance(plugin1);
         pluginInstance1.createReport(createDatasetDescriptions(), new DataSetProcessingContext(
-                null, null, null, null, null));
+                null, null, null, null, "test-user", null));
 
         SectionProperties[] sectionProperties = sectionPropertiesMatcher.recordedObject();
         Arrays.sort(sectionProperties, new Comparator<SectionProperties>()
@@ -206,8 +206,8 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
     private PluginTaskProvider<IReportingPluginTask> createReportingPluginsFactories(
             Properties props)
     {
-        return PluginTaskInfoProvider.createReportingPluginsFactories(props, servletPropertiesManager,
-                "dss", STORE_ROOT);
+        return PluginTaskInfoProvider.createReportingPluginsFactories(props,
+                servletPropertiesManager, "dss", STORE_ROOT);
     }
 
     private PluginTaskProvider<IProcessingPluginTask> createProcessingPluginsFactories(

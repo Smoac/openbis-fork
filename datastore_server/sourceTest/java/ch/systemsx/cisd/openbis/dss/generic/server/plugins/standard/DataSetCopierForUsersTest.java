@@ -74,7 +74,7 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
     private ISshCommandExecutor sshCommandExecutor;
 
     private IImmutableCopierFactory hardLinkMakerFactory;
-    
+
     private IMailClient mailClient;
 
     private ITimeProvider timeProvider;
@@ -114,8 +114,8 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
         properties.setProperty("ssh-executable", sshExecutableDummy.getPath());
         properties.setProperty("rsync-executable", rsyncExecutableDummy.getPath());
         DatasetDescriptionBuilder dsb =
-                new DatasetDescriptionBuilder("ds1").type("MY-DATA").location(DS_LOCATION).sample("s").space("g")
-                        .project("p").experiment("e").databaseInstance("i");
+                new DatasetDescriptionBuilder("ds1").type("MY-DATA").location(DS_LOCATION)
+                        .sample("s").space("g").project("p").experiment("e").databaseInstance("i");
         ds = dsb.getDatasetDescription();
         ds.setExperimentIdentifier("/g/p/e");
         ds.setExperimentTypeCode("MY_EXPERIMENT");
@@ -129,7 +129,7 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
                 new MockDataSetDirectoryProvider(storeRoot, DEFAULT_SHARE_ID);
         dataSetProcessingContext =
                 new DataSetProcessingContext(null, directoryProvider, parameterBindings,
-                        mailClient, USER_EMAIL);
+                        mailClient, USER_ID, USER_EMAIL);
         context.checking(new Expectations()
             {
                 {

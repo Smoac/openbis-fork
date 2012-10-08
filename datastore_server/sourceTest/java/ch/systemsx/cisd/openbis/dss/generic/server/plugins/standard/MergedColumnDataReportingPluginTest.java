@@ -76,7 +76,8 @@ public class MergedColumnDataReportingPluginTest extends AssertJUnit
         final DatasetDescription dsd3 = createDatasetDescription("c");
         final TableModel model =
                 plugin.createReport(Arrays.asList(dsd1, dsd2, dsd3), new DataSetProcessingContext(
-                        null, new MockDataSetDirectoryProvider(dir, SHARE_ID), null, null, null));
+                        null, new MockDataSetDirectoryProvider(dir, SHARE_ID), null, null,
+                        "test-user", null));
         assertEquals(4, model.getHeader().size());
         assertEquals("key", model.getHeader().get(0).getTitle());
         assertEquals("val1", model.getHeader().get(1).getTitle());

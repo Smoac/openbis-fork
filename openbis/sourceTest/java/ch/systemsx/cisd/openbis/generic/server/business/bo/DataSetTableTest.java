@@ -682,6 +682,7 @@ public final class DataSetTableTest extends AbstractBOTest
                     allowing(dataStoreService2).archiveDatasets(
                             with(equal(dss2.getSessionToken())),
                             with(createDatasetDescriptionsMatcher(d2Array)),
+                            with(equal(ManagerTestTool.EXAMPLE_PERSON.getUserId())),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getEmail())),
                             with(equal(true)));
                     will(throwException(new RuntimeException()));
@@ -689,6 +690,7 @@ public final class DataSetTableTest extends AbstractBOTest
                     allowing(dataStoreService3).archiveDatasets(
                             with(equal(dss3.getSessionToken())),
                             with(createDatasetDescriptionsMatcher(d3Array)),
+                            with(equal(ManagerTestTool.EXAMPLE_PERSON.getUserId())),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getEmail())),
                             with(equal(true)));
                     will(throwException(new RuntimeException()));
@@ -737,6 +739,7 @@ public final class DataSetTableTest extends AbstractBOTest
                 {
                     one(service).archiveDatasets(with(equal(store.getSessionToken())),
                             with(createDatasetDescriptionsMatcher(dataSets)),
+                            with(equal(ManagerTestTool.EXAMPLE_PERSON.getUserId())),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getEmail())),
                             with(equal(true)));
                 }
@@ -751,6 +754,7 @@ public final class DataSetTableTest extends AbstractBOTest
                 {
                     one(service).unarchiveDatasets(with(equal(store.getSessionToken())),
                             with(createDatasetDescriptionsMatcher(dataSets)),
+                            with(equal(ManagerTestTool.EXAMPLE_PERSON.getUserId())),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getEmail())));
                 }
             });
