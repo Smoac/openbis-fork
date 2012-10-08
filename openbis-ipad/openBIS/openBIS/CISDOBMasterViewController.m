@@ -104,7 +104,8 @@
 
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-
+    
+    // TODO This should not be hard coded
     if (0 == section) return @"Target";
     if (1 == section) return @"Compound";
     return @"";
@@ -170,8 +171,8 @@
     [fetchRequest setFetchBatchSize:20];
     
     // Edit the sort key as appropriate.
-    NSSortDescriptor *entityTypeSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"entityType" ascending:NO];
-    NSSortDescriptor *summaryHeaderSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"summaryHeader" ascending:NO];
+    NSSortDescriptor *entityTypeSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"entityType" ascending: NO];
+    NSSortDescriptor *summaryHeaderSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"summaryHeader" ascending: YES];
     NSArray *sortDescriptors = @[entityTypeSortDescriptor, summaryHeaderSortDescriptor];
     
     [fetchRequest setSortDescriptors:sortDescriptors];
