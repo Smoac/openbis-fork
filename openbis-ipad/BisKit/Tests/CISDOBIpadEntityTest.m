@@ -59,7 +59,7 @@ NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeURL, NSError
     [connection release];
     NSURL *tempDir = [NSURL fileURLWithPath: NSTemporaryDirectory()];
     self.databaseUrl = [tempDir URLByAppendingPathComponent: @"ipad-test.db"];
-    NSError* error;
+    NSError* error = nil;
     self.moc = GetDatabaseManagedObjectContext(self.databaseUrl, &error);
     STAssertNil(error, @"DB file could not be created:\n%@", error);
 }
