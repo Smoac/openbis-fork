@@ -51,7 +51,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
-import ch.systemsx.cisd.openbis.dss.proteomics.server.plugins.APMSReport;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -77,8 +76,7 @@ public class APMSReportTest extends AbstractFileSystemTestCase
                     + " 1: '/cluster/s2.featureXML',"
                     + " 2: '/cluster/s3.featureXML'\n"
                     + "\"protein\",\"n_proteins\",\"protein_score\",\"n_peptides\",\"abundance_0\",\"abundance_1\",\"abundance_2\"\n"
-                    + "\"P1\",1,1,5,1.5,2.5,3.5\n"
-                    + "\"P2\",1,1,6,11.5,0,13.5\n"
+                    + "\"P1\",1,1,5,1.5,2.5,3.5\n" + "\"P2\",1,1,6,11.5,0,13.5\n"
                     + "\"P3\",1,1,14,21.5,22.5,0\n";
 
     private Mockery context;
@@ -90,7 +88,7 @@ public class APMSReportTest extends AbstractFileSystemTestCase
     private IMailClient mailClient;
 
     private DataSetProcessingContext processingContext;
-    
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -98,7 +96,7 @@ public class APMSReportTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(new File(dataSetFolder, APMSReport.PROTEIN_FILE_NAME),
                 EXAMPLE_PROTEINS);
         createDataSet("2");
-        
+
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         mailClient = context.mock(IMailClient.class);
@@ -108,7 +106,7 @@ public class APMSReportTest extends AbstractFileSystemTestCase
                 new MockDataSetDirectoryProvider(workingDirectory, Constants.DEFAULT_SHARE_ID);
         processingContext =
                 new DataSetProcessingContext(null, directoryProvider,
-                        Collections.<String, String> emptyMap(), mailClient, "a@bc.de");
+                        Collections.<String, String> emptyMap(), mailClient, "test-user", "a@bc.de");
     }
 
     private File createDataSet(String location)
@@ -177,7 +175,7 @@ public class APMSReportTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCreateReport()
     {
@@ -196,7 +194,7 @@ public class APMSReportTest extends AbstractFileSystemTestCase
 
         List<TableModelColumnHeader> headers = table.getHeader();
         assertEquals("[Sample ID, Bait, Prey, freq of obs, "
-                        + "avg MS1 intensities (normalized for the bait), STDV MS1 intensity]",
+                + "avg MS1 intensities (normalized for the bait), STDV MS1 intensity]",
                 headers.toString());
         List<TableModelRow> rows = table.getRows();
         assertEquals("[B1, Q1, P1, 1.0, 2.0, 0.5]", rows.get(0).getValues().toString());
@@ -206,10 +204,10 @@ public class APMSReportTest extends AbstractFileSystemTestCase
         assertEquals("[B1, Q1, P3, 1.0, 22.0, 0.5]", rows.get(4).getValues().toString());
         assertEquals("[B2, , P3, 0.0, 0.0, 0.0]", rows.get(5).getValues().toString());
         assertEquals(3 * 2, rows.size());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCreateReportForMissingProteinsFile()
     {
@@ -222,10 +220,10 @@ public class APMSReportTest extends AbstractFileSystemTestCase
         {
             assertEquals("File " + APMSReport.PROTEIN_FILE_NAME + " missing.", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCreateReportForTwoDataSets()
     {
@@ -233,8 +231,8 @@ public class APMSReportTest extends AbstractFileSystemTestCase
         DatasetDescriptionBuilder ds2 = new DatasetDescriptionBuilder("ds2").location("2");
         try
         {
-            report.createReport(Arrays.asList(ds1.getDatasetDescription(),
-                    ds2.getDatasetDescription()), null);
+            report.createReport(
+                    Arrays.asList(ds1.getDatasetDescription(), ds2.getDatasetDescription()), null);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -244,7 +242,7 @@ public class APMSReportTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     private void prepareGetSample(final Sample sample)
     {
         context.checking(new Expectations()
