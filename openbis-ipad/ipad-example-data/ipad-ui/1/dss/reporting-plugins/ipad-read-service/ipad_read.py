@@ -29,18 +29,19 @@ def add_row(builder, entry):
 def material_to_dict(material):
 	material_dict = {}
 	material_dict['SUMMARY_HEADER'] = material.getCode()
-	material_dict['SUMMARY'] = material.getPropertyValue("DESC")
 	material_dict['IDENTIFIER'] = material.getMaterialIdentifier()
 	material_dict['PERM_ID'] = material.getMaterialIdentifier()
 	material_dict['ENTITY_KIND'] = 'MATERIAL'
 	material_dict['ENTITY_TYPE'] = material.getMaterialType()
 	if material.getMaterialType() == '5HT_COMPOUND':
 		chemblId =  material.getCode()
+		material_dict['SUMMARY'] = material.getPropertyValue("FORMULA")
 		material_dict['IMAGE_URL'] = 'https://www.ebi.ac.uk/chemblws/compounds/%s/image' % chemblId
 	else:
+		material_dict['SUMMARY'] = material.getPropertyValue("DESC")
 		material_dict['IMAGE_URL'] = ""	
 
-	prop_names = ["NAME", "PROT_NAME", "GENE_NAME", "LENGTH", "CHEMBL", "DESC"]
+	prop_names = ["NAME", "PROT_NAME", "GENE_NAME", "LENGTH", "CHEMBL", "DESC", "FORUMLA", "WEIGHT", "SMILES"]
 	properties = dict((name, material.getPropertyValue(name)) for name in prop_names if material.getPropertyValue(name) is not None)
 	material_dict['PROPERTIES'] = ObjectMapper().writeValueAsString(properties)
 	return material_dict
