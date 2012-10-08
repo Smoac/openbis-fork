@@ -1008,6 +1008,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 commonServer.getMetaprojectAssignments(sessionToken, metaproject);
 
         MetaprojectAssignments result = new MetaprojectAssignments();
+        result.setMetaproject(metaproject);
         result.setExperiments(Translator.translateExperiments(assignments.getExperiments()));
         result.setSamples(Translator.translateSamples(assignments.getSamples()));
         result.setDataSets(Translator.translate(assignments.getDataSets(),

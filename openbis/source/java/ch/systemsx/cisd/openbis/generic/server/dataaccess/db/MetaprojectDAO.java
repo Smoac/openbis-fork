@@ -64,12 +64,13 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
     }
 
     @Override
-    public void createOrUpdateMetaproject(MetaprojectPE metaproject)
+    public void createOrUpdateMetaproject(MetaprojectPE metaproject, PersonPE owner)
     {
         assert metaproject != null : "Missing metaproject.";
         validatePE(metaproject);
 
         metaproject.setName(CodeConverter.tryToDatabase(metaproject.getName()));
+        metaproject.setOwner(owner);
         metaproject.setPrivate(true);
         final HibernateTemplate template = getHibernateTemplate();
         template.saveOrUpdate(metaproject);

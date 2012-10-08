@@ -201,6 +201,19 @@ public class GeneralInformationChangingService extends
     @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public void addToMetaprojectByEntityIds(String sessionToken,
+            @AuthorizationGuard(guardClass = MetaprojectIdPredicate.class)
+            Long metaprojectId, List<Long> experiments, List<Long> samples, List<Long> dataSets,
+            List<Long> materials)
+    {
+        server.addToMetaproject(sessionToken, new TechId(metaprojectId),
+                TechId.createList(experiments), TechId.createList(samples),
+                TechId.createList(dataSets), TechId.createList(materials));
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void removeFromMetaproject(String sessionToken,
             @AuthorizationGuard(guardClass = MetaprojectIdPredicate.class)
             Long metaprojectId, Collection<Experiment> experiments, Collection<Sample> samples,

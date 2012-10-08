@@ -85,7 +85,7 @@ public class MetaprojectDAOTest extends AbstractDAOTest
         newMetaproject.setName("MY_METAPROJECT");
         newMetaproject.setDescription("This in a new metaproject");
 
-        daoFactory.getMetaprojectDAO().createOrUpdateMetaproject(newMetaproject);
+        daoFactory.getMetaprojectDAO().createOrUpdateMetaproject(newMetaproject, getTestPerson());
 
         List<MetaprojectPE> metaprojects =
                 daoFactory.getMetaprojectDAO().listMetaprojects(getTestPerson());
@@ -126,7 +126,8 @@ public class MetaprojectDAOTest extends AbstractDAOTest
                 daoFactory.getMetaprojectDAO().getByTechId(new TechId(1L));
 
         updatedMetaproject.setDescription("New description");
-        daoFactory.getMetaprojectDAO().createOrUpdateMetaproject(updatedMetaproject);
+        daoFactory.getMetaprojectDAO().createOrUpdateMetaproject(updatedMetaproject,
+                getTestPerson());
 
         List<MetaprojectPE> metaprojects =
                 daoFactory.getMetaprojectDAO().listMetaprojects(getTestPerson());

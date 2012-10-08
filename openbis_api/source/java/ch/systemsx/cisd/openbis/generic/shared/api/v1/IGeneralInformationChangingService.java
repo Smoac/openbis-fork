@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.api.v1;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.api.IRpcService;
@@ -129,6 +130,23 @@ public interface IGeneralInformationChangingService extends IRpcService
     public void addToMetaproject(String sessionToken, Long metaprojectId,
             Collection<Experiment> experiments, Collection<Sample> samples,
             Collection<DataSet> dataSets, Collection<Material> materials);
+
+    /**
+     * Adds given entities (specified by their Tech Ids) to existing metaproject.
+     * 
+     * @param metaprojectId Tech Id of metaproject
+     * @param experiments List of experiment ids that should be added to the metaproject or
+     *            <code>null</code>
+     * @param samples List of sample ids that should be added to the metaproject or
+     *            <code>null</code>
+     * @param dataSets List of data set ids that should be added to the metaproject or
+     *            <code>null</code>
+     * @param materials List of material ids that should be added to the metaproject or
+     *            <code>null</code>
+     * @since 1.3
+     */
+    public void addToMetaprojectByEntityIds(String sessionToken, Long metaprojectId,
+            List<Long> experiments, List<Long> samples, List<Long> dataSets, List<Long> materials);
 
     /**
      * Removes given entities to existing metaproject.

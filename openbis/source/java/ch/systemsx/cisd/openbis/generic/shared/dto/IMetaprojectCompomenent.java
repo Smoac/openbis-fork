@@ -14,25 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess;
-
-import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 /**
  * @author Pawel Glyzewski
  */
-public interface IMetaprojectDAO extends IGenericDAO<MetaprojectPE>
+public interface IMetaprojectCompomenent
 {
-    /**
-     * Lists all metaprojects defined by given user.
-     */
-    public List<MetaprojectPE> listMetaprojects(PersonPE owner);
-
-    /**
-     * Creates a new metaproject or updates existing one.
-     */
-    public void createOrUpdateMetaproject(MetaprojectPE metaproject, PersonPE owner);
+    public void addToMetaproject(MetaprojectPE metaproject);
 }

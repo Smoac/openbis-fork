@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -110,6 +111,17 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
     public void addToMetaproject(String sessionToken, Long metaprojectId,
             Collection<Experiment> experiments, Collection<Sample> samples,
             Collection<DataSet> dataSets, Collection<Material> materials)
+    {
+        logAccess(
+                sessionToken,
+                "addToMetaproject METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
+                metaprojectId.toString(), abbreviate(experiments), abbreviate(samples),
+                abbreviate(dataSets), abbreviate(materials));
+    }
+
+    @Override
+    public void addToMetaprojectByEntityIds(String sessionToken, Long metaprojectId,
+            List<Long> experiments, List<Long> samples, List<Long> dataSets, List<Long> materials)
     {
         logAccess(
                 sessionToken,

@@ -3536,10 +3536,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
 
         metaprojectBO.loadDataByTechId(metaprojectId);
-        metaprojectBO.addExperiments(experiments);
-        metaprojectBO.addSamples(samples);
-        metaprojectBO.addDataSets(dataSets);
-        metaprojectBO.addMaterials(materials);
+        if (experiments != null)
+        {
+            metaprojectBO.addExperiments(experiments);
+        }
+        if (samples != null)
+        {
+            metaprojectBO.addSamples(samples);
+        }
+        if (dataSets != null)
+        {
+            metaprojectBO.addDataSets(dataSets);
+        }
+        if (materials != null)
+        {
+            metaprojectBO.addMaterials(materials);
+        }
 
         metaprojectBO.save();
     }
@@ -3590,7 +3602,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         MetaprojectPE metaprojectPE = new MetaprojectPE();
         metaprojectPE.setOwner(owner);
         MetaprojectTranslator.translate(metaproject, metaprojectPE);
-        metaprojectDAO.createOrUpdateMetaproject(metaprojectPE);
+        metaprojectDAO.createOrUpdateMetaproject(metaprojectPE, session.tryGetPerson());
         return MetaprojectTranslator.translate(metaprojectPE);
     }
 
@@ -3600,7 +3612,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             @AuthorizationGuard(guardClass = MetaprojectPredicate.class)
             Metaproject metaproject)
     {
-        checkSession(sessionToken);
+        Session session = getSession(sessionToken);
 
         IDAOFactory daoFactory = getDAOFactory();
         IMetaprojectDAO metaprojectDAO = daoFactory.getMetaprojectDAO();
@@ -3612,7 +3624,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         MetaprojectPE metaprojectPE = metaprojectDAO.getByTechId(new TechId(metaproject.getId()));
 
         MetaprojectTranslator.translate(metaproject, metaprojectPE);
-        metaprojectDAO.createOrUpdateMetaproject(metaprojectPE);
+        metaprojectDAO.createOrUpdateMetaproject(metaprojectPE, session.tryGetPerson());
         return MetaprojectTranslator.translate(metaprojectPE);
     }
 }

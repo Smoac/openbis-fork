@@ -74,7 +74,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
         {
             try
             {
-                getMetaprojectDAO().createOrUpdateMetaproject(metaproject);
+                getMetaprojectDAO().createOrUpdateMetaproject(metaproject, findPerson());
             } catch (final DataAccessException ex)
             {
                 throwException(ex, "Metaproject '" + metaproject.getName() + "'");
