@@ -23,9 +23,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.dataset
  */
 class DataSetDownloadRecord
 {
-    String download_url;
-
-    String remote_url;
+    String url;
 
     String data_set_codes;
 }

@@ -328,7 +328,7 @@ public class DataSetLister implements IDataSetLister
             final String[] dataSetCodeArray =
                     StringUtils.split(r.data_set_codes.substring(1, r.data_set_codes.length() - 1),
                             ',');
-            result.add(new DataStoreURLForDataSets(r.download_url, dataSetCodeArray));
+            result.add(new DataStoreURLForDataSets(r.url, dataSetCodeArray));
         }
         return result;
     }
@@ -345,7 +345,7 @@ public class DataSetLister implements IDataSetLister
             final String[] dataSetCodeArray =
                     StringUtils.split(r.data_set_codes.substring(1, r.data_set_codes.length() - 1),
                             ',');
-            result.add(new DataStoreURLForDataSets(r.remote_url, dataSetCodeArray));
+            result.add(new DataStoreURLForDataSets(r.url, dataSetCodeArray));
         }
         return result;
     }

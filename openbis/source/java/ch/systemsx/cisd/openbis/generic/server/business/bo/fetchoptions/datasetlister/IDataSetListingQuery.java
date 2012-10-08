@@ -69,13 +69,13 @@ public interface IDataSetListingQuery extends BaseQuery
         { StringArrayMapper.class })
     public List<DataSetRelationRecord> getDataSetChildrenCodes(String[] dataSetCodes);
 
-    @Select(sql = " select ds.download_url, array_agg(d.code::text) as data_set_codes"
+    @Select(sql = " select ds.download_url as url, array_agg(d.code::text) as data_set_codes"
             + " from data d left join data_stores ds on ds.id = d.dast_id"
             + " where d.code = any(?{1}) group by ds.download_url", parameterBindings =
         { StringArrayMapper.class })
     public List<DataSetDownloadRecord> getDownloadURLs(String[] dataSetCodes);
 
-    @Select(sql = " select ds.remote_url, array_agg(d.code::text) as data_set_codes"
+    @Select(sql = " select ds.remote_url as url, array_agg(d.code::text) as data_set_codes"
             + " from data d left join data_stores ds on ds.id = d.dast_id"
             + " where d.code = any(?{1}) group by ds.remote_url", parameterBindings =
         { StringArrayMapper.class })
