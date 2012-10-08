@@ -56,7 +56,6 @@
     self.summaryHeaderLabel.text = [[self.detailItem valueForKey:@"summaryHeader"] description];
     self.summaryLabel.text = [[self.detailItem valueForKey:@"summary"] description];
     self.identifierLabel.text = [[self.detailItem valueForKey:@"identifier"] description];
-    self.propertiesLabel.text = [[self.detailItem valueForKey:@"propertiesJson"] description];
     
     [self.propertiesTableView reloadData];
 }
@@ -136,7 +135,7 @@
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
     if (!self.detailItem) return;
-    NSDictionary *object = [self.detailItem.properties objectAtIndex: [indexPath indexAtPosition: 0]];
+    NSDictionary *object = [self.detailItem.properties objectAtIndex: [indexPath indexAtPosition: 1]];
     cell.textLabel.text = [object valueForKey:@"key"];
     cell.detailTextLabel.text = [object valueForKey:@"value"];
 }

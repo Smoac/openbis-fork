@@ -33,5 +33,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *summaryHeaderLabel;
 @property (weak, nonatomic) IBOutlet UILabel *summaryLabel;
 @property (weak, nonatomic) IBOutlet UILabel *identifierLabel;
-@property (weak, nonatomic) IBOutlet UILabel *propertiesLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *imageView;
+
 @end
