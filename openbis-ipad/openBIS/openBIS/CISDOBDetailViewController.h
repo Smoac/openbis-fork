@@ -29,7 +29,6 @@
 @property (strong, nonatomic) CISDOBIpadEntity *detailItem;
 
 @property (weak, nonatomic) IBOutlet UITableView *propertiesTableView;
-
 @property (weak, nonatomic) IBOutlet UILabel *summaryHeaderLabel;
 @property (weak, nonatomic) IBOutlet UILabel *summaryLabel;
 @property (weak, nonatomic) IBOutlet UILabel *identifierLabel;

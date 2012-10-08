@@ -56,6 +56,12 @@
     self.summaryHeaderLabel.text = [[self.detailItem valueForKey:@"summaryHeader"] description];
     self.summaryLabel.text = [[self.detailItem valueForKey:@"summary"] description];
     self.identifierLabel.text = [[self.detailItem valueForKey:@"identifier"] description];
+
+    if (self.detailItem.imageUrl) {
+        NSURL *imageUrl = [NSURL URLWithString: self.detailItem.imageUrl];
+        NSData *imageData = [NSData dataWithContentsOfURL: imageUrl];
+        self.imageView.image =[UIImage imageWithData: imageData];
+    }
     
     [self.propertiesTableView reloadData];
 }
