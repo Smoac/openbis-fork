@@ -51,6 +51,9 @@ public class BasicConstant
     public static final String MANAGED_PROPERTY_PLACEHOLDER_VALUE = ERROR_PROPERTY_PREFIX
             + "(undefined)";
 
+    /** Prefix of managed property in JSON format as delivered by registration forms. */
+    public static final String MANAGED_PROPERTY_JSON_PREFIX = "__JSON__:";
+
     /** Template part of Vocabulary URL that that is replaced with vocabulary term code. */
     public static final String VOCABULARY_URL_TEMPLATE_TERM_PART = "${term}";
 

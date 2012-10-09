@@ -581,14 +581,19 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         @SuppressWarnings("unchecked")
         String translate(String propertyValue)
         {
-            if (inputWidgetDescriptions.isEmpty() || propertyValue == null
-                    || propertyValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
+            if (inputWidgetDescriptions.isEmpty()
+                    || propertyValue == null
+                    || propertyValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX)
+                    || propertyValue.startsWith(BasicConstant.MANAGED_PROPERTY_JSON_PREFIX) == false)
             {
                 return propertyValue;
             }
             try
             {
-                List<?> readValue = new ObjectMapper().readValue(propertyValue, List.class);
+                List<?> readValue =
+                        new ObjectMapper().readValue(propertyValue
+                                .substring(BasicConstant.MANAGED_PROPERTY_JSON_PREFIX.length()),
+                                List.class);
                 ManagedProperty managedProperty = new ManagedProperty();
                 for (Object row : readValue)
                 {

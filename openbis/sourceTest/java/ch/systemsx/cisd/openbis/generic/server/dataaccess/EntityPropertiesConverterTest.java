@@ -34,11 +34,13 @@ import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBOTest;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.CollectionMatcher;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -48,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SamplePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -204,6 +207,8 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                 createEntityPropertiesConverter(EntityKind.SAMPLE);
         final PropertyTypePE propertyTypePE = createPropertyType();
         final IEntityProperty[] properties = createSampleProperties(false);
+        final String value = BasicConstant.MANAGED_PROPERTY_JSON_PREFIX + "[{\"A\":\"alpha\"}]";
+        properties[0].setValue(value);
 
         final RecordingMatcher<Set<IEntityProperty>> definedPropertiesMatcher =
                 RecordingMatcher.create();
@@ -215,6 +220,12 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     final SampleTypePropertyTypePE sampleTypePropertyTypePE =
                             createETPT(VARCHAR_PROPERTY_TYPE_CODE, sampleType);
                     sampleTypePropertyTypePE.setMandatory(true);
+                    ScriptPE script = new ScriptPE();
+                    script.setScriptType(ScriptType.MANAGED_PROPERTY);
+                    script.setScript("def batchColumnNames():\n return ['A']\n"
+                            + "def updateFromBatchInput(bindings):\n"
+                            + " property.setValue('Hello ' + bindings.get('A'))");
+                    sampleTypePropertyTypePE.setScript(script);
 
                     final SampleTypePE sampleType2 = createSampleType(SAMPLE_TYPE2_CODE);
                     final SampleTypePropertyTypePE sampleTypePropertyTypePE2 =
@@ -232,6 +243,11 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     this.allowing(entityPropertyTypeDAO).listEntityPropertyTypes(sampleType);
                     this.will(Expectations.returnValue(Arrays.asList(sampleTypePropertyTypePE)));
 
+                    one(placeholderCreator).addManagedPropertiesPlaceholders(
+                            new HashSet<IEntityProperty>(Arrays.asList(properties)),
+                            new HashSet<String>(Arrays.asList(VARCHAR_PROPERTY_TYPE_CODE
+                                    .toUpperCase())));
+
                     this.allowing(entityPropertyTypeDAO).listEntityPropertyTypes(sampleType2);
                     this.will(Expectations.returnValue(Arrays.asList(sampleTypePropertyTypePE2)));
 
@@ -239,7 +255,8 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     will(returnValue(propertyTypePE));
 
                     atLeast(1).of(propertyValueValidator).validatePropertyValue(propertyTypePE,
-                            "blue");
+                            value);
+                    will(returnValue(value));
 
                     CollectionMatcher<Set<String>> dynamicPropertiesMatcher =
                             new CollectionMatcher<Set<String>>(new HashSet<String>(
@@ -252,7 +269,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     }
                     exactly(2).of(placeholderCreator).addDynamicPropertiesPlaceholders(
                             with(definedPropertiesMatcher), with(dynamicPropertiesMatcher));
-                    exactly(2).of(placeholderCreator).addManagedPropertiesPlaceholders(
+                    one(placeholderCreator).addManagedPropertiesPlaceholders(
                             with(definedPropertiesMatcher), with(dynamicPropertiesMatcher));
                 }
             });
@@ -268,7 +285,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                         + "databaseInstance=DatabaseInstancePE{code=MY_DATABASE_INSTANCE},"
                         + "listable=<null>,containerHierarchyDepth=<null>,"
                         + "generatedFromHierarchyDepth=<null>},ordinal=<null>,"
-                        + "section=<null>,dynamic=false,managed=false},value=}]",
+                        + "section=<null>,dynamic=false,managed=true},value=Hello alpha}]",
                 convertedProperties.toString());
 
         // Check that for sample type SAMPLE_TYPE2_CODE property is not mandatory as for previous

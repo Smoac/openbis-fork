@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.P
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -218,7 +219,8 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
                         }
                         jsonArray.set(i, jsonObject);
                     }
-                    valueAsString = jsonArray.toString();
+                    valueAsString =
+                            BasicConstant.MANAGED_PROPERTY_JSON_PREFIX + jsonArray.toString();
                 }
                 entityProperty.setValue(valueAsString);
                 entityProperty.setPropertyType(propertyType);
