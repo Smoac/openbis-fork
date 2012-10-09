@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -54,6 +55,22 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 @Test(groups = "slow")
 public class DssComponentTest extends SystemTestCase
 {
+    private static final String DATA_SET_NAME_PREFIX = DssComponentTest.class.getSimpleName() + "-";
+
+    private static final String PUT_DATA_SET_NAME = DATA_SET_NAME_PREFIX + "testPutDataSet";
+
+    private static final String FAILING_PUT_DATA_SET_NAME = DATA_SET_NAME_PREFIX
+            + "testFailingPutDataSet";
+
+    private static final String VALIDATE_DATA_SET_NAME = DATA_SET_NAME_PREFIX
+            + "testValidateDataSet";
+
+    private static final String PUT_DATA_SET_WITH_PARENT_NAME = DATA_SET_NAME_PREFIX
+            + "testPutDataSetWithParent";
+
+    private static final String FAILING_VALIDATION_PUT_DATA_SET_NAME = DATA_SET_NAME_PREFIX
+            + "testFailingValidationPutDataSet";
+
     // If the pathinfo-db feeding task post-registration task in the service.properties is
     // configured to compute checksums for data sets, set this to true. Otherwise set to false.
     private static final boolean ARE_CHECKSUMS_COMPUTED = false;
@@ -72,10 +89,6 @@ public class DssComponentTest extends SystemTestCase
 
     private IDssComponent dss;
 
-    // Keep track of the number of times a data set was registered during the course of running the
-    // tests
-    private int putCount = 0;
-    
     @BeforeMethod
     public void beforeMethod()
     {
@@ -85,11 +98,10 @@ public class DssComponentTest extends SystemTestCase
     @Test
     public void testPutDataSet() throws Exception
     {
-        File exampleDataSet = new File(workingDirectory, "my-data");
+        File exampleDataSet = new File(workingDirectory, PUT_DATA_SET_NAME);
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         IDataSetDss dataSet = registerDataSet(exampleDataSet, newDataset);
-        checkDataSet(dataSet);
-        putCount++;
+        checkDataSet(dataSet, PUT_DATA_SET_NAME);
     }
 
     private IDataSetDss registerDataSet(File exampleDataSet, NewDataSetDTO newDataset)
@@ -103,13 +115,10 @@ public class DssComponentTest extends SystemTestCase
     {
         try
         {
-            File exampleDataSet = new File(workingDirectory, "my-data");
+            File exampleDataSet = new File(workingDirectory, FAILING_PUT_DATA_SET_NAME);
             createExampleDataSet(exampleDataSet);
             moveFileToIncoming(exampleDataSet);
             waitUntilDataSetImported();
-            // Do *not* increment the putCount because this test does not successfully register any
-            // data
-            // putCount++;
         } catch (AssertionError ex)
         {
             // ignore this
@@ -124,13 +133,10 @@ public class DssComponentTest extends SystemTestCase
     {
         try
         {
-            File exampleDataSet = new File(workingDirectory, "invalid-file");
+            File exampleDataSet = new File(workingDirectory, FAILING_VALIDATION_PUT_DATA_SET_NAME);
             createExampleDataSet(exampleDataSet);
             moveFileToIncoming(exampleDataSet);
             waitUntilDataSetImported();
-            // Do *not* increment the putCount because this test does not successfully register any
-            // data
-            // putCount++;
         } catch (AssertionError ex)
         {
             // ignore this
@@ -141,9 +147,8 @@ public class DssComponentTest extends SystemTestCase
     }
 
     /**
-     * Checks that the registration log is as we expect it to be. This test will break if new tests
-     * are added that register data with the DSS but do not increment the putCount instance
-     * variable. Make sure any tests that register data also increment this variable.
+     * Checks that the registration log is as we expect it to be. Each test registering data sets
+     * should choose a unique name for the data set.
      */
     @Test(dependsOnMethods =
         { "testPutDataSet", "testFailingPutDataSet", "testFailingValidationPutDataSet" })
@@ -158,11 +163,12 @@ public class DssComponentTest extends SystemTestCase
 
         File succeededDir =
                 new DssRegistrationLogDirectoryHelper(registrationLogDir).getSucceededDir();
-        File[] succeededContents = checkDssRegistrationLogDirectoryCount(succeededDir, putCount);
+        File failedDir = new DssRegistrationLogDirectoryHelper(registrationLogDir).getFailedDir();
 
         // Check the log contents
-        File logFile = succeededContents[0];
-        String[] expectedContents =
+        checkLogFileContents(
+                pickLogFile(succeededDir, PUT_DATA_SET_NAME),
+                new String[]
                     {
                             "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Prepared registration of 1 data set:$",
                             "^\\t\\d+-\\d+$",
@@ -171,61 +177,66 @@ public class DssComponentTest extends SystemTestCase
                             "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been registered with the openBIS Application Server.$",
                             "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Storage processors have committed.$",
                             "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Data has been moved to the final store.$",
-                            "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Storage has been confirmed in openBIS Application Server.$" };
-        checkLogFileContents(logFile, expectedContents);
+                            "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Storage has been confirmed in openBIS Application Server.$" });
 
-        File failedDir = new DssRegistrationLogDirectoryHelper(registrationLogDir).getFailedDir();
-        File[] failedContents = checkDssRegistrationLogDirectoryCount(failedDir, 2);
-        for (File failedLogFile : failedContents)
+        checkLogFileContents(
+                pickLogFile(failedDir, FAILING_VALIDATION_PUT_DATA_SET_NAME),
+                new String[]
+                    { "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Validation script .* found errors in incoming data set .*" });
+
+        checkLogFileContents(pickLogFile(failedDir, FAILING_PUT_DATA_SET_NAME), new String[]
+            { "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Processing failed : .*" });
+
+    }
+
+    private File pickLogFile(File dir, final String dataSetName)
+    {
+        File[] files = dir.listFiles(new FileFilter()
+            {
+
+                @Override
+                public boolean accept(File file)
+                {
+                    return file.getName().endsWith(dataSetName + ".log");
+                }
+            });
+        if (files.length != 1)
         {
-            if (failedLogFile.getName().contains("invalid"))
-            {
-                expectedContents =
-                        new String[]
-                            { "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Validation script .* found errors in incoming data set .*" };
-                checkLogFileContents(failedLogFile, expectedContents);
-            } else
-            {
-                expectedContents = new String[]
-                    { "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} Processing failed : .*" };
-                checkLogFileContents(failedLogFile, expectedContents);
-            }
+            fail("In folder '" + dir + "' exactly one file ending '" + dataSetName
+                    + ".log' is expected but there are " + files.length + ".");
         }
+        return files[0];
     }
 
     private void checkLogFileContents(File logFile, String[] expectedContents)
     {
         List<String> logFileContents = FileUtilities.loadToStringList(logFile);
-        assertTrue("" + logFileContents.size() + " < " + expectedContents.length,
+        for (int i = 0; i < Math.min(logFileContents.size(), expectedContents.length); i++)
+        {
+            String expected = expectedContents[i];
+            String actual = logFileContents.get(i);
+            if (Pattern.matches(expected, actual) == false)
+            {
+                StringBuilder builder = new StringBuilder();
+                builder.append("Line ").append(i + 1);
+                builder.append(" in log doesn't match the regular expression '");
+                builder.append(expected).append("':\n").append(actual);
+                builder.append("\nHere is the complete log:");
+                for (String logLine : logFileContents)
+                {
+                    builder.append("\n").append(logLine);
+                }
+                fail(builder.toString());
+            }
+        }
+        assertTrue(logFileContents.size() + " < " + expectedContents.length,
                 logFileContents.size() >= expectedContents.length);
-        int i = 0;
-        for (String expected : expectedContents)
-        {
-            assertTrue(expected + ".matches(" + logFileContents.get(i) + ")",
-                    Pattern.matches(expected, logFileContents.get(i++)));
-        }
-    }
-
-    private File[] checkDssRegistrationLogDirectoryCount(File dir, int count)
-    {
-        File[] succeededContents = dir.listFiles();
-
-        StringBuilder msg = new StringBuilder();
-        for (File file : succeededContents)
-        {
-            msg.append(file.getAbsolutePath()).append("\n");
-        }
-
-        // This does not work on the CI server for some reason
-        // assertEquals(msg.toString(), count, succeededContents.length);
-        assertTrue(msg.toString(), count <= succeededContents.length);
-        return succeededContents;
     }
 
     @Test
     public void testValidateDataSet() throws Exception
     {
-        File exampleDataSet = new File(workingDirectory, "my-data");
+        File exampleDataSet = new File(workingDirectory, VALIDATE_DATA_SET_NAME);
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         List<ValidationError> errors = dss.validateDataSet(newDataset, exampleDataSet);
         assertEquals("[]", errors.toString());
@@ -236,12 +247,11 @@ public class DssComponentTest extends SystemTestCase
     {
         String code = getCodeOfLatestDataSet().getDataSetCode();
 
-        File exampleDataSet = new File(workingDirectory, "my-data");
+        File exampleDataSet = new File(workingDirectory, PUT_DATA_SET_WITH_PARENT_NAME);
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         newDataset.setParentDataSetCodes(Arrays.asList(code));
         IDataSetDss dataSet = registerDataSet(exampleDataSet, newDataset);
-        checkDataSet(dataSet);
-        putCount++;
+        checkDataSet(dataSet, PUT_DATA_SET_WITH_PARENT_NAME);
     }
 
     @Test(dependsOnMethods = "testPutDataSet")
@@ -252,8 +262,9 @@ public class DssComponentTest extends SystemTestCase
         IDataSetDss ds = dss.getDataSet(code);
 
         assertEquals(code, ds.getCode());
-        checkDataSet(ds);
-        String path = "original/my-data/data";
+        checkDataSet(ds, PUT_DATA_SET_NAME);
+        String topLevelFolder = "original/" + PUT_DATA_SET_NAME;
+        String path = topLevelFolder + "/data";
         FileInfoDssDTO[] files = ds.listFiles(path, false);
         Arrays.sort(files, FILE_INFO_COMPARATOR);
         assertEquals(2, files.length);
@@ -273,15 +284,15 @@ public class DssComponentTest extends SystemTestCase
         Arrays.sort(files, FILE_INFO_COMPARATOR);
         assertEquals(7, files.length);
         assertEquals(fileInfoString("original", -1), files[0].toString());
-        assertEquals(fileInfoString("original/my-data", -1), files[1].toString());
-        assertEquals(fileInfoString("original/my-data/data", -1), files[2].toString());
-        assertEquals(fileInfoString("original/my-data/data-set.properties", 28, "5f5e699f"),
+        assertEquals(fileInfoString(topLevelFolder, -1), files[1].toString());
+        assertEquals(fileInfoString(topLevelFolder + "/data", -1), files[2].toString());
+        assertEquals(fileInfoString(topLevelFolder + "/data-set.properties", 28, "5f5e699f"),
                 files[3].toString());
-        assertEquals(fileInfoString("original/my-data/data.log", 11, "0d4a1185"),
+        assertEquals(fileInfoString(topLevelFolder + "/data.log", 11, "0d4a1185"),
                 files[4].toString());
-        assertEquals(fileInfoString("original/my-data/data/1.data", 5, "f7eabd5f"),
+        assertEquals(fileInfoString(topLevelFolder + "/data/1.data", 5, "f7eabd5f"),
                 files[5].toString());
-        assertEquals(fileInfoString("original/my-data/data/2.data", 7, "02c0db4e"),
+        assertEquals(fileInfoString(topLevelFolder + "/data/2.data", 7, "02c0db4e"),
                 files[6].toString());
     }
 
@@ -344,9 +355,9 @@ public class DssComponentTest extends SystemTestCase
 
         assertEquals(null, ds.tryLinkToContents("blabla"));
         File file = ds.getLinkOrCopyOfContents("blabla", workingDirectory);
-        assertContent("hello world", file, "data.log");
-        assertContent("1 2 3", file, "data/1.data");
-        assertContent("4 5 6 7", file, "data/2.data");
+        assertContent("hello world", file, PUT_DATA_SET_NAME, "data.log");
+        assertContent("1 2 3", file, PUT_DATA_SET_NAME, "data/1.data");
+        assertContent("4 5 6 7", file, PUT_DATA_SET_NAME, "data/2.data");
     }
 
     @Test(expectedExceptions = AuthorizationFailureException.class)
@@ -356,7 +367,6 @@ public class DssComponentTest extends SystemTestCase
         File exampleDataSet = new File(workingDirectory, "observer-data");
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         registerDataSet(exampleDataSet, newDataset);
-        putCount++;
     }
 
     @Test(dependsOnMethods = "testPutDataSet", expectedExceptions = AuthorizationFailureException.class)
@@ -400,10 +410,11 @@ public class DssComponentTest extends SystemTestCase
         FileUtilities.writeToFile(new File(subFolder, "2.data"), "4 5 6 7");
     }
 
-    private void assertContent(String expectedContent, File root, String path)
+    private void assertContent(String expectedContent, File root, String dataSetName, String path)
     {
         assertEquals(expectedContent,
-                FileUtilities.loadToString(new File(root, "original/my-data/" + path)).trim());
+                FileUtilities.loadToString(new File(root, "original/" + dataSetName + "/" + path))
+                        .trim());
     }
 
     private SimpleDataSetInformationDTO getCodeOfLatestDataSet()
@@ -419,7 +430,7 @@ public class DssComponentTest extends SystemTestCase
                     String d1Code = normalize(d1.getDataSetCode());
                     return d2Code.compareTo(d1Code);
                 }
-                
+
                 private String normalize(String code)
                 {
                     return code.startsWith("2") ? code : "0" + code;
@@ -428,11 +439,11 @@ public class DssComponentTest extends SystemTestCase
         return dataSets.get(0);
     }
 
-    private void checkDataSet(IDataSetDss dataSet) throws IOException
+    private void checkDataSet(IDataSetDss dataSet, String dataSetName) throws IOException
     {
-        assertEquals("hello world", getContent(dataSet, "data.log"));
-        assertEquals("1 2 3", getContent(dataSet, "data/1.data"));
-        assertEquals("4 5 6 7", getContent(dataSet, "data/2.data"));
+        assertEquals("hello world", getContent(dataSet, dataSetName, "data.log"));
+        assertEquals("1 2 3", getContent(dataSet, dataSetName, "data/1.data"));
+        assertEquals("4 5 6 7", getContent(dataSet, dataSetName, "data/2.data"));
 
         // Wait a bit for the maintenance task to run
         try
@@ -448,13 +459,14 @@ public class DssComponentTest extends SystemTestCase
         assertEquals(0, openbisService.listDataSetsForPostRegistration().size());
     }
 
-    private String getContent(IDataSetDss dataSet, String path) throws IOException
+    private String getContent(IDataSetDss dataSet, String dataSetName, String path)
+            throws IOException
     {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         InputStream inputStream = null;
         try
         {
-            inputStream = dataSet.getFile("/original/my-data/" + path);
+            inputStream = dataSet.getFile("/original/" + dataSetName + "/" + path);
             IOUtils.copy(inputStream, output);
         } finally
         {
