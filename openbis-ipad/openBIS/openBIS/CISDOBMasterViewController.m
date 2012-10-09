@@ -104,12 +104,13 @@
 }
 
 
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    id <NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultsController sections] objectAtIndex: section];
+    NSArray *objects = [sectionInfo objects];
+    if ([objects count] < 1) return @"";
     
-    // TODO This should not be hard coded
-    if (0 == section) return @"Target";
-    if (1 == section) return @"Compound";
-    return @"";
+    return ((CISDOBIpadEntity *)[objects objectAtIndex: 0]).group;
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
