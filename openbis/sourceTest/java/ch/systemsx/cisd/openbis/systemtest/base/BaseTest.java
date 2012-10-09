@@ -23,9 +23,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
 import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -120,7 +120,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
 
     protected String systemSessionToken;
 
-    @BeforeTest(groups = "system-cleandb")
+    @BeforeSuite(groups = "system-cleandb")
     public void initializeLog() throws Exception
     {
         LogInitializer.init();
@@ -157,7 +157,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         this.daoFactory.getDataStoreDAO().createOrUpdateDataStore(dataStore);
     }
 
-    @AfterTest(groups = "system-cleandb")
+    @AfterSuite(groups = "system-cleandb")
     public void testingThis()
     {
         ((GenericApplicationContext) applicationContext).destroy();
