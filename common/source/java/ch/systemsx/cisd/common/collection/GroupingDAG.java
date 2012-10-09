@@ -119,7 +119,7 @@ public class GroupingDAG<T>
 
     private void addNoDependency(T item)
     {
-        if (!dependenciesCount.containsKey(item))
+        if (false == dependenciesCount.containsKey(item))
         {
             dependenciesCount.put(item, 0);
         }
@@ -158,11 +158,11 @@ public class GroupingDAG<T>
     // if the dependency count of the item is -1 - it means, that we have already used it
     private void sort()
     {
-        while (!queue.isEmpty())
+        while (false == queue.isEmpty())
         {
             List<T> levelItems = new LinkedList<T>();
 
-            while (!queue.isEmpty() && peekCount() < 0)
+            while (false == queue.isEmpty() && peekCount() < 0)
             {
                 queue.poll(); // remove the elements that are duplicated in the queue
             }
@@ -172,7 +172,7 @@ public class GroupingDAG<T>
                 throw new UserFailureException("Circular dependency found!");
             }
 
-            while (!queue.isEmpty() && peekCount() <= 0)
+            while (false == queue.isEmpty() && peekCount() <= 0)
             {
                 T item = queue.poll().item;
 
@@ -184,7 +184,7 @@ public class GroupingDAG<T>
             }
             sortedGroups.add(levelItems);
 
-            if (!queue.isEmpty())
+            if (false == queue.isEmpty())
             {
                 // we don't need to clean if we know, that this is the last loop
                 updateQueueAfterTheLevelCompleted(levelItems);
