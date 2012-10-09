@@ -60,7 +60,7 @@ def material_to_dict(material):
 		material_dict['SUMMARY'] = material.getPropertyValue("DESC")
 		material_dict['IMAGE_URL'] = ""	
 
-	prop_names = ["NAME", "PROT_NAME", "GENE_NAME", "LENGTH", "CHEMBL", "DESC", "FORUMLA", "WEIGHT", "SMILES"]
+	prop_names = ["NAME", "PROT_NAME", "GENE_NAME", "LENGTH", "CHEMBL", "DESC", "FORMULA", "WEIGHT", "SMILES"]
 	properties = dict((name, material.getPropertyValue(name)) for name in prop_names if material.getPropertyValue(name) is not None)
 	material_dict['PROPERTIES'] = ObjectMapper().writeValueAsString(properties)
 	return material_dict
@@ -73,7 +73,7 @@ def sample_to_dict(five_ht_sample):
 	sample_dict['PERM_ID'] = five_ht_sample.getPermId()
 	refcon = {}
 	refcon['entityKind'] = 'SAMPLE'
-	refcon['entityType'] = material.getSampleType()
+	refcon['entityType'] = five_ht_sample.getSampleType()
 	sample_dict['REFCON'] = ObjectMapper().writeValueAsString(refcon)
 	sample_dict['GROUP'] = five_ht_sample.getSampleType()
 	sample_dict['IMAGE_URL'] = ""
