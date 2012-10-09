@@ -1,15 +1,16 @@
 '''
-@copyright: Copyright 2012 ETH Zuerich, CISD
+@copyright:
+Copyright 2012 ETH Zuerich, CISD
  
 @license:
-Licensed under the Apache License, Version 2.0 (the "License");
+Licensed under the Apache License, Version 2.0 (the 'License');
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
  
 http://www.apache.org/licenses/LICENSE-2.0
  
 Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
+distributed under the License is distributed on an 'AS IS' BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
@@ -17,13 +18,19 @@ limitations under the License.
 @author:
 Manuel Kohler
 
-@description
+@description:
 Creates the SampleSheet.csv out of values from openBIS for Demultiplexing 
 used in the Illumina pipeline (configureBclToFastq.pl) 
 
-Runs under jython!
-Takes into account to replace special characters with an underscore so that the Illumina script does not fail
+@attention:
+Runs under Jython
 
+@note:
+Takes into account to replace special characters with an underscore so that the Illumina script
+does not fail
+
+HiSeq Header Description
+========================
 Column Header  Description
 FCID  Flow cell ID
 Lane  Positive integer, indicating the lane number (1-8)
@@ -35,7 +42,6 @@ Control  Y indicates this lane is a control lane, N means sample
 Recipe Recipe used during sequencing
 Operator Name or ID of the operator
 SampleProject  The project the sample belongs to
-
 '''
 
 from __future__ import with_statement
@@ -55,7 +61,6 @@ from email.MIMEText import MIMEText
 from email.Utils import COMMASPACE, formatdate
 from email import Encoders
 
-
 from ch.systemsx.cisd.openbis.dss.client.api.v1 import OpenbisServiceFacadeFactory
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
@@ -63,7 +68,7 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
 lineending = {'win32':'\r\n', 'linux':'\n', 'mac':'\r'}
 
 def login(configMap):
-  logging.info('Logging into ' + configMap['openbisServer'])
+  logger.info('Logging into ' + configMap['openbisServer'])
   service = OpenbisServiceFacadeFactory.tryCreate(configMap['openbisUserName'],
                                                   configMap['openbisPassword'],
                                                   configMap['openbisServer'],
@@ -72,12 +77,16 @@ def login(configMap):
 
 def logout (service):
   service.logout()
-  logging.info('Logged out')
+  logger.info('Logged out')
 
-def setUpLogger(logPath):
+def setUpLogger(logPath, logLevel = logging.INFO):
+  logFileName = 'createSampleSheet'
   d=datetime.now()
-  logFileName = '/createSampleSheet_' + d.strftime("%Y-%m-%d_%H_%M_%S") + '.log'
-  logging.basicConfig(filename=logPath + logFileName, format='%(asctime)s %(message)s', level=logging.DEBUG)
+  logFileName = logFileName + '_' + d.strftime('%Y-%m-%d_%H_%M_%S') + '.log'
+  logging.basicConfig(filename=logPath + logFileName, format='%(asctime)s %(message)s', level=logLevel)
+  logger = logging.getLogger(logFileName)
+  return logger
+  
 
 def parseConfigurationFile(propertyFile = 'etc/createSampleSheet.properties'):
   '''
@@ -89,38 +98,54 @@ def parseConfigurationFile(propertyFile = 'etc/createSampleSheet.properties'):
   return config
 
 def parseOptions():
-  logging.info('Parsing command line parameters')
-  usage = "usage: %prog [options]"
-  parser = OptionParser(usage = usage, version="%prog 1.0")
-  parser.add_option("-f", "--flowcell",
-                  dest = "flowcell",
-                  help = "The flowcell which is used to create the SampleSheet.csv",
-                  metavar = "FLOWCELL")
-  parser.add_option("-m", "--mailist",
-                  dest = "maillist",
+  logger.info('Parsing command line parameters')
+  parser = OptionParser(version='%prog 1.0')
+  parser.add_option('-f', '--flowcell',
+                  dest = 'flowcell',
+                  help = 'The flowcell which is used to create the SampleSheet.csv',
+                  metavar = '<flowcell>')
+  parser.add_option('-m', '--mailist',
+                  dest = 'maillist',
                   default=False,
                   action='store_true',
-                  help = "Generated Sample Sheet will be addtionally sent as email to the defined list of recipients",
-                  metavar = "MAILLIST")
-  parser.add_option("-l", "--lineending",
-                  dest = "lineending",
+                  help = 'Generated Sample Sheet will be addtionally sent as email to the defined list of recipients',
+                  metavar = '<maillist>')
+  parser.add_option('-l', '--lineending',
+                  dest = 'lineending',
                   type='choice',
                   action='store',
-                  choices=['win32', 'linux', 'mac',],
-                  default='win32',
-                  help = "Specify end of line separator: win32, linux, mac",
-                  metavar = "LINEENDING")
-
+                  choices=['win32', 'linux', 'mac'],
+                  default='linux',
+                  help = 'Specify end of line separator: win32, linux, mac. Default: linux' ,
+                  metavar = '<lineending>')
+  parser.add_option('-o', '--outdir',
+                  dest = 'outdir',
+                  default='./',
+                  help = 'Specify the ouput directory. Default: ./' ,
+                  metavar = '<outdir>')
+  parser.add_option('-s', '--singlelane',
+                  dest = 'singlelane',
+                  default=False,
+                  action='store_true',
+                  help = 'Creates a single Sample Sheet for each lane. Default: False')
+  parser.add_option('-d', '--debug',
+                  dest = 'debug',
+                  default=False,
+                  action='store_true',
+                  help = 'Verbose debug logging. Default: False')
 
   (options, args) = parser.parse_args()
   
+  if options.outdir[-1] <> '/':
+    options.outdir = options.outdir + '/'
+  
   if options.flowcell is None:
-    print usage
+    parser.print_help()
     exit(-1)
   return options
 
 def readConfig():
-  logging.info('Reading config file')
+  logger.info('Reading config file')
   configMap = {}
   
   configParameters = parseConfigurationFile()
@@ -130,6 +155,7 @@ def readConfig():
   configMap['mailList'] = configParameters.get('GENERAL', 'mailList')
   configMap['mailFrom'] = configParameters.get('GENERAL', 'mailFrom')
   configMap['smptHost'] = configParameters.get('GENERAL', 'smptHost')
+  configMap['SampleSheetFileName'] = configParameters.get('GENERAL', 'SampleSheetFileName')
   configMap['separator'] = configParameters.get('GENERAL', 'separator')
   configMap['indexSeparator'] = configParameters.get('GENERAL', 'indexSeparator')
   
@@ -160,7 +186,10 @@ def readConfig():
 
 def getDate():
   d = datetime.now()
-  return d.strftime("%A, %d of %B %Y")
+  return d.strftime('%A, %d of %B %Y')
+
+def sanitizeString(myString):
+  return re.sub('[^A-Za-z0-9]+', '_', myString)
 
 def getVocabulary(vocabularyCode):
   ''' Returns the vocabulary terms and vocabulary labels of a vocabulary in a dictionary
@@ -183,21 +212,20 @@ def sendMail(emails, files):
   '''
   Send out an email to the specified recipients
   '''
-  COMMASPACE = ", "
+  COMMASPACE = ', '
   listofEmails = emails.split()
-  
   
   msg = MIMEMultipart()
   msg['From'] = configMap['mailFrom']
   msg['To'] = COMMASPACE.join(listofEmails)
   msg['Date'] = formatdate(localtime=True)
-  msg['Subject'] = "Generated SampleSheet.csv"
+  msg['Subject'] = 'Generated SampleSheet.csv'
   
   msg.attach( MIMEText('my Test') )
   
   for f in files:
-        part = MIMEBase('application', "octet-stream")
-        part.set_payload( open(f,"rb").read() )
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload( open(f,'rb').read() )
         Encoders.encode_base64(part)
         part.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(f))
         msg.attach(part)
@@ -205,23 +233,6 @@ def sendMail(emails, files):
   smtp = smtplib.SMTP(configMap['smptHost'])
   smtp.sendmail(configMap['mailFrom'], listofEmails, msg.as_string())
   smtp.close()
-
-
-#  TO = COMMASPACE.join(listofEmails)
-#  SUBJECT = "Generated SampleSheet.csv"
-#  FROM = configMap['mailFrom']
-#  HOST = configMap['smptHost']
-#  text = "SampleSheet"
-#  BODY = string.join((
-#        "From: %s" % FROM,
-#        "To: %s" % TO,
-#        "Subject: %s" % SUBJECT ,
-#        "",
-#        text
-#        ), "\r\n")
-#  server = smtplib.SMTP(HOST)
-#  server.sendmail(FROM, [TO], BODY)
-#  server.quit()
 
 
 def getFlowCell (illuminaFlowCellTypeName, flowCellName):
@@ -235,9 +246,10 @@ def getFlowCell (illuminaFlowCellTypeName, flowCellName):
   try:
     assert foundSample.size() == 1
   except AssertionError:
-    print (str(foundSample.size()) + ' flow cells found which match.') 
+    print (str(foundSample.size()) + ' flow cells found which match.')
+    return None, None 
   
-  logging.info('Found ' + foundSample[0].getCode() + ' in openBIS')
+  logger.info('Found ' + foundSample[0].getCode() + ' in openBIS')
   # Search for contained samples
   sampleSc = SearchCriteria()
   sampleSc.addSubCriteria(SearchSubCriteria.createSampleContainerCriteria(sc))
@@ -266,31 +278,117 @@ def getParents(sampleName):
   
   return foundParentSamples 
  
-def getSampleProperties(containedSamples):
+def getContainedSampleProperties(containedSamples):
   '''
   Takes a  list of contained samples, retrieves the parents and their properties and returns it
   as a dictionary. The key is the sample name, the value is a list of the properties
+  
+  Additionally a dictionary with the lane (key) and the number of samples (value) is returned  
   '''
   parentDict = {}
+  samplesPerLaneDict = {}
   
   for lane in containedSamples:
     parents = getParents (lane.getCode())
+    samplesPerLaneDict[lane.getCode()[-1]] = len(parents)
     
     for parent in parents:
       parentCode = parent.getCode()
       parentProperties = parent.getProperties()
-      
       propertyDict = {}
       for property in parentProperties:
         propertyDict[property] = parentProperties.get(property)
-      
-      propertyDict['LANE'] = lane.getCode()
-      parentDict[parentCode] = propertyDict
-  return parentDict
 
+      propertyDict['LANE'] = lane.getCode()
+
+      myKey = sanitizeString(parentCode + '_' + lane.getCode())
+      parentDict[myKey] = propertyDict
+
+  return parentDict, samplesPerLaneDict
+
+ 
+def convertSampleToDict(foundFlowCell):
+  '''
+  converts <type 'ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample'> to a python dict
+  '''
+  flowCellDict = {}
+  fcProperties = foundFlowCell.getProperties()
+  for property in fcProperties:
+    flowCellDict[property] = fcProperties.get(property)
+  flowCellDict['Project'] = foundFlowCell.getExperimentIdentifierOrNull().split('/')[-1]
+  flowCellDict['Name'] = foundFlowCell.getIdentifier().split('/')[-1]
+  return flowCellDict
+
+def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict):
+  '''
+  Builds up a dictionary with all entries in the Sample Sheet
+  '''
+  sampleSheetDict = {}
+  # the illlumina pipeline uses always one base less than the sequencer is sequencing 
+  demultiplexIndexlengthPenalty = -1
+  
+  # Maing sure the header is always a the top of the file
+  sampleSheetDict[u'!'] = ([configMap['hiSeqHeader']])
+  endType = flowCellDict['END_TYPE']
+  cycles = flowCellDict['CYCLES_REQUESTED_BY_CUSTOMER']
+  indexread  = int(flowCellDict['INDEXREAD']) + demultiplexIndexlengthPenalty
+  indexread2 = int(flowCellDict['INDEXREAD2']) + demultiplexIndexlengthPenalty
+  
+  for key in parentDict.keys():
+    index = ''
+    lane = parentDict[key]['LANE'][-1:]
+    
+    if 'BARCODE' in parentDict[key] and indexread > 0:
+      index = parentDict[key]['BARCODE'][0:indexread]
+    
+    if 'INDEX2' in parentDict[key] and indexread2 > 0:
+      index = index + configMap['indexSeparator'] + parentDict[key]['INDEX2'][0:indexread2]
+    
+    # little hack to make the non-indexed control lane and non-indexed runs also part of
+    # the sample sheet
+    if len(index) == 0 and samplesPerLaneDict[lane] == 1:
+      index = ' '
+    
+    # Set flag if this lane is a control lane. has no influence on the result, but makes reading
+    # the demultiplex statistics easier
+    if lane == flowCellDict['CONTROL_LANE']:
+      control = 'Y'
+    else:
+      control = 'N'
+    
+    if len(index) > 0:
+      sampleSheetDict[lane + '_' + key] = [flowCellName + ',' 
+                            + lane + ',' 
+                            + key + ','
+                            + parentDict[key]['NCBI_ORGANISM_TAXONOMY'] + ','
+                            + index + ','
+                            + sanitizeString(parentDict[key]['EXTERNAL_SAMPLE_NAME']) + ',' 
+                            + control + ','
+                            + endType + '_' + cycles + ',' 
+                            + configMap['facilityInstitution'] + ',' 
+                            + foundFlowCell.getCode() + '_' + lane
+                            ]
+
+  sortedSampleSheetList = sampleSheetDict.keys()
+  sortedSampleSheetList.sort()
+  
+  # if single lane demultiplexing is activated
+  if myoptions.singlelane:
+    for lane in range(1,int(flowCellDict['LANECOUNT'])+1):
+      laneSeparatedList = [sample for sample in sortedSampleSheetList if sample[0] == str(lane)]
+      # Making sure the header is also included at the top
+      laneSeparatedList.insert(0, u'!')
+      logger.debug(laneSeparatedList)
+      writeSampleSheet(sampleSheetDict, laneSeparatedList, fileName = myoptions.outdir + 
+                      configMap['SampleSheetFileName'] + '_' + str(lane))   
+  else:
+    writeSampleSheet(sampleSheetDict, sortedSampleSheetList, fileName = myoptions.outdir + 
+                      configMap['SampleSheetFileName'])
 
 def writeSampleSheet(sampleSheetDict, sortedSampleSheetList, fileName):
   '''
+  Writes the given dictionary out to a csv file. The additional list is sorted and is used to write
+  the dictionary in a sorted order.   
   '''
   newline = lineending[myoptions.lineending]
 
@@ -300,65 +398,15 @@ def writeSampleSheet(sampleSheetDict, sortedSampleSheetList, fileName):
       for listElement in sortedSampleSheetList:
         sampleSheetFile.write(sampleSheetDict[listElement][0] + newline)
         
-      logging.info('Writing file ' + myFile)
-  except IOError:
-    logging.error('File error: ' + str(err))
+      logger.info('Writing file ' + myFile)
+  except IOError, err:
+    logger.error('File error: ' + str(err))
     print ('File error: ' + str(err))  
- 
-
-def convertSampleToDict(foundFlowCell):
-
-  flowCellDict = {}
-  fcProperties = foundFlowCell.getProperties()
-  # convert <type 'ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample'> to a python dict
-  for property in fcProperties:
-    flowCellDict[property] = fcProperties.get(property)
-  flowCellDict['Project'] = foundFlowCell.getExperimentIdentifierOrNull().split('/')[-1]
-  flowCellDict['Name'] = foundFlowCell.getIdentifier().split('/')[-1]
-  return flowCellDict
-
-def sanitizeString(myString):
-  return re.sub('[^A-Za-z0-9]+', '_', myString)
-
-def createHiseqSampleSheet(parentDict):
-  '''
-  '''
-  sampleSheetDict = {}
-  sampleSheetDict[u'!'] = ([configMap['hiSeqHeader']])
-  for key in parentDict.keys():
-    if 'BARCODE' in parentDict[key]:
-      index = parentDict[key]['BARCODE']
-    else:
-      index = ''
-      
-    if 'INDEX2' in parentDict[key]:
-      index = index + configMap['indexSeparator'] + parentDict[key]['INDEX2']
-  
-    if parentDict[key]['LANE'][-1:] == controlLane:
-      control = 'Y'
-    else:
-      control = 'N'
-  
-    lane = parentDict[key]['LANE'][-1:]
-    sampleSheetDict[lane + '_' + key] = [flowCellName + ',' 
-                            + lane + ',' 
-                            + key + '_' + flowCellName + ','
-                            + parentDict[key]['NCBI_ORGANISM_TAXONOMY'] + ','
-                            + index + ','
-                            + sanitizeString(parentDict[key]['EXTERNAL_SAMPLE_NAME']) + ',' 
-                            + control + ','
-                            + end_type + '_' + cycles + ',' 
-                            + configMap['facilityInstitution'] + ',' 
-                            + foundFlowCell.getCode() + '_' + lane
-                            ]
-
-  sortedSampleSheetList = sampleSheetDict.keys()
-  sortedSampleSheetList.sort()
-  writeSampleSheet(sampleSheetDict, sortedSampleSheetList, fileName = '../SampleSheet')
-
 
 def writeMiSeqSampleSheet(sampleSheetDict, headerList, fileName):
   '''
+  Writes the given dictionary to a csv file. The order does not matter. As the header is not fixed
+  we first need to write the headerList in the file. This is specific to MiSeq
   '''
   newline = lineending[myoptions.lineending]
   
@@ -370,9 +418,9 @@ def writeMiSeqSampleSheet(sampleSheetDict, headerList, fileName):
       for sample in sampleSheetDict:
         sampleSheetFile.write(sampleSheetDict[sample][0] + newline)
         
-      logging.info('Writing file ' + myFile)
+      logger.info('Writing file ' + myFile)
   except IOError:
-    logging.error('File error: ' + str(err))
+    logger.error('File error: ' + str(err))
     print ('File error: ' + str(err))  
     
   return myFile
@@ -445,38 +493,34 @@ def createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary
                             + separator
                             + key + '_' + flowCellName
                             ]
-  
   #print headerList
   #print sampleSheetDict
-  
-  sampleSheetFile = writeMiSeqSampleSheet(sampleSheetDict, headerList, fileName = '../SampleSheet')
+  sampleSheetFile = writeMiSeqSampleSheet(sampleSheetDict, headerList, fileName = myoptions.outdir + SampleSheetFileName)
   return sampleSheetFile 
-
-
 
 '''
 Main script
 '''
 
-setUpLogger('log')
-logging.info('Started Creation of Sample Sheet...')
+logger = setUpLogger('log/')
+logger.info('Started Creation of Sample Sheet...')
 
 myoptions = parseOptions()
+
+if myoptions.debug: 
+  logger.setLevel(logging.DEBUG)
+  
 flowCellName = myoptions.flowcell
 configMap = readConfig()
 service = login(configMap)
 
 foundFlowCell, containedSamples = getFlowCell(configMap['illuminaFlowCellTypeName'], flowCellName)
-parentDict = getSampleProperties(containedSamples)
-logging.info("Found " + str(len(parentDict)) + " samples on the flow cell " + flowCellName)
+parentDict, samplesPerLaneDict = getContainedSampleProperties(containedSamples)
+logger.info('Found ' + str(len(parentDict)) + ' samples on the flow cell ' + flowCellName)
 
 sampleSheetList = []
 flowCellName = foundFlowCell.getCode().split('_')[3][1:]
 flowCellDict = convertSampleToDict(foundFlowCell)
-
-controlLane = flowCellDict['CONTROL_LANE']
-end_type = flowCellDict['END_TYPE']
-cycles = flowCellDict['CYCLES_REQUESTED_BY_CUSTOMER']
 
 hiseqs = configMap['hiSeqNames'].split()
 miseqs = configMap['miSeqNames'].split()
@@ -484,8 +528,8 @@ miseqs = configMap['miSeqNames'].split()
 index1Vocabulary = getVocabulary('BARCODES')
 index2Vocabulary = getVocabulary('INDEX2')
 
-#createHiseqSampleSheet(parentDict)
-SampleSheetFile = createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary, index2Vocabulary)
+createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict)
+#SampleSheetFile = createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary, index2Vocabulary)
 
 #ncbi_tax =  parentDict['BSSE-QGF-7771']['NCBI_ORGANISM_TAXONOMY']
 
