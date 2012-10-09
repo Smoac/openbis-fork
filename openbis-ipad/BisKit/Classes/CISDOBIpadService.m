@@ -197,8 +197,8 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 - (NSString *)summary { return [self stringContentValueAtIndex: 1]; }
 - (NSString *)identifier { return [self stringContentValueAtIndex: 2]; }
 - (NSString *)permId { return [self stringContentValueAtIndex: 3]; }
-- (NSString *)entityKind { return [self stringContentValueAtIndex: 4]; }
-- (NSString *)entityType { return [self stringContentValueAtIndex: 5]; }
+- (NSString *)refcon { return [self stringContentValueAtIndex: 4]; }
+- (NSString *)group { return [self stringContentValueAtIndex: 5]; }
 - (NSString *)imageUrl { return [self stringContentValueAtIndex: 6]; }
 - (NSString *)properties { return [self stringContentValueAtIndex: 7]; }
 

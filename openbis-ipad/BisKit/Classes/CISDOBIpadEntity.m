@@ -31,8 +31,8 @@
 @dynamic summary;
 @dynamic identifier;
 @dynamic permId;
-@dynamic entityKind;
-@dynamic entityType;
+@dynamic refcon;
+@dynamic group;
 @dynamic imageUrl;
 @dynamic propertiesJson;
 
@@ -67,8 +67,8 @@
     self.summary = rawEntity.summary;
     self.identifier = rawEntity.identifier;
     self.permId = rawEntity.permId;
-    self.entityKind = rawEntity.entityKind;
-    self.entityType = rawEntity.entityType;
+    self.refcon = rawEntity.refcon;
+    self.group = rawEntity.group;
     self.imageUrl = rawEntity.imageUrl;
     self.propertiesJson = rawEntity.properties;
 }

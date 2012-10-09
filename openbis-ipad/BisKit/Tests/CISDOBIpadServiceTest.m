@@ -72,8 +72,8 @@
         STAssertNotNil(rawEntity.summary, @"Summary should not be nil");
         STAssertNotNil(rawEntity.identifier, @"Identifier should not be nil");
         STAssertNotNil(rawEntity.permId, @"PermId should not be nil");
-        STAssertNotNil(rawEntity.entityKind, @"Entity kind should not be nil");
-        STAssertNotNil(rawEntity.entityType, @"Entity type should not be nil");
+        STAssertNotNil(rawEntity.refcon, @"Ref con should not be nil");
+        STAssertNotNil(rawEntity.group, @"Group should not be nil");
         STAssertNotNil(rawEntity.imageUrl, @"Image url should not be nil");
         STAssertNotNil(rawEntity.properties, @"Properties type should not be nil");
     }

@@ -35,8 +35,8 @@
 @property (nonatomic, retain) NSString * summary;
 @property (nonatomic, retain) NSString * identifier;
 @property (nonatomic, retain) NSString * permId;
-@property (nonatomic, retain) NSString * entityKind;
-@property (nonatomic, retain) NSString * entityType;
+@property (nonatomic, retain) NSString * refcon;
+@property (nonatomic, retain) NSString * group;
 @property (nonatomic, retain) NSString * imageUrl;
 @property (nonatomic, retain) NSString * propertiesJson;
 @property (readonly)          NSArray * properties;

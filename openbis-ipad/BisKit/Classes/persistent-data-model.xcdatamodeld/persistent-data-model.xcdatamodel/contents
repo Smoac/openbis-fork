@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1810" systemVersion="11G56" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="CISDOBIpadEntity" representedClassName="CISDOBIpadEntity" syncable="YES">
-        <attribute name="entityKind" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
-        <attribute name="entityType" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
+        <attribute name="group" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="imageUrl" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="permId" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="properties" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="propertiesJson" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="refcon" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="summary" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="summaryHeader" optional="YES" attributeType="String" syncable="YES"/>
     </entity>

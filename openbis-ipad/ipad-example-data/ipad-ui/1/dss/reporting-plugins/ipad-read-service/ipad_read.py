@@ -3,13 +3,29 @@ from ch.systemsx.cisd.openbis.generic.shared.basic.dto import MaterialIdentifier
 from com.fasterxml.jackson.databind import ObjectMapper 
 
 def add_headers(builder):
-	"""Configure the headers for the iPad UI -- these are fixed"""
+	"""Configure the headers for the iPad UI -- these are fixed.
+
+	The headers are following: 
+		SUMMARY_HEADER : A short summary of the entity.
+		SUMMARY : A potentially longer summary of the entity.
+		IDENTIFIER : An identifier for the object.
+		PERM_ID : A stable identifier for the object.
+		REFCON : Data that is passed unchanged back to the server when a row is modified. 
+			This can be used by the server to encode whatever it needs in order to 
+			modify the row.
+		GROUP : A group identifier for showing the entity. If empty or None, then the 
+			the entity in this row is not shown in top level navigation views. Such entities
+			may appear as children of other entities.
+		IMAGE_URL : A url for an image associated with this entity. If None or empty, no
+			image is shown.
+		PROPERTIES : Properties (metadata) that should be displayed for this entity.
+	"""
 	builder.addHeader("SUMMARY_HEADER")
 	builder.addHeader("SUMMARY")
 	builder.addHeader("IDENTIFIER")
 	builder.addHeader("PERM_ID")
-	builder.addHeader("ENTITY_KIND")
-	builder.addHeader("ENTITY_TYPE")
+	builder.addHeader("REFCON")
+	builder.addHeader("GROUP")
 	builder.addHeader("IMAGE_URL")
 	builder.addHeader("PROPERTIES")
 
@@ -21,8 +37,8 @@ def add_row(builder, entry):
 	row.setCell("SUMMARY", entry.get("SUMMARY"))
 	row.setCell("IDENTIFIER", entry.get("IDENTIFIER"))
 	row.setCell("PERM_ID", entry.get("PERM_ID"))
-	row.setCell("ENTITY_KIND", entry.get("ENTITY_KIND"))
-	row.setCell("ENTITY_TYPE", entry.get("ENTITY_TYPE"))
+	row.setCell("REFCON", entry.get("REFCON"))
+	row.setCell("GROUP", entry.get("GROUP"))
 	row.setCell("IMAGE_URL", entry.get("IMAGE_URL"))
 	row.setCell("PROPERTIES", str(entry.get("PROPERTIES")))
 
@@ -31,8 +47,11 @@ def material_to_dict(material):
 	material_dict['SUMMARY_HEADER'] = material.getCode()
 	material_dict['IDENTIFIER'] = material.getMaterialIdentifier()
 	material_dict['PERM_ID'] = material.getMaterialIdentifier()
-	material_dict['ENTITY_KIND'] = 'MATERIAL'
-	material_dict['ENTITY_TYPE'] = material.getMaterialType()
+	refcon = {}
+	refcon['entityKind'] = 'MATERIAL'
+	refcon['entityType'] = material.getMaterialType()
+	material_dict['REFCON'] = ObjectMapper().writeValueAsString(refcon)
+	material_dict['GROUP'] = material.getMaterialType()
 	if material.getMaterialType() == '5HT_COMPOUND':
 		chemblId =  material.getCode()
 		material_dict['SUMMARY'] = material.getPropertyValue("FORMULA")
@@ -52,8 +71,11 @@ def sample_to_dict(five_ht_sample):
 	sample_dict['SUMMARY'] = five_ht_sample.getPropertyValue("DESC")
 	sample_dict['IDENTIFIER'] = five_ht_sample.getSampleIdentifier()
 	sample_dict['PERM_ID'] = five_ht_sample.getPermId()
-	sample_dict['ENTITY_KIND'] = 'SAMPLE'
-	sample_dict['ENTITY_TYPE'] = five_ht_sample.getSampleType()
+	refcon = {}
+	refcon['entityKind'] = 'SAMPLE'
+	refcon['entityType'] = material.getSampleType()
+	sample_dict['REFCON'] = ObjectMapper().writeValueAsString(refcon)
+	sample_dict['GROUP'] = five_ht_sample.getSampleType()
 	sample_dict['IMAGE_URL'] = ""
 	prop_names = ["DESC"]
 	properties = dict((name, five_ht_sample.getPropertyValue(name)) for name in prop_names if five_ht_sample.getPropertyValue(name) is not None)
