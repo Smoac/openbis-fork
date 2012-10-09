@@ -125,7 +125,7 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
     {
         logAccess(
                 sessionToken,
-                "addToMetaproject METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
+                "addToMetaprojectByEntityIds METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
                 metaprojectId.toString(), abbreviate(experiments), abbreviate(samples),
                 abbreviate(dataSets), abbreviate(materials));
     }
@@ -138,6 +138,17 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
         logAccess(
                 sessionToken,
                 "removeFromMetaproject METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
+                metaprojectId.toString(), abbreviate(experiments), abbreviate(samples),
+                abbreviate(dataSets), abbreviate(materials));
+    }
+
+    @Override
+    public void removeFromMetaprojectByEntityIds(String sessionToken, Long metaprojectId,
+            List<Long> experiments, List<Long> samples, List<Long> dataSets, List<Long> materials)
+    {
+        logAccess(
+                sessionToken,
+                "removeFromMetaprojectByEntityIds METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
                 metaprojectId.toString(), abbreviate(experiments), abbreviate(samples),
                 abbreviate(dataSets), abbreviate(materials));
     }

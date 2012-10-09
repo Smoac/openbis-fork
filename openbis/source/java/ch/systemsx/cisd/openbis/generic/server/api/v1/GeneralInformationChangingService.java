@@ -224,6 +224,19 @@ public class GeneralInformationChangingService extends
                 extractTechIds(materials));
     }
 
+    @Override
+    @Transactional(readOnly = false)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public void removeFromMetaprojectByEntityIds(String sessionToken,
+            @AuthorizationGuard(guardClass = MetaprojectIdPredicate.class)
+            Long metaprojectId, List<Long> experiments, List<Long> samples, List<Long> dataSets,
+            List<Long> materials)
+    {
+        server.removeFromMetaproject(sessionToken, new TechId(metaprojectId),
+                TechId.createList(experiments), TechId.createList(samples),
+                TechId.createList(dataSets), TechId.createList(materials));
+    }
+
     private List<TechId> extractTechIds(Collection<? extends IIdHolder> entitiesOrNull)
     {
         if (entitiesOrNull == null)

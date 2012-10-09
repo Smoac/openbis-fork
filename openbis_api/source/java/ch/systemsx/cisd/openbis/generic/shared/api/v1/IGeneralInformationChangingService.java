@@ -165,4 +165,21 @@ public interface IGeneralInformationChangingService extends IRpcService
     public void removeFromMetaproject(String sessionToken, Long metaprojectId,
             Collection<Experiment> experiments, Collection<Sample> samples,
             Collection<DataSet> dataSets, Collection<Material> materials);
+
+    /**
+     * Removes given entities to existing metaproject.
+     * 
+     * @param metaprojectId Tech Id of metaproject
+     * @param experiments List of experiment ids that should be removed from the metaproject or
+     *            <code>null</code>
+     * @param samples List of sample ids that should be removed from the metaproject or
+     *            <code>null</code>
+     * @param dataSets List of data set ids that should be removed from the metaproject or
+     *            <code>null</code>
+     * @param materials List of material ids that should be removed from the metaproject or
+     *            <code>null</code>
+     * @since 1.3
+     */
+    public void removeFromMetaprojectByEntityIds(String sessionToken, Long metaprojectId,
+            List<Long> experiments, List<Long> samples, List<Long> dataSets, List<Long> materials);
 }
