@@ -103,6 +103,10 @@ def materials_to_dict(materials):
 	result = [material_to_dict(material) for material in materials]
 	return result
 
+def samples_to_dict(samples):
+	result = [sample_to_dict(sample) for sample in samples]
+	return result
+
 def aggregate(parameters, builder):
 	add_headers(builder)
 
@@ -111,4 +115,5 @@ def aggregate(parameters, builder):
 	material_identifiers = gather_materials(samples)
 	materials = searchService.listMaterials(material_identifiers)
 	add_rows(builder, materials_to_dict(materials))
+	add_rows(builder, samples_to_dict(samples))
 
