@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.screening.systemtests;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -93,7 +94,7 @@ public class FeatureVectorsDropboxTest extends AbstractScreeningSystemTestCase
         List<Plate> plates = screeningFacade.listPlates();
 
         List<FeatureVectorDatasetReference> features =
-                screeningFacade.listFeatureVectorDatasets(plates);
+                screeningFacade.listFeatureVectorDatasets(filterPlates(plates));
 
         // exactly one feature vector data set should be created in this test
         assertEquals(1, features.size());
@@ -101,6 +102,19 @@ public class FeatureVectorsDropboxTest extends AbstractScreeningSystemTestCase
         FeatureVectorDatasetReference feature = features.get(0);
         assertEquals("HCS_ANALYSIS_CONTAINER_WELL_FEATURES", feature.getDataSetType());
 
+    }
+    
+    private List<Plate> filterPlates(List<Plate> plates)
+    {
+        List<Plate> filteredPlates = new ArrayList<Plate>();
+        for (Plate plate : plates)
+        {
+            if (plate.getPlateCode().equals("PLATE-FEATURE-VECTOR-TEST"))
+            {
+                filteredPlates.add(plate);
+            }
+        }
+        return filteredPlates;
     }
 
     private File createTestDataContents() throws IOException
