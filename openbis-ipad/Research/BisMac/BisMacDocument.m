@@ -43,34 +43,10 @@
     return @"BisMacDocument";
 }
 
-- (void)testCall
-{
-
-    CISDOBJsonRpcCall *generalInfoServiceCall = [[CISDOBJsonRpcCall alloc] init];
-    generalInfoServiceCall.url = [NSURL URLWithString: @"http://www.raboof.com/projects/jayrock/demo.ashx"];
-    generalInfoServiceCall.method = @"add";
-    generalInfoServiceCall.params = [NSArray arrayWithObjects: @"1", @"2", nil];
-    generalInfoServiceCall.timeoutInterval = 10.0;
-    SuccessBlock success = ^(id result) { 
-        NSLog(@"Call returned result : %@", result); 
-    };
-    
-    FailBlock fail = ^(NSError *error) { 
-        NSLog(@"Call failed : %@", error); 
-    };
-    generalInfoServiceCall.success = success;
-    generalInfoServiceCall.fail = fail;    
-    [generalInfoServiceCall start];
-}
-
 
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController
 {
     [super windowControllerDidLoadNib:aController];
-    // Add any code here that needs to be executed once the windowController has loaded the document's window.
-    
-    [self testCall];
-    
 }
 
 
