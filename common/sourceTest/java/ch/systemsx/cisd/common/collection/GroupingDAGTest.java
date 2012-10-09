@@ -126,6 +126,28 @@ public class GroupingDAGTest extends AssertJUnit
     }
 
     @Test
+    public void testWithParentofParent()
+    {
+        HashMap<String, Collection<String>> adjacencyMap =
+                new HashMap<String, Collection<String>>();
+
+        adjacencyMap.put("P", Arrays.asList("A"));
+        adjacencyMap.put("A", Arrays.asList("B"));
+        adjacencyMap.put("B", new ArrayList<String>());
+
+        List<List<String>> groups = sortTopologically(adjacencyMap);
+
+        assertAllEntitiesPresent(adjacencyMap.keySet(), groups);
+
+        for (List<String> list : groups)
+        {
+            Collections.sort(list);
+        }
+
+        assertEquals("[[P], [A], [B]]", groups.toString());
+    }
+
+    @Test
     public void testEmpty()
     {
         HashMap<String, Collection<String>> adjacencyMap =
