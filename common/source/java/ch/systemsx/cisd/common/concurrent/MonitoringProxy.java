@@ -96,7 +96,7 @@ public class MonitoringProxy<T>
 {
     private final static int NUMBER_OF_CORE_THREADS = 10;
 
-    private final static ExecutorService executor =
+    private final static ExecutorService defaultExecutorService =
             new NamingThreadPoolExecutor("Monitoring Proxy").corePoolSize(NUMBER_OF_CORE_THREADS)
                     .daemonize();
 
@@ -125,6 +125,8 @@ public class MonitoringProxy<T>
     private IMonitoringProxyLogger invocationLoggerOrNull;
 
     private IActivitySensor sensorOrNull;
+    
+    private ExecutorService executorService = defaultExecutorService;
 
     private Set<MonitorCommunicator> currentOperations =
             Collections.synchronizedSet(new HashSet<MonitorCommunicator>());
@@ -140,7 +142,6 @@ public class MonitoringProxy<T>
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
-
         {
             try
             {
@@ -202,7 +203,6 @@ public class MonitoringProxy<T>
 
     private class MonitoringInvocationHandler implements InvocationHandler
     {
-
         @Override
         public Object invoke(final Object myProxy, final Method method, final Object[] args)
                 throws Throwable
@@ -287,7 +287,7 @@ public class MonitoringProxy<T>
                     args[args.length - 1] = communicator;
                 }
 
-                final Future<Object> future = executor.submit(new NamedCallable<Object>()
+                final Future<Object> future = executorService.submit(new NamedCallable<Object>()
                     {
                         @Override
                         public Object call() throws Exception
@@ -608,6 +608,17 @@ public class MonitoringProxy<T>
     public MonitoringProxy<T> errorLog(ISimpleLogger newLogger)
     {
         this.loggerOrNull = newLogger;
+        return this;
+    }
+    
+    /**
+     * Set the <var>newExecutorService</var> to use calls to this monitoring proxy.
+     * <p>
+     * If not set, a default executor service will be used.
+     */
+    public MonitoringProxy<T> executorService(ExecutorService newExecutorService)
+    {
+        this.executorService = newExecutorService;
         return this;
     }
 

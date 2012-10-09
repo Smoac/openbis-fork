@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
@@ -37,6 +38,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
+import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.base.tests.Retry50;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy.IMonitorCommunicator;
@@ -75,6 +77,8 @@ public class MonitoringProxyTest
     private ITest retryingOnceExceptionThrowingProxy;
 
     private ITest retryingTwiceExceptionThrowingProxy;
+    
+    private ITest nonDefaultExecutorServiceProxy;
 
     private static class SignalException extends RuntimeException
     {
@@ -100,6 +104,8 @@ public class MonitoringProxyTest
         void busyUpdatingActivity(IMonitorCommunicator communicator);
 
         String getString(boolean hang);
+        
+        String getThreadName();
 
         boolean getBoolean(boolean hang);
 
@@ -125,6 +131,9 @@ public class MonitoringProxyTest
 
     private final static Pattern THREAD_NAME_PATTERN = Pattern
             .compile("Monitoring Proxy-T[0-9]+::main::" + THREAD_NAME);
+
+    private final static Pattern MY_SPECIAL_THREAD_NAME_PATTERN = Pattern
+            .compile("My Special Monitoring Proxy-T[0-9]+::main::" + THREAD_NAME);
 
     private class TestImpl implements ITest
     {
@@ -296,6 +305,12 @@ public class MonitoringProxyTest
             }
         }
 
+        @Override
+        public String getThreadName()
+        {
+            return Thread.currentThread().getName();
+        }
+
     }
 
     @BeforeClass
@@ -314,6 +329,23 @@ public class MonitoringProxyTest
                                 ITest.class.getMethod("getSpecialStatus", new Class<?>[]
                                     { Boolean.TYPE }), Status.SPECIAL_UUUPS).sensor(observerSensor)
                         .errorLog(logger).get();
+        final ExecutorService executorService =
+                new NamingThreadPoolExecutor("My Special Monitoring Proxy").corePoolSize(1)
+                        .daemonize();
+
+        nonDefaultExecutorServiceProxy = 
+                MonitoringProxy
+                .create(ITest.class, new TestImpl(observerSensor))
+                .timing(TimingParameters.createNoRetries(TIMEOUT_MILLIS))
+                .errorValueOnTimeout()
+                .name(THREAD_NAME)
+                .errorTypeValueMapping(Status.class, Status.UUUPS)
+                .errorMethodValueMapping(
+                        ITest.class.getMethod("getSpecialStatus", new Class<?>[]
+                            { Boolean.TYPE }), Status.SPECIAL_UUUPS).sensor(observerSensor)
+                .errorLog(logger)
+                .executorService(executorService)
+                .get();
         exceptionThrowingProxy =
                 MonitoringProxy.create(ITest.class, new TestImpl(observerSensor))
                         .timing(TimingParameters.createNoRetries(TIMEOUT_MILLIS)).name(THREAD_NAME)
@@ -362,6 +394,13 @@ public class MonitoringProxyTest
         defaultReturningProxy.idle(true);
     }
 
+    @Test
+    public void testNonDefaultExecutorService()
+    {
+        final String threadName = nonDefaultExecutorServiceProxy.getThreadName();
+        assertTrue(threadName, MY_SPECIAL_THREAD_NAME_PATTERN.matcher(threadName).matches());
+    }
+    
     @Test(expectedExceptions = SignalException.class, retryAnalyzer = Retry50.class)
     public void testThrowExceptionNullReturningPolicy()
     {
