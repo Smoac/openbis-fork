@@ -152,8 +152,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
 
         // Update the parents
         Sample parent = findSampleByCode("3V-126");
-        String parentComment = "This is a new comment for a parent.";
-        updateEntityProperty(parent, "COMMENT", parentComment);
+        updateEntityProperty(parent, "OFFSET", "43");
         assertEquals(1, sample.getParents().size());
         sample.addParent(parent);
 
@@ -170,7 +169,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         assertTrue("The modification date should have been updated", updatedParent
                 .getModificationDate().compareTo(sample.getModificationDate()) > 0);
         assertEquals(sampleComment, EntityHelper.tryFindPropertyValue(updatedSample, "COMMENT"));
-        assertEquals(parentComment, EntityHelper.tryFindPropertyValue(updatedParent, "COMMENT"));
+        assertEquals("43", EntityHelper.tryFindPropertyValue(updatedParent, "OFFSET"));
         assertEquals(2, updatedSample.getParents().size());
     }
 
