@@ -3,6 +3,7 @@
 import urllib
 import json
 import csv
+import shutil
 
 FIELD_ID = 'id'
 FIELD_PREDICTIONS = 'predictions'
@@ -48,5 +49,6 @@ def writeDataToFile(filePath, dataList):
       file.close()
 
 data = loadDataFromServer('http://pubseed.theseed.org/model-prod/StrainServer.cgi?user=reviewer&pass=reviewer&method=getAllPhenotypesAndPredictions&encoding=json')
-writeDataToFile('data-from-server.csv', convertData(data))
+writeDataToFile('data-from-server.csv.tmp', convertData(data))
+shutil.move('data-from-server.csv.tmp', 'data-from-server.csv')
 
