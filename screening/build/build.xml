@@ -511,6 +511,9 @@
       <fileset dir="${classes.common}">
             <include name="ch/systemsx/cisd/common/**/*.class" />
       </fileset> 
+      <fileset dir="../openbis-common/targets/ant/classes">
+            <include name="ch/systemsx/cisd/common/**/*.class" />
+      </fileset> 
     </jar>
 		<zip update="true" destfile="${dist.screening-api.jar}">
 	    <zipfileset src="${lib}/gwt2.4/gwt-user.jar">
