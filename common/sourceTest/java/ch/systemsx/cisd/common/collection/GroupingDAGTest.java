@@ -29,6 +29,7 @@ import java.util.Map;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.collection.GroupingDAG;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 
 /**
@@ -60,6 +61,7 @@ public class GroupingDAGTest extends AssertJUnit
             String childCode = "CHAIN_" + i;
             adjacencyMap.put(childCode, Arrays.asList("CHAIN_" + (i - 1)));
         }
+
 
         List<List<String>> groups = sortTopologically(adjacencyMap);
 
@@ -124,14 +126,14 @@ public class GroupingDAGTest extends AssertJUnit
     }
 
     @Test
-    public void testWithParentOfParent()
+    public void testWithParentofParent()
     {
         HashMap<String, Collection<String>> adjacencyMap =
                 new HashMap<String, Collection<String>>();
 
-        adjacencyMap.put("B", Arrays.asList("A"));
-        adjacencyMap.put("A", Arrays.asList("P"));
-        adjacencyMap.put("P", new ArrayList<String>());
+        adjacencyMap.put("P", Arrays.asList("A"));
+        adjacencyMap.put("A", Arrays.asList("B"));
+        adjacencyMap.put("B", new ArrayList<String>());
 
         List<List<String>> groups = sortTopologically(adjacencyMap);
 
