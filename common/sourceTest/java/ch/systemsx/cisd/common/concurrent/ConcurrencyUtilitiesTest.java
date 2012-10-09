@@ -66,7 +66,7 @@ public class ConcurrencyUtilitiesTest
     public void beforeMethod()
     {
         logger = new AssertingLogger();
-        createLogSettings(LogLevel.WARN);
+        createLogSettings(LogLevel.WARN, LogLevel.OFF);
     }
 
     @AfterClass
@@ -75,14 +75,14 @@ public class ConcurrencyUtilitiesTest
         Thread.interrupted();
     }
 
-    private void createLogSettings(final LogLevel level)
+    private void createLogSettings(final LogLevel levelForError, final LogLevel levelForSuccess)
     {
         logSettings = new ILogSettings()
             {
                 @Override
                 public LogLevel getLogLevelForError()
                 {
-                    return level;
+                    return levelForError;
                 }
 
                 @Override
@@ -95,6 +95,12 @@ public class ConcurrencyUtilitiesTest
                 public String getOperationName()
                 {
                     return name;
+                }
+
+                @Override
+                public LogLevel getLogLevelForSuccess()
+                {
+                    return levelForSuccess;
                 }
             };
     }
@@ -123,6 +129,7 @@ public class ConcurrencyUtilitiesTest
     @Test
     public void testGetExecutionResultOK()
     {
+        createLogSettings(LogLevel.ERROR, LogLevel.INFO);
         final String valueProvided = "This is the execution return value";
         final ThreadPoolExecutor eservice =
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
@@ -140,7 +147,8 @@ public class ConcurrencyUtilitiesTest
         assertNull(result.tryGetException());
         assertEquals(valueProvided, result.tryGetResult());
         assertTrue(future.isDone());
-        logger.assertNumberOfMessage(0);
+        logger.assertNumberOfMessage(1);
+        logger.assertEq(0, LogLevel.INFO, name + ": call returns " + valueProvided + ".");
     }
 
     @Test
@@ -273,7 +281,7 @@ public class ConcurrencyUtilitiesTest
     @Test(groups = "slow")
     public void testGetExecutionResultTimeoutWithoutCancelation()
     {
-        createLogSettings(LogLevel.INFO);
+        createLogSettings(LogLevel.INFO, LogLevel.OFF);
         final ThreadPoolExecutor eservice =
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()
@@ -380,7 +388,7 @@ public class ConcurrencyUtilitiesTest
     @Test
     public void testGetExecutionResultInterrupted()
     {
-        createLogSettings(LogLevel.DEBUG);
+        createLogSettings(LogLevel.DEBUG, LogLevel.OFF);
         final ThreadPoolExecutor eservice =
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Thread thread = Thread.currentThread();
@@ -437,7 +445,7 @@ public class ConcurrencyUtilitiesTest
     @Test
     public void testGetExecutionResultException()
     {
-        createLogSettings(LogLevel.ERROR);
+        createLogSettings(LogLevel.ERROR, LogLevel.OFF);
         final ThreadPoolExecutor eservice =
                 new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
         final Future<String> future = eservice.submit(new Callable<String>()

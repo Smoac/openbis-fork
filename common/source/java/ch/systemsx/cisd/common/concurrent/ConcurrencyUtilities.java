@@ -62,6 +62,12 @@ public final class ConcurrencyUtilities
          * Returns the log level to be used in error logging.
          */
         LogLevel getLogLevelForError();
+
+        /**
+         * Returns the log level to be used in successful operation (return {@link LogLevel#OFF} to
+         * switch off logging for successful operation).
+         */
+        LogLevel getLogLevelForSuccess();
     }
 
     /**
@@ -358,6 +364,14 @@ public final class ConcurrencyUtilities
                 return ExecutionResult.createTimedOut();
             } else
             {
+                if (logSettingsOrNull != null
+                        && logSettingsOrNull.getLogLevelForSuccess() != LogLevel.OFF)
+                {
+                    logSettingsOrNull.getLogger().log(
+                            logSettingsOrNull.getLogLevelForSuccess(),
+                            String.format("%s: call returns %s.", logSettingsOrNull
+                                    .getOperationName(), result.tryGetResult()));
+                }
                 return result;
             }
         } catch (InterruptedException ex)
