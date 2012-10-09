@@ -14,24 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
-
-import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
+package ch.systemsx.cisd.openbis.uitest.request;
 
 /**
  * @author anttil
  */
-public class DeleteVocabulary implements Request<Void>
+public class EmptyTrash implements Request<Void>
 {
-    private final Vocabulary vocabulary;
-
-    public DeleteVocabulary(Vocabulary vocabulary)
-    {
-        this.vocabulary = vocabulary;
-    }
-
-    public Vocabulary getVocabulary()
-    {
-        return vocabulary;
-    }
 }

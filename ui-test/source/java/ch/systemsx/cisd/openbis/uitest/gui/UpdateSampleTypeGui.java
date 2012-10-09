@@ -16,19 +16,19 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.UpdateSampleType;
 import ch.systemsx.cisd.openbis.uitest.layout.SampleTypeBrowserLocation;
 import ch.systemsx.cisd.openbis.uitest.page.Browsable;
 import ch.systemsx.cisd.openbis.uitest.page.EditSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.SampleTypeBrowser;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
+import ch.systemsx.cisd.openbis.uitest.request.UpdateSampleType;
 import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 /**
  * @author anttil
  */
-public class UpdateSampleTypeGui extends AbstractExecution<UpdateSampleType, Void>
+public class UpdateSampleTypeGui extends Executor<UpdateSampleType, Void>
 {
 
     @Override
@@ -36,7 +36,7 @@ public class UpdateSampleTypeGui extends AbstractExecution<UpdateSampleType, Voi
     {
         SampleType sampleType = request.getType();
         Browsable b = new BrowsableWrapper(sampleType);
-        SampleTypeBrowser browser = browseTo(new SampleTypeBrowserLocation());
+        SampleTypeBrowser browser = goTo(new SampleTypeBrowserLocation());
         browser.select(b);
         browser.edit();
         EditSampleTypeDialog dialog = load(EditSampleTypeDialog.class);

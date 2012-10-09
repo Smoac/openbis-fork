@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 
 /**
  * @author anttil
  */
-public class UpdateSampleType implements Request<Void>
+public class DeletePropertyType implements Request<Void>
 {
-    private final SampleType type;
+    private final PropertyType type;
 
-    public UpdateSampleType(SampleType type)
+    public DeletePropertyType(PropertyType type)
     {
         this.type = type;
     }
 
-    public SampleType getType()
+    public PropertyType getType()
     {
         return type;
     }

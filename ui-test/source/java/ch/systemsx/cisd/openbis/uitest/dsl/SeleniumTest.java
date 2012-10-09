@@ -41,34 +41,6 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.Application;
-import ch.systemsx.cisd.openbis.uitest.functionality.Browse;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateDataSet;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateDataSetType;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateExperiment;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateExperimentType;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateProject;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreatePropertyType;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreatePropertyTypeAssignment;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateSample;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateSampleType;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateScript;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateSpace;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateVocabulary;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeleteBrowsable;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeleteExperimentType;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeleteExperimentsOfProject;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeleteProject;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeletePropertyType;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeleteSampleType;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeleteSpace;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeleteVocabulary;
-import ch.systemsx.cisd.openbis.uitest.functionality.EmptyTrash;
-import ch.systemsx.cisd.openbis.uitest.functionality.Login;
-import ch.systemsx.cisd.openbis.uitest.functionality.Logout;
-import ch.systemsx.cisd.openbis.uitest.functionality.UpdateSampleType;
-import ch.systemsx.cisd.openbis.uitest.gui.BrowseGui;
 import ch.systemsx.cisd.openbis.uitest.gui.CreateExperimentGui;
 import ch.systemsx.cisd.openbis.uitest.gui.CreateExperimentTypeGui;
 import ch.systemsx.cisd.openbis.uitest.gui.CreateProjectGui;
@@ -79,7 +51,6 @@ import ch.systemsx.cisd.openbis.uitest.gui.CreateSampleTypeGui;
 import ch.systemsx.cisd.openbis.uitest.gui.CreateScriptGui;
 import ch.systemsx.cisd.openbis.uitest.gui.CreateSpaceGui;
 import ch.systemsx.cisd.openbis.uitest.gui.CreateVocabularyGui;
-import ch.systemsx.cisd.openbis.uitest.gui.DeleteBrowsableGui;
 import ch.systemsx.cisd.openbis.uitest.gui.DeleteExperimentTypeGui;
 import ch.systemsx.cisd.openbis.uitest.gui.DeleteExperimentsOfProjectGui;
 import ch.systemsx.cisd.openbis.uitest.gui.DeleteProjectGui;
@@ -100,8 +71,32 @@ import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.page.Browsable;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserRow;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterSample;
-import ch.systemsx.cisd.openbis.uitest.page.SampleBrowser;
 import ch.systemsx.cisd.openbis.uitest.page.SampleDetails;
+import ch.systemsx.cisd.openbis.uitest.request.Application;
+import ch.systemsx.cisd.openbis.uitest.request.CreateDataSet;
+import ch.systemsx.cisd.openbis.uitest.request.CreateDataSetType;
+import ch.systemsx.cisd.openbis.uitest.request.CreateExperiment;
+import ch.systemsx.cisd.openbis.uitest.request.CreateExperimentType;
+import ch.systemsx.cisd.openbis.uitest.request.CreateProject;
+import ch.systemsx.cisd.openbis.uitest.request.CreatePropertyType;
+import ch.systemsx.cisd.openbis.uitest.request.CreatePropertyTypeAssignment;
+import ch.systemsx.cisd.openbis.uitest.request.CreateSample;
+import ch.systemsx.cisd.openbis.uitest.request.CreateSampleType;
+import ch.systemsx.cisd.openbis.uitest.request.CreateScript;
+import ch.systemsx.cisd.openbis.uitest.request.CreateSpace;
+import ch.systemsx.cisd.openbis.uitest.request.CreateVocabulary;
+import ch.systemsx.cisd.openbis.uitest.request.DeleteExperimentType;
+import ch.systemsx.cisd.openbis.uitest.request.DeleteExperimentsOfProject;
+import ch.systemsx.cisd.openbis.uitest.request.DeleteProject;
+import ch.systemsx.cisd.openbis.uitest.request.DeletePropertyType;
+import ch.systemsx.cisd.openbis.uitest.request.DeleteSampleType;
+import ch.systemsx.cisd.openbis.uitest.request.DeleteSpace;
+import ch.systemsx.cisd.openbis.uitest.request.DeleteVocabulary;
+import ch.systemsx.cisd.openbis.uitest.request.EmptyTrash;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
+import ch.systemsx.cisd.openbis.uitest.request.Login;
+import ch.systemsx.cisd.openbis.uitest.request.Logout;
+import ch.systemsx.cisd.openbis.uitest.request.UpdateSampleType;
 import ch.systemsx.cisd.openbis.uitest.rmi.CreateDataSetRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.CreateDataSetTypeRmi;
 import ch.systemsx.cisd.openbis.uitest.screenshot.FileScreenShotter;
@@ -323,8 +318,7 @@ public abstract class SeleniumTest
     {
         Set<SampleType> types = new HashSet<SampleType>();
 
-        for (String code : openbis.execute(new Browse<SampleBrowser>(sampleBrowser()))
-                .getSampleTypes())
+        for (String code : pages.goTo(sampleBrowser()).getSampleTypes())
         {
             types.add(assume(aSampleType().withCode(code)));
         }
@@ -609,9 +603,9 @@ public abstract class SeleniumTest
 
     public Application dummyApplication()
     {
-        openbis = new Application(pages, commonServer, etlService, dss);
+        openbis = new Application();
         openbis.setExecutor(CreateExperiment.class,
-                new AbstractExecution<CreateExperiment, Experiment>()
+                new Executor<CreateExperiment, Experiment>()
                     {
                         @Override
                         public Experiment run(CreateExperiment request)
@@ -620,7 +614,7 @@ public abstract class SeleniumTest
                         }
                     });
         openbis.setExecutor(CreateExperimentType.class,
-                new AbstractExecution<CreateExperimentType, ExperimentType>()
+                new Executor<CreateExperimentType, ExperimentType>()
                     {
                         @Override
                         public ExperimentType run(CreateExperimentType request)
@@ -629,7 +623,7 @@ public abstract class SeleniumTest
                         }
                     });
         openbis.setExecutor(CreateProject.class,
-                new AbstractExecution<CreateProject, Project>()
+                new Executor<CreateProject, Project>()
                     {
                         @Override
                         public Project run(CreateProject request)
@@ -638,7 +632,7 @@ public abstract class SeleniumTest
                         }
                     });
         openbis.setExecutor(CreatePropertyTypeAssignment.class,
-                new AbstractExecution<CreatePropertyTypeAssignment, PropertyTypeAssignment>()
+                new Executor<CreatePropertyTypeAssignment, PropertyTypeAssignment>()
                     {
                         @Override
                         public PropertyTypeAssignment run(CreatePropertyTypeAssignment request)
@@ -647,7 +641,7 @@ public abstract class SeleniumTest
                         }
                     });
         openbis.setExecutor(CreatePropertyType.class,
-                new AbstractExecution<CreatePropertyType, PropertyType>()
+                new Executor<CreatePropertyType, PropertyType>()
                     {
                         @Override
                         public PropertyType run(CreatePropertyType request)
@@ -656,7 +650,7 @@ public abstract class SeleniumTest
                         }
                     });
         openbis.setExecutor(CreateSample.class,
-                new AbstractExecution<CreateSample, Sample>()
+                new Executor<CreateSample, Sample>()
                     {
                         @Override
                         public Sample run(CreateSample request)
@@ -665,7 +659,7 @@ public abstract class SeleniumTest
                         }
                     });
         openbis.setExecutor(CreateSampleType.class,
-                new AbstractExecution<CreateSampleType, SampleType>()
+                new Executor<CreateSampleType, SampleType>()
                     {
                         @Override
                         public SampleType run(CreateSampleType request)
@@ -674,7 +668,7 @@ public abstract class SeleniumTest
                         }
                     });
         openbis.setExecutor(CreateScript.class,
-                new AbstractExecution<CreateScript, Script>()
+                new Executor<CreateScript, Script>()
                     {
                         @Override
                         public Script run(CreateScript request)
@@ -683,7 +677,7 @@ public abstract class SeleniumTest
                         }
                     });
         openbis.setExecutor(CreateSpace.class,
-                new AbstractExecution<CreateSpace, Space>()
+                new Executor<CreateSpace, Space>()
                     {
                         @Override
                         public Space run(CreateSpace request)
@@ -692,7 +686,7 @@ public abstract class SeleniumTest
                         }
                     });
         openbis.setExecutor(CreateVocabulary.class,
-                new AbstractExecution<CreateVocabulary, Vocabulary>()
+                new Executor<CreateVocabulary, Vocabulary>()
                     {
                         @Override
                         public Vocabulary run(CreateVocabulary request)
@@ -707,7 +701,6 @@ public abstract class SeleniumTest
     public Application gui()
     {
         openbis = new Application(pages, commonServer, etlService, dss);
-        openbis.setExecutor(Browse.class, new BrowseGui<Object>());
         openbis.setExecutor(CreateExperiment.class, new CreateExperimentGui());
         openbis.setExecutor(CreateExperimentType.class, new CreateExperimentTypeGui());
         openbis.setExecutor(CreateProject.class, new CreateProjectGui());
@@ -719,7 +712,6 @@ public abstract class SeleniumTest
         openbis.setExecutor(CreateScript.class, new CreateScriptGui());
         openbis.setExecutor(CreateSpace.class, new CreateSpaceGui());
         openbis.setExecutor(CreateVocabulary.class, new CreateVocabularyGui());
-        openbis.setExecutor(DeleteBrowsable.class, new DeleteBrowsableGui());
         openbis.setExecutor(DeleteExperimentsOfProject.class, new DeleteExperimentsOfProjectGui());
         openbis.setExecutor(DeleteExperimentType.class, new DeleteExperimentTypeGui());
         openbis.setExecutor(DeleteProject.class, new DeleteProjectGui());

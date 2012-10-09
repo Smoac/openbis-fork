@@ -16,23 +16,23 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateProject;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterProjectLocation;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterProject;
+import ch.systemsx.cisd.openbis.uitest.request.CreateProject;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
 
 /**
  * @author anttil
  */
-public class CreateProjectGui extends AbstractExecution<CreateProject, Project>
+public class CreateProjectGui extends Executor<CreateProject, Project>
 {
 
     @Override
     public Project run(CreateProject request)
     {
         Project project = request.getProject();
-        RegisterProject register = browseTo(new RegisterProjectLocation());
+        RegisterProject register = goTo(new RegisterProjectLocation());
         register.fillWith(project);
         register.save();
         return project;

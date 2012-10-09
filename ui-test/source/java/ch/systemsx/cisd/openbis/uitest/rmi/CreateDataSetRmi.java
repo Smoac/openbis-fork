@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateDataSet;
+import ch.systemsx.cisd.openbis.uitest.request.CreateDataSet;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 
 /**
  * @author anttil
  */
-public class CreateDataSetRmi extends AbstractExecution<CreateDataSet, DataSet>
+public class CreateDataSetRmi extends Executor<CreateDataSet, DataSet>
 {
     @Override
     public DataSet run(CreateDataSet request)

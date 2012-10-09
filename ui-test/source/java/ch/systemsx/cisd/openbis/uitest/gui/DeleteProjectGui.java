@@ -16,21 +16,25 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeleteBrowsable;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeleteProject;
+import ch.systemsx.cisd.openbis.uitest.page.Browsable;
+import ch.systemsx.cisd.openbis.uitest.page.Browser;
+import ch.systemsx.cisd.openbis.uitest.request.DeleteProject;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
 
 /**
  * @author anttil
  */
-public class DeleteProjectGui extends AbstractExecution<DeleteProject, Void>
+public class DeleteProjectGui extends Executor<DeleteProject, Void>
 {
 
     @Override
     public Void run(DeleteProject request)
     {
-        return execute(new DeleteBrowsable(new BrowsableWrapper(request.getProject())));
+        Browsable browsable = new BrowsableWrapper(request.getProject());
+        Browser browser = goTo(browsable.getBrowserLocation());
+        browser.delete(browsable);
+        return null;
     }
 
 }

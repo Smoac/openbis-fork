@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.type.Script;
+import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 
 /**
  * @author anttil
  */
-public class CreateScript implements Request<Script>
+public class DeleteExperimentType implements Request<Void>
 {
-    private final Script script;
+    private final ExperimentType type;
 
-    public CreateScript(Script script)
+    public DeleteExperimentType(ExperimentType type)
     {
-        this.script = script;
+        this.type = type;
     }
 
-    public Script getScript()
+    public ExperimentType getType()
     {
-        return script;
+        return type;
     }
 }

@@ -16,23 +16,23 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateScript;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterScriptLocation;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterScript;
+import ch.systemsx.cisd.openbis.uitest.request.CreateScript;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.Script;
 
 /**
  * @author anttil
  */
-public class CreateScriptGui extends AbstractExecution<CreateScript, Script>
+public class CreateScriptGui extends Executor<CreateScript, Script>
 {
 
     @Override
     public Script run(CreateScript request)
     {
         Script script = request.getScript();
-        RegisterScript register = browseTo(new RegisterScriptLocation());
+        RegisterScript register = goTo(new RegisterScriptLocation());
         register.fillWith(script);
         register.save();
         return script;

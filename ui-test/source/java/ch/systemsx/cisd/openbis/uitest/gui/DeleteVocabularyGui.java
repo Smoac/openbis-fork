@@ -16,21 +16,25 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeleteBrowsable;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeleteVocabulary;
+import ch.systemsx.cisd.openbis.uitest.page.Browsable;
+import ch.systemsx.cisd.openbis.uitest.page.Browser;
+import ch.systemsx.cisd.openbis.uitest.request.DeleteVocabulary;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
 
 /**
  * @author anttil
  */
-public class DeleteVocabularyGui extends AbstractExecution<DeleteVocabulary, Void>
+public class DeleteVocabularyGui extends Executor<DeleteVocabulary, Void>
 {
 
     @Override
     public Void run(DeleteVocabulary request)
     {
-        return execute(new DeleteBrowsable(new BrowsableWrapper(request.getVocabulary())));
+        Browsable browsable = new BrowsableWrapper(request.getVocabulary());
+        Browser browser = goTo(browsable.getBrowserLocation());
+        browser.delete(browsable);
+        return null;
     }
 
 }

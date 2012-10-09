@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
+import ch.systemsx.cisd.openbis.uitest.type.Script;
 
 /**
  * @author anttil
  */
-public class CreatePropertyTypeAssignment implements Request<PropertyTypeAssignment>
+public class CreateScript implements Request<Script>
 {
-    private final PropertyTypeAssignment assignment;
+    private final Script script;
 
-    public CreatePropertyTypeAssignment(PropertyTypeAssignment assignment)
+    public CreateScript(Script script)
     {
-        this.assignment = assignment;
+        this.script = script;
     }
 
-    public PropertyTypeAssignment getAssignment()
+    public Script getScript()
     {
-        return assignment;
+        return script;
     }
 }

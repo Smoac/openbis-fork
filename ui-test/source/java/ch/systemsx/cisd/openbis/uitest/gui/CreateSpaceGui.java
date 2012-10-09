@@ -16,22 +16,22 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateSpace;
 import ch.systemsx.cisd.openbis.uitest.layout.AddSpaceDialogLocation;
 import ch.systemsx.cisd.openbis.uitest.page.AddSpaceDialog;
+import ch.systemsx.cisd.openbis.uitest.request.CreateSpace;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
 
 /**
  * @author anttil
  */
-public class CreateSpaceGui extends AbstractExecution<CreateSpace, Space>
+public class CreateSpaceGui extends Executor<CreateSpace, Space>
 {
     @Override
     public Space run(CreateSpace function)
     {
         Space space = function.getSpace();
-        AddSpaceDialog dialog = browseTo(new AddSpaceDialogLocation());
+        AddSpaceDialog dialog = goTo(new AddSpaceDialogLocation());
         dialog.fillWith(space);
         dialog.save();
         return space;

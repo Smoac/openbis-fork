@@ -16,23 +16,23 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreatePropertyType;
 import ch.systemsx.cisd.openbis.uitest.layout.AddPropertyTypeLocation;
 import ch.systemsx.cisd.openbis.uitest.page.AddPropertyType;
+import ch.systemsx.cisd.openbis.uitest.request.CreatePropertyType;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 
 /**
  * @author anttil
  */
-public class CreatePropertyTypeGui extends AbstractExecution<CreatePropertyType, PropertyType>
+public class CreatePropertyTypeGui extends Executor<CreatePropertyType, PropertyType>
 {
 
     @Override
     public PropertyType run(CreatePropertyType request)
     {
         PropertyType propertyType = request.getType();
-        AddPropertyType dialog = browseTo(new AddPropertyTypeLocation());
+        AddPropertyType dialog = goTo(new AddPropertyTypeLocation());
         dialog.fillWith(propertyType);
         dialog.save();
         return propertyType;

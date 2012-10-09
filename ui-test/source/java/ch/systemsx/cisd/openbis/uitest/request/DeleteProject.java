@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
+import ch.systemsx.cisd.openbis.uitest.type.Project;
 
 /**
  * @author anttil
  */
-public class CreateDataSetType implements Request<DataSetType>
+public class DeleteProject implements Request<Void>
 {
-    private final DataSetType type;
+    private final Project project;
 
-    public CreateDataSetType(DataSetType type)
+    public DeleteProject(Project project)
     {
-        this.type = type;
+        this.project = project;
     }
 
-    public DataSetType getType()
+    public Project getProject()
     {
-        return type;
+        return project;
     }
 }

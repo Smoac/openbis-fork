@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.type.Space;
+import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 /**
  * @author anttil
  */
-public class CreateSpace implements Request<Space>
+public class DeleteSampleType implements Request<Void>
 {
-    private Space space;
+    private final SampleType type;
 
-    public CreateSpace(Space space)
+    public DeleteSampleType(SampleType type)
     {
-        this.space = space;
+        this.type = type;
     }
 
-    public Space getSpace()
+    public SampleType getType()
     {
-        return space;
+        return type;
     }
 }

@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.type.Project;
+import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 /**
  * @author anttil
  */
-public class DeleteProject implements Request<Void>
+public class CreateSampleType implements Request<SampleType>
 {
-    private final Project project;
+    private final SampleType type;
 
-    public DeleteProject(Project project)
+    public CreateSampleType(SampleType type)
     {
-        this.project = project;
+        this.type = type;
     }
 
-    public Project getProject()
+    public SampleType getType()
     {
-        return project;
+        return type;
     }
 }

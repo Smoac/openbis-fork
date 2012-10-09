@@ -31,6 +31,7 @@ import org.openqa.selenium.WebElement;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.layout.Location;
+import ch.systemsx.cisd.openbis.uitest.menu.TabBar;
 import ch.systemsx.cisd.openbis.uitest.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Context;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
@@ -203,7 +204,10 @@ public class Pages
 
     public <T> T goTo(Location<T> location)
     {
-        location.moveTo(this);
+        if (load(TabBar.class).selectTab(location.getTabName()) == false)
+        {
+            location.moveTo(this);
+        }
         return load(location.getPage());
     }
 

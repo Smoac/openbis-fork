@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
+import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 
 /**
  * @author anttil
  */
-public class CreateVocabulary implements Request<Vocabulary>
+public class CreateDataSetType implements Request<DataSetType>
 {
-    private final Vocabulary vocabulary;
+    private final DataSetType type;
 
-    public CreateVocabulary(Vocabulary vocabulary)
+    public CreateDataSetType(DataSetType type)
     {
-        this.vocabulary = vocabulary;
+        this.type = type;
     }
 
-    public Vocabulary getVocabulary()
+    public DataSetType getType()
     {
-        return vocabulary;
+        return type;
     }
 }

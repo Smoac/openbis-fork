@@ -14,29 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.gui;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.Browse;
-import ch.systemsx.cisd.openbis.uitest.layout.Location;
-import ch.systemsx.cisd.openbis.uitest.menu.TabBar;
+import ch.systemsx.cisd.openbis.uitest.type.Project;
 
 /**
  * @author anttil
  */
-public class BrowseGui<T> extends AbstractExecution<Browse<T>, T>
+public class DeleteExperimentsOfProject implements Request<Void>
 {
+    private final Project project;
 
-    @Override
-    public T run(Browse<T> t)
+    public DeleteExperimentsOfProject(Project project)
     {
-        Location<T> location = t.getLocation();
-
-        if (load(TabBar.class).selectTab(location.getTabName()) == false)
-        {
-            moveTo(location);
-        }
-        return load(location.getPage());
+        this.project = project;
     }
 
+    public Project getProject()
+    {
+        return project;
+    }
 }

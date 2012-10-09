@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
+import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 /**
  * @author anttil
  */
-public class CreateExperimentType implements Request<ExperimentType>
+public class UpdateSampleType implements Request<Void>
 {
-    private final ExperimentType type;
+    private final SampleType type;
 
-    public CreateExperimentType(ExperimentType type)
+    public UpdateSampleType(SampleType type)
     {
         this.type = type;
     }
 
-    public ExperimentType getType()
+    public SampleType getType()
     {
         return type;
     }

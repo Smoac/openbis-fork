@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.Application;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateSample;
+import ch.systemsx.cisd.openbis.uitest.request.Application;
+import ch.systemsx.cisd.openbis.uitest.request.CreateSample;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**

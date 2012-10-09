@@ -14,25 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.gui;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeleteBrowsable;
-import ch.systemsx.cisd.openbis.uitest.page.Browsable;
-import ch.systemsx.cisd.openbis.uitest.page.Browser;
+import ch.systemsx.cisd.openbis.uitest.type.Sample;
 
 /**
  * @author anttil
  */
-public class DeleteBrowsableGui extends AbstractExecution<DeleteBrowsable, Void>
+public class CreateSample implements Request<Sample>
 {
+    private final Sample sample;
 
-    @Override
-    public Void run(DeleteBrowsable request)
+    public CreateSample(Sample sample)
     {
-        Browsable browsable = request.getBrowsable();
-        Browser browser = browseTo(browsable.getBrowserLocation());
-        browser.delete(browsable);
-        return null;
+        this.sample = sample;
+    }
+
+    public Sample getSample()
+    {
+        return sample;
     }
 }

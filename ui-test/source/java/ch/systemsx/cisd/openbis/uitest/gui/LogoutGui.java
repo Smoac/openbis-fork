@@ -16,15 +16,15 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.Logout;
 import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.menu.UserMenu;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
+import ch.systemsx.cisd.openbis.uitest.request.Logout;
 
 /**
  * @author anttil
  */
-public class LogoutGui extends AbstractExecution<Logout, Void>
+public class LogoutGui extends Executor<Logout, Void>
 {
 
     @Override

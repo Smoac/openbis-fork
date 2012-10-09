@@ -16,23 +16,23 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateSample;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterSampleLocation;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterSample;
+import ch.systemsx.cisd.openbis.uitest.request.CreateSample;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 
 /**
  * @author anttil
  */
-public class CreateSampleGui extends AbstractExecution<CreateSample, Sample>
+public class CreateSampleGui extends Executor<CreateSample, Sample>
 {
 
     @Override
     public Sample run(CreateSample request)
     {
         Sample sample = request.getSample();
-        RegisterSample register = browseTo(new RegisterSampleLocation());
+        RegisterSample register = goTo(new RegisterSampleLocation());
         register.selectSampleType(sample.getType());
         register.fillWith(sample);
         register.save();

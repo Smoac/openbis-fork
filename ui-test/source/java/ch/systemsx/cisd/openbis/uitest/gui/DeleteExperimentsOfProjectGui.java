@@ -16,22 +16,22 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeleteExperimentsOfProject;
 import ch.systemsx.cisd.openbis.uitest.layout.ExperimentBrowserLocation;
 import ch.systemsx.cisd.openbis.uitest.page.ExperimentBrowser;
+import ch.systemsx.cisd.openbis.uitest.request.DeleteExperimentsOfProject;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 
 /**
  * @author anttil
  */
 public class DeleteExperimentsOfProjectGui extends
-        AbstractExecution<DeleteExperimentsOfProject, Void>
+        Executor<DeleteExperimentsOfProject, Void>
 {
 
     @Override
     public Void run(DeleteExperimentsOfProject request)
     {
-        ExperimentBrowser browser = browseTo(new ExperimentBrowserLocation());
+        ExperimentBrowser browser = goTo(new ExperimentBrowserLocation());
         if (browser.selectProject(request.getProject()))
         {
             browser.deleteAll();

@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.type.DataSet;
+import ch.systemsx.cisd.openbis.uitest.type.Space;
 
 /**
  * @author anttil
  */
-public class CreateDataSet implements Request<DataSet>
+public class CreateSpace implements Request<Space>
 {
-    private final DataSet dataSet;
+    private Space space;
 
-    public CreateDataSet(DataSet dataSet)
+    public CreateSpace(Space space)
     {
-        this.dataSet = dataSet;
+        this.space = space;
     }
 
-    public DataSet getDataSet()
+    public Space getSpace()
     {
-        return dataSet;
+        return space;
     }
 }

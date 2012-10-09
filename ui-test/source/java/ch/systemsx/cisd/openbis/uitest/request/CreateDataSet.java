@@ -14,25 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.type.Project;
+import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 
 /**
  * @author anttil
  */
-public class CreateProject implements Request<Project>
+public class CreateDataSet implements Request<DataSet>
 {
+    private final DataSet dataSet;
 
-    private final Project project;
-
-    public CreateProject(Project project)
+    public CreateDataSet(DataSet dataSet)
     {
-        this.project = project;
+        this.dataSet = dataSet;
     }
 
-    public Project getProject()
+    public DataSet getDataSet()
     {
-        return project;
+        return dataSet;
     }
 }

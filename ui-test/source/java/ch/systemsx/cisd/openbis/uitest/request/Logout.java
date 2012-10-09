@@ -14,24 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
-
-import ch.systemsx.cisd.openbis.uitest.type.Sample;
+package ch.systemsx.cisd.openbis.uitest.request;
 
 /**
  * @author anttil
  */
-public class CreateSample implements Request<Sample>
+public class Logout implements Request<Void>
 {
-    private final Sample sample;
-
-    public CreateSample(Sample sample)
-    {
-        this.sample = sample;
-    }
-
-    public Sample getSample()
-    {
-        return sample;
-    }
 }

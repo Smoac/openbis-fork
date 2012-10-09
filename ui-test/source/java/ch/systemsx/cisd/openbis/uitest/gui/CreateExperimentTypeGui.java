@@ -16,23 +16,22 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateExperimentType;
 import ch.systemsx.cisd.openbis.uitest.layout.AddExperimentTypeLocation;
 import ch.systemsx.cisd.openbis.uitest.page.AddExperimentTypeDialog;
+import ch.systemsx.cisd.openbis.uitest.request.CreateExperimentType;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 
 /**
  * @author anttil
  */
-public class CreateExperimentTypeGui extends
-        AbstractExecution<CreateExperimentType, ExperimentType>
+public class CreateExperimentTypeGui extends Executor<CreateExperimentType, ExperimentType>
 {
     @Override
     public ExperimentType run(CreateExperimentType request)
     {
         ExperimentType experimentType = request.getType();
-        AddExperimentTypeDialog dialog = browseTo(new AddExperimentTypeLocation());
+        AddExperimentTypeDialog dialog = goTo(new AddExperimentTypeLocation());
         dialog.fillWith(experimentType);
         dialog.save();
         return experimentType;

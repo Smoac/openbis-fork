@@ -14,30 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
+
+import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 
 /**
  * @author anttil
  */
-public class Login implements Request<Void>
+public class CreateExperimentType implements Request<ExperimentType>
 {
-    private final String user;
+    private final ExperimentType type;
 
-    private final String password;
-
-    public Login(String user, String password)
+    public CreateExperimentType(ExperimentType type)
     {
-        this.user = user;
-        this.password = password;
+        this.type = type;
     }
 
-    public String getUser()
+    public ExperimentType getType()
     {
-        return user;
-    }
-
-    public String getPassword()
-    {
-        return password;
+        return type;
     }
 }

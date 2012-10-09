@@ -16,21 +16,24 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeleteBrowsable;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeleteSpace;
+import ch.systemsx.cisd.openbis.uitest.page.Browsable;
+import ch.systemsx.cisd.openbis.uitest.page.Browser;
+import ch.systemsx.cisd.openbis.uitest.request.DeleteSpace;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
 
 /**
  * @author anttil
  */
-public class DeleteSpaceGui extends AbstractExecution<DeleteSpace, Void>
+public class DeleteSpaceGui extends Executor<DeleteSpace, Void>
 {
 
     @Override
     public Void run(DeleteSpace request)
     {
-        return execute(new DeleteBrowsable(new BrowsableWrapper(request.getSpace())));
+        Browsable browsable = new BrowsableWrapper(request.getSpace());
+        Browser browser = goTo(browsable.getBrowserLocation());
+        browser.delete(browsable);
+        return null;
     }
-
 }

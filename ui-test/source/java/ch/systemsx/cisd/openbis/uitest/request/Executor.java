@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.uitest.layout.Location;
 /**
  * @author anttil
  */
-public abstract class AbstractExecution<T extends Request<U>, U>
+public abstract class Executor<T extends Request<U>, U>
 {
     private Application openbis;
 
@@ -41,24 +41,24 @@ public abstract class AbstractExecution<T extends Request<U>, U>
 
     abstract public U run(T request);
 
-    public void setPages(Pages pages)
-    {
-        this.pages = pages;
-    }
-
     protected <V> V load(Class<V> pageClass)
     {
         return pages.load(pageClass);
     }
 
-    protected void moveTo(Location<?> location)
+    protected <V> V goTo(Location<V> location)
     {
-        location.moveTo(pages);
+        return pages.goTo(location);
     }
 
-    protected <V> V browseTo(Location<V> location)
+    protected <V> V execute(Request<V> function)
     {
-        return execute(new Browse<V>(location));
+        return openbis.execute(function);
+    }
+
+    public void setPages(Pages pages)
+    {
+        this.pages = pages;
     }
 
     public void setCommonServer(ICommonServer commonServer)
@@ -84,10 +84,5 @@ public abstract class AbstractExecution<T extends Request<U>, U>
     public void setApplicationRunner(Application openbis)
     {
         this.openbis = openbis;
-    }
-
-    protected <V> V execute(Request<V> function)
-    {
-        return openbis.execute(function);
     }
 }

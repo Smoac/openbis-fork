@@ -14,11 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
+
+import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 
 /**
  * @author anttil
  */
-public class Logout implements Request<Void>
+public class CreateExperiment implements Request<Experiment>
 {
+    private final Experiment experiment;
+
+    public CreateExperiment(Experiment experiment)
+    {
+        this.experiment = experiment;
+    }
+
+    public Experiment getExperiment()
+    {
+        return experiment;
+    }
 }

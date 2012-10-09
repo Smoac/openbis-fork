@@ -16,22 +16,22 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateExperiment;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterExperimentLocation;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterExperiment;
+import ch.systemsx.cisd.openbis.uitest.request.CreateExperiment;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 
 /**
  * @author anttil
  */
-public class CreateExperimentGui extends AbstractExecution<CreateExperiment, Experiment>
+public class CreateExperimentGui extends Executor<CreateExperiment, Experiment>
 {
     @Override
     public Experiment run(CreateExperiment request)
     {
         Experiment experiment = request.getExperiment();
-        RegisterExperiment register = browseTo(new RegisterExperimentLocation());
+        RegisterExperiment register = goTo(new RegisterExperimentLocation());
         register.selectExperimentType(experiment.getType());
         register.fillWith(experiment);
         register.save();

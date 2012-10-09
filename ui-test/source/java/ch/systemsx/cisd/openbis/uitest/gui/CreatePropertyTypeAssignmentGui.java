@@ -16,24 +16,24 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreatePropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.layout.AssignSamplePropertyLocation;
 import ch.systemsx.cisd.openbis.uitest.page.AssignSamplePropertyType;
+import ch.systemsx.cisd.openbis.uitest.request.CreatePropertyTypeAssignment;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 
 /**
  * @author anttil
  */
 public class CreatePropertyTypeAssignmentGui extends
-        AbstractExecution<CreatePropertyTypeAssignment, PropertyTypeAssignment>
+        Executor<CreatePropertyTypeAssignment, PropertyTypeAssignment>
 {
 
     @Override
     public PropertyTypeAssignment run(CreatePropertyTypeAssignment request)
     {
         PropertyTypeAssignment assignment = request.getAssignment();
-        AssignSamplePropertyType assign = browseTo(new AssignSamplePropertyLocation());
+        AssignSamplePropertyType assign = goTo(new AssignSamplePropertyLocation());
         assign.fillWith(assignment);
         assign.save();
         return assignment;

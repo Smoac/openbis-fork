@@ -17,14 +17,14 @@
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateDataSetType;
+import ch.systemsx.cisd.openbis.uitest.request.CreateDataSetType;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 
 /**
  * @author anttil
  */
-public class CreateDataSetTypeRmi extends AbstractExecution<CreateDataSetType, DataSetType>
+public class CreateDataSetTypeRmi extends Executor<CreateDataSetType, DataSetType>
 {
 
     @Override

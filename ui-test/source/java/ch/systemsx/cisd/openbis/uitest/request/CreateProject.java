@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
+import ch.systemsx.cisd.openbis.uitest.type.Project;
 
 /**
  * @author anttil
  */
-public class CreatePropertyType implements Request<PropertyType>
+public class CreateProject implements Request<Project>
 {
-    private final PropertyType type;
 
-    public CreatePropertyType(PropertyType type)
+    private final Project project;
+
+    public CreateProject(Project project)
     {
-        this.type = type;
+        this.project = project;
     }
 
-    public PropertyType getType()
+    public Project getProject()
     {
-        return type;
+        return project;
     }
 }

@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 
 /**
  * @author anttil
  */
-public class DeleteExperimentType implements Request<Void>
+public class CreatePropertyTypeAssignment implements Request<PropertyTypeAssignment>
 {
-    private final ExperimentType type;
+    private final PropertyTypeAssignment assignment;
 
-    public DeleteExperimentType(ExperimentType type)
+    public CreatePropertyTypeAssignment(PropertyTypeAssignment assignment)
     {
-        this.type = type;
+        this.assignment = assignment;
     }
 
-    public ExperimentType getType()
+    public PropertyTypeAssignment getAssignment()
     {
-        return type;
+        return assignment;
     }
 }

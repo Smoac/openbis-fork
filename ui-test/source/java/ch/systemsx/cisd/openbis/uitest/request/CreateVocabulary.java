@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 
 /**
  * @author anttil
  */
-public class DeleteSampleType implements Request<Void>
+public class CreateVocabulary implements Request<Vocabulary>
 {
-    private final SampleType type;
+    private final Vocabulary vocabulary;
 
-    public DeleteSampleType(SampleType type)
+    public CreateVocabulary(Vocabulary vocabulary)
     {
-        this.type = type;
+        this.vocabulary = vocabulary;
     }
 
-    public SampleType getType()
+    public Vocabulary getVocabulary()
     {
-        return type;
+        return vocabulary;
     }
 }

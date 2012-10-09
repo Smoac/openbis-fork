@@ -16,21 +16,25 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeleteBrowsable;
-import ch.systemsx.cisd.openbis.uitest.functionality.DeletePropertyType;
+import ch.systemsx.cisd.openbis.uitest.page.Browsable;
+import ch.systemsx.cisd.openbis.uitest.page.Browser;
+import ch.systemsx.cisd.openbis.uitest.request.DeletePropertyType;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
 
 /**
  * @author anttil
  */
-public class DeletePropertyTypeGui extends AbstractExecution<DeletePropertyType, Void>
+public class DeletePropertyTypeGui extends Executor<DeletePropertyType, Void>
 {
 
     @Override
     public Void run(DeletePropertyType request)
     {
-        return execute(new DeleteBrowsable(new BrowsableWrapper(request.getType())));
+        Browsable browsable = new BrowsableWrapper(request.getType());
+        Browser browser = goTo(browsable.getBrowserLocation());
+        browser.delete(browsable);
+        return null;
     }
 
 }

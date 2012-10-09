@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,15 +59,13 @@ public class Application
                         .getSessionToken();
     }
 
-    /* use this after removing Browse 
-    public <T extends Request<U>, U> void setExecutor(Class<? extends Request<U>> clazz,
-            AbstractExecution<T, U> execution)
+    public Application()
     {
-        map.put(clazz.getName(), execution);
+        map = new HashMap<String, Object>();
     }
-    */
 
-    public void setExecutor(Class<?> clazz, AbstractExecution<?, ?> execution)
+    public <T extends Request<U>, U> void setExecutor(Class<? extends Request<U>> clazz,
+            Executor<T, U> execution)
     {
         map.put(clazz.getName(), execution);
     }
@@ -75,9 +73,12 @@ public class Application
     public <T extends Request<U>, U> U execute(T function)
     {
 
+        // There is no way to express this in type of field 'map'.
+        // But as the field 'map' is private and the methods manipulating it are defined to ensure
+        // this requirement, we can safely do the unchecked cast.
         @SuppressWarnings("unchecked")
-        AbstractExecution<T, U> execution =
-                (AbstractExecution<T, U>) map.get(function.getClass().getName());
+        Executor<T, U> execution =
+                (Executor<T, U>) map.get(function.getClass().getName());
         execution.setApplicationRunner(this);
         execution.setPages(pages);
         execution.setCommonServer(commonServer);

@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.uitest.type;
 import java.util.HashSet;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.Application;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateVocabulary;
+import ch.systemsx.cisd.openbis.uitest.request.Application;
+import ch.systemsx.cisd.openbis.uitest.request.CreateVocabulary;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**

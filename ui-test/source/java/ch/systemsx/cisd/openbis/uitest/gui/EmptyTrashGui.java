@@ -16,19 +16,19 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.EmptyTrash;
 import ch.systemsx.cisd.openbis.uitest.layout.TrashLocation;
+import ch.systemsx.cisd.openbis.uitest.request.EmptyTrash;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 
 /**
  * @author anttil
  */
-public class EmptyTrashGui extends AbstractExecution<EmptyTrash, Void>
+public class EmptyTrashGui extends Executor<EmptyTrash, Void>
 {
     @Override
     public Void run(EmptyTrash request)
     {
-        browseTo(new TrashLocation()).empty();
+        goTo(new TrashLocation()).empty();
         return null;
     }
 }

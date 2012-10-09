@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.Application;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateDataSetType;
+import ch.systemsx.cisd.openbis.uitest.request.Application;
+import ch.systemsx.cisd.openbis.uitest.request.CreateDataSetType;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**

@@ -14,24 +14,30 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
-
-import ch.systemsx.cisd.openbis.uitest.page.Browsable;
+package ch.systemsx.cisd.openbis.uitest.request;
 
 /**
  * @author anttil
  */
-public class DeleteBrowsable implements Request<Void>
+public class Login implements Request<Void>
 {
-    private final Browsable browsable;
+    private final String user;
 
-    public DeleteBrowsable(Browsable browsable)
+    private final String password;
+
+    public Login(String user, String password)
     {
-        this.browsable = browsable;
+        this.user = user;
+        this.password = password;
     }
 
-    public Browsable getBrowsable()
+    public String getUser()
     {
-        return browsable;
+        return user;
+    }
+
+    public String getPassword()
+    {
+        return password;
     }
 }

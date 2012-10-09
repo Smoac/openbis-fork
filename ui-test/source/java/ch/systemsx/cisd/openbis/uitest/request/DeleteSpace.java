@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.type.Experiment;
+import ch.systemsx.cisd.openbis.uitest.type.Space;
 
 /**
  * @author anttil
  */
-public class CreateExperiment implements Request<Experiment>
+public class DeleteSpace implements Request<Void>
 {
-    private final Experiment experiment;
+    private final Space space;
 
-    public CreateExperiment(Experiment experiment)
+    public DeleteSpace(Space space)
     {
-        this.experiment = experiment;
+        this.space = space;
     }
 
-    public Experiment getExperiment()
+    public Space getSpace()
     {
-        return experiment;
+        return space;
     }
 }

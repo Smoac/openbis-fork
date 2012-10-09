@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.Login;
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
+import ch.systemsx.cisd.openbis.uitest.request.Login;
 
 /**
  * @author anttil
  */
-public class LoginGui extends AbstractExecution<Login, Void>
+public class LoginGui extends Executor<Login, Void>
 {
     @Override
     public Void run(Login request)

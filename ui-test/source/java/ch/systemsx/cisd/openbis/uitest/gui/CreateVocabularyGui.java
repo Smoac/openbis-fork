@@ -16,23 +16,23 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.functionality.AbstractExecution;
-import ch.systemsx.cisd.openbis.uitest.functionality.CreateVocabulary;
 import ch.systemsx.cisd.openbis.uitest.layout.AddVocabularyLocation;
 import ch.systemsx.cisd.openbis.uitest.page.AddVocabularyDialog;
+import ch.systemsx.cisd.openbis.uitest.request.CreateVocabulary;
+import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 
 /**
  * @author anttil
  */
-public class CreateVocabularyGui extends AbstractExecution<CreateVocabulary, Vocabulary>
+public class CreateVocabularyGui extends Executor<CreateVocabulary, Vocabulary>
 {
 
     @Override
     public Vocabulary run(CreateVocabulary request)
     {
         Vocabulary vocabulary = request.getVocabulary();
-        AddVocabularyDialog dialog = browseTo(new AddVocabularyLocation());
+        AddVocabularyDialog dialog = goTo(new AddVocabularyLocation());
         dialog.fillWith(vocabulary);
         dialog.save();
         return vocabulary;

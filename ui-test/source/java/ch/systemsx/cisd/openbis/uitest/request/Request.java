@@ -14,24 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
-
-import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
+package ch.systemsx.cisd.openbis.uitest.request;
 
 /**
  * @author anttil
  */
-public class DeletePropertyType implements Request<Void>
+public interface Request<T>
 {
-    private final PropertyType type;
-
-    public DeletePropertyType(PropertyType type)
-    {
-        this.type = type;
-    }
-
-    public PropertyType getType()
-    {
-        return type;
-    }
 }

@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.functionality;
+package ch.systemsx.cisd.openbis.uitest.request;
 
-import ch.systemsx.cisd.openbis.uitest.type.Project;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 
 /**
  * @author anttil
  */
-public class DeleteExperimentsOfProject implements Request<Void>
+public class CreatePropertyType implements Request<PropertyType>
 {
-    private final Project project;
+    private final PropertyType type;
 
-    public DeleteExperimentsOfProject(Project project)
+    public CreatePropertyType(PropertyType type)
     {
-        this.project = project;
+        this.type = type;
     }
 
-    public Project getProject()
+    public PropertyType getType()
     {
-        return project;
+        return type;
     }
 }
