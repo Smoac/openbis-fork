@@ -47,6 +47,8 @@ class Utils
     static final String CORE_PLUGINS_PROPERTIES_PATH = CORE_PLUGINS_PATH + "core-plugins.properties";
     static final String JETTY_XML_PATH = "etc/jetty.xml";
     static final String KEYSTORE_PATH = "etc/openBIS.keystore";
+    static final String DSS_KEYSTORE_KEY_PASSWORD_KEY = "keystore.key-password";
+    static final String DSS_KEYSTORE_PASSWORD_KEY = "keystore.password";
     
     static boolean hasCorePluginsFolder(File installDir)
     {
@@ -212,6 +214,13 @@ class Utils
         }
     }
 
-    static final String DSS_KEYSTORE_KEY_PASSWORD_KEY = "keystore.key-password";
-    static final String DSS_KEYSTORE_PASSWORD_KEY = "keystore.password";
+    static File getKeystoreFileForDSS(File installDir)
+    {
+        return new File(installDir, DSS_PATH + KEYSTORE_PATH);
+    }
+
+    static File getKeystoreFileForAS(File installDir)
+    {
+        return new File(installDir, AS_PATH + KEYSTORE_PATH);
+    }
 }

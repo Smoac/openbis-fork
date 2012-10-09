@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.openbis.installer.izpack;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.izforge.izpack.api.data.AutomatedInstallData;
+import com.izforge.izpack.api.data.DynamicInstallerRequirementValidator;
 import com.izforge.izpack.api.data.PanelActionConfiguration;
 import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.data.PanelAction;
@@ -28,13 +32,47 @@ import com.izforge.izpack.data.PanelAction;
  */
 public class InitializeInstallationContextAction implements PanelAction
 {
+    private static final DynamicInstallerRequirementValidator DUMMY_VALIDATOR = new DynamicInstallerRequirementValidator()
+    {
+        @Override
+        public Status validateData(AutomatedInstallData idata)
+        {
+            return Status.OK;
+        }
+
+        @Override
+        public String getWarningMessageId()
+        {
+            return "";
+        }
+
+        @Override
+        public String getErrorMessageId()
+        {
+            return "";
+        }
+
+        @Override
+        public boolean getDefaultAnswer()
+        {
+            return true;
+        }
+    };
+
     private static final String ROOT_USERNAME = "root";
 
     @Override
     public void executeAction(AutomatedInstallData data, AbstractUIHandler arg1)
     {
-
         abortIfRunningAsRoot();
+        List<DynamicInstallerRequirementValidator> reqs = data.getDynamicinstallerrequirements();
+        if (reqs == null)
+        {
+            reqs = new ArrayList<DynamicInstallerRequirementValidator>();
+            data.setDynamicinstallerrequirements(reqs);
+        }
+        // This dummy validator is needed. Otherwise validators are not executed in GUI installer.
+        reqs.add(DUMMY_VALIDATOR);
 
         GlobalInstallationContext.initialize(data);
 

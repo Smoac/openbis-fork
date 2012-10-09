@@ -80,9 +80,9 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements
             try
             {
                 File keyStoreFile = new File(keyStoreFileName);
-                File keystoreFileAS = new File(installDir, Utils.AS_PATH + Utils.KEYSTORE_PATH);
+                File keystoreFileAS = Utils.getKeystoreFileForAS(installDir);
                 FileUtils.copyFile(keyStoreFile, keystoreFileAS);
-                File keystoreFileDSS = new File(installDir, Utils.DSS_PATH + Utils.KEYSTORE_PATH);
+                File keystoreFileDSS = Utils.getKeystoreFileForDSS(installDir);
                 FileUtils.copyFile(keyStoreFile, keystoreFileDSS);
             } catch (IOException ex)
             {
@@ -90,7 +90,7 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements
             }
         }
     }
-    
+
     void injectPasswords(String keyStorePassword, String keyPassword, File installDir)
     {
         File dssServicePropertiesFile =

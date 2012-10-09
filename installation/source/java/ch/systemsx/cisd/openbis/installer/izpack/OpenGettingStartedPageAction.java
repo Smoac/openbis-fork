@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
+import com.izforge.izpack.api.data.Info;
 import com.izforge.izpack.api.data.PanelActionConfiguration;
 import com.izforge.izpack.api.handler.AbstractUIHandler;
 import com.izforge.izpack.data.PanelAction;
@@ -41,7 +42,7 @@ public class OpenGettingStartedPageAction implements PanelAction
     @Override
     public synchronized void executeAction(AutomatedInstallData data, AbstractUIHandler arg1)
     {
-        if (GlobalInstallationContext.isUpdateInstallation)
+        if (GlobalInstallationContext.isUpdateInstallation || data.isInstallSuccess() == false)
         {
             return;
         }
