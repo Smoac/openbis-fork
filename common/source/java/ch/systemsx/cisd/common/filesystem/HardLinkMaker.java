@@ -28,13 +28,13 @@ import org.springframework.util.FileCopyUtils;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
-import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.exception.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.CallableExecutor;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
+import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
  * A class for creating hard links based on the Unix 'ln' program.

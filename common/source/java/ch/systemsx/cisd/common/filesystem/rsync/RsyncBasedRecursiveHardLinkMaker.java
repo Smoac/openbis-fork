@@ -21,7 +21,6 @@ import java.io.File;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.utilities.OSUtilities;
-import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IInactivityObserver;
@@ -32,6 +31,7 @@ import ch.systemsx.cisd.common.filesystem.IDirectoryImmutableCopier;
 import ch.systemsx.cisd.common.filesystem.RemoteDirectoryCopyActivitySensor;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
  * A hard link maker based on <code>rsync</code>.

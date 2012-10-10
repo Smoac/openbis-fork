@@ -20,7 +20,7 @@ import java.util.concurrent.Callable;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
-import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
  * Executes given {@link Callable}.
@@ -35,7 +35,7 @@ public final class CallableExecutor
 
     public CallableExecutor()
     {
-        this(Constants.MAXIMUM_RETRY_COUNT, Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
+        this(TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT, TimingParameters.DEFAULT_MILLIS_TO_SLEEP_BEFORE_RETRYING);
     }
 
     public CallableExecutor(final int maxRetriesOnFailure, final long millisToSleepOnFailure)

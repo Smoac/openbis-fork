@@ -43,7 +43,6 @@ import ch.systemsx.cisd.base.io.AdapterInputStreamToIInputStream;
 import ch.systemsx.cisd.base.io.AdapterOutputStreamToIOutputStream;
 import ch.systemsx.cisd.base.io.IInputStream;
 import ch.systemsx.cisd.base.io.IOutputStream;
-import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
@@ -51,6 +50,7 @@ import ch.systemsx.cisd.common.exception.UnknownLastChangedException;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
  * Monitoring for (potentially hanging) file operations. Supposed to be used on remote file systems.

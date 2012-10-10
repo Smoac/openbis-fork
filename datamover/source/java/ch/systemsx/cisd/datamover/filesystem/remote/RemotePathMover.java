@@ -18,7 +18,6 @@ package ch.systemsx.cisd.datamover.filesystem.remote;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IInactivityObserver;
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
@@ -30,6 +29,7 @@ import ch.systemsx.cisd.common.logging.ConditionalNotificationLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.datamover.common.IStoreMover;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
@@ -191,7 +191,7 @@ public final class RemotePathMover implements IStoreMover
     {
         final BooleanStatus status =
                 destinationStore
-                        .checkDirectoryFullyAccessible(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
+                        .checkDirectoryFullyAccessible(TimingParameters.DEFAULT_TIMEOUT_MILLIS);
         if (status.isSuccess() == false)
         {
             conditionalLogger.log(LogLevel.ERROR, status.tryGetMessage());

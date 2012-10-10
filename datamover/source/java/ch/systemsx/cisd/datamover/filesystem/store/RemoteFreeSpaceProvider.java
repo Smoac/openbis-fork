@@ -22,7 +22,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandBuilder;
@@ -30,6 +29,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
+import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
  * An <code>IFreeSpaceProvider</code> implementation for computing the free space on a remote
@@ -51,7 +51,7 @@ final class RemoteFreeSpaceProvider implements IFreeSpaceProvider
 
     private final ISshCommandBuilder sshCommandBuilder;
 
-    private final long millisToWaitForCompletion = Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT;
+    private final long millisToWaitForCompletion = TimingParameters.DEFAULT_TIMEOUT_MILLIS;
 
     public RemoteFreeSpaceProvider(final ISshCommandBuilder sshCommandBuilder)
     {

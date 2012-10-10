@@ -37,10 +37,10 @@ import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
 import ch.systemsx.cisd.base.namedthread.NamedCallable;
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
-import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities.ILogSettings;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
  * A class that can provide a dynamic {@link Proxy} for an interface that delegates the method

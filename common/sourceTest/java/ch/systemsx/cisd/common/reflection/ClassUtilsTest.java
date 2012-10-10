@@ -34,9 +34,9 @@ import java.util.Properties;
 import org.testng.annotations.Test;
 import org.testng.remote.SuiteSlave;
 
-import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.TimingParametersTest;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
+import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
  * Test cases for the {@link ClassUtils} class.

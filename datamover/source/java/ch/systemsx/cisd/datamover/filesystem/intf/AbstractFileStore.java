@@ -23,7 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exception.Status;
@@ -32,6 +31,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.filesystem.highwatermark.HostAwareFileWithHighwaterMark;
+import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.datamover.DatamoverConstants;
 
 /**
@@ -233,7 +233,7 @@ public abstract class AbstractFileStore implements IFileStore
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         final BooleanStatus result =
-                checkDirectoryFullyAccessible(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
+                checkDirectoryFullyAccessible(TimingParameters.DEFAULT_TIMEOUT_MILLIS);
         if (result.isSuccess() == false)
         {
             throw new ConfigurationFailureException(result.tryGetMessage());

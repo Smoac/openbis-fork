@@ -28,7 +28,6 @@ import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
@@ -38,6 +37,7 @@ import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.CallableExecutor;
+import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
  * A high water mark watcher.
@@ -180,7 +180,7 @@ public final class HighwaterMarkWatcher implements Runnable
         final String errorMsg =
                 String.format("Could not compute available free space for '%s'.", file);
         final Long freeSpaceInKb =
-                new CallableExecutor(5, Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING)
+                new CallableExecutor(5, TimingParameters.DEFAULT_MILLIS_TO_SLEEP_BEFORE_RETRYING)
                         .executeCallable(new Callable<Long>()
                             {
 

@@ -20,9 +20,9 @@ import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
 
-import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.filesystem.FastRecursiveHardLinkMaker;
 import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
+import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
  * File factory based on {@link File}. Files are copies by creating hard links (if possible) if the

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.datamover.filesystem.store;
 
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
-import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
@@ -29,6 +28,7 @@ import ch.systemsx.cisd.common.filesystem.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.filesystem.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.datamover.filesystem.intf.AbstractFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;

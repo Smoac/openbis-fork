@@ -21,6 +21,8 @@ import java.util.Properties;
 import org.apache.commons.lang.time.DateUtils;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.time.TimingParameters;
+
 import static org.testng.AssertJUnit.*;
 
 /**
@@ -46,9 +48,9 @@ public class TimingParametersTest
         final int maxRetries = 7;
         final int failureInterval = 13;
         final Properties props = new Properties();
-        props.put(TimingParameters.TIMEOUT_PROPERTY, Integer.toString(timeout));
-        props.put(TimingParameters.MAX_RETRY_PROPERTY, Integer.toString(maxRetries));
-        props.put(TimingParameters.FAILURE_INTERVAL, Integer.toString(failureInterval));
+        props.put(TimingParameters.TIMEOUT_PROPERTY_NAME, Integer.toString(timeout));
+        props.put(TimingParameters.MAX_RETRY_PROPERTY_NAME, Integer.toString(maxRetries));
+        props.put(TimingParameters.FAILURE_INTERVAL_NAME, Integer.toString(failureInterval));
         final TimingParameters parameters = TimingParameters.create(props);
         assertEquals(timeout * DateUtils.MILLIS_PER_SECOND, parameters.getTimeoutMillis());
         assertEquals(maxRetries, parameters.getMaxRetriesOnFailure());
@@ -67,7 +69,7 @@ public class TimingParametersTest
     public void testHasTimingParametersTrue()
     {
         final Properties props = new Properties();
-        props.put(TimingParameters.TIMEOUT_PROPERTY, "30");
+        props.put(TimingParameters.TIMEOUT_PROPERTY_NAME, "30");
         assertTrue(TimingParameters.hasTimingParameters(props));
     }
 
@@ -75,7 +77,7 @@ public class TimingParametersTest
     public void testHasTimingParametersTrue2()
     {
         final Properties props = new Properties();
-        props.put(TimingParameters.MAX_RETRY_PROPERTY, "2");
+        props.put(TimingParameters.MAX_RETRY_PROPERTY_NAME, "2");
         assertTrue(TimingParameters.hasTimingParameters(props));
     }
 
@@ -83,7 +85,7 @@ public class TimingParametersTest
     public void testHasTimingParametersTrue3()
     {
         final Properties props = new Properties();
-        props.put(TimingParameters.FAILURE_INTERVAL, "xxx");
+        props.put(TimingParameters.FAILURE_INTERVAL_NAME, "xxx");
         assertTrue(TimingParameters.hasTimingParameters(props));
     }
 }

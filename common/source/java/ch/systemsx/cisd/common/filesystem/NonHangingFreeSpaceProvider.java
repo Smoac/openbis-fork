@@ -22,9 +22,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.ExecutionResult;
+import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
  * A <code>DelegateFreeSpaceProvider</code> which does not block, computing the free space in its
@@ -51,7 +51,7 @@ public final class NonHangingFreeSpaceProvider extends DelegateFreeSpaceProvider
         final Future<Long> future =
                 executorService.submit(new FreeSpaceCallable(getFreeSpaceProvider(), path));
         final ExecutionResult<Long> executionResult =
-                ConcurrencyUtilities.getResult(future, Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
+                ConcurrencyUtilities.getResult(future, TimingParameters.DEFAULT_TIMEOUT_MILLIS);
         final Long resultOrNull = executionResult.tryGetResult();
         if (resultOrNull != null)
         {

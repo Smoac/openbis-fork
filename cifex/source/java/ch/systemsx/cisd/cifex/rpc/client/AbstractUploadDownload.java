@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
-import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
 import ch.systemsx.cisd.common.concurrent.IMonitoringProxyLogger;
@@ -33,6 +32,7 @@ import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exception.InvalidSessionException;
 import ch.systemsx.cisd.common.exception.MasqueradingException;
+import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
  * A common subclass for file upload and download.

@@ -24,9 +24,9 @@ import java.io.File;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
  * Test cases for corresponding {@link FileBasedFile} class.

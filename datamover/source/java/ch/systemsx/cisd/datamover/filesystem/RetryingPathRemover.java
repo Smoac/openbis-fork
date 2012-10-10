@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
@@ -38,6 +37,7 @@ import ch.systemsx.cisd.common.exception.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
 
 /**
@@ -50,7 +50,7 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IPathRemover;
 final class RetryingPathRemover implements IPathRemover
 {
     private static final long DELETE_ONE_FILE_TIMEOUT_MILLIS =
-            Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT;
+            TimingParameters.DEFAULT_TIMEOUT_MILLIS;
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, RetryingPathRemover.class);

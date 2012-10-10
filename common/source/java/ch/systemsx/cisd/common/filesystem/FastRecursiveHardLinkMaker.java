@@ -22,12 +22,12 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
-import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exception.Status;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncBasedRecursiveHardLinkMaker;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
  * A fast {@link IImmutableCopier} that uses a fallback option whenever one of the fast copiers for

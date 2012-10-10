@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common;
+package ch.systemsx.cisd.common.time;
 
 import java.util.Properties;
 
@@ -32,9 +32,43 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 public class TimingParameters
 {
 
+    /** Time in seconds to wait before a timeout occurs. */
+    public static final int DEFAULT_TIMEOUT_SECONDS = 60;
+
+    /** Time interval in seconds to wait after an operation failed before retrying it. */
+    public static final int DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS = 10;
+
+    /** Maximal number of retries when an operation fails. */
+    public static final int DEFAULT_MAXIMUM_RETRY_COUNT = 11;
+
+    /** Time interval in milli-seconds to wait after an operation failed before retrying it. */
+    public static final long DEFAULT_MILLIS_TO_SLEEP_BEFORE_RETRYING =
+            DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS * DateUtils.MILLIS_PER_SECOND;
+
+    /** Time in milli-seconds to wait before a timeout occurs.. */
+    public static final long DEFAULT_TIMEOUT_MILLIS =
+            DEFAULT_TIMEOUT_SECONDS * DateUtils.MILLIS_PER_SECOND;
+
+    /**
+     * Name of the property to specify a timeout (in seconds).
+     */
+    public static final String TIMEOUT_PROPERTY_NAME = "timeout";
+
+    /**
+     * Name of the property to specify the maximum number of retries.
+     */
+    public static final String MAX_RETRY_PROPERTY_NAME = "max-retries";
+
+    /**
+     * Name of the property to specify the interval to sleep after a failure and before a retry (in
+     * seconds).
+     */
+    public static final String FAILURE_INTERVAL_NAME = "failure-interval";
+
     private final static TimingParameters standardParameters =
-            new TimingParameters(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT,
-                    Constants.MAXIMUM_RETRY_COUNT, Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
+            new TimingParameters(TimingParameters.DEFAULT_TIMEOUT_MILLIS,
+                    TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT,
+                    TimingParameters.DEFAULT_MILLIS_TO_SLEEP_BEFORE_RETRYING);
 
     private final static TimingParameters defaultParameters =
             new TimingParameters(standardParameters);
@@ -66,12 +100,6 @@ public class TimingParameters
         return noTimeoutNoRetriesParameters;
     }
 
-    public static final String TIMEOUT_PROPERTY = "timeout";
-
-    public static final String MAX_RETRY_PROPERTY = "max-retries";
-
-    public static final String FAILURE_INTERVAL = "failure-interval";
-
     private volatile long timeoutMillis;
 
     private volatile int maxRetriesOnFailure;
@@ -89,9 +117,9 @@ public class TimingParameters
      */
     public static boolean hasTimingParameters(Properties properties)
     {
-        return properties.containsKey(TIMEOUT_PROPERTY)
-                || properties.containsKey(MAX_RETRY_PROPERTY)
-                || properties.containsKey(FAILURE_INTERVAL);
+        return properties.containsKey(TIMEOUT_PROPERTY_NAME)
+                || properties.containsKey(MAX_RETRY_PROPERTY_NAME)
+                || properties.containsKey(FAILURE_INTERVAL_NAME);
     }
 
     /**
@@ -130,20 +158,22 @@ public class TimingParameters
 
     private static long getIntervalToWaitAfterFailureMillis(Properties properties)
     {
-        return PropertyUtils.getInt(properties, FAILURE_INTERVAL,
-                Constants.INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS)
+        return PropertyUtils.getInt(properties, FAILURE_INTERVAL_NAME,
+                TimingParameters.DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS)
                 * DateUtils.MILLIS_PER_SECOND;
     }
 
     private static int getMaxRetriesOnFailure(Properties properties)
     {
-        return PropertyUtils.getInt(properties, MAX_RETRY_PROPERTY, Constants.MAXIMUM_RETRY_COUNT);
+        return PropertyUtils.getInt(properties, MAX_RETRY_PROPERTY_NAME,
+                TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT);
     }
 
     private static long getTimeoutMillis(Properties properties)
     {
         final long timeoutSpecified =
-                PropertyUtils.getInt(properties, TIMEOUT_PROPERTY, Constants.TIMEOUT_SECONDS)
+                PropertyUtils.getInt(properties, TIMEOUT_PROPERTY_NAME,
+                        TimingParameters.DEFAULT_TIMEOUT_SECONDS)
                         * DateUtils.MILLIS_PER_SECOND;
         return (timeoutSpecified == 0) ? Long.MAX_VALUE : timeoutSpecified;
     }
@@ -157,8 +187,8 @@ public class TimingParameters
 
     public static TimingParameters create(final long timeoutMillis)
     {
-        return new TimingParameters(timeoutMillis, Constants.MAXIMUM_RETRY_COUNT,
-                Constants.MILLIS_TO_SLEEP_BEFORE_RETRYING);
+        return new TimingParameters(timeoutMillis, TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT,
+                TimingParameters.DEFAULT_MILLIS_TO_SLEEP_BEFORE_RETRYING);
     }
 
     public static TimingParameters createNoRetries(final long timeoutMillis)

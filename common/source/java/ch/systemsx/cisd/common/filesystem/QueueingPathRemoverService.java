@@ -25,7 +25,6 @@ import org.apache.log4j.Logger;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.io.ICloseable;
-import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.collection.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collection.ExtendedLinkedBlockingQueue;
 import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
@@ -35,6 +34,7 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
  * A service for removing (deep) paths. It provides a method {@link #removeRecursively(File)} that
