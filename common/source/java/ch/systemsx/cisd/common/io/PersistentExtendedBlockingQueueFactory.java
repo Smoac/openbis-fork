@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.collection;
+package ch.systemsx.cisd.common.io;
 
 import java.io.File;
 import java.io.Serializable;
 
 import ch.systemsx.cisd.common.collection.ExtendedLinkedBlockingQueue;
 import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
-import ch.systemsx.cisd.common.collection.IQueuePersister;
-import ch.systemsx.cisd.common.collection.PersistentExtendedBlockingQueueDecorator;
-import ch.systemsx.cisd.common.collection.QueuePersister;
 
 /**
  * A factory class for {@link IExtendedBlockingQueue}s.
  * 
  * @author Bernd Rinn
  */
-public class ExtendedBlockingQueueFactory
+public class PersistentExtendedBlockingQueueFactory
 {
 
     /**

@@ -25,11 +25,11 @@ import org.apache.log4j.Logger;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.io.ICloseable;
-import ch.systemsx.cisd.common.collection.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collection.ExtendedLinkedBlockingQueue;
 import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
-import ch.systemsx.cisd.common.collection.PersistentExtendedBlockingQueueDecorator;
-import ch.systemsx.cisd.common.collection.QueuePersister;
+import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueDecorator;
+import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueFactory;
+import ch.systemsx.cisd.common.io.QueuePersister;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -106,7 +106,7 @@ public class QueueingPathRemoverService
         if (queueFileOrNull != null)
         {
             final PersistentExtendedBlockingQueueDecorator<File> persistentQueue =
-                    ExtendedBlockingQueueFactory.createSmartPersist(queueFileOrNull);
+                    PersistentExtendedBlockingQueueFactory.createSmartPersist(queueFileOrNull);
             queue = persistentQueue;
             queueCloseableOrNull = persistentQueue;
         } else

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.collection;
+package ch.systemsx.cisd.common.io;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -32,10 +32,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.collection.ExtendedBlockingQueueFactory;
-import ch.systemsx.cisd.common.collection.PersistentExtendedBlockingQueueDecorator;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueDecorator;
 
 /**
  * Test cases for the {@link PersistentExtendedBlockingQueueDecorator}.
@@ -52,7 +51,7 @@ public class PersistentExtendedBlockingQueueDecoratorTest
 
     private PersistentExtendedBlockingQueueDecorator<String> createQueue()
     {
-        return ExtendedBlockingQueueFactory.createSmartQueue(queueFile, false);
+        return PersistentExtendedBlockingQueueFactory.createSmartQueue(queueFile, false);
     }
 
     private List<String> asList(Queue<String> queue)
@@ -256,7 +255,7 @@ public class PersistentExtendedBlockingQueueDecoratorTest
     public void testThreadSafetiness() throws Exception
     {
         final PersistentExtendedBlockingQueueDecorator<Integer> queue =
-                ExtendedBlockingQueueFactory.<Integer> createSmartPersist(queueFile);
+                PersistentExtendedBlockingQueueFactory.<Integer> createSmartPersist(queueFile);
         final MessageChannel messageChannel = new MessageChannel(20000);
         new Thread(new Runnable()
             {

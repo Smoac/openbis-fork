@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.collection.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
+import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -73,7 +73,7 @@ public final class DynamicPropertyEvaluationScheduler implements
     {
         try
         {
-            return ExtendedBlockingQueueFactory
+            return PersistentExtendedBlockingQueueFactory
                     .<DynamicPropertyEvaluationOperation> createSmartPersist(queueFile);
         } catch (RuntimeException e)
         {
@@ -86,7 +86,7 @@ public final class DynamicPropertyEvaluationScheduler implements
                     + "wait for maintenance task to reevaluate all properties.", e.getMessage(),
                     queueFile, newFileName));
             queueFile.renameTo(new File(newFileName));
-            return ExtendedBlockingQueueFactory
+            return PersistentExtendedBlockingQueueFactory
                     .<DynamicPropertyEvaluationOperation> createSmartPersist(queueFile);
         }
     }

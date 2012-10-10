@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import ch.systemsx.cisd.common.collection.CollectionIO;
+import ch.systemsx.cisd.common.io.CollectionIO;
 
 /**
  * Create a large file/folder structure that will take some time to copy.

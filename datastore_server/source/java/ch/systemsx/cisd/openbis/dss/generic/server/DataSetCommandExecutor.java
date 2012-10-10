@@ -24,8 +24,8 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
-import ch.systemsx.cisd.common.collection.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
+import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
@@ -63,7 +63,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
     {
         this.store = store;
         File queueFile = getCommandQueueFile(queueDir);
-        commandQueue = ExtendedBlockingQueueFactory.<IDataSetCommand> createSmartPersist(queueFile);
+        commandQueue = PersistentExtendedBlockingQueueFactory.<IDataSetCommand> createSmartPersist(queueFile);
     }
 
     void setShareIdManager(IShareIdManager shareIdManager)
@@ -194,7 +194,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
     {
         final File queueFile = getCommandQueueFile(store);
         final IExtendedBlockingQueue<IDataSetCommand> commandQueue =
-                ExtendedBlockingQueueFactory.<IDataSetCommand> createSmartPersist(queueFile);
+                PersistentExtendedBlockingQueueFactory.<IDataSetCommand> createSmartPersist(queueFile);
         if (commandQueue.isEmpty())
         {
             System.out.println("Command queue is empty.");

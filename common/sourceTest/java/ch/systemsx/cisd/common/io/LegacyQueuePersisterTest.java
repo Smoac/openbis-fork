@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.collection;
+package ch.systemsx.cisd.common.io;
 
 import java.io.File;
 import java.io.RandomAccessFile;
@@ -25,8 +25,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.collection.QueuePersister.LegacyQueuePersister;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.QueuePersister.LegacyQueuePersister;
 
 /**
  * @author Franz-Josef Elmer

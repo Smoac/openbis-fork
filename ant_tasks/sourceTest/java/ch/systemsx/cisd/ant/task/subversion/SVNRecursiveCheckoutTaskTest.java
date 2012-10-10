@@ -33,8 +33,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.collection.CollectionIO;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.CollectionIO;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**

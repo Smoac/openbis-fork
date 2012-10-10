@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.collection;
+package ch.systemsx.cisd.common.io;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -33,9 +33,9 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.collection.CollectionIO;
 import ch.systemsx.cisd.common.collection.IFromStringConverter;
 import ch.systemsx.cisd.common.collection.IToStringConverter;
+import ch.systemsx.cisd.common.io.CollectionIO;
 
 /**
  * Test cases for the {@link CollectionIO} class.

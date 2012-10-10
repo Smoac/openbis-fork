@@ -36,10 +36,10 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
-import ch.systemsx.cisd.common.collection.CollectionIO;
 import ch.systemsx.cisd.common.exception.Status;
 import ch.systemsx.cisd.common.exception.StatusFlag;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.CollectionIO;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;

@@ -24,9 +24,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import ch.systemsx.cisd.common.collection.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collection.ExtendedLinkedBlockingQueue;
 import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
+import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -82,7 +82,7 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
     {
         try
         {
-            return ExtendedBlockingQueueFactory
+            return PersistentExtendedBlockingQueueFactory
                     .<IndexUpdateOperation> createSmartPersist(queueFile);
         } catch (RuntimeException e)
         {
@@ -94,7 +94,7 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
                     + "Restart server with the queue that caused the problem "
                     + "or force reindex of all entities.", e.getMessage(), queueFile, newFileName));
             queueFile.renameTo(new File(indexBase, newFileName));
-            return ExtendedBlockingQueueFactory
+            return PersistentExtendedBlockingQueueFactory
                     .<IndexUpdateOperation> createSmartPersist(queueFile);
         }
     }

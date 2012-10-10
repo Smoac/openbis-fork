@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.collection;
+package ch.systemsx.cisd.common.io;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 import ch.systemsx.cisd.base.io.ICloseable;
 import ch.systemsx.cisd.base.io.ISynchronizable;
 import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
-import ch.systemsx.cisd.common.collection.IQueuePersister;
 
 /**
  * A decorator of a {@link IExtendedBlockingQueue} that keeps the current state of the queue current

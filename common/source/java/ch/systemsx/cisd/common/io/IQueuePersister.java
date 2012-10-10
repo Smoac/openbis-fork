@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.collection;
+package ch.systemsx.cisd.common.io;
 
 /**
  * A role that can persist a {@link java.util.Queue}. It is assumed that the persister gets a

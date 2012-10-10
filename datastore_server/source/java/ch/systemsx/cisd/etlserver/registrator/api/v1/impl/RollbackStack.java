@@ -25,8 +25,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.collection.ExtendedBlockingQueueFactory;
-import ch.systemsx.cisd.common.collection.PersistentExtendedBlockingQueueDecorator;
+import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueDecorator;
+import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.etlserver.registrator.IRollbackStack;
 import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
 
@@ -84,9 +84,9 @@ public class RollbackStack implements IRollbackStack
                 new File(queue1File.getParentFile(), queue1File.getName() + ".LOCKED");
 
         PersistentExtendedBlockingQueueDecorator<StackElement> queue1 =
-                ExtendedBlockingQueueFactory.createSmartQueue(queue1File, false);
+                PersistentExtendedBlockingQueueFactory.createSmartQueue(queue1File, false);
         PersistentExtendedBlockingQueueDecorator<StackElement> queue2 =
-                ExtendedBlockingQueueFactory.createSmartQueue(queue2File, false);
+                PersistentExtendedBlockingQueueFactory.createSmartQueue(queue2File, false);
 
         // If both queues are empty, it doesn't matter which is which
         if (bothQueuesAreEmpty(queue1, queue2))

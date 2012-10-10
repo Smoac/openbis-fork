@@ -25,11 +25,11 @@ import org.springframework.remoting.RemoteAccessException;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.io.ICloseable;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
-import ch.systemsx.cisd.common.collection.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
-import ch.systemsx.cisd.common.collection.PersistentExtendedBlockingQueueDecorator;
-import ch.systemsx.cisd.common.collection.QueuePersister;
 import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueDecorator;
+import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueFactory;
+import ch.systemsx.cisd.common.io.QueuePersister;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.time.TimingParameters;
@@ -87,7 +87,7 @@ public class QueueingDataSetStatusUpdaterService
     public static synchronized final void start(final File queueFile, TimingParameters parameters)
     {
         final PersistentExtendedBlockingQueueDecorator<DataSetCodesWithStatus> persistentQueue =
-                ExtendedBlockingQueueFactory.createSmartPersist(queueFile);
+                PersistentExtendedBlockingQueueFactory.createSmartPersist(queueFile);
         queue = persistentQueue;
         queueCloseableOrNull = persistentQueue;
         updater = createDataSetStatusUpdater();

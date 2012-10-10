@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import ch.systemsx.cisd.common.collection.CollectionIO;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
+import ch.systemsx.cisd.common.io.CollectionIO;
 import ch.systemsx.cisd.datamover.common.MarkerFile;
 
 /**
