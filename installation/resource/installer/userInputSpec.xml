@@ -11,7 +11,7 @@
   <panel id="UserInputPanel.KEY_STORE">
     <field type="title" txt="Key Store" bold="true" size="2" />
     <field type="staticText" align="left"
-      txt="Please, select a new key store if the current one should be replace." />
+      txt="If you have a new keystore for SSL, enter it here. Leave this field blank to use the existing keystore (or the default keystore in a new installation)." />
     <field type="file" align="left" variable="KEY_STORE_FILE">
       <spec txt="Key store" size="20" set="" mustExist="true" allowEmptyValue="true" />
     </field>
