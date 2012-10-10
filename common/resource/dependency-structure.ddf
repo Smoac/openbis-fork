@@ -42,11 +42,10 @@ check sets [mail]
 layer layer0 = [logging] [converter] [reflection]
 layer layer1 = [exception]  
 layer layer2 = [collection]
-layer layer3 = [io]
-layer layer4 = [process] [mail] [properties] [monitoring]
-layer layer5 = [test]
-layer layer6 = [db] [parser]
+layer layer3 = [process] [mail] [properties] [monitoring]
+layer layer4 = [test] [io]
+layer layer5 = [db] [parser]
 
-check layeringOf layer0 layer1 layer2 layer3 layer4 layer5 layer6
+check layeringOf layer0 layer1 layer2 layer3 layer4 layer5
 
 check [parser] independentOf ${package}.exceptions.UserFailureException
