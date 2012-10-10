@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +45,11 @@ public class AssertingLogger implements ISimpleLogger
         records.add(new LogRecord(level, message, throwableOrNull));
     }
 
+    public void reset()
+    {
+        records.clear();
+    }
+    
     public void assertNumberOfMessage(final int expectedNumberOfMessages)
     {
         assertEquals(expectedNumberOfMessages, records.size());
@@ -79,6 +85,19 @@ public class AssertingLogger implements ISimpleLogger
         assertTrue(assertError, message.matches(throwableMessagePattern));
     }
 
+    public int getNumberOfRecords()
+    {
+        return records.size();
+    }
+    
+    public void print(PrintStream out)
+    {
+        for (LogRecord record : records)
+        {
+            out.println(record);
+        }
+    }
+    
     private static class LogRecord
     {
         final LogLevel level;
@@ -92,6 +111,20 @@ public class AssertingLogger implements ISimpleLogger
             this.level = level;
             this.message = message;
             this.throwableOrNull = throwableOrNull;
+        }
+
+        @Override
+        public String toString()
+        {
+            if (throwableOrNull != null)
+            {
+                return "LogRecord [level=" + level + ", message=" + message + ", throwable="
+                        + throwableOrNull + "]";
+                
+            } else
+            {
+                return "LogRecord [level=" + level + ", message=" + message + "]";
+            }
         }
     }
 }
