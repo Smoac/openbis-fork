@@ -32,8 +32,8 @@ import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidget
 /**
  * @author Franz-Josef Elmer
  */
-public class ManagedPropertyField extends Field<List<Map<String, String>>>
+public class ManagedPropertyField extends HiddenField<List<Map<String, String>>>
 {
     private static final int SPACING = 3;
 
@@ -74,7 +74,11 @@ public class ManagedPropertyField extends Field<List<Map<String, String>>>
         this.widgetDescriptions = widgetDescriptions;
         verticalPanel = new VerticalPanel();
         verticalPanel.setHorizontalAlign(HorizontalAlignment.RIGHT);
+        init();
+    }
 
+    private void init()
+    {
         Button addButton = new Button("Add More");
         addButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
@@ -85,13 +89,25 @@ public class ManagedPropertyField extends Field<List<Map<String, String>>>
                 }
             });
         addButton.setToolTip("Add a new section.");
-        verticalPanel.add(addButton);
+        HorizontalPanel horizontalPanel = new HorizontalPanel();
+        horizontalPanel.setSpacing(SPACING);
+        horizontalPanel.add(addButton);
+        verticalPanel.add(horizontalPanel);
         addNewSection(0);
     }
 
     public Widget getWidget()
     {
         return verticalPanel;
+    }
+
+    @Override
+    public void reset()
+    {
+        sections.clear();
+        verticalPanel.removeAll();
+        init();
+        super.reset();
     }
 
     @Override
@@ -113,6 +129,8 @@ public class ManagedPropertyField extends Field<List<Map<String, String>>>
     private void addNewSection(int sectionIndex)
     {
         FormPanel formPanel = new FormPanel();
+        formPanel.setWidth(AbstractRegistrationForm.DEFAULT_FIELD_WIDTH
+                + AbstractRegistrationForm.DEFAULT_LABEL_WIDTH + 30);
         formPanel.setLabelWidth(AbstractRegistrationForm.DEFAULT_LABEL_WIDTH - SPACING - 2);
         formPanel.setFieldWidth(AbstractRegistrationForm.DEFAULT_FIELD_WIDTH);
         formPanel.setHeaderVisible(false);

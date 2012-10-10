@@ -281,7 +281,9 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
                         label += " *";
                     }
                     FieldSet fieldSet = createSectionFieldSet(label);
-                    fieldSet.add(((ManagedPropertyField) field.get()).getWidget());
+                    ManagedPropertyField managedPropertyField = (ManagedPropertyField) field.get();
+                    fieldSet.add(managedPropertyField.getWidget());
+                    form.add(managedPropertyField);
                     form.add(fieldSet);
                 } else
                 {
