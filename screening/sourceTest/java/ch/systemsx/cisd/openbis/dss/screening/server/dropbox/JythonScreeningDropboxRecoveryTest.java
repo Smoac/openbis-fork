@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.screening.server.dropbox;
 
-import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
@@ -30,6 +28,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
@@ -219,7 +218,7 @@ public class JythonScreeningDropboxRecoveryTest extends AbstractJythonDataSetHan
     private File getCreatedRecoveryMarkerFile()
     {
         File originalIncoming =
-                FileUtilities.removePrefixFromFileName(markerFile, IS_FINISHED_PREFIX);
+                FileUtilities.removePrefixFromFileName(markerFile, FileConstants.IS_FINISHED_PREFIX);
         File recoveryMarkerFile =
                 handler.getGlobalState().getStorageRecoveryManager()
                         .getProcessingMarkerFile(originalIncoming);
@@ -344,7 +343,7 @@ public class JythonScreeningDropboxRecoveryTest extends AbstractJythonDataSetHan
             FileUtils.copyFile(originalImage, new File(incomingDataSetFile, file));
         }
 
-        markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + "PLATE");
+        markerFile = new File(workingDirectory, FileConstants.IS_FINISHED_PREFIX + "PLATE");
         FileUtilities.writeToFile(markerFile, "");
     }
 }

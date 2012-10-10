@@ -16,13 +16,12 @@
 
 package ch.systemsx.cisd.etlserver.registrator;
 
-import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
-
 import java.io.File;
 
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.etlserver.IStoreRootDirectoryHolder;
@@ -58,7 +57,7 @@ public class MarkerFileUtility
 
     public static File getMarkerFileFromIncoming(final File incoming)
     {
-        return new File(incoming.getParentFile(), IS_FINISHED_PREFIX + incoming.getName());
+        return new File(incoming.getParentFile(), FileConstants.IS_FINISHED_PREFIX + incoming.getName());
     }
     
     /**
@@ -91,7 +90,7 @@ public class MarkerFileUtility
     static File getIncomingFromMarkerFile(final File isFinishedPath)
     {
         final File incomingDataSetPath =
-                FileUtilities.removePrefixFromFileName(isFinishedPath, IS_FINISHED_PREFIX);
+                FileUtilities.removePrefixFromFileName(isFinishedPath, FileConstants.IS_FINISHED_PREFIX);
         return incomingDataSetPath;
     }
 

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.etlserver.entityregistration;
 
-import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
 import static ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetRegistrationHandler.DATA_SET_TYPE_PROPERTIES_KEY;
 import static ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetRegistrationHandler.SAMPLE_TYPE_PROPERTIES_KEY;
 
@@ -39,6 +38,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
@@ -471,7 +471,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
             FileOperations.getInstance().deleteRecursively(svnFolder);
         }
 
-        markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + folderName);
+        markerFile = new File(workingDirectory, FileConstants.IS_FINISHED_PREFIX + folderName);
         FileUtilities.writeToFile(markerFile, "");
     }
 
@@ -696,7 +696,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                     "Getting incoming data set path 'targets/unit-test-wd/ch.systemsx.cisd.etlserver.entityregistration.SampleAndDatasetRegistrationHandlerTest/%s' "
                             + "from is-finished path 'targets/unit-test-wd/ch.systemsx.cisd.etlserver.entityregistration.SampleAndDatasetRegistrationHandlerTest/%s'\n"
                             + "%s" + "\nMarker file '%s' has been removed.";
-            String markerFileName = IS_FINISHED_PREFIX + folderName;
+            String markerFileName = FileConstants.IS_FINISHED_PREFIX + folderName;
             theLogText =
                     String.format(formatString, folderName, markerFileName, mainLogText,
                             markerFile.getAbsolutePath());

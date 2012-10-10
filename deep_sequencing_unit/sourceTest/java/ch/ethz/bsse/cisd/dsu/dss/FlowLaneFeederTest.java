@@ -34,10 +34,10 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.AssertionUtil;
@@ -673,7 +673,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         assertEquals(true, new File(ds, FlowLaneFeeder.escapeSampleCode(metaDataFileName)).exists());
         assertEquals(
                 true,
-                new File(dropBox, Constants.IS_FINISHED_PREFIX
+                new File(dropBox, FileConstants.IS_FINISHED_PREFIX
                         + FlowLaneFeeder.escapeSampleCode(fileName)).exists());
     }
 

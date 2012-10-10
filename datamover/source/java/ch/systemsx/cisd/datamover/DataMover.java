@@ -24,11 +24,11 @@ import java.util.TimerTask;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.action.ITerminable;
 import ch.systemsx.cisd.common.concurrent.TimerTaskWithListeners;
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IStoreHandler;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
@@ -78,10 +78,10 @@ public final class DataMover
     static final String OUTGOING_TARGET_LOCATION_FILE = ".outgoing_target_location";
 
     @Private
-    static final String RECOVERY_MARKER_FIILENAME = Constants.MARKER_PREFIX + "recovery";
+    static final String RECOVERY_MARKER_FIILENAME = FileConstants.MARKER_PREFIX + "recovery";
 
     @Private
-    static final String PROCESS_MARKER_PREFIX = Constants.MARKER_PREFIX + "thread_";
+    static final String PROCESS_MARKER_PREFIX = FileConstants.MARKER_PREFIX + "thread_";
 
     private static final String PROCESSING_MARKER_TEMPLATE = PROCESS_MARKER_PREFIX
             + "%s_processing";
@@ -137,7 +137,7 @@ public final class DataMover
      * Indicates that a <i>shutdown</i> should be performed by the program (has been asked by
      * <code>datamover.sh</code>).
      */
-    public static final String SHUTDOWN_MARKER_FILENAME = Constants.MARKER_PREFIX + "shutdown";
+    public static final String SHUTDOWN_MARKER_FILENAME = FileConstants.MARKER_PREFIX + "shutdown";
 
     /**
      * starts the process of moving data and monitoring it

@@ -16,8 +16,6 @@
 
 package eu.basynthec.cisd.dss;
 
-import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,6 +25,7 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
 
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.etlserver.registrator.AbstractJythonDataSetHandlerTest;
@@ -184,7 +183,7 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
                 dataFile, workingDirectory);
         incomingDataSetFile = new File(workingDirectory, dataFile.getName());
 
-        markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + dataFile.getName());
+        markerFile = new File(workingDirectory, FileConstants.IS_FINISHED_PREFIX + dataFile.getName());
         FileUtilities.writeToFile(
                 markerFile, "");
     }

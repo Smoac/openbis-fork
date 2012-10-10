@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.etlserver;
 
-import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
-
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -31,6 +29,7 @@ import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -319,8 +318,8 @@ public final class TransferredDataSetHandler extends AbstractTopLevelDataSetRegi
     {
         assert isFinishedFile != null : "Unspecified is-finished file.";
         final String name = isFinishedFile.getName();
-        assert name.startsWith(IS_FINISHED_PREFIX) : "A finished file must starts with '"
-                + IS_FINISHED_PREFIX + "'.";
+        assert name.startsWith(FileConstants.IS_FINISHED_PREFIX) : "A finished file must starts with '"
+                + FileConstants.IS_FINISHED_PREFIX + "'.";
 
         File incomingDataSetFile = getIncomingDataSetPathFromMarker(isFinishedFile);
         IDelegatedActionWithResult<Boolean> cleanAftrewardsAction =

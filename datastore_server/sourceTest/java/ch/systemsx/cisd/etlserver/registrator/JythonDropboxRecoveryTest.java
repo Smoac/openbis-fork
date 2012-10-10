@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.etlserver.registrator;
 
-import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -34,6 +32,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
@@ -563,7 +562,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
     private File getCreatedRecoveryMarkerFile()
     {
         File originalIncoming =
-                FileUtilities.removePrefixFromFileName(markerFile, IS_FINISHED_PREFIX);
+                FileUtilities.removePrefixFromFileName(markerFile, FileConstants.IS_FINISHED_PREFIX);
         File recoveryMarkerFile =
                 handler.getGlobalState().getStorageRecoveryManager()
                         .getProcessingMarkerFile(originalIncoming);
@@ -1351,7 +1350,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
 
         FileUtilities.writeToFile(new File(subDataSet1, "read1.me"), "hello world1");
 
-        markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + "data_set");
+        markerFile = new File(workingDirectory, FileConstants.IS_FINISHED_PREFIX + "data_set");
         FileUtilities.writeToFile(markerFile, "");
     }
 }

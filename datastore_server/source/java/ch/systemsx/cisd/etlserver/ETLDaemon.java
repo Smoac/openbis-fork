@@ -35,7 +35,6 @@ import org.apache.log4j.Logger;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.TimerUtilities;
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
@@ -48,6 +47,7 @@ import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler.IFa
 import ch.systemsx.cisd.common.filesystem.highwatermark.HighwaterMarkDirectoryScanningHandler;
 import ch.systemsx.cisd.common.filesystem.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.filesystem.highwatermark.HostAwareFileWithHighwaterMark;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler;
@@ -478,7 +478,7 @@ public final class ETLDaemon
     {
         if (useIsFinishedMarkerFile)
         {
-            return FileFilterUtils.prefixFileFilter(Constants.IS_FINISHED_PREFIX);
+            return FileFilterUtils.prefixFileFilter(FileConstants.IS_FINISHED_PREFIX);
         } else
         {
             return createQuietPeriodFilter(incomingDataDirectory, parameters);

@@ -21,9 +21,9 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.IStoreItemFilter;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -51,7 +51,7 @@ final class FileScannedStore implements IScannedStore
 
     private final boolean isReadyToProcess(final StoreItem item)
     {
-        if (item.getName().startsWith(Constants.DELETION_IN_PROGRESS_PREFIX))
+        if (item.getName().startsWith(FileConstants.DELETION_IN_PROGRESS_PREFIX))
         {
             return false;
         }

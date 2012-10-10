@@ -20,6 +20,7 @@ package ch.systemsx.cisd.common;
 import org.apache.commons.lang.time.DateUtils;
 
 
+
 /**
  * Constants common to more than one CISD project.
  * 
@@ -32,22 +33,6 @@ public final class Constants
     {
         // This class can not be instantiated.
     }
-
-    /** String that indicates a marker file */
-    public static final String MARKER_PREFIX = ".MARKER_";
-
-    /** The prefix of marker files that indicate that the processing of some path is finished. */
-    public static final String IS_FINISHED_PREFIX = MARKER_PREFIX + "is_finished_";
-
-    /** The prefix of marker files that indicate that the processing of some path is finished. */
-    public static final String DELETION_IN_PROGRESS_PREFIX =
-            MARKER_PREFIX + "deletion_in_progress_";
-
-    /** The prefix of marker files that indicate that a directory is currently being processed. */
-    public static final String PROCESSING_PREFIX = MARKER_PREFIX + "processing_";
-
-    /** The file name of the file that contains file names which are known to be bad. */
-    public static final String FAULTY_PATH_FILENAME = ".faulty_paths";
 
     //
     // Timing

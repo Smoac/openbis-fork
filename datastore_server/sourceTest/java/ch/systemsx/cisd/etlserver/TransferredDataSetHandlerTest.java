@@ -41,9 +41,9 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -253,7 +253,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         data1 = new File(workingDirectory, DATA1_NAME);
         FileUtils.touch(data1);
         isFinishedData1 =
-                new File(workingDirectory, Constants.IS_FINISHED_PREFIX + data1.getName());
+                new File(workingDirectory, FileConstants.IS_FINISHED_PREFIX + data1.getName());
         FileUtils.touch(isFinishedData1);
 
         folder = new File(workingDirectory, FOLDER_NAME);
@@ -261,7 +261,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         data2 = new File(folder, DATA2_NAME);
         FileUtils.touch(data2);
         isFinishedFolder =
-                new File(workingDirectory, Constants.IS_FINISHED_PREFIX + folder.getName());
+                new File(workingDirectory, FileConstants.IS_FINISHED_PREFIX + folder.getName());
         FileUtils.touch(isFinishedFolder);
 
         context = new Mockery();

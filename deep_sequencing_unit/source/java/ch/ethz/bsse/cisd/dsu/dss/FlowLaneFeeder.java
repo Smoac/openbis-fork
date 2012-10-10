@@ -38,7 +38,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
@@ -46,6 +45,7 @@ import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exception.Status;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FastRecursiveHardLinkMaker;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
@@ -233,7 +233,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
                         createDataTransferredProperty(flowLaneSample)));
             }
 
-            File markerFile = new File(flowLaneDropBox, Constants.IS_FINISHED_PREFIX + fileName);
+            File markerFile = new File(flowLaneDropBox, FileConstants.IS_FINISHED_PREFIX + fileName);
             addFileForUndo(markerFile);
             FileUtilities.writeToFile(markerFile, "");
             if (operationLog.isInfoEnabled())

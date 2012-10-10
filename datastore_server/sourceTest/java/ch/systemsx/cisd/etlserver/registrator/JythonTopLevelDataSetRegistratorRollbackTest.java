@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.etlserver.registrator;
 
-import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +30,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
@@ -136,7 +136,7 @@ public class JythonTopLevelDataSetRegistratorRollbackTest extends AbstractJython
         FileUtilities.writeToFile(new File(subDataSet1, "read1.me"), "hello world1");
         FileUtilities.writeToFile(new File(subDataSet2, "read2.me"), "hello world2");
 
-        markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + "data_set");
+        markerFile = new File(workingDirectory, FileConstants.IS_FINISHED_PREFIX + "data_set");
         FileUtilities.writeToFile(markerFile, "");
     }
 

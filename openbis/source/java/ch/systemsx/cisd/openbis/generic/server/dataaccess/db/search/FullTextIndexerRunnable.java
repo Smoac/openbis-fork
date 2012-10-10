@@ -34,7 +34,7 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.store.DirectoryProvider;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -45,7 +45,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public final class FullTextIndexerRunnable extends HibernateDaoSupport implements Runnable
 {
-    public final static String FULL_TEXT_INDEX_MARKER_FILENAME = Constants.MARKER_PREFIX
+    public final static String FULL_TEXT_INDEX_MARKER_FILENAME = FileConstants.MARKER_PREFIX
             + "full_index";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,

@@ -27,11 +27,11 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exception.HighLevelException;
 import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -587,7 +587,7 @@ public class DataSetRegistrationAlgorithm
         final File baseParentDirectory = baseDirectory.getParentFile();
         final String processingDirName = baseDirectory.getName();
         final File markerFile =
-                new File(baseParentDirectory, Constants.PROCESSING_PREFIX + processingDirName);
+                new File(baseParentDirectory, FileConstants.PROCESSING_PREFIX + processingDirName);
         try
         {
             getFileOperations().createNewFile(markerFile);

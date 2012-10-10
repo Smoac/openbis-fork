@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.collection.CollectionIO;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exception.Status;
@@ -74,7 +73,7 @@ public final class FaultyPathDirectoryScanningHandler implements IDirectoryScann
             final IStopSignaler stopSignaler, IFaultyPathDirectoryScanningHandlerDelegate delegate)
     {
         this.faultyPaths = new HashSet<StoreItem>();
-        this.faultyPathsFile = new File(faultyPathDirectory, Constants.FAULTY_PATH_FILENAME);
+        this.faultyPathsFile = new File(faultyPathDirectory, FileConstants.FAULTY_PATH_FILENAME);
         this.stopSignaler = stopSignaler;
 
         this.delegate = delegate;

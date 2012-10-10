@@ -21,7 +21,8 @@ import java.io.File;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
+
 /**
  * 
  *
@@ -36,7 +37,7 @@ public class MarkerFileUtilityTest extends AssertJUnit
         
         File markerPath = MarkerFileUtility.getMarkerFileFromIncoming(original);
         
-        assertEquals(markerPath, new File("a/b/c", IS_FINISHED_PREFIX + original.getName()));
+        assertEquals(markerPath, new File("a/b/c", FileConstants.IS_FINISHED_PREFIX + original.getName()));
         
         assertEquals(original, MarkerFileUtility.getIncomingFromMarkerFile(markerPath));
     }

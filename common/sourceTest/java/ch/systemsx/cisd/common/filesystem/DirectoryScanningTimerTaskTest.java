@@ -33,7 +33,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.collection.CollectionIO;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -126,7 +125,7 @@ public class DirectoryScanningTimerTaskTest
 
     private final static File getFaultyPathFile()
     {
-        return new File(workingDirectory, Constants.FAULTY_PATH_FILENAME);
+        return new File(workingDirectory, FileConstants.FAULTY_PATH_FILENAME);
     }
 
     private final static void createNewFile(final File someFile) throws IOException
@@ -260,7 +259,7 @@ public class DirectoryScanningTimerTaskTest
     @Test
     public void testStopInFirstFile() throws IOException
     {
-        final File faultyPaths = new File(workingDirectory, Constants.FAULTY_PATH_FILENAME);
+        final File faultyPaths = new File(workingDirectory, FileConstants.FAULTY_PATH_FILENAME);
         faultyPaths.createNewFile();
         assertTrue(faultyPaths.exists());
         final AtomicInteger counter = new AtomicInteger(0);

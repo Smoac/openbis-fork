@@ -31,7 +31,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.parser.filter.ExcludeEmptyAndCommentLineFilter;
@@ -252,7 +251,7 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         boolean exceptionThrown = false;
         try
         {
-            FileUtilities.removePrefixFromFileName(null, Constants.IS_FINISHED_PREFIX);
+            FileUtilities.removePrefixFromFileName(null, FileConstants.IS_FINISHED_PREFIX);
 
         } catch (AssertionError e)
         {
@@ -261,10 +260,10 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         assertTrue("Given file can not be null.", exceptionThrown);
         assertEquals(file, FileUtilities.removePrefixFromFileName(file, null));
         assertEquals(file,
-                FileUtilities.removePrefixFromFileName(file, Constants.IS_FINISHED_PREFIX));
-        file = new File("/tmp/dir/" + Constants.IS_FINISHED_PREFIX + "x.txt");
+                FileUtilities.removePrefixFromFileName(file, FileConstants.IS_FINISHED_PREFIX));
+        file = new File("/tmp/dir/" + FileConstants.IS_FINISHED_PREFIX + "x.txt");
         assertEquals("/tmp/dir/x.txt",
-                FileUtilities.removePrefixFromFileName(file, Constants.IS_FINISHED_PREFIX)
+                FileUtilities.removePrefixFromFileName(file, FileConstants.IS_FINISHED_PREFIX)
                         .getPath());
     }
 

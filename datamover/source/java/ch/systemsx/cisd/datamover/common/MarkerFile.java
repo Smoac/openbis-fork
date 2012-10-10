@@ -18,7 +18,7 @@ package ch.systemsx.cisd.datamover.common;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.Constants;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 
@@ -32,7 +32,7 @@ public class MarkerFile
 
     private static String getCopyFinishedMarkerName(String originalFileName)
     {
-        return Constants.IS_FINISHED_PREFIX + originalFileName;
+        return FileConstants.IS_FINISHED_PREFIX + originalFileName;
     }
 
     public static StoreItem createDeletionInProgressMarker(StoreItem originalItem)
@@ -42,30 +42,30 @@ public class MarkerFile
 
     private static String getDeletionInProgressMarkerName(String originalFileName)
     {
-        return Constants.DELETION_IN_PROGRESS_PREFIX + originalFileName;
+        return FileConstants.DELETION_IN_PROGRESS_PREFIX + originalFileName;
     }
 
     public static boolean isCopyFinishedMarker(File file)
     {
-        return file.getName().startsWith(Constants.IS_FINISHED_PREFIX);
+        return file.getName().startsWith(FileConstants.IS_FINISHED_PREFIX);
     }
 
     public static boolean isDeletionInProgressMarker(File file)
     {
-        return file.getName().startsWith(Constants.DELETION_IN_PROGRESS_PREFIX);
+        return file.getName().startsWith(FileConstants.DELETION_IN_PROGRESS_PREFIX);
     }
 
     public static boolean isFaultyPathsFile(File file)
     {
         assert file != null;
         
-        return Constants.FAULTY_PATH_FILENAME.equals(file.getName());
+        return FileConstants.FAULTY_PATH_FILENAME.equals(file.getName());
     }
 
     public static File extractOriginalFromCopyFinishedMarker(File markerFile)
     {
         assert isCopyFinishedMarker(markerFile);
-        return FileUtilities.removePrefixFromFileName(markerFile, Constants.IS_FINISHED_PREFIX);
+        return FileUtilities.removePrefixFromFileName(markerFile, FileConstants.IS_FINISHED_PREFIX);
     }
 
     public static File createCopyFinishedMarker(File originalFile)

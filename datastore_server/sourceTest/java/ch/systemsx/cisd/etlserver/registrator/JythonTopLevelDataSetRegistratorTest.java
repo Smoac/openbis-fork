@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.etlserver.registrator;
 
-import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -47,6 +45,7 @@ import ch.systemsx.cisd.common.eodsql.MockDataSet;
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exception.NotImplementedException;
 import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.TestBigStructureCreator;
 import ch.systemsx.cisd.common.test.AssertionUtil;
@@ -1588,7 +1587,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         FileUtilities.writeToFile(new File(subDataSet1, "read1.me"), "hello world1");
         FileUtilities.writeToFile(new File(subDataSet2, "read2.me"), "hello world2");
 
-        markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + "data_set");
+        markerFile = new File(workingDirectory, FileConstants.IS_FINISHED_PREFIX + "data_set");
         FileUtilities.writeToFile(markerFile, "");
     }
 
@@ -1602,7 +1601,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         FileUtilities.writeToFile(new File(subDataSet1, "read1.me"), "hello world1");
 
-        markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + "data_set");
+        markerFile = new File(workingDirectory, FileConstants.IS_FINISHED_PREFIX + "data_set");
         FileUtilities.writeToFile(markerFile, "");
     }
 
@@ -1619,7 +1618,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     new TestBigStructureCreator(root, numberOfFolders, numberOfFiles);
             incomingDataSetFile = creator.createBigStructure();
             assertTrue(incomingDataSetFile.isDirectory());
-            markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + "data_set");
+            markerFile = new File(workingDirectory, FileConstants.IS_FINISHED_PREFIX + "data_set");
             FileUtilities.writeToFile(markerFile, "");
             return creator;
         } catch (IOException e)

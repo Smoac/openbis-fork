@@ -17,7 +17,6 @@
 
 package ch.systemsx.cisd.sanofi.dss.test;
 
-import static ch.systemsx.cisd.common.Constants.IS_FINISHED_PREFIX;
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertContains;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.DEFAULT_OVERVIEW_IMAGE_DATASET_TYPE;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.DEFAULT_RAW_IMAGE_CONTAINER_DATASET_TYPE;
@@ -42,6 +41,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.eodsql.MockDataSet;
 import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.mail.From;
@@ -941,7 +941,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
         FileUtils.copyDirectoryToDirectory(dataDirectory, workingDirectory);
         incomingDataSetFile = new File(workingDirectory, dataDirectory.getName());
 
-        markerFile = new File(workingDirectory, IS_FINISHED_PREFIX + dataDirectory.getName());
+        markerFile = new File(workingDirectory, FileConstants.IS_FINISHED_PREFIX + dataDirectory.getName());
         FileUtilities.writeToFile(markerFile, "");
     }
 
