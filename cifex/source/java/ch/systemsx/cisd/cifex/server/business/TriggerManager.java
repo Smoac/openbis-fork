@@ -55,10 +55,10 @@ import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 
 /**
@@ -464,7 +464,7 @@ class TriggerManager implements ITriggerManager
             final File propFile = new File(triggerPropertyFile);
             if (propFile.exists())
             {
-                return PropertyUtils.loadProperties(propFile.getPath());
+                return PropertyIOUtils.loadProperties(propFile.getPath());
             } else
             {
                 final InputStream is =
@@ -474,7 +474,7 @@ class TriggerManager implements ITriggerManager
                     throw new ConfigurationFailureException(
                             "Cannot find trigger configuration file '" + triggerPropertyFile + "'.");
                 }
-                return PropertyUtils.loadProperties(is, triggerPropertyFile);
+                return PropertyIOUtils.loadProperties(is, triggerPropertyFile);
             }
         }
 

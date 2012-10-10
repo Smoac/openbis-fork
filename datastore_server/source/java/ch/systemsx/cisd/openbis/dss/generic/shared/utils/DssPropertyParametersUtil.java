@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.string.Template;
@@ -102,7 +103,7 @@ public class DssPropertyParametersUtil
 
     public static ExtendedProperties loadProperties(String filePath)
     {
-        return extendProperties(PropertyUtils.loadProperties(filePath));
+        return extendProperties(PropertyIOUtils.loadProperties(filePath));
     }
 
     private static ExtendedProperties extendProperties(Properties properties)

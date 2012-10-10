@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
-import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DataSetUploadInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DataSetUploadInfo.DataSetUploadInfoHelper;
 
@@ -54,7 +54,7 @@ public class CifexExtractorHelper
         File propertiesFile = new File(incomingDataSetPath, fileName);
         if (propertiesFile.isFile())
         {
-            return PropertyUtils.loadProperties(propertiesFile.getPath());
+            return PropertyIOUtils.loadProperties(propertiesFile.getPath());
         } else
         {
             throw new UserFailureException("Request properties file '" + propertiesFile

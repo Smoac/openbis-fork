@@ -32,9 +32,9 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.string.Template;
 
 /**
@@ -138,7 +138,7 @@ abstract class AbstractEMailBuilder
      */
     protected void populateDict()
     {
-        final Properties emailProps = PropertyUtils.loadProperties(EMAIL_PROPERTIES_FILE_PATH);
+        final Properties emailProps = PropertyIOUtils.loadProperties(EMAIL_PROPERTIES_FILE_PATH);
         final DateFormat dateFormat = new SimpleDateFormat(emailProps.getProperty("date-format"));
         emailDict.put("user-id", getUserCode());
         emailDict.put("login-link", createURL(Constants.USERCODE_PARAMETER, getUserCode()));

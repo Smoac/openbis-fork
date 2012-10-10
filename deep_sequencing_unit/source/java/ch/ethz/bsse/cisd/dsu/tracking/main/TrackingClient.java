@@ -31,10 +31,10 @@ import ch.ethz.bsse.cisd.dsu.tracking.email.EntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
@@ -70,7 +70,7 @@ public class TrackingClient
     private static void track()
     {
         LogInitializer.init();
-        Properties props = PropertyUtils.loadProperties(SERVICE_PROPERTIES_FILE);
+        Properties props = PropertyIOUtils.loadProperties(SERVICE_PROPERTIES_FILE);
         Parameters params = new Parameters(props);
 
         ITrackingServer trackingServer = createOpenBISTrackingServer(params);

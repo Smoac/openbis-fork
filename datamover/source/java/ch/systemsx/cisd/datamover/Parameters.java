@@ -42,6 +42,7 @@ import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.highwatermark.HostAwareFileWithHighwaterMark;
+import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
@@ -463,7 +464,7 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     private final void initParametersFromProperties()
     {
         final Properties serviceProperties =
-                PropertyUtils.loadProperties(DatamoverConstants.SERVICE_PROPERTIES_FILE);
+                PropertyIOUtils.loadProperties(DatamoverConstants.SERVICE_PROPERTIES_FILE);
         dataCompletedScript =
                 tryCreateFile(serviceProperties, PropertyNames.DATA_COMPLETED_SCRIPT,
                         dataCompletedScript);

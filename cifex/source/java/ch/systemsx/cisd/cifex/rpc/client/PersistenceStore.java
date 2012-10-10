@@ -21,7 +21,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.SystemUtils;
 
-import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.io.PropertyIOUtils;
 
 /**
  * Methods for persistent entries on the client side.
@@ -49,7 +49,7 @@ public class PersistenceStore
         {
             try
             {
-                return PropertyUtils.loadProperties(ClientConfigurationFiles.USER_PROPERTIES_FILE);
+                return PropertyIOUtils.loadProperties(ClientConfigurationFiles.USER_PROPERTIES_FILE);
             } catch (Exception ex)
             {
                 ex.printStackTrace();
@@ -120,7 +120,7 @@ public class PersistenceStore
     {
         try
         {
-            PropertyUtils.saveProperties(ClientConfigurationFiles.USER_PROPERTIES_FILE,
+            PropertyIOUtils.saveProperties(ClientConfigurationFiles.USER_PROPERTIES_FILE,
                     userProperties);
         } catch (Exception ex)
         {

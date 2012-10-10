@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
-import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -104,6 +104,6 @@ class Util
             throw new UserFailureException("Properties file '" + propertiesFileName
                     + "' is a folder.");
         }
-        return PropertyUtils.loadProperties(propertiesFile);
+        return PropertyIOUtils.loadProperties(propertiesFile);
     }
 }

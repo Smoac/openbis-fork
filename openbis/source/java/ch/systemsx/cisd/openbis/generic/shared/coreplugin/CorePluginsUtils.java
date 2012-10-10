@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 import java.io.File;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 
 /**
@@ -48,7 +48,7 @@ public class CorePluginsUtils
     {
         String corePluginsFolder = getCorePluginsFolder(properties, scannerType);
         File file = new File(corePluginsFolder, CORE_PLUGINS_PROPERTIES_FILE);
-        PropertyUtils.loadAndAppendProperties(properties, file);
+        PropertyIOUtils.loadAndAppendProperties(properties, file);
     }
 
     /**

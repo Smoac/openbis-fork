@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
@@ -102,7 +103,7 @@ public class WebClientConfigurationProvider
             initDefaultValues();
             return;
         }
-        Properties properties = PropertyUtils.loadProperties(configurationFile);
+        Properties properties = PropertyIOUtils.loadProperties(configurationFile);
         init(properties);
     }
 

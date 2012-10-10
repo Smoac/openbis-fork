@@ -25,8 +25,8 @@ import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
-import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPluginType;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsInjector;
@@ -92,7 +92,7 @@ public class BackupDatabaseDescriptionGenerator
     
     private Properties readPropertiesAndInjectCorePluginsIfDSS(File propertiesFile)
     {
-        Properties properties = PropertyUtils.loadProperties(propertiesFile);
+        Properties properties = PropertyIOUtils.loadProperties(propertiesFile);
         if (isDSSPropertiesFile(propertiesFile))
         {
             String corePluginsFolderRelativePath =
@@ -100,7 +100,7 @@ public class BackupDatabaseDescriptionGenerator
             File workingDirectory = propertiesFile.getParentFile().getParentFile();
             File corePluginsFolder = new File(workingDirectory, corePluginsFolderRelativePath);
             File file = new File(corePluginsFolder, CorePluginsUtils.CORE_PLUGINS_PROPERTIES_FILE);
-            PropertyUtils.loadAndAppendProperties(properties, file);
+            PropertyIOUtils.loadAndAppendProperties(properties, file);
             CorePluginsInjector injector =
                     new CorePluginsInjector(ScannerType.DSS, DssPluginType.values());
             injector.injectCorePlugins(properties, corePluginsFolder.getAbsolutePath());
