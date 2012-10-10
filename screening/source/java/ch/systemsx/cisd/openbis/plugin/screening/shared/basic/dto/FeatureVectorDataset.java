@@ -41,6 +41,8 @@ public class FeatureVectorDataset implements Serializable
 
     private List<FeatureVectorValues> datasetFeatures;
 
+    private List<FeatureList> featureLists;
+
     // GWT only
     @SuppressWarnings("unused")
     private FeatureVectorDataset()
@@ -49,11 +51,12 @@ public class FeatureVectorDataset implements Serializable
 
     public FeatureVectorDataset(DatasetReference datasetReference,
             List<FeatureVectorValues> datasetFeatures, List<CodeAndLabel> featureNames,
-            String analysisProcedure)
+            List<FeatureList> featureLists, String analysisProcedure)
     {
         this.datasetReference = datasetReference;
         this.datasetFeatures = datasetFeatures;
         this.featureNames = featureNames;
+        this.featureLists = featureLists;
         this.analysisProcedure = analysisProcedure;
     }
 
@@ -77,4 +80,8 @@ public class FeatureVectorDataset implements Serializable
         return datasetFeatures;
     }
 
+    public List<FeatureList> getFeatureLists()
+    {
+        return featureLists;
+    }
 }

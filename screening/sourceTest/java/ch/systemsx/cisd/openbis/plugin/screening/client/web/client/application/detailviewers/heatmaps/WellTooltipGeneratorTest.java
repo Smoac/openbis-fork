@@ -166,7 +166,7 @@ public class WellTooltipGeneratorTest extends AssertJUnit
         features.add(new FeatureVectorValues(null, getLocation(WELL_A2), null, featureNames,
                 featureValues));
         return new FeatureVectorDataset(createDatasetReference(), features,
-                Arrays.asList(featureNames), null);
+                Arrays.asList(featureNames), null, null);
     }
 
     private static FeatureVectorDataset createFeatureVectorDataset()
@@ -187,7 +187,7 @@ public class WellTooltipGeneratorTest extends AssertJUnit
                 new FeatureValue[]
                     { FeatureValue.createFloat(-1), FeatureValue.createFloat(-2) }));
         return new FeatureVectorDataset(createDatasetReference(), features,
-                Arrays.asList(codesAndLabels), null);
+                Arrays.asList(codesAndLabels), null, null);
     }
 
     private static DatasetReference createDatasetReference()

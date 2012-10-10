@@ -39,7 +39,12 @@ public abstract class AggregationService extends AbstractDatastorePlugin impleme
 
     protected AggregationService(Properties properties, File storeRoot)
     {
-        super(properties, storeRoot);
+        this(properties, storeRoot, null);
+    }
+
+    protected AggregationService(Properties properties, File storeRoot, String subDirectory)
+    {
+        super(properties, storeRoot, subDirectory);
     }
 
     @Override
@@ -49,7 +54,8 @@ public abstract class AggregationService extends AbstractDatastorePlugin impleme
     }
 
     @Override
-    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
+    public TableModel createReport(List<DatasetDescription> datasets,
+            DataSetProcessingContext context)
     {
         throw createException();
     }
@@ -59,12 +65,11 @@ public abstract class AggregationService extends AbstractDatastorePlugin impleme
     {
         throw createException();
     }
-    
+
     private IllegalArgumentException createException()
     {
-        return new IllegalArgumentException(
-                "The method createReport is not supported by " + getReportingPluginType()
-                        + " tasks");
+        return new IllegalArgumentException("The method createReport is not supported by "
+                + getReportingPluginType() + " tasks");
     }
-    
+
 }

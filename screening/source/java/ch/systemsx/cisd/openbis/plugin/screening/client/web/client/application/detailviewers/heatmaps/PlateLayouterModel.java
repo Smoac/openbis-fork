@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
@@ -64,6 +65,9 @@ class PlateLayouterModel
 
     // labels of loaded vocabulary features
     private Set<String> vocabularyFeatureLabels = new HashSet<String>();
+
+    // lists of features
+    private List<FeatureList> featureLists = new ArrayList<FeatureList>();
 
     // ---
 
@@ -104,6 +108,11 @@ class PlateLayouterModel
         return allFeatureNames;
     }
 
+    public List<FeatureList> getFeatureLists()
+    {
+        return featureLists;
+    }
+
     public boolean isFeatureAvailable(String featureLabel)
     {
         return availableFeatureLabels.contains(featureLabel);
@@ -124,6 +133,10 @@ class PlateLayouterModel
         {
             this.datasetReference = featureVectorDatasetOrNull.getDatasetReference();
             this.allFeatureNames.addAll(featureVectorDatasetOrNull.getFeatureNames());
+            if (featureVectorDatasetOrNull.getFeatureLists() != null)
+            {
+                this.featureLists.addAll(featureVectorDatasetOrNull.getFeatureLists());
+            }
             List<? extends FeatureVectorValues> features =
                     featureVectorDatasetOrNull.getDatasetFeatures();
             if (features.isEmpty() == false)
@@ -155,6 +168,7 @@ class PlateLayouterModel
         this.vocabularyFeatureLabels.clear();
         this.availableFeatureLabels.clear();
         this.allFeatureNames.clear();
+        this.featureLists.clear();
         for (WellData well : wellList)
         {
             well.resetFeatureValues();

@@ -52,6 +52,12 @@ public abstract class AbstractDatastorePlugin implements Serializable
 
     protected AbstractDatastorePlugin(Properties properties, File storeRoot)
     {
+        this(properties, storeRoot, null);
+    }
+
+    protected AbstractDatastorePlugin(Properties properties, File storeRoot,
+            String subDirectoryOrNull)
+    {
         if (storeRoot.exists() == false)
         {
             throw ConfigurationFailureException.fromTemplate("Store root '%s' does not exist.",
@@ -60,7 +66,13 @@ public abstract class AbstractDatastorePlugin implements Serializable
 
         this.storeRoot = storeRoot;
         this.properties = properties;
-        subDirectory = properties.getProperty(SUB_DIRECTORY_NAME, "original");
+        if (subDirectoryOrNull == null)
+        {
+            this.subDirectory = properties.getProperty(SUB_DIRECTORY_NAME, "original");
+        } else
+        {
+            this.subDirectory = subDirectoryOrNull;
+        }
     }
 
     @Deprecated
@@ -105,4 +117,24 @@ public abstract class AbstractDatastorePlugin implements Serializable
         return provider.asContent(dataset.getDataSetCode());
     }
 
+    /**
+     * get directory in the dataset as a Hierarchical Content
+     */
+    protected IHierarchicalContentNode getDataSubDir(IHierarchicalContentProvider provider,
+            String dataSetCode)
+    {
+        if (StringUtils.isBlank(subDirectory))
+        {
+            return getDatasetDir(provider, dataSetCode).getRootNode();
+        } else
+        {
+            return getDatasetDir(provider, dataSetCode).getNode(subDirectory);
+        }
+    }
+
+    protected IHierarchicalContent getDatasetDir(IHierarchicalContentProvider provider,
+            String dataSetCode)
+    {
+        return provider.asContent(dataSetCode);
+    }
 }

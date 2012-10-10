@@ -83,13 +83,13 @@ public class GuiUtils
         c.setLayout(new TableLayout(widgets.length * 2 - 1));
         TableData cellLayout = new TableData();
         cellLayout.setMargin(5);
-        Html separator = new Html();
-        separator.setWidth(10);
 
         for (Widget widget : widgets)
         {
             if (c.getItems().size() > 0)
             {
+                Html separator = new Html();
+                separator.setWidth(10);
                 c.add(separator);
             }
             c.add(widget, cellLayout);

@@ -200,6 +200,9 @@ public class ScreeningConstants
 
     public static final String ANALYSIS_PROCEDURE_PROPERTY = "ANALYSIS_PROCEDURE";
 
+    public static final String FEATURE_LISTS_AGGREGATION_SERVICE_KEY =
+            "feature-lists-aggregation-service";
+
     // --- !!!!!! It's discouraged to use this constant, try hard not to do that !!!!!!!! ---
 
     /** It's discouraged to use this constant, use {@link #HCS_PLATE_SAMPLE_TYPE_PATTERN} instead. */
