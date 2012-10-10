@@ -152,7 +152,6 @@ public class GroupingDAG<T>
         }
     }
 
-
     // because the implementation of the priority queue does not allow to change priorities of items
     // in the queue, instead we insert the same items several times.
     // if the dependency count of the item is -1 - it means, that we have already used it
@@ -169,7 +168,10 @@ public class GroupingDAG<T>
 
             if (peekCount() > 0)
             {
-                throw new UserFailureException("Circular dependency found!");
+                T cycleRoot = queue.peek().item;
+                Collection<T> cycle = graph.get(queue.peek().item);
+                throw new UserFailureException("" + cycleRoot
+                        + " depends on itself. Dependency chain : " + cycleRoot + " -> " + cycle);
             }
 
             while (false == queue.isEmpty() && peekCount() <= 0)
