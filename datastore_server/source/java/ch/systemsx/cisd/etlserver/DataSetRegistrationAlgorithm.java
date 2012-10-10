@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.time.DateFormatThreadLocal;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.StorageProcessorTransactionParameters;
@@ -528,7 +529,7 @@ public class DataSetRegistrationAlgorithm
 
     private String formatDate(Date productionDate)
     {
-        return productionDate == null ? "" : Constants.DATE_FORMAT.get().format(productionDate);
+        return productionDate == null ? "" : DateFormatThreadLocal.DATE_FORMAT.get().format(productionDate);
     }
 
     private final void appendNameAndObject(final StringBuilder buffer, final String name,

@@ -26,12 +26,12 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
+import ch.systemsx.cisd.common.time.DateFormatThreadLocal;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
@@ -117,7 +117,7 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
                     String subject =
                             "BaSysBio: Failed uploading of data set '" + dataSetFileName + "'";
                     String timeStamp =
-                            Constants.DATE_FORMAT.get().format(
+                            DateFormatThreadLocal.DATE_FORMAT.get().format(
                                     new Date(timeProvider.getTimeInMilliseconds()));
                     String message =
                             "Uploading of data set '" + dataSetFileName + "' failed because "

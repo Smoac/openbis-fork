@@ -50,6 +50,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
+import ch.systemsx.cisd.common.time.DateFormatThreadLocal;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.StorageProcessorTransactionParameters;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
@@ -339,7 +340,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 + ";Experiment Identifier::" + dataSet.getExperimentIdentifier().toString()
                 + ";Sample Identifier::" + dataSet.getSampleIdentifier().toString()
                 + ";Producer Code::" + dataSet.getProducerCode() + ";Production Date::"
-                + Constants.DATE_FORMAT.get().format(dataSet.getProductionDate())
+                + DateFormatThreadLocal.DATE_FORMAT.get().format(dataSet.getProductionDate())
                 + ";Parent Data Sets::" + StringUtils.join(dataSet.getParentDataSetCodes(), ' ')
                 + ";Is complete::" + dataSet.getIsCompleteFlag() + "]";
     }

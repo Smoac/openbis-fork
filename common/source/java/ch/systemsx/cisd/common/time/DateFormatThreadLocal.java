@@ -29,6 +29,13 @@ import java.text.SimpleDateFormat;
 public final class DateFormatThreadLocal extends ThreadLocal<SimpleDateFormat>
 {
 
+    /** The default date format pattern. */
+    public static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss Z";
+
+    /** The uniform date format used. */
+    public static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
+            new DateFormatThreadLocal(DATE_FORMAT_PATTERN);
+
     private final String pattern;
 
     public DateFormatThreadLocal(final String pattern)

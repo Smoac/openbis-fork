@@ -16,11 +16,9 @@
 
 package ch.systemsx.cisd.common;
 
-import java.text.SimpleDateFormat;
 
 import org.apache.commons.lang.time.DateUtils;
 
-import ch.systemsx.cisd.common.time.DateFormatThreadLocal;
 
 /**
  * Constants common to more than one CISD project.
@@ -71,16 +69,5 @@ public final class Constants
 
     /** Maximal number of retries when an operation fails. */
     public static final int MAXIMUM_RETRY_COUNT = 11;
-
-    //
-    // Date formatting
-    //
-
-    /** The date format pattern. */
-    private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss Z";
-
-    /** The uniform date format used. */
-    public static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
-            new DateFormatThreadLocal(DATE_FORMAT_PATTERN);
 
 }
