@@ -18,7 +18,7 @@ package ch.systemsx.cisd.dbmigration;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.Script;
+import ch.systemsx.cisd.common.db.Script;
 
 /**
  * Provider of SQL scripts for creation and migration of database.

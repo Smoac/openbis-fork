@@ -29,8 +29,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutionLogger;
+import ch.systemsx.cisd.common.db.Script;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 
 /**

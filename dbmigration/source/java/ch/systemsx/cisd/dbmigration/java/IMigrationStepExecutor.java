@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.dbmigration.java;
 
-import ch.systemsx.cisd.common.Script;
+import ch.systemsx.cisd.common.db.Script;
 
 /**
  * A migration step executor.

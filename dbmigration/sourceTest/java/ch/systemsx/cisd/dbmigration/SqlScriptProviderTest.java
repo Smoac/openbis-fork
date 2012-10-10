@@ -33,7 +33,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.Script;
+import ch.systemsx.cisd.common.db.Script;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**

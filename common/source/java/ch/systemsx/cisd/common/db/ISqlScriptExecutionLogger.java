@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.db;
 
-import ch.systemsx.cisd.common.Script;
 
 /**
  * Interface for logging of SQL script executions.

@@ -40,7 +40,7 @@ import org.springframework.jdbc.support.lob.LobCreator;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.Script;
+import ch.systemsx.cisd.common.db.Script;
 
 /**
  * Class which logs database migration steps in the database.

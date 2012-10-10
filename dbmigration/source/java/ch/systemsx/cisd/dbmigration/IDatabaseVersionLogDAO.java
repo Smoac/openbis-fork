@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.dbmigration;
 
-import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutionLogger;
+import ch.systemsx.cisd.common.db.Script;
 
 /**
  * Interface for a Data Access Object for the database version log.

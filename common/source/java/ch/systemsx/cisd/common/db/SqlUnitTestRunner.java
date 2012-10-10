@@ -28,7 +28,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import ch.systemsx.cisd.base.utilities.OSUtilities;
-import ch.systemsx.cisd.common.Script;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**

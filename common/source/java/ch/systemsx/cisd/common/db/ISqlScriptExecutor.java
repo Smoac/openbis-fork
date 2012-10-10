@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.common.db;
 
-import ch.systemsx.cisd.common.Script;
 
 /**
  * Executor of SQL scripts.
