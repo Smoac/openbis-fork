@@ -24,4 +24,10 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 public interface IDataStoreServiceFactory
 {
     public IDataStoreService create(String serverURL);
+
+    /**
+     * Creates a monitored version of the service where
+     * {@link IDataStoreService#cleanupSession(String)} is run asynchronously.
+     */
+    public IDataStoreService createMonitored(String serverURL);
 }
