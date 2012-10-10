@@ -34,9 +34,9 @@ import java.util.Properties;
 import org.testng.annotations.Test;
 import org.testng.remote.SuiteSlave;
 
-import ch.systemsx.cisd.common.TimingParametersTest;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.common.time.TimingParameters;
+import ch.systemsx.cisd.common.time.TimingParametersTest;
 
 /**
  * Test cases for the {@link ClassUtils} class.
@@ -238,7 +238,7 @@ public final class ClassUtilsTest
     public final void testListClasses()
     {
         // With 'file' protocol
-        List<Class<?>> classes = ClassUtils.listClasses("ch.systemsx.cisd.common", null);
+        List<Class<?>> classes = ClassUtils.listClasses("ch.systemsx.cisd.common.time", null);
         assertTrue(classes.size() > 0);
         assertTrue(classes.contains(TimingParameters.class));
         assertTrue(classes.contains(TimingParametersTest.class));

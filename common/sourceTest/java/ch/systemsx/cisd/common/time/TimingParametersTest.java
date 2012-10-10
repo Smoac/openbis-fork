@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common;
+package ch.systemsx.cisd.common.time;
 
 import java.util.Properties;
 
