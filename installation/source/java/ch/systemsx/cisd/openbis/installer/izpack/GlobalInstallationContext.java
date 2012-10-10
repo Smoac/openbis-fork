@@ -70,6 +70,8 @@ public class GlobalInstallationContext
     public static boolean noPsqlToolsOnPath = (false == PostgresInstallationDetectorUtils
             .areCommandLineToolsOnPath());
 
+    public static boolean presentKeyStoreFile = false;
+    
     public static File installDir;
 
     public static void initialize(AutomatedInstallData data)

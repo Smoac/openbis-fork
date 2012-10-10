@@ -45,6 +45,10 @@ public class KeystoreAction implements PanelAction
                 getDssServiceProperty(Utils.DSS_KEYSTORE_PASSWORD_KEY, DEFAULT_PASSWORD));
         data.setVariable(GlobalInstallationContext.KEY_PASSWORD_VARNAME,
                 getDssServiceProperty(Utils.DSS_KEYSTORE_KEY_PASSWORD_KEY, DEFAULT_KEY_PASSWORD));
+        String keyStoreFilePath =
+                data.getVariable(GlobalInstallationContext.KEY_STORE_FILE_VARNAME);
+        GlobalInstallationContext.presentKeyStoreFile =
+                keyStoreFilePath != null && keyStoreFilePath.length() > 0;
     }
 
     public String getDssServiceProperty(String propertyKey, String defaultValue)
