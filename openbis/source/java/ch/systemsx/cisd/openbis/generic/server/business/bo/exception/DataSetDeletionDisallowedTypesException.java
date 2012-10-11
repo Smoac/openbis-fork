@@ -36,7 +36,7 @@ public class DataSetDeletionDisallowedTypesException extends UserFailureExceptio
                         + "Data sets: "
                         + CollectionUtils.abbreviate(codesOfDataSetsWithDisallowedTypes, 10)
                         + "\n\n"
-                        + "To delete these data sets please choose 'Force > Force disallowed types' option.");
+                        + "To delete these data sets please choose \"Force > Override 'Disallow deletion' flag\" option.");
 
     }
 }

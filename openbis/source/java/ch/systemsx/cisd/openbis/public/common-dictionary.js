@@ -89,7 +89,7 @@ var common = {
   deleting_force_section: "Force",
   deleting_force: "Force not existing locations:",
   deleting_force_tooltip: "Deletes datasets even if they cannot be found on the filesystem.",
-  deleting_force_disallowed_types: "Force disallowed types:",
+  deleting_force_disallowed_types: "Override 'Disallow deletion' flag:",
   deleting_force_disallowed_types_tooltip: "Deletes datasets even if they have 'Disallow deletion' flag set to true in their type.",
   deleting: "Deleting",
   delete_permanently_progress_message: "Deleting {0}(s)...",
