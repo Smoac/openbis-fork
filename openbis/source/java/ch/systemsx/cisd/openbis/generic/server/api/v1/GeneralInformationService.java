@@ -989,7 +989,6 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translateMaterials(materials);
     }
 
-    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public List<Metaproject> listMetaprojects(String sessionToken)
@@ -997,7 +996,6 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return commonServer.listMetaprojects(sessionToken);
     }
 
-    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public MetaprojectAssignments getMetaproject(String sessionToken,

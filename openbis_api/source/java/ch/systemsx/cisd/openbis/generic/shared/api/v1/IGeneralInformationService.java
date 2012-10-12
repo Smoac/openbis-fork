@@ -32,14 +32,12 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSet
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
@@ -463,14 +461,4 @@ public interface IGeneralInformationService extends IRpcService
      * Returns all material fulfilling specified search criteria.
      */
     public List<Material> searchForMaterials(String sessionToken, SearchCriteria searchCriteria);
-
-    /**
-     * Lists all metaprojects belonging to current user.
-     */
-    public List<Metaproject> listMetaprojects(String sessionToken);
-
-    /**
-     * Returns all entities tagged with given metaproject.
-     */
-    public MetaprojectAssignments getMetaproject(String sessionToken, Metaproject metaproject);
 }

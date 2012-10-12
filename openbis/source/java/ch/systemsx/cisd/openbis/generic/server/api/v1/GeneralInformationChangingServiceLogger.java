@@ -86,14 +86,12 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
                 webAppSettings.getWebAppId());
     }
 
-    @Override
     public Metaproject createMetaproject(String sessionToken, String name, String description)
     {
         logAccess(sessionToken, "createMetaproject NAME(%s) DESCRIPTION(%s)", name, description);
         return null;
     }
 
-    @Override
     public Metaproject updateMetaproject(String sessionToken, Metaproject metaproject)
     {
         String name = metaproject == null ? "null" : metaproject.getName();
@@ -101,13 +99,11 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
         return null;
     }
 
-    @Override
     public void deleteMetaproject(String sessionToken, Long metaprojectId)
     {
         logAccess(sessionToken, "deleteMetaproject METAPROJECT_ID(%s)", metaprojectId.toString());
     }
 
-    @Override
     public void addToMetaproject(String sessionToken, Long metaprojectId,
             Collection<Experiment> experiments, Collection<Sample> samples,
             Collection<DataSet> dataSets, Collection<Material> materials)
@@ -119,7 +115,6 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
                 abbreviate(dataSets), abbreviate(materials));
     }
 
-    @Override
     public void addToMetaprojectByEntityIds(String sessionToken, Long metaprojectId,
             List<Long> experiments, List<Long> samples, List<Long> dataSets, List<Long> materials)
     {
@@ -130,7 +125,6 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
                 abbreviate(dataSets), abbreviate(materials));
     }
 
-    @Override
     public void removeFromMetaproject(String sessionToken, Long metaprojectId,
             Collection<Experiment> experiments, Collection<Sample> samples,
             Collection<DataSet> dataSets, Collection<Material> materials)
@@ -142,7 +136,6 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
                 abbreviate(dataSets), abbreviate(materials));
     }
 
-    @Override
     public void removeFromMetaprojectByEntityIds(String sessionToken, Long metaprojectId,
             List<Long> experiments, List<Long> samples, List<Long> dataSets, List<Long> materials)
     {

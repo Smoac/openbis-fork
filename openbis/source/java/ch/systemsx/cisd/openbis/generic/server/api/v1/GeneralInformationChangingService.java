@@ -154,7 +154,6 @@ public class GeneralInformationChangingService extends
         }
     }
 
-    @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public Metaproject createMetaproject(String sessionToken, String name, String description)
@@ -165,7 +164,6 @@ public class GeneralInformationChangingService extends
         return server.registerMetaproject(sessionToken, metaproject);
     }
 
-    @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public Metaproject updateMetaproject(String sessionToken,
@@ -175,7 +173,6 @@ public class GeneralInformationChangingService extends
         return server.updateMetaproject(sessionToken, metaproject);
     }
 
-    @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void deleteMetaproject(String sessionToken,
@@ -185,7 +182,6 @@ public class GeneralInformationChangingService extends
         server.deleteMetaproject(sessionToken, new TechId(metaprojectId));
     }
 
-    @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void addToMetaproject(String sessionToken,
@@ -198,7 +194,6 @@ public class GeneralInformationChangingService extends
                 extractTechIds(materials));
     }
 
-    @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void addToMetaprojectByEntityIds(String sessionToken,
@@ -211,7 +206,6 @@ public class GeneralInformationChangingService extends
                 TechId.createList(dataSets), TechId.createList(materials));
     }
 
-    @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void removeFromMetaproject(String sessionToken,
@@ -224,7 +218,6 @@ public class GeneralInformationChangingService extends
                 extractTechIds(materials));
     }
 
-    @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void removeFromMetaprojectByEntityIds(String sessionToken,

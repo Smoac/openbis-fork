@@ -363,14 +363,12 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
-    @Override
     public List<Metaproject> listMetaprojects(String sessionToken)
     {
         logAccess(sessionToken, "listMetaprojects");
         return null;
     }
 
-    @Override
     public MetaprojectAssignments getMetaproject(String sessionToken, Metaproject metaproject)
     {
         String name = metaproject == null ? "null" : metaproject.getName();
