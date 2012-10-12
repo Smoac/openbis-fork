@@ -43,12 +43,4 @@ public class DataSetTest extends MainSuiteTest
         // assertThat(dataSetBrowserOf(sample), lists(dataset));
     }
 
-    @Test
-    public void S142()
-    {
-        Experiment experiment = create(anExperiment());
-        Sample sample = create(aSample().in(experiment));
-        using(publicApi(), create(aDataSet().in(sample)));
-    }
-
 }
