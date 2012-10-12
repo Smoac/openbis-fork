@@ -19,6 +19,7 @@ package ch.ethz.bsse.cisd.yeastlab;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
+import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 
 /**
@@ -142,7 +143,7 @@ final class ConfigParameters
      */
     public ConfigParameters(String propertiesFilePath) throws ConfigurationFailureException
     {
-        this(PropertyUtils.loadProperties(propertiesFilePath));
+        this(PropertyIOUtils.loadProperties(propertiesFilePath));
     }
 
     /**
