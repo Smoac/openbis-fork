@@ -23,9 +23,12 @@
 
 #import "CISDOBDetailViewController.h"
 #import "CISDOBIpadEntity.h"
+#import "CISDOBOpenBisModel.h"
 
 @interface CISDOBDetailViewController ()
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
+@property (readonly) CISDOBIpadEntity *detailItem;
+
 - (void)configureView;
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath;
 @end
@@ -34,28 +37,26 @@
 
 #pragma mark - Managing the detail item
 
-- (void)setDetailItem:(id)newDetailItem
+- (void)selectionDidChange
 {
-    if (_detailItem != newDetailItem) {
-        _detailItem = newDetailItem;
-        
-        // Update the view.
-        [self configureView];
-    }
+    // Update the view.
+    [self configureView];
 
     if (self.masterPopoverController != nil) {
         [self.masterPopoverController dismissPopoverAnimated:YES];
-    }        
+    }
 }
+
+- (CISDOBIpadEntity *)detailItem { return [self.openBisModel selectedObject]; }
 
 - (void)configureView
 {
     // Update the user interface for the detail item.
     if (!self.detailItem) return;
     
-    self.summaryHeaderLabel.text = [[self.detailItem valueForKey:@"summaryHeader"] description];
-    self.summaryLabel.text = [[self.detailItem valueForKey:@"summary"] description];
-    self.identifierLabel.text = [[self.detailItem valueForKey:@"identifier"] description];
+    self.summaryHeaderLabel.text = [self.detailItem.summaryHeader description];
+    self.summaryLabel.text = [self.detailItem.summary description];
+    self.identifierLabel.text = [self.detailItem.identifier description];
 
     if (self.detailItem.imageUrl) {
         NSURL *imageUrl = [NSURL URLWithString: self.detailItem.imageUrl];
@@ -106,7 +107,7 @@
 {
     if (!self.detailItem) return 0;
     
-    return [_detailItem.properties count];
+    return [self.detailItem.properties count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath

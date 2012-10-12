@@ -54,6 +54,7 @@
 //    UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(insertNewObject:)];
 //    self.navigationItem.rightBarButtonItem = addButton;
     self.detailViewController = (CISDOBDetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
+    self.detailViewController.openBisModel = self.openBisModel;
 }
 
 - (void)didReceiveMemoryWarning
@@ -127,7 +128,7 @@
     // Segue to the detail view unless we are on the ipad
     if ([[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad) return;
 
-    CISDOBIpadEntity *object = [self.openBisModel selectObjectAtIndexPath: indexPath];
+    [self.openBisModel selectObjectAtIndexPath: indexPath];
     if ([self.openBisModel isSelectionGroup]) {
         UIStoryboard *storyboard = self.storyboard;
         CISDOBMasterViewController *child = [storyboard instantiateViewControllerWithIdentifier: @"Master"];
@@ -135,7 +136,7 @@
 
         [self.navigationController pushViewController: child animated: YES];
     } else {
-        self.detailViewController.detailItem = object;
+        [self.detailViewController selectionDidChange];
     }
 
 }
@@ -143,17 +144,15 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     if ([[segue identifier] isEqualToString:@"showDetail"]) {
-        NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
-        CISDOBIpadEntity *object = [self.openBisModel objectAtIndexPath: indexPath];
-        [[segue destinationViewController] setDetailItem:object];
+        [[segue destinationViewController] setOpenBisModel: self.openBisModel];
     }
 }
 
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
     CISDOBIpadEntity *object = [self.openBisModel objectAtIndexPath: indexPath];
-    cell.textLabel.text = [object valueForKey:@"summaryHeader"];
-    cell.detailTextLabel.text = [object valueForKey:@"summary"];
+    cell.textLabel.text = object.summaryHeader;
+    cell.detailTextLabel.text = object.summary;
     if ([object.childrenPermIds count] > 0) {
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     } else {

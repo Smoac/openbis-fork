@@ -23,15 +23,18 @@
 
 #import <UIKit/UIKit.h>
 
-@class CISDOBIpadEntity;
+@class CISDOBIpadEntity, CISDOBOpenBisModel;
 @interface CISDOBDetailViewController : UIViewController <UISplitViewControllerDelegate>
 
-@property (strong, nonatomic) CISDOBIpadEntity *detailItem;
+@property (strong, nonatomic) CISDOBOpenBisModel *openBisModel;
 
 @property (weak, nonatomic) IBOutlet UITableView *propertiesTableView;
 @property (weak, nonatomic) IBOutlet UILabel *summaryHeaderLabel;
 @property (weak, nonatomic) IBOutlet UILabel *summaryLabel;
 @property (weak, nonatomic) IBOutlet UILabel *identifierLabel;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
+
+// Actions
+- (void)selectionDidChange;
 
 @end
