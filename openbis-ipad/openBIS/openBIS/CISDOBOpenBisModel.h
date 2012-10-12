@@ -22,6 +22,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class CISDOBIpadEntity;
+
 /**
  * \brief A model for the interaction with openBIS.
  */
@@ -32,6 +34,17 @@
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 @property (weak, nonatomic) id <NSFetchedResultsControllerDelegate> delegate;
+
+// Model
+
+- (NSInteger)numberOfSections; //!< Get the number of categories for the current selection
+- (NSInteger)numberOfEntitiesInSection:(NSInteger)section;
+- (NSString *)titleForHeaderInSection:(NSInteger)section;
+- (CISDOBIpadEntity *)objectAtIndexPath:(NSIndexPath *)indexPath;
+
+// Actions
+- (BOOL)insertNewObjectOrError:(NSError **)error; //!< Return YES if operation succeeded
+- (BOOL)deleteObjectAtIndexPath:(NSIndexPath *)indexPath error:(NSError **)error; //!< Return YES if operation succeeded
 
 
 @end

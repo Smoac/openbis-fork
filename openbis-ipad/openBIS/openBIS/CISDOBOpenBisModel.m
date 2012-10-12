@@ -21,8 +21,60 @@
 //
 
 #import "CISDOBOpenBisModel.h"
+#import "CISDOBIpadEntity.h"
 
 @implementation CISDOBOpenBisModel
+
+#pragma mark - Model
+- (NSInteger)numberOfSections
+{
+    return [[self.fetchedResultsController sections] count];
+}
+
+- (NSInteger)numberOfEntitiesInSection:(NSInteger)section
+{
+    id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][section];
+    return [sectionInfo numberOfObjects];
+}
+
+- (NSString *)titleForHeaderInSection:(NSInteger)section
+{
+    id <NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultsController sections] objectAtIndex: section];
+    NSArray *objects = [sectionInfo objects];
+    if ([objects count] < 1) return @"";
+    
+    return ((CISDOBIpadEntity *)[objects objectAtIndex: 0]).group;
+}
+
+- (CISDOBIpadEntity *)objectAtIndexPath:(NSIndexPath *)indexPath
+{
+    return [self.fetchedResultsController objectAtIndexPath:indexPath];
+}
+
+#pragma mark - Actions
+- (BOOL)insertNewObjectOrError:(NSError **)error
+{
+    NSManagedObjectContext *context = [self.fetchedResultsController managedObjectContext];
+    
+    // TODO Implement insert
+    NSLog(@"Do not support adding new objects");
+    abort();
+    
+//    NSEntityDescription *entity = [[self.openBisModel.fetchedResultsController fetchRequest] entity];
+//    NSManagedObject *newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:[entity name] inManagedObjectContext:context];
+    
+    
+    // Save the context.
+    return [context save: error];
+}
+
+- (BOOL)deleteObjectAtIndexPath:(NSIndexPath *)indexPath error:(NSError **)error
+{
+    NSManagedObjectContext *context = [self.fetchedResultsController managedObjectContext];
+    [context deleteObject:[self.fetchedResultsController objectAtIndexPath:indexPath]];
+    
+   return [context save: error];
+}
 
 #pragma mark - Fetched results controller
 
