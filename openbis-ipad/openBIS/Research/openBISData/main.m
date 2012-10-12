@@ -150,6 +150,8 @@ int main(int argc, const char * argv[])
             exit(1);
         }
     
+        NSLog(@"START Init DB");
+        NSDate *start = [NSDate date];
         InitializeDatabase(moc, &error);
         
         // Save the managed object context
@@ -157,8 +159,8 @@ int main(int argc, const char * argv[])
             NSLog(@"Error while saving %@", ([error localizedDescription] != nil) ? [error localizedDescription] : @"Unknown Error");
             exit(1);
         }
-        
-        NSLog(@"Created database %@", databaseUrl);
+        NSDate *end = [NSDate date];
+        NSLog(@"END  Init DB (%.2f sec) %@", [end timeIntervalSinceDate: start], databaseUrl);
     }
     return 0;
 }

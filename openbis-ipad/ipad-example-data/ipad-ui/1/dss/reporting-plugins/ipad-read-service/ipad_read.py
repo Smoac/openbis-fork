@@ -31,6 +31,11 @@ def add_headers(builder):
 	builder.addHeader("CHILDREN")
 	builder.addHeader("PROPERTIES")
 
+def image_url_for_compound(material):
+	"""Given a material (compound) return the image url"""
+	chemblId =  material.getCode()
+	return 'https://www.ebi.ac.uk/chemblws/compounds/%s/image' % chemblId
+
 
 def add_row(builder, entry):
 	"""Append a row of data to the table"""
@@ -56,9 +61,8 @@ def material_to_dict(material):
 	material_dict['REFCON'] = ObjectMapper().writeValueAsString(refcon)
 	material_dict['GROUP'] = material.getMaterialType()
 	if material.getMaterialType() == '5HT_COMPOUND':
-		chemblId =  material.getCode()
 		material_dict['SUMMARY'] = material.getPropertyValue("FORMULA")
-		material_dict['IMAGE_URL'] = 'https://www.ebi.ac.uk/chemblws/compounds/%s/image' % chemblId
+		material_dict['IMAGE_URL'] = image_url_for_compound(material)
 	else:
 		material_dict['SUMMARY'] = material.getPropertyValue("DESC")
 		material_dict['IMAGE_URL'] = ""
@@ -70,7 +74,7 @@ def material_to_dict(material):
 	material_dict['PROPERTIES'] = ObjectMapper().writeValueAsString(properties)
 	return material_dict
 
-def sample_to_dict(five_ht_sample):
+def sample_to_dict(five_ht_sample, material_by_perm_id):
 	sample_dict = {}
 	sample_dict['SUMMARY_HEADER'] = five_ht_sample.getCode()
 	sample_dict['SUMMARY'] = five_ht_sample.getPropertyValue("DESC")
@@ -81,7 +85,8 @@ def sample_to_dict(five_ht_sample):
 	refcon['entityType'] = five_ht_sample.getSampleType()
 	sample_dict['REFCON'] = ObjectMapper().writeValueAsString(refcon)
 	sample_dict['GROUP'] = five_ht_sample.getSampleType()
-	sample_dict['IMAGE_URL'] = ""
+	compound = material_by_perm_id[five_ht_sample.getPropertyValue("COMPOUND")]
+	sample_dict['IMAGE_URL'] = image_url_for_compound(compound)
 
 	children = [five_ht_sample.getPropertyValue("TARGET"), five_ht_sample.getPropertyValue("COMPOUND")]
 	sample_dict['CHILDREN'] = ObjectMapper().writeValueAsString(children)
@@ -112,8 +117,8 @@ def materials_to_dict(materials):
 	result = [material_to_dict(material) for material in materials]
 	return result
 
-def samples_to_dict(samples):
-	result = [sample_to_dict(sample) for sample in samples]
+def samples_to_dict(samples, material_by_perm_id):
+	result = [sample_to_dict(sample, material_by_perm_id) for sample in samples]
 	return result
 
 def aggregate(parameters, builder):
@@ -123,6 +128,8 @@ def aggregate(parameters, builder):
 	samples = searchService.searchForSamples("DESC", "*", "5HT_PROBE")
 	material_identifiers = gather_materials(samples)
 	materials = searchService.listMaterials(material_identifiers)
-	add_rows(builder, materials_to_dict(materials))
-	add_rows(builder, samples_to_dict(samples))
+	material_dict_array = materials_to_dict(materials)
+	material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
+	add_rows(builder, material_dict_array)
+	add_rows(builder, samples_to_dict(samples, material_by_perm_id))
 

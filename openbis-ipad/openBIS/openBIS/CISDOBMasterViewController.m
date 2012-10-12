@@ -154,7 +154,6 @@
 
         [self.navigationController pushViewController: controller animated: YES];
     } else {
-        CISDOBIpadEntity *object = [[self fetchedResultsController] objectAtIndexPath:indexPath];
         self.detailViewController.detailItem = object;
     }
 
