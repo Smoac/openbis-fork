@@ -141,10 +141,23 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+    // Segue to the detail view unless we are on the ipad
+    if ([[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad) return;
+
+    CISDOBIpadEntity *object = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    if ([object.childrenPermIds count] > 0) {
+        UIStoryboard *storyboard = self.storyboard;
+        CISDOBMasterViewController *controller = [storyboard instantiateViewControllerWithIdentifier:@"Master"];
+        controller.managedObjectContext = self.managedObjectContext;
+        controller.title = object.summaryHeader;
+        // TODO Initialize the fetch results controller
+
+        [self.navigationController pushViewController: controller animated: YES];
+    } else {
         CISDOBIpadEntity *object = [[self fetchedResultsController] objectAtIndexPath:indexPath];
         self.detailViewController.detailItem = object;
     }
+
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -165,7 +178,7 @@
     }
     
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"CISDOBIpadEntity" inManagedObjectContext:self.managedObjectContext];
+    NSEntityDescription *entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: self.managedObjectContext];
     [fetchRequest setEntity:entity];
     [fetchRequest setFetchBatchSize:20];
     
