@@ -163,9 +163,11 @@ public final class TableNames
 
     public static final String ENTITY_OPERATIONS_LOG_TABLE = "entity_operations_log";
 
-    public static final String METAPROJECTS_TABLE = "METAPROJECTS";
+    public static final String METAPROJECTS_TABLE = "metaprojects";
 
-    public static final String METAPROJECT_ASSIGNMENTS_TABLE = "METAPROJECT_ASSIGNMENTS";
+    public static final String METAPROJECT_ASSIGNMENTS_VIEW = "metaproject_assignments";
+
+    public static final String METAPROJECT_ASSIGNMENTS_ALL_TABLE = "metaproject_assignments_all";
 
     private TableNames()
     {

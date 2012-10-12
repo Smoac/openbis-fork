@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
  * @author Pawel Glyzewski
  */
 @Entity
-@Table(name = TableNames.METAPROJECT_ASSIGNMENTS_TABLE)
+@Table(name = TableNames.METAPROJECT_ASSIGNMENTS_VIEW)
 public class MetaprojectAssignmentPE implements Serializable, IIdHolder
 {
     private static final long serialVersionUID = IServer.VERSION;
@@ -58,6 +58,14 @@ public class MetaprojectAssignmentPE implements Serializable, IIdHolder
     private DataPE data;
 
     private MaterialPE material;
+
+    /**
+     * Deletion information.
+     * <p>
+     * If not <code>null</code>, then this data set is considered <i>deleted</i> (moved to trash).
+     * </p>
+     */
+    private DeletionPE deletion;
 
     @Override
     @Id
@@ -133,6 +141,18 @@ public class MetaprojectAssignmentPE implements Serializable, IIdHolder
     public void setMaterial(MaterialPE material)
     {
         this.material = material;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.DELETION_COLUMN)
+    public DeletionPE getDeletion()
+    {
+        return deletion;
+    }
+
+    public void setDeletion(final DeletionPE deletion)
+    {
+        this.deletion = deletion;
     }
 
     @Override
