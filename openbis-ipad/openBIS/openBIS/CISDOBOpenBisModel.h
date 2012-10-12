@@ -25,12 +25,13 @@
 /**
  * \brief A model for the interaction with openBIS.
  */
-@interface CISDOBOpenBisModel : NSObject {
+@interface CISDOBOpenBisModel : NSObject <NSFetchedResultsControllerDelegate> {
 
 }
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
+@property (weak, nonatomic) id <NSFetchedResultsControllerDelegate> delegate;
 
 
 @end

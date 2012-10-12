@@ -55,7 +55,7 @@
 {
     // Initialize the controller
     CISDOBMasterViewController *controller = [self masterViewController];
-    controller.managedObjectContext = self.managedObjectContext;
+    controller.openBisModel = self.openBisModel;
     return YES;
 }
 							

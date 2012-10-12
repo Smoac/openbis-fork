@@ -23,15 +23,15 @@
 
 #import <UIKit/UIKit.h>
 
-@class CISDOBDetailViewController;
+@class CISDOBDetailViewController, CISDOBOpenBisModel;
 
 #import <CoreData/CoreData.h>
 
 @interface CISDOBMasterViewController : UITableViewController <NSFetchedResultsControllerDelegate>
 
 @property (strong, nonatomic) CISDOBDetailViewController *detailViewController;
+@property (strong, nonatomic) CISDOBOpenBisModel *openBisModel;
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
-@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 
 @end

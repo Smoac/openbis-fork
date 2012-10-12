@@ -25,6 +25,7 @@
 
 #import "CISDOBDetailViewController.h"
 #import "CISDOBIpadEntity.h"
+#import "CISDOBOpenBisModel.h"
 
 @interface CISDOBMasterViewController ()
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath;
@@ -148,7 +149,7 @@
     if ([object.childrenPermIds count] > 0) {
         UIStoryboard *storyboard = self.storyboard;
         CISDOBMasterViewController *controller = [storyboard instantiateViewControllerWithIdentifier:@"Drill"];
-        controller.managedObjectContext = self.managedObjectContext;
+        controller.openBisModel = self.openBisModel;
         controller.title = object.summaryHeader;
         // TODO Initialize the fetch results controller
 
@@ -168,36 +169,23 @@
     }
 }
 
+- (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
+{
+    CISDOBIpadEntity *object = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    cell.textLabel.text = [object valueForKey:@"summaryHeader"];
+    cell.detailTextLabel.text = [object valueForKey:@"summary"];
+    if ([object.childrenPermIds count] > 0) {
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    } else {
+        cell.accessoryType = UITableViewCellAccessoryNone;
+    }
+}
+
 #pragma mark - Fetched results controller
 
 - (NSFetchedResultsController *)fetchedResultsController
 {
-    if (_fetchedResultsController != nil) {
-        return _fetchedResultsController;
-    }
-    
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: self.managedObjectContext];
-    [fetchRequest setEntity:entity];
-    [fetchRequest setFetchBatchSize:20];
-    
-    NSSortDescriptor *groupSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"group" ascending: NO];
-    NSSortDescriptor *summaryHeaderSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"summaryHeader" ascending: YES];
-    NSArray *sortDescriptors = @[groupSortDescriptor, summaryHeaderSortDescriptor];
-    [fetchRequest setSortDescriptors:sortDescriptors];
-    
-    NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"group" cacheName: @"Master"];
-    aFetchedResultsController.delegate = self;
-    self.fetchedResultsController = aFetchedResultsController;
-    
-	NSError *error = nil;
-	if (![self.fetchedResultsController performFetch:&error]) {
-        // TODO Implement error handling
-	    NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-	    abort();
-	}
-    
-    return _fetchedResultsController;
+    return self.openBisModel.fetchedResultsController;
 }    
 
 - (void)controllerWillChangeContent:(NSFetchedResultsController *)controller
@@ -260,16 +248,13 @@
 }
  */
 
-- (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
+
+#pragma mark - Properties
+
+- (void)setOpenBisModel:(CISDOBOpenBisModel *)openBisModel
 {
-    CISDOBIpadEntity *object = [self.fetchedResultsController objectAtIndexPath:indexPath];
-    cell.textLabel.text = [object valueForKey:@"summaryHeader"];
-    cell.detailTextLabel.text = [object valueForKey:@"summary"];
-    if ([object.childrenPermIds count] > 0) {
-        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    } else {
-        cell.accessoryType = UITableViewCellAccessoryNone;
-    }
+    _openBisModel = openBisModel;
+    _openBisModel.delegate = self;
 }
 
 @end
