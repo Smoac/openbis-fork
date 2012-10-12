@@ -63,13 +63,13 @@
 
 - (void)insertNewObject:(id)sender
 {
-    NSManagedObjectContext *context = [self.fetchedResultsController managedObjectContext];
+    NSManagedObjectContext *context = [self.openBisModel.fetchedResultsController managedObjectContext];
     
     // TODO Implement insert
     NSLog(@"Do not support adding new objects");
     abort();
     
-//    NSEntityDescription *entity = [[self.fetchedResultsController fetchRequest] entity];
+//    NSEntityDescription *entity = [[self.openBisModel.fetchedResultsController fetchRequest] entity];
 //    NSManagedObject *newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:[entity name] inManagedObjectContext:context];    
     
     
@@ -86,12 +86,12 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return [[self.fetchedResultsController sections] count];
+    return [[self.openBisModel.fetchedResultsController sections] count];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][section];
+    id <NSFetchedResultsSectionInfo> sectionInfo = [self.openBisModel.fetchedResultsController sections][section];
     return [sectionInfo numberOfObjects];
 }
 
@@ -107,7 +107,7 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    id <NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultsController sections] objectAtIndex: section];
+    id <NSFetchedResultsSectionInfo> sectionInfo = [[self.openBisModel.fetchedResultsController sections] objectAtIndex: section];
     NSArray *objects = [sectionInfo objects];
     if ([objects count] < 1) return @"";
     
@@ -122,8 +122,8 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        NSManagedObjectContext *context = [self.fetchedResultsController managedObjectContext];
-        [context deleteObject:[self.fetchedResultsController objectAtIndexPath:indexPath]];
+        NSManagedObjectContext *context = [self.openBisModel.fetchedResultsController managedObjectContext];
+        [context deleteObject:[self.openBisModel.fetchedResultsController objectAtIndexPath:indexPath]];
         
         NSError *error = nil;
         if (![context save:&error]) {
@@ -145,7 +145,7 @@
     // Segue to the detail view unless we are on the ipad
     if ([[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad) return;
 
-    CISDOBIpadEntity *object = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    CISDOBIpadEntity *object = [self.openBisModel.fetchedResultsController objectAtIndexPath:indexPath];
     if ([object.childrenPermIds count] > 0) {
         UIStoryboard *storyboard = self.storyboard;
         CISDOBMasterViewController *controller = [storyboard instantiateViewControllerWithIdentifier:@"Drill"];
@@ -164,14 +164,14 @@
 {
     if ([[segue identifier] isEqualToString:@"showDetail"]) {
         NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
-        CISDOBIpadEntity *object = [[self fetchedResultsController] objectAtIndexPath:indexPath];
+        CISDOBIpadEntity *object = [self.openBisModel.fetchedResultsController objectAtIndexPath:indexPath];
         [[segue destinationViewController] setDetailItem:object];
     }
 }
 
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
-    CISDOBIpadEntity *object = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    CISDOBIpadEntity *object = [self.openBisModel.fetchedResultsController objectAtIndexPath:indexPath];
     cell.textLabel.text = [object valueForKey:@"summaryHeader"];
     cell.detailTextLabel.text = [object valueForKey:@"summary"];
     if ([object.childrenPermIds count] > 0) {
@@ -182,11 +182,6 @@
 }
 
 #pragma mark - Fetched results controller
-
-- (NSFetchedResultsController *)fetchedResultsController
-{
-    return self.openBisModel.fetchedResultsController;
-}    
 
 - (void)controllerWillChangeContent:(NSFetchedResultsController *)controller
 {

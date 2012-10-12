@@ -32,6 +32,4 @@
 @property (strong, nonatomic) CISDOBDetailViewController *detailViewController;
 @property (strong, nonatomic) CISDOBOpenBisModel *openBisModel;
 
-@property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
-
 @end
