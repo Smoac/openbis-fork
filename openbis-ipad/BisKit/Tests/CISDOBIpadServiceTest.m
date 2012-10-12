@@ -75,6 +75,7 @@
         STAssertNotNil(rawEntity.refcon, @"Ref con should not be nil");
         STAssertNotNil(rawEntity.group, @"Group should not be nil");
         STAssertNotNil(rawEntity.imageUrl, @"Image url should not be nil");
+        STAssertNotNil(rawEntity.children, @"Children should not be nil");
         STAssertNotNil(rawEntity.properties, @"Properties type should not be nil");
     }
 }

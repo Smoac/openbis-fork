@@ -18,8 +18,8 @@ def add_headers(builder):
 			may appear as children of other entities.
 		IMAGE_URL : A url for an image associated with this entity. If None or empty, no
 			image is shown.
-		CHILDREN : Child entities
-		PROPERTIES : Properties (metadata) that should be displayed for this entity.
+		CHILDREN : The permIds of the children of this entity. Transmitted as JSON.
+		PROPERTIES : Properties (metadata) that should be displayed for this entity. Transmitted as JSON.
 	"""
 	builder.addHeader("SUMMARY_HEADER")
 	builder.addHeader("SUMMARY")
@@ -42,7 +42,7 @@ def add_row(builder, entry):
 	row.setCell("REFCON", entry.get("REFCON"))
 	row.setCell("GROUP", entry.get("GROUP"))
 	row.setCell("IMAGE_URL", entry.get("IMAGE_URL"))
-	row.setCell("CHILDREN", "[]")
+	row.setCell("CHILDREN", entry.get("CHILDREN"))
 	row.setCell("PROPERTIES", str(entry.get("PROPERTIES")))
 
 def material_to_dict(material):
@@ -61,7 +61,9 @@ def material_to_dict(material):
 		material_dict['IMAGE_URL'] = 'https://www.ebi.ac.uk/chemblws/compounds/%s/image' % chemblId
 	else:
 		material_dict['SUMMARY'] = material.getPropertyValue("DESC")
-		material_dict['IMAGE_URL'] = ""	
+		material_dict['IMAGE_URL'] = ""
+
+	material_dict['CHILDREN'] = ObjectMapper().writeValueAsString([])
 
 	prop_names = ["NAME", "PROT_NAME", "GENE_NAME", "LENGTH", "CHEMBL", "DESC", "FORMULA", "WEIGHT", "SMILES"]
 	properties = dict((name, material.getPropertyValue(name)) for name in prop_names if material.getPropertyValue(name) is not None)
@@ -80,6 +82,10 @@ def sample_to_dict(five_ht_sample):
 	sample_dict['REFCON'] = ObjectMapper().writeValueAsString(refcon)
 	sample_dict['GROUP'] = five_ht_sample.getSampleType()
 	sample_dict['IMAGE_URL'] = ""
+
+	children = [five_ht_sample.getPropertyValue("TARGET"), five_ht_sample.getPropertyValue("COMPOUND")]
+	sample_dict['CHILDREN'] = ObjectMapper().writeValueAsString(children)
+
 	prop_names = ["DESC"]
 	properties = dict((name, five_ht_sample.getPropertyValue(name)) for name in prop_names if five_ht_sample.getPropertyValue(name) is not None)
 	sample_dict['PROPERTIES'] = ObjectMapper().writeValueAsString(properties)

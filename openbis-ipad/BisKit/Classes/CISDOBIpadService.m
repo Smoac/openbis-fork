@@ -200,6 +200,7 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 - (NSString *)refcon { return [self stringContentValueAtIndex: 4]; }
 - (NSString *)group { return [self stringContentValueAtIndex: 5]; }
 - (NSString *)imageUrl { return [self stringContentValueAtIndex: 6]; }
-- (NSString *)properties { return [self stringContentValueAtIndex: 7]; }
+- (NSString *)children { return [self stringContentValueAtIndex: 7]; }
+- (NSString *)properties { return [self stringContentValueAtIndex: 8]; }
 
 @end
