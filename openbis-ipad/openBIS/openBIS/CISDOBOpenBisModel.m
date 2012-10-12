@@ -23,10 +23,6 @@
 #import "CISDOBOpenBisModel.h"
 #import "CISDOBIpadEntity.h"
 
-@interface CISDOBOpenBisModel (CISDOBOpenBisModelPrivate)
-@property (weak, nonatomic) CISDOBOpenBisModel *parentModel;
-@end
-
 @implementation CISDOBOpenBisModel
 
 #pragma mark - Initialize
@@ -34,10 +30,10 @@
 {
     if (!(self = [super init])) return nil;
     
-    _parentModel = parentModel;
+    self.parentModel = parentModel;
     _selectedObject = nil;
     
-    if (_parentModel) {
+    if (self.parentModel) {
         self.fetchedResultsController = parentModel.fetchedResultsController;
         self.managedObjectContext = parentModel.managedObjectContext;
     }

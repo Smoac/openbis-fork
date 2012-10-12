@@ -30,14 +30,13 @@
  */
 @interface CISDOBOpenBisModel : NSObject <NSFetchedResultsControllerDelegate> {
     CISDOBIpadEntity *_selectedObject;
-    CISDOBOpenBisModel *_parentModel;
 }
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 @property (weak, nonatomic) id <NSFetchedResultsControllerDelegate> delegate;
 
-@property (readonly) CISDOBOpenBisModel *parentModel;
+@property (weak, nonatomic) CISDOBOpenBisModel *parentModel;
 
 // Initialize
 - (id)initWithParentModel:(CISDOBOpenBisModel *)parentModel;
