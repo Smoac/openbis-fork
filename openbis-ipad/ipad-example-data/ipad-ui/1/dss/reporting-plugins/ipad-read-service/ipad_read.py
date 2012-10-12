@@ -18,6 +18,7 @@ def add_headers(builder):
 			may appear as children of other entities.
 		IMAGE_URL : A url for an image associated with this entity. If None or empty, no
 			image is shown.
+		CHILDREN : Child entities
 		PROPERTIES : Properties (metadata) that should be displayed for this entity.
 	"""
 	builder.addHeader("SUMMARY_HEADER")
@@ -27,6 +28,7 @@ def add_headers(builder):
 	builder.addHeader("REFCON")
 	builder.addHeader("GROUP")
 	builder.addHeader("IMAGE_URL")
+	builder.addHeader("CHILDREN")
 	builder.addHeader("PROPERTIES")
 
 
@@ -40,6 +42,7 @@ def add_row(builder, entry):
 	row.setCell("REFCON", entry.get("REFCON"))
 	row.setCell("GROUP", entry.get("GROUP"))
 	row.setCell("IMAGE_URL", entry.get("IMAGE_URL"))
+	row.setCell("CHILDREN", "[]")
 	row.setCell("PROPERTIES", str(entry.get("PROPERTIES")))
 
 def material_to_dict(material):
