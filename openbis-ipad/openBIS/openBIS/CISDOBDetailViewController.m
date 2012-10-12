@@ -69,11 +69,11 @@
     // The detail item is now up-to-date. Update the user interface.
     if (!self.detailItem) return;
     
-    self.summaryHeaderLabel.text = [self.detailItem.summaryHeader description];
-    self.summaryLabel.text = [self.detailItem.summary description];
-    self.identifierLabel.text = [self.detailItem.identifier description];
+    self.summaryHeaderLabel.text = self.detailItem.summaryHeader;
+    self.summaryLabel.text = self.detailItem.summary;
+    self.identifierLabel.text = self.detailItem.identifier;
 
-    if (self.detailItem.image) {
+    if (self.imageView.image != self.detailItem.image) {
         self.imageView.image = self.detailItem.image;
     }
     

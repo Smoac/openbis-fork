@@ -91,12 +91,15 @@
 #pragma mark - Server Communication
 - (void)syncSelectedObjectOnSuccess:(SuccessBlock)success
 {
-    // Update the image
-    if (_selectedObject.imageUrl) {
-        NSURL *imageUrl = [NSURL URLWithString: _selectedObject.imageUrl];
-        NSData *imageData = [NSData dataWithContentsOfURL: imageUrl];
-        _selectedObject.image = [UIImage imageWithData: imageData];
-        success(_selectedObject);
+    // Load the image if necessary
+    if (_selectedObject.imageUrl && !_selectedObject.image) {
+        NSBlockOperation *blockOp = [NSBlockOperation blockOperationWithBlock:  ^{
+            NSURL *imageUrl = [NSURL URLWithString: _selectedObject.imageUrl];
+            NSData *imageData = [NSData dataWithContentsOfURL: imageUrl];
+            _selectedObject.image = [UIImage imageWithData: imageData];
+            success(_selectedObject);
+        }];
+        [blockOp start];        
     } else {
         success(_selectedObject);
     }
