@@ -90,6 +90,11 @@ NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeURL, NSError
         // Create new entities in the moc, and store them.
        	CISDOBIpadEntity *entity = [NSEntityDescription insertNewObjectForEntityForName: @"CISDOBIpadEntity" inManagedObjectContext: _moc];
         [entity initializeFromRawEntity: rawEntity];
+        
+        // Make sure that the children collection is parsable
+        if ([rawEntity.children length] > 2) {
+            STAssertTrue([entity.childrenPermIds count] > 0, @"%@ should result in an entity with children", rawEntity.children);
+        }
     }
     
     NSError *error;

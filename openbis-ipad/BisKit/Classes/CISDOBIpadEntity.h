@@ -40,7 +40,7 @@
 @property (nonatomic, retain) NSString * imageUrl;
 
 @property (nonatomic, retain) NSString * childrenPermIdsJson;
-@property (nonatomic, retain) NSArray * childrenPermIds;
+@property (readonly)          NSArray * childrenPermIds;
 
 @property (nonatomic, retain) NSString * propertiesJson;
 @property (readonly)          NSArray * properties;

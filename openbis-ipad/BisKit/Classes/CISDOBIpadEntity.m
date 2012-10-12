@@ -71,7 +71,7 @@
     
     if (nil == childrenPermIds) {
         NSError *error;
-        NSArray *childrenPermIds = [NSJSONSerialization JSONObjectWithData: [self.propertiesJson dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: &error];
+        childrenPermIds = [NSJSONSerialization JSONObjectWithData: [self.childrenPermIdsJson dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: &error];
         if (error) {
             NSLog(@"Could not deserialize childrenPermIds %@", error);
         }
