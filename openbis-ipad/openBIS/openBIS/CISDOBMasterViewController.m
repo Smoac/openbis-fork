@@ -29,6 +29,7 @@
 
 @interface CISDOBMasterViewController ()
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath;
+- (void)initializeDrillDownFrom:(CISDOBMasterViewController *)parent;
 @end
 
 @implementation CISDOBMasterViewController
@@ -126,14 +127,13 @@
     // Segue to the detail view unless we are on the ipad
     if ([[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad) return;
 
-    CISDOBIpadEntity *object = [self.openBisModel objectAtIndexPath: indexPath];
-    if ([object.childrenPermIds count] > 0) {
+    CISDOBIpadEntity *object = [self.openBisModel selectObjectAtIndexPath: indexPath];
+    if ([self.openBisModel isSelectionGroup]) {
         UIStoryboard *storyboard = self.storyboard;
-        CISDOBMasterViewController *controller = [storyboard instantiateViewControllerWithIdentifier: @"Master"];
-        controller.openBisModel = self.openBisModel;
-        controller.title = object.summaryHeader;
+        CISDOBMasterViewController *child = [storyboard instantiateViewControllerWithIdentifier: @"Master"];
+        [child initializeDrillDownFrom: self];
 
-        [self.navigationController pushViewController: controller animated: YES];
+        [self.navigationController pushViewController: child animated: YES];
     } else {
         self.detailViewController.detailItem = object;
     }
@@ -159,6 +159,12 @@
     } else {
         cell.accessoryType = UITableViewCellAccessoryNone;
     }
+}
+
+- (void)initializeDrillDownFrom:(CISDOBMasterViewController *)parent
+{
+    self.openBisModel = parent.openBisModel;
+    self.title = self.openBisModel.selectedObject.summaryHeader;
 }
 
 #pragma mark - Fetched results controller

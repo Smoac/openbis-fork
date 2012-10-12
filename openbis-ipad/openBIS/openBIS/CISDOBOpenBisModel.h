@@ -28,19 +28,24 @@
  * \brief A model for the interaction with openBIS.
  */
 @interface CISDOBOpenBisModel : NSObject <NSFetchedResultsControllerDelegate> {
-
+    CISDOBIpadEntity *_selectedObject;
 }
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 @property (weak, nonatomic) id <NSFetchedResultsControllerDelegate> delegate;
+@property (readonly) CISDOBIpadEntity *selectedObject;
 
 // Model
-
 - (NSInteger)numberOfSections; //!< Get the number of categories for the current selection
 - (NSInteger)numberOfEntitiesInSection:(NSInteger)section;
 - (NSString *)titleForHeaderInSection:(NSInteger)section;
 - (CISDOBIpadEntity *)objectAtIndexPath:(NSIndexPath *)indexPath;
+
+// Selection
+//! Select the object and return it
+- (CISDOBIpadEntity *)selectObjectAtIndexPath:(NSIndexPath *)indexPath;
+- (BOOL)isSelectionGroup; //!< Return YES if the selected object is a group (has children)
 
 // Actions
 - (BOOL)insertNewObjectOrError:(NSError **)error; //!< Return YES if operation succeeded

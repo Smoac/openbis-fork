@@ -51,6 +51,18 @@
     return [self.fetchedResultsController objectAtIndexPath:indexPath];
 }
 
+#pragma mark - Selection
+- (CISDOBIpadEntity *)selectObjectAtIndexPath:(NSIndexPath *)indexPath
+{
+    _selectedObject = [self objectAtIndexPath: indexPath];
+    return _selectedObject;
+}
+
+- (BOOL)isSelectionGroup
+{
+    return [_selectedObject.childrenPermIds count] > 0;
+}
+
 #pragma mark - Actions
 - (BOOL)insertNewObjectOrError:(NSError **)error
 {
