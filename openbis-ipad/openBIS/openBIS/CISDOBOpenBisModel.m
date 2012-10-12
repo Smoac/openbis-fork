@@ -88,6 +88,20 @@
    return [context save: error];
 }
 
+#pragma mark - Server Communication
+- (void)syncSelectedObjectOnSuccess:(SuccessBlock)success
+{
+    // Update the image
+    if (_selectedObject.imageUrl) {
+        NSURL *imageUrl = [NSURL URLWithString: _selectedObject.imageUrl];
+        NSData *imageData = [NSData dataWithContentsOfURL: imageUrl];
+        _selectedObject.image = [UIImage imageWithData: imageData];
+        success(_selectedObject);
+    } else {
+        success(_selectedObject);
+    }
+}
+
 #pragma mark - Fetched results controller
 
 - (NSFetchedResultsController *)fetchedResultsController

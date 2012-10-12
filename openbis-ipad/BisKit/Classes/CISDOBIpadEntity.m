@@ -37,6 +37,8 @@
 @dynamic childrenPermIdsJson;
 @dynamic propertiesJson;
 
+@synthesize image;
+
 - (NSArray *)properties
 {
     [self willAccessValueForKey: @"properties"];

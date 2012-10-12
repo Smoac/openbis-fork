@@ -21,6 +21,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "CISDOBShared.h"
 
 @class CISDOBIpadEntity;
 
@@ -50,6 +51,10 @@
 // Actions
 - (BOOL)insertNewObjectOrError:(NSError **)error; //!< Return YES if operation succeeded
 - (BOOL)deleteObjectAtIndexPath:(NSIndexPath *)indexPath error:(NSError **)error; //!< Return YES if operation succeeded
+
+// Server Communication
+//! Get the selected object from the server and invoke the succes block when the data is here
+- (void)syncSelectedObjectOnSuccess:(SuccessBlock)success;
 
 
 @end

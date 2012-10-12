@@ -45,6 +45,9 @@
 @property (nonatomic, retain) NSString * propertiesJson;
 @property (readonly)          NSArray * properties;
 
+///! The image contained at the imageUrl or nil if there is no image.
+@property (nonatomic, strong) UIImage * image;
+
 // Actions
 //! Take the values from the raw entity.
 - (void)initializeFromRawEntity:(CISDOBIpadRawEntity *)rawEntity;

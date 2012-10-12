@@ -29,6 +29,8 @@
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
 @property (readonly) CISDOBIpadEntity *detailItem;
 
+- (void)requestServerSync;
+- (void)configureViewProvisionally;
 - (void)configureView;
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath;
 @end
@@ -36,11 +38,18 @@
 @implementation CISDOBDetailViewController
 
 #pragma mark - Managing the detail item
+- (void)requestServerSync
+{
+    // Ask the server to synchronize the detail object and nofiy me when the complete data is available
+    SuccessBlock success = ^(id result) { [self configureView]; };
+    [self.openBisModel syncSelectedObjectOnSuccess: success];
+}
 
 - (void)selectionDidChange
 {
     // Update the view.
-    [self configureView];
+    [self configureViewProvisionally];
+    [self requestServerSync];
 
     if (self.masterPopoverController != nil) {
         [self.masterPopoverController dismissPopoverAnimated:YES];
@@ -49,19 +58,23 @@
 
 - (CISDOBIpadEntity *)detailItem { return [self.openBisModel selectedObject]; }
 
+- (void)configureViewProvisionally
+{
+    // We have a detail item which might not be up-to-date. Update the user interface. 
+    [self configureView];
+}
+
 - (void)configureView
 {
-    // Update the user interface for the detail item.
+    // The detail item is now up-to-date. Update the user interface.
     if (!self.detailItem) return;
     
     self.summaryHeaderLabel.text = [self.detailItem.summaryHeader description];
     self.summaryLabel.text = [self.detailItem.summary description];
     self.identifierLabel.text = [self.detailItem.identifier description];
 
-    if (self.detailItem.imageUrl) {
-        NSURL *imageUrl = [NSURL URLWithString: self.detailItem.imageUrl];
-        NSData *imageData = [NSData dataWithContentsOfURL: imageUrl];
-        self.imageView.image =[UIImage imageWithData: imageData];
+    if (self.detailItem.image) {
+        self.imageView.image = self.detailItem.image;
     }
     
     [self.propertiesTableView reloadData];
@@ -71,7 +84,7 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
-    [self configureView];
+    [self configureViewProvisionally];
 }
 
 - (void)didReceiveMemoryWarning
