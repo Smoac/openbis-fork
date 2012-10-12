@@ -162,7 +162,7 @@
 
 - (void)initializeDrillDownFrom:(CISDOBMasterViewController *)parent
 {
-    self.openBisModel = parent.openBisModel;
+    self.openBisModel = [[CISDOBOpenBisModel alloc] initWithParentModel: parent.openBisModel];
     self.title = self.openBisModel.selectedObject.summaryHeader;
 }
 

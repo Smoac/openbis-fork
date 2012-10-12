@@ -23,7 +23,27 @@
 #import "CISDOBOpenBisModel.h"
 #import "CISDOBIpadEntity.h"
 
+@interface CISDOBOpenBisModel (CISDOBOpenBisModelPrivate)
+@property (weak, nonatomic) CISDOBOpenBisModel *parentModel;
+@end
+
 @implementation CISDOBOpenBisModel
+
+#pragma mark - Initialize
+- (id)initWithParentModel:(CISDOBOpenBisModel *)parentModel
+{
+    if (!(self = [super init])) return nil;
+    
+    _parentModel = parentModel;
+    _selectedObject = nil;
+    
+    if (_parentModel) {
+        self.fetchedResultsController = parentModel.fetchedResultsController;
+        self.managedObjectContext = parentModel.managedObjectContext;
+    }
+    
+    return self;
+}
 
 #pragma mark - Model
 - (NSInteger)numberOfSections

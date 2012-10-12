@@ -31,7 +31,7 @@
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
-@synthesize openBisModel = _openBisModel;
+@synthesize rootOpenBisModel = _rootOpenBisModel;
 
 - (CISDOBMasterViewController *)masterViewController
 {
@@ -55,7 +55,7 @@
 {
     // Initialize the controller
     CISDOBMasterViewController *controller = [self masterViewController];
-    controller.openBisModel = self.openBisModel;
+    controller.openBisModel = self.rootOpenBisModel;
     return YES;
 }
 							
@@ -147,14 +147,14 @@
     return _persistentStoreCoordinator;
 }
 
-- (CISDOBOpenBisModel *)openBisModel
+- (CISDOBOpenBisModel *)rootOpenBisModel
 {
-    if (_openBisModel != nil) return _openBisModel;
+    if (_rootOpenBisModel != nil) return _rootOpenBisModel;
     
-    _openBisModel = [[CISDOBOpenBisModel alloc] init];
-    _openBisModel.managedObjectContext = self.managedObjectContext;
+    _rootOpenBisModel = [[CISDOBOpenBisModel alloc] init];
+    _rootOpenBisModel.managedObjectContext = self.managedObjectContext;
     
-    return _openBisModel;
+    return _rootOpenBisModel;
 }
 
 #pragma mark - Application's Documents directory

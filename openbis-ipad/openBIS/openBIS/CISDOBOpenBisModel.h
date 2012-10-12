@@ -30,12 +30,17 @@
  */
 @interface CISDOBOpenBisModel : NSObject <NSFetchedResultsControllerDelegate> {
     CISDOBIpadEntity *_selectedObject;
+    CISDOBOpenBisModel *_parentModel;
 }
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 @property (weak, nonatomic) id <NSFetchedResultsControllerDelegate> delegate;
-@property (readonly) CISDOBIpadEntity *selectedObject;
+
+@property (readonly) CISDOBOpenBisModel *parentModel;
+
+// Initialize
+- (id)initWithParentModel:(CISDOBOpenBisModel *)parentModel;
 
 // Model
 - (NSInteger)numberOfSections; //!< Get the number of categories for the current selection
@@ -44,6 +49,8 @@
 - (CISDOBIpadEntity *)objectAtIndexPath:(NSIndexPath *)indexPath;
 
 // Selection
+@property (readonly) CISDOBIpadEntity *selectedObject;
+
 //! Select the object and return it
 - (CISDOBIpadEntity *)selectObjectAtIndexPath:(NSIndexPath *)indexPath;
 - (BOOL)isSelectionGroup; //!< Return YES if the selected object is a group (has children)
