@@ -147,7 +147,7 @@
     CISDOBIpadEntity *object = [self.fetchedResultsController objectAtIndexPath:indexPath];
     if ([object.childrenPermIds count] > 0) {
         UIStoryboard *storyboard = self.storyboard;
-        CISDOBMasterViewController *controller = [storyboard instantiateViewControllerWithIdentifier:@"Master"];
+        CISDOBMasterViewController *controller = [storyboard instantiateViewControllerWithIdentifier:@"Drill"];
         controller.managedObjectContext = self.managedObjectContext;
         controller.title = object.summaryHeader;
         // TODO Initialize the fetch results controller

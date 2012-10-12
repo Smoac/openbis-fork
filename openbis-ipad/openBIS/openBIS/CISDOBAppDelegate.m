@@ -24,28 +24,38 @@
 #import "CISDOBAppDelegate.h"
 
 #import "CISDOBMasterViewController.h"
+#import "CISDOBOpenBisModel.h"
 
 @implementation CISDOBAppDelegate
 
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
+@synthesize openBisModel = _openBisModel;
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+- (CISDOBMasterViewController *)masterViewController
 {
+    CISDOBMasterViewController *controller;
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
         UISplitViewController *splitViewController = (UISplitViewController *)self.window.rootViewController;
         UINavigationController *navigationController = [splitViewController.viewControllers lastObject];
         splitViewController.delegate = (id)navigationController.topViewController;
         
         UINavigationController *masterNavigationController = splitViewController.viewControllers[0];
-        CISDOBMasterViewController *controller = (CISDOBMasterViewController *)masterNavigationController.topViewController;
-        controller.managedObjectContext = self.managedObjectContext;
+        controller = (CISDOBMasterViewController *)masterNavigationController.topViewController;
     } else {
         UINavigationController *navigationController = (UINavigationController *)self.window.rootViewController;
-        CISDOBMasterViewController *controller = (CISDOBMasterViewController *)navigationController.topViewController;
-        controller.managedObjectContext = self.managedObjectContext;
+       controller = (CISDOBMasterViewController *)navigationController.topViewController;
     }
+    
+    return controller;
+}
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+    // Initialize the controller
+    CISDOBMasterViewController *controller = [self masterViewController];
+    controller.managedObjectContext = self.managedObjectContext;
     return YES;
 }
 							
@@ -135,6 +145,16 @@
     }    
     
     return _persistentStoreCoordinator;
+}
+
+- (CISDOBOpenBisModel *)openBisModel
+{
+    if (_openBisModel != nil) return _openBisModel;
+    
+    _openBisModel = [[CISDOBOpenBisModel alloc] init];
+    _openBisModel.managedObjectContext = self.managedObjectContext;
+    
+    return _openBisModel;
 }
 
 #pragma mark - Application's Documents directory
