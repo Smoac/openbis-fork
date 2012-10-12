@@ -34,6 +34,7 @@
 @dynamic refcon;
 @dynamic group;
 @dynamic imageUrl;
+@dynamic childrenPermIdsJson;
 @dynamic propertiesJson;
 
 - (NSArray *)properties
@@ -61,6 +62,25 @@
     return properties;
 }
 
+
+- (NSArray *)childrenPermIds
+{
+    [self willAccessValueForKey: @"childrenPermIds"];
+    NSArray *childrenPermIds = [self primitiveValueForKey: @"childrenPermIds"];
+    [self didAccessValueForKey: @"childrenPermIds"];
+    
+    if (nil == childrenPermIds) {
+        NSError *error;
+        NSArray *childrenPermIds = [NSJSONSerialization JSONObjectWithData: [self.propertiesJson dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: &error];
+        if (error) {
+            NSLog(@"Could not deserialize childrenPermIds %@", error);
+        }
+        [self setPrimitiveValue: childrenPermIds forKey: @"childrenPermIds"];
+    }
+    
+    return childrenPermIds;
+}
+
 - (void)initializeFromRawEntity:(CISDOBIpadRawEntity *)rawEntity
 {
     self.summaryHeader = rawEntity.summaryHeader;
@@ -70,6 +90,7 @@
     self.refcon = rawEntity.refcon;
     self.group = rawEntity.group;
     self.imageUrl = rawEntity.imageUrl;
+    self.childrenPermIdsJson = rawEntity.children;
     self.propertiesJson = rawEntity.properties;
 }
 

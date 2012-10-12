@@ -38,6 +38,10 @@
 @property (nonatomic, retain) NSString * refcon;
 @property (nonatomic, retain) NSString * group;
 @property (nonatomic, retain) NSString * imageUrl;
+
+@property (nonatomic, retain) NSString * childrenPermIdsJson;
+@property (nonatomic, retain) NSArray * childrenPermIds;
+
 @property (nonatomic, retain) NSString * propertiesJson;
 @property (readonly)          NSArray * properties;
 
@@ -46,3 +50,5 @@
 - (void)initializeFromRawEntity:(CISDOBIpadRawEntity *)rawEntity;
 
 @end
+
+
