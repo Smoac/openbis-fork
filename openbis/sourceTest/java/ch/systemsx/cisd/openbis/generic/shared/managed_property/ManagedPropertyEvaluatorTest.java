@@ -29,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedComboBoxInputWid
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedHtmlWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedTableWidgetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedUiActionDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PersonAdapter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescriptionFactory;
@@ -36,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedOutputWidge
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedInputFieldType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedOutputWidgetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -217,6 +220,8 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         IManagedInputWidgetDescriptionFactory widgetFactory =
                 ManagedPropertyFunctions.inputWidgetFactory();
 
+        IPerson person = new PersonAdapter("test", null, null);
+
         IManagedUiAction action1 = uiDescription.addAction("a1");
         IManagedInputWidgetDescription action1w1 = widgetFactory.createTextInputField("t1");
         IManagedInputWidgetDescription action1w2 =
@@ -246,7 +251,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         String script = CommonTestUtils.getResourceAsString(SCRIPT_FOLDER, UPDATE_FROM_UI_TEST_PY);
         ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script);
 
-        evaluator.updateFromUI(managedProperty, action1);
+        evaluator.updateFromUI(managedProperty, person, action1);
         assertNotNull(managedProperty.getValue());
         String[] inputTokens1 = managedProperty.getValue().split("\\|");
         assertEquals("a1", inputTokens1[0]);
@@ -255,7 +260,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         assertEquals("multi=multi\nline\ninput", inputTokens1[3]);
         assertEquals("combo=cv1", inputTokens1[4]);
 
-        evaluator.updateFromUI(managedProperty, action2);
+        evaluator.updateFromUI(managedProperty, person, action2);
         assertNotNull(managedProperty.getValue());
         String[] inputTokens2 = managedProperty.getValue().split("\\!");
         assertEquals("a2", inputTokens2[0]);
@@ -264,12 +269,28 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
 
         try
         {
-            evaluator.updateFromUI(managedProperty, action3);
+            evaluator.updateFromUI(managedProperty, person, action3);
             fail("expected EvaluatorException");
         } catch (EvaluatorException e)
         {
             assertEquals("action a3 is not supported", e.getCause().getMessage());
         }
+    }
+
+    @Test
+    public void testUpdateFromUIAccessToPerson()
+    {
+        ManagedPropertyEvaluator evaluator =
+                new ManagedPropertyEvaluator("def updateFromUI(action):\n"
+                        + "  property.setValue(person.getUserId() + ';' + person.getUserName())");
+        ManagedProperty property = new ManagedProperty();
+        property.setPropertyTypeCode("p");
+        IPerson person = new PersonAdapter("jbravo", "Johny", "Bravo");
+        IManagedUiAction action = new ManagedUiActionDescription();
+
+        evaluator.updateFromUI(property, person, action);
+
+        assertEquals("jbravo;Johny Bravo", property.getValue());
     }
 
     private void checkInputFieldWidget(IManagedInputWidgetDescription widget,
@@ -408,10 +429,11 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator("");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");
+        IPerson person = new PersonAdapter("test", null, null);
         Map<String, String> bindings = new HashMap<String, String>();
         bindings.put("", "42");
 
-        evaluator.updateFromBatchInput(property, bindings);
+        evaluator.updateFromBatchInput(property, person, bindings);
 
         assertEquals("42", property.getValue());
     }
@@ -424,10 +446,11 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
                         + "  property.setValue(bindings.get(''))");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");
+        IPerson person = new PersonAdapter("test", null, null);
         Map<String, String> bindings = new HashMap<String, String>();
         bindings.put("", "42");
 
-        evaluator.updateFromBatchInput(property, bindings);
+        evaluator.updateFromBatchInput(property, person, bindings);
 
         assertEquals("42", property.getValue());
     }
@@ -441,11 +464,12 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
                         + "  property.setValue(bindings.get('A') + bindings.get('B'))");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");
+        IPerson person = new PersonAdapter("test", null, null);
         Map<String, String> bindings = new HashMap<String, String>();
         bindings.put("A", "4");
         bindings.put("B", "2");
 
-        evaluator.updateFromBatchInput(property, bindings);
+        evaluator.updateFromBatchInput(property, person, bindings);
 
         assertEquals("42", property.getValue());
     }
@@ -461,14 +485,61 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
                         + "bindings.get(originalColumnNameBindingKey('OC')))");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");
+        IPerson person = new PersonAdapter("test", null, null);
         Map<String, String> bindings = new HashMap<String, String>();
         bindings.put("BC1", "b1");
         bindings.put("BC2", "b2");
         bindings.put(ManagedPropertyFunctions.originalColumnNameBindingKey("OC"), "original");
 
-        evaluator.updateFromBatchInput(property, bindings);
+        evaluator.updateFromBatchInput(property, person, bindings);
 
         assertEquals("b1 b2 original", property.getValue());
     }
 
+    @Test
+    public void testUpdateFromBatchInputAccessToPersonWithAllFieldsFilled()
+    {
+        ManagedPropertyEvaluator evaluator =
+                new ManagedPropertyEvaluator("def updateFromBatchInput(bindings):\n"
+                        + "  property.setValue(person.getUserId() + ';' + person.getUserName())");
+        ManagedProperty property = new ManagedProperty();
+        property.setPropertyTypeCode("p");
+        IPerson person = new PersonAdapter("jbravo", "Johny", "Bravo");
+        Map<String, String> bindings = new HashMap<String, String>();
+
+        evaluator.updateFromBatchInput(property, person, bindings);
+
+        assertEquals("jbravo;Johny Bravo", property.getValue());
+    }
+
+    @Test
+    public void testUpdateFromBatchInputAccessToPersonWithEmptyFirstNameAndLastName()
+    {
+        ManagedPropertyEvaluator evaluator =
+                new ManagedPropertyEvaluator("def updateFromBatchInput(bindings):\n"
+                        + "  property.setValue(person.getUserId() + ';' + person.getUserName())");
+        ManagedProperty property = new ManagedProperty();
+        property.setPropertyTypeCode("p");
+        IPerson person = new PersonAdapter("jbravo", null, null);
+        Map<String, String> bindings = new HashMap<String, String>();
+
+        evaluator.updateFromBatchInput(property, person, bindings);
+
+        assertEquals("jbravo;jbravo", property.getValue());
+    }
+
+    @Test
+    public void testUpdateFromBatchInputAccessToNullPerson()
+    {
+        ManagedPropertyEvaluator evaluator =
+                new ManagedPropertyEvaluator("def updateFromBatchInput(bindings):\n"
+                        + "  property.setValue(person)");
+        ManagedProperty property = new ManagedProperty();
+        property.setPropertyTypeCode("p");
+        Map<String, String> bindings = new HashMap<String, String>();
+
+        evaluator.updateFromBatchInput(property, null, bindings);
+
+        assertNull(property.getValue());
+    }
 }

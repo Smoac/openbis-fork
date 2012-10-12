@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ValidationException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyFunctions;
+import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 
 /**
  * Handles Managed Properties of batch uploads/updates.
@@ -113,13 +115,14 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
         Map<String, EvaluationContext> contexts = createEvaluationContexts(entityTypePropertyTypes);
         PropertiesBatchEvaluationErrors errors =
                 new PropertiesBatchEvaluationErrors(registrator, propertiesBeans.size());
+        IPerson person = PersonTranslator.translateToIPerson(registrator);
 
         int rowNumber = 0;
         for (IPropertiesBean propertiesBean : propertiesBeans)
         {
             rowNumber++;
             List<IEntityProperty> newProperties =
-                    accumulateNewProperties(propertiesBean, rowNumber, contexts, errors);
+                    accumulateNewProperties(propertiesBean, person, rowNumber, contexts, errors);
             IEntityProperty[] newPropArray =
                     newProperties.toArray(new IEntityProperty[newProperties.size()]);
             propertiesBean.setProperties(newPropArray);
@@ -135,7 +138,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
     }
 
     private List<IEntityProperty> accumulateNewProperties(IPropertiesBean propertiesBean,
-            int rowNumber, Map<String, EvaluationContext> contexts,
+            IPerson person, int rowNumber, Map<String, EvaluationContext> contexts,
             PropertiesBatchEvaluationErrors errors)
     {
         List<IEntityProperty> newProperties = new ArrayList<IEntityProperty>();
@@ -149,7 +152,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
             try
             {
                 EntityProperty entityProperty =
-                        evaluateManagedProperty(code, entry.getValue(), evalContext);
+                        evaluateManagedProperty(code, person, entry.getValue(), evalContext);
                 if (false == ManagedProperty.isSpecialValue(entityProperty.getValue()))
                 {
                     newProperties.add(entityProperty);
@@ -169,8 +172,8 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
         return newProperties;
     }
 
-    private EntityProperty evaluateManagedProperty(String code, Map<String, String> bindings,
-            EvaluationContext evalContext)
+    private EntityProperty evaluateManagedProperty(String code, IPerson person,
+            Map<String, String> bindings, EvaluationContext evalContext)
     {
         EntityProperty entityProperty = createNewEntityProperty(code);
         if (evalContext == null)
@@ -181,7 +184,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
             ManagedPropertyEvaluator evaluator = evalContext.evaluator;
             ManagedProperty managedProperty = new ManagedProperty();
             managedProperty.setPropertyTypeCode(code);
-            evaluator.updateFromBatchInput(managedProperty, bindings);
+            evaluator.updateFromBatchInput(managedProperty, person, bindings);
             entityProperty.setValue(managedProperty.getValue());
         }
         return entityProperty;

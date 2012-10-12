@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -58,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 
 /**
  * The unique {@link IEntityPropertiesConverter} implementation.
@@ -270,7 +272,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                     propertyValueValidator.validatePropertyValue(propertyType, valueOrNull);
 
             return createEntityProperty(registrator, propertyType, entityTypePropertyTypePE,
-                    extendedETPT.translate(validated));
+                    extendedETPT.translate(registrator, validated));
         }
         return null;
     }
@@ -579,7 +581,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         }
 
         @SuppressWarnings("unchecked")
-        String translate(String propertyValue)
+        String translate(PersonPE personPE, String propertyValue)
         {
             if (inputWidgetDescriptions.isEmpty()
                     || propertyValue == null
@@ -601,7 +603,10 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                     {
                         continue;
                     }
-                    evaluator.updateFromBatchInput(managedProperty, (Map<String, String>) row);
+
+                    IPerson person = PersonTranslator.translateToIPerson(personPE);
+                    evaluator.updateFromBatchInput(managedProperty, person,
+                            (Map<String, String>) row);
                 }
                 return managedProperty.getValue();
             } catch (Exception ex)

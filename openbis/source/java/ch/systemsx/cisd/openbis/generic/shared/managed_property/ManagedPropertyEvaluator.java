@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedUiActionDescript
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 
 /**
@@ -96,6 +97,8 @@ public class ManagedPropertyEvaluator
     private static final String PROPERTY_VARIABLE_NAME = "property";
 
     private static final String PROPERTY_PE_VARIABLE_NAME = "propertyPE";
+
+    private static final String PERSON_VARIABLE_NAME = "person";
 
     private final Evaluator evaluator;
 
@@ -213,7 +216,8 @@ public class ManagedPropertyEvaluator
         evaluator.evalFunction(CONFIGURE_UI_FUNCTION);
     }
 
-    public void updateFromUI(IManagedProperty managedProperty, IManagedUiAction action)
+    public void updateFromUI(IManagedProperty managedProperty, IPerson person,
+            IManagedUiAction action)
     {
         if (operationLog.isDebugEnabled())
         {
@@ -222,6 +226,7 @@ public class ManagedPropertyEvaluator
         }
 
         evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
+        evaluator.set(PERSON_VARIABLE_NAME, person);
         evaluator.evalFunction(UPDATE_FROM_UI_FUNCTION, action);
     }
 
@@ -235,7 +240,8 @@ public class ManagedPropertyEvaluator
         return inputWidgetDescriptions;
     }
 
-    public void updateFromBatchInput(IManagedProperty managedProperty, Map<String, String> bindings)
+    public void updateFromBatchInput(IManagedProperty managedProperty, IPerson person,
+            Map<String, String> bindings)
     {
         if (updateFromBatchFunctionDefined == false)
         {
@@ -246,6 +252,7 @@ public class ManagedPropertyEvaluator
         } else
         {
             evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
+            evaluator.set(PERSON_VARIABLE_NAME, person);
             evaluator.evalFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION, bindings);
         }
     }

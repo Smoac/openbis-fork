@@ -29,10 +29,15 @@ public class PersonAdapter implements IPerson
 
     private String userName;
 
-    public PersonAdapter(String userId, String userName)
+    public PersonAdapter(String userId, String firstName, String lastName)
     {
         this.userId = userId;
-        this.userName = userName;
+        this.userName = userId;
+
+        if (firstName != null && lastName != null)
+        {
+            userName = firstName + " " + lastName;
+        }
     }
 
     @Override

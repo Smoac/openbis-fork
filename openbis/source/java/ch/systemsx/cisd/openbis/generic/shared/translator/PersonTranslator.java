@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PersonAdapter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -72,4 +74,16 @@ public class PersonTranslator
 
         return result;
     }
+
+    public final static IPerson translateToIPerson(final PersonPE personPE)
+    {
+        if (personPE == null)
+        {
+            return null;
+        }
+
+        return new PersonAdapter(personPE.getUserId(), personPE.getFirstName(),
+                personPE.getLastName());
+    }
+
 }

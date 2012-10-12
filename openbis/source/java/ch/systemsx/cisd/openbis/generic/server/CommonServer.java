@@ -215,7 +215,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PersonAdapter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyUpdates;
@@ -2968,7 +2967,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         ManagedPropertyEvaluator evaluator =
                 tryManagedPropertyEvaluator(managedProperty, properties);
         extendWithPerson(updateAction, session.tryGetPerson());
-        evaluator.updateFromUI(managedProperty, updateAction);
+        evaluator.updateFromUI(managedProperty,
+                PersonTranslator.translateToIPerson(session.tryGetPerson()), updateAction);
 
         experimentBO.updateManagedProperty(managedProperty);
         experimentBO.save();
@@ -2989,7 +2989,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         ManagedPropertyEvaluator evaluator =
                 tryManagedPropertyEvaluator(managedProperty, properties);
         extendWithPerson(updateAction, session.tryGetPerson());
-        evaluator.updateFromUI(managedProperty, updateAction);
+        evaluator.updateFromUI(managedProperty,
+                PersonTranslator.translateToIPerson(session.tryGetPerson()), updateAction);
 
         sampleBO.updateManagedProperty(managedProperty);
         sampleBO.save();
@@ -3010,7 +3011,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         ManagedPropertyEvaluator evaluator =
                 tryManagedPropertyEvaluator(managedProperty, properties);
         extendWithPerson(updateAction, session.tryGetPerson());
-        evaluator.updateFromUI(managedProperty, updateAction);
+        evaluator.updateFromUI(managedProperty,
+                PersonTranslator.translateToIPerson(session.tryGetPerson()), updateAction);
 
         dataSetBO.updateManagedProperty(managedProperty);
         dataSetBO.save();
@@ -3031,7 +3033,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         ManagedPropertyEvaluator evaluator =
                 tryManagedPropertyEvaluator(managedProperty, properties);
         extendWithPerson(updateAction, session.tryGetPerson());
-        evaluator.updateFromUI(managedProperty, updateAction);
+        evaluator.updateFromUI(managedProperty,
+                PersonTranslator.translateToIPerson(session.tryGetPerson()), updateAction);
 
         materialBO.updateManagedProperty(managedProperty);
         materialBO.save();
@@ -3041,13 +3044,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         if (personOrNull != null && updateAction instanceof ManagedUiActionDescription)
         {
-            final String userId = personOrNull.getUserId();
-            String userName = userId;
-            if (personOrNull.getFirstName() != null && personOrNull.getLastName() != null)
-            {
-                userName = personOrNull.getFirstName() + " " + personOrNull.getLastName();
-            }
-            final IPerson person = new PersonAdapter(userId, userName);
+            final IPerson person = PersonTranslator.translateToIPerson(personOrNull);
             final ManagedUiActionDescription action = (ManagedUiActionDescription) updateAction;
             action.setPerson(person);
         }
