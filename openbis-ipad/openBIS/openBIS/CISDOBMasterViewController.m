@@ -157,7 +157,7 @@
     CISDOBIpadEntity *object = [self.openBisModel objectAtIndexPath: indexPath];
     cell.textLabel.text = object.summaryHeader;
     cell.detailTextLabel.text = object.summary;
-    if ([object.childrenPermIds count] > 0) {
+    if ([self.openBisModel entityHasChildren: object]) {
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     } else {
         cell.accessoryType = UITableViewCellAccessoryNone;

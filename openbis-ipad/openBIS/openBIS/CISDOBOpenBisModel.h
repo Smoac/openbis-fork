@@ -52,7 +52,8 @@
 
 //! Select the object and return it
 - (CISDOBIpadEntity *)selectObjectAtIndexPath:(NSIndexPath *)indexPath;
-- (BOOL)selectionHasChildren; //!< Return YES if the selected object is a group (has children)
+- (BOOL)selectionHasChildren; //!< Return YES if the selected object has children in the selection context
+- (BOOL)entityHasChildren:(CISDOBIpadEntity *)entity; //!< Return YES if the entity has children in the selection context.
 
 // Actions
 - (BOOL)insertNewObjectOrError:(NSError **)error; //!< Return YES if operation succeeded

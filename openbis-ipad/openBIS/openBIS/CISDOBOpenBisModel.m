@@ -82,7 +82,16 @@
 
 - (BOOL)selectionHasChildren
 {
-    return [_selectedObject.childrenPermIds count] > 0;
+    if (!_selectedObject) return NO;
+    return [self entityHasChildren: _selectedObject];
+}
+
+- (BOOL)entityHasChildren:(CISDOBIpadEntity *)entity
+{
+    // In this case we are already looking at the children. No need to allow circular recursion.
+    if (_parentModel && [entity isEqual: _parentModel.selectedObject]) return NO;
+    
+    return [entity.childrenPermIds count] > 0;
 }
 
 #pragma mark - Actions
