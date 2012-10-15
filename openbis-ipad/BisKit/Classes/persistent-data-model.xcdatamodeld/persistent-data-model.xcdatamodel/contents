@@ -14,6 +14,7 @@
         <attribute name="summaryHeader" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <fetchRequest name="EntitiesByPermIds" entity="CISDOBIpadEntity" predicateString="permId IN $PERM_IDS" fetchBatchSize="20"/>
+    <fetchRequest name="EntityAndChildren" entity="CISDOBIpadEntity" predicateString="SELF == $ENTITY OR permId IN $CHILDREN" fetchBatchSize="20"/>
     <elements>
         <element name="CISDOBIpadEntity" positionX="160" positionY="192" width="128" height="210"/>
     </elements>

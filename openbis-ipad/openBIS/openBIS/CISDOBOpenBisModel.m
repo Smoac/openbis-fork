@@ -41,7 +41,6 @@
     _selectedObject = nil;
     
     if (self.parentModel) {
-        self.fetchedResultsController = parentModel.fetchedResultsController;
         self.managedObjectContext = parentModel.managedObjectContext;
     }
     
@@ -130,12 +129,8 @@
 
 #pragma mark - Fetched results controller
 
-- (NSFetchedResultsController *)fetchedResultsController
+- (void)initializeRootFetchedResultsController
 {
-    if (_fetchedResultsController != nil) {
-        return _fetchedResultsController;
-    }
-    
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: self.managedObjectContext];
     [fetchRequest setEntity:entity];
@@ -146,7 +141,7 @@
     NSArray *sortDescriptors = @[groupSortDescriptor, summaryHeaderSortDescriptor];
     [fetchRequest setSortDescriptors:sortDescriptors];
     
-    NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"group" cacheName: @"Master"];
+    NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"group" cacheName: @"Root"];
     aFetchedResultsController.delegate = self;
     self.fetchedResultsController = aFetchedResultsController;
     
@@ -156,6 +151,48 @@
 	    NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
 	    abort();
 	}
+}
+
+- (void)initializeChildFetchedResultsController
+{
+    NSAssert(_parentModel.selectedObject != nil, @"Cannot initialize the model as a child of an existing model.");
+    NSEntityDescription *entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: self.managedObjectContext];
+    NSManagedObjectModel *model = [entity managedObjectModel];
+    NSDictionary *fetchVariables =
+        [NSDictionary dictionaryWithObjectsAndKeys:
+            _parentModel.selectedObject, @"ENTITY",
+            _parentModel.selectedObject.childrenPermIds, @"CHILDREN",
+            nil];
+    NSFetchRequest *fetchRequest = [model fetchRequestFromTemplateWithName: @"EntityAndChildren" substitutionVariables: fetchVariables];
+    
+    NSSortDescriptor *groupSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"group" ascending: NO];
+    NSSortDescriptor *summaryHeaderSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"summaryHeader" ascending: YES];
+    NSArray *sortDescriptors = @[groupSortDescriptor, summaryHeaderSortDescriptor];
+    [fetchRequest setSortDescriptors:sortDescriptors];
+    
+    NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"group" cacheName: _parentModel.selectedObject.permId];
+    aFetchedResultsController.delegate = self;
+    self.fetchedResultsController = aFetchedResultsController;
+    
+	NSError *error = nil;
+	if (![self.fetchedResultsController performFetch:&error]) {
+        // TODO Implement error handling
+	    NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+	    abort();
+	}
+}
+
+
+- (NSFetchedResultsController *)fetchedResultsController
+{
+    if (_fetchedResultsController != nil) {
+        return _fetchedResultsController;
+    }
+    
+    if (nil == _parentModel || nil == _parentModel.selectedObject)
+        [self initializeRootFetchedResultsController];
+    else
+        [self initializeChildFetchedResultsController];
     
     return _fetchedResultsController;
 }    
