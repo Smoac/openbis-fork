@@ -126,8 +126,11 @@
 {
     // Segue to the detail view unless we are on the ipad
     if ([[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad) return;
-
+    
     [self.openBisModel selectObjectAtIndexPath: indexPath];
+
+    // Figure out what to do with the detail view and the navigation view
+    self.detailViewController.openBisModel = self.openBisModel;
     if ([self.openBisModel selectionHasChildren]) {
         // Drill into the hierarchy
         UIStoryboard *storyboard = self.storyboard;
@@ -137,7 +140,6 @@
         [self.detailViewController selectionIsChanging];
     } else {
         // Show the current selection
-        self.detailViewController.openBisModel = self.openBisModel;
         [self.detailViewController selectionDidChange];
     }
 }
