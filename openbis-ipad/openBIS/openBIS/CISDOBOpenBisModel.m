@@ -26,6 +26,13 @@
 @implementation CISDOBOpenBisModel
 
 #pragma mark - Initialize
+- (id)init
+{
+    if (!(self = [self initWithParentModel: nil])) return nil;
+
+    return self;
+}
+
 - (id)initWithParentModel:(CISDOBOpenBisModel *)parentModel
 {
     if (!(self = [super init])) return nil;

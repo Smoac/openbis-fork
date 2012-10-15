@@ -56,6 +56,13 @@
     }
 }
 
+- (void)selectionIsChanging
+{
+    // Update the view, but do not dissmiss the popover
+    [self configureViewProvisionally];
+    [self requestServerSync];
+}
+
 - (CISDOBIpadEntity *)detailItem { return [self.openBisModel selectedObject]; }
 
 - (void)configureViewProvisionally

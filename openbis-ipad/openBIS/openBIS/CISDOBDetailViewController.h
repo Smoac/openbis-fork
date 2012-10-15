@@ -35,6 +35,7 @@
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 
 // Actions
-- (void)selectionDidChange;
+- (void)selectionDidChange;     //!< Signals that the user has made a final selction
+- (void)selectionIsChanging;    //!< Signals that the user has changed the seleciton, but has not yet decided
 
 @end

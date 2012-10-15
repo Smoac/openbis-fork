@@ -39,7 +39,7 @@
 @property (weak, nonatomic) CISDOBOpenBisModel *parentModel;
 
 // Initialize
-- (id)initWithParentModel:(CISDOBOpenBisModel *)parentModel;
+- (id)initWithParentModel:(CISDOBOpenBisModel *)parentModel; //!< The designated initializer
 
 // Model
 - (NSInteger)numberOfSections; //!< Get the number of categories for the current selection

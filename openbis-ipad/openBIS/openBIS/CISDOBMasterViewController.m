@@ -54,7 +54,6 @@
 //    UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(insertNewObject:)];
 //    self.navigationItem.rightBarButtonItem = addButton;
     self.detailViewController = (CISDOBDetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
-    self.detailViewController.openBisModel = self.openBisModel;
 }
 
 - (void)didReceiveMemoryWarning
@@ -128,17 +127,19 @@
     // Segue to the detail view unless we are on the ipad
     if ([[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad) return;
 
+    // Drill into the hierarchy
     [self.openBisModel selectObjectAtIndexPath: indexPath];
     if ([self.openBisModel isSelectionGroup]) {
         UIStoryboard *storyboard = self.storyboard;
         CISDOBMasterViewController *child = [storyboard instantiateViewControllerWithIdentifier: @"Master"];
         [child initializeDrillDownFrom: self];
-
         [self.navigationController pushViewController: child animated: YES];
+        [self.detailViewController selectionIsChanging];
     } else {
+        // Show the current selection
+        self.detailViewController.openBisModel = self.openBisModel;
         [self.detailViewController selectionDidChange];
     }
-
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
