@@ -127,9 +127,9 @@
     // Segue to the detail view unless we are on the ipad
     if ([[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad) return;
 
-    // Drill into the hierarchy
     [self.openBisModel selectObjectAtIndexPath: indexPath];
-    if ([self.openBisModel isSelectionGroup]) {
+    if ([self.openBisModel selectionHasChildren]) {
+        // Drill into the hierarchy
         UIStoryboard *storyboard = self.storyboard;
         CISDOBMasterViewController *child = [storyboard instantiateViewControllerWithIdentifier: @"Master"];
         [child initializeDrillDownFrom: self];

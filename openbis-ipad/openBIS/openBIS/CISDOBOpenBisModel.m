@@ -81,7 +81,7 @@
     return _selectedObject;
 }
 
-- (BOOL)isSelectionGroup
+- (BOOL)selectionHasChildren
 {
     return [_selectedObject.childrenPermIds count] > 0;
 }
