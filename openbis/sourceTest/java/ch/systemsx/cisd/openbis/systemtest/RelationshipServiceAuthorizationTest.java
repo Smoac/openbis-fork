@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
-import org.springframework.test.context.ContextConfiguration;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -43,8 +42,6 @@ import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
 /**
  * @author anttil
  */
-@ContextConfiguration(locations =
-    { "classpath:stub_relationship_service.xml" }, inheritLocations = true)
 public class RelationshipServiceAuthorizationTest extends BaseTest
 {
     Space sourceSpace;
