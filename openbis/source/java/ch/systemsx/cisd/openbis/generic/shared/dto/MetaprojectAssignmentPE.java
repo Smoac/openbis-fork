@@ -55,7 +55,7 @@ public class MetaprojectAssignmentPE implements Serializable, IIdHolder
 
     private SamplePE sample;
 
-    private DataPE data;
+    private DataPE dataSet;
 
     private MaterialPE material;
 
@@ -121,14 +121,14 @@ public class MetaprojectAssignmentPE implements Serializable, IIdHolder
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.DATA_ID_COLUMN, updatable = false)
-    public DataPE getData()
+    public DataPE getDataSet()
     {
-        return data;
+        return dataSet;
     }
 
-    public void setData(DataPE data)
+    public void setDataSet(DataPE dataSet)
     {
-        this.data = data;
+        this.dataSet = dataSet;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -172,7 +172,7 @@ public class MetaprojectAssignmentPE implements Serializable, IIdHolder
         builder.append(getMetaproject(), that.getMetaproject());
         builder.append(getExperiment(), that.getExperiment());
         builder.append(getSample(), that.getSample());
-        builder.append(getData(), that.getData());
+        builder.append(getDataSet(), that.getDataSet());
         builder.append(getMaterial(), that.getMaterial());
         return builder.isEquals();
     }
@@ -184,7 +184,7 @@ public class MetaprojectAssignmentPE implements Serializable, IIdHolder
         builder.append(getMetaproject());
         builder.append(getExperiment());
         builder.append(getSample());
-        builder.append(getData());
+        builder.append(getDataSet());
         builder.append(getMaterial());
         return builder.toHashCode();
     }

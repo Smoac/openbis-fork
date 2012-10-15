@@ -3496,16 +3496,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     samples.add(SampleTranslator
                             .translateWithoutRevealingData(metaprojectAssignment.getSample()));
                 }
-            } else if (metaprojectAssignment.getData() != null)
+            } else if (metaprojectAssignment.getDataSet() != null)
             {
-                if (authorizationUtils.canAccessDataSet(metaprojectAssignment.getData()))
+                if (authorizationUtils.canAccessDataSet(metaprojectAssignment.getDataSet()))
                 {
-                    dataSets.add(DataSetTranslator.translate(metaprojectAssignment.getData(),
+                    dataSets.add(DataSetTranslator.translate(metaprojectAssignment.getDataSet(),
                             baseIndexURL));
                 } else
                 {
                     dataSets.add(DataSetTranslator
-                            .translateWithoutRevealingData(metaprojectAssignment.getData()));
+                            .translateWithoutRevealingData(metaprojectAssignment.getDataSet()));
                 }
             } else if (metaprojectAssignment.getMaterial() != null)
             {

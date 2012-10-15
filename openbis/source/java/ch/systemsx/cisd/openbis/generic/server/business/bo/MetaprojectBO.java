@@ -168,7 +168,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
         {
             DataPE dataPE = getDataDAO().tryGetByTechId(dataSetId);
             MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
-            metaprojectAssignmentPE.setData(dataPE);
+            metaprojectAssignmentPE.setDataSet(dataPE);
             metaproject.addAssignment(metaprojectAssignmentPE);
         }
 
@@ -224,7 +224,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
         {
             DataPE dataPE = getDataDAO().tryGetByTechId(dataSetId);
             MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
-            metaprojectAssignmentPE.setData(dataPE);
+            metaprojectAssignmentPE.setDataSet(dataPE);
             metaproject.removeAssignment(metaprojectAssignmentPE);
         }
 

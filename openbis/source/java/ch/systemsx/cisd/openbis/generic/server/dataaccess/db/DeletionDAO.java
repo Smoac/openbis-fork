@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IDeletablePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -177,6 +178,8 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
             case MATERIAL:
                 break;
         }
+
+        revertDeletionOfRelationships(deletion, TableNames.METAPROJECT_ASSIGNMENTS_ALL_TABLE);
 
         scheduleDynamicPropertiesEvaluationByIds(TechId.asLongs(ids), entityKind);
 
@@ -334,6 +337,8 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                 break;
         }
 
+        trashMetaprojectAssignments(entityIds, entityKind, deletion);
+
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("trashing %d %ss", updatedRows, entityKind.getLabel()));
@@ -380,6 +385,44 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         {
             operationLog.info(String
                     .format("trashing %d %ss", updatedRows, "sample relationships."));
+        }
+        hibernateTemplate.flush();
+
+        return updatedRows;
+    }
+
+    private int trashMetaprojectAssignments(final List<TechId> entityIds,
+            final EntityKind entityKind, final DeletionPE deletion) throws DataAccessException
+    {
+        if (entityIds.isEmpty())
+        {
+            return 0;
+        }
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        int updatedRows = (Integer) hibernateTemplate.execute(new HibernateCallback()
+            {
+                //
+                // HibernateCallback
+                //
+                @Override
+                public final Object doInHibernate(final Session session) throws HibernateException,
+                        SQLException
+                {
+                    // NOTE: 'VERSIONED' makes modification time modified too
+                    return session
+                            .createQuery(
+                                    "UPDATE " + MetaprojectAssignmentPE.class.getSimpleName()
+                                            + " SET deletion = :deletion"
+                                            + " WHERE deletion IS NULL" + " AND "
+                                            + entityKind.getLabel() + ".id IN (:ids)")
+                            .setParameter("deletion", deletion)
+                            .setParameterList("ids", TechId.asLongs(entityIds)).executeUpdate();
+                }
+            });
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("trashing %d %ss", updatedRows, entityKind.getLabel()
+                    + " metaproject assignments."));
         }
         hibernateTemplate.flush();
 
