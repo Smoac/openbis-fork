@@ -17,9 +17,6 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -27,6 +24,8 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -34,27 +33,25 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTestCase
 {
     private DssRegistrationLogDirectoryHelper dssRegistrationLogDirHelper;
+    private BufferedAppender logAppender;
 
     @BeforeMethod
     @Override
     public void setUp() throws IOException
     {
         super.setUp();
-        dssRegistrationLogDirHelper = new DssRegistrationLogDirectoryHelper(workingDirectory);
+        logAppender = new BufferedAppender();
+        MockTimeProvider timeProvider = new MockTimeProvider();
+        dssRegistrationLogDirHelper =
+                new DssRegistrationLogDirectoryHelper(workingDirectory, timeProvider);
     }
 
     @Test
     public void testLogFilenameGeneration()
     {
-        String logFilename = dssRegistrationLogDirHelper.generateLogFileName("filename", "threadname");
-        Pattern p = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}-\\d{3}_(.+)_(.+).log$");
-        Matcher m = p.matcher(logFilename);
-        assertTrue("Log filename does not match expected pattern", m.matches());
-        String threadnameString = m.group(1);
-        String filenameString = m.group(2);
-
-        assertEquals("threadname", threadnameString);
-        assertEquals("filename", filenameString);
+        String logFilename =
+                dssRegistrationLogDirHelper.generateLogFileName("filename", "threadname");
+        assertEquals("1970-01-01_01-00-00-000_threadname_filename.log", logFilename);
     }
 
     @Test
@@ -68,9 +65,13 @@ public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTes
         assertTrue(logFile.getFile().exists());
         assertEquals("succeeded", logFile.getFile().getParentFile().getName());
 
+        logFile.log("hello");
         logFile.registerFailure();
         assertTrue(logFile.getFile().exists());
         assertEquals("failed", logFile.getFile().getParentFile().getName());
+        assertEquals("Data set registration failed. Registration log "
+                + "(1970-01-01_01-00-00-000_threadname_filename.log):\n"
+                + "1970-01-01 01:00:01 hello", logAppender.getLogContent());
 
         // Check that duplicating a registerFailure does not cause problems
         logFile.registerFailure();
@@ -86,28 +87,27 @@ public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTes
         logFile.log("2: The message");
         logFile.registerSuccess();
         logFile.log("3: Succeeded");
-        List<String> contents = FileUtilities.loadToStringList(logFile.getFile());
-        assertTrue(contents.get(0), Pattern.matches("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} 1: The message$", contents.get(0)));
-        assertTrue(contents.get(1), Pattern.matches("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} 2: The message$", contents.get(1)));
-        assertTrue(contents.get(2), Pattern.matches("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} 3: Succeeded$", contents.get(2)));
+        assertEquals("1970-01-01 01:00:01 1: The message\n"
+                + "1970-01-01 01:00:02 2: The message\n" + "1970-01-01 01:00:03 3: Succeeded\n",
+                FileUtilities.loadToString(logFile.getFile()));
     }
 
     @Test
     public void testLoggingWithTruncating()
     {
         DssRegistrationLogger logFile = createLogFile();
-        logFile.logTruncatingIfNecessary("This is a very long string, in fact, a string that is longer than the limit for the length of an allowed string");
+        logFile.logTruncatingIfNecessary("This is a very long string, in fact, "
+                + "a string that is longer than the limit for the length of an allowed string");
         String contents = FileUtilities.loadToString(logFile.getFile());
-        assertTrue(contents,
-                Pattern.matches(
-                        "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} This is a very long string, in fact, a string that is longer than the limit for the length of an...\\n$",
-                        contents));
+        assertEquals("1970-01-01 01:00:01 This is a very long string, in fact, "
+                + "a string that is longer than the limit for the length of an...\n", contents);
     }
 
     private DssRegistrationLogger createLogFile()
     {
         dssRegistrationLogDirHelper.initializeSubdirectories();
-        return dssRegistrationLogDirHelper.createNewLogFile("filename", "threadname", FileOperations.getInstance());
+        return dssRegistrationLogDirHelper.createNewLogFile("filename", "threadname",
+                FileOperations.getInstance());
     }
 
 }

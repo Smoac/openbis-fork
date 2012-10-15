@@ -20,6 +20,9 @@ import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
+
 /**
  * Generate a filename comprised of a timestamp and the information specified in the constructor.
  * 
@@ -35,6 +38,8 @@ public class DssUniqueFilenameGenerator
 
     private final String extensionOrNull;
 
+    private final ITimeProvider timeProvider;
+
     /**
      * Specify the information used to generate the filename
      * 
@@ -44,7 +49,13 @@ public class DssUniqueFilenameGenerator
      */
     public DssUniqueFilenameGenerator(String threadName, String name, String extensionOrNull)
     {
+        this(SystemTimeProvider.SYSTEM_TIME_PROVIDER, threadName, name, extensionOrNull);
+    }
+    
+    public DssUniqueFilenameGenerator(ITimeProvider timeProvider, String threadName, String name, String extensionOrNull)
+    {
         super();
+        this.timeProvider = timeProvider;
         this.threadName = threadName;
         this.name = name;
         this.extensionOrNull = extensionOrNull;
@@ -56,6 +67,7 @@ public class DssUniqueFilenameGenerator
         // The log file name is YYYY-MM-DD_HH-mm-ss-SSS_threadName_name.log
         StringBuilder filename = new StringBuilder();
         GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTimeInMillis(timeProvider.getTimeInMilliseconds());
 
         String dateSection = DateFormatUtils.ISO_DATE_FORMAT.format(calendar);
         filename.append(dateSection);

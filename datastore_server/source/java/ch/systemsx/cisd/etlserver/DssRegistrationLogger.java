@@ -21,9 +21,14 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.time.FastDateFormat;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 
 /**
  * Interface for logging into the dss registration log.
@@ -32,11 +37,16 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
  */
 public class DssRegistrationLogger
 {
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            DssRegistrationLogger.class);
+    
     private File file;
 
     private final DssRegistrationLogDirectoryHelper helper;
 
     private final IFileOperations fileOperations;
+
+    private final ITimeProvider timeProvider;
 
     /**
      * gets the handle to the file where this logger is logging
@@ -46,19 +56,28 @@ public class DssRegistrationLogger
         return file;
     }
 
-    public DssRegistrationLogger(File file, DssRegistrationLogDirectoryHelper helper, IFileOperations fileOperations)
+    public DssRegistrationLogger(File file, DssRegistrationLogDirectoryHelper helper,
+            IFileOperations fileOperations)
     {
-        super();
+        this(file, helper, fileOperations, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+    }
+
+    public DssRegistrationLogger(File file, DssRegistrationLogDirectoryHelper helper,
+            IFileOperations fileOperations, ITimeProvider timeProvider)
+    {
         this.file = file;
         this.helper = helper;
         this.fileOperations = fileOperations;
+        this.timeProvider = timeProvider;
     }
 
     /**
-     * Change the state to Failed
+     * Change the state to Failed. The log content is also copied to the notification log.
      */
     public void registerFailure()
     {
+        String logContent = FileUtilities.loadExactToString(file);
+        notificationLog.error("Data set registration failed. Registration log (" + file.getName() + "):\n" + logContent);
         moveToDir(helper.getFailedDir());
     }
 
@@ -78,7 +97,7 @@ public class DssRegistrationLogger
     public void log(String message)
     {
         StringBuilder logMessage = new StringBuilder();
-        logMessage.append(simpleNoISODateFormat.format(new Date()));
+        logMessage.append(simpleNoISODateFormat.format(new Date(timeProvider.getTimeInMilliseconds())));
         logMessage.append(" ");
         logMessage.append(message);
         logMessage.append("\n");

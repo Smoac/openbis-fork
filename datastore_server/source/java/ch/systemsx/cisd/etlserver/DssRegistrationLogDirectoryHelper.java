@@ -21,6 +21,8 @@ import java.io.IOException;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 
 /**
  * A utility class for working with the directory structure of the "log-registrations" directory
@@ -38,11 +40,19 @@ public class DssRegistrationLogDirectoryHelper
 
     private final File dssRegistrationLogDir;
 
+    private final ITimeProvider timeProvider;
+
     public DssRegistrationLogDirectoryHelper(File dssRegistrationLogDir)
     {
-        this.dssRegistrationLogDir = dssRegistrationLogDir;
+        this(dssRegistrationLogDir, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
+    public DssRegistrationLogDirectoryHelper(File dssRegistrationLogDir, ITimeProvider timeProvider)
+    {
+        this.dssRegistrationLogDir = dssRegistrationLogDir;
+        this.timeProvider = timeProvider;
+    }
+    
     /**
      * Initialize the subdirectory structure for the logs
      */
@@ -91,7 +101,7 @@ public class DssRegistrationLogDirectoryHelper
         {
             throw new IOExceptionUnchecked(e);
         }
-        return new DssRegistrationLogger(logFile, this, fileOperations);
+        return new DssRegistrationLogger(logFile, this, fileOperations, timeProvider);
     }
 
     /**
@@ -99,7 +109,7 @@ public class DssRegistrationLogDirectoryHelper
      */
     String generateLogFileName(String name, String threadName)
     {
-        return new DssUniqueFilenameGenerator(threadName, name, ".log").generateFilename();
+        return new DssUniqueFilenameGenerator(timeProvider, threadName, name, ".log").generateFilename();
     }
 
     private void createDirectoryIfNecessary(File dir)
