@@ -111,6 +111,26 @@ NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeURL, NSError
     STAssertEquals([elements count], count, @"%llu in db != %llu from server", [elements count], count);
 }
 
+- (void)checkFindingChildren
+{
+	NSError* error;
+	NSFetchRequest* request = [[NSFetchRequest alloc] init];
+	NSEntityDescription* entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: _moc];
+	[request setEntity: entity];
+	NSArray* allEntities = [_moc executeFetchRequest: request error: &error];
+    
+    NSManagedObjectModel *model = [entity managedObjectModel];
+    for (CISDOBIpadEntity *entity in allEntities) {
+        if ([entity.childrenPermIds count] > 0) {
+            NSDictionary *fetchVariables = [NSDictionary dictionaryWithObject: entity.childrenPermIds forKey: @"PERM_IDS"];
+            request = [model fetchRequestFromTemplateWithName: @"EntitiesByPermIds" substitutionVariables: fetchVariables];
+            NSArray *children = [_moc executeFetchRequest: request error: &error];
+            STAssertTrue([entity.childrenPermIds count] == [children count], @"Entity children %@ should resolve correctly. Found instead the following %@", entity.childrenPermIds, children);
+        }
+    }
+
+}
+
 - (void)testPersistEntities
 {
     CISDOBAsyncCall *call;
@@ -127,6 +147,9 @@ NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeURL, NSError
     
     // Check that the cardnality is equal
     [self checkEntityCardnalityEquals: [_callResult count]];
+    
+    // Check that the children could be found
+    [self checkFindingChildren];
 }
 
 @end
