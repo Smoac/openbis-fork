@@ -128,6 +128,7 @@
     if ([[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad) return;
     
     [self.openBisModel selectObjectAtIndexPath: indexPath];
+    self.title = self.openBisModel.selectedObject.summaryHeader;
 
     // Figure out what to do with the detail view and the navigation view
     self.detailViewController.openBisModel = self.openBisModel;
@@ -166,7 +167,6 @@
 - (void)initializeDrillDownFrom:(CISDOBMasterViewController *)parent
 {
     self.openBisModel = [[CISDOBOpenBisModel alloc] initWithParentModel: parent.openBisModel];
-    self.title = self.openBisModel.selectedObject.summaryHeader;
 }
 
 #pragma mark - Fetched results controller
