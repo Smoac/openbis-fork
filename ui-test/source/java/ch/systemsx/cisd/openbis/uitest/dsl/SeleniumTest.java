@@ -283,7 +283,7 @@ public abstract class SeleniumTest
         System.out.println("dssUrl: " + dssUrl);
         System.out.println("startPage: " + startPage);
 
-        System.setProperty("webdriver.firefox.profile", "default");
+        // System.setProperty("webdriver.firefox.profile", "default");
 
         driver = new FirefoxDriver();
         setImplicitWaitToDefault();
