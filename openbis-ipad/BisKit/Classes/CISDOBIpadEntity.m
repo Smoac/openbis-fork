@@ -90,7 +90,7 @@
     self.identifier = rawEntity.identifier;
     self.permId = rawEntity.permId;
     self.refcon = rawEntity.refcon;
-    self.group = rawEntity.group;
+    self.group = rawEntity.category;
     self.imageUrl = rawEntity.imageUrl;
     self.childrenPermIdsJson = rawEntity.children;
     self.propertiesJson = rawEntity.properties;
