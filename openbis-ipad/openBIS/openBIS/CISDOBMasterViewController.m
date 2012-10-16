@@ -29,7 +29,7 @@
 
 @interface CISDOBMasterViewController ()
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath;
-- (void)initializeDrillDownFrom:(CISDOBMasterViewController *)parent;
+- (void)initializeDrillDownFromParent:(CISDOBMasterViewController *)parent;
 @end
 
 @implementation CISDOBMasterViewController
@@ -137,7 +137,7 @@
         // Drill into the hierarchy
         UIStoryboard *storyboard = self.storyboard;
         CISDOBMasterViewController *child = [storyboard instantiateViewControllerWithIdentifier: @"Master"];
-        [child initializeDrillDownFrom: self];
+        [child initializeDrillDownFromParent: self];
         [self.navigationController pushViewController: child animated: YES];
         [self.detailViewController selectionIsChanging];
     } else {
@@ -236,7 +236,7 @@
     _openBisModel.delegate = self;
 }
 
-- (void)initializeDrillDownFrom:(CISDOBMasterViewController *)parent
+- (void)initializeDrillDownFromParent:(CISDOBMasterViewController *)parent
 {
     self.openBisModel = [[CISDOBOpenBisModel alloc] initWithParentModel: parent.openBisModel];
     // The title of the drill-down is the parent's title
