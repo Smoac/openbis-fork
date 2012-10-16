@@ -137,7 +137,7 @@ NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeURL, NSError
     call = [_service loginUser: GetDefaultUserName() password: GetDefaultUserPassword()];
     [self configureAndRunCallSynchronously: call];
     
-    call = [_service listAllEntities];
+    call = [_service listRootLevelEntities];
     [self configureAndRunCallSynchronously: call];
     
     STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");

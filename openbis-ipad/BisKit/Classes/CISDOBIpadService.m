@@ -77,7 +77,7 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 - (void)rememberIpadService:(NSArray *)services notifying:(CISDOBIpadServiceCall *)iPadCall
 {    
     for (NSDictionary *service in services) {
-        if ([@"ipad-read-service" isEqualToString: [service objectForKey: @"serviceKey"]]) {
+        if ([@"ipad-read-service-v1" isEqualToString: [service objectForKey: @"serviceKey"]]) {
             _ipadReadService = service;
             break;
         }
@@ -141,7 +141,7 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
     return iPadCall;
 }
 
-- (CISDOBAsyncCall *)listAllEntities;
+- (CISDOBAsyncCall *)listRootLevelEntities;
 {
     CISDOBAsyncCall *connectionCall = [_connection
         createReportFromDataStore: [_ipadReadService objectForKey: @"dataStoreCode"]

@@ -52,7 +52,7 @@
 - (NSDictionary *)extractIpadService:(NSArray *)services
 {
     for (NSDictionary *service in services) {
-        if ([@"ipad-read-service" isEqualToString: [service objectForKey: @"serviceKey"]]) {
+        if ([@"ipad-read-service-v1" isEqualToString: [service objectForKey: @"serviceKey"]]) {
             return service;
         }
     }
@@ -80,7 +80,7 @@
     [self configureAndRunCallSynchronously: call];
     STAssertNotNil(_callResult, @"There should be some aggregation services on the server");
     NSDictionary *service = [self extractIpadService: _callResult];    
-    STAssertNotNil(service, @"There should be a service with key \"ipad-read-service\". Services: %@", _callResult);
+    STAssertNotNil(service, @"There should be a service with key \"ipad-read-service-v1\". Services: %@", _callResult);
     
     call =
         [_connection
@@ -88,9 +88,9 @@
             aggregationService: [service objectForKey: @"serviceKey"]
             parameters: nil];
     [self configureAndRunCallSynchronously: call];
-    STAssertNotNil(_callResult, @"The ipad-read-service should have returned some data.");
+    STAssertNotNil(_callResult, @"The ipad-read-service-v1 should have returned some data.");
     NSArray *rows = [_callResult objectForKey: @"rows"];
-    STAssertTrue([rows count] > 0, @"The ipad-read-service should have returned some data.");
+    STAssertTrue([rows count] > 0, @"The ipad-read-service-v1 should have returned some data.");
     for (NSArray* row in rows)
         [self assertServiceDataRowIsParsable: row];
 }

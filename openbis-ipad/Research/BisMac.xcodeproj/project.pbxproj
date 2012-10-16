@@ -230,9 +230,9 @@
 				3649C8A915EBB2950019AC55 /* CISDOBConnection.m */,
 				3680B1321611B5CE008BA207 /* CISDOBIpadService.h */,
 				3680B1331611B5CE008BA207 /* CISDOBIpadService.m */,
-				36F71E4A1619829300C87277 /* persistent-data-model.xcdatamodeld */,
 				36F71E4D1619834600C87277 /* CISDOBIpadEntity.h */,
 				36F71E4E1619834600C87277 /* CISDOBIpadEntity.m */,
+				36F71E4A1619829300C87277 /* persistent-data-model.xcdatamodeld */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
