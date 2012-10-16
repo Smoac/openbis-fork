@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+PROJECT_CODE = "TEST-FEATURE-PROJECT"
 PLATE_GEOMETRY_PROPERTY_CODE = "$PLATE_GEOMETRY"
 PLATE_GEOMETRY = "384_WELLS_16X24"
 
@@ -17,10 +18,10 @@ def create_experiment(tr):
     space = tr.getSpace("TEST")
     if space == None:
         space = tr.createNewSpace("TEST", "etlserver")
-    project = tr.getProject("/TEST/TEST-PROJECT")
+    project = tr.getProject("/TEST/" + PROJECT_CODE)
     if project == None:
-        project = tr.createNewProject("/TEST/TEST-PROJECT")
-    expid = "/TEST/TEST-PROJECT/TRANSFORMED_THUMBNAILS_EXP"
+        project = tr.createNewProject("/TEST/" + PROJECT_CODE)
+    expid = "/TEST/" + PROJECT_CODE +"/TRANSFORMED_THUMBNAILS_EXP"
 
     exp = tr.createNewExperiment(expid, 'SIRNA_HCS')
     exp.setPropertyValue("DESCRIPTION", "Test experiment")
