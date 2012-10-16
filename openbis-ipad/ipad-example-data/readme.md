@@ -1,7 +1,7 @@
 Introduction
 ============
 
-This describes what needs to be done to initialize and use the iPad module.
+This describes what needs to be done to initialize and use the example iPad module.
 
 Initialization
 --------------

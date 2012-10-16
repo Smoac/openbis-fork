@@ -13,7 +13,7 @@ def add_headers(builder):
 		REFCON : Data that is passed unchanged back to the server when a row is modified. 
 			This can be used by the server to encode whatever it needs in order to 
 			modify the row.
-		GROUP : A group identifier for showing the entity. If empty or None, then the 
+		CATEGORY : A category identifier for showing the entity. If empty or None, then the 
 			the entity in this row is not shown in top level navigation views. Such entities
 			may appear as children of other entities.
 		IMAGE_URL : A url for an image associated with this entity. If None or empty, no
@@ -26,7 +26,7 @@ def add_headers(builder):
 	builder.addHeader("IDENTIFIER")
 	builder.addHeader("PERM_ID")
 	builder.addHeader("REFCON")
-	builder.addHeader("GROUP")
+	builder.addHeader("CATEGORY")
 	builder.addHeader("IMAGE_URL")
 	builder.addHeader("CHILDREN")
 	builder.addHeader("PROPERTIES")
@@ -45,7 +45,7 @@ def add_row(builder, entry):
 	row.setCell("IDENTIFIER", entry.get("IDENTIFIER"))
 	row.setCell("PERM_ID", entry.get("PERM_ID"))
 	row.setCell("REFCON", entry.get("REFCON"))
-	row.setCell("GROUP", entry.get("GROUP"))
+	row.setCell("CATEGORY", entry.get("CATEGORY"))
 	row.setCell("IMAGE_URL", entry.get("IMAGE_URL"))
 	row.setCell("CHILDREN", entry.get("CHILDREN"))
 	row.setCell("PROPERTIES", str(entry.get("PROPERTIES")))
@@ -59,7 +59,7 @@ def material_to_dict(material):
 	refcon['entityKind'] = 'MATERIAL'
 	refcon['entityType'] = material.getMaterialType()
 	material_dict['REFCON'] = ObjectMapper().writeValueAsString(refcon)
-	material_dict['GROUP'] = material.getMaterialType()
+	material_dict['CATEGORY'] = material.getMaterialType()
 	if material.getMaterialType() == '5HT_COMPOUND':
 		material_dict['SUMMARY'] = material.getPropertyValue("FORMULA")
 		material_dict['IMAGE_URL'] = image_url_for_compound(material)
@@ -84,7 +84,7 @@ def sample_to_dict(five_ht_sample, material_by_perm_id):
 	refcon['entityKind'] = 'SAMPLE'
 	refcon['entityType'] = five_ht_sample.getSampleType()
 	sample_dict['REFCON'] = ObjectMapper().writeValueAsString(refcon)
-	sample_dict['GROUP'] = five_ht_sample.getSampleType()
+	sample_dict['CATEGORY'] = five_ht_sample.getSampleType()
 	compound = material_by_perm_id[five_ht_sample.getPropertyValue("COMPOUND")]
 	sample_dict['IMAGE_URL'] = image_url_for_compound(compound)
 
