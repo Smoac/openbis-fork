@@ -296,6 +296,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public IMetaprojectBO createMetaprojectBO(Session session)
     {
-        return new MetaprojectBO(getDaoFactory(), session);
+        return new MetaprojectBO(getDaoFactory(), createExperimentBO(session),
+                createSampleBO(session), createDataBO(session), createMaterialBO(session), session);
     }
 }

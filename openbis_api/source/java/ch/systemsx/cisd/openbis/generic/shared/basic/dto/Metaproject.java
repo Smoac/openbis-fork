@@ -51,6 +51,25 @@ public class Metaproject implements Serializable
         this.id = id;
     }
 
+    public String getIdentifier()
+    {
+        return new MetaprojectIdentifier(ownerId, name).format();
+    }
+
+    public void setIdentifier(String identifier)
+    {
+        MetaprojectIdentifier identifierObject = MetaprojectIdentifier.parse(identifier);
+        if (identifierObject != null)
+        {
+            this.ownerId = identifierObject.getMetaprojectOwnerId();
+            this.name = identifierObject.getMetaprojectName();
+        } else
+        {
+            this.ownerId = null;
+            this.name = null;
+        }
+    }
+
     public String getName()
     {
         return name;

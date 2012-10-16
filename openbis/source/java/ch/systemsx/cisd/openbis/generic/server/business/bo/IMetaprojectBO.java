@@ -19,28 +19,39 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.IDataSetId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.IMaterialId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
 /**
  * @author Pawel Glyzewski
  */
 public interface IMetaprojectBO extends IEntityBusinessObject
 {
-    void addExperiments(List<TechId> experiments);
+    MetaprojectPE tryFindByMetaprojectId(final IMetaprojectId metaprojectId);
 
-    void addSamples(List<TechId> samples);
+    void loadByMetaprojectId(IMetaprojectId metaprojectId);
 
-    void addDataSets(List<TechId> dataSets);
+    void addExperiments(List<IExperimentId> experiments);
 
-    void addMaterials(List<TechId> materials);
+    void addSamples(List<ISampleId> samples);
 
-    void removeExperiments(List<TechId> experiments);
+    void addDataSets(List<IDataSetId> dataSets);
 
-    void removeSamples(List<TechId> samples);
+    void addMaterials(List<IMaterialId> materials);
 
-    void removeDataSets(List<TechId> dataSets);
+    void removeExperiments(List<IExperimentId> experiments);
 
-    void removeMaterials(List<TechId> materials);
+    void removeSamples(List<ISampleId> samples);
 
-    void deleteByTechId(TechId metaprojectId) throws UserFailureException;
+    void removeDataSets(List<IDataSetId> dataSets);
+
+    void removeMaterials(List<IMaterialId> materials);
+
+    void deleteByMetaprojectId(IMetaprojectId metaprojectId) throws UserFailureException;
+
+    MetaprojectPE getMetaproject();
 }

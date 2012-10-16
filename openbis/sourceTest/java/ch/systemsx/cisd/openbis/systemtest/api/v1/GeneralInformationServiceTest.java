@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment.ExperimentI
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialTypeIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
@@ -60,9 +61,11 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseTimeAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -1015,46 +1018,49 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(2, materials.size());
     }
 
-    // @Test
-    // public void testListMetaprojects()
-    // {
-    // List<Metaproject> metaprojects = generalInformationService.listMetaprojects(sessionToken);
-    //
-    // assertEquals(2, metaprojects.size());
-    // }
-    //
-    // @Test
-    // public void testGetMetaprojects()
-    // {
-    // List<Metaproject> metaprojects = generalInformationService.listMetaprojects(sessionToken);
-    //
-    // MetaprojectAssignments metaprojectAssignments =
-    // generalInformationService.getMetaproject(sessionToken, metaprojects.iterator()
-    // .next());
-    //
-    // assertEquals(1, metaprojectAssignments.getDataSets().size());
-    // assertEquals(1, metaprojectAssignments.getMaterials().size());
-    // assertEquals(1, metaprojectAssignments.getSamples().size());
-    // assertEquals(2, metaprojectAssignments.getExperiments().size());
-    //
-    // generalInformationService.logout(sessionToken);
-    // sessionToken = generalInformationService.tryToAuthenticateForAllServices("test_role", "a");
-    //
-    // metaprojects = generalInformationService.listMetaprojects(sessionToken);
-    //
-    // metaprojectAssignments =
-    // generalInformationService.getMetaproject(sessionToken, metaprojects.iterator()
-    // .next());
-    //
-    // assertEquals(1, metaprojectAssignments.getMaterials().size());
-    // assertEquals(1, metaprojectAssignments.getDataSets().size());
-    // assertTrue(metaprojectAssignments.getDataSets().get(0).isStub());
-    // assertTrue(metaprojectAssignments.getDataSets().get(0).toString().contains("STUB"));
-    // assertEquals(1, metaprojectAssignments.getSamples().size());
-    // assertTrue(metaprojectAssignments.getSamples().get(0).isStub());
-    // assertTrue(metaprojectAssignments.getSamples().get(0).toString().contains("STUB"));
-    // assertEquals(1, metaprojectAssignments.getExperiments().size());
-    // assertTrue(metaprojectAssignments.getExperiments().get(0).isStub());
-    // assertTrue(metaprojectAssignments.getExperiments().get(0).toString().contains("STUB"));
-    // }
+    @Test
+    public void testListMetaprojects()
+    {
+        List<Metaproject> metaprojects = generalInformationService.listMetaprojects(sessionToken);
+
+        assertEquals(2, metaprojects.size());
+    }
+
+    @Test
+    public void testGetMetaprojects()
+    {
+        List<Metaproject> metaprojects = generalInformationService.listMetaprojects(sessionToken);
+
+        Metaproject metaproject = metaprojects.iterator().next();
+
+        MetaprojectAssignments metaprojectAssignments =
+                generalInformationService.getMetaproject(sessionToken, new MetaprojectTechIdId(
+                        metaproject.getId()));
+
+        assertEquals(1, metaprojectAssignments.getDataSets().size());
+        assertEquals(1, metaprojectAssignments.getMaterials().size());
+        assertEquals(1, metaprojectAssignments.getSamples().size());
+        assertEquals(2, metaprojectAssignments.getExperiments().size());
+
+        generalInformationService.logout(sessionToken);
+        sessionToken = generalInformationService.tryToAuthenticateForAllServices("test_role", "a");
+
+        metaprojects = generalInformationService.listMetaprojects(sessionToken);
+        metaproject = metaprojects.iterator().next();
+
+        metaprojectAssignments =
+                generalInformationService.getMetaproject(sessionToken, new MetaprojectTechIdId(
+                        metaproject.getId()));
+
+        assertEquals(1, metaprojectAssignments.getMaterials().size());
+        assertEquals(1, metaprojectAssignments.getDataSets().size());
+        assertTrue(metaprojectAssignments.getDataSets().get(0).isStub());
+        assertTrue(metaprojectAssignments.getDataSets().get(0).toString().contains("STUB"));
+        assertEquals(1, metaprojectAssignments.getSamples().size());
+        assertTrue(metaprojectAssignments.getSamples().get(0).isStub());
+        assertTrue(metaprojectAssignments.getSamples().get(0).toString().contains("STUB"));
+        assertEquals(1, metaprojectAssignments.getExperiments().size());
+        assertTrue(metaprojectAssignments.getExperiments().get(0).isStub());
+        assertTrue(metaprojectAssignments.getExperiments().get(0).toString().contains("STUB"));
+    }
 }

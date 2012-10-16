@@ -27,6 +27,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public interface IMetaprojectDAO extends IGenericDAO<MetaprojectPE>
 {
     /**
+     * Finds a metaproject by the specified owner id and metaproject name. Returns null is no
+     * metaproject is found.
+     */
+    public MetaprojectPE tryFindByOwnerAndName(String ownerId, String metaprojectName);
+
+    /**
      * Lists all metaprojects defined by given user.
      */
     public List<MetaprojectPE> listMetaprojects(PersonPE owner);
@@ -35,4 +41,5 @@ public interface IMetaprojectDAO extends IGenericDAO<MetaprojectPE>
      * Creates a new metaproject or updates existing one.
      */
     public void createOrUpdateMetaproject(MetaprojectPE metaproject, PersonPE owner);
+
 }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
@@ -43,6 +44,12 @@ public interface IExperimentBO extends IEntityBusinessObject
      * change the state of this object, especially the result of {@link #getExperiment()}.
      */
     ExperimentPE tryFindByExperimentIdentifier(final ExperimentIdentifier identifier);
+
+    /**
+     * Returns an experiment found by the given id or null if it does not exist. Does not change the
+     * state of this object, especially the result of {@link #getExperiment()}.
+     */
+    ExperimentPE tryFindByExperimentId(final IExperimentId experimentId);
 
     /** Returns the sample which has been loaded. */
     ExperimentPE getExperiment();

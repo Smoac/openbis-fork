@@ -67,7 +67,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DeletionT
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ListSampleCriteriaPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.MetaprojectPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.MetaprojectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.RevertDeletionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdCollectionPredicate;
@@ -140,6 +139,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calcu
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -3447,25 +3448,31 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
-            @AuthorizationGuard(guardClass = MetaprojectPredicate.class)
-            Metaproject metaproject)
+            IMetaprojectId metaprojectId)
     {
         Session session = getSession(sessionToken);
         String baseIndexURL = getBaseIndexURL(sessionToken);
 
-        IDAOFactory daoFactory = getDAOFactory();
-        IMetaprojectDAO metaprojectDAO = daoFactory.getMetaprojectDAO();
-
-        if (metaproject.getId() == null)
+        if (metaprojectId == null)
         {
-            throw new UserFailureException("The ID of metaproject cannot be null.");
+            throw new UserFailureException("Metaproject id cannot be null");
         }
 
-        MetaprojectPE metaprojectPE = metaprojectDAO.getByTechId(new TechId(metaproject.getId()));
+        IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
+        MetaprojectPE metaprojectPE = metaprojectBO.tryFindByMetaprojectId(metaprojectId);
 
-        AuthorizationServiceUtils authorizationUtils =
-                new AuthorizationServiceUtils(daoFactory, session.tryGetPerson());
+        if (metaprojectPE == null)
+        {
+            throw new UserFailureException("Metaproject with id: " + metaprojectId
+                    + " doesn't exist");
+        }
+
+        AuthorizationServiceUtils authorizationUtils = getAuthorizationService(session);
+        authorizationUtils.checkAccessMetaproject(metaprojectPE);
+
         MetaprojectAssignments metaprojectAssignments = new MetaprojectAssignments();
+        metaprojectAssignments.setMetaproject(MetaprojectTranslator.translate(metaprojectPE));
+
         List<Experiment> experiments = new ArrayList<Experiment>();
         List<Sample> samples = new ArrayList<Sample>();
         List<ExternalData> dataSets = new ArrayList<ExternalData>();
@@ -3523,66 +3530,56 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void addToMetaproject(String sessionToken,
-            @AuthorizationGuard(guardClass = MetaprojectTechIdPredicate.class)
-            TechId metaprojectId, List<TechId> experiments, List<TechId> samples,
-            List<TechId> dataSets, List<TechId> materials)
+    public void addToMetaproject(String sessionToken, IMetaprojectId metaprojectId,
+            MetaprojectAssignmentsIds assignmentsToAdd)
     {
         Session session = getSession(sessionToken);
 
         IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
+        metaprojectBO.loadByMetaprojectId(metaprojectId);
 
-        metaprojectBO.loadDataByTechId(metaprojectId);
-        if (experiments != null)
-        {
-            metaprojectBO.addExperiments(experiments);
-        }
-        if (samples != null)
-        {
-            metaprojectBO.addSamples(samples);
-        }
-        if (dataSets != null)
-        {
-            metaprojectBO.addDataSets(dataSets);
-        }
-        if (materials != null)
-        {
-            metaprojectBO.addMaterials(materials);
-        }
+        getAuthorizationService(session).checkAccessMetaproject(metaprojectBO.getMetaproject());
+
+        metaprojectBO.addExperiments(assignmentsToAdd.getExperiments());
+        metaprojectBO.addSamples(assignmentsToAdd.getSamples());
+        metaprojectBO.addDataSets(assignmentsToAdd.getDataSets());
+        metaprojectBO.addMaterials(assignmentsToAdd.getMaterials());
 
         metaprojectBO.save();
     }
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void removeFromMetaproject(String sessionToken,
-            @AuthorizationGuard(guardClass = MetaprojectTechIdPredicate.class)
-            TechId metaprojectId, List<TechId> experiments, List<TechId> samples,
-            List<TechId> dataSets, List<TechId> materials)
+    public void removeFromMetaproject(String sessionToken, IMetaprojectId metaprojectId,
+            MetaprojectAssignmentsIds assignmentsToRemove)
     {
         Session session = getSession(sessionToken);
 
         IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
+        metaprojectBO.loadByMetaprojectId(metaprojectId);
 
-        metaprojectBO.loadDataByTechId(metaprojectId);
-        metaprojectBO.removeExperiments(experiments);
-        metaprojectBO.removeSamples(samples);
-        metaprojectBO.removeDataSets(dataSets);
-        metaprojectBO.removeMaterials(materials);
+        getAuthorizationService(session).checkAccessMetaproject(metaprojectBO.getMetaproject());
+
+        metaprojectBO.removeExperiments(assignmentsToRemove.getExperiments());
+        metaprojectBO.removeSamples(assignmentsToRemove.getSamples());
+        metaprojectBO.removeDataSets(assignmentsToRemove.getDataSets());
+        metaprojectBO.removeMaterials(assignmentsToRemove.getMaterials());
 
         metaprojectBO.save();
     }
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void deleteMetaproject(String sessionToken,
-            @AuthorizationGuard(guardClass = MetaprojectTechIdPredicate.class)
-            TechId metaprojectId)
+    public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId)
     {
         Session session = getSession(sessionToken);
 
         IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
-        metaprojectBO.deleteByTechId(metaprojectId);
+        metaprojectBO.loadByMetaprojectId(metaprojectId);
+
+        getAuthorizationService(session).checkAccessMetaproject(metaprojectBO.getMetaproject());
+
+        metaprojectBO.deleteByMetaprojectId(metaprojectId);
     }
 
     @Override
@@ -3624,4 +3621,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         metaprojectDAO.createOrUpdateMetaproject(metaprojectPE, session.tryGetPerson());
         return MetaprojectTranslator.translate(metaprojectPE);
     }
+
+    private AuthorizationServiceUtils getAuthorizationService(Session session)
+    {
+        return new AuthorizationServiceUtils(getDAOFactory(), session.tryGetPerson());
+    }
+
 }

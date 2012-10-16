@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
@@ -33,6 +34,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  */
 public interface ISampleBO extends IEntityBusinessObject
 {
+
+    /**
+     * Returns a sample found by the given id or null if it does not exist. Does not change the
+     * state of this object, especially the result of {@link #getSample()}.
+     */
+    SamplePE tryFindBySampleId(final ISampleId sampleId);
 
     /**
      * Loads a sample given by its identifier. Use {@link #loadDataByTechId(TechId)} instead if

@@ -25,6 +25,8 @@ import java.util.Set;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -1348,29 +1350,27 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
-            Metaproject metaproject);
+            IMetaprojectId metaproject);
 
     /**
      * Adds specified entities to given metaproject.
      */
     @Transactional
-    public void addToMetaproject(String sessionToken, TechId metaprojectId,
-            List<TechId> experiments, List<TechId> samples, List<TechId> dataSets,
-            List<TechId> materials);
+    public void addToMetaproject(String sessionToken, IMetaprojectId metaprojectId,
+            MetaprojectAssignmentsIds assignmentsToAdd);
 
     /**
      * Removes specified entities to given metaproject.
      */
     @Transactional
-    public void removeFromMetaproject(String sessionToken, TechId metaprojectId,
-            List<TechId> experiments, List<TechId> samples, List<TechId> dataSets,
-            List<TechId> materials);
+    public void removeFromMetaproject(String sessionToken, IMetaprojectId metaprojectId,
+            MetaprojectAssignmentsIds assignmentsToRemove);
 
     /**
      * Deletes given metaproject.
      */
     @Transactional
-    public void deleteMetaproject(String sessionToken, TechId metaprojectId);
+    public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId);
 
     /**
      * Registers a new metaproject.

@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -30,22 +27,16 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exception.InvalidSessionException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
-import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.MetaprojectIdPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.MetaprojectPredicate;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModification;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
@@ -154,6 +145,7 @@ public class GeneralInformationChangingService extends
         }
     }
 
+    @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public Metaproject createMetaproject(String sessionToken, String name, String description)
@@ -164,86 +156,38 @@ public class GeneralInformationChangingService extends
         return server.registerMetaproject(sessionToken, metaproject);
     }
 
+    @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public Metaproject updateMetaproject(String sessionToken,
-            @AuthorizationGuard(guardClass = MetaprojectPredicate.class)
-            Metaproject metaproject)
+    public Metaproject updateMetaproject(String sessionToken, Metaproject metaproject)
     {
         return server.updateMetaproject(sessionToken, metaproject);
     }
 
+    @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void deleteMetaproject(String sessionToken,
-            @AuthorizationGuard(guardClass = MetaprojectIdPredicate.class)
-            Long metaprojectId)
+    public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId)
     {
-        server.deleteMetaproject(sessionToken, new TechId(metaprojectId));
+        server.deleteMetaproject(sessionToken, metaprojectId);
     }
 
+    @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void addToMetaproject(String sessionToken,
-            @AuthorizationGuard(guardClass = MetaprojectIdPredicate.class)
-            Long metaprojectId, Collection<Experiment> experiments, Collection<Sample> samples,
-            Collection<DataSet> dataSets, Collection<Material> materials)
+    public void addToMetaproject(String sessionToken, IMetaprojectId metaprojectId,
+            MetaprojectAssignmentsIds assignmentsToAdd)
     {
-        server.addToMetaproject(sessionToken, new TechId(metaprojectId),
-                extractTechIds(experiments), extractTechIds(samples), extractTechIds(dataSets),
-                extractTechIds(materials));
+        server.addToMetaproject(sessionToken, metaprojectId, assignmentsToAdd);
     }
 
+    @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void addToMetaprojectByEntityIds(String sessionToken,
-            @AuthorizationGuard(guardClass = MetaprojectIdPredicate.class)
-            Long metaprojectId, List<Long> experiments, List<Long> samples, List<Long> dataSets,
-            List<Long> materials)
+    public void removeFromMetaproject(String sessionToken, IMetaprojectId metaprojectId,
+            MetaprojectAssignmentsIds assignmentsToRemove)
     {
-        server.addToMetaproject(sessionToken, new TechId(metaprojectId),
-                TechId.createList(experiments), TechId.createList(samples),
-                TechId.createList(dataSets), TechId.createList(materials));
-    }
-
-    @Transactional(readOnly = false)
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void removeFromMetaproject(String sessionToken,
-            @AuthorizationGuard(guardClass = MetaprojectIdPredicate.class)
-            Long metaprojectId, Collection<Experiment> experiments, Collection<Sample> samples,
-            Collection<DataSet> dataSets, Collection<Material> materials)
-    {
-        server.removeFromMetaproject(sessionToken, new TechId(metaprojectId),
-                extractTechIds(experiments), extractTechIds(samples), extractTechIds(dataSets),
-                extractTechIds(materials));
-    }
-
-    @Transactional(readOnly = false)
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void removeFromMetaprojectByEntityIds(String sessionToken,
-            @AuthorizationGuard(guardClass = MetaprojectIdPredicate.class)
-            Long metaprojectId, List<Long> experiments, List<Long> samples, List<Long> dataSets,
-            List<Long> materials)
-    {
-        server.removeFromMetaproject(sessionToken, new TechId(metaprojectId),
-                TechId.createList(experiments), TechId.createList(samples),
-                TechId.createList(dataSets), TechId.createList(materials));
-    }
-
-    private List<TechId> extractTechIds(Collection<? extends IIdHolder> entitiesOrNull)
-    {
-        if (entitiesOrNull == null)
-        {
-            return null;
-        }
-
-        List<TechId> result = new ArrayList<TechId>(entitiesOrNull.size());
-        for (IIdHolder entity : entitiesOrNull)
-        {
-            result.add(TechId.create(entity));
-        }
-
-        return result;
+        server.removeFromMetaproject(sessionToken, metaprojectId, assignmentsToRemove);
     }
 
     @Override

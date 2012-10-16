@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -363,16 +364,17 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
     public List<Metaproject> listMetaprojects(String sessionToken)
     {
         logAccess(sessionToken, "listMetaprojects");
         return null;
     }
 
-    public MetaprojectAssignments getMetaproject(String sessionToken, Metaproject metaproject)
+    @Override
+    public MetaprojectAssignments getMetaproject(String sessionToken, IMetaprojectId metaprojectId)
     {
-        String name = metaproject == null ? "null" : metaproject.getName();
-        logAccess(sessionToken, "getMetaproject METAPROJECT(%s)", name);
+        logAccess(sessionToken, "getMetaproject", "METAPROJECT_ID(%s)", metaprojectId);
         return null;
     }
 

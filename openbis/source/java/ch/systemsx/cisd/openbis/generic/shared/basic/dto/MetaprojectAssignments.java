@@ -26,6 +26,8 @@ public class MetaprojectAssignments implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    private Metaproject metaproject;
+
     private List<Experiment> experiments;
 
     private List<Sample> samples;
@@ -33,6 +35,16 @@ public class MetaprojectAssignments implements Serializable
     private List<ExternalData> dataSets;
 
     private List<Material> materials;
+
+    public Metaproject getMetaproject()
+    {
+        return metaproject;
+    }
+
+    public void setMetaproject(Metaproject metaproject)
+    {
+        this.metaproject = metaproject;
+    }
 
     public List<Experiment> getExperiments()
     {

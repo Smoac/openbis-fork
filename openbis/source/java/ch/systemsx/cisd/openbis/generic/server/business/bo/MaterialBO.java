@@ -24,6 +24,9 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.IMaterialId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialCodeAndTypeCodeId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -54,6 +57,30 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
     public MaterialBO(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
+    }
+
+    @Override
+    public MaterialPE tryFindByMaterialId(IMaterialId materialId)
+    {
+        if (materialId == null)
+        {
+            throw new IllegalArgumentException("Material id cannot be null");
+        }
+        if (materialId instanceof MaterialCodeAndTypeCodeId)
+        {
+            MaterialCodeAndTypeCodeId codeAndTypeCodeId = (MaterialCodeAndTypeCodeId) materialId;
+            MaterialIdentifier identifier =
+                    new MaterialIdentifier(codeAndTypeCodeId.getCode(),
+                            codeAndTypeCodeId.getTypeCode());
+            return getMaterialDAO().tryFindMaterial(identifier);
+        } else if (materialId instanceof MaterialTechIdId)
+        {
+            MaterialTechIdId techIdId = (MaterialTechIdId) materialId;
+            return getMaterialDAO().tryGetByTechId(new TechId(techIdId.getTechId()));
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported material id: " + materialId);
+        }
     }
 
     @Override

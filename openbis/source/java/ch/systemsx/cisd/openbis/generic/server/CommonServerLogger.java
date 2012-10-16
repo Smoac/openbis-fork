@@ -27,6 +27,8 @@ import org.apache.log4j.Level;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -1463,56 +1465,55 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     @Override
     public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
-            Metaproject metaproject)
+            IMetaprojectId metaprojectId)
     {
-        String name = metaproject == null ? "null" : metaproject.getName();
-        logAccess(sessionToken, "getMetaprojectAssignemtns METAPROJECT(%s)", name);
+        logAccess(sessionToken, "getMetaprojectAssignments", "METAPROJECT_ID(%s)", metaprojectId);
         return null;
     }
 
     @Override
-    public void addToMetaproject(String sessionToken, TechId metaprojectId,
-            List<TechId> experiments, List<TechId> samples, List<TechId> dataSets,
-            List<TechId> materials)
+    public void addToMetaproject(String sessionToken, IMetaprojectId metaprojectId,
+            MetaprojectAssignmentsIds assignmentsToAdd)
     {
-        logAccess(
-                sessionToken,
-                "addToMetaproject METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
-                metaprojectId.toString(), abbreviate(experiments), abbreviate(samples),
-                abbreviate(dataSets), abbreviate(materials));
+        logAccess(sessionToken, "addToMetaproject",
+                "METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
+                metaprojectId, abbreviate(assignmentsToAdd.getExperiments()),
+                abbreviate(assignmentsToAdd.getSamples()),
+                abbreviate(assignmentsToAdd.getDataSets()),
+                abbreviate(assignmentsToAdd.getMaterials()));
     }
 
     @Override
-    public void removeFromMetaproject(String sessionToken, TechId metaprojectId,
-            List<TechId> experiments, List<TechId> samples, List<TechId> dataSets,
-            List<TechId> materials)
+    public void removeFromMetaproject(String sessionToken, IMetaprojectId metaprojectId,
+            MetaprojectAssignmentsIds assignmentsToRemove)
     {
-        logAccess(
-                sessionToken,
-                "removeFromMetaproject METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
-                metaprojectId.toString(), abbreviate(experiments), abbreviate(samples),
-                abbreviate(dataSets), abbreviate(materials));
+        logAccess(sessionToken, "removeFromMetaproject",
+                "METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
+                metaprojectId, abbreviate(assignmentsToRemove.getExperiments()),
+                abbreviate(assignmentsToRemove.getSamples()),
+                abbreviate(assignmentsToRemove.getDataSets()),
+                abbreviate(assignmentsToRemove.getMaterials()));
     }
 
     @Override
-    public void deleteMetaproject(String sessionToken, TechId metaprojectId)
+    public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId)
     {
-        logAccess(sessionToken, "deleteMetaproject METAPROJECT_ID(%s)", metaprojectId.toString());
+        logAccess(sessionToken, "deleteMetaproject", "METAPROJECT_ID(%s)", metaprojectId);
     }
 
     @Override
     public Metaproject registerMetaproject(String sessionToken, Metaproject metaproject)
     {
-        String name = metaproject == null ? "null" : metaproject.getName();
-        logAccess(sessionToken, "registerMetaproject METAPROJECT(%s)", name);
+        String identifier = metaproject == null ? "null" : metaproject.getIdentifier();
+        logAccess(sessionToken, "registerMetaproject", "METAPROJECT(%s)", identifier);
         return null;
     }
 
     @Override
     public Metaproject updateMetaproject(String sessionToken, Metaproject metaproject)
     {
-        String name = metaproject == null ? "null" : metaproject.getName();
-        logAccess(sessionToken, "updateMetaproject METAPROJECT(%s)", name);
+        String identifier = metaproject == null ? "null" : metaproject.getIdentifier();
+        logAccess(sessionToken, "updateMetaproject", "METAPROJECT(%s)", identifier);
         return null;
     }
 

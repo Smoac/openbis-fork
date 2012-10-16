@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.IDataSetId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
@@ -35,6 +36,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  */
 public interface IDataBO extends IEntityBusinessObject
 {
+
+    /**
+     * Returns a data set found by the given id or null if it does not exist. Does not change the
+     * state of this object, especially the result of {@link #getData()}.
+     */
+    DataPE tryFindByDataSetId(final IDataSetId dataSetId);
+
     /**
      * Returns the data item which has been created by
      * {@link #define(NewExternalData, SamplePE, SourceType)} or null.

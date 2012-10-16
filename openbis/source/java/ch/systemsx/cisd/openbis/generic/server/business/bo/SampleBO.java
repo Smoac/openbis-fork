@@ -31,6 +31,10 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SamplePermIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -47,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -88,6 +93,33 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     public SamplePE tryToGetSample()
     {
         return sample;
+    }
+
+    @Override
+    public SamplePE tryFindBySampleId(ISampleId sampleId)
+    {
+        if (sampleId == null)
+        {
+            throw new IllegalArgumentException("Sample id cannot be null");
+        }
+        if (sampleId instanceof SampleIdentifierId)
+        {
+            SampleIdentifierId identifierId = (SampleIdentifierId) sampleId;
+            SampleIdentifier identifier =
+                    new SampleIdentifierFactory(identifierId.getIdentifier()).createIdentifier();
+            return tryToGetSampleByIdentifier(identifier);
+        } else if (sampleId instanceof SamplePermIdId)
+        {
+            SamplePermIdId permIdId = (SamplePermIdId) sampleId;
+            return getSampleDAO().tryToFindByPermID(permIdId.getPermId());
+        } else if (sampleId instanceof SampleTechIdId)
+        {
+            SampleTechIdId techIdId = (SampleTechIdId) sampleId;
+            return getSampleDAO().tryGetByTechId(new TechId(techIdId.getTechId()));
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported sample id: " + sampleId);
+        }
     }
 
     @Override

@@ -45,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnVa
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentListPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.MetaprojectPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleListPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePredicate;
@@ -86,6 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
@@ -989,6 +989,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translateMaterials(materials);
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public List<Metaproject> listMetaprojects(String sessionToken)
@@ -996,17 +997,16 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return commonServer.listMetaprojects(sessionToken);
     }
 
+    @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public MetaprojectAssignments getMetaproject(String sessionToken,
-            @AuthorizationGuard(guardClass = MetaprojectPredicate.class)
-            Metaproject metaproject)
+    public MetaprojectAssignments getMetaproject(String sessionToken, IMetaprojectId metaprojectId)
     {
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments assignments =
-                commonServer.getMetaprojectAssignments(sessionToken, metaproject);
+                commonServer.getMetaprojectAssignments(sessionToken, metaprojectId);
 
         MetaprojectAssignments result = new MetaprojectAssignments();
-        result.setMetaproject(metaproject);
+        result.setMetaproject(assignments.getMetaproject());
         result.setExperiments(Translator.translateExperiments(assignments.getExperiments()));
         result.setSamples(Translator.translateSamples(assignments.getSamples()));
         result.setDataSets(Translator.translate(assignments.getDataSets(),

@@ -34,6 +34,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.IDataSetId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -95,6 +98,27 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     {
         super(daoFactory, exampleSession, propertiesConverter, relationshipService,
                 conversationClient);
+    }
+
+    @Override
+    public DataPE tryFindByDataSetId(IDataSetId dataSetId)
+    {
+        if (dataSetId == null)
+        {
+            throw new IllegalArgumentException("Data set id cannot be null");
+        }
+        if (dataSetId instanceof DataSetCodeId)
+        {
+            DataSetCodeId codeId = (DataSetCodeId) dataSetId;
+            return getDataDAO().tryToFindDataSetByCode(codeId.getCode());
+        } else if (dataSetId instanceof DataSetTechIdId)
+        {
+            DataSetTechIdId techIdId = (DataSetTechIdId) dataSetId;
+            return getDataDAO().tryGetByTechId(new TechId(techIdId.getTechId()));
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported data set id: " + dataSetId);
+        }
     }
 
     @Override

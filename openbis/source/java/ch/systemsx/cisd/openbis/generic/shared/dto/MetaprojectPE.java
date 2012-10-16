@@ -48,6 +48,7 @@ import org.hibernate.search.annotations.DocumentId;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 
@@ -100,6 +101,13 @@ public class MetaprojectPE implements Serializable, IIdHolder
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    @Transient
+    public String getIdentifier()
+    {
+        return new MetaprojectIdentifier(getOwner() != null ? getOwner().getUserId() : null,
+                getName()).format();
     }
 
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)

@@ -24,7 +24,15 @@ import org.springframework.orm.ObjectRetrievalFailureException;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.IDataSetId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.IMaterialId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
@@ -42,13 +50,52 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojectBO
 {
+
+    private IExperimentBO experimentBO;
+
+    private ISampleBO sampleBO;
+
+    private IDataBO dataBO;
+
+    private IMaterialBO materialBO;
+
     private MetaprojectPE metaproject;
 
     private boolean dataChanged;
 
-    public MetaprojectBO(final IDAOFactory daoFactory, final Session session)
+    public MetaprojectBO(final IDAOFactory daoFactory, IExperimentBO experimentBO,
+            ISampleBO sampleBO, IDataBO dataBO, IMaterialBO materialBO, final Session session)
     {
         super(daoFactory, session);
+
+        this.experimentBO = experimentBO;
+        this.sampleBO = sampleBO;
+        this.dataBO = dataBO;
+        this.materialBO = materialBO;
+    }
+
+    @Override
+    public MetaprojectPE tryFindByMetaprojectId(IMetaprojectId metaprojectId)
+    {
+        if (metaprojectId == null)
+        {
+            throw new IllegalArgumentException("Metaproject id cannot be null");
+        }
+        if (metaprojectId instanceof MetaprojectIdentifierId)
+        {
+            MetaprojectIdentifierId identifierId = (MetaprojectIdentifierId) metaprojectId;
+            MetaprojectIdentifier identifier =
+                    MetaprojectIdentifier.parse(identifierId.getIdentifier());
+            return getMetaprojectDAO().tryFindByOwnerAndName(identifier.getMetaprojectOwnerId(),
+                    identifier.getMetaprojectName());
+        } else if (metaprojectId instanceof MetaprojectTechIdId)
+        {
+            MetaprojectTechIdId techIdId = (MetaprojectTechIdId) metaprojectId;
+            return getMetaprojectDAO().tryGetByTechId(new TechId(techIdId.getTechId()));
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported metaproject id: " + metaprojectId);
+        }
     }
 
     @Override
@@ -63,6 +110,26 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
                     "Metaproject with ID '%s' does not exist.", metaprojectId));
         }
         dataChanged = false;
+    }
+
+    @Override
+    public void loadByMetaprojectId(IMetaprojectId metaprojectId)
+    {
+        metaproject = tryFindByMetaprojectId(metaprojectId);
+
+        if (metaproject == null)
+        {
+            throw new UserFailureException(String.format(
+                    "Metaproject with ID '%s' does not exist.", metaprojectId));
+        }
+
+        dataChanged = false;
+    }
+
+    @Override
+    public MetaprojectPE getMetaproject()
+    {
+        return metaproject;
     }
 
     @Override
@@ -113,9 +180,9 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     }
 
     @Override
-    public void deleteByTechId(TechId metaprojectId) throws UserFailureException
+    public void deleteByMetaprojectId(IMetaprojectId metaprojectId) throws UserFailureException
     {
-        loadDataByTechId(metaprojectId);
+        loadByMetaprojectId(metaprojectId);
 
         getMetaprojectDAO().delete(metaproject);
         getEventDAO().persist(createDeletionEvent(metaproject, session.tryGetPerson()));
@@ -134,11 +201,16 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     }
 
     @Override
-    public void addExperiments(List<TechId> experimentIds)
+    public void addExperiments(List<IExperimentId> experimentIds)
     {
-        for (TechId experimentId : experimentIds)
+        for (IExperimentId experimentId : experimentIds)
         {
-            ExperimentPE experimentPE = getExperimentDAO().tryGetByTechId(experimentId);
+            ExperimentPE experimentPE = experimentBO.tryFindByExperimentId(experimentId);
+            if (experimentPE == null)
+            {
+                throw new IllegalArgumentException("Experiment for id: " + experimentId
+                        + " doesn't exist.");
+            }
             MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
             metaprojectAssignmentPE.setExperiment(experimentPE);
             metaproject.addAssignment(metaprojectAssignmentPE);
@@ -148,11 +220,15 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     }
 
     @Override
-    public void addSamples(List<TechId> sampleIds)
+    public void addSamples(List<ISampleId> sampleIds)
     {
-        for (TechId sampleId : sampleIds)
+        for (ISampleId sampleId : sampleIds)
         {
-            SamplePE samplePE = getSampleDAO().tryGetByTechId(sampleId);
+            SamplePE samplePE = sampleBO.tryFindBySampleId(sampleId);
+            if (samplePE == null)
+            {
+                throw new IllegalArgumentException("Sample for id: " + sampleId + " doesn't exist.");
+            }
             MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
             metaprojectAssignmentPE.setSample(samplePE);
             metaproject.addAssignment(metaprojectAssignmentPE);
@@ -162,11 +238,16 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     }
 
     @Override
-    public void addDataSets(List<TechId> dataSetIds)
+    public void addDataSets(List<IDataSetId> dataSetIds)
     {
-        for (TechId dataSetId : dataSetIds)
+        for (IDataSetId dataSetId : dataSetIds)
         {
-            DataPE dataPE = getDataDAO().tryGetByTechId(dataSetId);
+            DataPE dataPE = dataBO.tryFindByDataSetId(dataSetId);
+            if (dataPE == null)
+            {
+                throw new IllegalArgumentException("Data set for id: " + dataSetId
+                        + " doesn't exist.");
+            }
             MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
             metaprojectAssignmentPE.setDataSet(dataPE);
             metaproject.addAssignment(metaprojectAssignmentPE);
@@ -176,11 +257,16 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     }
 
     @Override
-    public void addMaterials(List<TechId> materialIds)
+    public void addMaterials(List<IMaterialId> materialIds)
     {
-        for (TechId materialId : materialIds)
+        for (IMaterialId materialId : materialIds)
         {
-            MaterialPE materialPE = getMaterialDAO().tryGetByTechId(materialId);
+            MaterialPE materialPE = materialBO.tryFindByMaterialId(materialId);
+            if (materialPE == null)
+            {
+                throw new IllegalArgumentException("Material for id: " + materialId
+                        + " doesn't exist.");
+            }
             MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
             metaprojectAssignmentPE.setMaterial(materialPE);
             metaproject.addAssignment(metaprojectAssignmentPE);
@@ -190,56 +276,68 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     }
 
     @Override
-    public void removeExperiments(List<TechId> experimentIds)
+    public void removeExperiments(List<IExperimentId> experimentIds)
     {
-        for (TechId experimentId : experimentIds)
+        for (IExperimentId experimentId : experimentIds)
         {
-            ExperimentPE experimentPE = getExperimentDAO().tryGetByTechId(experimentId);
-            MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
-            metaprojectAssignmentPE.setExperiment(experimentPE);
-            metaproject.removeAssignment(metaprojectAssignmentPE);
+            ExperimentPE experimentPE = experimentBO.tryFindByExperimentId(experimentId);
+            if (experimentPE != null)
+            {
+                MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
+                metaprojectAssignmentPE.setExperiment(experimentPE);
+                metaproject.removeAssignment(metaprojectAssignmentPE);
+            }
         }
 
         dataChanged = true;
     }
 
     @Override
-    public void removeSamples(List<TechId> sampleIds)
+    public void removeSamples(List<ISampleId> sampleIds)
     {
-        for (TechId sampleId : sampleIds)
+        for (ISampleId sampleId : sampleIds)
         {
-            SamplePE samplePE = getSampleDAO().tryGetByTechId(sampleId);
-            MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
-            metaprojectAssignmentPE.setSample(samplePE);
-            metaproject.removeAssignment(metaprojectAssignmentPE);
+            SamplePE samplePE = sampleBO.tryFindBySampleId(sampleId);
+            if (samplePE != null)
+            {
+                MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
+                metaprojectAssignmentPE.setSample(samplePE);
+                metaproject.removeAssignment(metaprojectAssignmentPE);
+            }
         }
 
         dataChanged = true;
     }
 
     @Override
-    public void removeDataSets(List<TechId> dataSetIds)
+    public void removeDataSets(List<IDataSetId> dataSetIds)
     {
-        for (TechId dataSetId : dataSetIds)
+        for (IDataSetId dataSetId : dataSetIds)
         {
-            DataPE dataPE = getDataDAO().tryGetByTechId(dataSetId);
-            MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
-            metaprojectAssignmentPE.setDataSet(dataPE);
-            metaproject.removeAssignment(metaprojectAssignmentPE);
+            DataPE dataPE = dataBO.tryFindByDataSetId(dataSetId);
+            if (dataPE != null)
+            {
+                MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
+                metaprojectAssignmentPE.setDataSet(dataPE);
+                metaproject.removeAssignment(metaprojectAssignmentPE);
+            }
         }
 
         dataChanged = true;
     }
 
     @Override
-    public void removeMaterials(List<TechId> materialIds)
+    public void removeMaterials(List<IMaterialId> materialIds)
     {
-        for (TechId materialId : materialIds)
+        for (IMaterialId materialId : materialIds)
         {
-            MaterialPE materialPE = getMaterialDAO().tryGetByTechId(materialId);
-            MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
-            metaprojectAssignmentPE.setMaterial(materialPE);
-            metaproject.removeAssignment(metaprojectAssignmentPE);
+            MaterialPE materialPE = materialBO.tryFindByMaterialId(materialId);
+            if (materialPE != null)
+            {
+                MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
+                metaprojectAssignmentPE.setMaterial(materialPE);
+                metaproject.removeAssignment(metaprojectAssignmentPE);
+            }
         }
 
         dataChanged = true;

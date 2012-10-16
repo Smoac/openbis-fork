@@ -20,19 +20,23 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import ch.systemsx.cisd.common.exception.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exception.Status;
 import ch.systemsx.cisd.common.exception.StatusFlag;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DelegatedPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.MetaprojectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -174,6 +178,28 @@ public class AuthorizationServiceUtils
             }
         }
         return resultList;
+    }
+
+    public boolean canAccessMetaproject(MetaprojectPE metaprojectPE)
+    {
+        MetaprojectTechIdPredicate predicate = new MetaprojectTechIdPredicate();
+
+        predicate.init(new AuthorizationDataProvider(daoFactory));
+
+        final Status status =
+                predicate.evaluate(user, userRoles, new TechId(metaprojectPE.getId()));
+
+        return (status.getFlag().equals(StatusFlag.OK));
+    }
+
+    public void checkAccessMetaproject(MetaprojectPE metaprojectPE)
+    {
+        if (canAccessMetaproject(metaprojectPE) == false)
+        {
+            throw new AuthorizationFailureException("User: "
+                    + (user != null ? user.getUserId() : null)
+                    + " doesn't have access to metaproject: " + metaprojectPE.getIdentifier());
+        }
     }
 
     public boolean canAccessExperiment(ExperimentPE experimentPE)

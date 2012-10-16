@@ -16,20 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -86,64 +82,49 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
                 webAppSettings.getWebAppId());
     }
 
+    @Override
     public Metaproject createMetaproject(String sessionToken, String name, String description)
     {
-        logAccess(sessionToken, "createMetaproject NAME(%s) DESCRIPTION(%s)", name, description);
+        logAccess(sessionToken, "createMetaproject", "NAME(%s) DESCRIPTION(%s)", name, description);
         return null;
     }
 
+    @Override
     public Metaproject updateMetaproject(String sessionToken, Metaproject metaproject)
     {
-        String name = metaproject == null ? "null" : metaproject.getName();
-        logAccess(sessionToken, "updateMetaproject METAPROJECT(%s)", name);
+        String identifier = metaproject == null ? "null" : metaproject.getIdentifier();
+        logAccess(sessionToken, "updateMetaproject", "METAPROJECT(%s)", identifier);
         return null;
     }
 
-    public void deleteMetaproject(String sessionToken, Long metaprojectId)
+    @Override
+    public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId)
     {
-        logAccess(sessionToken, "deleteMetaproject METAPROJECT_ID(%s)", metaprojectId.toString());
+        logAccess(sessionToken, "deleteMetaproject", "METAPROJECT_ID(%s)", metaprojectId);
     }
 
-    public void addToMetaproject(String sessionToken, Long metaprojectId,
-            Collection<Experiment> experiments, Collection<Sample> samples,
-            Collection<DataSet> dataSets, Collection<Material> materials)
+    @Override
+    public void addToMetaproject(String sessionToken, IMetaprojectId metaprojectId,
+            MetaprojectAssignmentsIds assignmentsToAdd)
     {
-        logAccess(
-                sessionToken,
-                "addToMetaproject METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
-                metaprojectId.toString(), abbreviate(experiments), abbreviate(samples),
-                abbreviate(dataSets), abbreviate(materials));
+        logAccess(sessionToken, "addToMetaproject",
+                "METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
+                metaprojectId, abbreviate(assignmentsToAdd.getExperiments()),
+                abbreviate(assignmentsToAdd.getSamples()),
+                abbreviate(assignmentsToAdd.getDataSets()),
+                abbreviate(assignmentsToAdd.getMaterials()));
     }
 
-    public void addToMetaprojectByEntityIds(String sessionToken, Long metaprojectId,
-            List<Long> experiments, List<Long> samples, List<Long> dataSets, List<Long> materials)
+    @Override
+    public void removeFromMetaproject(String sessionToken, IMetaprojectId metaprojectId,
+            MetaprojectAssignmentsIds assignmentsToRemove)
     {
-        logAccess(
-                sessionToken,
-                "addToMetaprojectByEntityIds METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
-                metaprojectId.toString(), abbreviate(experiments), abbreviate(samples),
-                abbreviate(dataSets), abbreviate(materials));
-    }
-
-    public void removeFromMetaproject(String sessionToken, Long metaprojectId,
-            Collection<Experiment> experiments, Collection<Sample> samples,
-            Collection<DataSet> dataSets, Collection<Material> materials)
-    {
-        logAccess(
-                sessionToken,
-                "removeFromMetaproject METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
-                metaprojectId.toString(), abbreviate(experiments), abbreviate(samples),
-                abbreviate(dataSets), abbreviate(materials));
-    }
-
-    public void removeFromMetaprojectByEntityIds(String sessionToken, Long metaprojectId,
-            List<Long> experiments, List<Long> samples, List<Long> dataSets, List<Long> materials)
-    {
-        logAccess(
-                sessionToken,
-                "removeFromMetaprojectByEntityIds METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
-                metaprojectId.toString(), abbreviate(experiments), abbreviate(samples),
-                abbreviate(dataSets), abbreviate(materials));
+        logAccess(sessionToken, "removeFromMetaproject",
+                "METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
+                metaprojectId, abbreviate(assignmentsToRemove.getExperiments()),
+                abbreviate(assignmentsToRemove.getSamples()),
+                abbreviate(assignmentsToRemove.getDataSets()),
+                abbreviate(assignmentsToRemove.getMaterials()));
     }
 
     @Override

@@ -50,6 +50,25 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
     }
 
     @Override
+    public MetaprojectPE tryFindByOwnerAndName(String ownerId, String metaprojectName)
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(MetaprojectPE.class);
+        criteria.createAlias("owner", "o");
+        criteria.add(Restrictions.eq("name", metaprojectName));
+        criteria.add(Restrictions.eq("o.userId", ownerId));
+        final List<MetaprojectPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        final MetaprojectPE entity = tryFindEntity(list, "metaproject");
+
+        if (operationLog.isDebugEnabled())
+        {
+            String methodName = MethodUtils.getCurrentMethod().getName();
+            operationLog.debug(String.format("%s(%s, %s): '%s'.", methodName, ownerId,
+                    metaprojectName, entity));
+        }
+        return entity;
+    }
+
+    @Override
     public List<MetaprojectPE> listMetaprojects(PersonPE owner)
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(MetaprojectPE.class);

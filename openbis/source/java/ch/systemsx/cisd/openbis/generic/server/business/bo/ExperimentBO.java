@@ -34,6 +34,10 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentPermIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -158,6 +162,34 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             return null;
         }
         return tryGetExperiment(identifier, project);
+    }
+
+    @Override
+    public ExperimentPE tryFindByExperimentId(IExperimentId experimentId)
+    {
+        if (experimentId == null)
+        {
+            throw new IllegalArgumentException("Experiment id cannot be null");
+        }
+        if (experimentId instanceof ExperimentIdentifierId)
+        {
+            ExperimentIdentifierId identifierId = (ExperimentIdentifierId) experimentId;
+            ExperimentIdentifier identifier =
+                    new ExperimentIdentifierFactory(identifierId.getIdentifier())
+                            .createIdentifier();
+            return tryFindByExperimentIdentifier(identifier);
+        } else if (experimentId instanceof ExperimentPermIdId)
+        {
+            ExperimentPermIdId permIdId = (ExperimentPermIdId) experimentId;
+            return getExperimentDAO().tryGetByPermID(permIdId.getPermId());
+        } else if (experimentId instanceof ExperimentTechIdId)
+        {
+            ExperimentTechIdId techIdId = (ExperimentTechIdId) experimentId;
+            return getExperimentDAO().tryGetByTechId(new TechId(techIdId.getTechId()));
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported experiment id: " + experimentId);
+        }
     }
 
     private ExperimentPE getExperimentByIdentifier(final ExperimentIdentifier identifier)
