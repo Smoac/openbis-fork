@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		364D509E161C6ADB00A739B0 /* openBISData.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 364D509C161C6ADB00A739B0 /* openBISData.sqlite */; };
+		3687D8FF162D3AB500622690 /* openbis-icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 3687D8FD162D3AB500622690 /* openbis-icon-72.png */; };
+		3687D900162D3AB500622690 /* openbis-icon-144.png in Resources */ = {isa = PBXBuildFile; fileRef = 3687D8FE162D3AB500622690 /* openbis-icon-144.png */; };
 		36F71E79161C3AE900C87277 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E78161C3AE900C87277 /* UIKit.framework */; };
 		36F71E7B161C3AE900C87277 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7A161C3AE900C87277 /* Foundation.framework */; };
 		36F71E7D161C3AE900C87277 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7C161C3AE900C87277 /* CoreGraphics.framework */; };
@@ -73,6 +75,8 @@
 /* Begin PBXFileReference section */
 		364D5098161C6A3600A739B0 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
 		364D509C161C6ADB00A739B0 /* openBISData.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = openBISData.sqlite; sourceTree = "<group>"; };
+		3687D8FD162D3AB500622690 /* openbis-icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "openbis-icon-72.png"; sourceTree = "<group>"; };
+		3687D8FE162D3AB500622690 /* openbis-icon-144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "openbis-icon-144.png"; sourceTree = "<group>"; };
 		36F71E74161C3AE900C87277 /* openBIS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = openBIS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		36F71E78161C3AE900C87277 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		36F71E7A161C3AE900C87277 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -221,6 +225,8 @@
 		36F71E81161C3AE900C87277 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				3687D8FD162D3AB500622690 /* openbis-icon-72.png */,
+				3687D8FE162D3AB500622690 /* openbis-icon-144.png */,
 				36F71E82161C3AE900C87277 /* openBIS-Info.plist */,
 				36F71E83161C3AE900C87277 /* InfoPlist.strings */,
 				36F71E86161C3AE900C87277 /* main.m */,
@@ -404,6 +410,8 @@
 				36F71E94161C3AE900C87277 /* MainStoryboard_iPhone.storyboard in Resources */,
 				36F71E97161C3AE900C87277 /* MainStoryboard_iPad.storyboard in Resources */,
 				364D509E161C6ADB00A739B0 /* openBISData.sqlite in Resources */,
+				3687D8FF162D3AB500622690 /* openbis-icon-72.png in Resources */,
+				3687D900162D3AB500622690 /* openbis-icon-144.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
