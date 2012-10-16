@@ -1,3 +1,5 @@
+-- JAVA ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.migration.MigrationStepFrom120To121
+
 -------------------------------------------------------
 -- rename HCS_ANALYSIS_WELL_FEATURES_CONTAINER to HCS_ANALYSIS_CONTAINER_WELL_FEATURES
 -------------------------------------------------------
