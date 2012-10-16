@@ -120,7 +120,7 @@
 }
 
 #pragma mark - Server Communication
-- (void)syncSelectedObjectOnSuccess:(SuccessBlock)success
+- (void)syncSelectedObjectForDetailOnSuccess:(SuccessBlock)success
 {
     // Load the image if necessary
     if (_selectedObject.imageUrl && !_selectedObject.image) {
@@ -134,6 +134,12 @@
     } else {
         success(_selectedObject);
     }
+}
+
+- (void)syncSelectedObjectForNavigationOnSuccess:(SuccessBlock)success
+{
+    // TODO : Call the server to get the children.
+    success(_selectedObject);
 }
 
 #pragma mark - Fetched results controller

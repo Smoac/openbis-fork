@@ -133,6 +133,8 @@
     // Figure out what to do with the detail view and the navigation view
     self.detailViewController.openBisModel = self.openBisModel;
     if ([self.openBisModel selectionHasChildren]) {
+        // Keep ahead of the user and get any data necessary for navigation
+        [self.openBisModel syncSelectedObjectForNavigationOnSuccess: ^(id result){ }];
         // Drill into the hierarchy
         UIStoryboard *storyboard = self.storyboard;
         CISDOBMasterViewController *child = [storyboard instantiateViewControllerWithIdentifier: @"Master"];

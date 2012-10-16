@@ -60,8 +60,11 @@
 - (BOOL)deleteObjectAtIndexPath:(NSIndexPath *)indexPath error:(NSError **)error; //!< Return YES if operation succeeded
 
 // Server Communication
-//! Get the selected object from the server and invoke the succes block when the data is here
-- (void)syncSelectedObjectOnSuccess:(SuccessBlock)success;
+//! Get the full selected object from the server and invoke the success block when the data is here
+- (void)syncSelectedObjectForDetailOnSuccess:(SuccessBlock)success;
+
+//! Get the data from the selected object necessary for navigation from the server and invoke the success block when the data is here
+- (void)syncSelectedObjectForNavigationOnSuccess:(SuccessBlock)success;
 
 
 @end

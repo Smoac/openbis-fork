@@ -42,7 +42,7 @@
 {
     // Ask the server to synchronize the detail object and nofiy me when the complete data is available
     SuccessBlock success = ^(id result) { [self configureView]; };
-    [self.openBisModel syncSelectedObjectOnSuccess: success];
+    [self.openBisModel syncSelectedObjectForDetailOnSuccess: success];
 }
 
 - (void)selectionDidChange
