@@ -19,10 +19,12 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.testng.annotations.Test;
@@ -36,6 +38,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -172,6 +176,61 @@ public class DeletionDAOTest extends AbstractDAOTest
         }
     }
 
+    @Test
+    public void testMetaprojectAssignmentsTrashing()
+    {
+        IDeletionDAO deletionDAO = daoFactory.getDeletionDAO();
+
+        DeletionPE deletion = new DeletionPE();
+        deletion.setRegistrator(getTestPerson());
+        deletion.setReason("test metaproject assignments deletion");
+        deletionDAO.create(deletion);
+
+        deletionDAO
+                .trash(EntityKind.EXPERIMENT, Collections.singletonList(new TechId(4)), deletion);
+        deletionDAO.trash(EntityKind.SAMPLE, Collections.singletonList(new TechId(1055)), deletion);
+        deletionDAO.trash(EntityKind.DATA_SET, Collections.singletonList(new TechId(22)), deletion);
+
+        MetaprojectPE metaproject = daoFactory.getMetaprojectDAO().getByTechId(new TechId(1));
+        Set<MetaprojectAssignmentPE> assignments = metaproject.getAssignments();
+        assertEquals(2, assignments.size());
+        for (MetaprojectAssignmentPE assignment : assignments)
+        {
+            if (assignment.getExperiment() != null)
+            {
+                assertEquals(23, assignment.getExperiment().getId().longValue());
+            } else if (assignment.getMaterial() != null)
+            {
+                assertEquals(1, assignment.getMaterial().getId().longValue());
+            } else
+            {
+                fail();
+            }
+        }
+    }
+
+    @Test
+    public void testMetaprojectAssignmentsReverting()
+    {
+        IDeletionDAO deletionDAO = daoFactory.getDeletionDAO();
+
+        DeletionPE deletion = new DeletionPE();
+        deletion.setRegistrator(getTestPerson());
+        deletion.setReason("test metaproject assignments deletion reverting");
+        deletionDAO.create(deletion);
+
+        deletionDAO
+                .trash(EntityKind.EXPERIMENT, Collections.singletonList(new TechId(4)), deletion);
+        deletionDAO.trash(EntityKind.SAMPLE, Collections.singletonList(new TechId(1055)), deletion);
+        deletionDAO.trash(EntityKind.DATA_SET, Collections.singletonList(new TechId(22)), deletion);
+
+        deletionDAO.revert(deletion);
+
+        MetaprojectPE metaproject = daoFactory.getMetaprojectDAO().getByTechId(new TechId(1));
+        Set<MetaprojectAssignmentPE> assignments = metaproject.getAssignments();
+        assertEquals(5, assignments.size());
+    }
+
     private void testRevertDeletion(IDeletionDAO deletionDAO, DeletionPE deletion)
     {
         List<TechId> deletionId = Collections.singletonList(TechId.create(deletion));
@@ -285,6 +344,5 @@ public class DeletionDAOTest extends AbstractDAOTest
             assertDataSetsDeleted(true, foundDataSetCodes);
             return this;
         }
-
     }
 }
