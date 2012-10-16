@@ -71,7 +71,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
     /**
      * A query for fast access to ids and codes of samples of an experiment.
      */
-    interface IExperimentSampleQuery extends TransactionQuery
+    public static interface IExperimentSampleQuery extends TransactionQuery
     {
         @Select(sql = "select id from samples s where expe_id = ?{1}")
         List<Long> getExperimentSampleIds(long experimentId);

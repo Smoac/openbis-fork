@@ -34,12 +34,17 @@ import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
 /**
  * @author anttil
  */
-public class DropDown implements AtomicWidget, Fillable
+public class DropDown implements Widget, Fillable
 {
     private WidgetContext context;
 
     public void select(String text)
     {
+        if (text.equals(getValue()))
+        {
+            return;
+        }
+
         Collection<String> found = new HashSet<String>();
         for (WebElement choice : getChoiceElements())
         {
@@ -56,12 +61,12 @@ public class DropDown implements AtomicWidget, Fillable
 
     public void clear()
     {
-        this.context.find("../input").clear();
+        this.context.find(".//input").clear();
     }
 
     public String getValue()
     {
-        return this.context.find("../input").getAttribute("value");
+        return this.context.find(".//input").getAttribute("value");
     }
 
     public List<String> getChoices()
@@ -74,6 +79,12 @@ public class DropDown implements AtomicWidget, Fillable
         return choices;
     }
 
+    public void openDropDown()
+    {
+        List<WebElement> elements = context.findAll(".//img");
+        elements.get(0).click();
+    }
+
     private List<WebElement> getChoiceElements()
     {
 
@@ -82,7 +93,7 @@ public class DropDown implements AtomicWidget, Fillable
                 SeleniumTest.driver.findElements(By.className("x-combo-list-item"));
         SeleniumTest.setImplicitWaitToDefault();
 
-        context.click();
+        openDropDown();
 
         if (wlist.size() != 0)
         {
@@ -111,11 +122,4 @@ public class DropDown implements AtomicWidget, Fillable
     {
         this.context = context;
     }
-
-    @Override
-    public String getTagName()
-    {
-        return "img";
-    }
-
 }

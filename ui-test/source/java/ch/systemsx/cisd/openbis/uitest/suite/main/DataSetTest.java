@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Sample;
 public class DataSetTest extends MainSuiteTest
 {
 
-    @Test(enabled = false)
+    @Test
     public void newDataSetIsListedInDetailedViewOfTheSample() throws Exception
     {
         Experiment experiment = create(anExperiment());

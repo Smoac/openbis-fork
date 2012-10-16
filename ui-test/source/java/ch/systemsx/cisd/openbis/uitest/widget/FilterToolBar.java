@@ -20,9 +20,11 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.WebElement;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.webdriver.DeterminateAction;
 import ch.systemsx.cisd.openbis.uitest.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
@@ -55,8 +57,12 @@ public class FilterToolBar implements Widget
 
     public Collection<String> getVisibleFilters()
     {
+        SeleniumTest.setImplicitWait(500, TimeUnit.MILLISECONDS);
+
         List<WebElement> elements =
                 context.findAll(".//input[not(contains(@id, 'grid-input'))]/..");
+
+        SeleniumTest.setImplicitWaitToDefault();
 
         Set<String> filters = new HashSet<String>();
         for (WebElement element : elements)

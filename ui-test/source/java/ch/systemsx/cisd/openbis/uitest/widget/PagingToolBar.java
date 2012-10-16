@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
+import java.util.StringTokenizer;
+
 import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
 
 /**
@@ -33,6 +35,25 @@ public class PagingToolBar implements Widget, Refreshable
         {
             b.click();
         }
+    }
+
+    public int rowCount()
+    {
+        String text = context.find(".//*[contains(text(), 'isplay')]").getText();
+
+        StringTokenizer tokens = new StringTokenizer(text, " ");
+
+        if (tokens.nextToken().equals("No"))
+        {
+            return 0;
+        }
+
+        String from = tokens.nextToken();
+        tokens.nextElement(); // -
+        String to = tokens.nextToken();
+
+        return Integer.parseInt(to) - Integer.parseInt(from) + 1;
+
     }
 
     public void settings()

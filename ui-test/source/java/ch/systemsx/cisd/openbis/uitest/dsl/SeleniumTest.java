@@ -19,15 +19,26 @@ package ch.systemsx.cisd.openbis.uitest.dsl;
 import static org.hamcrest.CoreMatchers.not;
 
 import java.awt.Toolkit;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.hamcrest.Matcher;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.webapp.WebAppContext;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -38,6 +49,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.openbis.dss.generic.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -155,38 +167,123 @@ public abstract class SeleniumTest
 
     private static IDssServiceRpcGeneric dss;
 
+    private String startAs() throws Exception
+    {
+        Runnable r = new Runnable()
+            {
+                @Override
+                public void run()
+                {
+
+                    /*
+                    com.google.gwt.dev.DevMode.main(new String[]
+                        { "-startupUrl", "ch.systemsx.cisd.openbis.OpenBIS/index.html",
+                                "ch.systemsx.cisd.openbis.OpenBIS", "-war",
+                                "../openbis/targets/www", "-logLevel", "INFO" });
+
+                    */
+                    Server server = new Server(10000);
+
+                    WebAppContext context = new WebAppContext();
+                    context.setDescriptor("targets/www/WEB-INF/web.xml");
+                    context.setResourceBase("targets/www");
+                    context.setContextPath("/");
+                    context.setParentLoaderPriority(true);
+
+                    server.setHandler(context);
+                    try
+                    {
+                        server.start();
+                        server.join();
+                    } catch (Exception ex)
+                    {
+                        // TODO Auto-generated catch block
+                        ex.printStackTrace();
+                    }
+                }
+            };
+
+        PrintStream originalOut = System.out;
+
+        PipedOutputStream outpipe = new PipedOutputStream();
+        PipedInputStream inpipe = new PipedInputStream(outpipe);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inpipe));
+        PrintStream newOut = new PrintStream(outpipe);
+        System.setOut(newOut);
+
+        Thread t = new Thread(r);
+        t.setDaemon(true);
+        t.start();
+
+        String line;
+        while ((line = reader.readLine()) != null)
+        {
+            if (line.contains("SERVER STARTED"))
+            {
+                originalOut.println("SERVER START DETECTED");
+                break;
+            }
+        }
+        outpipe.close();
+        inpipe.close();
+        reader.close();
+        newOut.close();
+
+        System.setOut(originalOut);
+
+        return "http://localhost:10000";
+    }
+
+    private String startDss() throws Exception
+    {
+        System.out.println("STARTING DSS");
+
+        DataStoreServer.main(new String[0]);
+
+        System.out.println("DSS STARTED");
+
+        return "http://localhost:10001";
+    }
+
     @BeforeSuite
     public void initWebDriver() throws Exception
     {
+
+        Logger rootLogger = Logger.getRootLogger();
+        if (rootLogger.getAllAppenders().hasMoreElements())
+        {
+            throw new RuntimeException("log4j has appenders!");
+        }
+        rootLogger.setLevel(Level.INFO);
+        rootLogger.addAppender(new ConsoleAppender(
+                new PatternLayout("%-5p [%t]: %m%n")));
+
         String asUrl = System.getProperty("ui-test.as-url");
         String dssUrl = System.getProperty("ui-test.dss-url");
-        String startPage;
 
-        if (asUrl == null || asUrl.length() == 0)
-        {
-            asUrl = "http://localhost:8888";
-            startPage =
-                    "http://127.0.0.1:8888/ch.systemsx.cisd.openbis.OpenBIS/index.html?gwt.codesvr=127.0.0.1:9997";
-            System.setProperty("webdriver.firefox.profile", "default");
-        } else
-        {
-            startPage = asUrl;
-        }
-
-        if (dssUrl == null || dssUrl.length() == 0)
-        {
-            dssUrl = "http://localhost:8889";
-        }
-
-        /*
+        /* 
         asUrl = "https://sprint-openbis.ethz.ch/openbis";
         dssUrl = "https://sprint-openbis.ethz.ch";
         startPage = asUrl;
         */
 
+        if (asUrl == null || asUrl.length() == 0)
+        {
+            asUrl = startAs();
+        }
+
+        if (dssUrl == null || dssUrl.length() == 0)
+        {
+            dssUrl = startDss();
+        }
+
+        String startPage = asUrl;
+
         System.out.println("asUrl: " + asUrl);
         System.out.println("dssUrl: " + dssUrl);
         System.out.println("startPage: " + startPage);
+
+        System.setProperty("webdriver.firefox.profile", "default");
 
         driver = new FirefoxDriver();
         setImplicitWaitToDefault();
@@ -230,13 +327,13 @@ public abstract class SeleniumTest
     }
 
     @AfterSuite
-    public void closeBrowser()
+    public void closeBrowser() throws Exception
     {
         driver.quit();
     }
 
     @BeforeMethod(alwaysRun = true)
-    public void initPageProxy(Method method)
+    public void initPageProxy(Method method) throws Exception
     {
         System.out.println("--- " + method.getDeclaringClass().getSimpleName() + "."
                 + method.getName() + "() STARTS ---");

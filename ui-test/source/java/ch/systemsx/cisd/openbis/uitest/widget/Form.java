@@ -32,7 +32,7 @@ public class Form implements Widget
 {
     private WidgetContext context;
 
-    public AtomicWidget getWidget(PropertyType type)
+    public Widget getWidget(PropertyType type)
     {
         List<WebElement> elements = context.findAll(".//form/div/label");
 
@@ -41,7 +41,7 @@ public class Form implements Widget
             if (element.getText().toLowerCase().startsWith(type.getLabel().toLowerCase()))
             {
 
-                AtomicWidget w;
+                Widget w;
                 try
                 {
                     w = type.getDataType().representedAs().newInstance();
@@ -54,11 +54,14 @@ public class Form implements Widget
                 }
 
                 WebElement e = element.findElement(By.xpath("../div/div"));
-                if (w.getTagName() != null && !e.getTagName().equals(w.getTagName()))
+                if (w instanceof AtomicWidget)
                 {
-                    e = e.findElement(By.xpath(".//" + w.getTagName()));
+                    AtomicWidget aw = (AtomicWidget) w;
+                    if (aw.getTagName() != null && !e.getTagName().equals(aw.getTagName()))
+                    {
+                        e = e.findElement(By.xpath(".//" + aw.getTagName()));
+                    }
                 }
-
                 w.setContext((WidgetContext) e);
                 return w;
             }

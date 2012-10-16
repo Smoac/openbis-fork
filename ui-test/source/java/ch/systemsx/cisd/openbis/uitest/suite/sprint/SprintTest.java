@@ -42,28 +42,6 @@ public class SprintTest extends SprintSuiteTest
     @Test
     public void basic()
     {
-        // 0) Cleanup
-        Project oldProject = assume(aProject().withCode("p1"));
-        Space oldSpace = assume(aSpace().withCode("sprint-test"));
-        SampleType oldSampleType = assume(aSampleType().withCode("sprint_test"));
-        ExperimentType oldExperimentType = assume(anExperimentType().withCode("sprint_test"));
-        Vocabulary oldVocabulary = assume(aVocabulary().withCode("sprint-test-animal"));
-        PropertyType text = assume(aVarcharPropertyType().withCode("sprint-test.text"));
-        PropertyType real = assume(aVarcharPropertyType().withCode("sprint-test.real"));
-        PropertyType animal =
-                assume(aVocabularyPropertyType(oldVocabulary).withCode("sprint-test.animal"));
-
-        deleteExperimentsFrom(oldProject);
-        emptyTrash();
-        delete(oldProject);
-        delete(oldSpace);
-        delete(oldSampleType);
-        delete(oldExperimentType);
-        delete(text);
-        delete(real);
-        delete(animal);
-        delete(oldVocabulary);
-
         // 1) Login and authorization
         assumePage(TopBar.class).admin();
         assumePage(AdminMenu.class).roles();
@@ -146,6 +124,7 @@ public class SprintTest extends SprintSuiteTest
         assertThat(browserEntryOf(sample), containsValue("Experiment", experiment.getCode()));
         assertThat(browserEntryOf(sample), containsValue("Project", project.getCode()));
 
+        // 9) Deletion
         deleteExperimentsFrom(project);
         emptyTrash();
         delete(project);

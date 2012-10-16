@@ -5,48 +5,47 @@
   <project-classpath name="eclipse.cp" classes="${targets}/classes" />
 
 	
-	<target name="clean" description="Cleans distribution directory.">
-    <delete dir="${dist}" failonerror="true" />
-    <mkdir dir="${dist}" />
-  </target>
+	<target name="prepare-gwt">
+	    <subant target="prepare-gwt">
+	      <fileset dir="../openbis/build" includes="build.xml"/>
+	    </subant>
+	</target>
 
-  <target name="run-tests">
-    <antcall target="run-tests-ui">
-    	<param name="sources.test" value="source/java" />
-      <param name="test.suite" value="tests.xml" />
-    </antcall>
-  </target>
+	<target name="compile-javascript">
+	    <subant target="compile-javascript">
+	      <fileset dir="../openbis/build" includes="build.xml"/>
+	    </subant>
+	</target>
+	
+	
+	<target name="ci" depends="create-webapp, run-tests-ui"/>
+
+	<target name="create-webapp" depends="prepare-gwt, compile-javascript">
+    <delete dir="targets" failonerror="true" />
+    <mkdir dir="targets/store" />
+		<mkdir dir="targets/www" />
+    <copy todir="targets/www">
+    	<fileset dir="../openbis/targets/www"/> 
+    </copy> 
+
+    <copy todir="targets/www">
+      <fileset dir="../openbis/targets/dist/webapp"/> 
+    </copy> 
+
+	</target>
 	
 	<target name="run-tests-ui" depends="compile-tests">
 		<delete dir="${output.test}" />
-		<antcall target="_run-testng-ui">
-			<param name="test.suite" value="${test.suite}" />
-			<param name="failure.property" value="tests.failed" />
-		</antcall>
-	</target>
-	
-	<target name="_run-testng-ui">
-
-		<condition property="internal-as-url" value="${ui-test.as-url}" else="">
-		    <isset property="ui-test.as-url"/>
-		</condition>
-		<condition property="internal-dss-url" value="${ui-test.dss-url}" else="">
-		    <isset property="ui-test.dss-url"/>
-		</condition>
-
-		<testng classpath="${ecp}"
+		<testng classpath="resource:${ecp}"
 		        workingDir="."
 		        outputdir="${output.test}"
-		        failureproperty="${failure.property}">
-			<xmlfileset dir="source/java" includes="${test.suite}" />
-			<jvmarg value="-Xmx1024M" />
+		        failureproperty="tests.failed">
+			<xmlfileset dir="source/java" includes="tests.xml" />
+			<jvmarg value="-Xmx2048M" />
 			<jvmarg value="-XX:MaxPermSize=512m" />
-	  	<jvmarg value="-Dui-test.as-url=${internal-as-url}" />
-		  <jvmarg value="-Dui-test.dss-url=${internal-dss-url}" />
 		</testng>
 
-		<fail if="${failure.property}" />
-		
+		<fail if="${tests.failed}" />
 	</target>
 
 </project>

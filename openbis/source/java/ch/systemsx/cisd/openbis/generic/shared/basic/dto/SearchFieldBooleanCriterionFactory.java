@@ -36,7 +36,7 @@ public class SearchFieldBooleanCriterionFactory implements ISearchFieldCriterion
             return new DetailedSearchCriterion(field, "false");
         } else
         {
-            return new DetailedSearchCriterion(field, "*");
+            return new DetailedSearchCriterion(field, value);
         }
     }
 

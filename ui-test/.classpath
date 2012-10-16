@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="src" path="resource"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/openbis">
+		<accessrules>
+			<accessrule kind="accessible" pattern="**"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="src" path="source/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/libraries/selenium/lib/apache-mime4j-0.6.jar"/>
@@ -43,8 +49,9 @@
 	<classpathentry kind="lib" path="/libraries/javassist/javassist.jar" sourcepath="/libraries/javassist/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-integration.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/openbis"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/datastore_server"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/gwt2.4/gwt-dev.jar"/>
+	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
