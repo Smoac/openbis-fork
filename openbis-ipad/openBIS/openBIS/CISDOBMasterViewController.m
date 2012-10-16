@@ -128,7 +128,6 @@
     if ([[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad) return;
     
     [self.openBisModel selectObjectAtIndexPath: indexPath];
-    self.title = self.openBisModel.selectedObject.summaryHeader;
 
     // Figure out what to do with the detail view and the navigation view
     self.detailViewController.openBisModel = self.openBisModel;
@@ -164,11 +163,6 @@
     } else {
         cell.accessoryType = UITableViewCellAccessoryNone;
     }
-}
-
-- (void)initializeDrillDownFrom:(CISDOBMasterViewController *)parent
-{
-    self.openBisModel = [[CISDOBOpenBisModel alloc] initWithParentModel: parent.openBisModel];
 }
 
 #pragma mark - Fetched results controller
@@ -240,6 +234,13 @@
 {
     _openBisModel = openBisModel;
     _openBisModel.delegate = self;
+}
+
+- (void)initializeDrillDownFrom:(CISDOBMasterViewController *)parent
+{
+    self.openBisModel = [[CISDOBOpenBisModel alloc] initWithParentModel: parent.openBisModel];
+    // The title of the drill-down is the parent's title
+    self.title = parent.openBisModel.selectedObject.summaryHeader;
 }
 
 @end
