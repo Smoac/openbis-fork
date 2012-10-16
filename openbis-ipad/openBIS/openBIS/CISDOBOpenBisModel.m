@@ -65,7 +65,7 @@
     NSArray *objects = [sectionInfo objects];
     if ([objects count] < 1) return @"";
     
-    return ((CISDOBIpadEntity *)[objects objectAtIndex: 0]).group;
+    return ((CISDOBIpadEntity *)[objects objectAtIndex: 0]).category;
 }
 
 - (CISDOBIpadEntity *)objectAtIndexPath:(NSIndexPath *)indexPath
@@ -151,12 +151,12 @@
     [fetchRequest setEntity:entity];
     [fetchRequest setFetchBatchSize:20];
     
-    NSSortDescriptor *groupSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"group" ascending: NO];
+    NSSortDescriptor *categorySortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"category" ascending: NO];
     NSSortDescriptor *summaryHeaderSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"summaryHeader" ascending: YES];
-    NSArray *sortDescriptors = @[groupSortDescriptor, summaryHeaderSortDescriptor];
+    NSArray *sortDescriptors = @[categorySortDescriptor, summaryHeaderSortDescriptor];
     [fetchRequest setSortDescriptors:sortDescriptors];
     
-    NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"group" cacheName: @"Root"];
+    NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"category" cacheName: @"Root"];
     aFetchedResultsController.delegate = self;
     self.fetchedResultsController = aFetchedResultsController;
     
@@ -180,12 +180,12 @@
             nil];
     NSFetchRequest *fetchRequest = [model fetchRequestFromTemplateWithName: @"EntityAndChildren" substitutionVariables: fetchVariables];
     
-    NSSortDescriptor *groupSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"group" ascending: NO];
+    NSSortDescriptor *categorySortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"category" ascending: NO];
     NSSortDescriptor *summaryHeaderSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"summaryHeader" ascending: YES];
-    NSArray *sortDescriptors = @[groupSortDescriptor, summaryHeaderSortDescriptor];
+    NSArray *sortDescriptors = @[categorySortDescriptor, summaryHeaderSortDescriptor];
     [fetchRequest setSortDescriptors:sortDescriptors];
     
-    NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"group" cacheName: _parentModel.selectedObject.permId];
+    NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"category" cacheName: _parentModel.selectedObject.permId];
     aFetchedResultsController.delegate = self;
     self.fetchedResultsController = aFetchedResultsController;
     

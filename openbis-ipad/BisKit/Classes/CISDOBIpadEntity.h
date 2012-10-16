@@ -36,7 +36,7 @@
 @property (nonatomic, retain) NSString * identifier;
 @property (nonatomic, retain) NSString * permId;
 @property (nonatomic, retain) NSString * refcon;
-@property (nonatomic, retain) NSString * group;
+@property (nonatomic, retain) NSString * category;
 @property (nonatomic, retain) NSString * imageUrl;
 
 @property (nonatomic, retain) NSString * childrenPermIdsJson;

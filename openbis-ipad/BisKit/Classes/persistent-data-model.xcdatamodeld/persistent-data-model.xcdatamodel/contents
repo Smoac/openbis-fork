@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1811" systemVersion="11G56" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="CISDOBIpadEntity" representedClassName="CISDOBIpadEntity" syncable="YES">
+        <attribute name="category" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="childrenPermIds" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="childrenPermIdsJson" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
-        <attribute name="group" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="imageUrl" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="permId" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
@@ -16,6 +16,6 @@
     <fetchRequest name="EntitiesByPermIds" entity="CISDOBIpadEntity" predicateString="permId IN $PERM_IDS" fetchBatchSize="20"/>
     <fetchRequest name="EntityAndChildren" entity="CISDOBIpadEntity" predicateString="SELF == $ENTITY OR permId IN $CHILDREN" fetchBatchSize="20"/>
     <elements>
-        <element name="CISDOBIpadEntity" positionX="160" positionY="192" width="128" height="210"/>
+        <element name="CISDOBIpadEntity" positionX="0" positionY="0" width="0" height="0"/>
     </elements>
 </model>
