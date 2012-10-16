@@ -48,9 +48,8 @@
 - (void)selectionDidChange
 {
     // Update the view.
-    [self configureViewProvisionally];
-    [self requestServerSync];
-
+   [self selectionIsChanging];
+   
     if (self.masterPopoverController != nil) {
         [self.masterPopoverController dismissPopoverAnimated:YES];
     }
@@ -75,7 +74,8 @@
 {
     // The detail item is now up-to-date. Update the user interface.
     if (!self.detailItem) return;
-    
+
+    self.title = self.detailItem.summaryHeader;
     self.summaryHeaderLabel.text = self.detailItem.summaryHeader;
     self.summaryLabel.text = self.detailItem.summary;
     self.identifierLabel.text = self.detailItem.identifier;
