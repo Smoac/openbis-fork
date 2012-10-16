@@ -43,6 +43,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
@@ -68,10 +69,9 @@ public abstract class SystemTestCase extends AssertJUnit
 
     private static final String DATA_SET_IMPORTED_LOG_MARKER = "Successfully registered data set";
 
-    // this message appears if the dropbox has succesfully completed the registration, even if no
+    // this message appears if the dropbox has successfully completed the registration, even if no
     // datasets have been imported
-    private static final String REGISTRATION_FINISHED_LOG_MARKER =
-            "Succesfully commited transaction";
+    private static final String REGISTRATION_FINISHED_LOG_MARKER = DataSetRegistrationTransaction.SUCCESS_MESSAGE;
 
     protected static GenericWebApplicationContext applicationContext;
 

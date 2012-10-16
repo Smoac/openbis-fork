@@ -96,6 +96,8 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         DataSetStorageAlgorithmRunner.IDataSetInApplicationServerRegistrator<T>,
         DataSetRegistrationContext.IHolder
 {
+    public static final String SUCCESS_MESSAGE = "Successfully committed transaction";
+
     private static final String ROLLBACK_QUEUE1_FILE_NAME_SUFFIX = "rollBackQueue1";
 
     private static final String ROLLBACK_QUEUE2_FILE_NAME_SUFFIX = "rollBackQueue2";
@@ -483,7 +485,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
         if (commitSucceeded)
         {
-            operationLog.info("Succesfully commited transaction");
+            operationLog.info(SUCCESS_MESSAGE);
         }
         return commitSucceeded;
     }
