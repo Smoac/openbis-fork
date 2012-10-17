@@ -21,6 +21,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.ObjectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
+ * Identifies a metaproject by tech id.
+ * 
  * @author pkupczyk
  */
 @JsonObject("MetaprojectTechIdId")
@@ -29,6 +31,9 @@ public class MetaprojectTechIdId extends ObjectTechIdId implements IMetaprojectI
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    /**
+     * @param techId Metaproject tech id.
+     */
     public MetaprojectTechIdId(Long techId)
     {
         super(techId);

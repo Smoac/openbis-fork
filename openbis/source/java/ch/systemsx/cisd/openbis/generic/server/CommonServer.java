@@ -66,7 +66,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetUp
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DeletionTechIdCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ListSampleCriteriaPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.MetaprojectPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.RevertDeletionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdCollectionPredicate;
@@ -3450,13 +3449,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
             IMetaprojectId metaprojectId)
     {
-        Session session = getSession(sessionToken);
-        String baseIndexURL = getBaseIndexURL(sessionToken);
-
         if (metaprojectId == null)
         {
             throw new UserFailureException("Metaproject id cannot be null");
         }
+
+        Session session = getSession(sessionToken);
+        String baseIndexURL = getBaseIndexURL(sessionToken);
 
         IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
         MetaprojectPE metaprojectPE = metaprojectBO.tryFindByMetaprojectId(metaprojectId);
@@ -3533,6 +3532,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public void addToMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             MetaprojectAssignmentsIds assignmentsToAdd)
     {
+        if (metaprojectId == null)
+        {
+            throw new UserFailureException("Metaproject id cannot be null");
+        }
+        if (assignmentsToAdd == null)
+        {
+            throw new UserFailureException("Assignments to add cannot be null");
+        }
+
         Session session = getSession(sessionToken);
 
         IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
@@ -3553,6 +3561,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public void removeFromMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             MetaprojectAssignmentsIds assignmentsToRemove)
     {
+        if (metaprojectId == null)
+        {
+            throw new UserFailureException("Metaproject id cannot be null");
+        }
+        if (assignmentsToRemove == null)
+        {
+            throw new UserFailureException("Assignments to remove cannot be null");
+        }
+
         Session session = getSession(sessionToken);
 
         IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
@@ -3572,6 +3589,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId)
     {
+        if (metaprojectId == null)
+        {
+            throw new UserFailureException("Metaproject id cannot be null");
+        }
+
         Session session = getSession(sessionToken);
 
         IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
@@ -3584,8 +3606,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public Metaproject registerMetaproject(String sessionToken, Metaproject metaproject)
+    public Metaproject registerMetaproject(String sessionToken, String name,
+            String descriptionOrNull)
     {
+        if (name == null)
+        {
+            throw new UserFailureException("Metaproject name cannot be null");
+        }
+
         Session session = getSession(sessionToken);
 
         IDAOFactory daoFactory = getDAOFactory();
@@ -3595,29 +3623,43 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         MetaprojectPE metaprojectPE = new MetaprojectPE();
         metaprojectPE.setOwner(owner);
-        MetaprojectTranslator.translate(metaproject, metaprojectPE);
+        metaprojectPE.setName(name);
+        metaprojectPE.setDescription(descriptionOrNull);
+        metaprojectPE.setPrivate(true);
         metaprojectDAO.createOrUpdateMetaproject(metaprojectPE, session.tryGetPerson());
         return MetaprojectTranslator.translate(metaprojectPE);
     }
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public Metaproject updateMetaproject(String sessionToken,
-            @AuthorizationGuard(guardClass = MetaprojectPredicate.class)
-            Metaproject metaproject)
+    public Metaproject updateMetaproject(String sessionToken, IMetaprojectId metaprojectId,
+            String name, String descriptionOrNull)
     {
+        if (metaprojectId == null)
+        {
+            throw new UserFailureException("Metaproject id cannot be null");
+        }
+        if (name == null)
+        {
+            throw new UserFailureException("Metaproject name cannot be null");
+        }
+
         Session session = getSession(sessionToken);
 
-        IDAOFactory daoFactory = getDAOFactory();
-        IMetaprojectDAO metaprojectDAO = daoFactory.getMetaprojectDAO();
+        IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
+        MetaprojectPE metaprojectPE = metaprojectBO.tryFindByMetaprojectId(metaprojectId);
 
-        if (metaproject.getId() == null)
+        if (metaprojectPE == null)
         {
-            throw new UserFailureException("The ID of metaproject for update cannot be null.");
+            throw new UserFailureException("Metaproject with id: " + metaprojectId
+                    + " doesn't exist");
         }
-        MetaprojectPE metaprojectPE = metaprojectDAO.getByTechId(new TechId(metaproject.getId()));
 
-        MetaprojectTranslator.translate(metaproject, metaprojectPE);
+        getAuthorizationService(session).checkAccessMetaproject(metaprojectPE);
+
+        metaprojectPE.setName(name);
+        metaprojectPE.setDescription(descriptionOrNull);
+        IMetaprojectDAO metaprojectDAO = getDAOFactory().getMetaprojectDAO();
         metaprojectDAO.createOrUpdateMetaproject(metaprojectPE, session.tryGetPerson());
         return MetaprojectTranslator.translate(metaprojectPE);
     }

@@ -53,7 +53,7 @@ public class MetaprojectIdentifier implements Serializable
 
     public String format()
     {
-        return metaprojectOwnerId + SEPARATOR + metaprojectName;
+        return SEPARATOR + metaprojectOwnerId + SEPARATOR + metaprojectName;
     }
 
     public static MetaprojectIdentifier parse(String str)
@@ -65,13 +65,13 @@ public class MetaprojectIdentifier implements Serializable
 
         String[] splitted = str.split(SEPARATOR);
 
-        if (splitted.length == 2)
+        if (splitted.length == 3)
         {
-            return new MetaprojectIdentifier(splitted[0], splitted[1]);
+            return new MetaprojectIdentifier(splitted[1], splitted[2]);
         } else
         {
-            throw new IllegalArgumentException("Metaproject identifier must have USER_ID"
-                    + SEPARATOR + "METAPROJECT_NAME format");
+            throw new IllegalArgumentException("Metaproject identifier must have " + SEPARATOR
+                    + "USER_ID" + SEPARATOR + "METAPROJECT_NAME format");
         }
     }
 

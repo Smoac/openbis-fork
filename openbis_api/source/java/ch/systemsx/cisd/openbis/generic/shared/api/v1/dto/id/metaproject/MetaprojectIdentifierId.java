@@ -21,6 +21,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.ObjectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
+ * Identifies a metaproject by identifier.
+ * 
  * @author pkupczyk
  */
 @JsonObject("MetaprojectIdentifierId")
@@ -29,6 +31,9 @@ public class MetaprojectIdentifierId extends ObjectIdentifierId implements IMeta
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    /**
+     * @param identifier Metaproject identifier, e.e. "/MY_USER/MY_METAPROJECT".
+     */
     public MetaprojectIdentifierId(String identifier)
     {
         super(identifier);

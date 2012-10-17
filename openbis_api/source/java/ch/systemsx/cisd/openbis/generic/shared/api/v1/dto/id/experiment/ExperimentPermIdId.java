@@ -21,6 +21,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.ObjectPermIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
+ * Identifies an experiment by perm id.
+ * 
  * @author pkupczyk
  */
 @JsonObject("ExperimentPermIdId")
@@ -29,6 +31,9 @@ public class ExperimentPermIdId extends ObjectPermIdId implements IExperimentId
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    /**
+     * @param permId Experiment perm id, e.g. "201108050937246-1031".
+     */
     public ExperimentPermIdId(String permId)
     {
         super(permId);

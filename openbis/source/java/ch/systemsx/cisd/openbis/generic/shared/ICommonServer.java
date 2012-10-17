@@ -1376,11 +1376,13 @@ public interface ICommonServer extends IServer
      * Registers a new metaproject.
      */
     @Transactional
-    public Metaproject registerMetaproject(String sessionToken, Metaproject metaproject);
+    public Metaproject registerMetaproject(String sessionToken, String name,
+            String descriptionOrNull);
 
     /**
      * Updates existing metaprojest.
      */
     @Transactional
-    public Metaproject updateMetaproject(String sessionToken, Metaproject metaproject);
+    public Metaproject updateMetaproject(String sessionToken, IMetaprojectId metaprojectId,
+            String name, String descriptionOrNull);
 }

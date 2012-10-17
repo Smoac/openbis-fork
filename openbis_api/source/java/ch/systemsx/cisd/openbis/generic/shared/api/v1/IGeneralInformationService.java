@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.api.IRpcService;
+import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
@@ -472,6 +473,8 @@ public interface IGeneralInformationService extends IRpcService
 
     /**
      * Returns all entities tagged with given metaproject.
+     * 
+     * @throws UserFailureException when a metaproject with the specified id doesn't exist.
      */
     public MetaprojectAssignments getMetaproject(String sessionToken, IMetaprojectId metaprojectId);
 }

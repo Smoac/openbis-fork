@@ -21,6 +21,8 @@ import java.io.Serializable;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
+ * Holds information that uniquely identifies an object in openBIS.
+ * 
  * @author pkupczyk
  */
 @JsonObject("IObjectId")

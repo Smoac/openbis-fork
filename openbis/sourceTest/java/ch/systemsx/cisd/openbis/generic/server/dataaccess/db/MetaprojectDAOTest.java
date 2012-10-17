@@ -33,6 +33,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
  */
 public class MetaprojectDAOTest extends AbstractDAOTest
 {
+
+    @Test
+    public void testFindByOwnerAndName()
+    {
+        MetaprojectPE metaproject =
+                daoFactory.getMetaprojectDAO().tryFindByOwnerAndName("test", "TEST_METAPROJECTS");
+        assertEquals(Long.valueOf(1), metaproject.getId());
+
+        metaproject =
+                daoFactory.getMetaprojectDAO().tryFindByOwnerAndName("test",
+                        "ANOTHER_TEST_METAPROJECTS");
+        assertEquals(Long.valueOf(3), metaproject.getId());
+    }
+
     @Test
     public void testListMetaprojects()
     {

@@ -148,20 +148,18 @@ public class GeneralInformationChangingService extends
     @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public Metaproject createMetaproject(String sessionToken, String name, String description)
+    public Metaproject createMetaproject(String sessionToken, String name, String descriptionOrNull)
     {
-        Metaproject metaproject = new Metaproject();
-        metaproject.setName(name);
-        metaproject.setDescription(description);
-        return server.registerMetaproject(sessionToken, metaproject);
+        return server.registerMetaproject(sessionToken, name, descriptionOrNull);
     }
 
     @Override
     @Transactional(readOnly = false)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public Metaproject updateMetaproject(String sessionToken, Metaproject metaproject)
+    public Metaproject updateMetaproject(String sessionToken, IMetaprojectId metaprojectId,
+            String name, String descriptionOrNull)
     {
-        return server.updateMetaproject(sessionToken, metaproject);
+        return server.updateMetaproject(sessionToken, metaprojectId, name, descriptionOrNull);
     }
 
     @Override

@@ -21,6 +21,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.ObjectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
+ * Identifies an experiment by tech id.
+ * 
  * @author pkupczyk
  */
 @JsonObject("ExperimentTechIdId")
@@ -29,6 +31,9 @@ public class ExperimentTechIdId extends ObjectTechIdId implements IExperimentId
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    /**
+     * @param techId Experiment tech id.
+     */
     public ExperimentTechIdId(Long techId)
     {
         super(techId);

@@ -20,6 +20,8 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
+ * Base class for ids that identify objects by perm id.
+ * 
  * @author pkupczyk
  */
 @JsonObject("ObjectPermIdId")
@@ -55,6 +57,12 @@ public abstract class ObjectPermIdId implements IObjectId
             throw new IllegalArgumentException("PermId cannot be null");
         }
         this.permId = permId;
+    }
+
+    @Override
+    public String toString()
+    {
+        return getPermId();
     }
 
 }

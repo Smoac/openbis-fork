@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.api.IRpcService;
+import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
@@ -87,25 +88,30 @@ public interface IGeneralInformationChangingService extends IRpcService
      * Creates a new metaproject.
      * 
      * @param name Name of the metaproject
-     * @param description Description of the metaproject
+     * @param descriptionOrNull Description of the metaproject
      * @return Newly created metaproject
      * @since 1.3
      */
-    public Metaproject createMetaproject(String sessionToken, String name, String description);
+    public Metaproject createMetaproject(String sessionToken, String name, String descriptionOrNull);
 
     /**
-     * Updates existing metaproject.
+     * Updates an existing metaproject.
      * 
-     * @param metaproject Metaproject that should be updated
+     * @param metaprojectId Id of the metaproject
+     * @param name New name of the metaproject
+     * @param descriptionOrNull New description of the metaproject
      * @return Updated metaproject
+     * @throws UserFailureException when a metaproject with the specified id doesn't exist.
      * @since 1.3
      */
-    public Metaproject updateMetaproject(String sessionToken, Metaproject metaproject);
+    public Metaproject updateMetaproject(String sessionToken, IMetaprojectId metaprojectId,
+            String name, String descriptionOrNull);
 
     /**
      * Deletes existing metaproject.
      * 
      * @param metaprojectId Id of a metaproject to delete
+     * @throws UserFailureException when a metaproject with the specified id doesn't exist.
      * @since 1.3
      */
     public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId);
@@ -115,6 +121,7 @@ public interface IGeneralInformationChangingService extends IRpcService
      * 
      * @param metaprojectId Id of a metaproject
      * @param assignmentsToAdd Assignments that should be added to the metaproject
+     * @throws UserFailureException when a metaproject with the specified id doesn't exist.
      * @since 1.3
      */
     public void addToMetaproject(String sessionToken, IMetaprojectId metaprojectId,
@@ -125,6 +132,7 @@ public interface IGeneralInformationChangingService extends IRpcService
      * 
      * @param metaprojectId Id of a metaproject
      * @param assignmentsToRemove Assignments that should be removed from the metaproject
+     * @throws UserFailureException when a metaproject with the specified id doesn't exist.
      * @since 1.3
      */
     public void removeFromMetaproject(String sessionToken, IMetaprojectId metaprojectId,

@@ -20,6 +20,8 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
+ * Base class for ids that identify objects by identifier.
+ * 
  * @author pkupczyk
  */
 @JsonObject("ObjectIdentifierId")
@@ -55,6 +57,12 @@ public abstract class ObjectIdentifierId implements IObjectId
             throw new IllegalArgumentException("Identifier cannot be null");
         }
         this.identifier = identifier;
+    }
+
+    @Override
+    public String toString()
+    {
+        return getIdentifier();
     }
 
 }

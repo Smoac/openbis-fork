@@ -20,6 +20,8 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
+ * Identifies a material by code and material type code.
+ * 
  * @author pkupczyk
  */
 @JsonObject("MaterialCodeAndTypeCodeId")
@@ -32,6 +34,10 @@ public class MaterialCodeAndTypeCodeId implements IMaterialId
 
     private String typeCode;
 
+    /**
+     * @param code Material code
+     * @param typeCode Material type code
+     */
     public MaterialCodeAndTypeCodeId(String code, String typeCode)
     {
         setCode(code);
@@ -73,6 +79,12 @@ public class MaterialCodeAndTypeCodeId implements IMaterialId
             throw new IllegalArgumentException("Type code cannot be null");
         }
         this.typeCode = typeCode;
+    }
+
+    @Override
+    public String toString()
+    {
+        return getCode() + " (" + getTypeCode() + ")";
     }
 
 }

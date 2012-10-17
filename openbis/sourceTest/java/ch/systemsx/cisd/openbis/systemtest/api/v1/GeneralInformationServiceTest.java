@@ -61,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseTimeAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -1026,16 +1026,19 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(2, metaprojects.size());
     }
 
+    @Test(expectedExceptions = AuthorizationFailureException.class)
+    public void testGetMetaprojectOwnedBySomebodyElse()
+    {
+        generalInformationService.getMetaproject(sessionToken, new MetaprojectIdentifierId(
+                "/test_role/TEST_METAPROJECTS"));
+    }
+
     @Test
     public void testGetMetaprojects()
     {
-        List<Metaproject> metaprojects = generalInformationService.listMetaprojects(sessionToken);
-
-        Metaproject metaproject = metaprojects.iterator().next();
-
         MetaprojectAssignments metaprojectAssignments =
-                generalInformationService.getMetaproject(sessionToken, new MetaprojectTechIdId(
-                        metaproject.getId()));
+                generalInformationService.getMetaproject(sessionToken, new MetaprojectIdentifierId(
+                        "/test/TEST_METAPROJECTS"));
 
         assertEquals(1, metaprojectAssignments.getDataSets().size());
         assertEquals(1, metaprojectAssignments.getMaterials().size());
@@ -1045,12 +1048,9 @@ public class GeneralInformationServiceTest extends SystemTestCase
         generalInformationService.logout(sessionToken);
         sessionToken = generalInformationService.tryToAuthenticateForAllServices("test_role", "a");
 
-        metaprojects = generalInformationService.listMetaprojects(sessionToken);
-        metaproject = metaprojects.iterator().next();
-
         metaprojectAssignments =
-                generalInformationService.getMetaproject(sessionToken, new MetaprojectTechIdId(
-                        metaproject.getId()));
+                generalInformationService.getMetaproject(sessionToken, new MetaprojectIdentifierId(
+                        "/test_role/TEST_METAPROJECTS"));
 
         assertEquals(1, metaprojectAssignments.getMaterials().size());
         assertEquals(1, metaprojectAssignments.getDataSets().size());
@@ -1063,4 +1063,5 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertTrue(metaprojectAssignments.getExperiments().get(0).isStub());
         assertTrue(metaprojectAssignments.getExperiments().get(0).toString().contains("STUB"));
     }
+
 }

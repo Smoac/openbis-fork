@@ -21,6 +21,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.ObjectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
+ * Identifies an experiment by identifier.
+ * 
  * @author pkupczyk
  */
 @JsonObject("ExperimentIdentifierId")
@@ -29,6 +31,9 @@ public class ExperimentIdentifierId extends ObjectIdentifierId implements IExper
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    /**
+     * @param identifier Experiment identifier, e.g. "/MY_SPACE/MY_PROJECT/MY_EXPERIMENT".
+     */
     public ExperimentIdentifierId(String identifier)
     {
         super(identifier);

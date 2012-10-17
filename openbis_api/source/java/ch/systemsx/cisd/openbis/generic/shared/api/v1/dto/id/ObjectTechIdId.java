@@ -20,6 +20,8 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
+ * Base class for ids that identify objects by tech id.
+ * 
  * @author pkupczyk
  */
 @JsonObject("ObjectTechIdId")
@@ -55,6 +57,12 @@ public abstract class ObjectTechIdId implements IObjectId
             throw new IllegalArgumentException("TechId cannot be null");
         }
         this.techId = techId;
+    }
+
+    @Override
+    public String toString()
+    {
+        return getTechId().toString();
     }
 
 }

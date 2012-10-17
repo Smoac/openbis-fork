@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -73,6 +74,7 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(MetaprojectPE.class);
         criteria.add(Restrictions.eq("owner", owner));
+        criteria.addOrder(Order.asc("name"));
         final List<MetaprojectPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {

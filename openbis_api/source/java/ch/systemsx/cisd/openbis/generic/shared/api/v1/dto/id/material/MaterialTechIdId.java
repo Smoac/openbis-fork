@@ -21,6 +21,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.ObjectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
+ * Identifies a material by tech id.
+ * 
  * @author pkupczyk
  */
 @JsonObject("MaterialTechIdId")
@@ -29,6 +31,9 @@ public class MaterialTechIdId extends ObjectTechIdId implements IMaterialId
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    /**
+     * @param techId Material tech id.
+     */
     public MaterialTechIdId(Long techId)
     {
         super(techId);

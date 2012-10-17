@@ -20,6 +20,8 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 
 /**
+ * Holds information that uniquely identifies a data set in openBIS.
+ * 
  * @author pkupczyk
  */
 @JsonObject("IDataSetId")

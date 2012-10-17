@@ -20,6 +20,8 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
+ * Identifies a data set by code.
+ * 
  * @author pkupczyk
  */
 @JsonObject("DataSetCodeId")
@@ -30,6 +32,9 @@ public class DataSetCodeId implements IDataSetId
 
     private String code;
 
+    /**
+     * @param code Data set code, e.g "201108050937246-1031".
+     */
     public DataSetCodeId(String code)
     {
         setCode(code);
@@ -56,6 +61,12 @@ public class DataSetCodeId implements IDataSetId
             throw new IllegalArgumentException("Code cannot be null");
         }
         this.code = code;
+    }
+
+    @Override
+    public String toString()
+    {
+        return getCode();
     }
 
 }

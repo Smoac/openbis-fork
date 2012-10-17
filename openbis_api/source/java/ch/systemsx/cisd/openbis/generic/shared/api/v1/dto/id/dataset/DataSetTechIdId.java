@@ -21,6 +21,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.ObjectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
+ * Identifies a data set by tech id.
+ * 
  * @author pkupczyk
  */
 @JsonObject("DataSetTechIdId")
@@ -29,6 +31,9 @@ public class DataSetTechIdId extends ObjectTechIdId implements IDataSetId
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    /**
+     * @param techId Data set tech id.
+     */
     public DataSetTechIdId(Long techId)
     {
         super(techId);

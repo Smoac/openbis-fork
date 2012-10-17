@@ -1475,24 +1475,28 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public void addToMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             MetaprojectAssignmentsIds assignmentsToAdd)
     {
+        MetaprojectAssignmentsIds assignments =
+                assignmentsToAdd != null ? assignmentsToAdd : new MetaprojectAssignmentsIds();
+
         logAccess(sessionToken, "addToMetaproject",
                 "METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
-                metaprojectId, abbreviate(assignmentsToAdd.getExperiments()),
-                abbreviate(assignmentsToAdd.getSamples()),
-                abbreviate(assignmentsToAdd.getDataSets()),
-                abbreviate(assignmentsToAdd.getMaterials()));
+                metaprojectId, abbreviate(assignments.getExperiments()),
+                abbreviate(assignments.getSamples()), abbreviate(assignments.getDataSets()),
+                abbreviate(assignments.getMaterials()));
     }
 
     @Override
     public void removeFromMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             MetaprojectAssignmentsIds assignmentsToRemove)
     {
+        MetaprojectAssignmentsIds assignments =
+                assignmentsToRemove != null ? assignmentsToRemove : new MetaprojectAssignmentsIds();
+
         logAccess(sessionToken, "removeFromMetaproject",
                 "METAPROJECT_ID(%s), EXPERIMENTS(%s), SAMPLES(%s), DATA_SETS(%s), MATERIALS(%s)",
-                metaprojectId, abbreviate(assignmentsToRemove.getExperiments()),
-                abbreviate(assignmentsToRemove.getSamples()),
-                abbreviate(assignmentsToRemove.getDataSets()),
-                abbreviate(assignmentsToRemove.getMaterials()));
+                metaprojectId, abbreviate(assignments.getExperiments()),
+                abbreviate(assignments.getSamples()), abbreviate(assignments.getDataSets()),
+                abbreviate(assignments.getMaterials()));
     }
 
     @Override
@@ -1502,18 +1506,20 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public Metaproject registerMetaproject(String sessionToken, Metaproject metaproject)
+    public Metaproject registerMetaproject(String sessionToken, String name,
+            String descriptionOrNull)
     {
-        String identifier = metaproject == null ? "null" : metaproject.getIdentifier();
-        logAccess(sessionToken, "registerMetaproject", "METAPROJECT(%s)", identifier);
+        logAccess(sessionToken, "registerMetaproject", "NAME(%s) DESCRIPTION(%s)", name,
+                descriptionOrNull);
         return null;
     }
 
     @Override
-    public Metaproject updateMetaproject(String sessionToken, Metaproject metaproject)
+    public Metaproject updateMetaproject(String sessionToken, IMetaprojectId metaprojectId,
+            String name, String descriptionOrNull)
     {
-        String identifier = metaproject == null ? "null" : metaproject.getIdentifier();
-        logAccess(sessionToken, "updateMetaproject", "METAPROJECT(%s)", identifier);
+        logAccess(sessionToken, "updateMetaproject", "METAPROJECT_ID(%s) NAME(%s) DESCRIPTION(%s)",
+                metaprojectId, name, descriptionOrNull);
         return null;
     }
 
