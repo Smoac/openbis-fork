@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.uitest.widget;
 
 import java.util.StringTokenizer;
 
+import org.openqa.selenium.By;
+
 import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
 
 /**
@@ -39,7 +41,7 @@ public class PagingToolBar implements Widget, Refreshable
 
     public int rowCount()
     {
-        String text = context.find(".//*[contains(text(), 'isplay')]").getText();
+        String text = context.findElement(By.xpath(".//*[contains(text(), 'isplay')]")).getText();
 
         StringTokenizer tokens = new StringTokenizer(text, " ");
 
@@ -73,14 +75,17 @@ public class PagingToolBar implements Widget, Refreshable
     @Override
     public void prepareWait()
     {
-        displayText = context.find(".//div[contains(@class, 'my-paging-display')]").getText();
+        displayText =
+                context.findElement(By.xpath(".//div[contains(@class, 'my-paging-display')]"))
+                        .getText();
     }
 
     @Override
     public boolean hasRefreshed()
     {
         String currentText =
-                context.find(".//div[contains(@class, 'my-paging-display')]").getText();
+                context.findElement(By.xpath(".//div[contains(@class, 'my-paging-display')]"))
+                        .getText();
         System.out.println("comparing " + displayText + " with " + currentText);
 
         if (currentText.contains("Loading"))

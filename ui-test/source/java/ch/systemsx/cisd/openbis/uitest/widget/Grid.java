@@ -127,7 +127,8 @@ public class Grid implements Widget
     private List<WebElement> getColumns()
     {
         return context
-                .findAll(".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]");
+                .findElements(By
+                        .xpath(".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-header ')]//span[not(*)]"));
     }
 
     private List<WebElement> getCells()
@@ -136,7 +137,8 @@ public class Grid implements Widget
         try
         {
             return context
-                    .findAll(".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]");
+                    .findElements(By
+                            .xpath(".//td[not(ancestor::div[contains(@style,'display:none')]) and contains(@class, 'x-grid') and contains(@class, '-col ')]//*[not(*)]"));
         } finally
         {
             SeleniumTest.setImplicitWaitToDefault();

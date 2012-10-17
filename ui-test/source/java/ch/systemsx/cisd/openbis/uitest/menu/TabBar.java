@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import ch.systemsx.cisd.openbis.uitest.webdriver.Context;
@@ -60,6 +61,6 @@ public class TabBar
 
     private List<WebElement> getTabLinks()
     {
-        return context.findAll("//li[starts-with(@id, 'openbis_main-tab-panel__')]");
+        return context.findElements(By.xpath("//li[starts-with(@id, 'openbis_main-tab-panel__')]"));
     }
 }

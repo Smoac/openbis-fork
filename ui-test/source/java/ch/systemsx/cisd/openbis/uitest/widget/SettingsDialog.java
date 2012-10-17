@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.uitest.widget;
 
 import java.util.List;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import ch.systemsx.cisd.openbis.uitest.page.Browsable;
@@ -33,14 +34,14 @@ public class SettingsDialog implements Widget
 
     public void showColumns(String... columns)
     {
-        context.find(".//*[text()='No Columns']").click();
+        context.findElement(By.xpath(".//*[text()='No Columns']")).click();
 
         for (String name : columns)
         {
             List<WebElement> l =
-                    context.findAll(".//div[text()='"
+                    context.findElements(By.xpath(".//div[text()='"
                             + name
-                            + "']/../..//div[contains(@class, 'IS_VISIBLE') and not(*)]");
+                            + "']/../..//div[contains(@class, 'IS_VISIBLE') and not(*)]"));
 
             if (l.size() > 0)
             {
@@ -52,19 +53,19 @@ public class SettingsDialog implements Widget
             }
         }
 
-        context.find("//*[@class='x-window-bl']//button[text()='OK']").click();
+        context.findElement(By.xpath("//*[@class='x-window-bl']//button[text()='OK']")).click();
     }
 
     public void showFilters(String... filters)
     {
-        context.find(".//*[text()='No Filters']").click();
+        context.findElement(By.xpath(".//*[text()='No Filters']")).click();
 
         for (String name : filters)
         {
             List<WebElement> l =
-                    context.findAll(".//div[text()='"
+                    context.findElements(By.xpath(".//div[text()='"
                             + name
-                            + "']/../..//div[contains(@class, 'HAS_FILTER') and not(*)]");
+                            + "']/../..//div[contains(@class, 'HAS_FILTER') and not(*)]"));
 
             if (l.size() > 0)
             {
@@ -76,7 +77,7 @@ public class SettingsDialog implements Widget
             }
         }
 
-        context.find("//*[@class='x-window-bl']//button[text()='OK']").click();
+        context.findElement(By.xpath("//*[@class='x-window-bl']//button[text()='OK']")).click();
     }
 
     public void showColumnsOf(Browsable browsable)

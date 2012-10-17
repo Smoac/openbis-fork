@@ -34,7 +34,7 @@ public class Form implements Widget
 
     public Widget getWidget(PropertyType type)
     {
-        List<WebElement> elements = context.findAll(".//form/div/label");
+        List<WebElement> elements = context.findElements(By.xpath(".//form/div/label"));
 
         for (WebElement element : elements)
         {
@@ -72,7 +72,7 @@ public class Form implements Widget
     public List<String> getLabels()
     {
         List<String> labels = new ArrayList<String>();
-        List<WebElement> elements = context.findAll(".//form/div/label");
+        List<WebElement> elements = context.findElements(By.xpath(".//form/div/label"));
         for (WebElement element : elements)
         {
             labels.add(element.getText());

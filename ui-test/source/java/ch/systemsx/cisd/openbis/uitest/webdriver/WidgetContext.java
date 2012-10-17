@@ -52,11 +52,6 @@ public class WidgetContext implements WebElement
         element.click();
     }
 
-    public boolean isInteractable()
-    {
-        return element.isDisplayed() && element.isEnabled();
-    }
-
     @Override
     public String getAttribute(String key)
     {
@@ -69,21 +64,11 @@ public class WidgetContext implements WebElement
         return element.getTagName();
     }
 
-    public void sendKeys(String keys)
-    {
-        element.sendKeys(keys);
-    }
-
     @Override
     public void clear()
     {
         shotter.screenshot();
         element.clear();
-    }
-
-    public WebElement find(String xpath)
-    {
-        return new WidgetContext(element.findElement(By.xpath(xpath)), shotter);
     }
 
     public <T extends AtomicWidget> T find(String xpath, Class<T> widgetClass)
@@ -107,16 +92,6 @@ public class WidgetContext implements WebElement
         }
         t.setContext(new WidgetContext(e, shotter));
         return t;
-    }
-
-    public List<WebElement> findAll(String xpath)
-    {
-        List<WebElement> result = new ArrayList<WebElement>();
-        for (WebElement e : element.findElements(By.xpath(xpath)))
-        {
-            result.add(new WidgetContext(e, shotter));
-        }
-        return result;
     }
 
     public void mouseOver()
@@ -198,5 +173,4 @@ public class WidgetContext implements WebElement
         shotter.screenshot();
         element.submit();
     }
-
 }

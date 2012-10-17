@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
@@ -39,7 +40,8 @@ public class FilterToolBar implements Widget
 
     public void setFilter(String filter, final String text, Refreshable refresher)
     {
-        final WebElement t = context.find(".//input[contains(@id, '" + filter + "-input')]");
+        final WebElement t =
+                context.findElement(By.xpath(".//input[contains(@id, '" + filter + "-input')]"));
 
         new WaitForRefreshOf<Void>(refresher)
                 .after(new DeterminateAction<Void>()
@@ -60,7 +62,7 @@ public class FilterToolBar implements Widget
         SeleniumTest.setImplicitWait(500, TimeUnit.MILLISECONDS);
 
         List<WebElement> elements =
-                context.findAll(".//input[not(contains(@id, 'grid-input'))]/..");
+                context.findElements(By.xpath(".//input[not(contains(@id, 'grid-input'))]/.."));
 
         SeleniumTest.setImplicitWaitToDefault();
 
@@ -76,7 +78,7 @@ public class FilterToolBar implements Widget
 
     public void reset()
     {
-        WebElement b = context.find(".//button[text()='Reset']");
+        WebElement b = context.findElement(By.xpath(".//button[text()='Reset']"));
         b.click();
     }
 

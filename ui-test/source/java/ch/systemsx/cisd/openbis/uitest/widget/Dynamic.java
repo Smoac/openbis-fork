@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
+import org.openqa.selenium.By;
+
 import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
 
 /**
@@ -45,7 +47,8 @@ public class Dynamic implements Widget
             AtomicWidget w = (AtomicWidget) widget;
             if (!w.getTagName().equals(context.getTagName()))
             {
-                widget.setContext((WidgetContext) context.find(".//" + w.getTagName()));
+                widget.setContext((WidgetContext) context.findElement(By.xpath(".//"
+                        + w.getTagName())));
                 return widget;
             }
         }

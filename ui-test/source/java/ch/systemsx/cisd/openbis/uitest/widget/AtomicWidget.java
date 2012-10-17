@@ -22,5 +22,4 @@ package ch.systemsx.cisd.openbis.uitest.widget;
 public interface AtomicWidget extends Widget
 {
     public String getTagName();
-
 }

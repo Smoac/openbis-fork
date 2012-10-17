@@ -61,12 +61,12 @@ public class DropDown implements Widget, Fillable
 
     public void clear()
     {
-        this.context.find(".//input").clear();
+        this.context.findElement(By.xpath(".//input")).clear();
     }
 
     public String getValue()
     {
-        return this.context.find(".//input").getAttribute("value");
+        return this.context.findElement(By.xpath(".//input")).getAttribute("value");
     }
 
     public List<String> getChoices()
@@ -81,7 +81,7 @@ public class DropDown implements Widget, Fillable
 
     public void openDropDown()
     {
-        List<WebElement> elements = context.findAll(".//img");
+        List<WebElement> elements = context.findElements(By.xpath(".//img"));
         elements.get(0).click();
     }
 
