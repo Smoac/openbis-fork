@@ -82,7 +82,6 @@ public class MigrationStepFrom120To121 extends MigrationStepAdapter
         List<Long> list =
                 simpleJdbcTemplate.query("SELECT id from data_set_types where code = ?",
                         ID_ROW_MAPPER, code);
-        System.out.println(list.size());
         return list.size() > 0 ? list.get(0) : null;
     }
 
