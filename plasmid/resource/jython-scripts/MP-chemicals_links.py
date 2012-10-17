@@ -195,4 +195,7 @@ def updateFromBatchInput(bindings):
     
 def _extractCodeAndConcentration(chemical):
     codeAndConcentration = chemical.split(':')
-    return (codeAndConcentration[0].strip(), codeAndConcentration[1].strip())
+    if (len(codeAndConcentration) == 2):
+        return (codeAndConcentration[0].strip(), codeAndConcentration[1].strip())
+    else:
+        return (codeAndConcentration[0].strip(), "n.a.")
