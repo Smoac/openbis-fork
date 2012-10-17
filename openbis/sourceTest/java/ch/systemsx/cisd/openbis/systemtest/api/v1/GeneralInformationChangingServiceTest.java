@@ -22,7 +22,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -38,24 +37,18 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentIdentifierId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentPermIdId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialCodeAndTypeCodeId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SamplePermIdId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleTechIdId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.systemtest.PropertyHistory;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
+import ch.systemsx.cisd.openbis.util.GeneralInformationServiceUtil;
 
 /**
  * @author Franz-Josef Elmer
@@ -123,14 +116,14 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
         String name = "BRAND_NEW_METAPROJECT";
         String description = "I'm brand new";
 
-        List<String> beforeNames = listMetaprojectNames();
+        List<String> beforeNames = getUtil().listMetaprojectNames(sessionToken);
         assertFalse(beforeNames.contains(name));
 
         Metaproject metaproject =
                 generalInformationChangingService
                         .createMetaproject(sessionToken, name, description);
 
-        List<String> afterNames = listMetaprojectNames();
+        List<String> afterNames = getUtil().listMetaprojectNames(sessionToken);
         assertTrue(afterNames.contains(name));
 
         assertEquals(beforeNames.size() + 1, afterNames.size());
@@ -183,7 +176,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
         String afterName = "TEST_METAPROJECTS_UPDATED";
         String description = "My description is brand new";
 
-        List<String> beforeNames = listMetaprojectNames();
+        List<String> beforeNames = getUtil().listMetaprojectNames(sessionToken);
         assertTrue(beforeNames.contains(beforeName));
         assertFalse(beforeNames.contains(afterName));
 
@@ -191,7 +184,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
                 generalInformationChangingService.updateMetaproject(sessionToken,
                         new MetaprojectIdentifierId("/test/" + beforeName), afterName, description);
 
-        List<String> afterNames = listMetaprojectNames();
+        List<String> afterNames = getUtil().listMetaprojectNames(sessionToken);
         assertFalse(afterNames.contains(beforeName));
         assertTrue(afterNames.contains(afterName));
 
@@ -251,13 +244,13 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
     {
         String name = "TEST_METAPROJECTS";
 
-        List<String> beforeNames = listMetaprojectNames();
+        List<String> beforeNames = getUtil().listMetaprojectNames(sessionToken);
         assertTrue(beforeNames.contains(name));
 
         generalInformationChangingService.deleteMetaproject(sessionToken,
                 new MetaprojectIdentifierId("/test/" + name));
 
-        List<String> afterNames = listMetaprojectNames();
+        List<String> afterNames = getUtil().listMetaprojectNames(sessionToken);
         assertFalse(afterNames.contains(name));
 
         assertEquals(beforeNames.size() - 1, afterNames.size());
@@ -288,31 +281,31 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
     @Test
     public void testAddToMetaproject()
     {
-        Metaproject metaproject = createMetaprojectWithAssignments();
+        Metaproject metaproject = getUtil().createMetaprojectWithAssignments(sessionToken);
 
         MetaprojectAssignments assignments =
                 generalInformationService.getMetaproject(sessionToken, new MetaprojectIdentifierId(
                         metaproject.getIdentifier()));
 
-        List<Long> experimentIds = getObjectIds(assignments.getExperiments());
+        List<Long> experimentIds = getUtil().getObjectIds(assignments.getExperiments());
         assertEquals(3, experimentIds.size());
         assertTrue(experimentIds.contains(2L));
         assertTrue(experimentIds.contains(22L));
         assertTrue(experimentIds.contains(23L));
 
-        List<Long> samplesIds = getObjectIds(assignments.getSamples());
+        List<Long> samplesIds = getUtil().getObjectIds(assignments.getSamples());
         assertEquals(4, samplesIds.size());
         assertTrue(samplesIds.contains(647L));
         assertTrue(samplesIds.contains(602L));
         assertTrue(samplesIds.contains(340L));
         assertTrue(samplesIds.contains(342L));
 
-        List<Long> dataSetIds = getObjectIds(assignments.getDataSets());
+        List<Long> dataSetIds = getUtil().getObjectIds(assignments.getDataSets());
         assertEquals(2, dataSetIds.size());
         assertTrue(dataSetIds.contains(8L));
         assertTrue(dataSetIds.contains(12L));
 
-        List<Long> materialIds = getObjectIds(assignments.getMaterials());
+        List<Long> materialIds = getUtil().getObjectIds(assignments.getMaterials());
         assertEquals(2, materialIds.size());
         assertTrue(materialIds.contains(18L));
         assertTrue(materialIds.contains(8L));
@@ -380,7 +373,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
     @Test
     public void testRemoveFromMetaproject()
     {
-        Metaproject metaproject = createMetaprojectWithAssignments();
+        Metaproject metaproject = getUtil().createMetaprojectWithAssignments(sessionToken);
 
         MetaprojectAssignmentsIds assignmentsToRemove = new MetaprojectAssignmentsIds();
         assignmentsToRemove.addExperiment(new ExperimentIdentifierId("/CISD/NEMO/EXP1"));
@@ -395,22 +388,22 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
                 generalInformationService.getMetaproject(sessionToken, new MetaprojectIdentifierId(
                         metaproject.getIdentifier()));
 
-        List<Long> experimentIds = getObjectIds(assignments.getExperiments());
+        List<Long> experimentIds = getUtil().getObjectIds(assignments.getExperiments());
         assertEquals(2, experimentIds.size());
         assertTrue(experimentIds.contains(22L));
         assertTrue(experimentIds.contains(23L));
 
-        List<Long> samplesIds = getObjectIds(assignments.getSamples());
+        List<Long> samplesIds = getUtil().getObjectIds(assignments.getSamples());
         assertEquals(3, samplesIds.size());
         assertTrue(samplesIds.contains(602L));
         assertTrue(samplesIds.contains(340L));
         assertTrue(samplesIds.contains(342L));
 
-        List<Long> dataSetIds = getObjectIds(assignments.getDataSets());
+        List<Long> dataSetIds = getUtil().getObjectIds(assignments.getDataSets());
         assertEquals(1, dataSetIds.size());
         assertTrue(dataSetIds.contains(12L));
 
-        List<Long> materialIds = getObjectIds(assignments.getMaterials());
+        List<Long> materialIds = getUtil().getObjectIds(assignments.getMaterials());
         assertEquals(1, materialIds.size());
         assertTrue(materialIds.contains(8L));
     }
@@ -425,7 +418,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
 
     public void testRemoveFromMetaprojectAssignmentsThatDoNotExist()
     {
-        Metaproject metaproject = createMetaprojectWithAssignments();
+        Metaproject metaproject = getUtil().createMetaprojectWithAssignments(sessionToken);
         MetaprojectAssignmentsIds assignmentsToRemove = new MetaprojectAssignmentsIds();
         assignmentsToRemove.addExperiment(new ExperimentIdentifierId("/CISD/NEMO/EXP10"));
 
@@ -463,58 +456,10 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
                 new MetaprojectAssignmentsIds());
     }
 
-    private List<String> listMetaprojectNames()
+    private GeneralInformationServiceUtil getUtil()
     {
-        List<Metaproject> metaprojects = generalInformationService.listMetaprojects(sessionToken);
-        List<String> names = new ArrayList<String>();
-
-        for (Metaproject metaproject : metaprojects)
-        {
-            names.add(metaproject.getName());
-        }
-
-        return names;
-    }
-
-    private Metaproject createMetaprojectWithAssignments()
-    {
-        Metaproject metaproject =
-                generalInformationChangingService.createMetaproject(sessionToken,
-                        "BRAND_NEW_METAPROJECT", null);
-
-        MetaprojectAssignmentsIds assignmentsToAdd = new MetaprojectAssignmentsIds();
-
-        assignmentsToAdd.addExperiment(new ExperimentIdentifierId("/CISD/NEMO/EXP1")); // id: 2
-        assignmentsToAdd.addExperiment(new ExperimentPermIdId("201108050937246-1031")); // id: 22
-        assignmentsToAdd.addExperiment(new ExperimentTechIdId(23L)); // id: 23
-
-        assignmentsToAdd.addSample(new SampleIdentifierId("/A03")); // id: 647
-        assignmentsToAdd.addSample(new SampleIdentifierId("/CISD/N19")); // id: 602
-        assignmentsToAdd.addSample(new SamplePermIdId("200811050917877-346")); // id: 340
-        assignmentsToAdd.addSample(new SampleTechIdId(342L)); // id: 342
-
-        assignmentsToAdd.addDataSet(new DataSetCodeId("20081105092259000-8")); // id: 8
-        assignmentsToAdd.addDataSet(new DataSetTechIdId(12L)); // id: 12
-
-        assignmentsToAdd.addMaterial(new MaterialCodeAndTypeCodeId("GFP", "CONTROL")); // id: 18
-        assignmentsToAdd.addMaterial(new MaterialTechIdId(8L)); // id: 8
-
-        generalInformationChangingService.addToMetaproject(sessionToken, new MetaprojectTechIdId(
-                metaproject.getId()), assignmentsToAdd);
-
-        return metaproject;
-    }
-
-    private List<Long> getObjectIds(List<? extends IIdHolder> objects)
-    {
-        List<Long> ids = new ArrayList<Long>();
-
-        for (IIdHolder object : objects)
-        {
-            ids.add(object.getId());
-        }
-
-        return ids;
+        return new GeneralInformationServiceUtil(generalInformationService,
+                generalInformationChangingService);
     }
 
 }

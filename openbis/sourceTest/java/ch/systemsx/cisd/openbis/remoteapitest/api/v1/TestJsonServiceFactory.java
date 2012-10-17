@@ -61,8 +61,10 @@ public class TestJsonServiceFactory
     {
         try
         {
+            GenericObjectMapper mapper = new GenericObjectMapper();
             JsonRpcHttpClient client =
-                    new JsonRpcHttpClient(new URL(GENERAL_INFO_CHANGING_SERVICE_URL));
+                    new JsonRpcHttpClient(mapper, new URL(GENERAL_INFO_CHANGING_SERVICE_URL),
+                            new HashMap<String, String>());
             return ProxyUtil.createProxy(TestJsonServiceFactory.class.getClassLoader(),
                     IGeneralInformationChangingService.class, client);
         } catch (MalformedURLException ex)

@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
+import ch.systemsx.cisd.openbis.util.GeneralInformationServiceUtil;
 
 /**
  * Verifies that an instance of {@link IGeneralInformationService} is published via JSON-RPC and
@@ -93,6 +94,18 @@ public class GeneralInformationChangingServiceJsonApiTest extends RemoteApiTestC
                 updatedVocabulary.toString());
     }
 
+    @Test
+    public void testMetaprojects()
+    {
+        // as the metaprojects functionality is already tested in detail by the system tests here
+        // we just want to check that metaproject related classes serialize/deserialize to/from JSON
+        // properly
+
+        GeneralInformationServiceUtil util =
+                new GeneralInformationServiceUtil(generalInfoService, generalInfoChangingService);
+        util.createMetaprojectWithAssignments(sessionToken);
+    }
+
     private Vocabulary fetchVocabularyFromServer(String vocabularyCode)
     {
         for (Vocabulary vocabulary : generalInfoService.listVocabularies(sessionToken))
@@ -104,4 +117,5 @@ public class GeneralInformationChangingServiceJsonApiTest extends RemoteApiTestC
         }
         return null;
     }
+
 }

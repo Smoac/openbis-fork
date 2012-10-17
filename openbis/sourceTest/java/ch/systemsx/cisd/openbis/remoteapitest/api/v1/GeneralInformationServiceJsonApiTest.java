@@ -36,6 +36,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.string.ToStringComparator;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
@@ -52,7 +53,10 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
+import ch.systemsx.cisd.openbis.util.GeneralInformationServiceUtil;
 
 /**
  * Verifies that an instance of {@link IGeneralInformationService} is published via JSON-RPC and
@@ -66,6 +70,8 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
 {
     protected IGeneralInformationService generalInformationService;
 
+    protected IGeneralInformationChangingService generalInformationChangingService;
+
     protected String sessionToken;
 
     protected String userSessionToken;
@@ -75,10 +81,17 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         return TestJsonServiceFactory.createGeneralInfoService();
     }
 
+    protected IGeneralInformationChangingService createChangingService()
+    {
+        return TestJsonServiceFactory.createGeneralInfoChangingService();
+    }
+
     @BeforeMethod
     public void beforeMethod() throws MalformedURLException
     {
         generalInformationService = createService();
+        generalInformationChangingService = createChangingService();
+
         sessionToken = generalInformationService.tryToAuthenticateForAllServices("test", "a");
         userSessionToken =
                 generalInformationService.tryToAuthenticateForAllServices("test_role", "a");
@@ -678,6 +691,21 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         assertEquals(1, dataSets.size());
         assertEquals("FEMALE", dataSets.get(0).getProperties().get("GENDER"));
 
+    }
+
+    @Test
+    public void testMetaprojects()
+    {
+        // as the metaprojects functionality is already tested in detail by the system tests here
+        // we just want to check that metaproject related classes serialize/deserialize to/from JSON
+        // properly
+
+        GeneralInformationServiceUtil util =
+                new GeneralInformationServiceUtil(generalInformationService,
+                        generalInformationChangingService);
+        Metaproject metaproject = util.createMetaprojectWithAssignments(sessionToken);
+        generalInformationService.getMetaproject(sessionToken,
+                new MetaprojectTechIdId(metaproject.getId()));
     }
 
     private Vocabulary findVocabulary(List<Vocabulary> vocabularies, String vocabularyCode)
