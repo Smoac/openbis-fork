@@ -22,6 +22,7 @@ import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.systemsx.cisd.openbis.generic.server.OptimisticLockingRetryAdvisor;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -41,6 +42,8 @@ public class GenericServiceServer extends HttpInvokerServiceExporter
     {
         setServiceInterface(IGenericServer.class);
         setService(server);
+        setInterceptors(new Object[]
+            { new OptimisticLockingRetryAdvisor() });
         super.afterPropertiesSet();
     }
 

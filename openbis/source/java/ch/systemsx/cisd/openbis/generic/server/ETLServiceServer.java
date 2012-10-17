@@ -47,7 +47,7 @@ public class ETLServiceServer extends HttpInvokerServiceExporter
         setServiceInterface(IETLLIMSService.class);
         setService(etlService);
         setInterceptors(new Object[]
-            { createExceptionTranslator() });
+            { createExceptionTranslator(), new OptimisticLockingRetryAdvisor() });
         super.afterPropertiesSet();
     }
 

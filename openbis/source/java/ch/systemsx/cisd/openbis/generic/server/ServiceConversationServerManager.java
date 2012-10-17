@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import ch.systemsx.cisd.common.conversation.client.ServiceConversationClientDetails;
@@ -72,7 +73,9 @@ public class ServiceConversationServerManager extends BaseServiceConversationSer
 
     public void setEtlService(IETLLIMSService etlService)
     {
-        this.etlService = etlService;
+        ProxyFactory factory = new ProxyFactory(etlService);
+        factory.addAdvisor(new OptimisticLockingRetryAdvisor());
+        this.etlService = (IETLLIMSService) factory.getProxy();
     }
 
 }
