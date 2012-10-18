@@ -77,7 +77,7 @@ def login(configMap, logger):
   return service
 
 def logout (service, logger):
-  # service.logout()
+  service.logout()
   logger.info('Logged out')
 
 def setUpLogger(logPath, logLevel=logging.INFO):
