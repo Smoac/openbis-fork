@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.properties;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -213,6 +214,26 @@ public final class PropertyUtils
             items[i] = items[i].trim();
         }
         return Arrays.asList(items);
+    }
+    
+    /**
+     * Returns list of comma separated values at the specific property key. Each element is trimmed.
+     * 
+     *  @return an empty list if the property is undefined or an empty string.
+     */
+    public static List<String> getList(Properties properties, String propertyKey)
+    {
+        List<String> result = new ArrayList<String>();
+        String property = PropertyUtils.getProperty(properties, propertyKey);
+        if (StringUtils.isNotBlank(property))
+        {
+            String[] splittedProperty = property.split(",");
+            for (String term : splittedProperty)
+            {
+                result.add(term.trim());
+            }
+        }
+        return result;
     }
 
     /**

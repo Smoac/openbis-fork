@@ -234,4 +234,30 @@ public final class PropertyUtilsTest extends AbstractFileSystemTestCase
         assertEquals(4, PropertyUtils.getPosLong(properties, key, 4));
         assertEquals(-7, PropertyUtils.getLong(properties, key, 4));
     }
+    
+    @Test
+    public void testGetList()
+    {
+        Properties properties = new Properties();
+        properties.setProperty("key", "  a,  gamma, Einstein");
+        
+        assertEquals("[a, gamma, Einstein]", PropertyUtils.getList(properties, "key").toString());
+    }
+    
+    @Test
+    public void testGetListForUndefinedProperty()
+    {
+        Properties properties = new Properties();
+        
+        assertEquals("[]", PropertyUtils.getList(properties, "key").toString());
+    }
+    
+    @Test
+    public void testGetListForEmptyProperty()
+    {
+        Properties properties = new Properties();
+        properties.setProperty("key", "  ");
+        
+        assertEquals("[]", PropertyUtils.getList(properties, "key").toString());
+    }
 }
