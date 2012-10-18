@@ -56,7 +56,7 @@
       <spec txt="Screening" true="true" false="false"/>
     </field>
     <field type="check" variable="ILLUMINA-NGS">
-      <spec txt="Illumina NGS" true="true" false="false"/>
+      <spec txt="Illumina NGS (ETH BSSE Setup)" true="true" false="false"/>
     </field>
   </panel>
 
