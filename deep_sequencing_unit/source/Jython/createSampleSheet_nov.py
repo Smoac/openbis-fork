@@ -44,7 +44,6 @@ Operator Name or ID of the operator
 SampleProject  The project the sample belongs to
 '''
 
-
 from __future__ import with_statement
 import os
 import logging
@@ -72,24 +71,61 @@ def login(configMap, logger):
                                                   configMap['openbisServer'],
                                                   configMap['connectionTimeout'])
   except:
-    raise ('Could not connect to ' +  configMap['openbisServer'] + '. Please check if the server ' +
+    raise ('Could not connect to ' + configMap['openbisServer'] + '. Please check if the server ' +
     'address is OK, the firewall is not blocking the communication or openBIS is down.')
-  
+
   return service
 
 def logout (service, logger):
-  service.logout()
+  # service.logout()
   logger.info('Logged out')
 
-def setUpLogger(logPath, logLevel = logging.INFO):
+def setUpLogger(logPath, logLevel=logging.INFO):
   logFileName = 'createSampleSheet'
-  d=datetime.now()
+  d = datetime.now()
   logFileName = logFileName + '_' + d.strftime('%Y-%m-%d_%H_%M_%S') + '.log'
-  logging.basicConfig(filename=logPath + logFileName, format='%(asctime)s %(message)s', level=logLevel)
+  logging.basicConfig(filename=logPath + logFileName,
+                      format='%(asctime)s [%(levelname)s] %(message)s', level=logLevel)
   logger = logging.getLogger(logFileName)
   return logger
 
-def parseConfigurationFile(logger, propertyFile = 'etc/createSampleSheet_nov.properties'):
+def parseOptions(logger):
+  logger.info('Parsing command line parameters')
+  parser = OptionParser(version='%prog 1.0')
+  parser.add_option('-f', '--flowcell',
+                  dest='flowcell',
+                  help='The flowcell which is used to create the SampleSheet.csv',
+                  metavar='<flowcell>')
+  parser.add_option('-l', '--lineending',
+                  dest='lineending',
+                  type='choice',
+                  action='store',
+                  choices=['win32', 'linux', 'mac'],
+                  default='linux',
+                  help='Specify end of line separator: win32, linux, mac. Default: linux' ,
+                  metavar='<lineending>')
+  parser.add_option('-o', '--outdir',
+                  dest='outdir',
+                  default='./',
+                  help='Specify the ouput directory. Default: ./' ,
+                  metavar='<outdir>')
+  parser.add_option('-d', '--debug',
+                  dest='debug',
+                  default=False,
+                  action='store_true',
+                  help='Verbose debug logging. Default: False')
+
+  (options, args) = parser.parse_args()
+
+  if options.outdir[-1] <> '/':
+    options.outdir = options.outdir + '/'
+
+  if options.flowcell is None:
+    parser.print_help()
+    exit(-1)
+  return options
+
+def parseConfigurationFile(logger, propertyFile='etc/createSampleSheet_nov.properties'):
   '''
   Parses the given config files and returns the values
   '''
@@ -99,65 +135,44 @@ def parseConfigurationFile(logger, propertyFile = 'etc/createSampleSheet_nov.pro
   config.sections()
   return config
 
-def parseOptions(logger):
-  logger.info('Parsing command line parameters')
-  parser = OptionParser(version='%prog 1.0')
-  parser.add_option('-f', '--flowcell',
-                  dest = 'flowcell',
-                  help = 'The flowcell which is used to create the SampleSheet.csv',
-                  metavar = '<flowcell>')
-  parser.add_option('-l', '--lineending',
-                  dest = 'lineending',
-                  type='choice',
-                  action='store',
-                  choices=['win32', 'linux', 'mac'],
-                  default='linux',
-                  help = 'Specify end of line separator: win32, linux, mac. Default: linux' ,
-                  metavar = '<lineending>')
-  parser.add_option('-o', '--outdir',
-                  dest = 'outdir',
-                  default='./',
-                  help = 'Specify the ouput directory. Default: ./' ,
-                  metavar = '<outdir>')
-  parser.add_option('-d', '--debug',
-                  dest = 'debug',
-                  default=False,
-                  action='store_true',
-                  help = 'Verbose debug logging. Default: False')
-
-  (options, args) = parser.parse_args()
-  
-  if options.outdir[-1] <> '/':
-    options.outdir = options.outdir + '/'
-  
-  if options.flowcell is None:
-    parser.print_help()
-    exit(-1)
-  return options
-
 def readConfig(logger):
-  configMap = {}
-  
-  configParameters = parseConfigurationFile(logger)
-  configMap['facilityName'] = configParameters.get('GENERAL', 'facilityName')
-  configMap['facilityNameShort'] = configParameters.get('GENERAL', 'facilityNameShort')
-  configMap['facilityInstitution'] = configParameters.get('GENERAL', 'facilityInstitution')
-  configMap['sampleSheetFileName'] = configParameters.get('GENERAL', 'sampleSheetFileName')
-  configMap['lanePrefix'] = configParameters.get('GENERAL', 'lanePrefix')
-  configMap['separator'] = configParameters.get('GENERAL', 'separator')
-  configMap['indexSeparator'] = configParameters.get('GENERAL', 'indexSeparator')
-  
-  configMap['openbisUserName'] = configParameters.get('OPENBIS', 'openbisUserName')
-  configMap['openbisPassword'] = configParameters.get('OPENBIS', 'openbisPassword', raw=True)
-  configMap['openbisServer'] = configParameters.get('OPENBIS', 'openbisServer')
-  configMap['connectionTimeout'] = configParameters.getint('OPENBIS', 'connectionTimeout')
-  configMap['illuminaFlowCellTypeName'] = configParameters.get('OPENBIS', 'illuminaFlowCellTypeName')
-  configMap['index1Name'] = configParameters.get('OPENBIS', 'index1Name')
-  configMap['index2Name'] = configParameters.get('OPENBIS', 'index2Name')
 
-  configMap['hiSeqNames'] = configParameters.get('ILLUMINA', 'hiSeqNames')
-  configMap['hiSeqHeader'] = configParameters.get('ILLUMINA', 'hiSeqHeader')
-  
+  GENERAL = 'GENERAL'
+  OPENBIS = 'OPENBIS'
+  ILLUMINA = 'ILLUMINA'
+
+  configMap = {}
+
+  logger.info('Reading config file')
+  configParameters = parseConfigurationFile(logger)
+
+  configMap['facilityName'] = configParameters.get(GENERAL, 'facilityName')
+  configMap['facilityNameShort'] = configParameters.get(GENERAL, 'facilityNameShort')
+  configMap['facilityInstitution'] = configParameters.get(GENERAL, 'facilityInstitution')
+  configMap['sampleSheetFileName'] = configParameters.get(GENERAL, 'sampleSheetFileName')
+  configMap['lanePrefix'] = configParameters.get(GENERAL, 'lanePrefix')
+  configMap['separator'] = configParameters.get(GENERAL, 'separator')
+  configMap['indexSeparator'] = configParameters.get(GENERAL, 'indexSeparator')
+
+  configMap['openbisUserName'] = configParameters.get(OPENBIS, 'openbisUserName')
+  configMap['openbisPassword'] = configParameters.get(OPENBIS, 'openbisPassword', raw=True)
+  configMap['openbisServer'] = configParameters.get(OPENBIS, 'openbisServer')
+  configMap['connectionTimeout'] = configParameters.getint(OPENBIS, 'connectionTimeout')
+  configMap['illuminaFlowCellTypeName'] = configParameters.get(OPENBIS, 'illuminaFlowCellTypeName')
+  configMap['index1Name'] = configParameters.get(OPENBIS, 'index1Name')
+  configMap['index2Name'] = configParameters.get(OPENBIS, 'index2Name')
+  configMap['species'] = configParameters.get(OPENBIS, 'species')
+  configMap['sampleName'] = configParameters.get(OPENBIS, 'sampleName')
+  configMap['operator'] = configParameters.get(OPENBIS, 'operator')
+  configMap['endType'] = configParameters.get(OPENBIS, 'endType')
+  configMap['readLength'] = configParameters.get(OPENBIS, 'readLength')
+  configMap['lengthIndex1'] = configParameters.get(OPENBIS, 'lengthIndex1')
+  configMap['lengthIndex2'] = configParameters.get(OPENBIS, 'lengthIndex2')
+  configMap['gaNumber'] = configParameters.get(OPENBIS, 'gaNumber')
+
+  configMap['hiSeqNames'] = configParameters.get(ILLUMINA, 'hiSeqNames')
+  configMap['hiSeqHeader'] = configParameters.get(ILLUMINA, 'hiSeqHeader')
+
   return configMap
 
 def sanitizeString(myString):
@@ -178,7 +193,7 @@ def getVocabulary(vocabularyCode):
       vocabularyDict[term.getCode()] = term.getLabel()
   else:
     print ('No vocabulary found for ' + vocabularyCode)
-  return vocabularyDict 
+  return vocabularyDict
 
 def getFlowCell (illuminaFlowCellTypeName, flowCellName, service, logger):
   '''
@@ -193,13 +208,13 @@ def getFlowCell (illuminaFlowCellTypeName, flowCellName, service, logger):
   except AssertionError:
     print (str(foundSample.size()) + ' flow cells found which match.')
     exit(1)
-  
+
   logger.info('Found ' + foundSample[0].getCode() + ' in openBIS')
   # Search for contained samples
   sampleSc = SearchCriteria()
   sampleSc.addSubCriteria(SearchSubCriteria.createSampleContainerCriteria(sc))
   foundContainedSamples = service.searchForSamples(sampleSc)
- 
+
   return foundSample[0], foundContainedSamples
 
 
@@ -210,36 +225,38 @@ def getParents(sampleName, service):
   sc = SearchCriteria();
   sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, sampleName));
   foundSample = service.searchForSamples(sc)
-   
+
   # set the criteria for getting the parents when providing the child name
   sampleSc = SearchCriteria()
   sampleSc.addSubCriteria(SearchSubCriteria.createSampleChildCriteria(sc))
   foundParentSamples = service.searchForSamples(sampleSc)
-  
-  return foundParentSamples 
 
-def getContainedSampleProperties(containedSamples, service):
+  return foundParentSamples
+
+def getContainedSampleProperties(logger, containedSamples, service):
   '''
   Takes a  list of contained samples, retrieves the parents and their properties and returns it
   as a dictionary. The key is the sample name, the value is a list of the properties
   '''
   laneParentDict = {}
-  
+
   for lane in containedSamples:
     parents = getParents (lane.getCode(), service)
-    
+
     for parent in parents:
       parentCode = parent.getCode()
       parentProperties = parent.getProperties()
-      
+
       propertyDict = {}
       for property in parentProperties:
         propertyDict[property] = parentProperties.get(property)
-      
+
       propertyDict['LANE'] = lane.getCode()
       propertyDict['SAMPLE_TYPE'] = parent.getSampleTypeCode()
       myKey = sanitizeString(parentCode + '_' + lane.getCode())
       laneParentDict[myKey] = propertyDict
+
+  logger.info('Found ' + str(len(laneParentDict)) + ' samples on the flow cell.')
   return laneParentDict
 
 
@@ -273,66 +290,71 @@ def getSampleProperties(parentsKey, service, logger):
     for parentSample in parentSamples:
       logger.debug(parentSample.getSampleTypeCode() + ' ' + parentSample.getCode())
       parentSampleProperties = parentSample.getProperties()
-  
+
   return parentSample, parentSampleProperties
 
 
 def createSampleSheetDict(configMap, control, sampleSheetDict, flowCellName, flowCellOperator,
                            end_type, cycles, lane, gaNumber, index, sample, sampleProperties):
   sampleSheetDict[lane + '_' + sample.getCode()] = [
-    flowCellName + COMMA + configMap['lanePrefix'] + lane + COMMA + sample.getCode() + COMMA + 
-    sampleProperties['SPECIES'] + COMMA + index + COMMA + sanitizeString(sampleProperties['SAMPLE_NAME']) +
-     COMMA + control + COMMA + end_type + '_' + cycles + COMMA + flowCellOperator + COMMA + gaNumber]
+    flowCellName + COMMA + configMap['lanePrefix'] + lane + COMMA + sample.getCode() + COMMA +
+    sampleProperties[configMap['species']] + COMMA + index + COMMA +
+    sanitizeString(sampleProperties[configMap['sampleName']]) + COMMA + control + COMMA +
+    end_type + '_' + cycles + COMMA + flowCellOperator + COMMA + gaNumber]
 
 def createHiseqSampleSheet(laneParentDict, flowCellDict, configMap, service, logger, myoptions):
   '''
     Builds up a dictionary with all entries in the Sample Sheet
   '''
   control = 'N'
-  # the illlumina pipeline uses always one base less than the sequencer is sequencing 
-  demultiplexIndexLengthPenalty = -1
-  
+  # the illlumina pipeline uses always one base less than the sequencer is sequencing
+  demultiplexIndexLengthPenalty = 0
+
   sampleSheetDict = {}
   # Making sure this is on the top of the Sample Sheet
   sampleSheetDict[u'!'] = ([configMap['hiSeqHeader']])
 
   indx1 = configMap['index1Name']
   indx2 = configMap['index2Name']
-  
+
   flowCellName = flowCellDict['CODE']
-  flowCellOperator = flowCellDict['OPERATOR']
-  end_type = flowCellDict['END_TYPE']
-  cycles = flowCellDict['READ_LEN']
-  index1ReadLength = int(flowCellDict['LENGTH_OF_INDEX1']) + demultiplexIndexLengthPenalty
-  indexRead2Length = int(flowCellDict['LENGTH_OF_INDEX2']) + demultiplexIndexLengthPenalty
+  flowCellOperator = flowCellDict[configMap['operator']]
+  end_type = flowCellDict[configMap['endType']]
+  cycles = flowCellDict[configMap['readLength']]
+  index1ReadLength = int(flowCellDict[configMap['lengthIndex1']]) + demultiplexIndexLengthPenalty
+  indexRead2Length = int(flowCellDict[configMap['lengthIndex2']]) + demultiplexIndexLengthPenalty
 
   for key in laneParentDict.keys():
     lane = laneParentDict[key]['LANE'][-1:]
     properties = laneParentDict[key]
-    
+    sampleName = laneParentDict[key]['LIBRARYID']
+
     # already Library with index
     if indx1 in properties:
-      gaNumber = laneParentDict[key]['GA_NUMBER']
+      gaNumber = laneParentDict[key][configMap['gaNumber']]
       index = getIndex(indx1, indx2, index1ReadLength, indexRead2Length, properties, configMap)
-      sample, sampleProperties = getSampleProperties(getParents(key.rsplit('_',2)[0], service), service, logger)
-      
-      createSampleSheetDict(configMap, control, sampleSheetDict, flowCellName, flowCellOperator, 
+      sample, sampleProperties = getSampleProperties(getParents(sampleName, service), service, logger)
+
+      createSampleSheetDict(configMap, control, sampleSheetDict, flowCellName, flowCellOperator,
                           end_type, cycles, lane, gaNumber, index, sample, sampleProperties)
     else:
-      for library in getParents(key.rsplit('_',2)[0], service):
+      for library in getParents(sampleName, service):
         libraryProperties = library.getProperties()
-        gaNumber = libraryProperties['GA_NUMBER']
-        logger.debug(library.getSampleTypeCode())
+        gaNumber = libraryProperties[configMap['gaNumber']]
+        if not gaNumber:
+          logger.warning('No GA number found for ' + library.getCode())
         index = getIndex(indx1, indx2, index1ReadLength, indexRead2Length, libraryProperties, configMap)
+        if not index:
+          logger.warning('No index found for ' + library.getCode())
         sample, sampleProperties = getSampleProperties(getParents(library.getCode(), service), service, logger)
-    
-        createSampleSheetDict(configMap, control, sampleSheetDict, flowCellName, flowCellOperator, 
+
+        createSampleSheetDict(configMap, control, sampleSheetDict, flowCellName, flowCellOperator,
                           end_type, cycles, lane, gaNumber, index, sample, sampleProperties)
 
   logger.debug(sampleSheetDict)
   sortedSampleSheetList = sampleSheetDict.keys()
   sortedSampleSheetList.sort()
-  writeSampleSheet(flowCellName, sampleSheetDict, sortedSampleSheetList, myoptions, logger, fileName = myoptions.outdir + 
+  writeSampleSheet(flowCellName, sampleSheetDict, sortedSampleSheetList, myoptions, logger, fileName=myoptions.outdir +
                       configMap['sampleSheetFileName'])
 
 def writeSampleSheet(flowCellName, sampleSheetDict, sortedSampleSheetList, myoptions, logger, fileName):
@@ -345,12 +367,12 @@ def writeSampleSheet(flowCellName, sampleSheetDict, sortedSampleSheetList, myopt
     with open(myFile, 'w') as sampleSheetFile:
       for listElement in sortedSampleSheetList:
         sampleSheetFile.write(sampleSheetDict[listElement][0] + newline)
-        
+
       logger.info('Writing file ' + myFile)
       print ('Written ' + myFile)
   except IOError:
     logger.error('File error: ' + str(err))
-    print ('File error: ' + str(err))  
+    print ('File error: ' + str(err))
 
 
 def main():
@@ -359,29 +381,24 @@ def main():
   '''
   logger = setUpLogger('log/')
   logger.info('Started Creation of Sample Sheet...')
-  
+
   myoptions = parseOptions(logger)
-  if myoptions.debug: 
+  if myoptions.debug:
     logger.setLevel(logging.DEBUG)
-  
+
   flowCellName = myoptions.flowcell
   configMap = readConfig(logger)
   service = login(configMap, logger)
-  
+
   foundFlowCell, containedSamples = getFlowCell(configMap['illuminaFlowCellTypeName'], flowCellName, service, logger)
   flowCellName = foundFlowCell.getCode()
   flowCellDict = convertSampleToDict(foundFlowCell, configMap)
-    
-  laneParentDict = getContainedSampleProperties(containedSamples, service)
-  
-  logger.info('Found ' + str(len(laneParentDict)) + ' samples on the flow cell ' + flowCellName)
-  sampleSheetList = []
-  
-  createHiseqSampleSheet(laneParentDict,flowCellDict, configMap, service, logger, myoptions)
-  
+
+  laneParentDict = getContainedSampleProperties(logger, containedSamples, service)
+  createHiseqSampleSheet(laneParentDict, flowCellDict, configMap, service, logger, myoptions)
+
   logout(service, logger)
   print('DONE')
-
 
 if __name__ == "__main__":
     main()
