@@ -136,8 +136,7 @@
 				
 		<junitreport todir="${output.test}">
 			<fileset dir="${output.test}">
-				<include name="*/*.xml" />
-				<exclude name="old/**/*.xml"/>
+				<include name="junitreports/*.xml" />
 			</fileset>
 			<report format="noframes" todir="${output.test}" />
 		</junitreport>
