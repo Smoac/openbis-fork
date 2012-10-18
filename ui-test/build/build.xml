@@ -41,6 +41,14 @@
 			<jvmarg value="-XX:MaxPermSize=512m" />
 		</testng>
 
+  	<junitreport todir="${output.test}">
+  		<fileset dir="${output.test}">
+  			<include name="*/*.xml" />
+				<exclude name="old/**/*.xml"/>
+  		</fileset>
+  		<report format="noframes" todir="${output.test}" />
+  	</junitreport>
+		
 		<fail if="${tests.failed}" />
 	</target>
 	

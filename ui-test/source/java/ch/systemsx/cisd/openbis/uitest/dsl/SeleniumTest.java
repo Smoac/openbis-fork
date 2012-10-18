@@ -253,7 +253,7 @@ public abstract class SeleniumTest
         Logger rootLogger = Logger.getRootLogger();
         if (rootLogger.getAllAppenders().hasMoreElements())
         {
-            throw new RuntimeException("log4j has appenders!");
+            throw new IllegalStateException("log4j has appenders!");
         }
         rootLogger.setLevel(Level.INFO);
         rootLogger.addAppender(new ConsoleAppender(
