@@ -261,16 +261,26 @@ public abstract class SeleniumTest
 
         String asUrl = System.getProperty("ui-test.as-url");
         String dssUrl = System.getProperty("ui-test.dss-url");
+        String startPage = asUrl;
 
         /* 
         asUrl = "https://sprint-openbis.ethz.ch/openbis";
         dssUrl = "https://sprint-openbis.ethz.ch";
-        startPage = asUrl;
+        startPage = asUrl;        
+        */
+
+        /*
+        asUrl = "http://127.0.0.1:8888";
+        dssUrl = "http://127.0.0.1:8889";
+        startPage =
+                asUrl + "/ch.systemsx.cisd.openbis.OpenBIS/index.html?gwt.codesvr=127.0.0.1:9997";
+        System.setProperty("webdriver.firefox.profile", "default");
         */
 
         if (asUrl == null || asUrl.length() == 0)
         {
             asUrl = startAs();
+            startPage = asUrl;
         }
 
         if (dssUrl == null || dssUrl.length() == 0)
@@ -278,13 +288,9 @@ public abstract class SeleniumTest
             dssUrl = startDss();
         }
 
-        String startPage = asUrl;
-
         System.out.println("asUrl: " + asUrl);
         System.out.println("dssUrl: " + dssUrl);
         System.out.println("startPage: " + startPage);
-
-        // System.setProperty("webdriver.firefox.profile", "default");
 
         driver = new FirefoxDriver();
         setImplicitWaitToDefault();
@@ -321,12 +327,6 @@ public abstract class SeleniumTest
         openbis = gui();
     }
 
-    public <T> T using(Application application, T t)
-    {
-        openbis = gui();
-        return t;
-    }
-
     @AfterSuite
     public void closeBrowser() throws Exception
     {
@@ -360,6 +360,12 @@ public abstract class SeleniumTest
                 delete(c);
         }
         f.delete();
+    }
+
+    public <T> T using(Application application, T t)
+    {
+        openbis = gui();
+        return t;
     }
 
     public static void setImplicitWait(long amount, TimeUnit unit)

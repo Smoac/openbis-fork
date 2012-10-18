@@ -25,16 +25,6 @@ public class AuthenticationTest extends SeleniumTest
     }
 
     @Test
-    public void loginFailsWithValidUserNameAndInvalidPassword() throws Exception
-    {
-        login(SeleniumTest.ADMIN_USER + "bagfa", "invalid");
-
-        assertThat(browser(), displays(InvalidPasswordDialog.class));
-
-        assumePage(InvalidPasswordDialog.class).dismiss();
-    }
-
-    @Test
     public void loginSucceedsWithValidCredentials() throws Exception
     {
         login(SeleniumTest.ADMIN_USER, SeleniumTest.ADMIN_PASSWORD);
