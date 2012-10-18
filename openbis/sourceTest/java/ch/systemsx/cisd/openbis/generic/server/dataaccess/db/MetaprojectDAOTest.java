@@ -21,11 +21,13 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
 /**
@@ -162,5 +164,21 @@ public class MetaprojectDAOTest extends AbstractDAOTest
         }
 
         assertTrue(checked);
+    }
+
+    @Test
+    public void testListMetaprojectsForEntity()
+    {
+        ExperimentPE experiment = daoFactory.getExperimentDAO().getByTechId(new TechId(4));
+        Collection<MetaprojectPE> connectedMetaprojects =
+                daoFactory.getMetaprojectDAO().listMetaprojectsForEntity(getTestPerson(),
+                        experiment);
+
+        assertEquals(2, connectedMetaprojects.size());
+        for (MetaprojectPE metaproject : connectedMetaprojects)
+        {
+            assertTrue(metaproject.getId().longValue() == 1l
+                    || metaproject.getId().longValue() == 3l);
+        }
     }
 }

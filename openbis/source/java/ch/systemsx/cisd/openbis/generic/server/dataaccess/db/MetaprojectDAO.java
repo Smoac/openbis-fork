@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
@@ -31,6 +34,8 @@ import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.MetaprojectName;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -103,4 +108,28 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
         }
     }
 
+    @Override
+    public Collection<MetaprojectPE> listMetaprojectsForEntity(PersonPE owner,
+            IEntityInformationWithPropertiesHolder entity)
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(MetaprojectAssignmentPE.class);
+        criteria.createAlias("metaproject", "m");
+        criteria.add(Restrictions.eq("m.owner", owner));
+        criteria.add(Restrictions.eq(entity.getEntityKind().getLabel(), entity));
+        final List<MetaprojectAssignmentPE> assignments =
+                cast(getHibernateTemplate().findByCriteria(criteria));
+
+        Set<MetaprojectPE> metaprojects = new HashSet<MetaprojectPE>();
+        for (MetaprojectAssignmentPE assignment : assignments)
+        {
+            metaprojects.add(assignment.getMetaproject());
+        }
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(%s, %s): %d metaproject(s) have been found.",
+                    MethodUtils.getCurrentMethod().getName(), owner, entity, metaprojects.size()));
+        }
+
+        return metaprojects;
+    }
 }
