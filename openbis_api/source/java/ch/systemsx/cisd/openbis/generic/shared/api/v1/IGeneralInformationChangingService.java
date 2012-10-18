@@ -97,7 +97,7 @@ public interface IGeneralInformationChangingService extends IRpcService
     /**
      * Updates an existing metaproject.
      * 
-     * @param metaprojectId Id of the metaproject
+     * @param metaprojectId Id of the metaproject to update
      * @param name New name of the metaproject
      * @param descriptionOrNull New description of the metaproject
      * @return Updated metaproject
@@ -108,18 +108,18 @@ public interface IGeneralInformationChangingService extends IRpcService
             String name, String descriptionOrNull);
 
     /**
-     * Deletes existing metaproject.
+     * Deletes an existing metaproject.
      * 
-     * @param metaprojectId Id of a metaproject to delete
+     * @param metaprojectId Id of the metaproject to delete
      * @throws UserFailureException when a metaproject with the specified id doesn't exist.
      * @since 1.3
      */
     public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId);
 
     /**
-     * Adds given entities to existing metaproject.
+     * Adds given entities to an existing metaproject.
      * 
-     * @param metaprojectId Id of a metaproject
+     * @param metaprojectId Id of the metaproject
      * @param assignmentsToAdd Assignments that should be added to the metaproject
      * @throws UserFailureException when a metaproject with the specified id doesn't exist.
      * @since 1.3
@@ -128,9 +128,9 @@ public interface IGeneralInformationChangingService extends IRpcService
             MetaprojectAssignmentsIds assignmentsToAdd);
 
     /**
-     * Removes given entities to existing metaproject.
+     * Removes given entities from an existing metaproject.
      * 
-     * @param metaprojectId Id of a metaproject
+     * @param metaprojectId Id of the metaproject
      * @param assignmentsToRemove Assignments that should be removed from the metaproject
      * @throws UserFailureException when a metaproject with the specified id doesn't exist.
      * @since 1.3

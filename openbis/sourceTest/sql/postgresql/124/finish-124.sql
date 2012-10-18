@@ -147,8 +147,6 @@ ALTER TABLE ONLY metaproject_assignments_all
 ALTER TABLE ONLY metaproject_assignments_all
     ADD CONSTRAINT metaproject_assignments_all_pk PRIMARY KEY (id);
 ALTER TABLE ONLY metaprojects
-    ADD CONSTRAINT metaprojects_name_owner_uk UNIQUE (name, owner);
-ALTER TABLE ONLY metaprojects
     ADD CONSTRAINT metaprojects_pk PRIMARY KEY (id);
 ALTER TABLE ONLY material_type_property_types
     ADD CONSTRAINT mtpt_bk_uk UNIQUE (maty_id, prty_id);
@@ -307,7 +305,7 @@ CREATE INDEX metaproject_assignments_all_mate_fk_i ON metaproject_assignments_al
 CREATE INDEX metaproject_assignments_all_mepr_fk_i ON metaproject_assignments_all USING btree (mepr_id);
 CREATE INDEX metaproject_assignments_all_samp_fk_i ON metaproject_assignments_all USING btree (samp_id);
 CREATE INDEX metaprojects_name_i ON metaprojects USING btree (name);
-CREATE INDEX metaprojects_name_owner_i ON metaprojects USING btree (name, owner);
+CREATE UNIQUE INDEX METAPROJECTS_NAME_OWNER_UK ON METAPROJECTS (lower(NAME), OWNER);
 CREATE INDEX metaprojects_owner_fk_i ON metaprojects USING btree (owner);
 CREATE INDEX mtpt_maty_fk_i ON material_type_property_types USING btree (maty_id);
 CREATE INDEX mtpt_pers_fk_i ON material_type_property_types USING btree (pers_id_registerer);

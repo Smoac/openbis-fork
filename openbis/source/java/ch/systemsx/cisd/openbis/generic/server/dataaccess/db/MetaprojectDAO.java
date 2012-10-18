@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
-import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.MetaprojectName;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -55,7 +55,7 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(MetaprojectPE.class);
         criteria.createAlias("owner", "o");
-        criteria.add(Restrictions.eq("name", metaprojectName));
+        criteria.add(Restrictions.eq("name", metaprojectName).ignoreCase());
         criteria.add(Restrictions.eq("o.userId", ownerId));
         final List<MetaprojectPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         final MetaprojectPE entity = tryFindEntity(list, "metaproject");
@@ -88,9 +88,10 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
     public void createOrUpdateMetaproject(MetaprojectPE metaproject, PersonPE owner)
     {
         assert metaproject != null : "Missing metaproject.";
-        validatePE(metaproject);
 
-        metaproject.setName(CodeConverter.tryToDatabase(metaproject.getName()));
+        validatePE(metaproject);
+        MetaprojectName.validate(metaproject.getName());
+
         metaproject.setOwner(owner);
         metaproject.setPrivate(true);
         final HibernateTemplate template = getHibernateTemplate();
@@ -101,4 +102,5 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
             operationLog.info(String.format("SAVE: metaproject '%s'.", metaproject));
         }
     }
+
 }

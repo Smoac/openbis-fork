@@ -1064,4 +1064,14 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertTrue(metaprojectAssignments.getExperiments().get(0).toString().contains("STUB"));
     }
 
+    public void testGetMetaprojectReturnsMetaprojectForNameWithDifferentCase()
+    {
+        MetaprojectAssignments metaprojectAssignments =
+                generalInformationService.getMetaproject(sessionToken, new MetaprojectIdentifierId(
+                        "/test/TEST_metaprojects"));
+        assertEquals("/test/TEST_METAPROJECTS", metaprojectAssignments.getMetaproject()
+                .getIdentifier());
+        assertEquals("TEST_METAPROJECTS", metaprojectAssignments.getMetaproject().getName());
+    }
+
 }

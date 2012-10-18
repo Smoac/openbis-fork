@@ -145,6 +145,13 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
                 "My name is already used by the same owner");
     }
 
+    @Test(expectedExceptions = UserFailureException.class)
+    public void testCreateMetaprojectWithNameThatIsUsedInDifferentCaseForSameOwner()
+    {
+        generalInformationChangingService.createMetaproject(sessionToken, "TEST_metaprojects",
+                "My name is already used by the same owner but in a different case");
+    }
+
     @Test
     public void testCreateMetaprojectWithNameDuplicatedForDifferentOwner()
     {
@@ -152,10 +159,37 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
                 "My name is already used by a different owner");
     }
 
+    @Test
+    public void testCreateMetaprojectWithNameThatIsUsedInDifferentCaseForDifferentOwner()
+    {
+        generalInformationChangingService.createMetaproject(sessionToken, "TEST_metaprojects_2",
+                "My name is already used by a different owner in a different case");
+    }
+
     @Test(expectedExceptions = UserFailureException.class)
     public void testCreateMetaprojectWithEmptyName()
     {
         generalInformationChangingService.createMetaproject(sessionToken, null, "My name is empty");
+    }
+
+    @Test(expectedExceptions = UserFailureException.class)
+    public void testCreateMetaprojectWithNameThatContainsDisallowedCharacters()
+    {
+        generalInformationChangingService.createMetaproject(sessionToken,
+                "THIS NAME IS DISALLOWED", "My name is not allowed");
+    }
+
+    @Test
+    public void testCreateMetaprojectWithNameThatUsesVariedCaseMaintainsTheCase()
+    {
+        String name = "NameWithVariedCase";
+
+        Metaproject metaproject =
+                generalInformationChangingService.createMetaproject(sessionToken, name,
+                        "My name uses varied case");
+        assertEquals(name, metaproject.getName());
+        List<String> names = getUtil().listMetaprojectNames(sessionToken);
+        assertTrue(names.contains(name));
     }
 
     @Test

@@ -32,7 +32,7 @@ public class MetaprojectIdentifierId extends ObjectIdentifierId implements IMeta
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     /**
-     * @param identifier Metaproject identifier, e.e. "/MY_USER/MY_METAPROJECT".
+     * @param identifier Metaproject identifier, e.g. "/MY_USER/MY_METAPROJECT".
      */
     public MetaprojectIdentifierId(String identifier)
     {
