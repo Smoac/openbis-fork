@@ -28,25 +28,34 @@ import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 public class LazyLoader implements InvocationHandler
 {
 
-    private String id;
-
-    private String tag;
+    private String reference;
 
     private WebElement element;
 
-    public static Object newInstance(String id, String tag)
+    private WebElement context;
+
+    public static Object newInstance(String id)
     {
         return java.lang.reflect.Proxy.newProxyInstance(
                 WebElement.class.getClassLoader(),
                 new Class<?>[]
                     { WebElement.class },
-                new LazyLoader(id, tag));
+                new LazyLoader(id, null));
     }
 
-    private LazyLoader(String id, String tag)
+    public static Object newInstance(String xpath, WebElement context)
     {
-        this.id = id;
-        this.tag = tag;
+        return java.lang.reflect.Proxy.newProxyInstance(
+                WebElement.class.getClassLoader(),
+                new Class<?>[]
+                    { WebElement.class },
+                new LazyLoader(xpath, context));
+    }
+
+    private LazyLoader(String reference, WebElement context)
+    {
+        this.reference = reference;
+        this.context = context;
     }
 
     @Override
@@ -56,13 +65,13 @@ public class LazyLoader implements InvocationHandler
         {
             if (element == null)
             {
-                WebElement e = SeleniumTest.driver.findElement(By.id(id));
-                if (tag != null && !tag.equals(e.getTagName()))
+                if (context == null)
                 {
-                    e = e.findElement(By.xpath(".//" + tag));
+                    element = SeleniumTest.driver.findElement(By.id(reference));
+                } else
+                {
+                    element = context.findElement(By.xpath(reference));
                 }
-
-                element = e;
             }
             return m.invoke(element, args);
         } catch (InvocationTargetException e)

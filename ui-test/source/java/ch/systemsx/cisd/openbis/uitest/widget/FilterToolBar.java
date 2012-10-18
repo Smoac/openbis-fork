@@ -24,11 +24,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.FluentWait;
+
+import com.google.common.base.Predicate;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.webdriver.DeterminateAction;
-import ch.systemsx.cisd.openbis.uitest.webdriver.WaitForRefreshOf;
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
 
 /**
  * @author anttil
@@ -36,25 +37,31 @@ import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
 public class FilterToolBar implements Widget
 {
 
-    private WidgetContext context;
+    @Contextual
+    private WebElement context;
 
-    public void setFilter(String filter, final String text, Refreshable refresher)
+    public void setFilter(String filter, final String text, final Refreshable refresher)
     {
-        final WebElement t =
+        final Object state = refresher.getState();
+
+        WebElement t =
                 context.findElement(By.xpath(".//input[contains(@id, '" + filter + "-input')]"));
+        t.clear();
+        t.sendKeys(text);
 
-        new WaitForRefreshOf<Void>(refresher)
-                .after(new DeterminateAction<Void>()
-                    {
-                        @Override
-                        public Void execute()
-                        {
-                            t.clear();
-                            t.sendKeys(text);
-                            return null;
-                        }
-                    }).withTimeoutOf(20);
+        new FluentWait<Refreshable>(refresher)
+                .withTimeout(30, TimeUnit.SECONDS)
+                .pollingEvery(100, TimeUnit.MILLISECONDS)
+                .until(
+                        new Predicate<Refreshable>()
+                            {
 
+                                @Override
+                                public boolean apply(Refreshable refreshable)
+                                {
+                                    return refresher.hasStateBeenUpdatedSince(state);
+                                }
+                            });
     }
 
     public Collection<String> getVisibleFilters()
@@ -80,11 +87,5 @@ public class FilterToolBar implements Widget
     {
         WebElement b = context.findElement(By.xpath(".//button[text()='Reset']"));
         b.click();
-    }
-
-    @Override
-    public void setContext(WidgetContext context)
-    {
-        this.context = context;
     }
 }

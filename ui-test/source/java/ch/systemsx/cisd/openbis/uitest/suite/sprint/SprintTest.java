@@ -56,6 +56,9 @@ public class SprintTest extends SprintSuiteTest
         assertThat(browser(), displays(AddSampleTypeDialog.class));
         assumePage(AddSampleTypeDialog.class).cancel();
 
+        // create at least one listable sample type to make sure sample browser dropdown works
+        create(aSampleType().thatIsListable());
+
         SampleType sampleType =
                 create(aSampleType()
                         .withCode("sprint_test")

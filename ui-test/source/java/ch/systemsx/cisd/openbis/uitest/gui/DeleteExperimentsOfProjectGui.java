@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
 import ch.systemsx.cisd.openbis.uitest.layout.ExperimentBrowserLocation;
 import ch.systemsx.cisd.openbis.uitest.page.ExperimentBrowser;
 import ch.systemsx.cisd.openbis.uitest.request.DeleteExperimentsOfProject;
-import ch.systemsx.cisd.openbis.uitest.request.Executor;
 
 /**
  * @author anttil

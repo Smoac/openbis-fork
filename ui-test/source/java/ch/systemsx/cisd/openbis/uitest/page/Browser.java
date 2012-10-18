@@ -134,19 +134,19 @@ public abstract class Browser
     private void waitForPagingToolBar()
     {
         new FluentWait<PagingToolBar>(getPaging())
-            {
+                .withTimeout(30, TimeUnit.SECONDS)
+                .pollingEvery(100, TimeUnit.MILLISECONDS)
+                .until(
+                        new Predicate<PagingToolBar>()
+                            {
 
-            }.withTimeout(30, TimeUnit.SECONDS).pollingEvery(100, TimeUnit.MILLISECONDS).until(
-                new Predicate<PagingToolBar>()
-                    {
-
-                        @Override
-                        public boolean apply(PagingToolBar paging)
-                        {
-                            System.out.println("waiting for paging toolbar to get enabled");
-                            return paging.isEnabled();
-                        }
-                    });
+                                @Override
+                                public boolean apply(PagingToolBar paging)
+                                {
+                                    System.out.println("waiting for paging toolbar to get enabled");
+                                    return paging.isEnabled();
+                                }
+                            });
     }
 
     @Override

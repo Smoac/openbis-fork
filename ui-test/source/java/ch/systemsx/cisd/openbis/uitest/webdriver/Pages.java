@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.gui;
+package ch.systemsx.cisd.openbis.uitest.webdriver;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -33,12 +33,6 @@ import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.layout.Location;
 import ch.systemsx.cisd.openbis.uitest.menu.TabBar;
 import ch.systemsx.cisd.openbis.uitest.screenshot.ScreenShotter;
-import ch.systemsx.cisd.openbis.uitest.webdriver.Context;
-import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
-import ch.systemsx.cisd.openbis.uitest.webdriver.LazyLoader;
-import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
-import ch.systemsx.cisd.openbis.uitest.widget.AtomicWidget;
 import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
 /**
@@ -109,6 +103,53 @@ public class Pages
         return init(clazz, t);
     }
 
+    public <U extends Widget> U initializeWidget(Class<U> widgetClass,
+            WebElement context, boolean lazy)
+    {
+        try
+        {
+            U widget = widgetClass.newInstance();
+            for (Field field : widgetClass.getDeclaredFields())
+            {
+                Contextual c = field.getAnnotation(Contextual.class);
+                if (c != null)
+                {
+                    field.setAccessible(true);
+                    WebElement element;
+
+                    if (lazy)
+                    {
+                        element =
+                                (WebElement) LazyLoader.newInstance(c.value(), context);
+                    } else
+                    {
+                        element = context.findElement(By.xpath(c.value()));
+                    }
+
+                    if (Widget.class.isAssignableFrom(field.getType()))
+                    {
+                        @SuppressWarnings("unchecked")
+                        Widget w =
+                                initializeWidget((Class<? extends Widget>) field.getType(),
+                                        element, lazy);
+                        field.set(widget, w);
+                    } else if (WebElement.class.isAssignableFrom(field.getType()))
+                    {
+                        field.set(widget, element);
+                    } else
+                    {
+                        throw new RuntimeException("Cannot annotate field of type "
+                                + field.getType() + " with @Contextual");
+                    }
+                }
+            }
+            return widget;
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
     private <T> T init(final Class<T> clazz, T t)
     {
         try
@@ -122,50 +163,38 @@ public class Pages
                     if (locate != null)
                     {
                         field.setAccessible(true);
-                        Widget widget = (Widget) field.getType().newInstance();
 
-                        String tagName = null;
-                        if (widget instanceof AtomicWidget)
+                        if (Widget.class.isAssignableFrom(field.getType()))
                         {
-                            tagName = ((AtomicWidget) widget).getTagName();
-                        }
 
-                        WebElement element;
-                        if (field.getAnnotation(Lazy.class) != null)
+                            boolean lazy = field.getAnnotation(Lazy.class) != null;
+
+                            WebElement element;
+                            if (lazy)
+                            {
+                                element =
+                                        (WebElement) LazyLoader.newInstance(locate.value());
+                            } else
+                            {
+                                element = SeleniumTest.driver.findElement(By.id(locate.value()));
+                            }
+
+                            @SuppressWarnings("unchecked")
+                            Widget widget =
+                                    initializeWidget((Class<? extends Widget>) field.getType(),
+                                            new WidgetContext(element,
+                                                    shotter), lazy);
+                            field.set(t, widget);
+                        } else if (WebElement.class.isAssignableFrom(field.getType()))
                         {
-                            element =
-                                    (WebElement) LazyLoader.newInstance(locate.value(),
-                                            tagName);
+                            WebElement element =
+                                    new WidgetContext(SeleniumTest.driver.findElement(By.id(locate
+                                            .value())), shotter);
+                            field.set(t, element);
                         } else
                         {
-                            element = SeleniumTest.driver.findElement(By.id(locate.value()));
-                            if (tagName != null && !element.getTagName().equals(tagName))
-                            {
-                                element = element.findElement(By.xpath(".//" + tagName));
-                            }
-                        }
-
-                        widget.setContext(new WidgetContext(element, shotter));
-                        field.set(t, widget);
-                    }
-
-                    Context context = field.getAnnotation(Context.class);
-                    if (context != null)
-                    {
-                        field.setAccessible(true);
-                        try
-                        {
-                            field.set(t, new WidgetContext(SeleniumTest.driver.findElement(By
-                                    .xpath("/html")),
-                                    shotter));
-                        } catch (IllegalArgumentException ex)
-                        {
-                            ex.printStackTrace();
-                            throw new RuntimeException(ex);
-                        } catch (IllegalAccessException ex)
-                        {
-                            ex.printStackTrace();
-                            throw new RuntimeException(ex);
+                            throw new RuntimeException("Cannot annotate field of type "
+                                    + field.getType() + " with @Locate");
                         }
                     }
                 }
@@ -199,7 +228,6 @@ public class Pages
         {
             SeleniumTest.setImplicitWaitToDefault();
         }
-
     }
 
     public <T> T goTo(Location<T> location)

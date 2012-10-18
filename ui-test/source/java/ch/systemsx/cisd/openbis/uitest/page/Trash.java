@@ -33,7 +33,7 @@ public class Trash
 
     public void empty()
     {
-        this.empty.click();
+        empty.click();
         deletionDialog.confirm();
     }
 

@@ -16,40 +16,31 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
+import org.openqa.selenium.WebElement;
+
+import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
 
 /**
  * @author anttil
  */
-public class Button implements AtomicWidget
+public class Button implements Widget
 {
 
-    private WidgetContext context;
+    @Contextual("./descendant-or-self::button")
+    private WebElement button;
 
     public void click()
     {
-        context.click();
+        button.click();
     }
 
     public boolean isPressed()
     {
-        return "true".equalsIgnoreCase(context.getAttribute("aria-pressed"));
-    }
-
-    @Override
-    public String getTagName()
-    {
-        return "button";
-    }
-
-    @Override
-    public void setContext(WidgetContext context)
-    {
-        this.context = context;
+        return "true".equalsIgnoreCase(button.getAttribute("aria-pressed"));
     }
 
     public String getText()
     {
-        return context.getText();
+        return button.getText();
     }
 }

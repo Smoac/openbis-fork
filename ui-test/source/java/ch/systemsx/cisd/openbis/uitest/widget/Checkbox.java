@@ -16,22 +16,24 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
+import org.openqa.selenium.WebElement;
 
+import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
 
 /**
  * @author anttil
  */
-public class Checkbox implements AtomicWidget, Fillable
+public class Checkbox implements Widget, Fillable
 {
 
-    private WidgetContext context;
+    @Contextual("./descendant-or-self::input")
+    private WebElement checkbox;
 
     public void set(boolean value)
     {
-        if (context.getAttribute("checked") != null ^ value)
+        if (checkbox.getAttribute("checked") != null ^ value)
         {
-            context.click();
+            checkbox.click();
         }
     }
 
@@ -39,17 +41,5 @@ public class Checkbox implements AtomicWidget, Fillable
     public void fillWith(String string)
     {
         set("true".equalsIgnoreCase(string));
-    }
-
-    @Override
-    public void setContext(WidgetContext context)
-    {
-        this.context = context;
-    }
-
-    @Override
-    public String getTagName()
-    {
-        return "input";
     }
 }

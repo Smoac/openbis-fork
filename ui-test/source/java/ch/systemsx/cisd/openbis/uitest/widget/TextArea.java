@@ -16,46 +16,37 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
+import org.openqa.selenium.WebElement;
+
+import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
 
 /**
  * @author anttil
  */
-public class TextArea implements AtomicWidget, Fillable
+public class TextArea implements Widget, Fillable
 {
-    private WidgetContext context;
+    @Contextual("./descendant-or-self::textarea")
+    private WebElement textArea;
 
     public void write(String text)
     {
-        context.clear();
-        context.sendKeys(text);
+        textArea.clear();
+        textArea.sendKeys(text);
     }
 
     public void clear()
     {
-        context.clear();
+        textArea.clear();
     }
 
     public void append(String text)
     {
-        context.sendKeys(text);
+        textArea.sendKeys(text);
     }
 
     @Override
     public void fillWith(String string)
     {
         write(string);
-    }
-
-    @Override
-    public void setContext(WidgetContext context)
-    {
-        this.context = context;
-    }
-
-    @Override
-    public String getTagName()
-    {
-        return "textarea";
     }
 }

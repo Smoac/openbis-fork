@@ -74,7 +74,6 @@ public class RegisterSample
         {
             Fillable widget = (Fillable) form.getWidget(propertyType);
             widget.fillWith(properties.get(propertyType).toString());
-
         }
     }
 

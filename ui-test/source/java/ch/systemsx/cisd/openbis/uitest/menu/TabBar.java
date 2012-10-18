@@ -23,13 +23,12 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.webdriver.Context;
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
 
 public class TabBar
 {
-    @Context
-    private WidgetContext context;
+    @Locate("openbis_main-tab-panel")
+    private WebElement context;
 
     public boolean selectTab(String label)
     {

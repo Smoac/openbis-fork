@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
-import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.request.Login;
 
 /**

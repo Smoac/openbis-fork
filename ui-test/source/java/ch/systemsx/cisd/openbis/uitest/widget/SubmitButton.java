@@ -16,30 +16,21 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
+import org.openqa.selenium.WebElement;
+
+import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
 
 /**
  * @author anttil
  */
-public class SubmitButton implements AtomicWidget
+public class SubmitButton implements Widget
 {
 
-    private WidgetContext context;
+    @Contextual("./descendant-or-self::input")
+    private WebElement button;
 
     public void click()
     {
-        context.click();
-    }
-
-    @Override
-    public String getTagName()
-    {
-        return "input";
-    }
-
-    @Override
-    public void setContext(WidgetContext context)
-    {
-        this.context = context;
+        button.click();
     }
 }

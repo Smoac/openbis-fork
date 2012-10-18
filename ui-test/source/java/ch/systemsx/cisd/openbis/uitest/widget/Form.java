@@ -22,15 +22,17 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
 
 /**
  * @author anttil
  */
 public class Form implements Widget
 {
-    private WidgetContext context;
+    @Contextual
+    private WebElement context;
 
     public Widget getWidget(PropertyType type)
     {
@@ -40,30 +42,8 @@ public class Form implements Widget
         {
             if (element.getText().toLowerCase().startsWith(type.getLabel().toLowerCase()))
             {
-
-                Widget w;
-                try
-                {
-                    w = type.getDataType().representedAs().newInstance();
-                } catch (InstantiationException ex)
-                {
-                    throw new RuntimeException(ex);
-                } catch (IllegalAccessException ex)
-                {
-                    throw new RuntimeException(ex);
-                }
-
                 WebElement e = element.findElement(By.xpath("../div/div"));
-                if (w instanceof AtomicWidget)
-                {
-                    AtomicWidget aw = (AtomicWidget) w;
-                    if (aw.getTagName() != null && !e.getTagName().equals(aw.getTagName()))
-                    {
-                        e = e.findElement(By.xpath(".//" + aw.getTagName()));
-                    }
-                }
-                w.setContext((WidgetContext) e);
-                return w;
+                return SeleniumTest.initializeWidget(type.getDataType().representedAs(), e);
             }
         }
         throw new IllegalArgumentException("Could not find " + type.getLabel());
@@ -80,9 +60,4 @@ public class Form implements Widget
         return labels;
     }
 
-    @Override
-    public void setContext(WidgetContext context)
-    {
-        this.context = context;
-    }
 }

@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
 import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.menu.UserMenu;
-import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.request.Logout;
 
 /**

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.uitest.dsl;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-import ch.systemsx.cisd.openbis.uitest.gui.Pages;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil

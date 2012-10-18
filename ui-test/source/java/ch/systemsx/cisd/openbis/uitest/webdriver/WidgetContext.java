@@ -23,16 +23,15 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.interactions.internal.Coordinates;
+import org.openqa.selenium.internal.Locatable;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.screenshot.ScreenShotter;
-import ch.systemsx.cisd.openbis.uitest.widget.AtomicWidget;
 
 /**
  * @author anttil
  */
-public class WidgetContext implements WebElement
+class WidgetContext implements WebElement, Locatable
 {
 
     private WebElement element;
@@ -69,36 +68,6 @@ public class WidgetContext implements WebElement
     {
         shotter.screenshot();
         element.clear();
-    }
-
-    public <T extends AtomicWidget> T find(String xpath, Class<T> widgetClass)
-    {
-        T t;
-        try
-        {
-            t = widgetClass.newInstance();
-        } catch (InstantiationException ex)
-        {
-            throw new RuntimeException(ex);
-        } catch (IllegalAccessException ex)
-        {
-            throw new RuntimeException(ex);
-        }
-
-        WebElement e = element.findElement(By.xpath(xpath));
-        if (!e.getTagName().equals(t.getTagName()))
-        {
-            e = e.findElement(By.xpath(".//" + t.getTagName()));
-        }
-        t.setContext(new WidgetContext(e, shotter));
-        return t;
-    }
-
-    public void mouseOver()
-    {
-        shotter.screenshot();
-        Actions builder = new Actions(SeleniumTest.driver);
-        builder.moveToElement(element).build().perform();
     }
 
     @Override
@@ -172,5 +141,17 @@ public class WidgetContext implements WebElement
     {
         shotter.screenshot();
         element.submit();
+    }
+
+    @Override
+    public Coordinates getCoordinates()
+    {
+        return ((Locatable) element).getCoordinates();
+    }
+
+    @Override
+    public Point getLocationOnScreenOnceScrolledIntoView()
+    {
+        return ((Locatable) element).getLocationOnScreenOnceScrolledIntoView();
     }
 }

@@ -28,7 +28,7 @@ import org.openqa.selenium.WebElement;
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserCell;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserRow;
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
 
 /**
  * @author anttil
@@ -36,7 +36,8 @@ import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
 public class Grid implements Widget
 {
 
-    private WidgetContext context;
+    @Contextual
+    private WebElement context;
 
     public BrowserRow select(String column, String value)
     {
@@ -167,11 +168,5 @@ public class Grid implements Widget
             }
         }
         return s;
-    }
-
-    @Override
-    public void setContext(WidgetContext context)
-    {
-        this.context = context;
     }
 }

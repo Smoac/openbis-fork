@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
-import ch.systemsx.cisd.openbis.uitest.request.Application;
+import ch.systemsx.cisd.openbis.uitest.dsl.Application;
 import ch.systemsx.cisd.openbis.uitest.request.CreateExperiment;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 

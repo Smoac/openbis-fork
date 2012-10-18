@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
 import ch.systemsx.cisd.openbis.uitest.layout.AddSpaceDialogLocation;
 import ch.systemsx.cisd.openbis.uitest.page.AddSpaceDialog;
 import ch.systemsx.cisd.openbis.uitest.request.CreateSpace;
-import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
 
 /**

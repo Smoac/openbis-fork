@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
 import ch.systemsx.cisd.openbis.uitest.layout.SampleTypeBrowserLocation;
 import ch.systemsx.cisd.openbis.uitest.page.Browsable;
 import ch.systemsx.cisd.openbis.uitest.page.EditSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.SampleTypeBrowser;
-import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.request.UpdateSampleType;
 import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;

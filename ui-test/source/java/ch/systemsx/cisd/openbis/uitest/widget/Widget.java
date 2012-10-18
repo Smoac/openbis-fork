@@ -16,13 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
-
-
 /**
  * @author anttil
  */
 public interface Widget
 {
-    public void setContext(WidgetContext context);
 }

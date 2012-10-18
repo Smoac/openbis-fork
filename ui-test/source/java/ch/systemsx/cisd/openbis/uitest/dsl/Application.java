@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.request;
+package ch.systemsx.cisd.openbis.uitest.dsl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,8 +22,8 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
-import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.gui.Pages;
+import ch.systemsx.cisd.openbis.uitest.request.Request;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil

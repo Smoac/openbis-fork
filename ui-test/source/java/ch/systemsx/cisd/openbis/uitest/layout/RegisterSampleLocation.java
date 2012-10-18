@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.layout;
 
-import ch.systemsx.cisd.openbis.uitest.gui.Pages;
 import ch.systemsx.cisd.openbis.uitest.menu.NewMenu;
 import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterSample;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil

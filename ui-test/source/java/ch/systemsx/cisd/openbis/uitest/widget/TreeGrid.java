@@ -23,14 +23,15 @@ import java.util.List;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
 
 /**
  * @author anttil
  */
 public class TreeGrid implements Widget
 {
-    private WidgetContext context;
+    @Contextual
+    private WebElement context;
 
     public boolean select(String label)
     {
@@ -52,11 +53,5 @@ public class TreeGrid implements Widget
         }
 
         return false;
-    }
-
-    @Override
-    public void setContext(WidgetContext context)
-    {
-        this.context = context;
     }
 }

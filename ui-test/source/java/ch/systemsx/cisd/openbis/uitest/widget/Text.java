@@ -16,29 +16,37 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
+import org.openqa.selenium.WebElement;
+
+import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
 
 /**
  * @author anttil
  */
-public class Text implements AtomicWidget, Fillable
+public class Text implements Widget, Fillable
 {
-    private WidgetContext context;
+    @Contextual("./descendant-or-self::input")
+    private WebElement text;
 
-    public void write(String text)
+    public void write(String input)
     {
-        context.clear();
-        context.sendKeys(text);
+        text.clear();
+        text.sendKeys(input);
     }
 
     public void clear()
     {
-        context.clear();
+        text.clear();
     }
 
-    public void append(String text)
+    public void append(String input)
     {
-        context.sendKeys(text);
+        text.sendKeys(input);
+    }
+
+    public String getValue()
+    {
+        return text.getAttribute("value");
     }
 
     @Override
@@ -46,17 +54,4 @@ public class Text implements AtomicWidget, Fillable
     {
         write(string);
     }
-
-    @Override
-    public void setContext(WidgetContext context)
-    {
-        this.context = context;
-    }
-
-    @Override
-    public String getTagName()
-    {
-        return "input";
-    }
-
 }

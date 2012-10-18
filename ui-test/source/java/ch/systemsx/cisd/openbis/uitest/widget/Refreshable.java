@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.uitest.widget;
  */
 public interface Refreshable
 {
-    public void prepareWait();
+    public Object getState();
 
-    public boolean hasRefreshed();
+    public boolean hasStateBeenUpdatedSince(Object state);
 }

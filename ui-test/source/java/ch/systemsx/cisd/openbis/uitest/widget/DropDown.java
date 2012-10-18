@@ -24,23 +24,26 @@ import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
 
 /**
  * @author anttil
  */
 public class DropDown implements Widget, Fillable
 {
-    private WidgetContext context;
+    @Contextual(".//input")
+    private Text textField;
+
+    @Contextual(".//img")
+    private WebElement opener;
 
     public void select(String text)
     {
-        if (text.equals(getValue()))
+        if (text.equals(textField.getValue()))
         {
             return;
         }
@@ -50,23 +53,13 @@ public class DropDown implements Widget, Fillable
         {
             if (choice.getText().equalsIgnoreCase(text))
             {
-                Actions builder = new Actions(SeleniumTest.driver);
-                builder.moveToElement(choice).click(choice).build().perform();
+                SeleniumTest.mouseOver(choice);
+                choice.click();
                 return;
             }
             found.add(choice.getText());
         }
         throw new IllegalArgumentException("Selection " + text + " not found, got " + found);
-    }
-
-    public void clear()
-    {
-        this.context.findElement(By.xpath(".//input")).clear();
-    }
-
-    public String getValue()
-    {
-        return this.context.findElement(By.xpath(".//input")).getAttribute("value");
     }
 
     public List<String> getChoices()
@@ -79,12 +72,6 @@ public class DropDown implements Widget, Fillable
         return choices;
     }
 
-    public void openDropDown()
-    {
-        List<WebElement> elements = context.findElements(By.xpath(".//img"));
-        elements.get(0).click();
-    }
-
     private List<WebElement> getChoiceElements()
     {
 
@@ -93,7 +80,7 @@ public class DropDown implements Widget, Fillable
                 SeleniumTest.driver.findElements(By.className("x-combo-list-item"));
         SeleniumTest.setImplicitWaitToDefault();
 
-        openDropDown();
+        opener.click();
 
         if (wlist.size() != 0)
         {
@@ -115,11 +102,5 @@ public class DropDown implements Widget, Fillable
     public void fillWith(String string)
     {
         select(string);
-    }
-
-    @Override
-    public void setContext(WidgetContext context)
-    {
-        this.context = context;
     }
 }

@@ -16,16 +16,21 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.support.ui.FluentWait;
+
+import com.google.common.base.Predicate;
+
 import ch.systemsx.cisd.openbis.uitest.type.Project;
-import ch.systemsx.cisd.openbis.uitest.webdriver.Action;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.webdriver.WaitForRefreshOf;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
 import ch.systemsx.cisd.openbis.uitest.widget.PagingToolBar;
+import ch.systemsx.cisd.openbis.uitest.widget.Refreshable;
 import ch.systemsx.cisd.openbis.uitest.widget.SettingsDialog;
 import ch.systemsx.cisd.openbis.uitest.widget.TreeGrid;
 
@@ -57,20 +62,25 @@ public class ExperimentBrowser extends Browser
 
     public boolean selectProject(final Project project)
     {
-        return new WaitForRefreshOf<Boolean>(paging).after(new Action<Boolean>()
-            {
-                @Override
-                public Boolean execute()
-                {
-                    return projectTree.select(project.getCode());
-                }
 
-                @Override
-                public boolean shouldWait(Boolean result)
-                {
-                    return result;
-                }
-            }).withTimeoutOf(20);
+        final Object state = paging.getState();
+        Boolean projectFound = projectTree.select(project.getCode());
+
+        new FluentWait<Refreshable>(paging)
+                .withTimeout(30, TimeUnit.SECONDS)
+                .pollingEvery(100, TimeUnit.MILLISECONDS)
+                .until(
+                        new Predicate<Refreshable>()
+                            {
+
+                                @Override
+                                public boolean apply(Refreshable refreshable)
+                                {
+                                    return refreshable.hasStateBeenUpdatedSince(state);
+                                }
+                            });
+
+        return projectFound;
     }
 
     public void deleteAll()
@@ -106,8 +116,5 @@ public class ExperimentBrowser extends Browser
     @Override
     protected void delete()
     {
-        // TODO Auto-generated method stub
-
     }
-
 }

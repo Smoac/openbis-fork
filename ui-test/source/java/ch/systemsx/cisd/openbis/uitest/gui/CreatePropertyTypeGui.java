@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
 import ch.systemsx.cisd.openbis.uitest.layout.AddPropertyTypeLocation;
 import ch.systemsx.cisd.openbis.uitest.page.AddPropertyType;
 import ch.systemsx.cisd.openbis.uitest.request.CreatePropertyType;
-import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 
 /**

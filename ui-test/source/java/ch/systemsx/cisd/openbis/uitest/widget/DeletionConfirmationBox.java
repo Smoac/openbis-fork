@@ -16,35 +16,28 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
 
 /**
  * @author anttil
  */
 public class DeletionConfirmationBox implements Widget
 {
-    private WidgetContext context;
+    @Contextual
+    private TextArea text;
+
+    @Contextual(".//button[text()='OK' or text()='Yes']")
+    private Button confirmButton;
 
     public void confirm(String reason)
     {
-        TextArea text = context.find(".//textarea", TextArea.class);
         text.write(reason);
-        getOkButton().click();
+        confirmButton.click();
     }
 
     public void confirm()
     {
-        getOkButton().click();
+        confirmButton.click();
     }
 
-    private Button getOkButton()
-    {
-        return context.find(".//button[text()='OK' or text()='Yes']", Button.class);
-    }
-
-    @Override
-    public void setContext(WidgetContext context)
-    {
-        this.context = context;
-    }
 }

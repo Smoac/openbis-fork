@@ -22,7 +22,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import ch.systemsx.cisd.openbis.uitest.page.Browsable;
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
 
 /**
  * @author anttil
@@ -30,7 +30,11 @@ import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
 public class SettingsDialog implements Widget
 {
 
-    private WidgetContext context;
+    @Contextual
+    private WebElement context;
+
+    @Contextual("//*[@class='x-window-bl']//button[text()='OK']")
+    private Button okButton;
 
     public void showColumns(String... columns)
     {
@@ -53,7 +57,7 @@ public class SettingsDialog implements Widget
             }
         }
 
-        context.findElement(By.xpath("//*[@class='x-window-bl']//button[text()='OK']")).click();
+        okButton.click();
     }
 
     public void showFilters(String... filters)
@@ -77,7 +81,7 @@ public class SettingsDialog implements Widget
             }
         }
 
-        context.findElement(By.xpath("//*[@class='x-window-bl']//button[text()='OK']")).click();
+        okButton.click();
     }
 
     public void showColumnsOf(Browsable browsable)
@@ -85,9 +89,4 @@ public class SettingsDialog implements Widget
         showColumns(browsable.getColumns().toArray(new String[0]));
     }
 
-    @Override
-    public void setContext(WidgetContext context)
-    {
-        this.context = context;
-    }
 }

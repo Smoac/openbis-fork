@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
 import ch.systemsx.cisd.openbis.uitest.layout.AddSampleTypeLocation;
 import ch.systemsx.cisd.openbis.uitest.page.AddSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.request.CreateSampleType;
-import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 /**

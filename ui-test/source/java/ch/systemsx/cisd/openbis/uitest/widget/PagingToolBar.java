@@ -19,8 +19,9 @@ package ch.systemsx.cisd.openbis.uitest.widget;
 import java.util.StringTokenizer;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
 
 /**
  * @author anttil
@@ -28,14 +29,20 @@ import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
 public class PagingToolBar implements Widget, Refreshable
 {
 
-    private WidgetContext context;
+    @Contextual
+    private WebElement context;
+
+    @Contextual(".//button[text()='Filters']")
+    private Button filtersButton;
+
+    @Contextual(".//button[text()='Settings']")
+    private Button settingsButton;
 
     public void filters()
     {
-        Button b = context.find(".//button[text()='Filters']", Button.class);
-        if (!b.isPressed())
+        if (filtersButton.isPressed() == false)
         {
-            b.click();
+            filtersButton.click();
         }
     }
 
@@ -60,46 +67,31 @@ public class PagingToolBar implements Widget, Refreshable
 
     public void settings()
     {
-        Button b = context.find(".//button[text()='Settings']", Button.class);
-        b.click();
+        settingsButton.click();
     }
 
     @Override
-    public void setContext(WidgetContext context)
+    public Object getState()
     {
-        this.context = context;
+        return context.findElement(By.xpath(".//div[contains(@class, 'my-paging-display')]"))
+                .getText();
     }
 
-    String displayText;
-
     @Override
-    public void prepareWait()
+    public boolean hasStateBeenUpdatedSince(Object oldState)
     {
-        displayText =
+        String currentState =
                 context.findElement(By.xpath(".//div[contains(@class, 'my-paging-display')]"))
                         .getText();
-    }
 
-    @Override
-    public boolean hasRefreshed()
-    {
-        String currentText =
-                context.findElement(By.xpath(".//div[contains(@class, 'my-paging-display')]"))
-                        .getText();
-        System.out.println("comparing " + displayText + " with " + currentText);
+        System.out.println("comparing " + oldState + " with " + currentState);
 
-        if (currentText.contains("Loading"))
+        if (currentState.contains("Loading"))
         {
-            displayText = currentText;
             return false;
         }
 
-        boolean result = (this.displayText.equals(currentText) == false);
-        if (result)
-        {
-            System.out.println("--- polling ends --");
-        }
-        return result;
+        return (currentState.equals(oldState) == false);
     }
 
     public boolean isEnabled()

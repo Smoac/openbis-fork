@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.request;
+package ch.systemsx.cisd.openbis.uitest.dsl;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
-import ch.systemsx.cisd.openbis.uitest.gui.Pages;
 import ch.systemsx.cisd.openbis.uitest.layout.Location;
+import ch.systemsx.cisd.openbis.uitest.request.Request;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil

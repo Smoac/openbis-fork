@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
 
 /**
  * @author anttil
@@ -26,40 +27,12 @@ import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
 public class Dynamic implements Widget
 {
 
-    private WidgetContext context;
+    @Contextual
+    private WebElement context;
 
     public Widget define(Class<? extends Widget> clazz)
     {
-        Widget widget;
-        try
-        {
-            widget = clazz.newInstance();
-        } catch (InstantiationException ex)
-        {
-            throw new RuntimeException(ex);
-        } catch (IllegalAccessException ex)
-        {
-            throw new RuntimeException(ex);
-        }
-
-        if (widget instanceof AtomicWidget)
-        {
-            AtomicWidget w = (AtomicWidget) widget;
-            if (!w.getTagName().equals(context.getTagName()))
-            {
-                widget.setContext((WidgetContext) context.findElement(By.xpath(".//"
-                        + w.getTagName())));
-                return widget;
-            }
-        }
-        widget.setContext(this.context);
-        return widget;
-    }
-
-    @Override
-    public void setContext(WidgetContext context)
-    {
-        this.context = context;
+        return SeleniumTest.initializeWidget(clazz, context);
     }
 
 }

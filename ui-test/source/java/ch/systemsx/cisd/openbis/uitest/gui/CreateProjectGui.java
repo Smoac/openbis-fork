@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterProjectLocation;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterProject;
 import ch.systemsx.cisd.openbis.uitest.request.CreateProject;
-import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
 
 /**

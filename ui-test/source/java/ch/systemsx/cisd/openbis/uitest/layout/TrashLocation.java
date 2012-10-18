@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.layout;
 
-import ch.systemsx.cisd.openbis.uitest.gui.Pages;
 import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.page.Trash;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil

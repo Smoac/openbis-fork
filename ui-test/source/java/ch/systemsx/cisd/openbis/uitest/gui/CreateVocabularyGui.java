@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
 import ch.systemsx.cisd.openbis.uitest.layout.AddVocabularyLocation;
 import ch.systemsx.cisd.openbis.uitest.page.AddVocabularyDialog;
 import ch.systemsx.cisd.openbis.uitest.request.CreateVocabulary;
-import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 
 /**

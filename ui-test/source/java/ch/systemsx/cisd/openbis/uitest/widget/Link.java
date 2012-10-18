@@ -16,34 +16,26 @@
 
 package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.webdriver.WidgetContext;
+import org.openqa.selenium.WebElement;
+
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
 
 /**
  * @author anttil
  */
-public class Link implements AtomicWidget
+public class Link implements Widget
 {
-    private WidgetContext context;
+    @Contextual("./descendant-or-self::a")
+    private WebElement link;
 
     public void click()
     {
-        context.click();
+        link.click();
     }
 
     public void highlight()
     {
-        context.mouseOver();
-    }
-
-    @Override
-    public void setContext(WidgetContext context)
-    {
-        this.context = context;
-    }
-
-    @Override
-    public String getTagName()
-    {
-        return "a";
+        SeleniumTest.mouseOver(link);
     }
 }

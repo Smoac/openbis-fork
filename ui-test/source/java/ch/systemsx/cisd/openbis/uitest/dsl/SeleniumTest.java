@@ -42,7 +42,9 @@ import org.mortbay.jetty.webapp.WebAppContext;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
@@ -73,7 +75,6 @@ import ch.systemsx.cisd.openbis.uitest.gui.DeleteVocabularyGui;
 import ch.systemsx.cisd.openbis.uitest.gui.EmptyTrashGui;
 import ch.systemsx.cisd.openbis.uitest.gui.LoginGui;
 import ch.systemsx.cisd.openbis.uitest.gui.LogoutGui;
-import ch.systemsx.cisd.openbis.uitest.gui.Pages;
 import ch.systemsx.cisd.openbis.uitest.gui.UpdateSampleTypeGui;
 import ch.systemsx.cisd.openbis.uitest.layout.Location;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterSampleLocation;
@@ -84,7 +85,6 @@ import ch.systemsx.cisd.openbis.uitest.page.Browsable;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserRow;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterSample;
 import ch.systemsx.cisd.openbis.uitest.page.SampleDetails;
-import ch.systemsx.cisd.openbis.uitest.request.Application;
 import ch.systemsx.cisd.openbis.uitest.request.CreateDataSet;
 import ch.systemsx.cisd.openbis.uitest.request.CreateDataSetType;
 import ch.systemsx.cisd.openbis.uitest.request.CreateExperiment;
@@ -105,7 +105,6 @@ import ch.systemsx.cisd.openbis.uitest.request.DeleteSampleType;
 import ch.systemsx.cisd.openbis.uitest.request.DeleteSpace;
 import ch.systemsx.cisd.openbis.uitest.request.DeleteVocabulary;
 import ch.systemsx.cisd.openbis.uitest.request.EmptyTrash;
-import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.request.Login;
 import ch.systemsx.cisd.openbis.uitest.request.Logout;
 import ch.systemsx.cisd.openbis.uitest.request.UpdateSampleType;
@@ -144,6 +143,8 @@ import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 import ch.systemsx.cisd.openbis.uitest.type.VocabularyBuilder;
 import ch.systemsx.cisd.openbis.uitest.uid.DictionaryUidGenerator;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
+import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
 public abstract class SeleniumTest
 {
@@ -821,5 +822,18 @@ public abstract class SeleniumTest
         openbis.setExecutor(Logout.class, new LogoutGui());
         openbis.setExecutor(UpdateSampleType.class, new UpdateSampleTypeGui());
         return openbis;
+    }
+
+    public static void mouseOver(WebElement element)
+    {
+        pages.screenshot();
+        Actions builder = new Actions(SeleniumTest.driver);
+        builder.moveToElement(element).build().perform();
+    }
+
+    public static <U extends Widget> U initializeWidget(Class<U> widgetClass,
+            WebElement context)
+    {
+        return pages.initializeWidget(widgetClass, context, false);
     }
 }

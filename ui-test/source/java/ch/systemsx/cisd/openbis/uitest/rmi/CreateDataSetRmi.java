@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
 import ch.systemsx.cisd.openbis.uitest.request.CreateDataSet;
-import ch.systemsx.cisd.openbis.uitest.request.Executor;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 
 /**
