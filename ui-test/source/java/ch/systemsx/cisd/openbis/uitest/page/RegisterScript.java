@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
 import ch.systemsx.cisd.openbis.uitest.type.Script;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
@@ -46,6 +50,10 @@ public class RegisterScript
     @Locate("openbis_script-register_formsave-button")
     private Button save;
 
+    @Lazy
+    @Locate("openbis_script-register_form_tab")
+    private WebElement infoBox;
+
     public void fillWith(Script script)
     {
         type.select(script.getType().getLabel());
@@ -57,7 +65,8 @@ public class RegisterScript
 
     public void save()
     {
+        String scriptName = name.getValue().toUpperCase();
         save.click();
+        infoBox.findElements(By.xpath(".//div/b[text()='" + scriptName + "']"));
     }
-
 }
