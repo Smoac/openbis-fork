@@ -16,6 +16,10 @@
 	<property name="dist.createsamplesheet.lib" value="${dist.createsamplesheet}/lib" />
 	<property name="createsamplesheet.original.dist" value="createsamplesheet/dist" />
 	
+	<property name="dist.createsamplesheet-nov" value="${dist}/createsamplesheet" />
+	<property name="dist.createsamplesheet-nov.lib" value="${dist.createsamplesheet}/lib" />
+	<property name="createsamplesheet-nov.original.dist" value="createsamplesheet/dist" />
+	
 	<target name="compile" depends="build-common.compile, clean" />
 
 	<target name="run-tests">
@@ -85,8 +89,29 @@
 		
 		<property name="createsamplesheet-dist.file" value="openbis-createSampleSheet-Illimuna-NGS-${version.number}-r${revision.number}.zip" />
 				<zip basedir="${dist.createsamplesheet}" destfile="${dist}/${createsamplesheet-dist.file}" excludes="*.zip *.jar">
-					<zipfileset dir="${createsamplesheet.original.dist}" excludes="**/*.sh"/>
+					<zipfileset dir="${createsamplesheet.original.dist}" excludes="**/*.sh **/*nov.properties"/>
 					<zipfileset file="${createsamplesheet.original.dist}/createSampleSheet.sh" filemode="755" />
+				</zip>
+			  <delete dir="${dist.createsamplesheet}" />
+		
+	</target>
+	
+	<target name="createsamplesheet-nov-dist">
+		
+		<copy file="source/Jython/createSampleSheet_nov.py" todir="${dist.createsamplesheet-nov}" />
+	
+		<copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.createsamplesheet-nov.lib}" />
+		<copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.createsamplesheet-nov.lib}" />
+		<copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.createsamplesheet-nov.lib}" />
+		<copy file="${lib}/openbis-apis/dss/dss_client.jar" todir="${dist.createsamplesheet-nov.lib}" />
+		<copy file="${lib}/jython/jython.jar" todir="${dist.createsamplesheet-nov.lib}" />
+		<copy file="${lib}/spring/spring.jar" todir="${dist.createsamplesheet-nov.lib}" />
+		<copy file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar" todir="${dist.createsamplesheet-nov.lib}" />
+		
+		<property name="createsamplesheet-nov-dist.file" value="openbis-createSampleSheet-Illimuna-NGS-NOV-${version.number}-r${revision.number}.zip" />
+				<zip basedir="${dist.createsamplesheet-nov}" destfile="${dist}/${createsamplesheet-nov-dist.file}" excludes="*.zip *.jar">
+					<zipfileset dir="${createsamplesheet-nov.original.dist}" excludes="**/*.sh **/createSampleSheet.properties"/>
+					<zipfileset file="${createsamplesheet-nov.original.dist}/createSampleSheet_nov.sh" filemode="755" />
 				</zip>
 			  <delete dir="${dist.createsamplesheet}" />
 		
@@ -121,7 +146,7 @@
 	<!--
         // Task for creating distributions
         -->
-	<target name="dist" depends="jar, datastore_server.make-plugin-dist, tracking-dist, createsamplesheet-dist" />
+	<target name="dist" depends="jar, datastore_server.make-plugin-dist, tracking-dist, createsamplesheet-dist, createsamplesheet-nov-dist" />
 
 	<!--
         // Task for continuous integration server.

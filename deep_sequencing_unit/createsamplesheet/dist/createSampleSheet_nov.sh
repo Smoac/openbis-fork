@@ -4,7 +4,7 @@
 # Runs on Unix / Linux systems.
 # -------------------------------------------------------------------------
 
-JYTHON_FILE=createSampleSheet.py
+JYTHON_FILE=createSampleSheet_nov.py
 
 #
 # change to installation directory
