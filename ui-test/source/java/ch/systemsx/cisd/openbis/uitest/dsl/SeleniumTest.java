@@ -263,12 +263,15 @@ public abstract class SeleniumTest
         String dssUrl = System.getProperty("ui-test.dss-url");
         String startPage = asUrl;
 
-        /* 
+        /* Run against sprint server */
+        /*
         asUrl = "https://sprint-openbis.ethz.ch/openbis";
         dssUrl = "https://sprint-openbis.ethz.ch";
         startPage = asUrl;        
         */
 
+        /* Run against local DSS and local AS in development mode */
+        /* Firefox profile should be one with GWT dev mode plugin available */
         /*
         asUrl = "http://127.0.0.1:8888";
         dssUrl = "http://127.0.0.1:8889";
