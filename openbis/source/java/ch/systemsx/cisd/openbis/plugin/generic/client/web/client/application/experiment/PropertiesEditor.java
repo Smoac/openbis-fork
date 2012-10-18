@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
@@ -84,7 +83,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
     {
         assert properties != null : "Undefined properties.";
         assert propertyFields == null : "Already initialized.";
-        List<S> shownEtpts = getEtptsShownInEditView(entityTypesPropertyTypes);
+        List<S> shownEtpts = getEtptsShownInEditView(entityTypesPropertyTypes, true);
         this.propertyFields = createPropertyFields(shownEtpts, createInitialProperties(properties));
 
     }
@@ -92,7 +91,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
     public void initWithoutProperties(final List<S> entityTypesPropertyTypes)
     {
         assert propertyFields == null : "Already initialized.";
-        List<S> shownEtpts = getEtptsShownInEditView(entityTypesPropertyTypes);
+        List<S> shownEtpts = getEtptsShownInEditView(entityTypesPropertyTypes, false);
         this.propertyFields =
                 createPropertyFields(shownEtpts,
                         createInitialProperties(new ArrayList<IEntityProperty>()));
@@ -143,10 +142,10 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         PropertyType propertyType = etpt.getPropertyType();
         final String label = PropertyTypeRenderer.getDisplayName(propertyType, propertyTypes);
         final String propertyTypeCode = propertyType.getCode();
-        List<IManagedInputWidgetDescription> widgetDescriptions =
-                inputWidgetDescriptions.get(propertyTypeCode);
-        if (widgetDescriptions != null && widgetDescriptions.isEmpty() == false)
+        if (hasInputWidgets(etpt))
         {
+            List<IManagedInputWidgetDescription> widgetDescriptions =
+                    inputWidgetDescriptions.get(propertyTypeCode);
             field = createManagedPropertySection(label, isMandatory, widgetDescriptions);
         } else
         {
@@ -156,13 +155,15 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         }
         field.get().setData(ETPT, etpt);
         GWTUtils.setToolTip(field.get(), propertyTypeCode);
-        // Hide any properties that are not to be shown in edit/update views (unless in debugging
-        // mode)
-        if (etpt.isShownInEditView() == false && isDebuggingModeEnabled() == false)
-        {
-            FieldUtil.setVisibility(false, field.get());
-        }
         return field;
+    }
+
+    private boolean hasInputWidgets(S etpt)
+    {
+        PropertyType propertyType = etpt.getPropertyType();
+        List<IManagedInputWidgetDescription> widgetDescriptions =
+                inputWidgetDescriptions.get(propertyType.getCode());
+        return widgetDescriptions != null && widgetDescriptions.isEmpty() == false;
     }
 
     private DatabaseModificationAwareField<?> createManagedPropertySection(String label,
@@ -170,11 +171,6 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
     {
         return DatabaseModificationAwareField.wrapUnaware(new ManagedPropertyField(viewContext,
                 label, isMandatory, widgetDescriptions));
-    }
-
-    private boolean isDebuggingModeEnabled()
-    {
-        return viewContext.getDisplaySettingsManager().isDebuggingModeEnabled();
     }
 
     private String getId()
@@ -329,17 +325,35 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         }
     }
 
-    private List<S> getEtptsShownInEditView(List<S> allEntityTypesPropertyTypes)
+    private List<S> getEtptsShownInEditView(List<S> allEntityTypesPropertyTypes, boolean editForm)
     {
         ArrayList<S> result = new ArrayList<S>();
         for (S etpt : allEntityTypesPropertyTypes)
         {
-            if (etpt.isShownInEditView())
+            if (shownInForm(etpt, editForm))
             {
                 result.add(etpt);
             }
         }
         return result;
+    }
+
+    private boolean shownInForm(S etpt, boolean editForm)
+    {
+        if (etpt.isShownInEditView() == false)
+        {
+            return false;
+        }
+        if (etpt.isManaged() == false)
+        {
+            return true;
+        }
+        Boolean showRawValue = etpt.getShowRawValue();
+        if (editForm)
+        {
+            return showRawValue == null || showRawValue;
+        }
+        return showRawValue == null || showRawValue || hasInputWidgets(etpt);
     }
 
 }

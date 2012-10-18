@@ -26,9 +26,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -92,9 +94,17 @@ abstract public class AbstractEntityTypePropertyTypeTranslator<ET extends Entity
         result.setOrdinal(etptPE.getOrdinal());
         result.setSection(etptPE.getSection());
         result.setDynamic(etptPE.isDynamic());
-        result.setManaged(etptPE.isManaged());
-        result.setShownInEditView(etptPE.isShownInEditView());
-        result.setScript(ScriptTranslator.translate(etptPE.getScript()));
+        boolean managed = etptPE.isManaged();
+        result.setManaged(managed);
+        boolean shownInEditView = etptPE.isShownInEditView();
+        result.setShownInEditView(shownInEditView);
+        Script script = ScriptTranslator.translate(etptPE.getScript());
+        if (script != null && managed && shownInEditView)
+        {
+            ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script.getScript());
+            result.setShowRawValue(evaluator.getShowRawValue());
+        }
+        result.setScript(script);
         return result;
     }
 

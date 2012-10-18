@@ -90,6 +90,11 @@ public class ManagedPropertyEvaluator
     private static final String INPUT_WIDGETS_FUNCTION = "inputWidgets";
 
     /**
+     * The name of the function that returns <code>true</code> if the raw value should be shown.
+     */
+    private static final String SHOW_RAW_VALUE_FUNCTION = "showRawValue";
+
+    /**
      * The name of the function that expects a map of bindings.
      */
     private static final String UPDATE_FROM_BATCH_INPUT_FUNCTION = "updateFromBatchInput";
@@ -106,6 +111,8 @@ public class ManagedPropertyEvaluator
 
     private final boolean updateFromBatchFunctionDefined;
 
+    private final Boolean showRawValue;
+
     private List<IManagedInputWidgetDescription> inputWidgetDescriptions;
 
     public ManagedPropertyEvaluator(String scriptExpression)
@@ -115,6 +122,7 @@ public class ManagedPropertyEvaluator
         boolean batchColumnNamesFunctionDefined =
                 evaluator.hasFunction(BATCH_COLUMN_NAMES_FUNCTION);
         boolean inputWidgetsFunctionDefined = evaluator.hasFunction(INPUT_WIDGETS_FUNCTION);
+        showRawValue = evalFunctionShowRawValue();
         checkCombinationsOfDefinedFunctions(batchColumnNamesFunctionDefined,
                 inputWidgetsFunctionDefined);
         columnNames = new ArrayList<String>();
@@ -141,7 +149,10 @@ public class ManagedPropertyEvaluator
                 }
                 IManagedInputWidgetDescription widgetDescription =
                         (IManagedInputWidgetDescription) widget;
-                inputWidgetDescriptions.add(widgetDescription);
+                if (inputWidgetsAllowed())
+                {
+                    inputWidgetDescriptions.add(widgetDescription);
+                }
                 if (batchColumnNamesFunctionDefined == false)
                 {
                     String code = widgetDescription.getCode();
@@ -163,13 +174,18 @@ public class ManagedPropertyEvaluator
                 String code = columnName.toUpperCase();
                 uniqunessChecker.check(code);
                 columnNames.add(code);
-                if (inputWidgetsFunctionDefined == false)
+                if (inputWidgetsFunctionDefined == false && inputWidgetsAllowed())
                 {
                     inputWidgetDescriptions
                             .add(descriptionFactory.createTextInputField(columnName));
                 }
             }
         }
+    }
+
+    private boolean inputWidgetsAllowed()
+    {
+        return showRawValue == null || showRawValue == false;
     }
 
     private void checkCombinationsOfDefinedFunctions(boolean batchColumnNamesFunctionDefined,
@@ -189,6 +205,23 @@ public class ManagedPropertyEvaluator
             builder.append(both ? " are defined." : " is defined.");
             throw new EvaluatorException(builder.toString());
         }
+    }
+
+    private Boolean evalFunctionShowRawValue()
+    {
+        boolean showRawValueFunctionDefined = evaluator.hasFunction(SHOW_RAW_VALUE_FUNCTION);
+        if (showRawValueFunctionDefined == false)
+        {
+            return null;
+        }
+        Object result = evaluator.evalFunction(SHOW_RAW_VALUE_FUNCTION);
+        if (result instanceof Boolean == false)
+        {
+            throw new EvaluatorException("Function '" + SHOW_RAW_VALUE_FUNCTION
+                    + "' doesn't return a boolean values but an object of type '"
+                    + result.getClass().getName() + "'.");
+        }
+        return (Boolean) result;
     }
 
     private List<?> evalFunction(String functionName)
@@ -228,6 +261,11 @@ public class ManagedPropertyEvaluator
         evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
         evaluator.set(PERSON_VARIABLE_NAME, person);
         evaluator.evalFunction(UPDATE_FROM_UI_FUNCTION, action);
+    }
+
+    public Boolean getShowRawValue()
+    {
+        return showRawValue;
     }
 
     public List<String> getBatchColumnNames()

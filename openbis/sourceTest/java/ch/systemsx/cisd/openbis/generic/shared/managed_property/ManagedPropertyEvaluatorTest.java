@@ -424,6 +424,64 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     }
 
     @Test
+    public void testGetShowRawValueForUndefinedShowRawValueFunction()
+    {
+        ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator("");
+
+        assertEquals(null, evaluator.getShowRawValue());
+    }
+
+    @Test
+    public void testGetShowRawValueForDefinedShowRawValueFunctionWhichReturnsTrue()
+    {
+        ManagedPropertyEvaluator evaluator =
+                new ManagedPropertyEvaluator("def showRawValue():\n return True");
+
+        assertEquals(Boolean.TRUE, evaluator.getShowRawValue());
+    }
+
+    @Test
+    public void testGetShowRawValueForDefinedShowRawValueFunctionWhichReturnsFalse()
+    {
+        ManagedPropertyEvaluator evaluator =
+                new ManagedPropertyEvaluator("def showRawValue():\n return False");
+
+        assertEquals(Boolean.FALSE, evaluator.getShowRawValue());
+    }
+
+    @Test(expectedExceptionsMessageRegExp = "Function 'showRawValue' doesn't return "
+            + "a boolean values but an object of type 'java.lang.Integer'.", expectedExceptions = EvaluatorException.class)
+    public void testShowRawValueFunctionWhichReturnsWrongTypeOfData()
+    {
+        new ManagedPropertyEvaluator("def showRawValue():\n return 42");
+    }
+
+    @Test
+    public void testEmptyInputWidgetsIfRawValueShouldBeShownButBatchColumnNamesDefined()
+    {
+        ManagedPropertyEvaluator evaluator =
+                new ManagedPropertyEvaluator("def showRawValue():\n return True\n"
+                        + "def batchColumnNames():\n return ['A']\n"
+                        + "def updateFromBatchInput():\n  None");
+
+        assertEquals("[A]", evaluator.getBatchColumnNames().toString());
+        assertEquals("[]", evaluator.getInputWidgetDescriptions().toString());
+    }
+
+    @Test
+    public void testEmptyInputWidgetsIfRawValueShouldBeShownButInputWidgetsDefined()
+    {
+        ManagedPropertyEvaluator evaluator =
+                new ManagedPropertyEvaluator(
+                        "def showRawValue():\n return True\n"
+                                + "def inputWidgets():\n return [inputWidgetFactory().createTextInputField('A')]\n"
+                                + "def updateFromBatchInput():\n  None");
+
+        assertEquals("[A]", evaluator.getBatchColumnNames().toString());
+        assertEquals("[]", evaluator.getInputWidgetDescriptions().toString());
+    }
+
+    @Test
     public void testUpdateFromBatchInputWithNoScript()
     {
         ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator("");
