@@ -424,43 +424,43 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     }
 
     @Test
-    public void testGetShowRawValueForUndefinedShowRawValueFunction()
+    public void testGetShowRawValueInFormsForUndefinedShowRawValueFunction()
     {
         ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator("");
 
-        assertEquals(null, evaluator.getShowRawValue());
+        assertEquals(null, evaluator.getShowRawValueInForms());
     }
 
     @Test
     public void testGetShowRawValueForDefinedShowRawValueFunctionWhichReturnsTrue()
     {
         ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def showRawValue():\n return True");
+                new ManagedPropertyEvaluator("def showRawValueInForms():\n return True");
 
-        assertEquals(Boolean.TRUE, evaluator.getShowRawValue());
+        assertEquals(Boolean.TRUE, evaluator.getShowRawValueInForms());
     }
 
     @Test
     public void testGetShowRawValueForDefinedShowRawValueFunctionWhichReturnsFalse()
     {
         ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def showRawValue():\n return False");
+                new ManagedPropertyEvaluator("def showRawValueInForms():\n return False");
 
-        assertEquals(Boolean.FALSE, evaluator.getShowRawValue());
+        assertEquals(Boolean.FALSE, evaluator.getShowRawValueInForms());
     }
 
-    @Test(expectedExceptionsMessageRegExp = "Function 'showRawValue' doesn't return "
+    @Test(expectedExceptionsMessageRegExp = "Function 'showRawValueInForms' doesn't return "
             + "a boolean values but an object of type 'java.lang.Integer'.", expectedExceptions = EvaluatorException.class)
     public void testShowRawValueFunctionWhichReturnsWrongTypeOfData()
     {
-        new ManagedPropertyEvaluator("def showRawValue():\n return 42");
+        new ManagedPropertyEvaluator("def showRawValueInForms():\n return 42");
     }
 
     @Test
     public void testEmptyInputWidgetsIfRawValueShouldBeShownButBatchColumnNamesDefined()
     {
         ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def showRawValue():\n return True\n"
+                new ManagedPropertyEvaluator("def showRawValueInForms():\n return True\n"
                         + "def batchColumnNames():\n return ['A']\n"
                         + "def updateFromBatchInput():\n  None");
 
@@ -473,7 +473,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     {
         ManagedPropertyEvaluator evaluator =
                 new ManagedPropertyEvaluator(
-                        "def showRawValue():\n return True\n"
+                        "def showRawValueInForms():\n return True\n"
                                 + "def inputWidgets():\n return [inputWidgetFactory().createTextInputField('A')]\n"
                                 + "def updateFromBatchInput():\n  None");
 

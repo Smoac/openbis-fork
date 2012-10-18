@@ -102,7 +102,7 @@ abstract public class AbstractEntityTypePropertyTypeTranslator<ET extends Entity
         if (script != null && managed && shownInEditView)
         {
             ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script.getScript());
-            result.setShowRawValue(evaluator.getShowRawValue());
+            result.setShowRawValue(evaluator.getShowRawValueInForms());
         }
         result.setScript(script);
         return result;

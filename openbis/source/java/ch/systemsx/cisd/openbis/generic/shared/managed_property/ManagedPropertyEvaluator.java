@@ -90,9 +90,10 @@ public class ManagedPropertyEvaluator
     private static final String INPUT_WIDGETS_FUNCTION = "inputWidgets";
 
     /**
-     * The name of the function that returns <code>true</code> if the raw value should be shown.
+     * The name of the function that returns <code>true</code> if the raw value should be shown in
+     * forms.
      */
-    private static final String SHOW_RAW_VALUE_FUNCTION = "showRawValue";
+    private static final String SHOW_RAW_VALUE_FUNCTION = "showRawValueInForms";
 
     /**
      * The name of the function that expects a map of bindings.
@@ -111,7 +112,7 @@ public class ManagedPropertyEvaluator
 
     private final boolean updateFromBatchFunctionDefined;
 
-    private final Boolean showRawValue;
+    private final Boolean showRawValueInForms;
 
     private List<IManagedInputWidgetDescription> inputWidgetDescriptions;
 
@@ -122,7 +123,7 @@ public class ManagedPropertyEvaluator
         boolean batchColumnNamesFunctionDefined =
                 evaluator.hasFunction(BATCH_COLUMN_NAMES_FUNCTION);
         boolean inputWidgetsFunctionDefined = evaluator.hasFunction(INPUT_WIDGETS_FUNCTION);
-        showRawValue = evalFunctionShowRawValue();
+        showRawValueInForms = evalFunctionShowRawValue();
         checkCombinationsOfDefinedFunctions(batchColumnNamesFunctionDefined,
                 inputWidgetsFunctionDefined);
         columnNames = new ArrayList<String>();
@@ -185,7 +186,7 @@ public class ManagedPropertyEvaluator
 
     private boolean inputWidgetsAllowed()
     {
-        return showRawValue == null || showRawValue == false;
+        return showRawValueInForms == null || showRawValueInForms == false;
     }
 
     private void checkCombinationsOfDefinedFunctions(boolean batchColumnNamesFunctionDefined,
@@ -263,9 +264,9 @@ public class ManagedPropertyEvaluator
         evaluator.evalFunction(UPDATE_FROM_UI_FUNCTION, action);
     }
 
-    public Boolean getShowRawValue()
+    public Boolean getShowRawValueInForms()
     {
-        return showRawValue;
+        return showRawValueInForms;
     }
 
     public List<String> getBatchColumnNames()
