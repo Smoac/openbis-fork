@@ -21,6 +21,11 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
  */
 public class SimpleYesNoRenderer
 {
+    public static String render(Boolean value)
+    {
+        return value == null ? "?" : render(value.booleanValue());
+    }
+
     public static String render(boolean value)
     {
         return value ? "yes" : "no";

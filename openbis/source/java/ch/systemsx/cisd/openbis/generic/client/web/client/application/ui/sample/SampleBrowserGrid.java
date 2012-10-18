@@ -65,14 +65,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayC
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -447,23 +444,6 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         definitions.setGridCellRendererFor(SampleGridColumnIDs.SHOW_DETAILS_LINK_COLUMN_NAME,
                 createShowDetailsLinkCellRenderer());
         return definitions;
-    }
-
-    protected boolean isPropertyEditable(EntityType entityType,
-            String propertyColumnNameWithoutPrefix)
-    {
-        String propertyTypeCode =
-                CodeConverter.getPropertyTypeCode(propertyColumnNameWithoutPrefix);
-        List<? extends EntityTypePropertyType<?>> assignedPropertyTypes =
-                entityType.getAssignedPropertyTypes();
-        for (EntityTypePropertyType<?> entityTypePropertyType : assignedPropertyTypes)
-        {
-            if (entityTypePropertyType.getPropertyType().getCode().equals(propertyTypeCode))
-            {
-                return entityTypePropertyType.isShownInEditView();
-            }
-        }
-        return false;
     }
 
     @Override

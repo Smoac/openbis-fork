@@ -382,6 +382,7 @@ var common = {
   is_dynamic: "Dynamic?",
   is_managed: "Managed?",
   is_shown_in_editor_view: "Shown in Editor View?",
+  show_raw_value: "Show Raw Value in Forms?",
   script: "Script",
   scriptable: "Handled by Script",
   unassign_button_label: "Release Assignment",

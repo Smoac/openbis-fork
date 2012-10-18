@@ -28,6 +28,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTyp
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.PROPERTY_TYPE_CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.SCRIPT;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.SECTION;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.SHOW_RAW_VALUE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.TYPE_OF;
 
 import java.util.List;
@@ -76,6 +77,7 @@ public class EntityTypePropertyTypeProvider extends
         builder.addColumn(IS_DYNAMIC);
         builder.addColumn(IS_MANAGED);
         builder.addColumn(IS_SHOWN_IN_EDITOR_VIEW);
+        builder.addColumn(SHOW_RAW_VALUE);
         builder.addColumn(SCRIPT);
         for (EntityTypePropertyType<?> etpt : entityTypePropertyTypes)
         {
@@ -94,6 +96,8 @@ public class EntityTypePropertyTypeProvider extends
             builder.column(IS_MANAGED).addString(SimpleYesNoRenderer.render(etpt.isManaged()));
             builder.column(IS_SHOWN_IN_EDITOR_VIEW).addString(
                     SimpleYesNoRenderer.render(etpt.isShownInEditView()));
+            builder.column(SHOW_RAW_VALUE).addString(
+                    SimpleYesNoRenderer.render(etpt.getShowRawValue()));
             Script script = etpt.getScript();
             if (script != null)
             {

@@ -49,5 +49,7 @@ public class PropertyTypeAssignmentGridColumnIDs
 
     public static final String IS_SHOWN_IN_EDITOR_VIEW = "IS_SHOWN_IN_EDITOR_VIEW";
 
+    public static final String SHOW_RAW_VALUE = "SHOW_RAW_VALUE";
+
     public static final String SCRIPT = "SCRIPT";
 }
