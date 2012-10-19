@@ -199,8 +199,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#listSampleTypes() */
     public void listSampleTypes(AsyncCallback<List<SampleType>> asyncCallback);
 
-    /** @see ICommonClientService#listManagedInputWidgetDescriptions(EntityType) */
-    public void listManagedInputWidgetDescriptions(EntityType entityType,
+    /** @see ICommonClientService#listManagedInputWidgetDescriptions(EntityKind, String) */
+    public void listManagedInputWidgetDescriptions(EntityKind entityKind, String entityTypeCode,
             AsyncCallback<Map<String, List<IManagedInputWidgetDescription>>> asyncCallback);
 
     /** @see ICommonClientService#listFileTypes() */

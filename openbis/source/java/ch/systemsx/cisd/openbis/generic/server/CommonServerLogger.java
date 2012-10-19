@@ -261,10 +261,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     @Override
     public Map<String, List<IManagedInputWidgetDescription>> listManagedInputWidgetDescriptions(
-            String sessionToken, EntityType entityType)
+            String sessionToken, EntityKind entityKind, String entityTypeCode)
     {
         logAccess(sessionToken, "list_managed_input_widget_descriptions", "TYPE(%s)",
-                entityType.getCode());
+                entityTypeCode);
         return null;
     }
 

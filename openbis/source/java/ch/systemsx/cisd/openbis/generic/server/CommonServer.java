@@ -303,6 +303,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityHistoryTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.EntityTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataManagementSystemTranslator;
@@ -613,12 +614,19 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Map<String, List<IManagedInputWidgetDescription>> listManagedInputWidgetDescriptions(
-            String sessionToken, EntityType entityType)
+            String sessionToken, EntityKind entityKind, String entityTypeCode)
     {
         checkSession(sessionToken);
 
+        EntityTypePE entityTypePE =
+                getDAOFactory().getEntityTypeDAO(DtoConverters.convertEntityKind(entityKind))
+                        .tryToFindEntityTypeByCode(entityTypeCode);
+
+        EntityType entityType = EntityTypeTranslator.translate(entityTypePE);
+
         List<? extends EntityTypePropertyType<?>> assignedPropertyTypes =
                 entityType.getAssignedPropertyTypes();
+
         return listManagedInputWidgetDescriptions(assignedPropertyTypes);
     }
 

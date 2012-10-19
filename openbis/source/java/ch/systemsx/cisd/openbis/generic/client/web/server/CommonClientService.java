@@ -397,10 +397,11 @@ public final class CommonClientService extends AbstractClientService implements
 
     @Override
     public Map<String, List<IManagedInputWidgetDescription>> listManagedInputWidgetDescriptions(
-            EntityType entityType)
+            EntityKind entityKind, String entityTypeCode)
     {
         final String sessionToken = getSessionToken();
-        return commonServer.listManagedInputWidgetDescriptions(sessionToken, entityType);
+        return commonServer.listManagedInputWidgetDescriptions(sessionToken, entityKind,
+                entityTypeCode);
     }
 
     @Override

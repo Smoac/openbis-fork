@@ -249,7 +249,7 @@ public interface ICommonClientService extends IClientService
     public List<SampleType> listSampleTypes() throws UserFailureException;
 
     public Map<String, List<IManagedInputWidgetDescription>> listManagedInputWidgetDescriptions(
-            EntityType entityType) throws UserFailureException;
+            EntityKind entityKind, String entityTypeCode) throws UserFailureException;
 
     /**
      * Returns a list of samples matching given criteria.

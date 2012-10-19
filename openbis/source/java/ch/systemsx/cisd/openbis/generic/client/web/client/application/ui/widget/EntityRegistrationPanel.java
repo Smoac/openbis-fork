@@ -143,7 +143,8 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
     private void showAndUpdateRegistrationForm(final T entityTypeModel, final EntityType entityType)
     {
         viewContext.getService().listManagedInputWidgetDescriptions(
-                entityType,
+                entityKind,
+                entityType.getCode(),
                 new AbstractAsyncCallback<Map<String, List<IManagedInputWidgetDescription>>>(
                         viewContext)
                     {
