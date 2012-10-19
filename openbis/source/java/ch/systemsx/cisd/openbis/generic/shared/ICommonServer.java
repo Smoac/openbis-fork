@@ -267,9 +267,13 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     public List<SampleType> listSampleTypes(String sessionToken);
 
+    /**
+     * Lists managed properties widgets descriptions for the specified entity kind and entity type
+     * code.
+     */
     @Transactional(readOnly = true)
     public Map<String, List<IManagedInputWidgetDescription>> listManagedInputWidgetDescriptions(
-            String sessionToken, EntityType entityType);
+            String sessionToken, EntityKind entityKind, String entityTypeCode);
 
     /**
      * Lists samples using given configuration.
