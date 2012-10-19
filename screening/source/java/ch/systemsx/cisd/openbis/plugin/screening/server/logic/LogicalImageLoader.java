@@ -223,6 +223,6 @@ public class LogicalImageLoader
 
     private ExternalData translate(DataPE dataSet)
     {
-        return DataSetTranslator.translate(dataSet, session.getBaseIndexURL());
+        return DataSetTranslator.translate(dataSet, session.getBaseIndexURL(), null);
     }
 }

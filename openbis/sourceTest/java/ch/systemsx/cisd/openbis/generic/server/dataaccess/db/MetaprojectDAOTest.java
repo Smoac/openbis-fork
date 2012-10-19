@@ -21,6 +21,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,7 +29,10 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author Pawel Glyzewski
@@ -179,6 +183,25 @@ public class MetaprojectDAOTest extends AbstractDAOTest
         {
             assertTrue(metaproject.getId().longValue() == 1l
                     || metaproject.getId().longValue() == 3l);
+        }
+    }
+
+    @Test
+    public void testListMetaprojectsForEntities()
+    {
+        ExperimentPE experiment1 = daoFactory.getExperimentDAO().getByTechId(new TechId(4));
+        ExperimentPE experiment2 = daoFactory.getExperimentDAO().getByTechId(new TechId(23));
+
+        Collection<MetaprojectAssignmentPE> assignments =
+                daoFactory.getMetaprojectDAO().listMetaprojectAssignmentsForEntities(
+                        getTestPerson(), Arrays.asList(new IEntityInformationWithPropertiesHolder[]
+                            { experiment1, experiment2 }), EntityKind.EXPERIMENT);
+
+        assertEquals(3, assignments.size());
+        for (MetaprojectAssignmentPE assignment : assignments)
+        {
+            assertTrue(assignment.getMetaproject().getId().longValue() == 1l
+                    || assignment.getMetaproject().getId().longValue() == 3l);
         }
     }
 }

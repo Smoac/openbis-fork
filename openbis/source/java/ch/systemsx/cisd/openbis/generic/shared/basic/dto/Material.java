@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -40,6 +41,8 @@ public class Material extends CodeWithRegistration<Material> implements
     private Date modificationDate;
 
     private List<IEntityProperty> properties;
+
+    private Collection<Metaproject> metaprojects;
 
     public MaterialType getMaterialType()
     {
@@ -115,6 +118,16 @@ public class Material extends CodeWithRegistration<Material> implements
         return new MaterialIdentifier(getCode(), getMaterialType().getCode()).print();
     }
 
+    public void setMetaprojects(Collection<Metaproject> metaprojects)
+    {
+        this.metaprojects = metaprojects;
+    }
+
+    public Collection<Metaproject> getMetaprojects()
+    {
+        return metaprojects;
+    }
+
     //
     // Comparable
     //
@@ -155,5 +168,4 @@ public class Material extends CodeWithRegistration<Material> implements
     {
         return getIdentifier();
     }
-
 }

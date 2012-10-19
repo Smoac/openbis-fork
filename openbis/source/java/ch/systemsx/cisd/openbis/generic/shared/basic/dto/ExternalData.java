@@ -86,6 +86,8 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
 
     private final boolean isStub;
 
+    private Collection<Metaproject> metaprojects;
+
     public ExternalData(boolean isStub)
     {
         this.isStub = isStub;
@@ -384,6 +386,16 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
         this.storageConfirmation = storageConfirmation;
     }
 
+    public void setMetaprojects(Collection<Metaproject> metaprojects)
+    {
+        this.metaprojects = metaprojects;
+    }
+
+    public Collection<Metaproject> getMetaprojects()
+    {
+        return metaprojects;
+    }
+
     public DataSetKind getDataSetKind()
     {
         return DataSetKind.PHYSICAL;
@@ -416,5 +428,4 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
             return order1.compareTo(order2);
         }
     }
-
 }

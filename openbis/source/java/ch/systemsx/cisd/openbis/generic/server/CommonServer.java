@@ -874,8 +874,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         experimentTable.load(experimentIdentifiers);
 
         List<ExperimentPE> experiments = experimentTable.getExperiments();
+        final Collection<MetaprojectAssignmentPE> assignmentPEs =
+                getDAOFactory()
+                        .getMetaprojectDAO()
+                        .listMetaprojectAssignmentsForEntities(
+                                session.tryGetPerson(),
+                                experiments,
+                                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT);
+        Map<Long, Set<Metaproject>> assignments =
+                MetaprojectTranslator.translateMetaprojectAssignments(assignmentPEs);
         Collections.sort(experiments);
-        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL());
+        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL(), assignments);
     }
 
     private final List<Experiment> listExperiments(final String sessionToken,
@@ -895,8 +904,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             experimentTable.load(experimentType.getCode(), spaceIdentifierOrNull);
         }
         final List<ExperimentPE> experiments = experimentTable.getExperiments();
+        final Collection<MetaprojectAssignmentPE> assignmentPEs =
+                getDAOFactory()
+                        .getMetaprojectDAO()
+                        .listMetaprojectAssignmentsForEntities(
+                                session.tryGetPerson(),
+                                experiments,
+                                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT);
+        Map<Long, Set<Metaproject>> assignments =
+                MetaprojectTranslator.translateMetaprojectAssignments(assignmentPEs);
         Collections.sort(experiments);
-        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL());
+        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL(), assignments);
     }
 
     @Override
@@ -1259,7 +1277,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         datasetBO.enrichWithContainedDataSets();
         datasetBO.enrichWithProperties();
         final DataPE dataset = datasetBO.getData();
-        return DataSetTranslator.translate(dataset, session.getBaseIndexURL(), false);
+        Collection<MetaprojectPE> metaprojectPEs =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                        session.tryGetPerson(), dataset);
+        return DataSetTranslator.translate(dataset, session.getBaseIndexURL(), false,
+                MetaprojectTranslator.translate(metaprojectPEs));
     }
 
     @Override
@@ -1296,7 +1318,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         for (final DataPE hit : resultSet)
         {
             HibernateUtils.initialize(hit.getChildRelationships());
-            list.add(DataSetTranslator.translate(hit, session.getBaseIndexURL(), withDetails));
+            list.add(DataSetTranslator.translate(hit, session.getBaseIndexURL(), withDetails, null));
         }
         return list;
     }
@@ -1919,7 +1941,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             throw UserFailureException.fromTemplate(
                     "No experiment could be found with given identifier '%s'.", identifier);
         }
+
+        Collection<MetaprojectPE> metaprojects =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                        session.tryGetPerson(), experiment);
+
         return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
+                MetaprojectTranslator.translate(metaprojects),
                 ExperimentTranslator.LoadableFields.PROPERTIES,
                 ExperimentTranslator.LoadableFields.ATTACHMENTS);
     }
@@ -1936,7 +1964,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         experimentBO.enrichWithProperties();
         experimentBO.enrichWithAttachments();
         final ExperimentPE experiment = experimentBO.getExperiment();
+
+        Collection<MetaprojectPE> metaprojects =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                        session.tryGetPerson(), experiment);
+
         return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
+                MetaprojectTranslator.translate(metaprojects),
                 ExperimentTranslator.LoadableFields.PROPERTIES,
                 ExperimentTranslator.LoadableFields.ATTACHMENTS);
     }
@@ -2005,7 +2039,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         IMaterialBO materialBO = getBusinessObjectFactory().createMaterialBO(session);
         materialBO.loadByMaterialIdentifier(identifier);
         materialBO.enrichWithProperties();
-        return MaterialTranslator.translate(materialBO.getMaterial());
+        MaterialPE materialPE = materialBO.getMaterial();
+        Collection<MetaprojectPE> metaprojectPEs =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                        session.tryGetPerson(), materialPE);
+
+        return MaterialTranslator.translate(materialPE,
+                MetaprojectTranslator.translate(metaprojectPEs));
     }
 
     @Override
@@ -2017,7 +2057,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         materialBO.loadDataByTechId(materialId);
         materialBO.enrichWithProperties();
         final MaterialPE material = materialBO.getMaterial();
-        return MaterialTranslator.translate(material, true);
+        Collection<MetaprojectPE> metaprojectPEs =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                        session.tryGetPerson(), material);
+        return MaterialTranslator.translate(material, true,
+                MetaprojectTranslator.translate(metaprojectPEs));
     }
 
     @Override
@@ -3484,19 +3528,19 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 if (authorizationUtils.canAccessExperiment(metaprojectAssignment.getExperiment()))
                 {
                     experiments.add(ExperimentTranslator.translate(
-                            metaprojectAssignment.getExperiment(), baseIndexURL,
+                            metaprojectAssignment.getExperiment(), baseIndexURL, null,
                             LoadableFields.PROPERTIES));
                 } else
                 {
-                    experiments.add(ExperimentTranslator
-                            .translateWithoutRevealingData(metaprojectAssignment.getExperiment()));
+                    experiments.add(ExperimentTranslator.translateWithoutRevealingData(
+                            metaprojectAssignment.getExperiment(), null));
                 }
             } else if (metaprojectAssignment.getSample() != null)
             {
                 if (authorizationUtils.canAccessSample(metaprojectAssignment.getSample()))
                 {
                     samples.add(SampleTranslator.translate(metaprojectAssignment.getSample(),
-                            baseIndexURL));
+                            baseIndexURL, null));
                 } else
                 {
                     samples.add(SampleTranslator
@@ -3507,7 +3551,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 if (authorizationUtils.canAccessDataSet(metaprojectAssignment.getDataSet()))
                 {
                     dataSets.add(DataSetTranslator.translate(metaprojectAssignment.getDataSet(),
-                            baseIndexURL));
+                            baseIndexURL, null));
                 } else
                 {
                     dataSets.add(DataSetTranslator
@@ -3515,7 +3559,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 }
             } else if (metaprojectAssignment.getMaterial() != null)
             {
-                materials.add(MaterialTranslator.translate(metaprojectAssignment.getMaterial()));
+                materials.add(MaterialTranslator.translate(metaprojectAssignment.getMaterial(),
+                        null));
             }
         }
 

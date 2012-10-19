@@ -442,7 +442,7 @@ public class ScreeningApiImpl
             SampleIdentifier sampleIdentifier = createSampleIdentifier(plateIdentifier);
             ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
             sampleBO.loadBySampleIdentifier(sampleIdentifier);
-            sample = SampleTranslator.translate(sampleBO.getSample(), "");
+            sample = SampleTranslator.translate(sampleBO.getSample(), "", null);
         }
         return sample;
     }
@@ -474,7 +474,7 @@ public class ScreeningApiImpl
 
     private Sample translate(SamplePE sample)
     {
-        return SampleTranslator.translate(sample, session.getBaseIndexURL());
+        return SampleTranslator.translate(sample, session.getBaseIndexURL(), null);
     }
 
     private static SampleIdentifier createSampleIdentifier(PlateIdentifier plate)
@@ -954,8 +954,9 @@ public class ScreeningApiImpl
                     if (apiMaterial == null)
                     {
                         apiMaterial = asApiMaterial(material, materialsCache);
-                        // FIXME: Caching disabled because a not fully filled Material could be cached
-//                        materialsCache.put(material.getId(), apiMaterial);
+                        // FIXME: Caching disabled because a not fully filled Material could be
+                        // cached
+                        // materialsCache.put(material.getId(), apiMaterial);
                     }
                     String propCode = property.getPropertyType().getCode();
                     result.put(propCode, apiMaterial);
@@ -966,14 +967,16 @@ public class ScreeningApiImpl
     }
 
     private Material asApiMaterial(
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material materialDto,  Map<Long, Material> materialsCache)
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material materialDto,
+            Map<Long, Material> materialsCache)
     {
         MaterialTypeIdentifier typeIdentifier =
                 new MaterialTypeIdentifier(materialDto.getMaterialType().getCode());
 
         List<IEntityProperty> originalProperties = materialDto.getProperties();
         Map<String, String> properties = EntityHelper.convertToStringMap(originalProperties);
-        Map<String, Material> materialProperties = convertMaterialProperties(originalProperties, materialsCache);
+        Map<String, Material> materialProperties =
+                convertMaterialProperties(originalProperties, materialsCache);
 
         return new Material(typeIdentifier, materialDto.getCode(), properties, materialProperties);
     }

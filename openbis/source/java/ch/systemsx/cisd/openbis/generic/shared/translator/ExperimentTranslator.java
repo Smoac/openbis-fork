@@ -17,15 +17,18 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -70,25 +73,28 @@ public final class ExperimentTranslator
         }
     }
 
-    public final static Experiment translateWithoutRevealingData(final ExperimentPE experiment)
+    public final static Experiment translateWithoutRevealingData(final ExperimentPE experiment,
+            Collection<Metaproject> metaprojects)
     {
         final Experiment result = new Experiment(true);
 
         result.setId(HibernateUtils.getId(experiment));
         result.setPermId(experiment.getPermId());
         result.setProperties(new ArrayList<IEntityProperty>());
+        result.setMetaprojects(metaprojects);
 
         return result;
     }
 
     public final static Experiment translate(final ExperimentPE experiment, String baseIndexURL,
-            final LoadableFields... withFields)
+            Collection<Metaproject> metaprojects, final LoadableFields... withFields)
     {
-        return translate(experiment, baseIndexURL, false, withFields);
+        return translate(experiment, baseIndexURL, false, metaprojects, withFields);
     }
 
     public final static Experiment translate(final ExperimentPE experiment, String baseIndexURL,
-            final boolean rawManagedProperties, final LoadableFields... withFields)
+            final boolean rawManagedProperties, Collection<Metaproject> metaprojects,
+            final LoadableFields... withFields)
     {
         if (experiment == null)
         {
@@ -125,19 +131,24 @@ public final class ExperimentTranslator
             }
         }
 
+        if (metaprojects != null)
+        {
+            result.setMetaprojects(metaprojects);
+        }
+
         return result;
     }
 
     // NOTE: when translating list of experiments managed properties will contain raw value
     public final static List<Experiment> translate(final List<ExperimentPE> experiments,
-            String baseIndexURL)
+            String baseIndexURL, Map<Long, Set<Metaproject>> metaprojects)
     {
         final List<Experiment> result = new ArrayList<Experiment>(experiments.size());
         for (final ExperimentPE experiment : experiments)
         {
             HibernateUtils.initialize(experiment.getProperties());
             result.add(ExperimentTranslator.translate(experiment, baseIndexURL, true,
-                    LoadableFields.PROPERTIES));
+                    metaprojects.get(experiment.getId()), LoadableFields.PROPERTIES));
         }
         return result;
     }

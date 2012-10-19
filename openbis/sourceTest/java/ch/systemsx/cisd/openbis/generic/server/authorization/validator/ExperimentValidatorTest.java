@@ -19,9 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentValidator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 
 /**
@@ -39,7 +38,7 @@ public class ExperimentValidatorTest extends AuthorizationTestCase
         ExperimentValidator validator = new ExperimentValidator();
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, ExperimentTranslator.translate(
-                createExperiment(createAnotherGroup()), BASE_URL)));
+                createExperiment(createAnotherGroup()), BASE_URL, null)));
     }
 
     @Test
@@ -47,8 +46,8 @@ public class ExperimentValidatorTest extends AuthorizationTestCase
     {
         ExperimentValidator validator = new ExperimentValidator();
         PersonPE person = createPersonWithRoleAssignments();
-        assertEquals(true, validator.isValid(person, ExperimentTranslator.translate(
-                createExperiment(createGroup()), BASE_URL)));
+        assertEquals(true, validator.isValid(person,
+                ExperimentTranslator.translate(createExperiment(createGroup()), BASE_URL, null)));
     }
 
     @Test
@@ -57,7 +56,9 @@ public class ExperimentValidatorTest extends AuthorizationTestCase
         ExperimentValidator validator = new ExperimentValidator();
         PersonPE person = createPersonWithRoleAssignments();
         SpacePE group = createGroup("blabla", createAnotherDatabaseInstance());
-        assertEquals(false, validator.isValid(person, ExperimentTranslator.translate(
-                createExperiment(group), BASE_URL)));
+        assertEquals(
+                false,
+                validator.isValid(person,
+                        ExperimentTranslator.translate(createExperiment(group), BASE_URL, null)));
     }
 }

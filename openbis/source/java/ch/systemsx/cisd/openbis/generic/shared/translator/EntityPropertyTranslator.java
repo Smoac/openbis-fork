@@ -66,7 +66,7 @@ public final class EntityPropertyTranslator
                 break;
             case MATERIAL:
                 basicProperty.setMaterial(MaterialTranslator.translate(
-                        propertyPE.getMaterialValue(), false));
+                        propertyPE.getMaterialValue(), false, null));
                 break;
             default:
                 basicProperty.setValue(propertyPE.tryGetUntypedValue());

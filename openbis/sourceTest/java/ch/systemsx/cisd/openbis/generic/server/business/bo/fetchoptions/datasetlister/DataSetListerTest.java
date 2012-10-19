@@ -81,8 +81,7 @@ public class DataSetListerTest extends AbstractDAOTest
     {
         sessionToken = service.tryToAuthenticateForAllServices("test", "password");
         query = EntityListingTestUtils.createQuery(daoFactory, IDataSetListingQueryDynamic.class);
-        lister =
-                new DataSetLister(query);
+        lister = new DataSetLister(query, getTestPerson());
     }
 
     @Test
@@ -130,15 +129,12 @@ public class DataSetListerTest extends AbstractDAOTest
                     + " where code='STANDARD'");
             final long newDataStoreId =
                     (Long) query
-                            .select(
-                                    "insert into data_stores (id,dbin_id,code,download_url,remote_url,session_token)"
-                                            + " values (nextval('data_store_id_seq'),1,'DSS2','http://download_2','http://remote_2','') returning id")
+                            .select("insert into data_stores (id,dbin_id,code,download_url,remote_url,session_token)"
+                                    + " values (nextval('data_store_id_seq'),1,'DSS2','http://download_2','http://remote_2','') returning id")
                             .get(0).get("id");
-            query.update(
-                    "update data set dast_id = ?{1} where code = ?{2}", newDataStoreId,
+            query.update("update data set dast_id = ?{1} where code = ?{2}", newDataStoreId,
                     "20081105092259000-20");
-            query.update(
-                    "update data set dast_id = ?{1} where code = ?{2}", newDataStoreId,
+            query.update("update data set dast_id = ?{1} where code = ?{2}", newDataStoreId,
                     "20081105092259000-21");
 
             List<String> codes = new ArrayList<String>();
@@ -153,14 +149,12 @@ public class DataSetListerTest extends AbstractDAOTest
             {
                 if (url.getDataStoreURL().equals("http://download_1"))
                 {
-                    assertEquals(
-                            Arrays.asList("20081105092159188-3", "20081105092159111-1",
-                                    "20081105092259000-19"),
-                            url.getDataSetCodes());
+                    assertEquals(Arrays.asList("20081105092159188-3", "20081105092159111-1",
+                            "20081105092259000-19"), url.getDataSetCodes());
                 } else if (url.getDataStoreURL().equals("http://download_2"))
                 {
-                    assertEquals(Arrays.asList("20081105092259000-20", "20081105092259000-21"), url
-                            .getDataSetCodes());
+                    assertEquals(Arrays.asList("20081105092259000-20", "20081105092259000-21"),
+                            url.getDataSetCodes());
                 } else
                 {
                     fail("URL " + url + " not expected.");
@@ -173,14 +167,12 @@ public class DataSetListerTest extends AbstractDAOTest
             {
                 if (url.getDataStoreURL().equals("http://remote_1"))
                 {
-                    assertEquals(
-                            Arrays.asList("20081105092159188-3", "20081105092159111-1",
-                                    "20081105092259000-19"),
-                            url.getDataSetCodes());
+                    assertEquals(Arrays.asList("20081105092159188-3", "20081105092159111-1",
+                            "20081105092259000-19"), url.getDataSetCodes());
                 } else if (url.getDataStoreURL().equals("http://remote_2"))
                 {
-                    assertEquals(Arrays.asList("20081105092259000-20", "20081105092259000-21"), url
-                            .getDataSetCodes());
+                    assertEquals(Arrays.asList("20081105092259000-20", "20081105092259000-21"),
+                            url.getDataSetCodes());
                 } else
                 {
                     fail("URL " + url + " not expected.");

@@ -30,8 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ExperimentLoader
@@ -41,9 +39,9 @@ public class ExperimentLoader
     public ExperimentLoader(IDAOFactory daoFactory)
     {
         this.daoFactory = daoFactory;
-        
+
     }
-    
+
     public void enrichWithExperiments(Collection<Sample> samples)
     {
         Map<Long, List<Sample>> samplesByID = new LinkedHashMap<Long, List<Sample>>();
@@ -66,7 +64,8 @@ public class ExperimentLoader
                 daoFactory.getExperimentDAO().listExperimentsWithProperties(samplesByID.keySet());
         for (ExperimentPE experiment : experiments)
         {
-            Experiment e = ExperimentTranslator.translate(experiment, "", LoadableFields.PROPERTIES);
+            Experiment e =
+                    ExperimentTranslator.translate(experiment, "", null, LoadableFields.PROPERTIES);
             List<Sample> list = samplesByID.get(experiment.getId());
             for (Sample sample : list)
             {

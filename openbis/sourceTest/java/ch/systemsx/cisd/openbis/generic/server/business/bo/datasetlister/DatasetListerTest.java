@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
@@ -142,7 +143,8 @@ public class DatasetListerTest extends AbstractDAOTest
         HashSet<String> samplePermIDs =
                 new HashSet<String>(Arrays.asList("200902091250077-1026", "200902091225616-1027"));
         List<SamplePE> samplePEs = daoFactory.getSampleDAO().listByPermID(samplePermIDs);
-        List<Sample> samples = SampleTranslator.translate(samplePEs, "");
+        List<Sample> samples =
+                SampleTranslator.translate(samplePEs, "", new HashMap<Long, Set<Metaproject>>());
 
         Map<Sample, List<ExternalData>> dataSets = lister.listAllDataSetsFor(samples);
 

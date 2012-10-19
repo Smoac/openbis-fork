@@ -126,6 +126,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
@@ -165,7 +166,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -199,6 +203,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.L
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataManagementSystemTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
@@ -394,7 +399,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             throw new IllegalArgumentException("ExperimentFetchOptions were null");
         }
 
-        if (experimentFetchOptions.isSubsetOf(ExperimentFetchOption.BASIC))
+        checkSession(sessionToken);
+
+        if (experimentFetchOptions.isSubsetOf(ExperimentFetchOption.BASIC,
+                ExperimentFetchOption.METAPROJECTS))
         {
             ExperimentLister lister =
                     new ExperimentLister(getDAOFactory(), getSession(sessionToken)
@@ -438,7 +446,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             throw new IllegalArgumentException("ExperimentFetchOptions were null");
         }
 
-        if (experimentFetchOptions.isSubsetOf(ExperimentFetchOption.BASIC))
+        checkSession(sessionToken);
+
+        if (experimentFetchOptions.isSubsetOf(ExperimentFetchOption.BASIC,
+                ExperimentFetchOption.METAPROJECTS))
         {
             ExperimentLister lister =
                     new ExperimentLister(daoFactory, getSession(sessionToken).getBaseIndexURL());
@@ -485,8 +496,13 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             return null;
         }
         enrichWithProperties(experiment);
+
+        Collection<MetaprojectPE> metaprojectPEs =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                        session.tryGetPerson(), experiment);
+
         return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
-                LoadableFields.PROPERTIES);
+                MetaprojectTranslator.translate(metaprojectPEs), LoadableFields.PROPERTIES);
     }
 
     @Override
@@ -518,7 +534,11 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             HibernateUtils.initialize(sample.getProperties());
             enrichWithProperties(sample.getExperiment());
         }
-        return SampleTranslator.translate(sample, session.getBaseIndexURL(), true, true);
+        Collection<MetaprojectPE> metaprojects =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                        session.tryGetPerson(), sample);
+        return SampleTranslator.translate(sample, session.getBaseIndexURL(), true, true,
+                MetaprojectTranslator.translate(metaprojects));
     }
 
     @Override
@@ -711,8 +731,13 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                 businessObjectFactory.createExperimentTable(session);
         experimentTable.load(EntityType.ALL_TYPES_CODE, projectIdentifier);
         final List<ExperimentPE> experiments = experimentTable.getExperiments();
+        final Collection<MetaprojectAssignmentPE> assignmentPEs =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectAssignmentsForEntities(
+                        session.tryGetPerson(), experiments, EntityKind.EXPERIMENT);
+        Map<Long, Set<Metaproject>> assignments =
+                MetaprojectTranslator.translateMetaprojectAssignments(assignmentPEs);
         Collections.sort(experiments);
-        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL());
+        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL(), assignments);
     }
 
     @Override
@@ -989,7 +1014,11 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         DataPE dataPE = dataBO.tryGetData();
         if (null == dataPE)
             return null;
-        return DataSetTranslator.translate(dataPE, session.getBaseIndexURL());
+        Collection<MetaprojectPE> metaprojects =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                        session.tryGetPerson(), dataPE);
+        return DataSetTranslator.translate(dataPE, session.getBaseIndexURL(),
+                MetaprojectTranslator.translate(metaprojects));
     }
 
     @Override
@@ -1051,7 +1080,15 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         Session session = getSession(sessionToken);
         ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
         sampleTable.loadSamplesByCriteria(criteria);
-        return SampleTranslator.translate(sampleTable.getSamples(), "");
+        List<SamplePE> samples = sampleTable.getSamples();
+
+        final Collection<MetaprojectAssignmentPE> assignmentPEs =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectAssignmentsForEntities(
+                        session.tryGetPerson(), samples, EntityKind.SAMPLE);
+        Map<Long, Set<Metaproject>> assignments =
+                MetaprojectTranslator.translateMetaprojectAssignments(assignmentPEs);
+
+        return SampleTranslator.translate(samples, "", assignments);
     }
 
     @Override
@@ -1233,9 +1270,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
         // Register the data set
         registerDataSetInternal(sessionToken, externalData, samplePE);
-        Sample result =
-                SampleTranslator.translate(Collections.singletonList(samplePE),
-                        session.getBaseIndexURL()).get(0);
+        Sample result = SampleTranslator.translate(samplePE, session.getBaseIndexURL(), null);
         return result;
     }
 
@@ -1254,9 +1289,13 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         final SamplePE samplePE = sampleBO.getSample();
         registerDataSetInternal(sessionToken, externalData, samplePE);
 
+        Collection<MetaprojectPE> metaprojectPEs =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                        session.tryGetPerson(), samplePE);
+
         Sample result =
-                SampleTranslator.translate(Collections.singletonList(samplePE),
-                        session.getBaseIndexURL()).get(0);
+                SampleTranslator.translate(samplePE, session.getBaseIndexURL(),
+                        MetaprojectTranslator.translate(metaprojectPEs));
         return result;
     }
 
@@ -1367,7 +1406,12 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         {
             bo.loadByMaterialIdentifier(materialIdentifier);
             bo.enrichWithProperties();
-            return MaterialTranslator.translate(bo.getMaterial());
+            MaterialPE materialPE = bo.getMaterial();
+            Collection<MetaprojectPE> metaprojectPEs =
+                    getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                            session.tryGetPerson(), materialPE);
+            return MaterialTranslator.translate(materialPE,
+                    MetaprojectTranslator.translate(metaprojectPEs));
         } catch (UserFailureException ufe)
         {
             // material does not exist

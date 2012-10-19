@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetUrl;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -55,19 +56,26 @@ public class DataSetLister implements IDataSetLister
 
     private IDataSetListingQuery query;
 
-    public DataSetLister(IAuthorizationDAOFactory daoFactory)
+    private PersonPE person;
+
+    public DataSetLister(IAuthorizationDAOFactory daoFactory, PersonPE person)
     {
         this(QueryTool.getQuery(DatabaseContextUtils.getConnection(daoFactory),
-                IDataSetListingQuery.class));
+                IDataSetListingQuery.class), person);
     }
 
-    public DataSetLister(IDataSetListingQuery query)
+    public DataSetLister(IDataSetListingQuery query, PersonPE person)
     {
         if (query == null)
         {
             throw new IllegalArgumentException("Query was null");
         }
+        if (person == null)
+        {
+            throw new IllegalArgumentException("Person was null");
+        }
         this.query = query;
+        this.person = person;
     }
 
     @Override
@@ -82,11 +90,13 @@ public class DataSetLister implements IDataSetLister
         {
             throw new IllegalArgumentException("DataSetFetchOptions were null");
         }
-        if (!dataSetFetchOptions.isSubsetOf(DataSetFetchOption.BASIC, DataSetFetchOption.PARENTS,
-                DataSetFetchOption.CHILDREN))
+        if (false == dataSetFetchOptions.isSubsetOf(DataSetFetchOption.BASIC,
+                DataSetFetchOption.PARENTS, DataSetFetchOption.CHILDREN,
+                DataSetFetchOption.METAPROJECTS))
         {
             throw new IllegalArgumentException("Currently only " + DataSetFetchOption.BASIC + ","
-                    + DataSetFetchOption.PARENTS + " and " + DataSetFetchOption.CHILDREN
+                    + DataSetFetchOption.PARENTS + ", and " + DataSetFetchOption.CHILDREN + " and "
+                    + DataSetFetchOption.METAPROJECTS
                     + " fetch options are supported by this method");
         }
 

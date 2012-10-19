@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
@@ -56,6 +57,8 @@ public class Experiment extends CodeWithRegistrationAndModificationDate<Experime
     private ExperimentFetchOptions fetchOptions;
 
     private final boolean isStub;
+
+    private Collection<Metaproject> metaprojects;
 
     public Experiment()
     {
@@ -220,5 +223,15 @@ public class Experiment extends CodeWithRegistrationAndModificationDate<Experime
     public boolean isStub()
     {
         return isStub;
+    }
+
+    public Collection<Metaproject> getMetaprojecs()
+    {
+        return metaprojects;
+    }
+
+    public void setMetaprojects(final Collection<Metaproject> metaprojects)
+    {
+        this.metaprojects = metaprojects;
     }
 }

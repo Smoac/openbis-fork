@@ -35,6 +35,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 
 /**
  * Immutable value object representing a sample.
@@ -93,6 +94,8 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
         private String sampleTypeCode;
 
         private HashMap<String, String> properties = new HashMap<String, String>();
+
+        private List<Metaproject> metaprojects = new ArrayList<Metaproject>();
 
         private EntityRegistrationDetails registrationDetails;
 
@@ -199,6 +202,16 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
             properties.put(propCode, value);
         }
 
+        public List<Metaproject> getMetaprojects()
+        {
+            return metaprojects;
+        }
+
+        public void addMetaproject(Metaproject metaproject)
+        {
+            metaprojects.add(metaproject);
+        }
+
         public void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
         {
             this.registrationDetails = registrationDetails;
@@ -297,6 +310,8 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
 
     private boolean isStub;
 
+    private List<Metaproject> metaprojects;
+
     /**
      * Creates a new instance with the provided initializer
      * 
@@ -337,6 +352,8 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
             this.sampleTypeCode = initializer.getSampleTypeCode();
 
             this.properties = initializer.getProperties();
+
+            this.metaprojects = initializer.getMetaprojects();
 
             InitializingChecks.checkValidRegistrationDetails(initializer.getRegistrationDetails(),
                     "Unspecified entity registration details.");
@@ -431,6 +448,19 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
         } else
         {
             throw new IllegalArgumentException("Properties were not retrieved for sample "
+                    + getIdentifier() + ".");
+        }
+    }
+
+    @JsonIgnore
+    public List<Metaproject> getMetaprojects() throws IllegalArgumentException
+    {
+        if (getRetrievedFetchOptions().contains(SampleFetchOption.METAPROJECTS))
+        {
+            return Collections.unmodifiableList(metaprojects);
+        } else
+        {
+            throw new IllegalArgumentException("Metaprojects were not retrieved for sample "
                     + getIdentifier() + ".");
         }
     }
@@ -636,6 +666,18 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
     private void setProperties(HashMap<String, String> properties)
     {
         this.properties = properties;
+    }
+
+    @JsonProperty("metaprojects")
+    public List<Metaproject> getMetaprojectsJson()
+    {
+        return retrievedFetchOptions.contains(SampleFetchOption.METAPROJECTS) ? metaprojects : null;
+    }
+
+    @JsonProperty("metaprojects")
+    private void setMetaprojectsJson(List<Metaproject> metaprojects)
+    {
+        this.metaprojects = metaprojects;
     }
 
     private void setRegistrationDetails(EntityRegistrationDetails registrationDetails)

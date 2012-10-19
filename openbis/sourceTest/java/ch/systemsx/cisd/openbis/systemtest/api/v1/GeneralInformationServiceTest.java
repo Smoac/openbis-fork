@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest.api.v1;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
@@ -190,6 +191,51 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(EnumSet.of(SampleFetchOption.PROPERTIES), children.get(0)
                 .getRetrievedFetchOptions());
         assertEquals("{}", children.get(0).getProperties().toString());
+
+        loginAsObserver();
+        samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria,
+                        fetchOptions);
+
+        assertEntities("[]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesWithMetaprojects()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE,
+                "DILUTION_PLATE"));
+
+        EnumSet<SampleFetchOption> fetchOptions =
+                EnumSet.of(SampleFetchOption.PROPERTIES, SampleFetchOption.METAPROJECTS);
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria,
+                        fetchOptions);
+
+        assertEntities("[/CISD/3V-125, /CISD/3V-126, /CISD/DP1-A, /CISD/DP1-B, /CISD/DP2-A, /DP]",
+                samples);
+        assertEquals(fetchOptions, samples.get(0).getRetrievedFetchOptions());
+        assertEquals("3V-125", samples.get(0).getCode());
+        assertEquals("CISD", samples.get(0).getSpaceCode());
+        assertEquals(979L, samples.get(0).getId().longValue());
+        assertEquals("200811050945092-976", samples.get(0).getPermId());
+        assertEquals("DILUTION_PLATE", samples.get(0).getSampleTypeCode());
+        assertEquals(2L, samples.get(0).getSampleTypeId().longValue());
+        assertEquals("test", samples.get(0).getRegistrationDetails().getUserId());
+        assertEquals("John", samples.get(0).getRegistrationDetails().getUserFirstName());
+        assertEquals("Doe", samples.get(0).getRegistrationDetails().getUserLastName());
+        assertEquals("franz-josef.elmer@systemsx.ch", samples.get(0).getRegistrationDetails()
+                .getUserEmail());
+        assertEquals("{OFFSET=49}", samples.get(0).getProperties().toString());
+        assertEquals(1, samples.get(0).getMetaprojects().size());
+
+        Metaproject metaproject = samples.get(0).getMetaprojects().get(0);
+        assertEquals(3l, metaproject.getId().longValue());
+        assertEquals("ANOTHER_TEST_METAPROJECTS", metaproject.getName());
+        assertEquals("Another example metaproject", metaproject.getDescription());
+        assertTrue(metaproject.isPrivate());
+        assertNotNull(metaproject.getCreationDate());
 
         loginAsObserver();
         samples =

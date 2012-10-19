@@ -28,11 +28,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
-import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.ExperimentLoader;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups = "db")
@@ -43,9 +40,9 @@ public class ExperimentLoaderTest extends AbstractLoaderTestCase
     {
         ExperimentLoader loader = new ExperimentLoader(daoFactory);
         List<Sample> samples = loadSamples(980L, 981L, 986L);
-        
+
         loader.enrichWithExperiments(samples);
-        
+
         StringBuilder builder = new StringBuilder();
         for (Sample sample : samples)
         {
@@ -58,20 +55,19 @@ public class ExperimentLoaderTest extends AbstractLoaderTestCase
             }
             builder.append('\n');
         }
-        assertEquals("980 3V-126\n" 
-                   + "981 DP\n"
-                   + "986 3VCP5: EXP10 [DESCRIPTION: A simple experiment, GENDER: MALE]\n",
+        assertEquals("980 3V-126\n" + "981 DP\n"
+                + "986 3VCP5: EXP10 [DESCRIPTION: A simple experiment, GENDER: MALE]\n",
                 builder.toString());
     }
-    
+
     private List<Sample> loadSamples(Long... ids)
     {
         ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         List<Sample> list = new ArrayList<Sample>();
         for (Long id : ids)
         {
-            list.add(SampleTranslator.translate(sampleDAO.tryGetByTechId(new TechId(id)), ""));
-   
+            list.add(SampleTranslator.translate(sampleDAO.tryGetByTechId(new TechId(id)), "", null));
+
         }
         return list;
     }

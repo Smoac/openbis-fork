@@ -17,9 +17,15 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
 /**
@@ -29,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
  */
 public class MetaprojectTranslator
 {
-    public static List<Metaproject> translate(List<MetaprojectPE> metaprojectPEs)
+    public static List<Metaproject> translate(Collection<MetaprojectPE> metaprojectPEs)
     {
         List<Metaproject> metaprojects = new ArrayList<Metaproject>(metaprojectPEs.size());
 
@@ -64,4 +70,51 @@ public class MetaprojectTranslator
         return metaprojectPE;
     }
 
+    public static Map<Long, Set<Metaproject>> translateMetaprojectAssignments(
+            Collection<MetaprojectAssignmentPE> assignments)
+    {
+        Map<Long, Metaproject> metaprojects = new HashMap<Long, Metaproject>();
+        for (MetaprojectAssignmentPE assignment : assignments)
+        {
+            Long metaprojectId = assignment.getMetaproject().getId();
+            if (false == metaprojects.containsKey(metaprojectId))
+            {
+                metaprojects.put(metaprojectId, translate(assignment.getMetaproject()));
+            }
+        }
+
+        Map<Long, Set<Metaproject>> translatedAssignments = new HashMap<Long, Set<Metaproject>>();
+        for (MetaprojectAssignmentPE assignment : assignments)
+        {
+            Long entityId = tryGetEntityId(assignment);
+            Set<Metaproject> metaprojectsSet = translatedAssignments.get(entityId);
+            if (metaprojectsSet == null)
+            {
+                metaprojectsSet = new HashSet<Metaproject>();
+                translatedAssignments.put(entityId, metaprojectsSet);
+            }
+            metaprojectsSet.add(metaprojects.get(assignment.getMetaproject().getId()));
+        }
+
+        return translatedAssignments;
+    }
+
+    private static final Long tryGetEntityId(MetaprojectAssignmentPE assignment)
+    {
+        if (assignment.getExperiment() != null)
+        {
+            return assignment.getExperiment().getId();
+        } else if (assignment.getSample() != null)
+        {
+            return assignment.getSample().getId();
+        } else if (assignment.getDataSet() != null)
+        {
+            return assignment.getDataSet().getId();
+        } else if (assignment.getMaterial() != null)
+        {
+            return assignment.getMaterial().getId();
+        }
+
+        return null;
+    }
 }

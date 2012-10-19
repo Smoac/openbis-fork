@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropert
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author Pawel Glyzewski
@@ -131,5 +132,26 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
         }
 
         return metaprojects;
+    }
+
+    @Override
+    public Collection<MetaprojectAssignmentPE> listMetaprojectAssignmentsForEntities(
+            PersonPE owner, Collection<? extends IEntityInformationWithPropertiesHolder> entities,
+            EntityKind entityKind)
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(MetaprojectAssignmentPE.class);
+        criteria.createAlias("metaproject", "m");
+        criteria.add(Restrictions.eq("m.owner", owner));
+        criteria.add(Restrictions.in(entityKind.getLabel(), entities));
+        final List<MetaprojectAssignmentPE> assignments =
+                cast(getHibernateTemplate().findByCriteria(criteria));
+
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(%s, %s): %d metaproject(s) have been found.",
+                    MethodUtils.getCurrentMethod().getName(), owner, entities, assignments.size()));
+        }
+
+        return assignments;
     }
 }

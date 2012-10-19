@@ -390,7 +390,7 @@ public class PlateContentLoader
 
     private Sample translate(SamplePE sample)
     {
-        return SampleTranslator.translate(sample, session.getBaseIndexURL());
+        return SampleTranslator.translate(sample, session.getBaseIndexURL(), null);
     }
 
     private List<WellMetadata> loadWells(TechId plateId)

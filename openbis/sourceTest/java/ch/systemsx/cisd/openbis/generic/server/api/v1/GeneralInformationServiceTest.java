@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -108,7 +109,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                         propertiesBatchManager, commonServer)
                     {
                         @Override
-                        protected ISampleLister createSampleLister()
+                        protected ISampleLister createSampleLister(PersonPE person)
                         {
                             return sampleLister2;
                         }
@@ -629,6 +630,9 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                                     .property("alpha", DataTypeCode.REAL, "3.14159")
                                     .property("status", DataTypeCode.VARCHAR, "normal");
                     will(returnValue(ds1.getDataSet()));
+                    one(metaprojectDAO).listMetaprojectsForEntity(session.tryGetPerson(),
+                            ds1.getDataSet());
+                    will(returnValue(new HashSet<Metaproject>()));
 
                     one(dataSetDAO).tryToFindDataSetByCode("ds2");
                     ExternalDataPEBuilder ds2 =
@@ -637,6 +641,9 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                                     .property("status", DataTypeCode.VARCHAR, "low")
                                     .parent(ds1.getDataSet());
                     will(returnValue(ds2.getDataSet()));
+                    one(metaprojectDAO).listMetaprojectsForEntity(session.tryGetPerson(),
+                            ds2.getDataSet());
+                    will(returnValue(new HashSet<Metaproject>()));
                 }
             });
 

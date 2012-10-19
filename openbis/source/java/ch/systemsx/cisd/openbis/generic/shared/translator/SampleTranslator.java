@@ -17,14 +17,18 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -47,12 +51,13 @@ public final class SampleTranslator
         // Can not be instantiated.
     }
 
-    public static List<Sample> translate(final List<SamplePE> samples, String baseIndexURL)
+    public static List<Sample> translate(final List<SamplePE> samples, String baseIndexURL,
+            Map<Long, Set<Metaproject>> metaprojects)
     {
         final List<Sample> list = new ArrayList<Sample>(samples.size());
         for (final SamplePE sample : samples)
         {
-            list.add(translate(sample, baseIndexURL));
+            list.add(translate(sample, baseIndexURL, metaprojects.get(sample.getId())));
         }
         return list;
     }
@@ -68,13 +73,15 @@ public final class SampleTranslator
         return result;
     }
 
-    public final static Sample translate(final SamplePE samplePE, String baseIndexURL)
+    public final static Sample translate(final SamplePE samplePE, String baseIndexURL,
+            Collection<Metaproject> metaprojects)
     {
-        return translate(samplePE, baseIndexURL, true, false);
+        return translate(samplePE, baseIndexURL, true, false, metaprojects);
     }
 
     public final static Sample translate(final SamplePE samplePE, String baseIndexURL,
-            final boolean withDetails, boolean withContainedSamples)
+            final boolean withDetails, boolean withContainedSamples,
+            Collection<Metaproject> metaprojects)
     {
         if (samplePE == null)
         {
@@ -86,13 +93,13 @@ public final class SampleTranslator
         final int generatedFromDep =
                 getPositiveIntegerValue(samplePE.getSampleType().getGeneratedFromHierarchyDepth());
         return translate(samplePE, baseIndexURL, containerDep, generatedFromDep, withDetails,
-                withContainedSamples);
+                withContainedSamples, metaprojects);
 
     }
 
     private final static Sample translate(final SamplePE samplePE, String baseIndexURL,
             final int containerDep, final int generatedFromDep, final boolean withDetails,
-            final boolean withContainedSamples)
+            final boolean withContainedSamples, Collection<Metaproject> metaprojects)
     {
         final Sample result = new Sample();
         setCodes(result, samplePE);
@@ -118,7 +125,7 @@ public final class SampleTranslator
             result.setRegistrationDate(samplePE.getRegistrationDate());
             setProperties(result, samplePE);
             result.setExperiment(ExperimentTranslator.translate(samplePE.getExperiment(),
-                    baseIndexURL, LoadableFields.PROPERTIES));
+                    baseIndexURL, null, LoadableFields.PROPERTIES));
             List<Attachment> attachments;
             if (samplePE.attachmentsInitialized() == false)
             {
@@ -135,7 +142,7 @@ public final class SampleTranslator
             if (HibernateUtils.isInitialized(samplePE.getContainer()))
             {
                 result.setContainer(translate(samplePE.getContainer(), baseIndexURL,
-                        containerDep - 1, 0, false, false));
+                        containerDep - 1, 0, false, false, null));
             }
         }
         if (generatedFromDep > 0 && samplePE.getParentRelationships() != null)
@@ -145,7 +152,7 @@ public final class SampleTranslator
                 for (SamplePE parent : samplePE.getParents())
                 {
                     result.addParent(translate(parent, baseIndexURL, 0, generatedFromDep - 1,
-                            false, false));
+                            false, false, null));
                 }
             }
         }
@@ -155,11 +162,16 @@ public final class SampleTranslator
             ArrayList<Sample> containedSamples = new ArrayList<Sample>();
             for (SamplePE containedPE : samplePE.getContained())
             {
-                Sample containedSample = translate(containedPE, baseIndexURL, 0, 0, false, false);
+                Sample containedSample =
+                        translate(containedPE, baseIndexURL, 0, 0, false, false, null);
                 containedSamples.add(containedSample);
 
             }
             result.setContainedSample(containedSamples);
+        }
+        if (metaprojects != null)
+        {
+            result.setMetaprojects(metaprojects);
         }
         result.setDeletion(DeletionTranslator.translate(samplePE.getDeletion()));
         return result;
@@ -190,12 +202,12 @@ public final class SampleTranslator
         final SampleParentWithDerived sampleGeneration = new SampleParentWithDerived();
 
         sampleGeneration.setParent(SampleTranslator.translate(sampleGenerationDTO.getParent(),
-                baseIndexURL));
+                baseIndexURL, null));
 
         final List<Sample> generated = new ArrayList<Sample>();
         for (SamplePE samplePE : sampleGenerationDTO.getDerived())
         {
-            generated.add(SampleTranslator.translate(samplePE, baseIndexURL, false, false));
+            generated.add(SampleTranslator.translate(samplePE, baseIndexURL, false, false, null));
         }
         sampleGeneration.setDerived(generated.toArray(new Sample[generated.size()]));
         return sampleGeneration;

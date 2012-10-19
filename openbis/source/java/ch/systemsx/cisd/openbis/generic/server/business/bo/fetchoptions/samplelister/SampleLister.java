@@ -35,6 +35,9 @@ import net.lemnik.eodsql.QueryTool;
 import ch.systemsx.cisd.common.collection.IKeyExtractor;
 import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.EntityMetaprojectRelationRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaprojectCreator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaprojectRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.PropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
@@ -43,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * @author Franz-Josef Elmer
@@ -90,15 +94,18 @@ public class SampleLister implements ISampleLister
 
     private Long relationID;
 
-    public SampleLister(IDAOFactory daoFactory)
+    private PersonPE person;
+
+    public SampleLister(IDAOFactory daoFactory, PersonPE person)
     {
         this(QueryTool.getQuery(DatabaseContextUtils.getConnection(daoFactory),
-                ISampleListingQuery.class));
+                ISampleListingQuery.class), person);
     }
 
-    SampleLister(ISampleListingQuery query)
+    SampleLister(ISampleListingQuery query, PersonPE person)
     {
         this.query = query;
+        this.person = person;
     }
 
     private Long getRelationShipType()
@@ -165,6 +172,11 @@ public class SampleLister implements ISampleLister
         enrichWithAncestors(ancestors, sampleRecords,
                 fetchOptions.contains(SampleFetchOption.ANCESTORS));
         List<Sample> samples = new ArrayList<Sample>();
+        if (fetchOptions.contains(SampleFetchOption.METAPROJECTS))
+        {
+            enrichWithMetaprojects(sampleRecords, sampleIdSet);
+        }
+
         Map<Long, Sample> repository = new HashMap<Long, Sample>(); // Repository of all unlinked
                                                                     // samples
         for (Long rootSampleID : sampleIDs)
@@ -289,6 +301,48 @@ public class SampleLister implements ISampleLister
         }
     }
 
+    private void enrichWithMetaprojects(TableMap<Long, SampleRecord> sampleRecords,
+            LongSet sampleIdSet)
+    {
+        List<EntityMetaprojectRelationRecord> sampleMetaprojectRelations =
+                query.getMetaprojectAssignments(sampleIdSet, person.getId());
+        LongSet metaprojectIdSet = new LongOpenHashSet();
+        for (EntityMetaprojectRelationRecord record : sampleMetaprojectRelations)
+        {
+            metaprojectIdSet.add(record.metaproject_id);
+        }
+
+        List<MetaprojectRecord> metaprojects = query.getMetaprojects(metaprojectIdSet);
+        TableMap<Long, MetaprojectRecord> metaprojectRecords =
+                new TableMap<Long, MetaprojectRecord>(metaprojects,
+                        new IKeyExtractor<Long, MetaprojectRecord>()
+                            {
+                                @Override
+                                public Long getKey(MetaprojectRecord mr)
+                                {
+                                    return mr.id;
+                                }
+                            });
+
+        for (EntityMetaprojectRelationRecord record : sampleMetaprojectRelations)
+        {
+            SampleRecord sampleRecord = sampleRecords.tryGet(record.entity_id);
+            if (sampleRecord != null)
+            {
+                if (sampleRecord.metaprojects == null)
+                {
+                    sampleRecord.metaprojects = new ArrayList<MetaprojectRecord>();
+                }
+                MetaprojectRecord metaprojectRecord =
+                        metaprojectRecords.tryGet(record.metaproject_id);
+                if (metaprojectRecord != null)
+                {
+                    sampleRecord.metaprojects.add(metaprojectRecord);
+                }
+            }
+        }
+    }
+
     private Sample createSample(SampleRecord sampleRecord, Map<Long, Sample> repository)
     {
         Sample sample = repository.get(sampleRecord.s_id);
@@ -339,6 +393,14 @@ public class SampleLister implements ISampleLister
                 initializer.putProperty(entry.getKey(), entry.getValue());
             }
         }
+        if (sampleRecord.metaprojects != null)
+        {
+            for (MetaprojectRecord metaprojectRecord : sampleRecord.metaprojects)
+            {
+                initializer.addMetaproject(MetaprojectCreator.createMetaproject(metaprojectRecord,
+                        person));
+            }
+        }
         initializer.setRetrievedFetchOptions(sampleRecord.fetchOptions);
         List<SampleRecord> linkedSampleRecords = new ArrayList<SampleRecord>();
         if (sampleRecord.children != null)
@@ -376,9 +438,14 @@ public class SampleLister implements ISampleLister
     private EnumSet<SampleFetchOption> createAppropriateFetchOptions(
             EnumSet<SampleFetchOption> fetchOptions)
     {
-        return EnumSet
-                .of(fetchOptions.contains(SampleFetchOption.PROPERTIES) ? SampleFetchOption.PROPERTIES
+        EnumSet<SampleFetchOption> result =
+                EnumSet.of(fetchOptions.contains(SampleFetchOption.PROPERTIES) ? SampleFetchOption.PROPERTIES
                         : SampleFetchOption.BASIC);
+        if (fetchOptions.contains(SampleFetchOption.METAPROJECTS))
+        {
+            result.add(SampleFetchOption.METAPROJECTS);
+        }
+        return result;
     }
 
 }

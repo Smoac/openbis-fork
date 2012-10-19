@@ -101,6 +101,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -116,6 +117,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -226,12 +228,16 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         experimentBO.enrichWithProperties();
         experimentBO.enrichWithAttachments();
         final ExperimentPE experiment = experimentBO.getExperiment();
+        Collection<MetaprojectPE> metaprojectPEs =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                        session.tryGetPerson(), experiment);
         if (experiment == null)
         {
             throw UserFailureException.fromTemplate(
                     "No experiment could be found with given identifier '%s'.", identifier);
         }
         return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
+                MetaprojectTranslator.translate(metaprojectPEs),
                 ExperimentTranslator.LoadableFields.PROPERTIES,
                 ExperimentTranslator.LoadableFields.ATTACHMENTS);
     }
@@ -244,7 +250,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         experimentBO.enrichWithProperties();
         experimentBO.enrichWithAttachments();
         final ExperimentPE experiment = experimentBO.getExperiment();
+        Collection<MetaprojectPE> metaprojectPEs =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                        session.tryGetPerson(), experiment);
         return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
+                MetaprojectTranslator.translate(metaprojectPEs),
                 ExperimentTranslator.LoadableFields.PROPERTIES,
                 ExperimentTranslator.LoadableFields.ATTACHMENTS);
     }

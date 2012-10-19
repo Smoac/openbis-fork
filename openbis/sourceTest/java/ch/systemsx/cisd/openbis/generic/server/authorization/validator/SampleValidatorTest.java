@@ -19,9 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleValidator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 
 /**
@@ -38,8 +37,8 @@ public class SampleValidatorTest extends AuthorizationTestCase
     {
         SampleValidator validator = new SampleValidator();
         PersonPE person = createPersonWithRoleAssignments();
-        assertEquals(true, validator.isValid(person, SampleTranslator.translate(
-                createSample(createAnotherGroup()), BASE_URL)));
+        assertEquals(true, validator.isValid(person,
+                SampleTranslator.translate(createSample(createAnotherGroup()), BASE_URL, null)));
     }
 
     @Test
@@ -47,8 +46,8 @@ public class SampleValidatorTest extends AuthorizationTestCase
     {
         SampleValidator validator = new SampleValidator();
         PersonPE person = createPersonWithRoleAssignments();
-        assertEquals(true, validator.isValid(person, SampleTranslator.translate(
-                createSample(createDatabaseInstance()), BASE_URL)));
+        assertEquals(true, validator.isValid(person,
+                SampleTranslator.translate(createSample(createDatabaseInstance()), BASE_URL, null)));
     }
 
     @Test
@@ -57,7 +56,7 @@ public class SampleValidatorTest extends AuthorizationTestCase
         SampleValidator validator = new SampleValidator();
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(false, validator.isValid(person, SampleTranslator.translate(
-                createSample(createDatabaseInstance("blabla")), BASE_URL)));
+                createSample(createDatabaseInstance("blabla")), BASE_URL, null)));
     }
 
     @Test
@@ -65,8 +64,10 @@ public class SampleValidatorTest extends AuthorizationTestCase
     {
         SampleValidator validator = new SampleValidator();
         PersonPE person = createPersonWithRoleAssignments();
-        assertEquals(true, validator.isValid(person, SampleTranslator.translate(
-                createSample(createGroup()), BASE_URL)));
+        assertEquals(
+                true,
+                validator.isValid(person,
+                        SampleTranslator.translate(createSample(createGroup()), BASE_URL, null)));
     }
 
     @Test
@@ -75,7 +76,9 @@ public class SampleValidatorTest extends AuthorizationTestCase
         SampleValidator validator = new SampleValidator();
         PersonPE person = createPersonWithRoleAssignments();
         SpacePE group = createGroup("blabla", createAnotherDatabaseInstance());
-        assertEquals(false, validator.isValid(person, SampleTranslator.translate(
-                createSample(group), BASE_URL)));
+        assertEquals(
+                false,
+                validator.isValid(person,
+                        SampleTranslator.translate(createSample(group), BASE_URL, null)));
     }
 }

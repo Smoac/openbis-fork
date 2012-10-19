@@ -14,14 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common;
+
+import java.util.Date;
 
 /**
- * @author pkupczyk
+ * @author Pawel Glyzewski
  */
-public enum ExperimentFetchOption implements FetchOption
+public class MetaprojectRecord
 {
+    public Long id;
 
-    BASIC, PROPERTIES, PROPERTIES_OF_PROPERTIES, SCRIPTS, METAPROJECTS;
+    public String name;
 
+    public String description;
+
+    public Boolean is_private;
+
+    public Date creation_date;
 }

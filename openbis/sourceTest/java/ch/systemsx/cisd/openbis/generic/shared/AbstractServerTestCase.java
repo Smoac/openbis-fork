@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
@@ -200,6 +201,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IEntityOperationsLogDAO entityOperationsLogDAO;
 
+    protected IMetaprojectDAO metaprojectDAO;
+
     private MaterialConfigurationProvider oldProvider;
 
     @BeforeMethod
@@ -236,6 +239,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         deletionDAO = context.mock(IDeletionDAO.class);
         hibernateSearchDAO = context.mock(IHibernateSearchDAO.class);
         entityOperationsLogDAO = context.mock(IEntityOperationsLogDAO.class);
+        metaprojectDAO = context.mock(IMetaprojectDAO.class);
         // BO
         groupBO = context.mock(ISpaceBO.class);
         entityTypeBO = context.mock(IEntityTypeBO.class);
@@ -297,6 +301,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     will(returnValue(hibernateSearchDAO));
                     allowing(daoFactory).getEntityOperationsLogDAO();
                     will(returnValue(entityOperationsLogDAO));
+                    allowing(daoFactory).getMetaprojectDAO();
+                    will(returnValue(metaprojectDAO));
                 }
             });
         oldProvider = MaterialConfigurationProvider.initializeForTesting(false);

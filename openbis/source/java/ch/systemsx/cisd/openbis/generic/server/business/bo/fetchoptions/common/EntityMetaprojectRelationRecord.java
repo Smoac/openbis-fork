@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common;
 
 /**
- * @author pkupczyk
+ * @author Pawel Glyzewski
  */
-public enum ExperimentFetchOption implements FetchOption
+public class EntityMetaprojectRelationRecord
 {
+    public Long metaproject_id;
 
-    BASIC, PROPERTIES, PROPERTIES_OF_PROPERTIES, SCRIPTS, METAPROJECTS;
-
+    public Long entity_id;
 }

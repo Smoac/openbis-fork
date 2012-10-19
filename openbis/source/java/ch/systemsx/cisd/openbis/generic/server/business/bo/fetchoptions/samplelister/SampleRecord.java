@@ -21,6 +21,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaprojectRecord;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 
 /**
@@ -74,6 +75,8 @@ public class SampleRecord
     public List<SampleRecord> parents;
 
     public Map<String, String> properties;
+
+    public List<MetaprojectRecord> metaprojects;
 
     public EnumSet<SampleFetchOption> fetchOptions;
 

@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractEntityHistoryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractEntityPropertyHistoryPE;
@@ -36,8 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  */
 public class EntityHistoryTranslator
 {
-    public static List<EntityHistory> translate(
-            List<AbstractEntityPropertyHistoryPE> history, String baseIndexURL)
+    public static List<EntityHistory> translate(List<AbstractEntityPropertyHistoryPE> history,
+            String baseIndexURL)
     {
         List<EntityHistory> result = new ArrayList<EntityHistory>();
         HashMap<PropertyTypePE, PropertyType> cache = new HashMap<PropertyTypePE, PropertyType>();
@@ -48,8 +48,7 @@ public class EntityHistoryTranslator
         return result;
     }
 
-    private static EntityHistory translate(
-            AbstractEntityPropertyHistoryPE entityPropertyHistory,
+    private static EntityHistory translate(AbstractEntityPropertyHistoryPE entityPropertyHistory,
             Map<PropertyTypePE, PropertyType> cache, String baseIndexURL)
     {
         EntityHistory result = new EntityHistory();
@@ -82,12 +81,12 @@ public class EntityHistoryTranslator
                     case EXPERIMENT:
                         entityType = EntityKind.EXPERIMENT.getDescription();
                         result.setRelatedEntity(ExperimentTranslator.translate(
-                                (ExperimentPE) entityHistory.getRelatedEntity(), baseIndexURL));
+                                (ExperimentPE) entityHistory.getRelatedEntity(), baseIndexURL, null));
                         break;
                     case SAMPLE:
                         entityType = EntityKind.SAMPLE.getDescription();
                         result.setRelatedEntity(SampleTranslator.translate(
-                                (SamplePE) entityHistory.getRelatedEntity(), baseIndexURL));
+                                (SamplePE) entityHistory.getRelatedEntity(), baseIndexURL, null));
                         break;
                     case MATERIAL:
                 }

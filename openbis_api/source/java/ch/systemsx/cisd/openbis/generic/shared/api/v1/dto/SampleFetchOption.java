@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FetchOption;
 
@@ -30,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FetchOption;
  * @author Franz-Josef Elmer
  */
 @JsonObject("SampleFetchOption")
-public enum SampleFetchOption implements FetchOption  
+public enum SampleFetchOption implements FetchOption
 {
     /**
      * Samples will have only basic attributes (id, code, type, space code, experiment identifier,
@@ -48,7 +47,7 @@ public enum SampleFetchOption implements FetchOption
     /**
      * Samples contain also their children samples.
      */
-    CHILDREN, 
+    CHILDREN,
     /**
      * Ask for all ancestors.
      */
@@ -60,5 +59,9 @@ public enum SampleFetchOption implements FetchOption
     /**
      * Ask for contained samples. This is not supported in search operations
      */
-    CONTAINED
+    CONTAINED,
+    /**
+     * Ask for metaprojects this sample belongs to.
+     */
+    METAPROJECTS
 }

@@ -99,6 +99,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -109,6 +110,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -319,7 +321,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         Collection<Long> sampleIDs =
                 new SampleSearchManager(getDAOFactory().getHibernateSearchDAO(), sampleLister)
                         .searchForSampleIDs(detailedSearchCriteria);
-        return createSampleLister().getSamples(sampleIDs, sampleFetchOptions);
+        return createSampleLister(session.tryGetPerson()).getSamples(sampleIDs, sampleFetchOptions);
     }
 
     @Override
@@ -369,9 +371,9 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return samples;
     }
 
-    protected ISampleLister createSampleLister()
+    protected ISampleLister createSampleLister(PersonPE person)
     {
-        return new SampleLister(getDAOFactory());
+        return new SampleLister(getDAOFactory(), person);
     }
 
     @Override
@@ -585,9 +587,9 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode)
     {
-        checkSession(sessionToken);
+        Session session = getSession(sessionToken);
 
-        final IDataSetLister lister = new DataSetLister(getDAOFactory());
+        final IDataSetLister lister = new DataSetLister(getDAOFactory(), session.tryGetPerson());
         final List<DataStoreURLForDataSets> dataStores =
                 lister.getDataStoreDownloadURLs(Collections.singletonList(dataSetCode));
         if (dataStores.isEmpty())
@@ -604,9 +606,9 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     public List<DataStoreURLForDataSets> getDataStoreBaseURLs(String sessionToken,
             List<String> dataSetCodes)
     {
-        checkSession(sessionToken);
+        Session session = getSession(sessionToken);
 
-        final IDataSetLister lister = new DataSetLister(getDAOFactory());
+        final IDataSetLister lister = new DataSetLister(getDAOFactory(), session.tryGetPerson());
         return lister.getDataStoreDownloadURLs(dataSetCodes);
     }
 
@@ -771,7 +773,12 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             }
             HibernateUtils.initialize(dataPE.getChildRelationships());
             HibernateUtils.initialize(dataPE.getProperties());
-            ExternalData ds = DataSetTranslator.translate(dataPE, session.getBaseIndexURL());
+            Collection<MetaprojectPE> metaprojects =
+                    getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                            session.tryGetPerson(), dataPE);
+            ExternalData ds =
+                    DataSetTranslator.translate(dataPE, session.getBaseIndexURL(),
+                            MetaprojectTranslator.translate(metaprojects));
             result.add(Translator.translate(ds, connections));
         }
         return result;
@@ -806,8 +813,9 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         if (dataSetFetchOptions.isSubsetOf(DataSetFetchOption.BASIC, DataSetFetchOption.PARENTS,
                 DataSetFetchOption.CHILDREN))
         {
-            checkSession(sessionToken);
-            final IDataSetLister lister = new DataSetLister(getDAOFactory());
+            Session session = getSession(sessionToken);
+            final IDataSetLister lister =
+                    new DataSetLister(getDAOFactory(), session.tryGetPerson());
             return lister.getDataSetMetaData(dataSetCodes, dataSetFetchOptions);
         } else
         {

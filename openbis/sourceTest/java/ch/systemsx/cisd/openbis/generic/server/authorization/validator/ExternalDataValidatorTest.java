@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExternalDataValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -33,8 +32,8 @@ public class ExternalDataValidatorTest extends AuthorizationTestCase
     private DataSet createData(SpacePE group)
     {
         DataSet data = new DataSet();
-        data.setExperiment(ExperimentTranslator
-                .translate(createExperiment(group), "http://someURL"));
+        data.setExperiment(ExperimentTranslator.translate(createExperiment(group),
+                "http://someURL", null));
         return data;
     }
 

@@ -17,11 +17,15 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -49,22 +53,25 @@ public final class MaterialTranslator
         return newMaterial;
     }
 
-    public final static List<Material> translate(final List<MaterialPE> materials)
+    public final static List<Material> translate(final List<MaterialPE> materials,
+            Map<Long, Set<Metaproject>> metaprojects)
     {
         final List<Material> result = new ArrayList<Material>();
         for (final MaterialPE material : materials)
         {
-            result.add(MaterialTranslator.translate(material));
+            result.add(MaterialTranslator.translate(material, metaprojects.get(material.getId())));
         }
         return result;
     }
 
-    public final static Material translate(final MaterialPE materialPE)
+    public final static Material translate(final MaterialPE materialPE,
+            Collection<Metaproject> metaprojects)
     {
-        return translate(materialPE, true);
+        return translate(materialPE, true, metaprojects);
     }
 
-    public final static Material translate(final MaterialPE materialPE, final boolean withProperties)
+    public final static Material translate(final MaterialPE materialPE,
+            final boolean withProperties, Collection<Metaproject> metaprojects)
     {
         if (materialPE == null)
         {
@@ -83,6 +90,11 @@ public final class MaterialTranslator
         if (withProperties)
         {
             setProperties(materialPE, result);
+        }
+
+        if (metaprojects != null)
+        {
+            result.setMetaprojects(metaprojects);
         }
 
         return result;

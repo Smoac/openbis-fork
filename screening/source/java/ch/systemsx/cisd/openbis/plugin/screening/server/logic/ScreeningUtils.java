@@ -67,7 +67,7 @@ public class ScreeningUtils
         String dataTypeCode = dataset.getDataSetType().getCode();
         String fileTypeCode = null;
         Experiment experiment =
-                ExperimentTranslator.translate(dataset.getExperiment(), baseIndexURL);
+                ExperimentTranslator.translate(dataset.getExperiment(), baseIndexURL, null);
         String analysisProcedureOrNull =
                 EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
         return createDatasetReference(dataset.getId(), dataset.getCode(), analysisProcedureOrNull,

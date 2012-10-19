@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -82,6 +83,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -573,7 +575,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         dataStorePE.setCode("DST");
         externalDataPE.setDataStore(dataStorePE);
         final ExternalData externalData =
-                DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL);
+                DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null);
         prepareGetSession();
         final boolean showOnlyDirectlyConnected = true;
         context.checking(new Expectations()
@@ -612,7 +614,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         dataStorePE.setCode("DST");
         externalDataPE.setDataStore(dataStorePE);
         final ExternalData externalData =
-                DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL);
+                DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null);
         prepareGetSession();
         context.checking(new Expectations()
             {
@@ -638,6 +640,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         return EqualsBuilder.reflectionEquals(data1, data2);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testListExperiments()
     {
@@ -657,6 +660,12 @@ public final class CommonServerTest extends AbstractServerTestCase
 
                     one(experimentTable).getExperiments();
                     will(returnValue(new ArrayList<ExperimentPE>()));
+
+                    one(metaprojectDAO)
+                            .listMetaprojectAssignmentsForEntities(
+                                    with(any(PersonPE.class)),
+                                    with(any(Collection.class)),
+                                    with(any(ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.class)));
                 }
             });
         createServer().listExperiments(SESSION_TOKEN, experimentType, projectIdentifier);
@@ -1646,6 +1655,10 @@ public final class CommonServerTest extends AbstractServerTestCase
 
                     one(experimentBO).getExperiment();
                     will(returnValue(experimentPE));
+
+                    one(metaprojectDAO).listMetaprojectsForEntity(session.tryGetPerson(),
+                            experimentPE);
+                    will(returnValue(new HashSet<MetaprojectPE>()));
                 }
             });
         final Experiment experiment =

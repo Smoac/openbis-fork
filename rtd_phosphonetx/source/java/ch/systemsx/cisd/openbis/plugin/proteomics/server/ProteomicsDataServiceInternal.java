@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.proteomics.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,8 +33,8 @@ import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -55,11 +57,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.authorization.validator.ParentSampleValidator;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.authorization.validator.RawDataSampleValidator;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.ExperimentLoader;
@@ -177,7 +181,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     @ReturnValueFilter(validatorClass = ExperimentValidator.class)
     public List<Experiment> listExperiments(String sessionToken, String experimentTypeCode)
     {
-        checkSession(sessionToken);
+        Session session = getSession(sessionToken);
 
         IDAOFactory daoFactory = getDAOFactory();
         IEntityTypeDAO entityTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.EXPERIMENT);
@@ -185,7 +189,12 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
                 (ExperimentTypePE) entityTypeDAO.tryToFindEntityTypeByCode(experimentTypeCode);
         List<ExperimentPE> experiments =
                 daoFactory.getExperimentDAO().listExperimentsWithProperties(type, null, null);
-        return ExperimentTranslator.translate(experiments, "");
+        final Collection<MetaprojectAssignmentPE> assignmentPEs =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectAssignmentsForEntities(
+                        session.tryGetPerson(), experiments, EntityKind.EXPERIMENT);
+        Map<Long, Set<Metaproject>> assignments =
+                MetaprojectTranslator.translateMetaprojectAssignments(assignmentPEs);
+        return ExperimentTranslator.translate(experiments, "", assignments);
     }
 
     @Override
@@ -198,7 +207,12 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
 
         IDataSetTable dataSetTable = commonBoFactory.createDataSetTable(session);
         dataSetTable.loadByExperimentTechId(experimentID);
-        return DataSetTranslator.translate(dataSetTable.getDataSets(), "", "");
+        List<DataPE> dataSetPEs = dataSetTable.getDataSets();
+        Collection<MetaprojectAssignmentPE> assignmentPEs =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectAssignmentsForEntities(
+                        session.tryGetPerson(), dataSetPEs, EntityKind.DATA_SET);
+        return DataSetTranslator.translate(dataSetPEs, "", "",
+                MetaprojectTranslator.translateMetaprojectAssignments(assignmentPEs));
     }
 
     @Override
@@ -222,7 +236,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
                         + " [" + experiment.getIdentifier() + "] is not of type " + experimentType
                         + " but of type " + actualExperimentTypeCode + ".");
             }
-            Experiment translatedExperiment = ExperimentTranslator.translate(experiment, "");
+            Experiment translatedExperiment = ExperimentTranslator.translate(experiment, "", null);
             if (EXPERIMENT_VALIDATOR.isValid(person, translatedExperiment))
             {
                 List<DataPE> dataSets = dataSetDAO.listDataSets(experiment);

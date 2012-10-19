@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -35,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PlaceholderDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -122,13 +125,14 @@ public class DataSetTranslator
     }
 
     public static List<ExternalData> translate(List<? extends DataPE> list,
-            String defaultDataStoreBaseURL, String baseIndexURL)
+            String defaultDataStoreBaseURL, String baseIndexURL,
+            Map<Long, Set<Metaproject>> metaprojects)
     {
         ArrayList<ExternalData> result = new ArrayList<ExternalData>(list.size());
         for (DataPE dataPE : list)
         {
             ExternalData data =
-                    translate(dataPE, baseIndexURL, true,
+                    translate(dataPE, baseIndexURL, true, metaprojects.get(dataPE.getId()),
                             ExperimentTranslator.LoadableFields.PROPERTIES);
             result.add(data);
         }
@@ -161,13 +165,13 @@ public class DataSetTranslator
     }
 
     public static ExternalData translate(DataPE dataPE, String baseIndexURL,
-            final LoadableFields... withExperimentFields)
+            Collection<Metaproject> metaprojects, final LoadableFields... withExperimentFields)
     {
-        return translate(dataPE, baseIndexURL, true, withExperimentFields);
+        return translate(dataPE, baseIndexURL, true, metaprojects, withExperimentFields);
     }
 
     public static ExternalData translate(DataPE dataPE, String baseIndexURL, boolean withDetails,
-            final LoadableFields... withExperimentFields)
+            Collection<Metaproject> metaprojects, final LoadableFields... withExperimentFields)
     {
         ExternalData externalData = null;
         if (dataPE.isContainer())
@@ -212,8 +216,13 @@ public class DataSetTranslator
         externalData.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL,
                 EntityKind.DATA_SET, externalData.getIdentifier()));
         setProperties(dataPE, externalData);
-        externalData.setExperiment(ExperimentTranslator.translate(experiment, baseIndexURL,
+        externalData.setExperiment(ExperimentTranslator.translate(experiment, baseIndexURL, null,
                 withExperimentFields));
+
+        if (metaprojects != null)
+        {
+            externalData.setMetaprojects(metaprojects);
+        }
         externalData.setDeletion(DeletionTranslator.translate(dataPE.getDeletion()));
         return externalData;
     }
@@ -222,7 +231,7 @@ public class DataSetTranslator
             String baseIndexURL)
     {
         return containerOrNull != null ? (ContainerDataSet) translate(containerOrNull,
-                baseIndexURL, false) : null;
+                baseIndexURL, false, null) : null;
     }
 
     private static ExternalData translateContainerDataSetProperties(DataPE dataPE,
@@ -316,7 +325,7 @@ public class DataSetTranslator
         {
             for (DataPE childPE : dataPE.getContainedDataSets())
             {
-                containedDataSets.add(translate(childPE, baseIndexURL));
+                containedDataSets.add(translate(childPE, baseIndexURL, null));
             }
         }
         containerDataSet.setContainedDataSets(containedDataSets);

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -74,6 +75,8 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
     private String subCode;
 
     private final boolean isStub;
+
+    private Collection<Metaproject> metaprojects;
 
     public Sample()
     {
@@ -320,6 +323,16 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
     public boolean isStub()
     {
         return isStub;
+    }
+
+    public void setMetaprojects(Collection<Metaproject> metaprojects)
+    {
+        this.metaprojects = metaprojects;
+    }
+
+    public Collection<Metaproject> getMetaprojects()
+    {
+        return metaprojects;
     }
 
     @Override

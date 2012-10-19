@@ -20,8 +20,10 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author Pawel Glyzewski
@@ -49,4 +51,11 @@ public interface IMetaprojectDAO extends IGenericDAO<MetaprojectPE>
      */
     public Collection<MetaprojectPE> listMetaprojectsForEntity(PersonPE owner,
             IEntityInformationWithPropertiesHolder entity);
+
+    /**
+     * Lists all metaprojects owned by given user, connected with given entities.
+     */
+    public Collection<MetaprojectAssignmentPE> listMetaprojectAssignmentsForEntities(
+            PersonPE owner, Collection<? extends IEntityInformationWithPropertiesHolder> entities,
+            EntityKind entityKind);
 }

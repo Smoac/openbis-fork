@@ -24,6 +24,8 @@ import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TypeMapper;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.EntityMetaprojectRelationRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaprojectRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.PropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
 
@@ -95,4 +97,17 @@ public interface ISampleListingQuery extends BaseQuery
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<PropertyRecord> getProperties(LongSet entityIDs);
 
+    @Select(sql = "select ma.mepr_id as metaproject_id, ma.samp_id as entity_id "
+            + " from metaproject_assignments as ma "
+            + " join metaprojects as m on ma.mepr_id = m.id "
+            + "where ma.samp_id = any(?{1}) and m.owner = ?{2}", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<EntityMetaprojectRelationRecord> getMetaprojectAssignments(LongSet sampleIDs,
+            Long ownerId);
+
+    @Select(sql = "select id as id, name as name, description as description, "
+            + " private as is_private, creation_date as creation_date " + " from metaprojects"
+            + " where id = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<MetaprojectRecord> getMetaprojects(LongSet metaprojectIDs);
 }

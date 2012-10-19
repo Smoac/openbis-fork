@@ -26,6 +26,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FetchOption;
 public enum DataSetFetchOption implements FetchOption
 {
 
-    BASIC, PROPERTIES, PROPERTIES_OF_PROPERTIES, PARENTS, CHILDREN, CONTAINED
+    BASIC, PROPERTIES, PROPERTIES_OF_PROPERTIES, PARENTS, CHILDREN, CONTAINED, METAPROJECTS
 
 }
