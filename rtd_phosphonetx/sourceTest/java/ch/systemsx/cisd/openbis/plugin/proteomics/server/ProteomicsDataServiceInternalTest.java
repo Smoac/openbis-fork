@@ -165,7 +165,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
     @Test
     public void testProcessSearchData()
     {
-        final Session session = createSessionAndPrepareGetSession(GROUP_CODE);
+        final Session testSession = createSessionAndPrepareGetSession(GROUP_CODE);
         final ExperimentPE e1 = experiment(1);
         final ExperimentPE e2 = experiment(2, "a");
         context.checking(new Expectations()
@@ -188,7 +188,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                     will(returnValue(Arrays.asList(ds2)));
                 }
             });
-        prepareProcessDataSets(session, new HashMap<String, String>(), "ds1", "ds2");
+        prepareProcessDataSets(testSession, new HashMap<String, String>(), "ds1", "ds2");
 
         service.processProteinResultDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, EXPERIMENT_TYPE,
                 new long[]
@@ -200,7 +200,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
     @Test
     public void testProcessSearchDataFilteredByValidator()
     {
-        Session session = createSessionAndPrepareGetSession(GROUP_CODE + 2);
+        Session testSession = createSessionAndPrepareGetSession(GROUP_CODE + 2);
         final ExperimentPE e1 = experiment(1);
         final ExperimentPE e2 = experiment(2, "a");
         context.checking(new Expectations()
@@ -213,7 +213,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                     will(returnValue(e2));
                 }
             });
-        prepareProcessDataSets(session, new HashMap<String, String>());
+        prepareProcessDataSets(testSession, new HashMap<String, String>());
 
         service.processProteinResultDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, EXPERIMENT_TYPE,
                 new long[]
@@ -225,7 +225,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
     @Test
     public void testProcessSearchDataFilteredByIds()
     {
-        Session session = createSessionAndPrepareGetSession(GROUP_CODE);
+        Session testSession = createSessionAndPrepareGetSession(GROUP_CODE);
         final ExperimentPE e1 = experiment(1);
         context.checking(new Expectations()
             {
@@ -239,7 +239,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                     will(returnValue(Arrays.asList(ds1)));
                 }
             });
-        prepareProcessDataSets(session, new HashMap<String, String>(), "ds1");
+        prepareProcessDataSets(testSession, new HashMap<String, String>(), "ds1");
 
         service.processProteinResultDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, EXPERIMENT_TYPE,
                 new long[]
@@ -250,7 +250,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
 
     private Session createSessionAndPrepareGetSession(String spaceCode)
     {
-        final Session session =
+        final Session testSession =
                 new Session(CommonTestUtils.USER_ID, SESSION_TOKEN, PRINCIPAL, "remote-host", 1);
         PersonPE person = new PersonPE();
         RoleAssignmentPE roleAssignmentPE = new RoleAssignmentPE();
@@ -259,15 +259,15 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         group.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
         roleAssignmentPE.setSpace(group);
         person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays.asList(roleAssignmentPE)));
-        session.setPerson(person);
+        testSession.setPerson(person);
         context.checking(new Expectations()
             {
                 {
                     allowing(sessionManager).getSession(SESSION_TOKEN);
-                    will(returnValue(session));
+                    will(returnValue(testSession));
                 }
             });
-        return session;
+        return testSession;
     }
 
     private void prepareListExperiments(final ExperimentPE... experiments)
@@ -283,11 +283,15 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
 
                     one(experimentDAO).listExperimentsWithProperties(experimentType, null, null);
                     will(returnValue(Arrays.asList(experiments)));
+                    
+                    one(metaprojectDAO).listMetaprojectAssignmentsForEntities(
+                            session.tryGetPerson(), Arrays.asList(experiments),
+                            EntityKind.EXPERIMENT);
                 }
             });
     }
 
-    private void prepareProcessDataSets(final Session session,
+    private void prepareProcessDataSets(final Session testSession,
             final Map<String, String> parameterBindings, final String... dataSetCodes)
     {
         context.checking(new Expectations()
@@ -300,7 +304,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                     DataStorePE s2 = store("s2", service(COPY_PROCESSING_KEY, PROCESSING));
                     will(returnValue(Arrays.asList(s1, s2)));
 
-                    one(commonBoFactory).createDataSetTable(session);
+                    one(commonBoFactory).createDataSetTable(testSession);
                     will(returnValue(dataSetTable));
 
                     one(dataSetTable).processDatasets(COPY_PROCESSING_KEY, "s2",
