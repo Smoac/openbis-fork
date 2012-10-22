@@ -258,8 +258,8 @@
         // Logging
     -->
 
-    <bean class="ch.systemsx.cisd.common.spring.LogAdvisor" />
-    <bean class="ch.systemsx.cisd.common.spring.MarkerLogApplicationListener"/>
+    <bean class="ch.systemsx.cisd.openbis.common.spring.LogAdvisor" />
+    <bean class="ch.systemsx.cisd.openbis.common.spring.MarkerLogApplicationListener"/>
 
         
     <!--
@@ -317,7 +317,7 @@
     -->
 
     <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
-	  <bean class="ch.systemsx.cisd.common.spring.AnnotationBeanPostProcessorIgnoringMissingBeans"/>
+	  <bean class="ch.systemsx.cisd.openbis.common.spring.AnnotationBeanPostProcessorIgnoringMissingBeans"/>
 	
     <plugins:component-scan base-package="ch.systemsx.cisd.openbis" annotation-config="false">
         <plugins:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
