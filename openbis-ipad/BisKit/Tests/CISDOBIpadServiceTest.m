@@ -105,7 +105,10 @@
     }
     
     // Drill
-     call = [_service drillOnEntityWithPermId: entityWithChildren.permId refcon: entityWithChildren.refcon];
+    NSError *error;
+    id refconObject = [NSJSONSerialization JSONObjectWithData: [entityWithChildren.refcon dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: &error];
+    STAssertNotNil(refconObject, @"Could not parse refcon string %@ : %@", entityWithChildren.refcon, error);
+    call = [_service drillOnEntityWithPermId: entityWithChildren.permId refcon: refconObject];
     [self configureAndRunCallSynchronously: call];
     
     rawEntities = _callResult;

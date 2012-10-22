@@ -11,10 +11,6 @@ def json_encoded_value(coll):
 	"""Utility function for converting a list into a json-encoded list"""
 	return ObjectMapper().writeValueAsString(coll)
 
-def json_string_to_dict(string):
-	"""Utility function for converting a json-encoded dictionary into a Java/Jython dictionary."""
-	return ObjectMapper().readValue(string, dict)
-
 class RequestHandler:
 	"""Abstract superclass for the handlers for concrete requests like ROOT.
 
@@ -207,7 +203,7 @@ def samples_to_dict(samples, material_by_perm_id):
 def retrieve_samples(sample_perm_ids_and_ref_cons):
 	sc = SearchCriteria()
 	for sample in sample_perm_ids_and_ref_cons:
-		code = json_string_to_dict(sample['REFCON'])['code']	
+		code = sample['REFCON']['code']	
 		sc.addMatchClause(sc.MatchClause.createAttributeMatch(sc.MatchClauseAttribute.CODE, code))
 	return searchService.searchForSamples(sc)
 

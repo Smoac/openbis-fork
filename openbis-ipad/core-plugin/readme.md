@@ -66,9 +66,9 @@ The iPad data model tracks information for displaying and navigating between ent
 		</tr>
 		<tr>
 			<td>REFCON</td>
-			<td>Data that is passed unchanged back to the server when a row is modified. This can be used by the server to encode whatever it needs in order to modify the row.</td>
+			<td>Data that is passed unchanged back to the server when a row is modified. This can be used by the server to encode whatever it needs in order to modify the row. Transmitted as JSON.</td>
 			<td>For server use only; transmitted to the server on every call that it is appropriate.</td>
-			<td>openBIS entity kind + type + permId</td>
+			<td>E.g., {code : [code], entityKind : [entity kind], entityType : [entity type], permId : [permId]}</td>
 		</tr>
 		<tr>
 			<td>CATEGORY</td>

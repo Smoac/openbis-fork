@@ -175,7 +175,7 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
     return iPadCall;
 }
 
-- (CISDOBAsyncCall *)drillOnEntityWithPermId:(NSString *)permId refcon:(NSString *)refcon
+- (CISDOBAsyncCall *)drillOnEntityWithPermId:(NSString *)permId refcon:(id)refcon
 {
     // A simple version of the method that just request data for one entity.
     NSDictionary *entity =
