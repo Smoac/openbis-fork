@@ -161,7 +161,7 @@
     <bean id="client-service-exception-translating-advisor" class="ch.systemsx.cisd.openbis.generic.client.web.server.ClientServiceExceptionTranslatingAdvisor" />
     <bean id="server-exception-translating-advisor" class="ch.systemsx.cisd.openbis.generic.server.ServerExceptionTranslatingAdvisor" />
     
-    <bean id="rpc-name-server" class="ch.systemsx.cisd.common.api.server.RpcServiceNameServer" />
+    <bean id="rpc-name-server" class="ch.systemsx.cisd.openbis.common.api.server.RpcServiceNameServer" />
     
     <!-- 
         // Tracking
