@@ -5,6 +5,11 @@ from com.fasterxml.jackson.databind import ObjectMapper
 #
 # BEGIN Infrastructure
 #
+
+def json_encoded_list(coll):
+	"""Utility function for converting a list into a json-encoded list"""
+	return ObjectMapper().writeValueAsString(coll)
+
 class RequestHandler:
 	"""Abstract superclass for the handlers for concrete requests like ROOT.
 
@@ -82,6 +87,9 @@ class RequestHandler:
 		for entry in entities:
 			self.add_row(entry)
 
+	def json_encoded_list(self, coll):
+		return ObjectMapper().writeValueAsString(coll)
+
 	def process_request(self):
 		"""Execute the steps necessary to process the request."""
 		self.add_headers()
@@ -114,7 +122,7 @@ def material_to_dict(material):
 	refcon = {}
 	refcon['entityKind'] = 'MATERIAL'
 	refcon['entityType'] = material.getMaterialType()
-	material_dict['REFCON'] = ObjectMapper().writeValueAsString(refcon)
+	material_dict['REFCON'] = json_encoded_list(refcon)
 	material_dict['CATEGORY'] = material.getMaterialType()
 	if material.getMaterialType() == '5HT_COMPOUND':
 		material_dict['SUMMARY'] = material.getPropertyValue("FORMULA")
@@ -123,11 +131,11 @@ def material_to_dict(material):
 		material_dict['SUMMARY'] = material.getPropertyValue("DESC")
 		material_dict['IMAGE_URL'] = ""
 
-	material_dict['CHILDREN'] = ObjectMapper().writeValueAsString([])
+	material_dict['CHILDREN'] = json_encoded_list([])
 
 	prop_names = ["NAME", "PROT_NAME", "GENE_NAME", "LENGTH", "CHEMBL", "DESC", "FORMULA", "WEIGHT", "SMILES"]
 	properties = dict((name, material.getPropertyValue(name)) for name in prop_names if material.getPropertyValue(name) is not None)
-	material_dict['PROPERTIES'] = ObjectMapper().writeValueAsString(properties)
+	material_dict['PROPERTIES'] = json_encoded_list(properties)
 	return material_dict
 
 def sample_to_dict(five_ht_sample, material_by_perm_id):
@@ -139,17 +147,17 @@ def sample_to_dict(five_ht_sample, material_by_perm_id):
 	refcon = {}
 	refcon['entityKind'] = 'SAMPLE'
 	refcon['entityType'] = five_ht_sample.getSampleType()
-	sample_dict['REFCON'] = ObjectMapper().writeValueAsString(refcon)
+	sample_dict['REFCON'] = json_encoded_list(refcon)
 	sample_dict['CATEGORY'] = five_ht_sample.getSampleType()
 	compound = material_by_perm_id[five_ht_sample.getPropertyValue("COMPOUND")]
 	sample_dict['IMAGE_URL'] = image_url_for_compound(compound)
 
 	children = [five_ht_sample.getPropertyValue("TARGET"), five_ht_sample.getPropertyValue("COMPOUND")]
-	sample_dict['CHILDREN'] = ObjectMapper().writeValueAsString(children)
+	sample_dict['CHILDREN'] = json_encoded_list(children)
 
 	prop_names = ["DESC"]
 	properties = dict((name, five_ht_sample.getPropertyValue(name)) for name in prop_names if five_ht_sample.getPropertyValue(name) is not None)
-	sample_dict['PROPERTIES'] = ObjectMapper().writeValueAsString(properties)
+	sample_dict['PROPERTIES'] = json_encoded_list(properties)
 	# Need to handle the material links as entity links: "TARGET", "COMPOUND"
 	return sample_dict
 
