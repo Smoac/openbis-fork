@@ -21,14 +21,14 @@ def add_headers(builder):
 		CHILDREN : The permIds of the children of this entity. Transmitted as JSON.
 		PROPERTIES : Properties (metadata) that should be displayed for this entity. Transmitted as JSON.
 	"""
-	builder.addHeader("SUMMARY_HEADER")
-	builder.addHeader("SUMMARY")
-	builder.addHeader("IDENTIFIER")
 	builder.addHeader("PERM_ID")
 	builder.addHeader("REFCON")
 	builder.addHeader("CATEGORY")
-	builder.addHeader("IMAGE_URL")
+	builder.addHeader("SUMMARY_HEADER")
+	builder.addHeader("SUMMARY")
 	builder.addHeader("CHILDREN")
+	builder.addHeader("IDENTIFIER")
+	builder.addHeader("IMAGE_URL")
 	builder.addHeader("PROPERTIES")
 
 def image_url_for_compound(material):

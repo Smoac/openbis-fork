@@ -67,14 +67,14 @@ enum CISOBIpadServiceErrorCode {
     NSArray*    _content;
 }
 
-@property(readonly) NSString *summaryHeader;
-@property(readonly) NSString *summary;
-@property(readonly) NSString *identifier;
 @property(readonly) NSString *permId;
 @property(readonly) NSString *refcon;
 @property(readonly) NSString *category;
-@property(readonly) NSString *imageUrl;
+@property(readonly) NSString *summaryHeader;
+@property(readonly) NSString *summary;
 @property(readonly) NSString *children;     //<! The permIds of the children as a JSON string
+@property(readonly) NSString *identifier;
+@property(readonly) NSString *imageUrl;
 @property(readonly) NSString *properties;   //<! The properties as a JSON string.
 
 @end

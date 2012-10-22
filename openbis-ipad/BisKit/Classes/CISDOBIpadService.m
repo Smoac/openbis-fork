@@ -192,15 +192,14 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 
 - (NSString *)stringContentValueAtIndex:(NSUInteger)index { return [[_content objectAtIndex: index] objectForKey: @"value"]; }
 
-
-- (NSString *)summaryHeader { return [self stringContentValueAtIndex: 0]; }
-- (NSString *)summary { return [self stringContentValueAtIndex: 1]; }
-- (NSString *)identifier { return [self stringContentValueAtIndex: 2]; }
-- (NSString *)permId { return [self stringContentValueAtIndex: 3]; }
-- (NSString *)refcon { return [self stringContentValueAtIndex: 4]; }
-- (NSString *)category { return [self stringContentValueAtIndex: 5]; }
-- (NSString *)imageUrl { return [self stringContentValueAtIndex: 6]; }
-- (NSString *)children { return [self stringContentValueAtIndex: 7]; }
+- (NSString *)permId { return [self stringContentValueAtIndex: 0]; }
+- (NSString *)refcon { return [self stringContentValueAtIndex: 1]; }
+- (NSString *)category { return [self stringContentValueAtIndex: 2]; }
+- (NSString *)summaryHeader { return [self stringContentValueAtIndex: 3]; }
+- (NSString *)summary { return [self stringContentValueAtIndex: 4]; }
+- (NSString *)children { return [self stringContentValueAtIndex: 5]; }
+- (NSString *)identifier { return [self stringContentValueAtIndex: 6]; }
+- (NSString *)imageUrl { return [self stringContentValueAtIndex: 7]; }
 - (NSString *)properties { return [self stringContentValueAtIndex: 8]; }
 
 @end
