@@ -21,7 +21,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import ch.systemsx.cisd.common.api.server.AbstractApiJsonServiceExporter;
+import ch.systemsx.cisd.openbis.common.api.server.AbstractApiJsonServiceExporter;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 

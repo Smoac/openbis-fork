@@ -27,7 +27,7 @@ import java.util.Map;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.api.client.ServiceFinder;
+import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;

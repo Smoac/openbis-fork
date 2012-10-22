@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.api.v1;
 import java.util.Map;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;

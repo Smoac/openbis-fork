@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.conversation.manager.BaseServiceConversationClientManager;
+import ch.systemsx.cisd.openbis.common.conversation.manager.BaseServiceConversationClientManager;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;

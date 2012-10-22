@@ -22,7 +22,7 @@ import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import ch.systemsx.cisd.common.conversation.manager.IServiceConversationServerManagerRemote;
+import ch.systemsx.cisd.openbis.common.conversation.manager.IServiceConversationServerManagerRemote;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
 /**

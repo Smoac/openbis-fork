@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.systemsx.cisd.common.conversation.annotation.Conversational;
-import ch.systemsx.cisd.common.conversation.annotation.Progress;
+import ch.systemsx.cisd.openbis.common.conversation.annotation.Conversational;
+import ch.systemsx.cisd.openbis.common.conversation.annotation.Progress;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;

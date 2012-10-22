@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 import java.util.Collection;
 import java.util.List;
 
-import ch.systemsx.cisd.common.conversation.context.ServiceConversationsThreadContext;
-import ch.systemsx.cisd.common.conversation.progress.IServiceConversationProgressListener;
+import ch.systemsx.cisd.openbis.common.conversation.context.ServiceConversationsThreadContext;
+import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.common.exception.Status;
 import ch.systemsx.cisd.common.exception.StatusFlag;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;

@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.conversation;
 
-import ch.systemsx.cisd.common.conversation.manager.IServiceConversationClientManagerRemote;
-import ch.systemsx.cisd.common.conversation.manager.IServiceConversationServerManagerRemote;
+import ch.systemsx.cisd.openbis.common.conversation.manager.IServiceConversationClientManagerRemote;
+import ch.systemsx.cisd.openbis.common.conversation.manager.IServiceConversationServerManagerRemote;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 
 /**

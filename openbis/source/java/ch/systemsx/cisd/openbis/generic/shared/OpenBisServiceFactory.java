@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
-import ch.systemsx.cisd.common.api.client.IServicePinger;
-import ch.systemsx.cisd.common.api.client.ServiceFinder;
+import ch.systemsx.cisd.openbis.common.api.client.IServicePinger;
+import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 
 /**
  * A factory for creating proxies to the openBIS application server.

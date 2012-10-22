@@ -22,8 +22,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
-import ch.systemsx.cisd.common.api.server.AbstractApiServiceExporter;
-import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
+import ch.systemsx.cisd.openbis.common.api.server.AbstractApiServiceExporter;
+import ch.systemsx.cisd.openbis.common.api.server.RpcServiceNameServer;
 
 /**
  * A servlet that exports the name server via the HttpInvoker interface.

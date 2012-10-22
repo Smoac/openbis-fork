@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;

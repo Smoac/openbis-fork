@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.hibernate.SessionFactory;
 
-import ch.systemsx.cisd.common.spring.SpringEoDSQLExceptionTranslator;
+import ch.systemsx.cisd.openbis.common.spring.SpringEoDSQLExceptionTranslator;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;

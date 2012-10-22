@@ -22,8 +22,8 @@ import java.util.Map;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import ch.systemsx.cisd.common.conversation.client.ServiceConversationClientDetails;
-import ch.systemsx.cisd.common.conversation.manager.BaseServiceConversationServerManager;
+import ch.systemsx.cisd.openbis.common.conversation.client.ServiceConversationClientDetails;
+import ch.systemsx.cisd.openbis.common.conversation.manager.BaseServiceConversationServerManager;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationServerManagerLocal;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationDataStoreClientId;

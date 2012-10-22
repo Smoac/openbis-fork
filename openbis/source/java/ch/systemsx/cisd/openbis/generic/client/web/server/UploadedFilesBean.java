@@ -26,8 +26,8 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
-import ch.systemsx.cisd.common.spring.MultipartFileAdapter;
+import ch.systemsx.cisd.openbis.common.spring.IUncheckedMultipartFile;
+import ch.systemsx.cisd.openbis.common.spring.MultipartFileAdapter;
 
 /**
  * A bean that contains the uploaded files.

@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared;
 import java.util.List;
 import java.util.Map;
 
-import ch.systemsx.cisd.common.conversation.annotation.Conversational;
-import ch.systemsx.cisd.common.conversation.annotation.Progress;
+import ch.systemsx.cisd.openbis.common.conversation.annotation.Conversational;
+import ch.systemsx.cisd.openbis.common.conversation.annotation.Progress;
 import ch.systemsx.cisd.common.exception.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;

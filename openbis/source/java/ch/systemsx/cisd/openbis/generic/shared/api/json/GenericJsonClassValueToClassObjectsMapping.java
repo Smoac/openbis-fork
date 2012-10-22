@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.json;
 
-import ch.systemsx.cisd.common.api.server.json.mapping.JsonStaticClassValueToClassObjectsMapping;
+import ch.systemsx.cisd.openbis.common.api.server.json.mapping.JsonStaticClassValueToClassObjectsMapping;
 
 /**
  * @author pkupczyk
