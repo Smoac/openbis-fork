@@ -31,7 +31,7 @@
 @dynamic summary;
 @dynamic identifier;
 @dynamic permId;
-@dynamic refcon;
+@dynamic refconJson;
 @dynamic category;
 @dynamic imageUrl;
 @dynamic childrenPermIdsJson;
@@ -39,6 +39,24 @@
 @dynamic rootLevel;
 
 @synthesize image;
+
+- (id)refcon
+{
+    [self willAccessValueForKey: @"refcon"];
+    id refcon = [self primitiveValueForKey: @"refcon"];
+    [self didAccessValueForKey: @"refcon"];
+    
+    if (nil == refcon) {
+        NSError *error;
+        id refcon  = [NSJSONSerialization JSONObjectWithData: [self.refconJson dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: &error];
+        if (error) {
+            NSLog(@"Could not deserialize refcon %@", error);
+        }
+        [self setPrimitiveValue: refcon forKey: @"refcon"];
+    }
+    
+    return refcon;
+}
 
 - (NSArray *)properties
 {
@@ -92,7 +110,7 @@
 {
     // These will always be non-nil
     self.permId = rawEntity.permId;
-    self.refcon = rawEntity.refcon;
+    self.refconJson = rawEntity.refcon;
     
     // Need to check if these values were transmitted with the raw entity
     if (rawEntity.category) self.category = rawEntity.category;

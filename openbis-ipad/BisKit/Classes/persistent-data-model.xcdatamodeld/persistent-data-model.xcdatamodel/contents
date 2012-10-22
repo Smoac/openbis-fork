@@ -9,7 +9,8 @@
         <attribute name="permId" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="properties" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="propertiesJson" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="refcon" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="refcon" optional="YES" transient="YES" syncable="YES"/>
+        <attribute name="refconJson" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="rootLevel" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="summary" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="summaryHeader" optional="YES" attributeType="String" syncable="YES"/>
@@ -17,6 +18,6 @@
     <fetchRequest name="EntitiesByPermIds" entity="CISDOBIpadEntity" predicateString="permId IN $PERM_IDS" fetchBatchSize="20"/>
     <fetchRequest name="EntityAndChildren" entity="CISDOBIpadEntity" predicateString="SELF == $ENTITY OR permId IN $CHILDREN" fetchBatchSize="20"/>
     <elements>
-        <element name="CISDOBIpadEntity" positionX="0" positionY="0" width="128" height="225"/>
+        <element name="CISDOBIpadEntity" positionX="0" positionY="0" width="128" height="240"/>
     </elements>
 </model>

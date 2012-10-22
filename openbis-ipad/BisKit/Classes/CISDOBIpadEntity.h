@@ -39,7 +39,8 @@
 
 // Non-nil properties
 @property (nonatomic, retain) NSString * permId;
-@property (nonatomic, retain) NSString * refcon;
+@property (nonatomic, retain) NSString * refconJson;
+@property (readonly) id refcon;
 
 // Potentially nil properties
 @property (nonatomic, retain) NSString * summaryHeader;
