@@ -5,26 +5,53 @@ from com.fasterxml.jackson.databind import ObjectMapper
 class RequestHandler:
 	"""Abstract superclass for the handlers for concrete requests like ROOT.
 
-	This superclass defines behavior common to all requests."""
+	This superclass defines behavior common to all requests.
 
-	def __init__(parameters, builder):
+	Subclasses need to implement the method optional_headers(), which returns
+	a list of the optional headers they fill out.
+
+	Subclasses should implement retrieve_data to get the data they provide.
+
+	Subclasses should implement add_data_rows. In this method, they should call add_row.
+	The method add_row takes a dictionary as an argument. The keys of the dictionary match the
+	headers in the result columns. The dictionary should include data for the required columns
+	and optional ones they fill.
+
+	"""
+
+	def __init__(self, parameters, builder):
 		self.parameters = parameters
 		self.builder = builder
 		global searchService
 		self.searchService = searchService
+		self.headers = ['PERM_ID', 'REFCON'] + self.optional_headers()
 
-	def retrieve_data():
+
+	def optional_headers(self):
+		"""Return a list of optional headers supported by this request. Sublass responsibility.
+
+		See add_headers() for the list of supported headers
+		"""
+		return []
+
+	def retrieve_data(self):
 		"""Get the data for the request. Subclass responsibility"""
 		pass
 
-	def add_headers():
+	def add_data_rows(self):
+		"""Take the information from the data and put it into the table.
+		Subclass responsibility.
+		"""
+		pass
+
+	def add_headers(self):
 		"""Configure the headers for this request.
 
 		The possible headers come from the following list:
-			PERM_ID : A stable identifier for the object.
+			PERM_ID : A stable identifier for the object. (required)
 			REFCON : Data that is passed unchanged back to the server when a row is modified.
 				This can be used by the server to encode whatever it needs in order to
-				modify the row.
+				modify the row. (required)
 			CATEGORY : A category identifier for showing the entity. If empty or None, then the
 				the entity in this row is not shown in top level navigation views. Such entities
 				may appear as children of other entities.
@@ -38,50 +65,51 @@ class RequestHandler:
 
 		The relevant headers are determined by the request.
 		"""
-		pass
+		for header in self.headers:
+			self.builder.addHeader(header)
 
-	def add_data_rows():
-		"""Take the information from the data and put it into the table.
-		Subclass responsibility.
-		"""
-		pass
+	def add_row(self, entry):
+		"""Append a row of data to the table"""
+		row = self.builder.addRow()
+		for header in self.headers:
+			row.setCell(header, entry.get(header))
 
-	def process_request():
+	def add_rows(self, entities):
+		"""Take a collection of dictionaries and add a row for each one"""
+		for entry in entities:
+			self.add_row(entry)
+
+	def process_request(self):
 		"""Execute the steps necessary to process the request."""
 		self.add_headers()
 		self.retrieve_data()
 		self.add_data_rows()
 
+class AllDataRequestHandler(RequestHandler):
+	"""Handler for the ALLDATA request."""
 
-def add_headers(builder):
-	builder.addHeader("PERM_ID")
-	builder.addHeader("REFCON")
-	builder.addHeader("CATEGORY")
-	builder.addHeader("SUMMARY_HEADER")
-	builder.addHeader("SUMMARY")
-	builder.addHeader("CHILDREN")
-	builder.addHeader("IDENTIFIER")
-	builder.addHeader("IMAGE_URL")
-	builder.addHeader("PROPERTIES")
+	def __init__(self, parameters, builder):
+		RequestHandler.__init__(self, parameters, builder)
+
+	def retrieve_data(self):
+		# Get the data and add a row for each data item
+		self.samples = self.searchService.searchForSamples("DESC", "*", "5HT_PROBE")
+		material_identifiers = gather_materials(self.samples)
+		materials = self.searchService.listMaterials(material_identifiers)
+		self.material_dict_array = materials_to_dict(materials)
+		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
+
+	def optional_headers(self):
+		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "CHILDREN", "IDENTIFIER", "IMAGE_URL", "PROPERTIES"]
+
+	def add_data_rows(self):
+		self.add_rows(self.material_dict_array)
+		self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id))
 
 def image_url_for_compound(material):
 	"""Given a material (compound) return the image url"""
 	chemblId =  material.getCode()
 	return 'https://www.ebi.ac.uk/chemblws/compounds/%s/image' % chemblId
-
-
-def add_row(builder, entry):
-	"""Append a row of data to the table"""
-	row = builder.addRow()
-	row.setCell("SUMMARY_HEADER", entry.get("SUMMARY_HEADER"))
-	row.setCell("SUMMARY", entry.get("SUMMARY"))
-	row.setCell("IDENTIFIER", entry.get("IDENTIFIER"))
-	row.setCell("PERM_ID", entry.get("PERM_ID"))
-	row.setCell("REFCON", entry.get("REFCON"))
-	row.setCell("CATEGORY", entry.get("CATEGORY"))
-	row.setCell("IMAGE_URL", entry.get("IMAGE_URL"))
-	row.setCell("CHILDREN", entry.get("CHILDREN"))
-	row.setCell("PROPERTIES", str(entry.get("PROPERTIES")))
 
 def material_to_dict(material):
 	material_dict = {}
@@ -130,10 +158,6 @@ def sample_to_dict(five_ht_sample, material_by_perm_id):
 	# Need to handle the material links as entity links: "TARGET", "COMPOUND"
 	return sample_dict
 
-def add_rows(builder, entities):
-	"""Take a collection of dictionaries and add a row for each one"""
-	for entry in entities:
-		add_row(builder, entry)
 
 def add_material_to_collection(code, collection):
 	material_id = MaterialIdentifier.tryParseIdentifier(code)
@@ -154,15 +178,7 @@ def samples_to_dict(samples, material_by_perm_id):
 	result = [sample_to_dict(sample, material_by_perm_id) for sample in samples]
 	return result
 
+
 def aggregate(parameters, builder):
-	add_headers(builder)
-
-	# Get the data and add a row for each data item
-	samples = searchService.searchForSamples("DESC", "*", "5HT_PROBE")
-	material_identifiers = gather_materials(samples)
-	materials = searchService.listMaterials(material_identifiers)
-	material_dict_array = materials_to_dict(materials)
-	material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
-	add_rows(builder, material_dict_array)
-	add_rows(builder, samples_to_dict(samples, material_by_perm_id))
-
+	handler = AllDataRequestHandler(parameters, builder)
+	handler.process_request()
