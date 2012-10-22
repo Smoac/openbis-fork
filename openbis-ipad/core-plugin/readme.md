@@ -1,10 +1,42 @@
-Introduction
-============
+The openBIS iPad App
+====================
+
+The openBIS iPad app is an native iOS application designed for displaying information from an openBIS instance. The app uses a navigation and interaction model that is natural to the iPad to support browsing openBIS data on and offline.
+
+The UI
+------
+
+The UI of the iPad app is broken into two sections, the navigation section and the details section. (Will add screenshots from app to aid illustration). The navigation section is for browsing and navigating information in an openBIS instance. It shows summary information about entities to provide an overview. The details section is for looking at one single item and shows all information about that item.
+
+Implementing an iPad UI for an Instance
+---------------------------------------
+
+The iPad app is generic -- it is designed to talk to any openBIS instance. The instance provides services that map from openBIS to the iPad to support the app. To provide an iPad UI for an openBIS instance, one needs to decide on a navigation model and an decide what information from openBIS should be shown where. This is the core design task. Once that has been done, implementation is the relatively straightforward task of providing the information necessary to support that model.
+
+The sections on the the ipad-ui core plugin module and the ipad-read-service-v1 provide the detailed information necessary to customize the iPad UI to the data in an openBIS instance. The following sections discuss the decisions in the design process.
+
+Mapping from openBIS to the iPad
+--------------------------------
+
+The iPad data model is more generic than the openBIS data model. Whereas openBIS tracks domain-specific information such as experiments, samples, etc., the iPad app only stores information necessary to support navigation and display. It does not know about the meaning of information within a domain context -- it only knows about how to navigate from some information to another. Because of this, the iPad app supports flexibly mapping information from openBIS to the iPad to support just about any kind of navigation. 
+
+Both openBIS and the iPad app refer to groupings of information as entities. To disambiguate, we will refer to "openBIS entities" and "iPad entities" to make clear which we mean, because one openBIS entity may map to several iPad entities and vice-versa.
+
+Structuring data in iPad entities comes down to determining how the user will navigate the information. In many cases, a one-to-one mapping from openBIS entities to iPad entities is an appropriate solution. There are, however some situations in which a more complex mapping is warranted. Sometimes it makes sense to show information from several openBIS entities in one place in the iPad. One example of this is a situation where the user wants to see the metadata for a sample in the context of the data set associated with the sample. This case can be easily implemented in the iPad app.
+
+On the other hand, there are situations where one openBIS entity might best map to several iPad entities to support the desired navigation structure. For example, one openBIS data set may contain three images. By mapping the openBIS data set to three iPad entities, it is possible to show each image on its own page.
+
+Once a navigational scheme has been decided up, the sections below explain the steps necessary to support it.
+
+
+The ipad-ui core plugin module
+==============================
 
 The ipad-ui core plugin module defines the services used by the openBIS iPad app. The iPad app is currently read-only, so there is only one service used by the iPad app, the ipad-read-service-v1. In the future, the iPad app may gain the ability to modify entities, requiring the creation of an additional service.
 
 The ipad-read-service-v1 Service
 ================================
+
 
 Summary
 -------
@@ -91,7 +123,7 @@ The `REFCON` field is a field that is not touched by the iPad app at all. The se
 Communication
 -------------
 
-The communication model between the iPad and the service has been designed to transmit only the necessary information on demand, when needed. The iPad specifies what kind of data it needs in the parameter key `request`. The response, as with all aggregation services, is in the form of a table model. The service then returns only the information requested back to the iPad. The `PERM_ID` and `REFCON` are always returned, as they are used by the communication model to match responses to iPad entities and iPad entities to openBIS entities.
+The communication model between the iPad and the service has been designed to transmit only the necessary information on demand, when needed. The iPad specifies what kind of data it needs in the parameter key `request`. The response, as with all aggregation services, is in the form of a table model. The headers in the table model correspond to columns in the data model described above. The service then returns only the information requested back to the iPad. The `PERM_ID` and `REFCON` are always returned, as they are used by the communication model to match responses to iPad entities and iPad entities to openBIS entities.
 
 ### Requests
 
@@ -132,15 +164,14 @@ The communication model between the iPad and the service has been designed to tr
 </table>
 
 
-### Headers
-
-A table listing the different headers and which requests they are used in.
 
 
 Communication Model
 -------------------
 
-On startup, the iPad app requests 
+On startup, the iPad app requests the data it needs to initialize the UI by specifying `{ requestKey : ROOT}` as the request parameters.
+
+
 
 ### Communication diagram
 
