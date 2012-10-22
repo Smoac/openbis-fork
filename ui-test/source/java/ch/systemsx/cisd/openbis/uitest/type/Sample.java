@@ -22,106 +22,39 @@ import java.util.Map;
 /**
  * @author anttil
  */
-public class Sample implements EntityType
+public abstract class Sample implements Entity
 {
-    private SampleType type;
+    public abstract String getCode();
 
-    private final String code;
+    public abstract SampleType getType();
 
-    private Experiment experiment;
+    public abstract Experiment getExperiment();
 
-    private Space space;
+    public abstract Space getSpace();
 
-    private Collection<Sample> parents;
+    public abstract Collection<Sample> getParents();
 
-    private Map<PropertyType, Object> properties;
-
-    Sample(SampleType type, String code, Experiment experiment, Space space,
-            Collection<Sample> parents, Map<PropertyType, Object> properties)
-    {
-        this.type = type;
-        this.code = code;
-        this.experiment = experiment;
-        this.space = space;
-        this.parents = parents;
-        this.properties = properties;
-    }
+    public abstract Map<PropertyType, Object> getProperties();
 
     @Override
-    public String getCode()
-    {
-        return code;
-    }
-
-    public SampleType getType()
-    {
-        return type;
-    }
-
-    public Experiment getExperiment()
-    {
-        return experiment;
-    }
-
-    public Space getSpace()
-    {
-        return space;
-    }
-
-    public Collection<Sample> getParents()
-    {
-        return parents;
-    }
-
-    public Map<PropertyType, Object> getProperties()
-    {
-        return properties;
-    }
-
-    void setType(SampleType type)
-    {
-        this.type = type;
-    }
-
-    void setExperiment(Experiment experiment)
-    {
-        this.experiment = experiment;
-    }
-
-    void setSpace(Space space)
-    {
-        this.space = space;
-    }
-
-    void setParents(Collection<Sample> parents)
-    {
-        this.parents = parents;
-    }
-
-    void setProperties(Map<PropertyType, Object> properties)
-    {
-        this.properties = properties;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return code.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o)
+    public final boolean equals(Object o)
     {
         if (o instanceof Sample)
         {
-            return ((Sample) o).getCode().equals(code);
+            return ((Sample) o).getCode().equalsIgnoreCase(getCode());
         }
         return false;
     }
 
     @Override
+    public final int hashCode()
+    {
+        return getCode().toUpperCase().hashCode();
+    }
+
+    @Override
     public String toString()
     {
-        return "Sample " + this.code;
+        return this.getClass().getSimpleName() + " " + this.getCode();
     }
 }

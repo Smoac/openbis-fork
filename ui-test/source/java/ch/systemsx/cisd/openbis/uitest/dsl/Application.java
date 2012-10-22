@@ -19,9 +19,13 @@ package ch.systemsx.cisd.openbis.uitest.dsl;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.uitest.request.Request;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
@@ -43,20 +47,46 @@ public class Application
 
     private String session;
 
-    public Application(Pages pages, ICommonServer commonServer, IETLLIMSService etlService,
-            IDssServiceRpcGeneric dss)
+    private IGenericServer genericServer;
+
+    private IGeneralInformationService generalInformationService;
+
+    private IGeneralInformationChangingService generalInformationChangingService;
+
+    public Application(String asUrl, String dssUrl, Pages pages)
     {
         map = new HashMap<String, Object>();
 
         this.pages = pages;
-        this.commonServer = commonServer;
-        this.etlService = etlService;
-        this.dss = dss;
+        this.commonServer =
+                HttpInvokerUtils.createServiceStub(ICommonServer.class,
+                        asUrl + "/openbis/rmi-common", 60000);
+
+        this.genericServer =
+                HttpInvokerUtils.createServiceStub(IGenericServer.class,
+                        asUrl + "/openbis/rmi-plugin-generic", 60000);
+
+        this.generalInformationService =
+                HttpInvokerUtils.createServiceStub(IGeneralInformationService.class,
+                        asUrl + "/openbis/rmi-general-information-v1", 60000);
+
+        this.generalInformationChangingService =
+                HttpInvokerUtils.createServiceStub(IGeneralInformationChangingService.class,
+                        asUrl + "/openbis/rmi-general-information-changing-v1", 60000);
+
+        this.etlService =
+                HttpInvokerUtils.createServiceStub(IETLLIMSService.class,
+                        asUrl + "/openbis/rmi-etl", 60000);
+
+        this.dss =
+                HttpInvokerUtils.createStreamSupportingServiceStub(IDssServiceRpcGeneric.class,
+                        dssUrl + "/datastore_server/rmi-dss-api-v1", 60000);
 
         this.session =
                 commonServer
                         .tryToAuthenticate(SeleniumTest.ADMIN_USER, SeleniumTest.ADMIN_PASSWORD)
                         .getSessionToken();
+
     }
 
     public Application()
@@ -70,7 +100,7 @@ public class Application
         map.put(clazz.getName(), execution);
     }
 
-    public <T extends Request<U>, U> U execute(T function)
+    public <T extends Request<U>, U> U execute(T request)
     {
 
         // There is no way to express this in type of field 'map'.
@@ -78,13 +108,16 @@ public class Application
         // this requirement, we can safely do the unchecked cast.
         @SuppressWarnings("unchecked")
         Executor<T, U> execution =
-                (Executor<T, U>) map.get(function.getClass().getName());
+                (Executor<T, U>) map.get(request.getClass().getName());
         execution.setApplicationRunner(this);
         execution.setPages(pages);
         execution.setCommonServer(commonServer);
         execution.setDss(dss);
         execution.setEtlService(etlService);
         execution.setSession(session);
-        return execution.run(function);
+        execution.setGenericServer(genericServer);
+        execution.setGeneralInformationService(generalInformationService);
+        execution.setGeneralInformationChangingService(generalInformationChangingService);
+        return execution.run(request);
     }
 }

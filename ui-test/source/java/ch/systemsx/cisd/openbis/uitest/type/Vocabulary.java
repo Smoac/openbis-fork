@@ -21,79 +21,37 @@ import java.util.Set;
 /**
  * @author anttil
  */
-public class Vocabulary
+public abstract class Vocabulary
 {
-    private final String code;
 
-    private String description;
+    public abstract String getCode();
 
-    private Set<String> terms;
+    public abstract String getDescription();
 
-    private String url;
+    public abstract Set<String> getTerms();
 
-    Vocabulary(String code, String description, Set<String> terms, String url)
+    public abstract String getUrl();
+
+    @Override
+    public final boolean equals(Object o)
     {
-        this.code = code;
-        this.description = description;
-        this.terms = terms;
-        this.url = url;
+        if (o instanceof Vocabulary)
+        {
+            return ((Vocabulary) o).getCode().equalsIgnoreCase(getCode());
+        }
+        return false;
     }
 
-    public String getCode()
+    @Override
+    public final int hashCode()
     {
-        return code;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public Set<String> getTerms()
-    {
-        return terms;
-    }
-
-    public String getUrl()
-    {
-        return url;
-    }
-
-    void setDescription(String description)
-    {
-        this.description = description;
-    }
-
-    void setTerms(Set<String> terms)
-    {
-        this.terms = terms;
-    }
-
-    void setUrl(String url)
-    {
-        this.url = url;
+        return getCode().toUpperCase().hashCode();
     }
 
     @Override
     public String toString()
     {
-        return "Vocabulary " + this.code + ": " + this.terms;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return code.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (o instanceof Vocabulary)
-        {
-            return ((Vocabulary) o).getCode().equals(code);
-        }
-        return false;
+        return this.getClass().getSimpleName() + " " + this.getCode();
     }
 
 }

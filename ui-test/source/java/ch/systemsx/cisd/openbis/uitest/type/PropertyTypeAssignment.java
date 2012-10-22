@@ -16,75 +16,46 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-
 /**
  * @author anttil
  */
-public class PropertyTypeAssignment
+public abstract class PropertyTypeAssignment
 {
 
-    private PropertyType propertyType;
+    public abstract PropertyType getPropertyType();
 
-    private EntityType entityType;
+    public abstract EntityType getEntityType();
 
-    private boolean mandatory;
+    public abstract boolean isMandatory();
 
-    private String initialValue;
-
-    public PropertyTypeAssignment(PropertyType propertyType, EntityType entityType,
-            boolean mandatory, String initialValue)
-    {
-        this.entityType = entityType;
-        this.propertyType = propertyType;
-        this.mandatory = mandatory;
-        this.initialValue = initialValue;
-    }
-
-    public PropertyType getPropertyType()
-    {
-        return propertyType;
-    }
-
-    public EntityType getEntityType()
-    {
-        return entityType;
-    }
-
-    public boolean isMandatory()
-    {
-        return mandatory;
-    }
-
-    public String getInitialValue()
-    {
-        return initialValue;
-    }
+    public abstract String getInitialValue();
 
     @Override
-    public int hashCode()
-    {
-        int result = 17;
-        result = 31 * result + propertyType.getCode().hashCode();
-        result = 31 * result + entityType.getCode().hashCode();
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object o)
+    public final boolean equals(Object o)
     {
         if (o instanceof PropertyTypeAssignment)
         {
             PropertyTypeAssignment assignment = (PropertyTypeAssignment) o;
-            return assignment.getPropertyType().getCode().equals(propertyType.getCode()) &&
-                    assignment.getEntityType().getCode().equals(entityType.getCode());
+            return assignment.getPropertyType().getCode().equalsIgnoreCase(
+                    getPropertyType().getCode())
+                    &&
+                    assignment.getEntityType().getCode()
+                            .equalsIgnoreCase(getEntityType().getCode());
         }
         return false;
     }
 
     @Override
-    public String toString()
+    public final int hashCode()
     {
-        return "PropertyTypeAssignment [" + this.propertyType + ", " + this.entityType + "]";
+        return (getPropertyType().getCode().toUpperCase() + "/" + getEntityType().getCode()
+                .toUpperCase()).hashCode();
     }
 
+    @Override
+    public String toString()
+    {
+        return this.getClass().getSimpleName() + " between " + getPropertyType() + " and "
+                + getEntityType();
+    }
 }

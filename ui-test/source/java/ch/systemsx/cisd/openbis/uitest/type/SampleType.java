@@ -21,161 +21,49 @@ import java.util.Collection;
 /**
  * @author anttil
  */
-public class SampleType implements EntityType
+public abstract class SampleType implements EntityType
 {
+    @Override
+    public abstract String getCode();
 
-    private final String code;
+    public abstract String getDescription();
 
-    private String description;
+    public abstract boolean isListable();
 
-    private boolean listable;
+    public abstract boolean isShowContainer();
 
-    private boolean showContainer;
+    public abstract boolean isShowParents();
 
-    private boolean showParents;
+    public abstract boolean isUniqueSubcodes();
 
-    private boolean uniqueSubcodes;
+    public abstract boolean isGenerateCodes();
 
-    private boolean generateCodes;
+    public abstract boolean isShowParentMetadata();
 
-    private boolean showParentMetadata;
+    public abstract String getGeneratedCodePrefix();
 
-    private String generatedCodePrefix;
+    public abstract Collection<PropertyTypeAssignment> getPropertyTypeAssignments();
 
-    private Collection<PropertyTypeAssignment> propertyTypeAssignments;
-
-    SampleType(String code, String description, boolean listable, boolean showContainer,
-            boolean showParents, boolean uniqueSubcodes, boolean generateCodes,
-            boolean showParentMetadata, String generatedCodePrefix,
-            Collection<PropertyTypeAssignment> propertyTypeAssignments)
+    @Override
+    public final boolean equals(Object o)
     {
-        this.code = code;
-        this.description = description;
-        this.listable = listable;
-        this.showContainer = showContainer;
-        this.showParents = showParents;
-        this.uniqueSubcodes = uniqueSubcodes;
-        this.generateCodes = generateCodes;
-        this.showParentMetadata = showParentMetadata;
-        this.generatedCodePrefix = generatedCodePrefix;
-        this.propertyTypeAssignments = propertyTypeAssignments;
+        if (o instanceof SampleType)
+        {
+            return ((SampleType) o).getCode().equalsIgnoreCase(getCode());
+        }
+        return false;
+    }
+
+    @Override
+    public final int hashCode()
+    {
+        return getCode().toUpperCase().hashCode();
     }
 
     @Override
     public String toString()
     {
-        return "SampleType " + this.code;
+        return getClass().getSimpleName() + " " + this.getCode();
     }
 
-    @Override
-    public String getCode()
-    {
-        return code;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public boolean isListable()
-    {
-        return listable;
-    }
-
-    public boolean isShowContainer()
-    {
-        return showContainer;
-    }
-
-    public boolean isShowParents()
-    {
-        return showParents;
-    }
-
-    public boolean isUniqueSubcodes()
-    {
-        return uniqueSubcodes;
-    }
-
-    public boolean isGenerateCodes()
-    {
-        return generateCodes;
-    }
-
-    public boolean isShowParentMetadata()
-    {
-        return showParentMetadata;
-    }
-
-    public String getGeneratedCodePrefix()
-    {
-        return generatedCodePrefix;
-    }
-
-    public Collection<PropertyTypeAssignment> getPropertyTypeAssignments()
-    {
-        return propertyTypeAssignments;
-    }
-
-    void setDescription(String description)
-    {
-        this.description = description;
-    }
-
-    void setListable(boolean listable)
-    {
-        this.listable = listable;
-    }
-
-    void setShowContainer(boolean showContainer)
-    {
-        this.showContainer = showContainer;
-    }
-
-    void setShowParents(boolean showParents)
-    {
-        this.showParents = showParents;
-    }
-
-    void setUniqueSubcodes(boolean uniqueSubcodes)
-    {
-        this.uniqueSubcodes = uniqueSubcodes;
-    }
-
-    void setGenerateCodes(boolean generateCodes)
-    {
-        this.generateCodes = generateCodes;
-    }
-
-    void setShowParentMetadata(boolean showParentMetadata)
-    {
-        this.showParentMetadata = showParentMetadata;
-    }
-
-    void setGeneratedCodePrefix(String generatedCodePrefix)
-    {
-        this.generatedCodePrefix = generatedCodePrefix;
-    }
-
-    void setPropertyTypeAssignments(Collection<PropertyTypeAssignment> propertyTypeAssignments)
-    {
-        this.propertyTypeAssignments = propertyTypeAssignments;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return code.toUpperCase().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (!(o instanceof SampleType))
-        {
-            return false;
-        }
-        return code.equalsIgnoreCase(((SampleType) o).getCode());
-    }
 }

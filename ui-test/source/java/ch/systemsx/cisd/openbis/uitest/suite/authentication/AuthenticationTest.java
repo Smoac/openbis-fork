@@ -3,6 +3,7 @@ package ch.systemsx.cisd.openbis.uitest.suite.authentication;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
@@ -13,6 +14,12 @@ import ch.systemsx.cisd.openbis.uitest.page.RoleAssignmentBrowser;
 
 public class AuthenticationTest extends SeleniumTest
 {
+
+    @BeforeTest
+    public void fixture()
+    {
+        useGui();
+    }
 
     @Test
     public void loginFailsWithInvalidUserName() throws Exception

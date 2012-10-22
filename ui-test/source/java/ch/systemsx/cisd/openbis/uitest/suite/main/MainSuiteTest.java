@@ -29,6 +29,8 @@ public abstract class MainSuiteTest extends SeleniumTest
     @BeforeTest
     public void before()
     {
+        useGui();
+
         login(ADMIN_USER, ADMIN_PASSWORD);
 
         // this is because of BIS-184

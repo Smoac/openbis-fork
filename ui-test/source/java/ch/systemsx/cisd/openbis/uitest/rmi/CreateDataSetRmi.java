@@ -19,6 +19,9 @@ package ch.systemsx.cisd.openbis.uitest.rmi;
 import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
 import ch.systemsx.cisd.openbis.uitest.request.CreateDataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
+import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
+import ch.systemsx.cisd.openbis.uitest.type.Experiment;
+import ch.systemsx.cisd.openbis.uitest.type.Sample;
 
 /**
  * @author anttil
@@ -26,12 +29,45 @@ import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 public class CreateDataSetRmi extends Executor<CreateDataSet, DataSet>
 {
     @Override
-    public DataSet run(CreateDataSet request)
+    public DataSet run(final CreateDataSet request)
     {
         DataSet dataSet = request.getDataSet();
         DataSetCreator creator = new DataSetCreator("data set content");
-        String code = dss.putDataSet(session, creator.getMetadata(dataSet), creator.getData());
-        dataSet.setCode(code);
-        return dataSet;
+        final String code =
+                dss.putDataSet(session, creator.getMetadata(dataSet), creator.getData());
+
+        return new DataSet()
+            {
+
+                @Override
+                public String getCode()
+                {
+                    return code;
+                }
+
+                @Override
+                public DataSetType getType()
+                {
+                    return request.getDataSet().getType();
+                }
+
+                @Override
+                public Sample getSample()
+                {
+                    return request.getDataSet().getSample();
+                }
+
+                @Override
+                public Experiment getExperiment()
+                {
+                    return request.getDataSet().getExperiment();
+                }
+
+                @Override
+                public String toString()
+                {
+                    return "DataSet " + getCode();
+                }
+            };
     }
 }

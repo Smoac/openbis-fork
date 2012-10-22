@@ -19,94 +19,37 @@ package ch.systemsx.cisd.openbis.uitest.type;
 /**
  * @author anttil
  */
-public class PropertyType
+public abstract class PropertyType
 {
-    private final String code;
+    public abstract String getCode();
 
-    private String label;
+    public abstract String getLabel();
 
-    private String description;
+    public abstract String getDescription();
 
-    private PropertyTypeDataType dataType;
+    public abstract PropertyTypeDataType getDataType();
 
-    private Vocabulary vocabulary;
-
-    PropertyType(String code, String label, String description, PropertyTypeDataType dataType,
-            Vocabulary vocabulary)
-    {
-        this.code = code;
-        this.label = label;
-        this.description = description;
-        this.dataType = dataType;
-        this.vocabulary = vocabulary;
-    }
-
-    public String getCode()
-    {
-        return code;
-    }
-
-    public String getLabel()
-    {
-        return label;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public PropertyTypeDataType getDataType()
-    {
-        return dataType;
-    }
-
-    public Vocabulary getVocabulary()
-    {
-        return vocabulary;
-    }
-
-    void setLabel(String label)
-    {
-        this.label = label;
-    }
-
-    void setDescription(String description)
-    {
-        this.description = description;
-    }
-
-    void setDataType(PropertyTypeDataType dataType)
-    {
-        this.dataType = dataType;
-    }
-
-    void setVocabulary(Vocabulary vocabulary)
-    {
-        this.vocabulary = vocabulary;
-    }
+    public abstract Vocabulary getVocabulary();
 
     @Override
-    public boolean equals(Object o)
+    public final boolean equals(Object o)
     {
-        if (!(o instanceof PropertyType))
+        if (o instanceof PropertyType)
         {
-            return false;
+            return ((PropertyType) o).getCode().equalsIgnoreCase(getCode());
         }
-
-        PropertyType type = (PropertyType) o;
-        return type.getCode().equals(this.code);
+        return false;
     }
 
     @Override
-    public int hashCode()
+    public final int hashCode()
     {
-        return this.getCode().hashCode();
+        return getCode().toUpperCase().hashCode();
     }
 
     @Override
     public String toString()
     {
-        return "PropertyType " + code + " of type " + dataType;
+        return this.getClass().getSimpleName() + " " + this.getCode();
     }
 }

@@ -42,9 +42,15 @@ public class Pages
 {
     private ScreenShotter shotter;
 
-    public <T extends SeleniumTest> Pages(ScreenShotter shotter)
+    public <T extends SeleniumTest> Pages()
     {
-        this.shotter = shotter;
+        this.shotter = new ScreenShotter()
+            {
+                @Override
+                public void screenshot()
+                {
+                }
+            };
     }
 
     @SuppressWarnings("unchecked")

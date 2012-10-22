@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.uitest.gui;
 import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
 import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.menu.UserMenu;
+import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
 import ch.systemsx.cisd.openbis.uitest.request.Logout;
 
 /**
@@ -32,6 +33,7 @@ public class LogoutGui extends Executor<Logout, Void>
     {
         load(TopBar.class).user();
         load(UserMenu.class).logout();
+        load(LoginPage.class);
         return null;
     }
 

@@ -19,6 +19,9 @@ package ch.systemsx.cisd.openbis.uitest.dsl;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.uitest.layout.Location;
 import ch.systemsx.cisd.openbis.uitest.request.Request;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
@@ -33,6 +36,12 @@ public abstract class Executor<T extends Request<U>, U>
     protected ICommonServer commonServer;
 
     protected IETLLIMSService etlService;
+
+    protected IGenericServer genericServer;
+
+    protected IGeneralInformationService generalInformationService;
+
+    protected IGeneralInformationChangingService generalInformationChangingService;
 
     protected IDssServiceRpcGeneric dss;
 
@@ -85,5 +94,20 @@ public abstract class Executor<T extends Request<U>, U>
     public void setApplicationRunner(Application openbis)
     {
         this.openbis = openbis;
+    }
+
+    public void setGenericServer(IGenericServer genericServer)
+    {
+        this.genericServer = genericServer;
+    }
+
+    public void setGeneralInformationService(IGeneralInformationService info)
+    {
+        this.generalInformationService = info;
+    }
+
+    public void setGeneralInformationChangingService(IGeneralInformationChangingService change)
+    {
+        this.generalInformationChangingService = change;
     }
 }

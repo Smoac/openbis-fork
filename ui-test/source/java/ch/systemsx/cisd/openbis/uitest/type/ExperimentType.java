@@ -16,56 +16,34 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
-
 /**
  * @author anttil
  */
-public class ExperimentType
+public abstract class ExperimentType
 {
-    private final String code;
+    public abstract String getCode();
 
-    private String description;
-
-    public ExperimentType(String code, String description)
-    {
-        this.code = code;
-        this.description = description;
-    }
-
-    public String getCode()
-    {
-        return code;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    void setDescription(String description)
-    {
-        this.description = description;
-    }
+    public abstract String getDescription();
 
     @Override
-    public boolean equals(Object o)
+    public final boolean equals(Object o)
     {
         if (o instanceof ExperimentType)
         {
-            return ((ExperimentType) o).getCode().equals(code);
+            return ((ExperimentType) o).getCode().equalsIgnoreCase(getCode());
         }
         return false;
     }
 
     @Override
-    public int hashCode()
+    public final int hashCode()
     {
-        return code.hashCode();
+        return getCode().toUpperCase().hashCode();
     }
 
     @Override
     public String toString()
     {
-        return "ExperimentType " + code;
+        return this.getClass().getSimpleName() + " " + this.getCode();
     }
 }

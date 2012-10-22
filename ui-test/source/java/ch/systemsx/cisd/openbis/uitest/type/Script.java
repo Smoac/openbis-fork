@@ -19,80 +19,20 @@ package ch.systemsx.cisd.openbis.uitest.type;
 /**
  * @author anttil
  */
-public class Script
+public abstract class Script
 {
-    private final String name;
+    public abstract String getName();
 
-    private ScriptType type;
+    public abstract ScriptType getType();
 
-    private EntityKind kind;
+    public abstract EntityKind getKind();
 
-    private String description;
+    public abstract String getDescription();
 
-    private String content;
-
-    Script(String name, ScriptType type, EntityKind kind, String description, String content)
-    {
-        this.name = name;
-        this.type = type;
-        this.kind = kind;
-        this.description = description;
-        this.content = content;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public ScriptType getType()
-    {
-        return type;
-    }
-
-    public EntityKind getKind()
-    {
-        return kind;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public String getContent()
-    {
-        return content;
-    }
-
-    void setType(ScriptType type)
-    {
-        this.type = type;
-    }
-
-    void setKind(EntityKind kind)
-    {
-        this.kind = kind;
-    }
-
-    void setDescription(String description)
-    {
-        this.description = description;
-    }
-
-    void setContent(String content)
-    {
-        this.content = content;
-    }
+    public abstract String getContent();
 
     @Override
-    public int hashCode()
-    {
-        return getName().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o)
+    public final boolean equals(Object o)
     {
         if (o instanceof Script)
         {
@@ -102,8 +42,15 @@ public class Script
     }
 
     @Override
+    public final int hashCode()
+    {
+        return getName().toUpperCase().hashCode();
+    }
+
+    @Override
     public String toString()
     {
-        return "Script" + getName();
+        return this.getClass().getSimpleName() + " " + this.getName();
     }
+
 }

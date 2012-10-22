@@ -19,16 +19,13 @@ package ch.systemsx.cisd.openbis.uitest.dsl;
 import static org.hamcrest.CoreMatchers.not;
 
 import java.awt.Toolkit;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.PrintStream;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -37,8 +34,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.hamcrest.Matcher;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.webapp.WebAppContext;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -47,14 +42,32 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-import ch.systemsx.cisd.openbis.dss.generic.DataStoreServer;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.uitest.dsl.matcher.CellContentMatcher;
+import ch.systemsx.cisd.openbis.uitest.dsl.matcher.CollectionContainsExactlyMatcher;
+import ch.systemsx.cisd.openbis.uitest.dsl.matcher.CollectionContainsMatcher;
+import ch.systemsx.cisd.openbis.uitest.dsl.matcher.CurrentPageMatcher;
+import ch.systemsx.cisd.openbis.uitest.dsl.matcher.RegisterSampleFormContainsInputsForPropertiesMatcher;
+import ch.systemsx.cisd.openbis.uitest.dsl.matcher.RowExistsMatcher;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.Builder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.DataSetBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.DataSetTypeBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.ExperimentBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.ExperimentTypeBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.MetaProjectBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.ProjectBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.PropertyTypeAssignmentBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.PropertyTypeBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.SampleBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.SampleTypeBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.SampleTypeUpdateBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.ScriptBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.SpaceBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.UpdateBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.VocabularyBuilder;
 import ch.systemsx.cisd.openbis.uitest.gui.CreateExperimentGui;
 import ch.systemsx.cisd.openbis.uitest.gui.CreateExperimentTypeGui;
 import ch.systemsx.cisd.openbis.uitest.gui.CreateProjectGui;
@@ -85,10 +98,12 @@ import ch.systemsx.cisd.openbis.uitest.page.Browsable;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserRow;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterSample;
 import ch.systemsx.cisd.openbis.uitest.page.SampleDetails;
+import ch.systemsx.cisd.openbis.uitest.request.AddEntitiesToMetaProject;
 import ch.systemsx.cisd.openbis.uitest.request.CreateDataSet;
 import ch.systemsx.cisd.openbis.uitest.request.CreateDataSetType;
 import ch.systemsx.cisd.openbis.uitest.request.CreateExperiment;
 import ch.systemsx.cisd.openbis.uitest.request.CreateExperimentType;
+import ch.systemsx.cisd.openbis.uitest.request.CreateMetaProject;
 import ch.systemsx.cisd.openbis.uitest.request.CreateProject;
 import ch.systemsx.cisd.openbis.uitest.request.CreatePropertyType;
 import ch.systemsx.cisd.openbis.uitest.request.CreatePropertyTypeAssignment;
@@ -105,42 +120,38 @@ import ch.systemsx.cisd.openbis.uitest.request.DeleteSampleType;
 import ch.systemsx.cisd.openbis.uitest.request.DeleteSpace;
 import ch.systemsx.cisd.openbis.uitest.request.DeleteVocabulary;
 import ch.systemsx.cisd.openbis.uitest.request.EmptyTrash;
+import ch.systemsx.cisd.openbis.uitest.request.ListMetaProjects;
 import ch.systemsx.cisd.openbis.uitest.request.Login;
 import ch.systemsx.cisd.openbis.uitest.request.Logout;
+import ch.systemsx.cisd.openbis.uitest.request.SearchForSamples;
 import ch.systemsx.cisd.openbis.uitest.request.UpdateSampleType;
+import ch.systemsx.cisd.openbis.uitest.rmi.AddEntitiesToMetaProjectRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.CreateDataSetRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.CreateDataSetTypeRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateMetaProjectRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateSampleRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateSampleTypeRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateSpaceRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.ListMetaProjectsRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.SearchForSamplesRmi;
 import ch.systemsx.cisd.openbis.uitest.screenshot.FileScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
-import ch.systemsx.cisd.openbis.uitest.type.Builder;
-import ch.systemsx.cisd.openbis.uitest.type.DataSetBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
-import ch.systemsx.cisd.openbis.uitest.type.DataSetTypeBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.Entity;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
-import ch.systemsx.cisd.openbis.uitest.type.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
-import ch.systemsx.cisd.openbis.uitest.type.ExperimentTypeBuilder;
+import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
-import ch.systemsx.cisd.openbis.uitest.type.ProjectBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
-import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignmentBuilder;
-import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
-import ch.systemsx.cisd.openbis.uitest.type.SampleBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
-import ch.systemsx.cisd.openbis.uitest.type.SampleTypeBuilder;
-import ch.systemsx.cisd.openbis.uitest.type.SampleTypeUpdateBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.Script;
-import ch.systemsx.cisd.openbis.uitest.type.ScriptBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.ScriptType;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
-import ch.systemsx.cisd.openbis.uitest.type.SpaceBuilder;
-import ch.systemsx.cisd.openbis.uitest.type.UpdateBuilder;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
-import ch.systemsx.cisd.openbis.uitest.type.VocabularyBuilder;
 import ch.systemsx.cisd.openbis.uitest.uid.DictionaryUidGenerator;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
@@ -162,106 +173,22 @@ public abstract class SeleniumTest
 
     private static Pages pages;
 
-    private static ICommonServer commonServer;
+    private static String asUrl;
 
-    private static IETLLIMSService etlService;
+    private static String dssUrl;
 
-    private static IDssServiceRpcGeneric dss;
-
-    private String startAs() throws Exception
-    {
-        Runnable r = new Runnable()
-            {
-                @Override
-                public void run()
-                {
-
-                    /*
-                    com.google.gwt.dev.DevMode.main(new String[]
-                        { "-startupUrl", "ch.systemsx.cisd.openbis.OpenBIS/index.html",
-                                "ch.systemsx.cisd.openbis.OpenBIS", "-war",
-                                "../openbis/targets/www", "-logLevel", "INFO" });
-
-                    */
-                    Server server = new Server(10000);
-
-                    WebAppContext context = new WebAppContext();
-                    context.setDescriptor("targets/www/WEB-INF/web.xml");
-                    context.setResourceBase("targets/www");
-                    context.setContextPath("/");
-                    context.setParentLoaderPriority(true);
-
-                    server.setHandler(context);
-                    try
-                    {
-                        server.start();
-                        server.join();
-                    } catch (Exception ex)
-                    {
-                        // TODO Auto-generated catch block
-                        ex.printStackTrace();
-                    }
-                }
-            };
-
-        PrintStream originalOut = System.out;
-
-        PipedOutputStream outpipe = new PipedOutputStream();
-        PipedInputStream inpipe = new PipedInputStream(outpipe);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inpipe));
-        PrintStream newOut = new PrintStream(outpipe);
-        System.setOut(newOut);
-
-        Thread t = new Thread(r);
-        t.setDaemon(true);
-        t.start();
-
-        String line;
-        while ((line = reader.readLine()) != null)
-        {
-            if (line.contains("SERVER STARTED"))
-            {
-                originalOut.println("SERVER START DETECTED");
-                break;
-            }
-        }
-        outpipe.close();
-        inpipe.close();
-        reader.close();
-        newOut.close();
-
-        System.setOut(originalOut);
-
-        return "http://localhost:10000";
-    }
-
-    private String startDss() throws Exception
-    {
-        System.out.println("STARTING DSS");
-
-        DataStoreServer.main(new String[0]);
-
-        System.out.println("DSS STARTED");
-
-        return "http://localhost:10001";
-    }
+    private static String startPage;
 
     @BeforeSuite
-    public void initWebDriver() throws Exception
+    public void initialization() throws Exception
     {
+        deleteOldScreenShots();
+        initializeLogging();
+        uid = new DictionaryUidGenerator(new File("resource/corncob_lowercase.txt"));
 
-        Logger rootLogger = Logger.getRootLogger();
-        if (rootLogger.getAllAppenders().hasMoreElements())
-        {
-            throw new IllegalStateException("log4j has appenders!");
-        }
-        rootLogger.setLevel(Level.INFO);
-        rootLogger.addAppender(new ConsoleAppender(
-                new PatternLayout("%-5p [%t]: %m%n")));
-
-        String asUrl = System.getProperty("ui-test.as-url");
-        String dssUrl = System.getProperty("ui-test.dss-url");
-        String startPage = asUrl;
+        asUrl = System.getProperty("ui-test.as-url");
+        dssUrl = System.getProperty("ui-test.dss-url");
+        startPage = System.getProperty("ui-test.start-page");
 
         /* Run against sprint server */
         /*
@@ -282,58 +209,64 @@ public abstract class SeleniumTest
 
         if (asUrl == null || asUrl.length() == 0)
         {
-            asUrl = startAs();
+            asUrl = StartApplicationServer.go();
             startPage = asUrl;
         }
 
         if (dssUrl == null || dssUrl.length() == 0)
         {
-            dssUrl = startDss();
+            dssUrl = StartDataStoreServer.go();
         }
 
         System.out.println("asUrl: " + asUrl);
         System.out.println("dssUrl: " + dssUrl);
         System.out.println("startPage: " + startPage);
 
-        driver = new FirefoxDriver();
-        setImplicitWaitToDefault();
-        delete(new File("targets/dist"));
-        driver.manage().deleteAllCookies();
+        pages = new Pages();
+    }
 
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Dimension screenResolution =
-                new Dimension((int) toolkit.getScreenSize().getWidth(), (int) toolkit
-                        .getScreenSize().getHeight());
-        driver.manage().window().setSize(screenResolution);
+    private void startWebDriver()
+    {
+        if (driver == null)
+        {
+            driver = new FirefoxDriver();
+            setImplicitWaitToDefault();
+            driver.manage().deleteAllCookies();
 
+            Toolkit toolkit = Toolkit.getDefaultToolkit();
+            Dimension screenResolution =
+                    new Dimension((int) toolkit.getScreenSize().getWidth(), (int) toolkit
+                            .getScreenSize().getHeight());
+            driver.manage().window().setSize(screenResolution);
+        }
         driver.get(startPage);
+    }
 
-        commonServer =
-                HttpInvokerUtils.createServiceStub(ICommonServer.class,
-                        asUrl + "/openbis/rmi-common", 60000);
-        etlService =
-                HttpInvokerUtils.createServiceStub(IETLLIMSService.class,
-                        asUrl + "/openbis/rmi-etl", 60000);
+    private void deleteOldScreenShots()
+    {
+        delete(new File("targets/dist"));
 
-        dss =
-                HttpInvokerUtils.createStreamSupportingServiceStub(IDssServiceRpcGeneric.class,
-                        dssUrl + "/datastore_server/rmi-dss-api-v1", 60000);
+    }
 
-        uid = new DictionaryUidGenerator(new File("resource/corncob_lowercase.txt"));
-        pages = new Pages(new ScreenShotter()
-            {
-                @Override
-                public void screenshot()
-                {
-                }
-            });
-        openbis = gui();
+    private void initializeLogging()
+    {
+        Logger rootLogger = Logger.getRootLogger();
+        if (rootLogger.getAllAppenders().hasMoreElements())
+        {
+            throw new IllegalStateException("log4j has appenders!");
+        }
+        rootLogger.setLevel(Level.INFO);
+        rootLogger.addAppender(new ConsoleAppender(
+                new PatternLayout("%-5p [%t]: %m%n")));
     }
 
     @AfterSuite
     public void closeBrowser() throws Exception
     {
-        driver.quit();
+        if (driver != null)
+        {
+            driver.quit();
+        }
     }
 
     @BeforeMethod(alwaysRun = true)
@@ -341,9 +274,24 @@ public abstract class SeleniumTest
     {
         System.out.println("--- " + method.getDeclaringClass().getSimpleName() + "."
                 + method.getName() + "() STARTS ---");
-        ScreenShotter shotter =
-                new FileScreenShotter((TakesScreenshot) driver, "targets/dist/"
-                        + this.getClass().getSimpleName() + "/" + method.getName());
+
+        ScreenShotter shotter;
+        if (driver != null)
+        {
+            shotter =
+                    new FileScreenShotter((TakesScreenshot) driver, "targets/dist/"
+                            + this.getClass().getSimpleName() + "/" + method.getName());
+        } else
+        {
+            shotter = new ScreenShotter()
+                {
+                    @Override
+                    public void screenshot()
+                    {
+                    }
+                };
+        }
+
         pages.setScreenShotter(shotter);
     }
 
@@ -353,6 +301,12 @@ public abstract class SeleniumTest
         pages.screenshot();
         System.out.println("--- " + method.getDeclaringClass().getSimpleName() + "."
                 + method.getName() + "() ENDS ---");
+    }
+
+    @AfterTest
+    public void takeScreenShot()
+    {
+        pages.screenshot();
     }
 
     private void delete(File f)
@@ -430,6 +384,11 @@ public abstract class SeleniumTest
             types.add(assume(aSampleType().withCode(code)));
         }
         return types;
+    }
+
+    protected List<MetaProject> listOfAllMetaProjects()
+    {
+        return openbis.execute(new ListMetaProjects());
     }
 
     protected Pages browser()
@@ -549,9 +508,29 @@ public abstract class SeleniumTest
         return new CollectionContainsMatcher<T>(t);
     }
 
+    protected <T> Matcher<Collection<T>> contains(T t)
+    {
+        return new CollectionContainsMatcher<T>(t);
+    }
+
     protected <T> Matcher<Collection<T>> doNotContain(T t)
     {
         return not(new CollectionContainsMatcher<T>(t));
+    }
+
+    protected <T> Matcher<Collection<T>> doesNotContain(T t)
+    {
+        return not(new CollectionContainsMatcher<T>(t));
+    }
+
+    protected <T> Matcher<Collection<T>> containsExactly(T... t)
+    {
+        return new CollectionContainsExactlyMatcher<T>(t);
+    }
+
+    protected <T> Matcher<Collection<T>> containExactly(T... t)
+    {
+        return new CollectionContainsExactlyMatcher<T>(t);
     }
 
     protected <T> T create(Builder<T> builder)
@@ -608,6 +587,11 @@ public abstract class SeleniumTest
     protected ProjectBuilder aProject()
     {
         return new ProjectBuilder(uid);
+    }
+
+    protected MetaProjectBuilder aMetaProject()
+    {
+        return new MetaProjectBuilder(uid);
     }
 
     protected SampleTypeBuilder aSampleType()
@@ -700,11 +684,23 @@ public abstract class SeleniumTest
         builder.update(openbis);
     }
 
+    protected void addTo(MetaProject metaProject, Entity... entities)
+    {
+        openbis.execute(new AddEntitiesToMetaProject(metaProject, Arrays.asList(entities)));
+    }
+
     public Application publicApi()
     {
-        openbis = new Application(pages, commonServer, etlService, dss);
+        openbis = new Application(asUrl, dssUrl, pages);
+        openbis.setExecutor(CreateSpace.class, new CreateSpaceRmi());
+        openbis.setExecutor(CreateSampleType.class, new CreateSampleTypeRmi());
+        openbis.setExecutor(CreateSample.class, new CreateSampleRmi());
         openbis.setExecutor(CreateDataSet.class, new CreateDataSetRmi());
         openbis.setExecutor(CreateDataSetType.class, new CreateDataSetTypeRmi());
+        openbis.setExecutor(CreateMetaProject.class, new CreateMetaProjectRmi());
+        openbis.setExecutor(ListMetaProjects.class, new ListMetaProjectsRmi());
+        openbis.setExecutor(AddEntitiesToMetaProject.class, new AddEntitiesToMetaProjectRmi());
+        openbis.setExecutor(SearchForSamples.class, new SearchForSamplesRmi());
         return openbis;
     }
 
@@ -771,6 +767,7 @@ public abstract class SeleniumTest
                         @Override
                         public SampleType run(CreateSampleType request)
                         {
+                            System.out.println("RETURNING SAMPLE TYPE " + request.getType());
                             return request.getType();
                         }
                     });
@@ -805,9 +802,20 @@ public abstract class SeleniumTest
         return openbis;
     }
 
+    protected void useGui()
+    {
+        startWebDriver();
+        gui();
+    }
+
+    protected void usePublicApi()
+    {
+        publicApi();
+    }
+
     public Application gui()
     {
-        openbis = new Application(pages, commonServer, etlService, dss);
+        openbis = new Application(asUrl, dssUrl, pages);
         openbis.setExecutor(CreateExperiment.class, new CreateExperimentGui());
         openbis.setExecutor(CreateExperimentType.class, new CreateExperimentTypeGui());
         openbis.setExecutor(CreateProject.class, new CreateProjectGui());
@@ -845,4 +853,15 @@ public abstract class SeleniumTest
     {
         return pages.initializeWidget(widgetClass, context, false);
     }
+
+    public List<Sample> searchSamples(Sample sample)
+    {
+        return openbis.execute(new SearchForSamples(sample.getCode()));
+    }
+
+    public Collection<MetaProject> metaProjectsOf(Entity entity)
+    {
+        return entity.getMetaProjects();
+    }
+
 }

@@ -77,10 +77,6 @@ public class LazyLoader implements InvocationHandler
         } catch (InvocationTargetException e)
         {
             throw e.getTargetException();
-        } catch (Exception e)
-        {
-            throw new RuntimeException("unexpected invocation exception: " +
-                    e.getMessage());
         }
     }
 }

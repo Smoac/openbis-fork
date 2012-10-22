@@ -19,52 +19,32 @@ package ch.systemsx.cisd.openbis.uitest.type;
 /**
  * @author anttil
  */
-public class Space
+public abstract class Space
 {
-    private final String code;
+    public abstract String getCode();
 
-    private String description;
-
-    Space(String code, String description)
-    {
-        this.code = code;
-        this.description = description;
-    }
-
-    public String getCode()
-    {
-        return code;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    void setDescription(String description)
-    {
-        this.description = description;
-    }
+    public abstract String getDescription();
 
     @Override
-    public int hashCode()
-    {
-        return code.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o)
+    public final boolean equals(Object o)
     {
         if (o instanceof Space)
         {
-            return ((Space) o).getCode().equals(code);
+            return ((Space) o).getCode().equalsIgnoreCase(getCode());
         }
         return false;
     }
 
     @Override
+    public final int hashCode()
+    {
+        return getCode().toUpperCase().hashCode();
+    }
+
+    @Override
     public String toString()
     {
-        return "Space " + this.code;
+        return this.getClass().getSimpleName() + " " + this.getCode();
     }
+
 }

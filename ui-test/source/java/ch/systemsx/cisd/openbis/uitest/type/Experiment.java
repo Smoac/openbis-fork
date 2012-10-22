@@ -21,80 +21,36 @@ import java.util.Collection;
 /**
  * @author anttil
  */
-public class Experiment implements EntityType
+public abstract class Experiment implements Entity
 {
-    private ExperimentType type;
+    public abstract String getCode();
 
-    private final String code;
+    public abstract ExperimentType getType();
 
-    private Project project;
+    public abstract Project getProject();
 
-    private Collection<Sample> samples;
-
-    Experiment(ExperimentType type, String code, Project project, Collection<Sample> samples)
-    {
-        this.type = type;
-        this.code = code;
-        this.project = project;
-        this.samples = samples;
-    }
+    public abstract Collection<Sample> getSamples();
 
     @Override
-    public String getCode()
-    {
-        return code;
-    }
-
-    public ExperimentType getType()
-    {
-        return type;
-    }
-
-    public Project getProject()
-    {
-        return project;
-    }
-
-    public Collection<Sample> getSamples()
-    {
-        return samples;
-    }
-
-    void setType(ExperimentType type)
-    {
-        this.type = type;
-    }
-
-    void setProject(Project project)
-    {
-        this.project = project;
-    }
-
-    void setSamples(Collection<Sample> samples)
-    {
-        this.samples = samples;
-    }
-
-    @Override
-    public boolean equals(Object o)
+    public final boolean equals(Object o)
     {
         if (o instanceof Experiment)
         {
-            return ((Experiment) o).getCode().equals(code);
+            return ((Experiment) o).getCode().equalsIgnoreCase(getCode());
         }
         return false;
     }
 
     @Override
-    public int hashCode()
+    public final int hashCode()
     {
-        return code.hashCode();
+        return getCode().toUpperCase().hashCode();
     }
 
     @Override
     public String toString()
     {
-        return "Experiment " + code;
+        return this.getClass().getSimpleName() + " " + this.getCode();
     }
 
 }

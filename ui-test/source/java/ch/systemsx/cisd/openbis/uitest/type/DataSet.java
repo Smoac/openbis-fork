@@ -19,82 +19,35 @@ package ch.systemsx.cisd.openbis.uitest.type;
 /**
  * @author anttil
  */
-public class DataSet
+public abstract class DataSet
 {
-    private String code;
+    public abstract String getCode();
 
-    private DataSetType type;
+    public abstract DataSetType getType();
 
-    private Sample sample;
+    public abstract Sample getSample();
 
-    private Experiment experiment;
-
-    public DataSet(DataSetType type, Sample sample, Experiment experiment)
-    {
-        this.type = type;
-        this.sample = sample;
-        this.experiment = experiment;
-    }
-
-    public String getCode()
-    {
-        return code;
-    }
-
-    public void setCode(String code)
-    {
-        this.code = code;
-    }
-
-    public DataSetType getType()
-    {
-        return type;
-    }
-
-    public Sample getSample()
-    {
-        return sample;
-    }
-
-    public Experiment getExperiment()
-    {
-        return experiment;
-    }
-
-    void setType(DataSetType type)
-    {
-        this.type = type;
-    }
-
-    void setSample(Sample sample)
-    {
-        this.sample = sample;
-    }
-
-    void setExperiment(Experiment experiment)
-    {
-        this.experiment = experiment;
-    }
+    public abstract Experiment getExperiment();
 
     @Override
-    public int hashCode()
-    {
-        return code.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o)
+    public final boolean equals(Object o)
     {
         if (o instanceof DataSet)
         {
-            return ((DataSet) o).getCode().equals(code);
+            return ((DataSet) o).getCode().equalsIgnoreCase(getCode());
         }
         return false;
     }
 
     @Override
+    public final int hashCode()
+    {
+        return getCode().toUpperCase().hashCode();
+    }
+
+    @Override
     public String toString()
     {
-        return "DataSet " + this.code;
+        return this.getClass().getSimpleName() + " " + this.getCode();
     }
 }
