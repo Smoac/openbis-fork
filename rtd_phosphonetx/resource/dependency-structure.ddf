@@ -11,7 +11,7 @@
 # Check dependencies to openbis
 
 [etlserver] = ${root}.etlserver.proteomics.*
-[private_openbis] = ${root}.* excluding [etlserver] ${root}.dss.generic.shared.* ${root}.generic.shared.* ${proteomics}.shared.*
+[private_openbis] = ${root}.* excluding [etlserver] ${root}.dss.generic.shared.* ${root}.generic.shared.* ${proteomics}.shared.* ${openbis}.common.*
 
 check sets [etlserver]
 
