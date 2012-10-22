@@ -19,13 +19,16 @@ package ch.systemsx.cisd.openbis.uitest.page;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.Fillable;
 import ch.systemsx.cisd.openbis.uitest.widget.Form;
@@ -57,6 +60,10 @@ public class RegisterSample
     @Locate("registration-panel-openbis_generic-sample-register_form")
     private Form form;
 
+    @Lazy
+    @Locate("confirmation_dialog")
+    private DeletionConfirmationBox dialog;
+
     public void fillWith(Sample sample)
     {
         code.write(sample.getCode());
@@ -80,6 +87,17 @@ public class RegisterSample
     public void selectSampleType(SampleType sampleType)
     {
         sampleTypes.select(sampleType.getCode());
+
+        SeleniumTest.setImplicitWait(500, TimeUnit.MILLISECONDS);
+        try
+        {
+            dialog.confirm();
+        } catch (RuntimeException e)
+        {
+        } finally
+        {
+            SeleniumTest.setImplicitWaitToDefault();
+        }
     }
 
     public void save()
