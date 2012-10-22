@@ -143,10 +143,11 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 
 - (CISDOBAsyncCall *)listRootLevelEntities;
 {
+    NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"ROOT" forKey: @"requestKey"];
     CISDOBAsyncCall *connectionCall = [_connection
         createReportFromDataStore: [_ipadReadService objectForKey: @"dataStoreCode"]
         aggregationService: [_ipadReadService objectForKey: @"serviceKey"]
-        parameters: nil];
+        parameters: parameters];
     CISDOBIpadServiceCall *iPadCall = [self iPadCallWrappingConnectionCall: connectionCall];
     
     connectionCall.success = ^(id result) {

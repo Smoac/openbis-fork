@@ -68,15 +68,15 @@
     for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
         NSString *summaryHeader = rawEntity.summaryHeader;
         STAssertNotNil(summaryHeader, @"The summary header should not be nil");
-        STAssertTrue([summaryHeader length], @"Summary header should not be empty");
-        STAssertNotNil(rawEntity.summary, @"Summary should not be nil");
-        STAssertNotNil(rawEntity.identifier, @"Identifier should not be nil");
         STAssertNotNil(rawEntity.permId, @"PermId should not be nil");
         STAssertNotNil(rawEntity.refcon, @"Ref con should not be nil");
         STAssertNotNil(rawEntity.category, @"Group should not be nil");
-        STAssertNotNil(rawEntity.imageUrl, @"Image url should not be nil");
-        STAssertNotNil(rawEntity.children, @"Children should not be nil");
-        STAssertNotNil(rawEntity.properties, @"Properties type should not be nil");
+        STAssertTrue([summaryHeader length], @"Summary header should not be empty");
+        STAssertNotNil(rawEntity.summary, @"Summary should not be nil");
+//        STAssertNotNil(rawEntity.identifier, @"Identifier should not be nil");
+//        STAssertNotNil(rawEntity.imageUrl, @"Image url should not be nil");
+//        STAssertNotNil(rawEntity.children, @"Children should not be nil");
+//        STAssertNotNil(rawEntity.properties, @"Properties type should not be nil");
     }
 }
 

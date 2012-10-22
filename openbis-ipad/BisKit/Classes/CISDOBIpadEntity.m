@@ -72,6 +72,10 @@
     [self didAccessValueForKey: @"childrenPermIds"];
     
     if (nil == childrenPermIds) {
+            // This value has not yet been initialized from the server.
+            // Leave it as nil
+        if (nil == self.childrenPermIdsJson) return nil;
+
         NSError *error;
         childrenPermIds = [NSJSONSerialization JSONObjectWithData: [self.childrenPermIdsJson dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: &error];
         if (error) {
@@ -85,15 +89,15 @@
 
 - (void)initializeFromRawEntity:(CISDOBIpadRawEntity *)rawEntity
 {
-    self.summaryHeader = rawEntity.summaryHeader;
-    self.summary = rawEntity.summary;
-    self.identifier = rawEntity.identifier;
     self.permId = rawEntity.permId;
     self.refcon = rawEntity.refcon;
     self.category = rawEntity.category;
-    self.imageUrl = rawEntity.imageUrl;
+    self.summaryHeader = rawEntity.summaryHeader;
+    self.summary = rawEntity.summary;
     self.childrenPermIdsJson = rawEntity.children;
-    self.propertiesJson = rawEntity.properties;
+//    self.identifier = rawEntity.identifier;
+//    self.imageUrl = rawEntity.imageUrl;
+//    self.propertiesJson = rawEntity.properties;
 }
 
 @end
