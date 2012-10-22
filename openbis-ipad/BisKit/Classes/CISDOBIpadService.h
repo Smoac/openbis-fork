@@ -52,14 +52,20 @@ enum CISOBIpadServiceErrorCode {
 //! Log the user into the openBIS instance
 - (CISDOBAsyncCall *)loginUser:(NSString *)user password:(NSString *)password;
 
-//! Get all root-level entities from the openBIS ipad service, possibly along with some children as well. The success message will be invoked with a collection of CISDOBIpadRawEntity objects.
+//! Get all root-level entities from the openBIS ipad service, possibly along with some children as well. The success block will be invoked with a collection of CISDOBIpadRawEntity objects.
 - (CISDOBAsyncCall *)listRootLevelEntities;
 
-//! Get drill information from the openBIS ipad service -- this will include information about the children of the entity and possibly their children as well. The two collections must have the same cardinality. The success message will be invoked with a collection of CISDOBIpadRawEntity objects.
+//! Get drill information from the openBIS ipad service -- this will include information about the children of the entity and possibly their children as well. The permIds and refcons collections must have the same cardinality. The success block will be invoked with a collection of CISDOBIpadRawEntity objects.
 - (CISDOBAsyncCall *)drillOnEntities:(NSArray *)permIds refcons:(NSArray *)refcons;
 
 //! A convenience version of drillOnEntities:refcons: for one entity.
 - (CISDOBAsyncCall *)drillOnEntityWithPermId:(NSString *)permId refcon:(id)refcon;
+
+//! Get detail information from the openBIS ipad service. The permIds and refcons collections must have the same cardinality. The success block will be invoked with a collection of CISDOBIpadRawEntity objects.
+- (CISDOBAsyncCall *)detailsForEntities:(NSArray *)permIds refcons:(NSArray *)refcons;
+
+//! A convenience version of detailsForEntities:refcons: for one entity.
+- (CISDOBAsyncCall *)detailsForEntityWithPermId:(NSString *)permId refcon:(id)refcon;
 
 @end
 

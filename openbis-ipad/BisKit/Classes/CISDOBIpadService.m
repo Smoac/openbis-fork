@@ -157,41 +157,8 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
     return iPadCall;
 }
 
-- (CISDOBAsyncCall *)listRootLevelEntities;
+- (CISDOBIpadServiceCall *)createIpadServiceCallWithParameters:(NSDictionary *)parameters
 {
-    NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"ROOT" forKey: @"requestKey"];
-    CISDOBAsyncCall *connectionCall = [_connection
-        createReportFromDataStore: [_ipadReadService objectForKey: @"dataStoreCode"]
-        aggregationService: [_ipadReadService objectForKey: @"serviceKey"]
-        parameters: parameters];
-    CISDOBIpadServiceCall *iPadCall = [self iPadCallWrappingConnectionCall: connectionCall];
-    
-    connectionCall.success = ^(id result) {
-        if (iPadCall.success) {
-            iPadCall.success([self rawEntitiesFromResult: result]);
-        }
-    };
-    
-    return iPadCall;
-}
-
-- (CISDOBAsyncCall *)drillOnEntities:(NSArray *)permIds refcons:(NSArray *)refcons
-{
-    NSUInteger count = [permIds count];
-    NSAssert([refcons count] == count, @"Drilling requires permIds and refcons. There must be an equal number of these.");
-    NSMutableArray *entities = [[NSMutableArray alloc] initWithCapacity: [permIds count]];
-    for (NSUInteger i = 0; i < count; ++i) {
-        NSDictionary *entity =
-            [NSDictionary dictionaryWithObjectsAndKeys:
-                [permIds objectAtIndex: i], @"PERM_ID",
-                [refcons objectAtIndex: i], @"REFCON", nil];
-        [entities addObject: entity];
-    }
-
-    NSDictionary *parameters =
-        [NSDictionary dictionaryWithObjectsAndKeys:
-            @"DRILL", @"requestKey",
-            entities, @"entities", nil];
     CISDOBAsyncCall *connectionCall =
         [_connection
             createReportFromDataStore: [_ipadReadService objectForKey: @"dataStoreCode"]
@@ -204,8 +171,40 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
             iPadCall.success([self rawEntitiesFromResult: result]);
         }
     };
-    
     return iPadCall;
+}
+
+- (CISDOBAsyncCall *)listRootLevelEntities;
+{
+    NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"ROOT" forKey: @"requestKey"];
+    return [self createIpadServiceCallWithParameters: parameters];
+}
+
+- (NSMutableArray *)convertToEntitiesPermIds:(NSArray *)permIds refcons:(NSArray *)refcons count:(NSUInteger)count
+{
+    NSMutableArray *entities = [[NSMutableArray alloc] initWithCapacity: [permIds count]];
+    for (NSUInteger i = 0; i < count; ++i) {
+        NSDictionary *entity =
+        [NSDictionary dictionaryWithObjectsAndKeys:
+         [permIds objectAtIndex: i], @"PERM_ID",
+         [refcons objectAtIndex: i], @"REFCON", nil];
+        [entities addObject: entity];
+    }
+    return entities;
+}
+
+- (CISDOBAsyncCall *)drillOnEntities:(NSArray *)permIds refcons:(NSArray *)refcons
+{
+    NSUInteger count = [permIds count];
+    NSAssert([refcons count] == count, @"Drilling requires permIds and refcons. There must be an equal number of these.");
+    NSMutableArray *entities;
+    entities = [self convertToEntitiesPermIds: permIds refcons: refcons count: count];
+
+    NSDictionary *parameters =
+        [NSDictionary dictionaryWithObjectsAndKeys:
+            @"DRILL", @"requestKey",
+            entities, @"entities", nil];
+    return [self createIpadServiceCallWithParameters: parameters];
 }
 
 - (CISDOBAsyncCall *)drillOnEntityWithPermId:(NSString *)permId refcon:(id)refcon
@@ -213,6 +212,27 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
     NSArray *permIds = [NSArray arrayWithObject: permId];
     NSArray *refcons = [NSArray arrayWithObject: refcon];
     return [self drillOnEntities: permIds refcons: refcons];
+}
+
+- (CISDOBAsyncCall *)detailsForEntities:(NSArray *)permIds refcons:(NSArray *)refcons
+{
+    NSUInteger count = [permIds count];
+    NSAssert([refcons count] == count, @"Drilling requires permIds and refcons. There must be an equal number of these.");
+    NSMutableArray *entities;
+    entities = [self convertToEntitiesPermIds: permIds refcons: refcons count: count];
+
+    NSDictionary *parameters =
+        [NSDictionary dictionaryWithObjectsAndKeys:
+            @"DETAIL", @"requestKey",
+            entities, @"entities", nil];
+    return [self createIpadServiceCallWithParameters: parameters];
+}
+
+- (CISDOBAsyncCall *)detailsForEntityWithPermId:(NSString *)permId refcon:(id)refcon
+{
+    NSArray *permIds = [NSArray arrayWithObject: permId];
+    NSArray *refcons = [NSArray arrayWithObject: refcon];
+    return [self detailsForEntities: permIds refcons: refcons];
 }
 
 @end
