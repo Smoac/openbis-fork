@@ -90,7 +90,7 @@ The iPad data model tracks information for displaying and navigating between ent
 		</tr>
 		<tr>
 			<td>CATEGORY</td>
-			<td>A category identifier for showing the entity. If empty or None, then the the entity in this row is not shown in top level navigation views. Such entities may appear as children of other entities.</td>
+			<td>A category identifier for grouping entities.</td>
 			<td>Used to group entities together</td>
 			<td>openBIS entity type</td>
 		</tr>
@@ -111,6 +111,12 @@ The iPad data model tracks information for displaying and navigating between ent
 			<td>Properties (metadata) that should be displayed for this entity. Transmitted as JSON.</td>
 			<td>Shown in detail views.</td>
 			<td>openBIS properties</td>
+		</tr>
+		<tr>
+			<td>ROOT_LEVEL</td>
+			<td>True if the entity should be shown on the root level.</td>
+			<td>Used to construct the initial navigation view.</td>
+			<td>Empty means do not show. Non-empty means show.</td>
 		</tr>
 	</tbody>
 </table>
@@ -144,7 +150,7 @@ The communication model between the iPad and the service has been designed to tr
 			<td>None</td>
 			<td>Return root entities.</td>
 			<td>Used to initialize the root navigation view.</td>
-			<td>PERM_ID, REFCON, CATEGORY, SUMMARY_HEADER, SUMMARY, CHILDREN</td>
+			<td>PERM_ID, REFCON, CATEGORY, SUMMARY_HEADER, SUMMARY, CHILDREN, ROOT_LEVEL</td>
 		</tr>
 		<tr>
 			<td>DRILL</td>
