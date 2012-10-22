@@ -261,15 +261,20 @@ class ExampleDetailRequestHandler(DetailRequestHandler):
 		# Get the data and add a row for each data item
 		entities = self.parameters['entities']
 		detail_samples = [entity for entity in entities if 'SAMPLE' == entity['REFCON']['entityKind']]
+		detail_materials = [entity for entity in entities if 'MATERIAL' == entity['REFCON']['entityKind']]
+
 		self.samples = retrieve_samples(detail_samples)
 
-		detail_materials = [entity for entity in entities if 'MATERIAL' == entity['REFCON']['entityKind']]
-		material_identifiers = MaterialIdentifierCollection()
+		# We need to get data for materials explicitly requested as well as those associated
+		# with the samples we have retrieved
+		material_identifiers = gather_materials(self.samples)
 		for detail_material in detail_materials:
 			add_material_to_collection(detail_material, material_identifiers)
 
 		materials = self.searchService.listMaterials(material_identifiers)
-		self.material_dict_array = materials_to_dict(materials)
+		materials_to_return = [material for material in materials if material.getMaterialIdentifier() in detail_materials]
+		# We internally need more materials, but only return those explicitly asked for
+		self.material_dict_array = materials_to_dict(materials_to_return)
 		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
 
 	def add_data_rows(self):
