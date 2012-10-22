@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -139,6 +140,10 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
             PersonPE owner, Collection<? extends IEntityInformationWithPropertiesHolder> entities,
             EntityKind entityKind)
     {
+        if (entities.isEmpty())
+        {
+            return Collections.emptySet();
+        }
         final DetachedCriteria criteria = DetachedCriteria.forClass(MetaprojectAssignmentPE.class);
         criteria.createAlias("metaproject", "m");
         criteria.add(Restrictions.eq("m.owner", owner));
