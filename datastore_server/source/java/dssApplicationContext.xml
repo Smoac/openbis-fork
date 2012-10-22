@@ -161,7 +161,7 @@
     
     <bean id="data-store-service-conversation-client-manager-server" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
         <property name="service" ref="data-store-service-conversation-client-manager" />
-        <property name="serviceInterface" value="ch.systemsx.cisd.common.conversation.manager.IServiceConversationClientManagerRemote" />
+        <property name="serviceInterface" value="ch.systemsx.cisd.openbis.common.conversation.manager.IServiceConversationClientManagerRemote" />
     </bean>
 
     <!-- 
@@ -176,7 +176,7 @@
     
     <bean id="data-store-service-conversation-server-manager-server" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
         <property name="service" ref="data-store-service-conversation-server-manager" />
-        <property name="serviceInterface" value="ch.systemsx.cisd.common.conversation.manager.IServiceConversationServerManagerRemote" />
+        <property name="serviceInterface" value="ch.systemsx.cisd.openbis.common.conversation.manager.IServiceConversationServerManagerRemote" />
     </bean>
     
     <bean id="session-token-manager" class="ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager"/>
@@ -211,7 +211,7 @@
         // Logging
     -->
 
-    <bean class="ch.systemsx.cisd.common.spring.LogAdvisor" />
+    <bean class="ch.systemsx.cisd.openbis.common.spring.LogAdvisor" />
   
     <!-- 
         // FTP server
