@@ -2,6 +2,9 @@ from ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1 import Material
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto import MaterialIdentifier
 from com.fasterxml.jackson.databind import ObjectMapper 
 
+#
+# BEGIN Infrastructure
+#
 class RequestHandler:
 	"""Abstract superclass for the handlers for concrete requests like ROOT.
 
@@ -86,26 +89,18 @@ class RequestHandler:
 		self.add_data_rows()
 
 class AllDataRequestHandler(RequestHandler):
-	"""Handler for the ALLDATA request."""
-
-	def __init__(self, parameters, builder):
-		RequestHandler.__init__(self, parameters, builder)
-
-	def retrieve_data(self):
-		# Get the data and add a row for each data item
-		self.samples = self.searchService.searchForSamples("DESC", "*", "5HT_PROBE")
-		material_identifiers = gather_materials(self.samples)
-		materials = self.searchService.listMaterials(material_identifiers)
-		self.material_dict_array = materials_to_dict(materials)
-		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
+	"""Abstract Handler for the ALLDATA request."""
 
 	def optional_headers(self):
 		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "CHILDREN", "IDENTIFIER", "IMAGE_URL", "PROPERTIES"]
 
-	def add_data_rows(self):
-		self.add_rows(self.material_dict_array)
-		self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id))
+#
+# END Infrastructure
+#
 
+#
+# Helper Methods
+# 
 def image_url_for_compound(material):
 	"""Given a material (compound) return the image url"""
 	chemblId =  material.getCode()
@@ -178,7 +173,21 @@ def samples_to_dict(samples, material_by_perm_id):
 	result = [sample_to_dict(sample, material_by_perm_id) for sample in samples]
 	return result
 
+class ExampleAllDataRequestHandler(AllDataRequestHandler):
+	"""Handler for the ALLDATA request."""
+
+	def retrieve_data(self):
+		# Get the data and add a row for each data item
+		self.samples = self.searchService.searchForSamples("DESC", "*", "5HT_PROBE")
+		material_identifiers = gather_materials(self.samples)
+		materials = self.searchService.listMaterials(material_identifiers)
+		self.material_dict_array = materials_to_dict(materials)
+		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
+
+	def add_data_rows(self):
+		self.add_rows(self.material_dict_array)
+		self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id))
 
 def aggregate(parameters, builder):
-	handler = AllDataRequestHandler(parameters, builder)
+	handler = ExampleAllDataRequestHandler(parameters, builder)
 	handler.process_request()
