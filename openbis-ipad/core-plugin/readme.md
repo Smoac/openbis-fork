@@ -121,6 +121,13 @@ The communication model between the iPad and the service has been designed to tr
 			<td>Used to navigate. The result should at least include data for children of children to permit efficient navigation on the iPad.</td>
 			<td>PERM_ID, REFCON, CATEGORY, SUMMARY_HEADER, SUMMARY, CHILDREN</td>
 		</tr>
+		<tr>
+			<td>DETAIL</td>
+			<td>entities : List of {"PERM_ID" : String, REFCON : String}</td>
+			<td>Return detail information for the specified entities.</td>
+			<td>Display the entity in the detail view. This should return all information necessary to show the entity</td>
+			<td>PERM_ID, REFCON, SUMMARY_HEADER, SUMMARY, IDENTIFIER, IMAGE_URL, PROPERTIES</td>
+		</tr>
 	</tbody>
 </table>
 
