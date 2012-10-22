@@ -115,4 +115,38 @@
     STAssertTrue([rawEntities count] > 0, @"The Pad service should have returned some entities.");
 }
 
+- (void)testDetails
+{
+    CISDOBAsyncCall *call;
+    call = [_service loginUser: GetDefaultUserName() password: GetDefaultUserPassword()];
+    [self configureAndRunCallSynchronously: call];
+    
+    call = [_service listRootLevelEntities];
+    [self configureAndRunCallSynchronously: call];
+    
+    STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
+    NSArray *rawEntities = _callResult;
+    STAssertTrue([rawEntities count] > 0, @"The Pad service should have returned some entities.");
+    
+    
+    // Find an entity with children and drill on it
+    CISDOBIpadRawEntity *entityWithChildren = nil;
+    for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
+        if ([rawEntity.children length] > 2) {
+            entityWithChildren = rawEntity;
+            break;
+        }
+    }
+    
+    // Details
+    NSError *error;
+    id refconObject = [NSJSONSerialization JSONObjectWithData: [entityWithChildren.refcon dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: &error];
+    STAssertNotNil(refconObject, @"Could not parse refcon string %@ : %@", entityWithChildren.refcon, error);
+    call = [_service detailsForEntityWithPermId: entityWithChildren.permId refcon: refconObject];
+    [self configureAndRunCallSynchronously: call];
+    
+    rawEntities = _callResult;
+    STAssertEquals([rawEntities count], (NSUInteger) 1, @"The Pad service should have returned one entity for details.");
+}
+
 @end

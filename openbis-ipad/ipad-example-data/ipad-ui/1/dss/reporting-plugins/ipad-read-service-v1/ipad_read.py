@@ -260,10 +260,10 @@ class ExampleDetailRequestHandler(DetailRequestHandler):
 	def retrieve_data(self):
 		# Get the data and add a row for each data item
 		entities = self.parameters['entities']
-		detail_samples = [entity for entity in entities and 'SAMPLE' == entity['REFCON']['entityKind']]
+		detail_samples = [entity for entity in entities if 'SAMPLE' == entity['REFCON']['entityKind']]
 		self.samples = retrieve_samples(detail_samples)
 
-		detail_materials = [entity for entity in entities and 'MATERIAL' == entity['REFCON']['entityKind']]
+		detail_materials = [entity for entity in entities if 'MATERIAL' == entity['REFCON']['entityKind']]
 		material_identifiers = MaterialIdentifierCollection()
 		for detail_material in detail_materials:
 			add_material_to_collection(detail_material, material_identifiers)
