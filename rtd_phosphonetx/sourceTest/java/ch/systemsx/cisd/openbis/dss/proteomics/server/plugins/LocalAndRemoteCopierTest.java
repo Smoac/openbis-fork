@@ -19,11 +19,13 @@ package ch.systemsx.cisd.openbis.dss.proteomics.server.plugins;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopier.SSH_TIMEOUT_MILLIS;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -31,8 +33,11 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.concurrent.ExecutionResult;
+import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exception.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -43,7 +48,6 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopie
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IPathCopierFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.ISshCommandExecutorFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.dss.proteomics.server.plugins.LocalAndRemoteCopier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
@@ -117,6 +121,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
     public void testLocalWithKnownSample()
     {
         Properties properties = new Properties();
+        prepareCopier(properties);
         properties.setProperty(DataSetCopier.DESTINATION_KEY, destination.getPath());
         LocalAndRemoteCopier msInjectionCopier =
                 new LocalAndRemoteCopier(properties, copierFactory, sshExecutorFactory);
@@ -138,11 +143,12 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-
+    
     @Test
     public void testLocalWithUnknownSample()
     {
         Properties properties = new Properties();
+        prepareCopier(properties);
         properties.setProperty(DataSetCopier.DESTINATION_KEY, destination.getPath());
         LocalAndRemoteCopier msInjectionCopier =
                 new LocalAndRemoteCopier(properties, copierFactory, sshExecutorFactory);
@@ -164,6 +170,7 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
     public void testLocalWithAlreadyExistingDestination()
     {
         Properties properties = new Properties();
+        prepareCopier(properties);
         properties.setProperty(DataSetCopier.DESTINATION_KEY, destination.getPath());
         LocalAndRemoteCopier msInjectionCopier =
                 new LocalAndRemoteCopier(properties, copierFactory, sshExecutorFactory);
@@ -257,4 +264,106 @@ public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
             // ignored
         }
     }
+    
+    private void prepareCopier(Properties properties)
+    {
+        properties.setProperty(DataSetCopier.RSYNC_EXEC + "-executable", rsyncExec.getPath());
+        context.checking(new Expectations()
+            {
+                {
+                    one(copierFactory).create(rsyncExec, null, DataSetCopier.SSH_TIMEOUT_MILLIS);
+                    will(returnValue(new MockCopier()));
+                }
+            });
+    }
+    
+    private final class MockCopier implements IPathCopier
+    {
+
+        @Override
+        public boolean terminate()
+        {
+            return false;
+        }
+
+        @Override
+        public boolean isRemote()
+        {
+            return false;
+        }
+
+        @Override
+        public void check() throws EnvironmentFailureException, ConfigurationFailureException
+        {
+        }
+
+        @Override
+        public Status copy(File sourcePath, File destinationDirectory)
+        {
+            return null;
+        }
+
+        @Override
+        public Status copyContent(File sourcePath, File destinationDirectory)
+        {
+            return null;
+        }
+
+        @Override
+        public Status copyToRemote(File sourcePath, String destinationDirectory,
+                String destinationHostOrNull, String rsyncModuleNameOrNull,
+                String rsyncPasswordFileOrNull)
+        {
+            try
+            {
+                FileUtils.copyDirectoryToDirectory(dataSet, new File(destinationDirectory));
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+            File file = new File(destinationDirectory, dataSet.getName());
+            file.setLastModified(dataSet.lastModified());
+            return Status.OK;
+        }
+
+        @Override
+        public Status copyContentToRemote(File sourcePath, String destinationDirectory,
+                String destinationHostOrNull, String rsyncModuleNameOrNull,
+                String rsyncPasswordFileOrNull)
+        {
+            return null;
+        }
+
+        @Override
+        public Status copyFromRemote(String sourcePath, String sourceHost,
+                File destinationDirectory, String rsyncModuleNameOrNull,
+                String rsyncPasswordFileOrNull)
+        {
+            return null;
+        }
+
+        @Override
+        public Status copyContentFromRemote(String sourcePath, String sourceHost,
+                File destinationDirectory, String rsyncModuleNameOrNull,
+                String rsyncPasswordFileOrNull)
+        {
+            return null;
+        }
+
+        @Override
+        public boolean checkRsyncConnectionViaSsh(String host, String rsyncExecutableOnHostOrNull,
+                long millisToWaitForCompletion)
+        {
+            return false;
+        }
+
+        @Override
+        public boolean checkRsyncConnectionViaRsyncServer(String host, String rsyncModule,
+                String rsyncPassworFileOrNull, long millisToWaitForCompletion)
+        {
+            return false;
+        }
+        
+    }
+
 }
