@@ -48,17 +48,17 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
-import ch.systemsx.cisd.common.conversation.annotation.Conversational;
-import ch.systemsx.cisd.common.conversation.annotation.Progress;
-import ch.systemsx.cisd.common.conversation.client.ServiceConversationClientDetails;
-import ch.systemsx.cisd.common.conversation.context.ServiceConversationsThreadContext;
-import ch.systemsx.cisd.common.conversation.manager.BaseServiceConversationClientManager;
-import ch.systemsx.cisd.common.conversation.manager.BaseServiceConversationServerManager;
-import ch.systemsx.cisd.common.conversation.manager.IServiceConversationClientManagerRemote;
-import ch.systemsx.cisd.common.conversation.manager.IServiceConversationServerManagerRemote;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.serviceconversation.client.ServiceExecutionException;
-import ch.systemsx.cisd.common.spring.WaitAction;
+import ch.systemsx.cisd.openbis.common.conversation.annotation.Conversational;
+import ch.systemsx.cisd.openbis.common.conversation.annotation.Progress;
+import ch.systemsx.cisd.openbis.common.conversation.client.ServiceConversationClientDetails;
+import ch.systemsx.cisd.openbis.common.conversation.context.ServiceConversationsThreadContext;
+import ch.systemsx.cisd.openbis.common.conversation.manager.BaseServiceConversationClientManager;
+import ch.systemsx.cisd.openbis.common.conversation.manager.BaseServiceConversationServerManager;
+import ch.systemsx.cisd.openbis.common.conversation.manager.IServiceConversationClientManagerRemote;
+import ch.systemsx.cisd.openbis.common.conversation.manager.IServiceConversationServerManagerRemote;
+import ch.systemsx.cisd.openbis.common.spring.WaitAction;
 
 @Test
 public class ServiceConversationTest

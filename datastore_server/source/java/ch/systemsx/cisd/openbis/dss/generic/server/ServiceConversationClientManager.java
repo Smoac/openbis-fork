@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import ch.systemsx.cisd.common.conversation.manager.BaseServiceConversationClientManager;
 import ch.systemsx.cisd.common.spring.PropertyPlaceholderUtils;
+import ch.systemsx.cisd.openbis.common.conversation.manager.BaseServiceConversationClientManager;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationApplicationServerUrl;
 import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationDataStoreClientId;

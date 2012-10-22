@@ -21,12 +21,12 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.hdf5.FileToHDF5DuplicationVerifier;
-import ch.systemsx.cisd.common.hdf5.HDF5Container;
-import ch.systemsx.cisd.common.hdf5.HDF5Container.IHDF5ReaderClient;
-import ch.systemsx.cisd.common.hdf5.IHDF5ContainerReader;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.StorageProcessorTransactionParameters;
+import ch.systemsx.cisd.openbis.common.hdf5.FileToHDF5DuplicationVerifier;
+import ch.systemsx.cisd.openbis.common.hdf5.HDF5Container;
+import ch.systemsx.cisd.openbis.common.hdf5.HDF5Container.IHDF5ReaderClient;
+import ch.systemsx.cisd.openbis.common.hdf5.IHDF5ContainerReader;
 
 /**
  * Tests for {@link HDF5StorageProcessor}.

@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.util.List;
 
-import ch.systemsx.cisd.common.io.hierarchical_content.HierarchicalContentUtils;
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HierarchicalContentUtils;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
  * A utility class to abstract traversing of {@link IHierarchicalContentNode}-s.

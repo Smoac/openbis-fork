@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exception.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.resource.IInitializable;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
-import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
  * Helper Class for creating FileInfoDss objects based on file system abstraction.

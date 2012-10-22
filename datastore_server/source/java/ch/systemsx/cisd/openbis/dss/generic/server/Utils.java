@@ -20,7 +20,7 @@ import javax.activation.MimetypesFileTypeMap;
 
 import org.apache.commons.io.FilenameUtils;
 
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
  * 

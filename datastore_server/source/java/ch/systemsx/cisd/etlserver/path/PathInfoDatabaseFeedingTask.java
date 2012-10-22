@@ -25,8 +25,6 @@ import net.lemnik.eodsql.QueryTool;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
-import ch.systemsx.cisd.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
@@ -35,6 +33,8 @@ import ch.systemsx.cisd.etlserver.postregistration.ICleanupTask;
 import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTask;
 import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTaskExecutor;
 import ch.systemsx.cisd.etlserver.postregistration.NoCleanupTask;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -53,7 +53,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             PathInfoDatabaseFeedingTask.class);
-    
+
     static final String COMPUTE_CHECKSUM_KEY = "compute-checksum";
 
     private static IPathsInfoDAO createDAO()
@@ -78,7 +78,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
     private IPathsInfoDAO dao;
 
     private IHierarchicalContentFactory hierarchicalContentFactory; // filesystem based
-    
+
     private boolean computeChecksum;
 
     public PathInfoDatabaseFeedingTask()
@@ -174,8 +174,8 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
             File dataSetRoot = directoryProvider.getDataSetDirectory(dataSet);
             if (dataSetRoot.exists() == false)
             {
-                operationLog.error("Root directory of data set " + dataSetCode + " does not exists: "
-                        + dataSetRoot);
+                operationLog.error("Root directory of data set " + dataSetCode
+                        + " does not exists: " + dataSetRoot);
                 shareIdManager.releaseLocks();
                 return;
             }

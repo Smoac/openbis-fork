@@ -24,7 +24,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.time.DateFormatThreadLocal;
-import ch.systemsx.cisd.common.types.BooleanOrUnknown;
+import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SpeedUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ToStringUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;

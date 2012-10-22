@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1;
 
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 
 /**
  * Interface for classes providing {@link IHierarchicalContent} of a data set.

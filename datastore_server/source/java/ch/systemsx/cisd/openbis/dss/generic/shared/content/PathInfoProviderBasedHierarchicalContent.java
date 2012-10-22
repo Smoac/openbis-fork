@@ -29,11 +29,11 @@ import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.io.IOUtilities;
-import ch.systemsx.cisd.common.io.hierarchical_content.AbstractHierarchicalContentNode;
-import ch.systemsx.cisd.common.io.hierarchical_content.HDF5ContainerBasedHierarchicalContentNode;
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.AbstractHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HDF5ContainerBasedHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 

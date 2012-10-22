@@ -20,9 +20,9 @@ import java.io.File;
 
 import org.apache.ftpserver.ftplet.FtpFile;
 
-import ch.systemsx.cisd.common.io.hierarchical_content.IHierarchicalContentNodeFilter;
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentNodeFilter;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.FtpFileImpl;
 
 /**

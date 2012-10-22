@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.exception.NotImplementedException;
-import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
+import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
