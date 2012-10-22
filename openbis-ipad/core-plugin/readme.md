@@ -59,24 +59,6 @@ The iPad data model tracks information for displaying and navigating between ent
 	</thead>
 	<tbody>
 		<tr>
-			<td>SUMMARY_HEADER</td>
-			<td>A short summary of the entity.</td>
-			<td>Shown in listings and as the header for detail views.</td>
-			<td>openBIS code</td>
-		</tr>
-		<tr>
-			<td>SUMMARY</td>
-			<td>A potentially longer summary of the entity.</td>
-			<td>Shown in listings and in detail views.</td>
-			<td>The content of a <code>description</code> property</td>
-		</tr>
-		<tr>
-			<td>IDENTIFIER</td>
-			<td>An identifier for the object.</td>
-			<td>Shown in detail views.</td>
-			<td>openBIS identifier</td>
-		</tr>
-		<tr>
 			<td>PERM_ID</td>
 			<td>A stable identifier for the object.</td>
 			<td>Used internally to map from server data to local data.</td>
@@ -95,16 +77,34 @@ The iPad data model tracks information for displaying and navigating between ent
 			<td>openBIS entity type</td>
 		</tr>
 		<tr>
-			<td>IMAGE_URL</td>
-			<td>A url for an image associated with this entity. If None or empty, no image is shown.</td>
-			<td>Shown in detail views.</td>
-			<td>An image from the DSS. An external image.</td>
+			<td>SUMMARY_HEADER</td>
+			<td>A short summary of the entity.</td>
+			<td>Shown in listings and as the header for detail views.</td>
+			<td>openBIS code</td>
+		</tr>
+		<tr>
+			<td>SUMMARY</td>
+			<td>A potentially longer summary of the entity.</td>
+			<td>Shown in listings and in detail views.</td>
+			<td>The content of a <code>description</code> property</td>
 		</tr>
 		<tr>
 			<td>CHILDREN</td>
 			<td>The permIds of the children of this entity. Transmitted as JSON.</td>
 			<td>Used to navigate between entities. Entities with children allow drill down and the children are shown in the drill-down view.</td>
 			<td>Sample / data set children. An experiments samples or data sets may also be shown this way.</td>
+		</tr>
+		<tr>
+			<td>IDENTIFIER</td>
+			<td>An identifier for the object.</td>
+			<td>Shown in detail views.</td>
+			<td>openBIS identifier</td>
+		</tr>
+		<tr>
+			<td>IMAGE_URL</td>
+			<td>A url for an image associated with this entity. If None or empty, no image is shown.</td>
+			<td>Shown in detail views.</td>
+			<td>An image from the DSS. An external image.</td>
 		</tr>
 		<tr>
 			<td>PROPERTIES</td>
