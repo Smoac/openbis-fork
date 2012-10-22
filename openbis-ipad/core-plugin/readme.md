@@ -18,33 +18,114 @@ The iPad data model tracks information for displaying and navigating between ent
 
 <table>
 	<thead>
-		<tr><th>Column</th><th>Description</th><th>Use</th><th>Examples</th></tr>
+		<tr>
+			<th>Column</th>
+			<th>Description</th>
+			<th>Use</th>
+			<th>Examples</th>
+		</tr>
 	</thead>
 	<tbody>
-		<tr><td>SUMMARY_HEADER</td><td>A short summary of the entity.</td><td>Shown in listings and as the header for detail views.</td><td>openBIS code<td></tr>
-		<tr><td>SUMMARY</td><td>A potentially longer summary of the entity.</td><td>Shown in listings and in detail views.</td><td>The content of a `description` property<td></tr>
-		<tr><td>IDENTIFIER</td><td>An identifier for the object.</td><td>Shown in detail views.</td><td>openBIS identifier<td></tr>
-		<tr><td>PERM_ID</td><td>A stable identifier for the object.</td><td>Used internally to map from server data to local data.</td><td>openBIS permId<td></tr>
+		<tr>
+			<td>SUMMARY_HEADER</td>
+			<td>A short summary of the entity.</td>
+			<td>Shown in listings and as the header for detail views.</td>
+			<td>openBIS code</td>
+		</tr>
+		<tr>
+			<td>SUMMARY</td>
+			<td>A potentially longer summary of the entity.</td>
+			<td>Shown in listings and in detail views.</td>
+			<td>The content of a <code>description</code> property</td>
+		</tr>
+		<tr>
+			<td>IDENTIFIER</td>
+			<td>An identifier for the object.</td>
+			<td>Shown in detail views.</td>
+			<td>openBIS identifier</td>
+		</tr>
+		<tr>
+			<td>PERM_ID</td>
+			<td>A stable identifier for the object.</td>
+			<td>Used internally to map from server data to local data.</td>
+			<td>openBIS permId</td>
+		</tr>
+		<tr>
+			<td>REFCON</td>
+			<td>Data that is passed unchanged back to the server when a row is modified. This can be used by the server to encode whatever it needs in order to modify the row.</td>
+			<td>For server use only; transmitted to the server on every call that it is appropriate.</td>
+			<td>openBIS entity kind + type + permId</td>
+		</tr>
+		<tr>
+			<td>CATEGORY</td>
+			<td>A category identifier for showing the entity. If empty or None, then the the entity in this row is not shown in top level navigation views. Such entities may appear as children of other entities.</td>
+			<td>Used to group entities together</td>
+			<td>openBIS entity type</td>
+		</tr>
+		<tr>
+			<td>IMAGE_URL</td>
+			<td>A url for an image associated with this entity. If None or empty, no image is shown.</td>
+			<td>Shown in detail views.</td>
+			<td>An image from the DSS. An external image.</td>
+		</tr>
+		<tr>
+			<td>CHILDREN</td>
+			<td>The permIds of the children of this entity. Transmitted as JSON.</td>
+			<td>Used to navigate between entities. Entities with children allow drill down and the children are shown in the drill-down view.</td>
+			<td>Sample / data set children. An experiments samples or data sets may also be shown this way.</td>
+		</tr>
+		<tr>
+			<td>PROPERTIES</td>
+			<td>Properties (metadata) that should be displayed for this entity. Transmitted as JSON.</td>
+			<td>Shown in detail views.</td>
+			<td>openBIS properties</td>
+		</tr>
 	</tbody>
+</table>
+
 
 There are two fields in the data model that have a purpose beyond the UI. These are the `PERM_ID` field and the `REFCON` field. The `PERM_ID` field is assumed to be a stable identifier for the iPad entity and, thus, cannot change. The `PERM_ID` field is used by the iPad app to associate information from the server to the correct entity on the app.
 
-The `REFCON` field is a field that is not touched by the iPad app at all. The server is free to place whatever information it wishes in this field. The content of the `REFCON` is sent back to the server when the iPad makes requests for more data for an existing entity. The server can thus use the `REFCON` to keep track for itself how several openBIS entities are merged into one iPad entity, for example.
+The `REFCON` field is a field that is not touched by the iPad app at all. The server is free to place whatever information it wishes in this field. The content of the `REFCON` is sent back to the server when the iPad makes requests for more data for an existing entity. The server can thus use the `REFCON` to keep track for itself how several openBIS entities are merged into one iPad entity, for example. The `REFCON` is updated on every request, so the service can modify this value if it is appropriate.
 
 Communication
 -------------
 
-The communication model between the iPad and the service has been designed to transmit only the necessary information on demand, when needed. The iPad specifies what kind of data it needs in the parameter key `request`. The allowed values and the responses they return are described in the section below.
+The communication model between the iPad and the service has been designed to transmit only the necessary information on demand, when needed. The iPad specifies what kind of data it needs in the parameter key `request`. The response, as with all aggregation services, is in the form of a table model. The service then returns only the information requested back to the iPad. The `PERM_ID` and `REFCON` are always returned, as they are used by the communication model to match responses to iPad entities and iPad entities to openBIS entities.
 
-The response, as with all aggregation services, is in the form of a table model. There are two special columns that are always transmitted with every response, these are `PERM_ID` and `REFCON`. 
+### Requests
 
-Requests
---------
 
-A table listing the different kinds of requests and the kinds of data they return
+<table>
+	<thead>
+		<tr>
+			<th>requestKey</th>
+			<th>Arguments</th>
+			<th>Description</th>
+			<th>Use</th>
+			<th>Columns</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>ROOT</td>
+			<td>None</td>
+			<td>Return root entities.</td>
+			<td>Used to initialize the root navigation view.</td>
+			<td>PERM_ID, REFCON, CATEGORY, SUMMARY_HEADER, SUMMARY, CHILDREN</td>
+		</tr>
+		<tr>
+			<td>DRILL</td>
+			<td>entities : List of {"PERM_ID" : String, REFCON : String}</td>
+			<td>Return navigational information for the specified entities.</td>
+			<td>Used to navigate. The result should at least include data for children of children to permit efficient navigation on the iPad.</td>
+			<td>PERM_ID, REFCON, CATEGORY, SUMMARY_HEADER, SUMMARY, CHILDREN</td>
+		</tr>
+	</tbody>
+</table>
 
-Headers
--------
+
+### Headers
 
 A table listing the different headers and which requests they are used in.
 
