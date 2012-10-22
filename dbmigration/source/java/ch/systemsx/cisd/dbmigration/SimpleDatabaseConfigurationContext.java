@@ -21,9 +21,12 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 import static ch.systemsx.cisd.common.properties.PropertyUtils.*;
 
@@ -41,6 +44,8 @@ import static ch.systemsx.cisd.common.properties.PropertyUtils.*;
  */
 public class SimpleDatabaseConfigurationContext implements DisposableBean
 {
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, SimpleDatabaseConfigurationContext.class);
 
     static final String DRIVER_KEY = "database-driver";
 
@@ -135,6 +140,7 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
         }
 
         this.validationQuery = getProperty(properties, VALIDATION_QUERY_KEY);
+        operationLog.info("Database configuration for URL '" + url + "' created.");
     }
 
     /**
