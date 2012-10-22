@@ -18,7 +18,26 @@ class RequestHandler:
 		pass
 
 	def add_headers():
-		"""Add the headers for this request. Subclass responsibility"""
+		"""Configure the headers for this request.
+
+		The possible headers come from the following list:
+			PERM_ID : A stable identifier for the object.
+			REFCON : Data that is passed unchanged back to the server when a row is modified.
+				This can be used by the server to encode whatever it needs in order to
+				modify the row.
+			CATEGORY : A category identifier for showing the entity. If empty or None, then the
+				the entity in this row is not shown in top level navigation views. Such entities
+				may appear as children of other entities.
+			SUMMARY_HEADER : A short summary of the entity.
+			SUMMARY : A potentially longer summary of the entity.
+			CHILDREN : The permIds of the children of this entity. Transmitted as JSON.
+			IDENTIFIER : An identifier for the object.
+			IMAGE_URL : A url for an image associated with this entity. If None or empty, no
+				image is shown.
+			PROPERTIES : Properties (metadata) that should be displayed for this entity. Transmitted as JSON.
+
+		The relevant headers are determined by the request.
+		"""
 		pass
 
 	def add_data_rows():
@@ -27,26 +46,14 @@ class RequestHandler:
 		"""
 		pass
 
+	def process_request():
+		"""Execute the steps necessary to process the request."""
+		self.add_headers()
+		self.retrieve_data()
+		self.add_data_rows()
+
 
 def add_headers(builder):
-	"""Configure the headers for the iPad UI -- these are fixed.
-
-	The headers are following: 
-		PERM_ID : A stable identifier for the object.
-		REFCON : Data that is passed unchanged back to the server when a row is modified. 
-			This can be used by the server to encode whatever it needs in order to 
-			modify the row.
-		CATEGORY : A category identifier for showing the entity. If empty or None, then the 
-			the entity in this row is not shown in top level navigation views. Such entities
-			may appear as children of other entities.			
-		SUMMARY_HEADER : A short summary of the entity.
-		SUMMARY : A potentially longer summary of the entity.
-		CHILDREN : The permIds of the children of this entity. Transmitted as JSON.		
-		IDENTIFIER : An identifier for the object.
-		IMAGE_URL : A url for an image associated with this entity. If None or empty, no
-			image is shown.
-		PROPERTIES : Properties (metadata) that should be displayed for this entity. Transmitted as JSON.
-	"""
 	builder.addHeader("PERM_ID")
 	builder.addHeader("REFCON")
 	builder.addHeader("CATEGORY")
