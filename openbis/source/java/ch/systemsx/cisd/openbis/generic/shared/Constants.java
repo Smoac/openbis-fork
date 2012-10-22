@@ -25,7 +25,7 @@ public class Constants
 {
     public static final String USER_PARAMETER = "user";
 
-    public static final String ENABLED_TECHNOLOGIES_KEY = "enabled-modules";
+    public static final String ENABLED_MODULES_KEY = "enabled-modules";
 
     public static final int MAX_SPEED = 100;
 

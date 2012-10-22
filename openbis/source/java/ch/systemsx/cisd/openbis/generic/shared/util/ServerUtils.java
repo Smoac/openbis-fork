@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.util;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -68,7 +69,7 @@ public class ServerUtils
      */
     public static Set<String> extractSet(String commaSeparatedList)
     {
-        Set<String> result = new HashSet<String>();
+        Set<String> result = new LinkedHashSet<String>();
         if (commaSeparatedList != null && commaSeparatedList.startsWith("$") == false)
         {
             String[] terms = commaSeparatedList.split(",");

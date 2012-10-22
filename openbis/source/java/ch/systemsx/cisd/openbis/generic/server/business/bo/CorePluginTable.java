@@ -99,15 +99,14 @@ public final class CorePluginTable extends AbstractBusinessObject implements ICo
         if (false == StringUtils.isEmpty(masterDataScript))
         {
             runInitializeMasterDataScript(plugin, masterDataScript);
+            CorePluginPE pluginPE = CorePluginTranslator.translate(plugin, masterDataScript);
+            getCorePluginDAO().createCorePlugins(Collections.singletonList(pluginPE));
+            operationLog.info(plugin + " installed succesfully.");
         } else
         {
             operationLog.info(String.format("No '%s' script found for '%s'. Skipping..",
                     AsCorePluginPaths.INIT_MASTER_DATA_SCRIPT, plugin));
         }
-
-        CorePluginPE pluginPE = CorePluginTranslator.translate(plugin, masterDataScript);
-        getCorePluginDAO().createCorePlugins(Collections.singletonList(pluginPE));
-        operationLog.info(plugin + " installed succesfully.");
     }
 
     private void runInitializeMasterDataScript(CorePlugin plugin, String masterDataScript)

@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -30,10 +29,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
@@ -43,6 +40,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
@@ -98,27 +96,21 @@ public class CorePluginsInjector
 
     public void injectCorePlugins(Properties properties)
     {
-        String corePluginsFolderPath = CorePluginsUtils.getCorePluginsFolder(properties, scannerType);
+        String corePluginsFolderPath =
+                CorePluginsUtils.getCorePluginsFolder(properties, scannerType);
         injectCorePlugins(properties, corePluginsFolderPath);
     }
 
     public void injectCorePlugins(Properties properties, String corePluginsFolderPath)
     {
-        List<String> enabledTechnologiesRegexs =
-                getList(properties,
-                        ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_TECHNOLOGIES_KEY);
-        List<Pattern> enabledTechnologiesPatterns = new ArrayList<Pattern>();
-        for (String regex : enabledTechnologiesRegexs)
-        {
-            enabledTechnologiesPatterns.add(Pattern.compile(regex));
-        }
-        List<String> disabledPlugins = getList(properties, DISABLED_CORE_PLUGINS_KEY);
+        ModuleEnabledChecker moduleEnabledChecker = new ModuleEnabledChecker(properties);
+        List<String> disabledPlugins = PropertyUtils.getList(properties, DISABLED_CORE_PLUGINS_KEY);
         PluginKeyBundles pluginKeyBundles = new PluginKeyBundles(properties, pluginTypes);
         Set<String> pluginNames = new HashSet<String>();
         pluginKeyBundles.addAndCheckUniquePluginNames(pluginNames);
         Map<IPluginType, Map<String, NamedCorePluginFolder>> plugins =
-                scanForCorePlugins(corePluginsFolderPath, enabledTechnologiesPatterns,
-                        disabledPlugins, pluginNames);
+                scanForCorePlugins(corePluginsFolderPath, moduleEnabledChecker, disabledPlugins,
+                        pluginNames);
         for (Entry<IPluginType, Map<String, NamedCorePluginFolder>> entry : plugins.entrySet())
         {
             IPluginType pluginType = entry.getKey();
@@ -177,35 +169,8 @@ public class CorePluginsInjector
         }
     }
 
-    private List<String> getList(Properties properties, String key)
-    {
-        List<String> set = new ArrayList<String>();
-        String property = properties.getProperty(key);
-        if (StringUtils.isNotBlank(property))
-        {
-            String[] splittedProperty = property.split(",");
-            for (String term : splittedProperty)
-            {
-                set.add(term.trim());
-            }
-        }
-        return set;
-    }
-
-    private boolean isTechnologyEnabled(List<Pattern> enabledTechnologiesPatterns, String technology)
-    {
-        for (Pattern pattern : enabledTechnologiesPatterns)
-        {
-            if (pattern.matcher(technology).matches())
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private Map<IPluginType, Map<String, NamedCorePluginFolder>> scanForCorePlugins(
-            String corePluginsFolderPath, List<Pattern> enabledTechnologies,
+            String corePluginsFolderPath, ModuleEnabledChecker moduleEnabledChecker,
             List<String> disabledPlugins, Set<String> pluginNames)
     {
         Map<IPluginType, Map<String, NamedCorePluginFolder>> typeToPluginsMap =
@@ -215,10 +180,10 @@ public class CorePluginsInjector
         List<CorePlugin> plugins = scanner.scanForPlugins();
         for (CorePlugin corePlugin : plugins)
         {
-            String technology = corePlugin.getName();
-            if (isTechnologyEnabled(enabledTechnologies, technology) == false)
+            String module = corePlugin.getName();
+            if (moduleEnabledChecker.isModuleEnabled(module) == false)
             {
-                logger.log(LogLevel.INFO, "Core plugins for technology '" + technology
+                logger.log(LogLevel.INFO, "Core plugins for module '" + module
                         + "' are not enabled.");
                 continue;
             }
@@ -241,13 +206,13 @@ public class CorePluginsInjector
                     {
                         String pluginName = pluginFolder.getName();
                         NamedCorePluginFolder plugin =
-                                new NamedCorePluginFolder(technology, pluginType, pluginFolder);
+                                new NamedCorePluginFolder(module, pluginType, pluginFolder);
                         String fullPluginName = plugin.getFullPluginName();
                         if (isDisabled(disabledPlugins, fullPluginName) == false)
                         {
                             String fullPluginKey =
                                     pluginType.getPrefix()
-                                            + pluginType.getPluginKey(technology, pluginName,
+                                            + pluginType.getPluginKey(module, pluginName,
                                                     plugin.getPluginProperties());
                             assertAndAddPluginName(fullPluginKey, pluginNames, pluginType);
                             Map<String, NamedCorePluginFolder> map =

@@ -165,7 +165,7 @@ public abstract class SystemTestCase extends AssertJUnit
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "core-plugins-folder",
                 SOURCE_TEST_CORE_PLUGINS);
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + Constants.ENABLED_TECHNOLOGIES_KEY, getEnabledTechnologies());
+                + Constants.ENABLED_MODULES_KEY, getEnabledTechnologies());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + ROOT_DIR_KEY,
                 rootDir.getAbsolutePath());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX

@@ -27,6 +27,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.coreplugin.AsCorePluginPaths;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.IMasterDataScriptRegistrationRunner;
@@ -50,9 +51,12 @@ public class CorePluginTableTest extends AbstractBOTest
 
     private CorePluginTable pluginTable;
 
+    private BufferedAppender logRecorder;
+
     @BeforeMethod
     public void setUp()
     {
+        logRecorder = new BufferedAppender();
         scriptRunner = context.mock(IMasterDataScriptRegistrationRunner.class);
         pluginResourceLoader = context.mock(ICorePluginResourceLoader.class);
         pluginTable = new CorePluginTable(daoFactory, EXAMPLE_SESSION, scriptRunner);
@@ -80,19 +84,13 @@ public class CorePluginTableTest extends AbstractBOTest
                     one(pluginResourceLoader).tryLoadToString(plugin,
                             AsCorePluginPaths.INIT_MASTER_DATA_SCRIPT);
                     will(returnValue(null));
-
-                    one(corePluginDAO).createCorePlugins(with(createdPluginsMatcher));
                 }
             });
 
         pluginTable.registerPlugin(plugin, pluginResourceLoader);
 
-        assertEquals(1, createdPluginsMatcher.getRecordedObjects().size());
-        assertEquals(1, createdPluginsMatcher.recordedObject().size());
-        CorePluginPE createdPluginPE = createdPluginsMatcher.recordedObject().get(0);
-        assertEquals(plugin.getName(), createdPluginPE.getName());
-        assertEquals(plugin.getVersion(), createdPluginPE.getVersion());
-        assertNull(createdPluginPE.getMasterDataRegistrationScript());
+        assertEquals("No 'initialize-master-data.py' script found for "
+                + "'Core Plugin[name='A', version='2']'. Skipping..", logRecorder.getLogContent());
     }
 
     @Test

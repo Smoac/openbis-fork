@@ -107,7 +107,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         corePluginsFolderProperty =
                 CorePluginsUtils.CORE_PLUGINS_FOLDER_KEY + " = " + corePluginsFolder + "\n";
         enabledScreeningProperty =
-                ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_TECHNOLOGIES_KEY
+                ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_MODULES_KEY
                         + " = screening\n";
     }
 
@@ -268,7 +268,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         injector.injectCorePlugins(properties);
 
         assertProperties(corePluginsFolderProperty
-                + ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_TECHNOLOGIES_KEY
+                + ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_MODULES_KEY
                 + " = prot.*, screening\n" + "inputs = my-drop-box\n" + "my-drop-box.script1 = "
                 + myDropBox + "/script1.py\n" + "my-drop-box.script2 = " + myDropBox
                 + "/script2.py\n" + "my-processing.script = " + myProcessingPlugin + "/script.py\n"
@@ -507,7 +507,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         injector.injectCorePlugins(properties);
 
         assertProperties(corePluginsFolderProperty
-                + ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_TECHNOLOGIES_KEY
+                + ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_MODULES_KEY
                 + " = screening, proteomics\n" + "prefix.dss = dss1[proteomics], dss1[screening]\n"
                 + "prefix.dss1[proteomics].driver = beta\n"
                 + "prefix.dss1[proteomics].url = blub\n"
@@ -536,7 +536,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         injector.injectCorePlugins(properties);
 
         assertProperties(corePluginsFolderProperty
-                + ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_TECHNOLOGIES_KEY
+                + ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_MODULES_KEY
                 + " = screening, dev\n" + "prefix.dss = dss1[screening], dss2[screening]\n"
                 + "prefix.dss1[screening].driver = alpha\n"
                 + "prefix.dss1[screening].url = blabla\n"
@@ -583,13 +583,13 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
             });
     }
 
-    private void prepareNotEnabledTechnology(final String technology)
+    private void prepareNotEnabledTechnology(final String module)
     {
         context.checking(new Expectations()
             {
                 {
                     one(logger).log(LogLevel.INFO,
-                            "Core plugins for technology '" + technology + "' are not enabled.");
+                            "Core plugins for module '" + module + "' are not enabled.");
                 }
             });
     }
@@ -621,9 +621,9 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         Properties properties = new ExtendedProperties();
         properties.setProperty(CorePluginsUtils.CORE_PLUGINS_FOLDER_KEY,
                 corePluginsFolder.getPath());
-        properties.setProperty(
-                ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_TECHNOLOGIES_KEY,
-                technologies);
+        properties
+                .setProperty(ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_MODULES_KEY,
+                        technologies);
         return properties;
     }
 

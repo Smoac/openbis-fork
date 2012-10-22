@@ -453,7 +453,7 @@ public abstract class AbstractClientService implements IClientService,
                     .getWebClientConfiguration());
         }
         applicationInfo.setEnabledTechnologies(ServerUtils.extractSet(getServiceProperties()
-                .getProperty(Constants.ENABLED_TECHNOLOGIES_KEY)));
+                .getProperty(Constants.ENABLED_MODULES_KEY)));
         applicationInfo.setCustomImports(extractCustomImportProperties());
         applicationInfo.setWebapps(extractWebAppsProperties());
         applicationInfo.setArchivingConfigured(isArchivingConfigured());

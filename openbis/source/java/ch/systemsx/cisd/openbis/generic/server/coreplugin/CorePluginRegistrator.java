@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.coreplugin;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
@@ -28,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
+import ch.systemsx.cisd.openbis.generic.shared.coreplugin.ModuleEnabledChecker;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 
@@ -42,7 +42,7 @@ public class CorePluginRegistrator implements InitializingBean
 
     private String pluginsFolderName;
 
-    private Set<String> enabledTechnologies = new HashSet<String>();
+    private ModuleEnabledChecker moduleEnabledChecker;
 
     /**
      * Loads and installs the deployed core plugins. Invoked from the Spring container after the
@@ -59,7 +59,7 @@ public class CorePluginRegistrator implements InitializingBean
         String sessionToken = getSessionToken();
         for (CorePlugin plugin : pluginScanner.scanForPlugins())
         {
-            if (enabledTechnologies.contains(plugin.getName()))
+            if (moduleEnabledChecker.isModuleEnabled(plugin.getName()))
             {
                 try
                 {
@@ -85,7 +85,9 @@ public class CorePluginRegistrator implements InitializingBean
 
     public void setEnabledTechnologies(String listOfEnabledTechnologies)
     {
-        enabledTechnologies = ServerUtils.extractSet(listOfEnabledTechnologies);
+        moduleEnabledChecker =
+                new ModuleEnabledChecker(new ArrayList<String>(
+                        ServerUtils.extractSet(listOfEnabledTechnologies)));
     }
 
     public void setCommonServer(ICommonServerForInternalUse commonServer)
