@@ -211,7 +211,10 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 - (NSString *)stringContentValueAtName:(NSString *)name
 {
     // Look up the index in the map
-    NSUInteger index = [[_fieldMap objectForKey: name] unsignedIntegerValue];
+    NSNumber *indexHolder = [_fieldMap objectForKey: name];
+    // This value was not provided
+    if (!indexHolder) return nil;
+    NSUInteger index = [indexHolder unsignedIntegerValue];
     return [[_content objectAtIndex: index] objectForKey: @"value"];
 }
 

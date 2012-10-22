@@ -89,15 +89,18 @@
 
 - (void)initializeFromRawEntity:(CISDOBIpadRawEntity *)rawEntity
 {
+    // These will always be non-nil
     self.permId = rawEntity.permId;
     self.refcon = rawEntity.refcon;
-    self.category = rawEntity.category;
-    self.summaryHeader = rawEntity.summaryHeader;
-    self.summary = rawEntity.summary;
-    self.childrenPermIdsJson = rawEntity.children;
-//    self.identifier = rawEntity.identifier;
-//    self.imageUrl = rawEntity.imageUrl;
-//    self.propertiesJson = rawEntity.properties;
+    
+    // Need to check if these values were transmitted with the raw entity
+    if (rawEntity.category) self.category = rawEntity.category;
+    if (rawEntity.summaryHeader) self.summaryHeader = rawEntity.summaryHeader;
+    if (rawEntity.summary) self.summary = rawEntity.summary;
+    if (rawEntity.children) self.childrenPermIdsJson = rawEntity.children;
+    if (rawEntity.identifier) self.identifier = rawEntity.identifier;
+    if (rawEntity.imageUrl) self.imageUrl = rawEntity.imageUrl;
+    if (rawEntity.properties) self.propertiesJson = rawEntity.properties;
 }
 
 @end
