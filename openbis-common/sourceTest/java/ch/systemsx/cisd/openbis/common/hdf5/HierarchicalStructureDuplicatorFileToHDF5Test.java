@@ -122,7 +122,7 @@ public class HierarchicalStructureDuplicatorFileToHDF5Test extends AbstractFileS
 
     private File getTestData(String folderOrFile)
     {
-        return new File("sourceTest/java/ch/systemsx/cisd/common/hdf5/", folderOrFile);
+        return new File("sourceTest/java/ch/systemsx/cisd/openbis/common/hdf5/", folderOrFile);
     }
 
     private void verifyDuplicate(final File sourceFolderOrFile)

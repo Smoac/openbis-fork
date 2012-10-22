@@ -7,10 +7,10 @@
             </run>
         </groups>
         <packages>
-            <package name="ch.systemsx.cisd.common.server.*" />
-            <package name="ch.systemsx.cisd.common.servlet" />
-            <package name="ch.systemsx.cisd.common.spring" />
-            <package name="ch.systemsx.cisd.common.spring.messaging" />
+            <package name="ch.systemsx.cisd.openbis.common.server.*" />
+            <package name="ch.systemsx.cisd.openbis.common.servlet" />
+            <package name="ch.systemsx.cisd.openbis.common.spring" />
+            <package name="ch.systemsx.cisd.openbis.common.spring.messaging" />
         </packages>
     </test>
 </suite>
