@@ -21,7 +21,7 @@ import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;

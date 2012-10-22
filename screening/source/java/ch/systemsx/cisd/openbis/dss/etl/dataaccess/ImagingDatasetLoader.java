@@ -27,8 +27,8 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exception.UserFailureException;
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;

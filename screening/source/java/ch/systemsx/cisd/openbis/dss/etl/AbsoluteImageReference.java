@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.awt.image.BufferedImage;
 
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorRGB;

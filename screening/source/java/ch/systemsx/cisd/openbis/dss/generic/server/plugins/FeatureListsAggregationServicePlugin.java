@@ -25,7 +25,7 @@ import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AggregationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;

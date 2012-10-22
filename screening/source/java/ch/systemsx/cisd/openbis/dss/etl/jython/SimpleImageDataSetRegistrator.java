@@ -39,7 +39,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
 import ch.systemsx.cisd.common.image.IntensityRescaling.PixelHistogram;
-import ch.systemsx.cisd.common.io.FileBasedContentNode;
+import ch.systemsx.cisd.openbis.common.io.FileBasedContentNode;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;

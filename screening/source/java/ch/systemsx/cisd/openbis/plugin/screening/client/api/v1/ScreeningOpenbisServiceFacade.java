@@ -23,7 +23,7 @@ import org.apache.commons.lang.time.DateUtils;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
-import ch.systemsx.cisd.common.api.client.ServiceFinder;
+import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.api.retry.RetryCaller;
 import ch.systemsx.cisd.common.api.retry.RetryProxyFactory;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;

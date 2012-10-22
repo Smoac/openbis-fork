@@ -32,7 +32,7 @@ import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
 import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueDecorator;
 import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueFactory;
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;

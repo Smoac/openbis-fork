@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageEnrichedDTO;
 
 /**

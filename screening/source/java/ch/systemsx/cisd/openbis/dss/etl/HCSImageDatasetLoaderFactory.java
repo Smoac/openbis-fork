@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
-import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 

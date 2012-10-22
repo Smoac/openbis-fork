@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
-import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;

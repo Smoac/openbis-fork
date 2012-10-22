@@ -19,11 +19,11 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 
-import ch.systemsx.cisd.common.api.server.json.deserializer.JsonDeserializerFactory;
-import ch.systemsx.cisd.common.api.server.json.introspector.JsonTypeAndClassAnnotationIntrospector;
-import ch.systemsx.cisd.common.api.server.json.mapping.JsonReflectionsBaseTypeToSubTypesMapping;
-import ch.systemsx.cisd.common.api.server.json.resolver.JsonReflectionsSubTypeResolver;
-import ch.systemsx.cisd.common.api.server.json.serializer.JsonSerializerFactory;
+import ch.systemsx.cisd.openbis.common.api.server.json.deserializer.JsonDeserializerFactory;
+import ch.systemsx.cisd.openbis.common.api.server.json.introspector.JsonTypeAndClassAnnotationIntrospector;
+import ch.systemsx.cisd.openbis.common.api.server.json.mapping.JsonReflectionsBaseTypeToSubTypesMapping;
+import ch.systemsx.cisd.openbis.common.api.server.json.resolver.JsonReflectionsSubTypeResolver;
+import ch.systemsx.cisd.openbis.common.api.server.json.serializer.JsonSerializerFactory;
 
 /**
  * Jackson library object mapper used in screening OpenBIS.

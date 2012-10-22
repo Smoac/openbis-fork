@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
-import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
+import ch.systemsx.cisd.openbis.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
