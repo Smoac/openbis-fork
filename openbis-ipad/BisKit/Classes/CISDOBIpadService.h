@@ -52,7 +52,7 @@ enum CISOBIpadServiceErrorCode {
 //! Log the user into the openBIS instance
 - (CISDOBAsyncCall *)loginUser:(NSString *)user password:(NSString *)password;
 
-//! Get all root-level entities from the openBIS ipad service. The success message will be invoked with a collection of CISDOBIpadRawEntity objects.
+//! Get all root-level entities from the openBIS ipad service, possibly along with some children as well. The success message will be invoked with a collection of CISDOBIpadRawEntity objects.
 - (CISDOBAsyncCall *)listRootLevelEntities;
 
 @end
