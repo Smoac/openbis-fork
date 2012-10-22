@@ -175,14 +175,19 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
     return iPadCall;
 }
 
-- (CISDOBAsyncCall *)drillOnEntityWithPermId:(NSString *)permId refcon:(id)refcon
+- (CISDOBAsyncCall *)drillOnEntities:(NSArray *)permIds refcons:(NSArray *)refcons
 {
-    // A simple version of the method that just request data for one entity.
-    NSDictionary *entity =
-        [NSDictionary dictionaryWithObjectsAndKeys:
-            permId, @"PERM_ID",
-            refcon, @"REFCON", nil];
-    NSArray *entities = [NSArray arrayWithObject: entity];
+    NSUInteger count = [permIds count];
+    NSAssert([refcons count] == count, @"Drilling requires permIds and refcons. There must be an equal number of these.");
+    NSMutableArray *entities = [[NSMutableArray alloc] initWithCapacity: [permIds count]];
+    for (NSUInteger i = 0; i < count; ++i) {
+        NSDictionary *entity =
+            [NSDictionary dictionaryWithObjectsAndKeys:
+                [permIds objectAtIndex: i], @"PERM_ID",
+                [refcons objectAtIndex: i], @"REFCON", nil];
+        [entities addObject: entity];
+    }
+
     NSDictionary *parameters =
         [NSDictionary dictionaryWithObjectsAndKeys:
             @"DRILL", @"requestKey",
@@ -201,6 +206,13 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
     };
     
     return iPadCall;
+}
+
+- (CISDOBAsyncCall *)drillOnEntityWithPermId:(NSString *)permId refcon:(id)refcon
+{
+    NSArray *permIds = [NSArray arrayWithObject: permId];
+    NSArray *refcons = [NSArray arrayWithObject: refcon];
+    return [self drillOnEntities: permIds refcons: refcons];
 }
 
 @end
