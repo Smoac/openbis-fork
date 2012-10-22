@@ -55,6 +55,9 @@ enum CISOBIpadServiceErrorCode {
 //! Get all root-level entities from the openBIS ipad service, possibly along with some children as well. The success message will be invoked with a collection of CISDOBIpadRawEntity objects.
 - (CISDOBAsyncCall *)listRootLevelEntities;
 
+//! Get drill information from the openBIS ipad service -- this will include information about the children of the entity and possibly their children as well. The success message will be invoked with a collection of CISDOBIpadRawEntity objects.
+- (CISDOBAsyncCall *)drillOnEntityWithPermId:(NSString *)permId refcon:(NSString *)refcon;
+
 @end
 
 

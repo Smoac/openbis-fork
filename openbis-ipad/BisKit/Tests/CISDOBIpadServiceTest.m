@@ -52,7 +52,7 @@
     [self waitSeconds: waitTime forCallToComplete: call];
 }
 
-- (void)testListAllEntities
+- (void)testListRootEntities
 {
     CISDOBAsyncCall *call;
     call = [_service loginUser: GetDefaultUserName() password: GetDefaultUserPassword()];
@@ -79,6 +79,37 @@
         STAssertNil(rawEntity.imageUrl, @"Image url should be nil");
         STAssertNil(rawEntity.properties, @"Properties should be nil");
     }
+}
+
+- (void)testDrill
+{
+    CISDOBAsyncCall *call;
+    call = [_service loginUser: GetDefaultUserName() password: GetDefaultUserPassword()];
+    [self configureAndRunCallSynchronously: call];
+    
+    call = [_service listRootLevelEntities];
+    [self configureAndRunCallSynchronously: call];
+    
+    STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
+    NSArray *rawEntities = _callResult;
+    STAssertTrue([rawEntities count] > 0, @"The Pad service should have returned some entities.");
+    
+    
+    // Find an entity with children and drill on it
+    CISDOBIpadRawEntity *entityWithChildren = nil;
+    for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
+        if ([rawEntity.children length] > 2) {
+            entityWithChildren = rawEntity;
+            break;
+        }
+    }
+    
+    // Drill
+     call = [_service drillOnEntityWithPermId: entityWithChildren.permId refcon: entityWithChildren.refcon];
+    [self configureAndRunCallSynchronously: call];
+    
+    rawEntities = _callResult;
+    STAssertTrue([rawEntities count] > 0, @"The Pad service should have returned some entities.");
 }
 
 @end

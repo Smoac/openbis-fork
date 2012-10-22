@@ -175,6 +175,34 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
     return iPadCall;
 }
 
+- (CISDOBAsyncCall *)drillOnEntityWithPermId:(NSString *)permId refcon:(NSString *)refcon
+{
+    // A simple version of the method that just request data for one entity.
+    NSDictionary *entity =
+        [NSDictionary dictionaryWithObjectsAndKeys:
+            permId, @"PERM_ID",
+            refcon, @"REFCON", nil];
+    NSArray *entities = [NSArray arrayWithObject: entity];
+    NSDictionary *parameters =
+        [NSDictionary dictionaryWithObjectsAndKeys:
+            @"DRILL", @"requestKey",
+            entities, @"entities", nil];
+    CISDOBAsyncCall *connectionCall =
+        [_connection
+            createReportFromDataStore: [_ipadReadService objectForKey: @"dataStoreCode"]
+            aggregationService: [_ipadReadService objectForKey: @"serviceKey"]
+            parameters: parameters];
+    CISDOBIpadServiceCall *iPadCall = [self iPadCallWrappingConnectionCall: connectionCall];
+    
+    connectionCall.success = ^(id result) {
+        if (iPadCall.success) {
+            iPadCall.success([self rawEntitiesFromResult: result]);
+        }
+    };
+    
+    return iPadCall;
+}
+
 @end
 
 @implementation CISDOBIpadServiceCall
