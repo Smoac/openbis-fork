@@ -27,15 +27,24 @@
 
 /**
  * \brief A persistent version of an entity from the iPad server.
+ *
+ * Since information for the entities are downloaded progressively, users of this
+ * class should treat all properties EXCEPT permId and refcon as being potentially
+ * nil. A nil value means that the true value is not known. An empty string signifies
+ * an empty value for string properties and an empty array signifies an empty value
+ * for array properties.
  */
 @class CISDOBIpadRawEntity;
 @interface CISDOBIpadEntity : NSManagedObject
 
+// Non-nil properties
+@property (nonatomic, retain) NSString * permId;
+@property (nonatomic, retain) NSString * refcon;
+
+// Potentially nil properties
 @property (nonatomic, retain) NSString * summaryHeader;
 @property (nonatomic, retain) NSString * summary;
 @property (nonatomic, retain) NSString * identifier;
-@property (nonatomic, retain) NSString * permId;
-@property (nonatomic, retain) NSString * refcon;
 @property (nonatomic, retain) NSString * category;
 @property (nonatomic, retain) NSString * imageUrl;
 

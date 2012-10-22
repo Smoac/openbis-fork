@@ -64,7 +64,8 @@ enum CISOBIpadServiceErrorCode {
 @interface CISDOBIpadRawEntity : NSObject {
 @private
     // Internal state
-    NSArray*    _content;
+    NSArray         *_content;
+    NSDictionary    *_fieldMap;
 }
 
 @property(readonly) NSString *permId;
@@ -76,5 +77,6 @@ enum CISOBIpadServiceErrorCode {
 @property(readonly) NSString *identifier;
 @property(readonly) NSString *imageUrl;
 @property(readonly) NSString *properties;   //<! The properties as a JSON string.
+@property(readonly) NSString *rootLevel;
 
 @end

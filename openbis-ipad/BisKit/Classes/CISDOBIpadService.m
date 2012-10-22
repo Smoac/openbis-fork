@@ -44,7 +44,7 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 // Internal methods
 @interface CISDOBIpadRawEntity (CISDOBIpadRawEntityPrivate)
 
-- (id)initWithContent:(NSArray *)content;
+- (id)initWithContent:(NSArray *)content fieldMap:(NSDictionary *)fieldMap;
 
 @end
 
@@ -114,12 +114,28 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
     return iPadCall;
 }
 
+- (NSDictionary *)computeColumnsFieldMapFromColumns:(NSArray *)columns
+{
+    // Convert the array to a map indexed by field name.
+    NSMutableDictionary *fieldMap = [[NSMutableDictionary alloc] initWithCapacity: [columns count]];
+    NSUInteger i = 0;
+    for (NSDictionary *col in columns) {
+        [fieldMap
+            setObject: [NSNumber numberWithUnsignedInteger: i++]
+            forKey: [col objectForKey: @"title"]];
+    }
+    
+    return fieldMap;
+}
+
 - (NSArray *)rawEntitiesFromResult:(NSDictionary *)result
 {
+    NSArray *columns = [result objectForKey: @"columns"];
+    NSDictionary *fieldMap = [self computeColumnsFieldMapFromColumns: columns];
     NSMutableArray *rawEntities = [[NSMutableArray alloc] init];
     NSArray *rows = [result objectForKey: @"rows"];
     for (NSArray *row in rows) {
-        CISDOBIpadRawEntity* rawEntity = [[CISDOBIpadRawEntity alloc] initWithContent: row];
+        CISDOBIpadRawEntity* rawEntity = [[CISDOBIpadRawEntity alloc] initWithContent: row fieldMap: fieldMap];
         [rawEntities addObject: rawEntity];
     }
     
@@ -182,25 +198,32 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 
 @implementation CISDOBIpadRawEntity
 
-- (id)initWithContent:(NSArray *)content
+- (id)initWithContent:(NSArray *)content fieldMap:(NSDictionary *)fieldMap
 {
     if (!(self = [super init])) return nil;
     
     _content = content;
+    _fieldMap = fieldMap;
 
     return self;
 }
 
-- (NSString *)stringContentValueAtIndex:(NSUInteger)index { return [[_content objectAtIndex: index] objectForKey: @"value"]; }
+- (NSString *)stringContentValueAtName:(NSString *)name
+{
+    // Look up the index in the map
+    NSUInteger index = [[_fieldMap objectForKey: name] unsignedIntegerValue];
+    return [[_content objectAtIndex: index] objectForKey: @"value"];
+}
 
-- (NSString *)permId { return [self stringContentValueAtIndex: 0]; }
-- (NSString *)refcon { return [self stringContentValueAtIndex: 1]; }
-- (NSString *)category { return [self stringContentValueAtIndex: 2]; }
-- (NSString *)summaryHeader { return [self stringContentValueAtIndex: 3]; }
-- (NSString *)summary { return [self stringContentValueAtIndex: 4]; }
-- (NSString *)children { return [self stringContentValueAtIndex: 5]; }
-- (NSString *)identifier { return [self stringContentValueAtIndex: 6]; }
-- (NSString *)imageUrl { return [self stringContentValueAtIndex: 7]; }
-- (NSString *)properties { return [self stringContentValueAtIndex: 8]; }
+- (NSString *)permId { return [self stringContentValueAtName: @"PERM_ID"]; }
+- (NSString *)refcon { return [self stringContentValueAtName: @"REFCON"]; }
+- (NSString *)category { return [self stringContentValueAtName: @"CATEGORY"]; }
+- (NSString *)summaryHeader { return [self stringContentValueAtName: @"SUMMARY_HEADER"]; }
+- (NSString *)summary { return [self stringContentValueAtName: @"SUMMARY"]; }
+- (NSString *)children { return [self stringContentValueAtName: @"CHILDREN"]; }
+- (NSString *)identifier { return [self stringContentValueAtName: @"IDENTIFIER"]; }
+- (NSString *)imageUrl { return [self stringContentValueAtName: @"IMAGE_URL"]; }
+- (NSString *)properties { return [self stringContentValueAtName: @"PROPERTIES"]; }
+- (NSString *)rootLevel { return [self stringContentValueAtName: @"ROOT_LEVEL"]; }
 
 @end
