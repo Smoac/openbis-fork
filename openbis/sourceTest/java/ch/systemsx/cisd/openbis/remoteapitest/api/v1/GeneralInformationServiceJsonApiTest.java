@@ -53,10 +53,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
-import ch.systemsx.cisd.openbis.util.GeneralInformationServiceUtil;
 
 /**
  * Verifies that an instance of {@link IGeneralInformationService} is published via JSON-RPC and
@@ -699,13 +697,9 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         // as the metaprojects functionality is already tested in detail by the system tests here
         // we just want to check that metaproject related classes serialize/deserialize to/from JSON
         // properly
-
-        GeneralInformationServiceUtil util =
-                new GeneralInformationServiceUtil(generalInformationService,
-                        generalInformationChangingService);
-        Metaproject metaproject = util.createMetaprojectWithAssignments(sessionToken);
-        generalInformationService.getMetaproject(sessionToken,
-                new MetaprojectTechIdId(metaproject.getId()));
+        generalInformationService.listMetaprojects(sessionToken);
+        generalInformationService.getMetaproject(sessionToken, new MetaprojectIdentifierId(
+                "/test/TEST_METAPROJECTS"));
     }
 
     private Vocabulary findVocabulary(List<Vocabulary> vocabularies, String vocabularyCode)
@@ -719,4 +713,5 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         }
         return null;
     }
+
 }
