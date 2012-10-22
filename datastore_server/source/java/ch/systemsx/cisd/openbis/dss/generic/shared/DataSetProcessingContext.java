@@ -16,11 +16,19 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import java.io.File;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISessionWorkspaceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
  * Context for processing data sets by a {@link IProcessingPluginTask}.
@@ -29,6 +37,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISessionWorks
  */
 public class DataSetProcessingContext
 {
+    final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DataSetProcessingContext.class);
+    
     private final Map<String, String> parameterBindings;
 
     private final IMailClient mailClient;
@@ -45,15 +56,18 @@ public class DataSetProcessingContext
 
     private final String userId;
 
+    private final IEncapsulatedOpenBISService service;
+
     /**
      * Creates an instance for specified directory provider, parameter bindings, e-mail client, and
      * optional user e-mail address and sessionToken.
      */
+    // This method is only used in tests.
     public DataSetProcessingContext(IHierarchicalContentProvider contentProvider,
             IDataSetDirectoryProvider directoryProvider, Map<String, String> parameterBindings,
             IMailClient mailClient, String userId, String userEmailOrNull)
     {
-        this(contentProvider, directoryProvider, parameterBindings, mailClient, userId,
+        this(null, contentProvider, directoryProvider, null, parameterBindings, mailClient, userId,
                 userEmailOrNull, null);
     }
 
@@ -79,6 +93,23 @@ public class DataSetProcessingContext
             Map<String, String> parameterBindings, IMailClient mailClient, String userId,
             String userEmailOrNull, String sessionTokenOrNull)
     {
+        this(ServiceProvider.getOpenBISService(), contentProvider, directoryProvider,
+                sessionWorkspaceProviderOrNull, parameterBindings, mailClient, userId,
+                userEmailOrNull, sessionTokenOrNull);
+    }
+
+    /**
+     * Creates an instance for specified service, directory provider, workspace provider, parameter
+     * bindings, e-mail client, and optional user e-mail address and sessionToken.
+     */
+    public DataSetProcessingContext(IEncapsulatedOpenBISService service,
+            IHierarchicalContentProvider contentProvider,
+            IDataSetDirectoryProvider directoryProvider,
+            ISessionWorkspaceProvider sessionWorkspaceProviderOrNull,
+            Map<String, String> parameterBindings, IMailClient mailClient, String userId,
+            String userEmailOrNull, String sessionTokenOrNull)
+    {
+        this.service = service;
         this.hierarchicalContentProvider = contentProvider;
         this.directoryProvider = directoryProvider;
         this.parameterBindings = parameterBindings;
@@ -130,6 +161,52 @@ public class DataSetProcessingContext
 
     public IHierarchicalContentProvider getHierarchicalContentProvider()
     {
-        return hierarchicalContentProvider;
+        return new IHierarchicalContentProvider()
+            {
+
+                @Override
+                public IHierarchicalContent asContent(ExternalData dataSet)
+                {
+                    assertAuthorization(dataSet.getCode());
+                    return hierarchicalContentProvider.asContent(dataSet);
+                }
+
+                @Override
+                public IHierarchicalContent asContent(String dataSetCode)
+                        throws IllegalArgumentException
+                {
+                    assertAuthorization(dataSetCode);
+                    return hierarchicalContentProvider.asContent(dataSetCode);
+                }
+
+                @SuppressWarnings("deprecation")
+                @Override
+                public IHierarchicalContent asContent(File datasetDirectory)
+                {
+                    return hierarchicalContentProvider.asContent(datasetDirectory);
+                }
+
+                @SuppressWarnings("deprecation")
+                @Override
+                public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
+                {
+                    return hierarchicalContentProvider.asContent(datasetLocation);
+                }
+            };
+    }
+    
+    private void assertAuthorization(String dataSetCode)
+    {
+        if (sessionTokenOrNull == null)
+        {
+            operationLog.warn("Undefined user session token. Skip authorization check for data set " + dataSetCode + ".");
+            return;
+        }
+        if (service == null)
+        {
+            operationLog.warn("Undefined service. Skip authorization check for data set " + dataSetCode + ".");
+            return;
+        }
+        service.checkDataSetAccess(sessionTokenOrNull, dataSetCode);
     }
 }
