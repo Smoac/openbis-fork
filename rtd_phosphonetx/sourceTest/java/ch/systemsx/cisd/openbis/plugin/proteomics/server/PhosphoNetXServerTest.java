@@ -23,14 +23,13 @@ import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.eodsql.MockDataSet;
+import ch.systemsx.cisd.openbis.common.eodsql.MockDataSet;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.plugin.proteomics.server.PhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.IAbundanceColumnDefinitionTable;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.IProteinDetailsBO;

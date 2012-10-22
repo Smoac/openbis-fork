@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.proteomics.client.api.v1;
 
-import ch.systemsx.cisd.common.api.client.ServiceFinder;
+import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.api.retry.RetryCaller;
 import ch.systemsx.cisd.common.api.retry.RetryProxyFactory;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;

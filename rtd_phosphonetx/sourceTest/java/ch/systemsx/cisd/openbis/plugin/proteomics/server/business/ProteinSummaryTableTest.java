@@ -25,11 +25,10 @@ import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.eodsql.MockDataSet;
+import ch.systemsx.cisd.openbis.common.eodsql.MockDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.ProteinSummaryTable;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinSummary;
