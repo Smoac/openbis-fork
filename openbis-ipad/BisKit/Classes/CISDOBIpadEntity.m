@@ -40,6 +40,15 @@
 
 @synthesize image;
 
+- (void)setRefconJson:(NSString *)refconJson
+{
+    // Update the object value as well.
+    [self willChangeValueForKey: @"refconJson"];
+    [self setPrimitiveValue: refconJson forKey: @"refconJson"];
+    [self setPrimitiveValue: nil forKey: @"refcon"];
+    [self didChangeValueForKey: @"refconJson"];
+}
+
 - (id)refcon
 {
     [self willAccessValueForKey: @"refcon"];
