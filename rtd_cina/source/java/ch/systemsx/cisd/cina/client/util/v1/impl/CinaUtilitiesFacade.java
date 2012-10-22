@@ -22,7 +22,7 @@ import java.util.List;
 import org.springframework.remoting.RemoteConnectFailureException;
 
 import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
-import ch.systemsx.cisd.common.api.client.ServiceFinder;
+import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.exception.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exception.UserFailureException;
