@@ -2,23 +2,49 @@ from ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1 import Material
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto import MaterialIdentifier
 from com.fasterxml.jackson.databind import ObjectMapper 
 
+class RequestHandler:
+	"""Abstract superclass for the handlers for concrete requests like ROOT.
+
+	This superclass defines behavior common to all requests."""
+
+	def __init__(parameters, builder):
+		self.parameters = parameters
+		self.builder = builder
+		global searchService
+		self.searchService = searchService
+
+	def retrieve_data():
+		"""Get the data for the request. Subclass responsibility"""
+		pass
+
+	def add_headers():
+		"""Add the headers for this request. Subclass responsibility"""
+		pass
+
+	def add_data_rows():
+		"""Take the information from the data and put it into the table.
+		Subclass responsibility.
+		"""
+		pass
+
+
 def add_headers(builder):
 	"""Configure the headers for the iPad UI -- these are fixed.
 
 	The headers are following: 
-		SUMMARY_HEADER : A short summary of the entity.
-		SUMMARY : A potentially longer summary of the entity.
-		IDENTIFIER : An identifier for the object.
 		PERM_ID : A stable identifier for the object.
 		REFCON : Data that is passed unchanged back to the server when a row is modified. 
 			This can be used by the server to encode whatever it needs in order to 
 			modify the row.
 		CATEGORY : A category identifier for showing the entity. If empty or None, then the 
 			the entity in this row is not shown in top level navigation views. Such entities
-			may appear as children of other entities.
+			may appear as children of other entities.			
+		SUMMARY_HEADER : A short summary of the entity.
+		SUMMARY : A potentially longer summary of the entity.
+		CHILDREN : The permIds of the children of this entity. Transmitted as JSON.		
+		IDENTIFIER : An identifier for the object.
 		IMAGE_URL : A url for an image associated with this entity. If None or empty, no
 			image is shown.
-		CHILDREN : The permIds of the children of this entity. Transmitted as JSON.
 		PROPERTIES : Properties (metadata) that should be displayed for this entity. Transmitted as JSON.
 	"""
 	builder.addHeader("PERM_ID")
