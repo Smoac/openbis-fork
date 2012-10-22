@@ -54,6 +54,8 @@
 @property (nonatomic, retain) NSString * propertiesJson;
 @property (readonly)          NSArray * properties;
 
+@property (nonatomic, retain) NSNumber * rootLevel;
+
 ///! The image contained at the imageUrl or nil if there is no image. Could be a UIImage or CIImage depending on the platform.
 @property (nonatomic, strong) id image;
 

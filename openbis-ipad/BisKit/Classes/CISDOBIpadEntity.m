@@ -36,6 +36,7 @@
 @dynamic imageUrl;
 @dynamic childrenPermIdsJson;
 @dynamic propertiesJson;
+@dynamic rootLevel;
 
 @synthesize image;
 
@@ -101,6 +102,7 @@
     if (rawEntity.identifier) self.identifier = rawEntity.identifier;
     if (rawEntity.imageUrl) self.imageUrl = rawEntity.imageUrl;
     if (rawEntity.properties) self.propertiesJson = rawEntity.properties;
+    if (rawEntity.rootLevel) self.rootLevel = [NSNumber numberWithBool: [rawEntity.rootLevel length] > 0];
 }
 
 @end
