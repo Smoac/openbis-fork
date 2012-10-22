@@ -171,6 +171,8 @@ public abstract class SeleniumTest
 
     private static Application openbis;
 
+    private static Application defaultApplication;
+
     private static Pages pages;
 
     private static String asUrl;
@@ -321,7 +323,7 @@ public abstract class SeleniumTest
 
     public <T> T using(Application application, T t)
     {
-        openbis = gui();
+        openbis = defaultApplication;
         return t;
     }
 
@@ -691,23 +693,24 @@ public abstract class SeleniumTest
 
     public Application publicApi()
     {
-        openbis = new Application(asUrl, dssUrl, pages);
-        openbis.setExecutor(CreateSpace.class, new CreateSpaceRmi());
-        openbis.setExecutor(CreateSampleType.class, new CreateSampleTypeRmi());
-        openbis.setExecutor(CreateSample.class, new CreateSampleRmi());
-        openbis.setExecutor(CreateDataSet.class, new CreateDataSetRmi());
-        openbis.setExecutor(CreateDataSetType.class, new CreateDataSetTypeRmi());
-        openbis.setExecutor(CreateMetaProject.class, new CreateMetaProjectRmi());
-        openbis.setExecutor(ListMetaProjects.class, new ListMetaProjectsRmi());
-        openbis.setExecutor(AddEntitiesToMetaProject.class, new AddEntitiesToMetaProjectRmi());
-        openbis.setExecutor(SearchForSamples.class, new SearchForSamplesRmi());
-        return openbis;
+        Application application = new Application(asUrl, dssUrl, pages);
+        application.setExecutor(CreateSpace.class, new CreateSpaceRmi());
+        application.setExecutor(CreateSampleType.class, new CreateSampleTypeRmi());
+        application.setExecutor(CreateSample.class, new CreateSampleRmi());
+        application.setExecutor(CreateDataSet.class, new CreateDataSetRmi());
+        application.setExecutor(CreateDataSetType.class, new CreateDataSetTypeRmi());
+        application.setExecutor(CreateMetaProject.class, new CreateMetaProjectRmi());
+        application.setExecutor(ListMetaProjects.class, new ListMetaProjectsRmi());
+        application.setExecutor(AddEntitiesToMetaProject.class, new AddEntitiesToMetaProjectRmi());
+        application.setExecutor(SearchForSamples.class, new SearchForSamplesRmi());
+        openbis = application;
+        return application;
     }
 
     public Application dummyApplication()
     {
-        openbis = new Application();
-        openbis.setExecutor(CreateExperiment.class,
+        Application application = new Application();
+        application.setExecutor(CreateExperiment.class,
                 new Executor<CreateExperiment, Experiment>()
                     {
                         @Override
@@ -716,7 +719,7 @@ public abstract class SeleniumTest
                             return request.getExperiment();
                         }
                     });
-        openbis.setExecutor(CreateExperimentType.class,
+        application.setExecutor(CreateExperimentType.class,
                 new Executor<CreateExperimentType, ExperimentType>()
                     {
                         @Override
@@ -725,7 +728,7 @@ public abstract class SeleniumTest
                             return request.getType();
                         }
                     });
-        openbis.setExecutor(CreateProject.class,
+        application.setExecutor(CreateProject.class,
                 new Executor<CreateProject, Project>()
                     {
                         @Override
@@ -734,7 +737,7 @@ public abstract class SeleniumTest
                             return request.getProject();
                         }
                     });
-        openbis.setExecutor(CreatePropertyTypeAssignment.class,
+        application.setExecutor(CreatePropertyTypeAssignment.class,
                 new Executor<CreatePropertyTypeAssignment, PropertyTypeAssignment>()
                     {
                         @Override
@@ -743,7 +746,7 @@ public abstract class SeleniumTest
                             return request.getAssignment();
                         }
                     });
-        openbis.setExecutor(CreatePropertyType.class,
+        application.setExecutor(CreatePropertyType.class,
                 new Executor<CreatePropertyType, PropertyType>()
                     {
                         @Override
@@ -752,7 +755,7 @@ public abstract class SeleniumTest
                             return request.getType();
                         }
                     });
-        openbis.setExecutor(CreateSample.class,
+        application.setExecutor(CreateSample.class,
                 new Executor<CreateSample, Sample>()
                     {
                         @Override
@@ -761,7 +764,7 @@ public abstract class SeleniumTest
                             return request.getSample();
                         }
                     });
-        openbis.setExecutor(CreateSampleType.class,
+        application.setExecutor(CreateSampleType.class,
                 new Executor<CreateSampleType, SampleType>()
                     {
                         @Override
@@ -771,7 +774,7 @@ public abstract class SeleniumTest
                             return request.getType();
                         }
                     });
-        openbis.setExecutor(CreateScript.class,
+        application.setExecutor(CreateScript.class,
                 new Executor<CreateScript, Script>()
                     {
                         @Override
@@ -780,7 +783,7 @@ public abstract class SeleniumTest
                             return request.getScript();
                         }
                     });
-        openbis.setExecutor(CreateSpace.class,
+        application.setExecutor(CreateSpace.class,
                 new Executor<CreateSpace, Space>()
                     {
                         @Override
@@ -789,7 +792,7 @@ public abstract class SeleniumTest
                             return request.getSpace();
                         }
                     });
-        openbis.setExecutor(CreateVocabulary.class,
+        application.setExecutor(CreateVocabulary.class,
                 new Executor<CreateVocabulary, Vocabulary>()
                     {
                         @Override
@@ -798,47 +801,51 @@ public abstract class SeleniumTest
                             return request.getVocabulary();
                         }
                     });
-
-        return openbis;
+        openbis = application;
+        return application;
     }
 
     protected void useGui()
     {
         startWebDriver();
-        gui();
+        openbis = gui();
+        defaultApplication = openbis;
     }
 
     protected void usePublicApi()
     {
-        publicApi();
+        openbis = publicApi();
+        defaultApplication = openbis;
     }
 
     public Application gui()
     {
-        openbis = new Application(asUrl, dssUrl, pages);
-        openbis.setExecutor(CreateExperiment.class, new CreateExperimentGui());
-        openbis.setExecutor(CreateExperimentType.class, new CreateExperimentTypeGui());
-        openbis.setExecutor(CreateProject.class, new CreateProjectGui());
-        openbis.setExecutor(CreatePropertyTypeAssignment.class,
+        Application application = new Application(asUrl, dssUrl, pages);
+        application.setExecutor(CreateExperiment.class, new CreateExperimentGui());
+        application.setExecutor(CreateExperimentType.class, new CreateExperimentTypeGui());
+        application.setExecutor(CreateProject.class, new CreateProjectGui());
+        application.setExecutor(CreatePropertyTypeAssignment.class,
                 new CreatePropertyTypeAssignmentGui());
-        openbis.setExecutor(CreatePropertyType.class, new CreatePropertyTypeGui());
-        openbis.setExecutor(CreateSample.class, new CreateSampleGui());
-        openbis.setExecutor(CreateSampleType.class, new CreateSampleTypeGui());
-        openbis.setExecutor(CreateScript.class, new CreateScriptGui());
-        openbis.setExecutor(CreateSpace.class, new CreateSpaceGui());
-        openbis.setExecutor(CreateVocabulary.class, new CreateVocabularyGui());
-        openbis.setExecutor(DeleteExperimentsOfProject.class, new DeleteExperimentsOfProjectGui());
-        openbis.setExecutor(DeleteExperimentType.class, new DeleteExperimentTypeGui());
-        openbis.setExecutor(DeleteProject.class, new DeleteProjectGui());
-        openbis.setExecutor(DeletePropertyType.class, new DeletePropertyTypeGui());
-        openbis.setExecutor(DeleteSampleType.class, new DeleteSampleTypeGui());
-        openbis.setExecutor(DeleteSpace.class, new DeleteSpaceGui());
-        openbis.setExecutor(DeleteVocabulary.class, new DeleteVocabularyGui());
-        openbis.setExecutor(EmptyTrash.class, new EmptyTrashGui());
-        openbis.setExecutor(Login.class, new LoginGui());
-        openbis.setExecutor(Logout.class, new LogoutGui());
-        openbis.setExecutor(UpdateSampleType.class, new UpdateSampleTypeGui());
-        return openbis;
+        application.setExecutor(CreatePropertyType.class, new CreatePropertyTypeGui());
+        application.setExecutor(CreateSample.class, new CreateSampleGui());
+        application.setExecutor(CreateSampleType.class, new CreateSampleTypeGui());
+        application.setExecutor(CreateScript.class, new CreateScriptGui());
+        application.setExecutor(CreateSpace.class, new CreateSpaceGui());
+        application.setExecutor(CreateVocabulary.class, new CreateVocabularyGui());
+        application.setExecutor(DeleteExperimentsOfProject.class,
+                new DeleteExperimentsOfProjectGui());
+        application.setExecutor(DeleteExperimentType.class, new DeleteExperimentTypeGui());
+        application.setExecutor(DeleteProject.class, new DeleteProjectGui());
+        application.setExecutor(DeletePropertyType.class, new DeletePropertyTypeGui());
+        application.setExecutor(DeleteSampleType.class, new DeleteSampleTypeGui());
+        application.setExecutor(DeleteSpace.class, new DeleteSpaceGui());
+        application.setExecutor(DeleteVocabulary.class, new DeleteVocabularyGui());
+        application.setExecutor(EmptyTrash.class, new EmptyTrashGui());
+        application.setExecutor(Login.class, new LoginGui());
+        application.setExecutor(Logout.class, new LogoutGui());
+        application.setExecutor(UpdateSampleType.class, new UpdateSampleTypeGui());
+        openbis = application;
+        return application;
     }
 
     public static void mouseOver(WebElement element)
