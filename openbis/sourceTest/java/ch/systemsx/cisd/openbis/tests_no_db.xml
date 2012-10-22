@@ -9,7 +9,9 @@
             </run>
         </groups>
         <packages>
-            <package name="ch.systemsx.cisd.openbis.*" />
+          <package name="ch.systemsx.cisd.openbis.*">
+            <exclude name="ch.systemsx.cisd.openbis.common.*" />
+          </package>
         </packages>
     </test>
 </suite>
