@@ -17,9 +17,9 @@
 package ch.systemsx.cisd.yeastx.db;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.spring.SpringEoDSQLExceptionTranslator;
 import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.common.spring.SpringEoDSQLExceptionTranslator;
 
 /**
  * Utilities for dealing with databases in tests.
