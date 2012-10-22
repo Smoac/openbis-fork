@@ -13,7 +13,7 @@
 
 [yeastx] = ${yeastx}.** 
 [dss] = ${dss}.*
-[private_openbis] = ${openbis}.* excluding [dss] ${openbis}.generic.shared.*
+[private_openbis] = ${openbis}.* excluding [dss] ${openbis}.generic.shared.* ${openbis}.common.*
 
 check sets [yeastx]
 
