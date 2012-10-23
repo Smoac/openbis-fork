@@ -61,12 +61,10 @@ public class ServiceFinderTimeoutTest extends AssertJUnit
     public void testTimeout()
     {
         ServiceFinder finder = new ServiceFinder("", "");
-        ITestInterace remoteService =
-                finder.createService(ITestInterace.class, "http://localhost:" + server.getPort(),
-                        ONE_SECOND_TIMEOUT);
         try
         {
-            remoteService.timeoutProvokingMethod();
+            finder.createService(ITestInterace.class, "http://localhost:" + server.getPort(),
+                    ONE_SECOND_TIMEOUT);
             fail("Timeout exception expected");
         } catch (RemoteAccessException rae)
         {
@@ -108,6 +106,7 @@ public class ServiceFinderTimeoutTest extends AssertJUnit
         {
             serverSocket = new ServerSocket(0);
             serverSocket.setSoTimeout(1000);
+            System.out.println("ServiceFinderTimeoutTest.NotRespondingServer.runInternal() "+serverSocket);
 
             while (keepRunning.get())
             {
