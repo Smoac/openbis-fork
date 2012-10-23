@@ -362,7 +362,7 @@ public class JsonDeserializationTest
             }
             Object object = factory.createMapToDeserialize(new ObjectCounter(), objectType);
             Object result = testDeserialize(object, rootClass);
-            Assert.assertTrue(expected.equals(result));
+            Assert.assertEquals(result, expected);
         }
     }
 

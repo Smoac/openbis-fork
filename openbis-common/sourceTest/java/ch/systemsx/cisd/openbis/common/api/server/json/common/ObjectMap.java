@@ -20,6 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+
 /**
  * @author pkupczyk
  */
@@ -76,6 +78,12 @@ public class ObjectMap
 
         map.putAll(fields);
         return map;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ReflectionToStringBuilder.toString(this);
     }
 
 }
