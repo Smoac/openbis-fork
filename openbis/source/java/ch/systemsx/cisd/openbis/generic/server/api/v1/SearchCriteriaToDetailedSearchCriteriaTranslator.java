@@ -161,6 +161,9 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 case SPACE:
                     ans = SampleAttributeSearchFieldKind.SPACE;
                     break;
+                case METAPROJECT:
+                    ans = SampleAttributeSearchFieldKind.METAPROJECT;
+                    break;
                 default:
                     throwInvalidSearchAttributeException(attribute, SearchableEntityKind.SAMPLE);
                     ans = null; // for Eclipse
@@ -211,6 +214,9 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 case PROJECT:
                     ans = ExperimentAttributeSearchFieldKind.PROJECT;
                     break;
+                case METAPROJECT:
+                    ans = ExperimentAttributeSearchFieldKind.METAPROJECT;
+                    break;
                 default:
                     throwInvalidSearchAttributeException(attribute, SearchableEntityKind.EXPERIMENT);
             }
@@ -253,6 +259,9 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 case TYPE:
                     ans = MaterialAttributeSearchFieldKind.MATERIAL_TYPE;
                     break;
+                case METAPROJECT:
+                    ans = MaterialAttributeSearchFieldKind.METAPROJECT;
+                    break;
                 default:
                     throwInvalidSearchAttributeException(attribute, SearchableEntityKind.MATERIAL);
             }
@@ -293,6 +302,9 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                     break;
                 case TYPE:
                     ans = DataSetAttributeSearchFieldKind.DATA_SET_TYPE;
+                    break;
+                case METAPROJECT:
+                    ans = DataSetAttributeSearchFieldKind.METAPROJECT;
                     break;
                 default:
                     throwInvalidSearchAttributeException(attribute, SearchableEntityKind.DATA_SET);

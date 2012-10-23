@@ -95,7 +95,9 @@ public class SearchCriteria implements Serializable
         // for sample or experiment
         SPACE,
         // for experiment
-        PROJECT
+        PROJECT,
+        // for all types of entities
+        METAPROJECT
     }
 
     /**

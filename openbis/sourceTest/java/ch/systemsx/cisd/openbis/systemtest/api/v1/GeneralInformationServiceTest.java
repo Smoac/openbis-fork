@@ -158,6 +158,54 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForSamplesByMetaprojectName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "TEST_METAPROJECTS"));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/TEST-SPACE/EV-TEST]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByMetaprojectNameOwnedBySomebodyElse()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "TEST_METAPROJECTS_2"));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByMetaprojectIdentifier()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "/test/TEST_METAPROJECTS"));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/TEST-SPACE/EV-TEST]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByMetaprojectIdentifierOwnedBySomebodyElse()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "/test_role/TEST_METAPROJECTS_2"));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[]", samples);
+    }
+
+    @Test
     public void testSearchForSamplesWithChildren()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
@@ -737,6 +785,54 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForDataSetsByMetaprojectName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "TEST_METAPROJECTS"));
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertEquals(
+                "[DataSet[20120619092259000-22,/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST,<null>,HCS_IMAGE,{}]]",
+                dataSets.toString());
+    }
+
+    @Test
+    public void testSearchForDataSetsByMetaprojectNameOwnedBySomebodyElse()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "TEST_METAPROJECTS_2"));
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertEquals("[]", dataSets.toString());
+    }
+
+    @Test
+    public void testSearchForDataSetsByMetaprojectIdentifier()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "/test/TEST_METAPROJECTS"));
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertEquals(
+                "[DataSet[20120619092259000-22,/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST,<null>,HCS_IMAGE,{}]]",
+                dataSets.toString());
+    }
+
+    @Test
+    public void testSearchForDataSetsByMetaprojectIdentifierOwnedBySomebodyElse()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "/test/TEST_METAPROJECTS_2"));
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertEquals("[]", dataSets.toString());
+    }
+
+    @Test
     public void testGetDefaultPutDataStoreBaseURL()
     {
         String url = generalInformationService.getDefaultPutDataStoreBaseURL(sessionToken);
@@ -1033,18 +1129,63 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.searchForMaterials(sessionToken, searchCriteria);
 
         assertCollection("[BACTERIUM-X, BACTERIUM-Y, BACTERIUM1, BACTERIUM2]", materials,
-                new IToStringDelegate<Material>()
-                    {
-                        @Override
-                        public String toString(Material t)
-                        {
-                            return t.getMaterialCode();
-                        }
-                    });
+                new MaterialToCode());
     }
 
     @Test
-    public void testSearchMaterialsByMadificationDate()
+    public void testSearchForMaterialsByMetaprojectName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "TEST_METAPROJECTS"));
+
+        List<Material> materials =
+                generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+
+        assertCollection("[AD3]", materials, new MaterialToCode());
+    }
+
+    @Test
+    public void testSearchForMaterialsByMetaprojectNameOwnedBySomebodyElse()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "TEST_METAPROJECTS_2"));
+
+        List<Material> materials =
+                generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+
+        assertCollection("[]", materials, new MaterialToCode());
+    }
+
+    @Test
+    public void testSearchForMaterialsByMetaprojectIdentifier()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "/test/TEST_METAPROJECTS"));
+
+        List<Material> materials =
+                generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+
+        assertCollection("[AD3]", materials, new MaterialToCode());
+    }
+
+    @Test
+    public void testSearchForMaterialsByMetaprojectIdentifierOwnedBySomebodyElse()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "/test_role/TEST_METAPROJECTS_2"));
+
+        List<Material> materials =
+                generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+
+        assertCollection("[]", materials, new MaterialToCode());
+    }
+
+    @Test
+    public void testSearchMaterialsByModificationDate()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
         searchCriteria.addMatchClause(MatchClause.createTimeAttributeMatch(
@@ -1118,6 +1259,15 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals("/test/TEST_METAPROJECTS", metaprojectAssignments.getMetaproject()
                 .getIdentifier());
         assertEquals("TEST_METAPROJECTS", metaprojectAssignments.getMetaproject().getName());
+    }
+
+    private static class MaterialToCode implements IToStringDelegate<Material>
+    {
+        @Override
+        public String toString(Material t)
+        {
+            return t.getMaterialCode();
+        }
     }
 
 }
