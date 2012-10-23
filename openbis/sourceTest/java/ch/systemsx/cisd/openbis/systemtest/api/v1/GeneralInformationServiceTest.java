@@ -722,9 +722,9 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<DataSet> dataSets =
                 generalInformationService.searchForDataSets(sessionToken, searchCriteria);
         assertEquals(
-                "[DataSet[20110509092359990-10,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}], DataSet[20081105092259000-19,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}]]",
+                "[DataSet[CONTAINER_2,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}], DataSet[20110509092359990-10,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}], DataSet[20081105092259000-19,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}], DataSet[ROOT_CONTAINER,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}], DataSet[CONTAINER_1,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{}]]",
                 dataSets.toString());
-        List<DataSet> containedDataSets = dataSets.get(0).getContainedDataSets();
+        List<DataSet> containedDataSets = dataSets.get(1).getContainedDataSets();
         assertEquals("[DataSet[20110509092359990-11,<null>,<null>,HCS_IMAGE,{}], "
                 + "DataSet[20110509092359990-12,<null>,<null>,HCS_IMAGE,{}]]",
                 containedDataSets.toString());
