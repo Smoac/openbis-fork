@@ -436,8 +436,7 @@
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/authorization/**/*.class" />
   		</fileset> 
   		<fileset dir="../openbis-common/targets/classes">
-  		     	<include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
-			     	<include name="ch/systemsx/cisd/common/api/client/**/*.class" />
+			     	<include name="ch/systemsx/cisd/openbis/common/api/client/**/*.class" />
   		</fileset> 
       <fileset dir="../common/targets/classes">
             <include name="ch/systemsx/cisd/common/**/*.class" />
@@ -512,7 +511,7 @@
             <include name="ch/systemsx/cisd/common/**/*.class" />
       </fileset> 
       <fileset dir="../openbis-common/targets/ant/classes">
-            <include name="ch/systemsx/cisd/common/**/*.class" />
+            <include name="ch/systemsx/cisd/openbis-common/**/*.class" />
       </fileset> 
     </jar>
 		<zip update="true" destfile="${dist.screening-api.jar}">
