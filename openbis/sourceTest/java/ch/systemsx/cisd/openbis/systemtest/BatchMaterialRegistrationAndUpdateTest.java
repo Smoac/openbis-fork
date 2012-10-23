@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -125,10 +124,14 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
                         + "c2\tcompound 2\t43\tmale\tbacterium-x";
         registerMaterials(materialBatchData, MATERIAL_TYPE);
 
+        long timeBeforeUpdate = System.currentTimeMillis();
+
         List<BatchRegistrationResult> result =
                 updateMaterials("code\tdescription\tgender\tbacterium\n"
                         + "c1\tnew description\tmale\tbacterium2\n" + "c2\t\tmale\tbacterium-y",
                         MATERIAL_TYPE, false);
+
+        long timeAfterUpdate = System.currentTimeMillis();
 
         assertEquals("2 material(s) updated.", result.get(0).getMessage());
         assertEquals(1, result.size());
@@ -143,7 +146,12 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
         assertEquals(
                 "[BACTERIUM: material:BACTERIUM1 [BACTERIUM]<a:2>, DESCRIPTION: compound 1<a:2>, GENDER: term:FEMALE [GENDER]<a:2>]",
                 history.toString());
-        assertCurrentValidUntilTimeStamp(history.get(0));
+
+        PropertyHistory bacteriumHistory = history.get(0);
+
+        assertTrue(bacteriumHistory.getValidFromTimeStamp().getTime() < timeBeforeUpdate);
+        assertTrue(bacteriumHistory.getValidUntilTimeStamp().getTime() < timeAfterUpdate);
+
         assertEquals("[BACTERIUM: material:BACTERIUM-X [BACTERIUM]<a:2>]",
                 getMaterialPropertiesHistory(getMaterialOrNull("C2").getId()).toString());
 
@@ -265,15 +273,6 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
         MaterialType materialType = new MaterialType();
         materialType.setCode(materialTypeCode);
         return genericClientService.updateMaterials(materialType, SESSION_KEY, ignoreUnregistered);
-    }
-
-    private void assertCurrentValidUntilTimeStamp(PropertyHistory historyEntry)
-    {
-        assertTrue(
-                "Current time stamp: " + new Date() + " valid-until timestamp: "
-                        + historyEntry.getValidUntilTimeStamp(),
-                Math.abs(historyEntry.getValidUntilTimeStamp().getTime()
-                        - System.currentTimeMillis()) < 10000);
     }
 
 }
