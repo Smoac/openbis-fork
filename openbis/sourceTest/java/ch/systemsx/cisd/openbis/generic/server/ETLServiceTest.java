@@ -152,6 +152,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private ISessionManager<Session> sessionManagerForEntityOperations;
 
+    private PersonPE sessionPerson;
+
     @Override
     @BeforeMethod
     @SuppressWarnings("unchecked")
@@ -167,6 +169,8 @@ public class ETLServiceTest extends AbstractServerTestCase
         conversationServer = context.mock(IServiceConversationServerManagerLocal.class);
         sessionManagerForEntityOperations =
                 context.mock(ISessionManager.class, "sessionManagerForEntityOperations");
+        sessionPerson = new PersonPE();
+        session.setPerson(sessionPerson);
     }
 
     @Test
@@ -480,7 +484,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
         SamplePE samplePE = createSample();
 
-        prepareTryToLoadSample(sampleIdentifier, samplePE);
+        prepareTryToLoadSampleWithMetaProjects(sampleIdentifier, samplePE);
 
         Sample actualSample =
                 createService().tryGetSampleWithExperiment(SESSION_TOKEN, sampleIdentifier);
@@ -497,7 +501,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
         final ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
         SamplePE sample = createSampleWithExperiment(experiment);
-        prepareTryToLoadSample(sampleIdentifier, sample);
+        prepareTryToLoadSampleWithMetaProjects(sampleIdentifier, sample);
 
         Sample actualSample =
                 createService().tryGetSampleWithExperiment(SESSION_TOKEN, sampleIdentifier);
@@ -991,6 +995,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
                     allowing(daoFactory).getPersistencyResources();
                     will(returnValue(new PersistencyResources(null, null, null, null)));
+
+                    one(metaprojectDAO).listMetaprojectsForEntity(sessionPerson, samplePE);
                 }
             });
 
@@ -1360,6 +1366,18 @@ public class ETLServiceTest extends AbstractServerTestCase
         sampleType.setSubcodeUnique(false);
         sample.setSampleType(sampleType);
         return sample;
+    }
+
+    private void prepareTryToLoadSampleWithMetaProjects(final SampleIdentifier identifier,
+            final SamplePE sample)
+    {
+        prepareTryToLoadSample(session, identifier, sample);
+        context.checking(new Expectations()
+            {
+                {
+                    one(metaprojectDAO).listMetaprojectsForEntity(sessionPerson, sample);
+                }
+            });
     }
 
     private void prepareTryToLoadSample(final SampleIdentifier identifier, final SamplePE sample)
