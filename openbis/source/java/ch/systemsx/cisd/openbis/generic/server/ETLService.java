@@ -33,12 +33,12 @@ import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.DummyAuthenticationService;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.openbis.common.conversation.context.ServiceConversationsThreadContext;
-import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
+import ch.systemsx.cisd.openbis.common.conversation.context.ServiceConversationsThreadContext;
+import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.SearchCriteriaToDetailedSearchCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
@@ -529,14 +529,15 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
         final Session session = getSession(sessionToken);
         SamplePE sample = tryLoadSample(session, sampleIdentifier);
+        Collection<MetaprojectPE> metaprojects = Collections.emptySet();
         if (sample != null)
         {
             HibernateUtils.initialize(sample.getProperties());
             enrichWithProperties(sample.getExperiment());
+            metaprojects =
+                    getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                            session.tryGetPerson(), sample);
         }
-        Collection<MetaprojectPE> metaprojects =
-                getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
-                        session.tryGetPerson(), sample);
         return SampleTranslator.translate(sample, session.getBaseIndexURL(), true, true,
                 MetaprojectTranslator.translate(metaprojects));
     }
@@ -1013,7 +1014,9 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         dataBO.enrichWithContainedDataSets();
         DataPE dataPE = dataBO.tryGetData();
         if (null == dataPE)
+        {
             return null;
+        }
         Collection<MetaprojectPE> metaprojects =
                 getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
                         session.tryGetPerson(), dataPE);
@@ -1407,9 +1410,13 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             bo.loadByMaterialIdentifier(materialIdentifier);
             bo.enrichWithProperties();
             MaterialPE materialPE = bo.getMaterial();
-            Collection<MetaprojectPE> metaprojectPEs =
-                    getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
-                            session.tryGetPerson(), materialPE);
+            Collection<MetaprojectPE> metaprojectPEs = Collections.emptySet();
+            if (materialPE != null)
+            {
+                metaprojectPEs =
+                        getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                                session.tryGetPerson(), materialPE);
+            }
             return MaterialTranslator.translate(materialPE,
                     MetaprojectTranslator.translate(metaprojectPEs));
         } catch (UserFailureException ufe)
