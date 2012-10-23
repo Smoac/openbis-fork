@@ -104,7 +104,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
         HostAwareFile hostAwareFile = HostAwareFileWithHighwaterMark.create(hostFile, -1);
         String hostOrNull = hostAwareFile.tryGetHost();
 
-        this.isHosted = hostOrNull == null;
+        this.isHosted = hostOrNull != null;
 
         this.destination = hostAwareFile.getPath();
         long timeoutInSeconds =
