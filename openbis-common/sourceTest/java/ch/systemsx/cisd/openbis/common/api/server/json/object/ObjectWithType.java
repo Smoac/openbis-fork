@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.openbis.common.api.server.json.object;
 
-import org.testng.Assert;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -30,14 +31,21 @@ public class ObjectWithType implements ObjectWithTypeInterface1, ObjectWithTypeI
     public String base;
 
     @Override
+    public int hashCode()
+    {
+        return 1;
+    }
+
+    @Override
     public boolean equals(Object obj)
     {
-        Assert.assertNotNull(obj);
-        Assert.assertEquals(obj.getClass(), getClass());
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
 
-        ObjectWithType casted = (ObjectWithType) obj;
-        Assert.assertEquals(casted.base, base);
-        return true;
+    @Override
+    public String toString()
+    {
+        return ReflectionToStringBuilder.toString(this);
     }
 
 }

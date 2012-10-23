@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.common.api.server.json.object;
 
-import org.testng.Assert;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -30,14 +30,35 @@ public class ObjectWithSelfReference
     public ObjectWithSelfReference selfReference;
 
     @Override
+    public int hashCode()
+    {
+        return 1;
+    }
+
+    @Override
     public boolean equals(Object obj)
     {
-        Assert.assertNotNull(obj);
-        Assert.assertEquals(obj.getClass(), getClass());
+        if (obj == null)
+        {
+            return false;
+        }
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj.getClass() != getClass())
+        {
+            return false;
+        }
 
         ObjectWithSelfReference casted = (ObjectWithSelfReference) obj;
-        Assert.assertTrue(casted == casted.selfReference);
-        return true;
+        return casted == casted.selfReference;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ReflectionToStringBuilder.toString(this);
     }
 
 }

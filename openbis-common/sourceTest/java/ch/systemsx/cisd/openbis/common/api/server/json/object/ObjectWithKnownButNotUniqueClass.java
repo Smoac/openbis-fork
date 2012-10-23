@@ -19,46 +19,16 @@ package ch.systemsx.cisd.openbis.common.api.server.json.object;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
-@JsonObject(ObjectWithIgnoredPropertiesFactory.TYPE)
-public class ObjectWithIgnoredProperties
+@JsonObject(ObjectWithKnownButNotUniqueClassFactory.TYPE)
+public class ObjectWithKnownButNotUniqueClass extends ObjectWithType
 {
 
-    public String property;
-
-    private String propertyWithGetterAndSetter;
-
-    @JsonIgnore
-    public String propertyIgnored;
-
-    private String propertyWithGetterAndSetterIgnored;
-
-    public void setPropertyWithGetterAndSetter(String propertyWithGetterAndSetter)
-    {
-        this.propertyWithGetterAndSetter = propertyWithGetterAndSetter;
-    }
-
-    public String getPropertyWithGetterAndSetter()
-    {
-        return propertyWithGetterAndSetter;
-    }
-
-    @JsonIgnore
-    public void setPropertyWithGetterAndSetterIgnored(String propertyWithGetterAndSetterIgnored)
-    {
-        this.propertyWithGetterAndSetterIgnored = propertyWithGetterAndSetterIgnored;
-    }
-
-    public String getPropertyWithGetterAndSetterIgnored()
-    {
-        return propertyWithGetterAndSetterIgnored;
-    }
+    public String a;
 
     @Override
     public int hashCode()

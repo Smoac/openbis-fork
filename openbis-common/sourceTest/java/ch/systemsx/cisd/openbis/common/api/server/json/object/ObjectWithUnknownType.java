@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.common.api.server.json.object;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -26,5 +29,23 @@ public class ObjectWithUnknownType
 {
 
     public String property;
+
+    @Override
+    public int hashCode()
+    {
+        return 1;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
+
+    @Override
+    public String toString()
+    {
+        return ReflectionToStringBuilder.toString(this);
+    }
 
 }

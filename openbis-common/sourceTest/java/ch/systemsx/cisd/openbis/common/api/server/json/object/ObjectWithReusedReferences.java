@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.common.api.server.json.object;
 
-import org.testng.Assert;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -32,16 +33,37 @@ public class ObjectWithReusedReferences
     public ObjectWithType reference2;
 
     @Override
+    public int hashCode()
+    {
+        return 1;
+    }
+
+    @Override
     public boolean equals(Object obj)
     {
-        Assert.assertNotNull(obj);
-        Assert.assertEquals(obj.getClass(), getClass());
+        if (obj == null)
+        {
+            return false;
+        }
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj.getClass() != getClass())
+        {
+            return false;
+        }
 
         ObjectWithReusedReferences casted = (ObjectWithReusedReferences) obj;
-        Assert.assertEquals(casted.reference1, reference1);
-        Assert.assertEquals(casted.reference2, reference2);
-        Assert.assertTrue(casted.reference1 == casted.reference2);
-        return true;
+        return new EqualsBuilder().append(casted.reference1, reference1)
+                .append(casted.reference2, reference2)
+                .append(true, casted.reference1 == casted.reference2).isEquals();
+    }
+
+    @Override
+    public String toString()
+    {
+        return ReflectionToStringBuilder.toString(this);
     }
 
 }

@@ -16,12 +16,10 @@
 
 package ch.systemsx.cisd.openbis.common.api.server.json.object;
 
-import static ch.systemsx.cisd.openbis.common.api.server.json.object.ObjectWithTypeAFactory.A;
-import static ch.systemsx.cisd.openbis.common.api.server.json.object.ObjectWithTypeAFactory.A_VALUE;
-import static ch.systemsx.cisd.openbis.common.api.server.json.object.ObjectWithTypeAFactory.CLASS;
-import static ch.systemsx.cisd.openbis.common.api.server.json.object.ObjectWithTypeAFactory.TYPE;
 import static ch.systemsx.cisd.openbis.common.api.server.json.object.ObjectWithTypeFactory.BASE;
 import static ch.systemsx.cisd.openbis.common.api.server.json.object.ObjectWithTypeFactory.BASE_VALUE;
+
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.common.api.server.json.common.ObjectCounter;
 import ch.systemsx.cisd.openbis.common.api.server.json.common.ObjectFactory;
@@ -34,16 +32,32 @@ import ch.systemsx.cisd.openbis.common.api.server.json.common.ObjectType;
 public class ObjectWithKnownButNotUniqueClassFactory extends ObjectFactory<Object>
 {
 
+    public static final String TYPE = "ObjectWithKnownButNotUniqueClass";
+
+    public static final String CLASS = ".LegacyObjectWithTypeA";
+
+    public static final String A = "a";
+
+    public static final String A_VALUE = "aValue";
+
     @Override
-    public Object createObjectToSerialize()
+    public ObjectWithKnownButNotUniqueClass createObjectToSerialize()
     {
-        return new ObjectWithTypeAFactory().createObjectToSerialize();
+        ObjectWithKnownButNotUniqueClass object = new ObjectWithKnownButNotUniqueClass();
+        object.base = BASE_VALUE;
+        object.a = A_VALUE;
+        return object;
     }
 
     @Override
-    public Object createExpectedMapAfterSerialization(ObjectCounter objectCounter)
+    public Map<String, Object> createExpectedMapAfterSerialization(ObjectCounter objectCounter)
     {
-        return new ObjectWithTypeAFactory().createExpectedMapAfterSerialization(objectCounter);
+        ObjectMap map = new ObjectMap();
+        map.putId(objectCounter);
+        map.putType(TYPE, CLASS, ObjectType.TYPE);
+        map.putField(BASE, BASE_VALUE);
+        map.putField(A, A_VALUE);
+        return map.toMap();
     }
 
     @Override

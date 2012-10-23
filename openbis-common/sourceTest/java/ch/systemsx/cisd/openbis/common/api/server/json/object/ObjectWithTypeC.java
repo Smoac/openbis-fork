@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.common.api.server.json.object;
 
-import org.testng.Assert;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -30,15 +31,21 @@ public class ObjectWithTypeC extends ObjectWithType
     public String c;
 
     @Override
+    public int hashCode()
+    {
+        return 1;
+    }
+
+    @Override
     public boolean equals(Object obj)
     {
-        Assert.assertNotNull(obj);
-        Assert.assertEquals(obj.getClass(), getClass());
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
 
-        ObjectWithTypeC casted = (ObjectWithTypeC) obj;
-        Assert.assertEquals(casted.base, base);
-        Assert.assertEquals(casted.c, c);
-        return true;
+    @Override
+    public String toString()
+    {
+        return ReflectionToStringBuilder.toString(this);
     }
 
 }

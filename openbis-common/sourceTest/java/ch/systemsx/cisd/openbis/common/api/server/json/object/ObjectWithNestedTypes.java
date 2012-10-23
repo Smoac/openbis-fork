@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.common.api.server.json.object;
 
-import org.testng.Assert;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -40,16 +41,22 @@ public class ObjectWithNestedTypes
         public String nested;
 
         @Override
-        public boolean equals(Object obj)
+        public int hashCode()
         {
-            Assert.assertNotNull(obj);
-            Assert.assertEquals(obj.getClass(), getClass());
-
-            ObjectNested casted = (ObjectNested) obj;
-            Assert.assertEquals(casted.nested, nested);
-            return true;
+            return 1;
         }
 
+        @Override
+        public boolean equals(Object obj)
+        {
+            return EqualsBuilder.reflectionEquals(this, obj);
+        }
+
+        @Override
+        public String toString()
+        {
+            return ReflectionToStringBuilder.toString(this);
+        }
     }
 
     @JsonObject(ObjectNestedChildFactory.TYPE)
@@ -59,30 +66,41 @@ public class ObjectWithNestedTypes
         public String nestedChild;
 
         @Override
+        public int hashCode()
+        {
+            return 1;
+        }
+
+        @Override
         public boolean equals(Object obj)
         {
-            Assert.assertNotNull(obj);
-            Assert.assertEquals(obj.getClass(), getClass());
+            return EqualsBuilder.reflectionEquals(this, obj);
+        }
 
-            ObjectNestedChild casted = (ObjectNestedChild) obj;
-            Assert.assertEquals(casted.nested, nested);
-            Assert.assertEquals(casted.nestedChild, nestedChild);
-            return true;
+        @Override
+        public String toString()
+        {
+            return ReflectionToStringBuilder.toString(this);
         }
 
     }
 
     @Override
+    public int hashCode()
+    {
+        return 1;
+    }
+
+    @Override
     public boolean equals(Object obj)
     {
-        Assert.assertNotNull(obj);
-        Assert.assertEquals(obj.getClass(), getClass());
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
 
-        ObjectWithNestedTypes casted = (ObjectWithNestedTypes) obj;
-        Assert.assertEquals(casted.propertyObject, propertyObject);
-        Assert.assertEquals(casted.propertyNested, propertyNested);
-        Assert.assertEquals(casted.propertyNestedChild, propertyNestedChild);
-        return true;
+    @Override
+    public String toString()
+    {
+        return ReflectionToStringBuilder.toString(this);
     }
 
 }

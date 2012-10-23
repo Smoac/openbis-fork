@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.common.api.server.json.object;
 
-import org.testng.Assert;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -60,17 +61,21 @@ public class ObjectWithRenamedProperties
     }
 
     @Override
+    public int hashCode()
+    {
+        return 1;
+    }
+
+    @Override
     public boolean equals(Object obj)
     {
-        Assert.assertNotNull(obj);
-        Assert.assertEquals(obj.getClass(), getClass());
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
 
-        ObjectWithRenamedProperties casted = (ObjectWithRenamedProperties) obj;
-        Assert.assertEquals(casted.property, property);
-        Assert.assertEquals(casted.x, x);
-        Assert.assertEquals(casted.propertyWithGetterAndSetter, propertyWithGetterAndSetter);
-        Assert.assertEquals(casted.y, y);
-        return true;
+    @Override
+    public String toString()
+    {
+        return ReflectionToStringBuilder.toString(this);
     }
 
 }

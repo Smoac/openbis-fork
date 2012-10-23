@@ -23,7 +23,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.Assert;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -76,33 +77,21 @@ public class ObjectWithContainerTypes
     public ObjectWithType[] arrayWithSpecificType;
 
     @Override
+    public int hashCode()
+    {
+        return 1;
+    }
+
+    @Override
     public boolean equals(Object obj)
     {
-        Assert.assertNotNull(obj);
-        Assert.assertEquals(obj.getClass(), getClass());
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
 
-        ObjectWithContainerTypes casted = (ObjectWithContainerTypes) obj;
-        Assert.assertEquals(casted.collectionWithoutType, collectionWithoutType);
-        Assert.assertEquals(casted.collectionWithObjectType, collectionWithObjectType);
-        Assert.assertEquals(casted.collectionWithSpecificType, collectionWithSpecificType);
-        Assert.assertEquals(casted.linkedHashSetWithoutType, linkedHashSetWithoutType);
-        Assert.assertEquals(casted.linkedHashSetWithObjectType, linkedHashSetWithObjectType);
-        Assert.assertEquals(casted.linkedHashSetWithSpecificType, linkedHashSetWithSpecificType);
-        Assert.assertEquals(casted.listWithoutType, listWithoutType);
-        Assert.assertEquals(casted.listWithObjectType, listWithObjectType);
-        Assert.assertEquals(casted.listWithSpecificType, listWithSpecificType);
-        Assert.assertEquals(casted.linkedListWithoutType, linkedListWithoutType);
-        Assert.assertEquals(casted.linkedListWithObjectType, linkedListWithObjectType);
-        Assert.assertEquals(casted.linkedListWithSpecificType, linkedListWithSpecificType);
-        Assert.assertEquals(casted.mapWithoutType, mapWithoutType);
-        Assert.assertEquals(casted.mapWithObjectType, mapWithObjectType);
-        Assert.assertEquals(casted.mapWithSpecificType, mapWithSpecificType);
-        Assert.assertEquals(casted.linkedHashMapWithoutType, linkedHashMapWithoutType);
-        Assert.assertEquals(casted.linkedHashMapWithObjectType, linkedHashMapWithObjectType);
-        Assert.assertEquals(casted.linkedHashMapWithSpecificType, linkedHashMapWithSpecificType);
-        Assert.assertEquals(casted.arrayWithObjectType, arrayWithObjectType);
-        Assert.assertEquals(casted.arrayWithSpecificType, arrayWithSpecificType);
-        return true;
+    @Override
+    public String toString()
+    {
+        return ReflectionToStringBuilder.toString(this);
     }
 
 }

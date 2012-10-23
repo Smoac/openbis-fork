@@ -19,7 +19,8 @@ package ch.systemsx.cisd.openbis.common.api.server.json.object;
 import java.util.EnumMap;
 import java.util.EnumSet;
 
-import org.testng.Assert;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -44,16 +45,21 @@ public class ObjectWithEnumTypes
     }
 
     @Override
+    public int hashCode()
+    {
+        return 1;
+    }
+
+    @Override
     public boolean equals(Object obj)
     {
-        Assert.assertNotNull(obj);
-        Assert.assertEquals(obj.getClass(), getClass());
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
 
-        ObjectWithEnumTypes casted = (ObjectWithEnumTypes) obj;
-        Assert.assertEquals(casted.enumField, enumField);
-        Assert.assertEquals(casted.enumSet, enumSet);
-        Assert.assertEquals(casted.enumMap, enumMap);
-        return true;
+    @Override
+    public String toString()
+    {
+        return ReflectionToStringBuilder.toString(this);
     }
 
 }
