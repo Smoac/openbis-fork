@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
+package ch.systemsx.cisd.openbis.generic.shared.search;
 
 import java.io.Reader;
 
