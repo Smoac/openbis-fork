@@ -48,10 +48,11 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
         {
 
             @Override
-            public Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
+            public Collection<Long> findRelatedIdsByCriteria(String userId,
+                    DetailedSearchCriteria criteria,
                     List<DetailedSearchSubCriteria> otherSubCriterias)
             {
-                return findSampleIds(criteria, otherSubCriterias);
+                return findSampleIds(userId, criteria, otherSubCriterias);
             }
 
             @Override
@@ -71,10 +72,11 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
         {
 
             @Override
-            public Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
+            public Collection<Long> findRelatedIdsByCriteria(String userId,
+                    DetailedSearchCriteria criteria,
                     List<DetailedSearchSubCriteria> otherSubCriterias)
             {
-                return findSampleIds(criteria, otherSubCriterias);
+                return findSampleIds(userId, criteria, otherSubCriterias);
             }
 
             @Override
@@ -95,13 +97,13 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
         super(searchDAO, sampleLister);
     }
 
-    public List<Sample> searchForSamples(DetailedSearchCriteria criteria)
+    public List<Sample> searchForSamples(String userId, DetailedSearchCriteria criteria)
             throws DataAccessException
     {
-        return lister.list(new ListOrSearchSampleCriteria(searchForSampleIDs(criteria)));
+        return lister.list(new ListOrSearchSampleCriteria(searchForSampleIDs(userId, criteria)));
     }
 
-    public Collection<Long> searchForSampleIDs(DetailedSearchCriteria criteria)
+    public Collection<Long> searchForSampleIDs(String userId, DetailedSearchCriteria criteria)
     {
         DetailedSearchCriteria parentCriteria = new DetailedSearchCriteria();
         DetailedSearchCriteria childCriteria = new DetailedSearchCriteria();
@@ -110,20 +112,20 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
         groupSampleSubCriteria(criteria.getSubCriterias(), parentCriteria, childCriteria,
                 otherSubCriterias);
 
-        final List<Long> mainSampleIds = findSampleIds(criteria, otherSubCriterias);
+        final List<Long> mainSampleIds = findSampleIds(userId, criteria, otherSubCriterias);
 
         Collection<Long> filteredSampleIds = mainSampleIds;
         if (false == parentCriteria.isEmpty())
         {
             filteredSampleIds =
-                    filterSearchResultsBySubcriteria(filteredSampleIds, parentCriteria,
+                    filterSearchResultsBySubcriteria(userId, filteredSampleIds, parentCriteria,
                             PARENT_RELATIONSHIP_HANDLER);
         }
 
         if (false == childCriteria.isEmpty())
         {
             filteredSampleIds =
-                    filterSearchResultsBySubcriteria(filteredSampleIds, childCriteria,
+                    filterSearchResultsBySubcriteria(userId, filteredSampleIds, childCriteria,
                             CHILDREN_RELATIONSHIP_HANDLER);
         }
 
@@ -155,7 +157,7 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
         }
     }
 
-    private List<Long> findSampleIds(DetailedSearchCriteria criteria,
+    private List<Long> findSampleIds(String userId, DetailedSearchCriteria criteria,
             List<DetailedSearchSubCriteria> subCriterias)
     {
         // for now we connect all sub criteria with logical AND
@@ -163,7 +165,7 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
                 new ArrayList<DetailedSearchAssociationCriteria>();
         for (DetailedSearchSubCriteria subCriteria : subCriterias)
         {
-            associations.add(findAssociatedEntities(subCriteria));
+            associations.add(findAssociatedEntities(userId, subCriteria));
         }
         if (subCriterias.isEmpty() && criteria.getCriteria().isEmpty())
         {
@@ -173,7 +175,7 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
                             .createAttributeField(SampleAttributeSearchFieldKind.CODE), "*"));
         }
         final List<Long> sampleIds =
-                searchDAO.searchForEntityIds(criteria,
+                searchDAO.searchForEntityIds(userId, criteria,
                         DtoConverters.convertEntityKind(EntityKind.SAMPLE), associations);
         return sampleIds;
     }

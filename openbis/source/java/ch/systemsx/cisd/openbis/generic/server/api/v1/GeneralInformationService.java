@@ -320,7 +320,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 boFactory.createSampleLister(session);
         Collection<Long> sampleIDs =
                 new SampleSearchManager(getDAOFactory().getHibernateSearchDAO(), sampleLister)
-                        .searchForSampleIDs(detailedSearchCriteria);
+                        .searchForSampleIDs(session.getUserName(), detailedSearchCriteria);
         return createSampleLister(session.tryGetPerson()).getSamples(sampleIDs, sampleFetchOptions);
     }
 

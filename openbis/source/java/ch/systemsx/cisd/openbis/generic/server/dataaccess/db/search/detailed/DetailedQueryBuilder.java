@@ -38,6 +38,8 @@ import ch.systemsx.cisd.common.exception.InternalErr;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.MetaprojectSearch;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IgnoreCaseAnalyzer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
@@ -67,11 +69,12 @@ public class DetailedQueryBuilder
      * @param associations // TODO move to DetailedSearchCriteria
      * @throws UserFailureException when some search patterns are incorrect
      */
-    public static Query createQuery(DetailedSearchCriteria searchCriteria, EntityKind entityKind,
-            List<DetailedSearchAssociationCriteria> associations) throws UserFailureException
+    public static Query createQuery(String userId, DetailedSearchCriteria searchCriteria,
+            EntityKind entityKind, List<DetailedSearchAssociationCriteria> associations)
+            throws UserFailureException
     {
         final DetailedQueryBuilder builder = new DetailedQueryBuilder(entityKind);
-        final Query resultQuery = builder.createQuery(searchCriteria, associations);
+        final Query resultQuery = builder.createQuery(userId, searchCriteria, associations);
         operationLog.debug("Lucene detailed query: " + resultQuery.toString());
         return resultQuery;
     }
@@ -87,14 +90,14 @@ public class DetailedQueryBuilder
         this.entityKind = entityKind;
     }
 
-    private Query createQuery(DetailedSearchCriteria searchCriteria,
+    private Query createQuery(String userId, DetailedSearchCriteria searchCriteria,
             List<DetailedSearchAssociationCriteria> associations)
     {
         boolean useWildcardSearchMode = searchCriteria.isUseWildcardSearchMode();
         List<DetailedSearchCriterion> criteria = searchCriteria.getCriteria();
         Occur occureCondition = createOccureCondition(searchCriteria.getConnection());
 
-        Analyzer analyzer = LuceneQueryBuilder.createSearchAnalyzer();
+        Analyzer searchAnalyzer = LuceneQueryBuilder.createSearchAnalyzer();
         BooleanQuery resultQuery = new BooleanQuery();
         for (DetailedSearchCriterion criterion : criteria)
         {
@@ -102,10 +105,37 @@ public class DetailedQueryBuilder
 
             if (criterion.getTimeZone() == null)
             {
-                String searchPattern =
-                        LuceneQueryBuilder.adaptQuery(criterion.getValue(), useWildcardSearchMode);
+                List<String> fieldPatterns = new ArrayList<String>(fieldNames.size());
+                List<Analyzer> fieldAnalyzers = new ArrayList<Analyzer>(fieldNames.size());
+
+                for (String fieldName : fieldNames)
+                {
+                    String fieldPattern = null;
+                    Analyzer fieldAnalyzer = null;
+
+                    if (MetaprojectSearch.isMetaprojectField(fieldName))
+                    {
+                        String fieldUserQuery =
+                                MetaprojectSearch.getMetaprojectUserQuery(criterion.getValue(),
+                                        userId);
+                        fieldPattern =
+                                LuceneQueryBuilder.adaptQuery(fieldUserQuery,
+                                        useWildcardSearchMode, false);
+                        fieldAnalyzer = new IgnoreCaseAnalyzer();
+                    } else
+                    {
+                        fieldPattern =
+                                LuceneQueryBuilder.adaptQuery(criterion.getValue(),
+                                        useWildcardSearchMode);
+                        fieldAnalyzer = searchAnalyzer;
+                    }
+
+                    fieldPatterns.add(fieldPattern);
+                    fieldAnalyzers.add(fieldAnalyzer);
+                }
+
                 Query luceneQuery =
-                        LuceneQueryBuilder.parseQuery(fieldNames, searchPattern, analyzer);
+                        LuceneQueryBuilder.parseQuery(fieldNames, fieldPatterns, fieldAnalyzers);
                 resultQuery.add(luceneQuery, occureCondition);
             } else
             {
@@ -139,7 +169,8 @@ public class DetailedQueryBuilder
         {
             String fieldName = getIndexFieldName(association);
             List<String> searchPatterns = extractAssociationPatterns(association);
-            Query luceneQuery = LuceneQueryBuilder.parseQuery(fieldName, searchPatterns, analyzer);
+            Query luceneQuery =
+                    LuceneQueryBuilder.parseQuery(fieldName, searchPatterns, searchAnalyzer);
             resultQuery.add(luceneQuery, occureCondition);
         }
         return resultQuery;

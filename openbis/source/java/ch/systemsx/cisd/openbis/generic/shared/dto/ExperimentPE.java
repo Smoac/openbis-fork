@@ -31,6 +31,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
@@ -113,6 +115,8 @@ public class ExperimentPE extends AttachmentHolderPE implements
     private Date lastDataSetDate;
 
     private ExperimentIdentifier experimentIdentifier;
+
+    private Set<MetaprojectPE> metaprojects = new HashSet<MetaprojectPE>();
 
     /**
      * Person who registered this entity.
@@ -548,6 +552,24 @@ public class ExperimentPE extends AttachmentHolderPE implements
     public void setPermId(String permId)
     {
         this.permId = permId;
+    }
+
+    @SuppressWarnings("unused")
+    @ManyToMany(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.SUBSELECT)
+    @JoinTable(name = TableNames.METAPROJECT_ASSIGNMENTS_VIEW, joinColumns =
+        { @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN) }, inverseJoinColumns =
+        { @JoinColumn(name = ColumnNames.METAPROJECT_ID_COLUMN) })
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_METAPROJECT)
+    private Set<MetaprojectPE> getMetaprojects()
+    {
+        return this.metaprojects;
+    }
+
+    @SuppressWarnings("unused")
+    private void setMetaprojects(Set<MetaprojectPE> metaprojects)
+    {
+        this.metaprojects = metaprojects;
     }
 
 }

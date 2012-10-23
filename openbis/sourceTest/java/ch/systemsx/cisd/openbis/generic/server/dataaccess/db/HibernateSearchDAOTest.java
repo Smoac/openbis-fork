@@ -71,6 +71,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public final class HibernateSearchDAOTest extends AbstractDAOTest
 {
 
+    private static final String USER_ID = "test";
+
     private static final String FILE_TYPE_TIFF = "TIFF";
 
     private static final String FILE_TYPE_3VPROPRIETARY = "3VPROPRIETARY";
@@ -95,8 +97,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         boolean fail = true;
         try
         {
-            hibernateSearchDAO.searchEntitiesByTerm(null, null, createDataProvider(), true, 0,
-                    Integer.MAX_VALUE);
+            hibernateSearchDAO.searchEntitiesByTerm(USER_ID, null, null, createDataProvider(),
+                    true, 0, Integer.MAX_VALUE);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -105,7 +107,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         fail = true;
         try
         {
-            hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.MATERIAL, "",
+            hibernateSearchDAO.searchEntitiesByTerm(USER_ID, SearchableEntity.MATERIAL, "",
                     createDataProvider(), true, 0, Integer.MAX_VALUE);
         } catch (final AssertionError ex)
         {
@@ -125,7 +127,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
         final String lastName = "John";
         final List<MatchingEntity> hits =
-                hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.SAMPLE, term,
+                hibernateSearchDAO.searchEntitiesByTerm(USER_ID, SearchableEntity.SAMPLE, term,
                         createDataProvider(), false, 0, Integer.MAX_VALUE);
         assertTrue(hits.size() > 0);
         for (MatchingEntity matchingEntity : hits)
@@ -151,8 +153,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     {
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
         final List<MatchingEntity> hits =
-                hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.EXPERIMENT, query,
-                        createDataProvider(), useWildcardMode, 0, Integer.MAX_VALUE);
+                hibernateSearchDAO.searchEntitiesByTerm(USER_ID, SearchableEntity.EXPERIMENT,
+                        query, createDataProvider(), useWildcardMode, 0, Integer.MAX_VALUE);
         assertEquals(7, hits.size());
         for (MatchingEntity matchingEntity : hits)
         {
@@ -167,8 +169,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
         String propertyValue = "adenovirus";
         final List<MatchingEntity> hits =
-                hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.MATERIAL, propertyValue,
-                        createDataProvider(), true, 0, Integer.MAX_VALUE);
+                hibernateSearchDAO.searchEntitiesByTerm(USER_ID, SearchableEntity.MATERIAL,
+                        propertyValue, createDataProvider(), true, 0, Integer.MAX_VALUE);
         assertEquals(2, hits.size());
         for (MatchingEntity matchingEntity : hits)
         {
@@ -240,7 +242,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     {
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
         List<Long> datasetIds =
-                hibernateSearchDAO.searchForEntityIds(criteria,
+                hibernateSearchDAO.searchForEntityIds(USER_ID, criteria,
                         DtoConverters.convertEntityKind(EntityKind.DATA_SET), assiciations);
         final List<ExternalDataPE> result = new ArrayList<ExternalDataPE>();
         for (Long datasetId : datasetIds)

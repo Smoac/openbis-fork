@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 
-
 /**
  * Kinds of fields connected with Sample attributes that can be used in detailed text queries.
  * 
@@ -31,6 +30,8 @@ public enum SampleAttributeSearchFieldKind implements Serializable, IAttributeSe
     SAMPLE_TYPE("Sample Type"),
 
     SPACE("Space"),
+
+    METAPROJECT("Metaproject"),
 
     REGISTRATION_DATE(CommonAttributeSearchFieldKindDecsriptions.REGISTRATION_DATE_DESCRIPTION,
             null, new SearchFieldDateCriterionFactory()),

@@ -44,8 +44,13 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
+import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.DocumentId;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IgnoreCaseAnalyzer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
@@ -104,6 +109,8 @@ public class MetaprojectPE implements Serializable, IIdHolder
     }
 
     @Transient
+    @Field(index = Index.TOKENIZED, name = SearchFieldConstants.IDENTIFIER, store = Store.YES)
+    @Analyzer(impl = IgnoreCaseAnalyzer.class)
     public String getIdentifier()
     {
         return new MetaprojectIdentifier(getOwner() != null ? getOwner().getUserId() : null,
@@ -217,4 +224,5 @@ public class MetaprojectPE implements Serializable, IIdHolder
 
         return builder.toHashCode();
     }
+
 }

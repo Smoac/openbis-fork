@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPostRegistrationDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
@@ -117,8 +116,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IExternalDataManagementSystemDAO externalDataManagementSystemDAO;
 
-    private final IMetaprojectDAO metaprojectDAO;
-
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory, HibernateSearchContext hibernateSearchContext,
             final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler,
@@ -161,7 +158,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
                 new EntityHistoryDAO(getPersistencyResources(), databaseInstance);
         externalDataManagementSystemDAO =
                 new ExternalDataManagementSystemDAO(sessionFactory, databaseInstance);
-        metaprojectDAO = new MetaprojectDAO(sessionFactory, databaseInstance);
     }
 
     //
@@ -316,9 +312,4 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         return externalDataManagementSystemDAO;
     }
 
-    @Override
-    public IMetaprojectDAO getMetaprojectDAO()
-    {
-        return metaprojectDAO;
-    }
 }

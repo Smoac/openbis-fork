@@ -59,13 +59,13 @@ public class AbstractSearchManager<T>
         return new ArrayList<Long>(ids).subList(0, maxSize);
     }
 
-    protected DetailedSearchAssociationCriteria findAssociatedEntities(
+    protected DetailedSearchAssociationCriteria findAssociatedEntities(String userId,
             DetailedSearchSubCriteria subCriteria)
     {
         // for now we don't support sub criteria of sub criteria
         List<DetailedSearchAssociationCriteria> associations = Collections.emptyList();
         final Collection<Long> associatedIds =
-                searchDAO.searchForEntityIds(subCriteria.getCriteria(), DtoConverters
+                searchDAO.searchForEntityIds(userId, subCriteria.getCriteria(), DtoConverters
                         .convertEntityKind(subCriteria.getTargetEntityKind().getEntityKind()),
                         associations);
 
@@ -84,7 +84,7 @@ public class AbstractSearchManager<T>
 
     interface IRelationshipHandler
     {
-        Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
+        Collection<Long> findRelatedIdsByCriteria(String userId, DetailedSearchCriteria criteria,
                 List<DetailedSearchSubCriteria> otherSubCriterias);
 
         Map<Long, Set<Long>> listIdsToRelatedIds(Collection<Long> ids);
@@ -92,11 +92,12 @@ public class AbstractSearchManager<T>
         Map<Long, Set<Long>> listRelatedIdsToIds(Collection<Long> relatedIds);
     }
 
-    protected Collection<Long> filterSearchResultsBySubcriteria(Collection<Long> idsToFilter,
-            DetailedSearchCriteria criteria, IRelationshipHandler relationshipHandler)
+    protected Collection<Long> filterSearchResultsBySubcriteria(String userId,
+            Collection<Long> idsToFilter, DetailedSearchCriteria criteria,
+            IRelationshipHandler relationshipHandler)
     {
         Collection<Long> relatedIds =
-                relationshipHandler.findRelatedIdsByCriteria(criteria,
+                relationshipHandler.findRelatedIdsByCriteria(userId, criteria,
                         Collections.<DetailedSearchSubCriteria> emptyList());
 
         if (idsToFilter.size() > relatedIds.size())

@@ -2051,7 +2051,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                         SearchableEntityKind.SAMPLE, searchCriteria);
         SearchHelper searchHelper =
                 new SearchHelper(session, businessObjectFactory, getDAOFactory());
-        return searchHelper.searchForSamples(detailedSearchCriteria);
+        return searchHelper.searchForSamples(session.getUserName(), detailedSearchCriteria);
     }
 
     @Override
@@ -2064,7 +2064,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                         SearchableEntityKind.DATA_SET, searchCriteria);
         SearchHelper searchHelper =
                 new SearchHelper(session, businessObjectFactory, getDAOFactory());
-        return searchHelper.searchForDataSets(detailedSearchCriteria);
+        return searchHelper.searchForDataSets(session.getUserName(), detailedSearchCriteria);
     }
 
     @Override

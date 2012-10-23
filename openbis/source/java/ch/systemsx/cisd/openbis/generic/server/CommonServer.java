@@ -674,7 +674,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
         SearchHelper searchHelper =
                 new SearchHelper(session, businessObjectFactory, getDAOFactory());
-        return searchHelper.searchForSamples(criteria);
+        return searchHelper.searchForSamples(session.getUserName(), criteria);
     }
 
     @Override
@@ -816,15 +816,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             final SearchableEntity[] searchableEntities, final String queryText,
             final boolean useWildcardSearchMode, int maxSize)
     {
-        checkSession(sessionToken);
+        Session session = getSession(sessionToken);
+
         final List<MatchingEntity> list = new ArrayList<MatchingEntity>();
         for (final SearchableEntity searchableEntity : searchableEntities)
         {
             HibernateSearchDataProvider dataProvider =
                     new HibernateSearchDataProvider(getDAOFactory());
             List<MatchingEntity> entities =
-                    getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(searchableEntity,
-                            queryText, dataProvider, useWildcardSearchMode, list.size(), maxSize);
+                    getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
+                            session.getUserName(), searchableEntity, queryText, dataProvider,
+                            useWildcardSearchMode, list.size(), maxSize);
             list.addAll(entities);
         }
         return list;
@@ -912,6 +914,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             experimentTable.load(experimentType.getCode(), spaceIdentifierOrNull);
         }
         final List<ExperimentPE> experiments = experimentTable.getExperiments();
+
         final Collection<MetaprojectAssignmentPE> assignmentPEs =
                 getDAOFactory()
                         .getMetaprojectDAO()
@@ -921,6 +924,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                                 ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT);
         Map<Long, Set<Metaproject>> assignments =
                 MetaprojectTranslator.translateMetaprojectAssignments(assignmentPEs);
+
         Collections.sort(experiments);
         return ExperimentTranslator.translate(experiments, session.getBaseIndexURL(), assignments);
     }
@@ -1268,7 +1272,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
         SearchHelper searchHelper =
                 new SearchHelper(session, businessObjectFactory, getDAOFactory());
-        return searchHelper.searchForDataSets(criteria);
+        return searchHelper.searchForDataSets(session.getUserName(), criteria);
     }
 
     @Override
@@ -3368,7 +3372,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
         SearchHelper searchHelper =
                 new SearchHelper(session, businessObjectFactory, getDAOFactory());
-        return searchHelper.searchForMaterials(criteria);
+        return searchHelper.searchForMaterials(session.getUserName(), criteria);
     }
 
     @Override

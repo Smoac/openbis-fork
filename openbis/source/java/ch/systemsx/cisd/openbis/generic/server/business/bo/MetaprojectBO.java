@@ -16,14 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.ObjectRetrievalFailureException;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.IDataSetId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.IMaterialId;
@@ -60,6 +65,10 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     private IMaterialBO materialBO;
 
     private MetaprojectPE metaproject;
+
+    private Map<Class<?>, List<Long>> addedEntitiesIds;
+
+    private Map<Class<?>, List<Long>> removedEntitiesIds;
 
     private boolean dataChanged;
 
@@ -109,6 +118,8 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             throw new UserFailureException(String.format(
                     "Metaproject with ID '%s' does not exist.", metaprojectId));
         }
+
+        initEntitiesMaps();
         dataChanged = false;
     }
 
@@ -123,6 +134,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
                     "Metaproject with ID '%s' does not exist.", metaprojectId));
         }
 
+        initEntitiesMaps();
         dataChanged = false;
     }
 
@@ -142,6 +154,22 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             try
             {
                 getMetaprojectDAO().createOrUpdateMetaproject(metaproject, findPerson());
+
+                IFullTextIndexUpdateScheduler indexUpdater =
+                        getPersistencyResources().getIndexUpdateScheduler();
+
+                for (Map.Entry<Class<?>, List<Long>> addedEntry : addedEntitiesIds.entrySet())
+                {
+                    indexUpdater.scheduleUpdate(IndexUpdateOperation.reindex(addedEntry.getKey(),
+                            addedEntry.getValue()));
+                }
+
+                for (Map.Entry<Class<?>, List<Long>> removedEntry : removedEntitiesIds.entrySet())
+                {
+                    indexUpdater.scheduleUpdate(IndexUpdateOperation.remove(removedEntry.getKey(),
+                            removedEntry.getValue()));
+                }
+
             } catch (final DataAccessException ex)
             {
                 throwException(ex, "Metaproject '" + metaproject.getName() + "'");
@@ -158,6 +186,8 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
         assert ownerId != null : "Unspecified metaproject owner";
 
         this.metaproject = createMetaproject(metaprojectName, description, ownerId);
+
+        initEntitiesMaps();
         dataChanged = true;
     }
 
@@ -214,6 +244,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
             metaprojectAssignmentPE.setExperiment(experimentPE);
             metaproject.addAssignment(metaprojectAssignmentPE);
+            addToAddedEntities(ExperimentPE.class, experimentPE.getId());
         }
 
         dataChanged = true;
@@ -232,6 +263,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
             metaprojectAssignmentPE.setSample(samplePE);
             metaproject.addAssignment(metaprojectAssignmentPE);
+            addToAddedEntities(SamplePE.class, samplePE.getId());
         }
 
         dataChanged = true;
@@ -251,6 +283,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
             metaprojectAssignmentPE.setDataSet(dataPE);
             metaproject.addAssignment(metaprojectAssignmentPE);
+            addToAddedEntities(DataPE.class, dataPE.getId());
         }
 
         dataChanged = true;
@@ -270,6 +303,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
             metaprojectAssignmentPE.setMaterial(materialPE);
             metaproject.addAssignment(metaprojectAssignmentPE);
+            addToAddedEntities(MaterialPE.class, materialPE.getId());
         }
 
         dataChanged = true;
@@ -286,6 +320,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
                 MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
                 metaprojectAssignmentPE.setExperiment(experimentPE);
                 metaproject.removeAssignment(metaprojectAssignmentPE);
+                addToRemovedEntities(ExperimentPE.class, experimentPE.getId());
             }
         }
 
@@ -303,6 +338,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
                 MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
                 metaprojectAssignmentPE.setSample(samplePE);
                 metaproject.removeAssignment(metaprojectAssignmentPE);
+                addToRemovedEntities(SamplePE.class, samplePE.getId());
             }
         }
 
@@ -320,6 +356,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
                 MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
                 metaprojectAssignmentPE.setDataSet(dataPE);
                 metaproject.removeAssignment(metaprojectAssignmentPE);
+                addToRemovedEntities(DataPE.class, dataPE.getId());
             }
         }
 
@@ -337,6 +374,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
                 MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
                 metaprojectAssignmentPE.setMaterial(materialPE);
                 metaproject.removeAssignment(metaprojectAssignmentPE);
+                addToRemovedEntities(MaterialPE.class, materialPE.getId());
             }
         }
 
@@ -349,4 +387,33 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
         metaprojectAssignmentPE.setMetaproject(metaproject);
         return metaprojectAssignmentPE;
     }
+
+    private void initEntitiesMaps()
+    {
+        addedEntitiesIds = new HashMap<Class<?>, List<Long>>();
+        removedEntitiesIds = new HashMap<Class<?>, List<Long>>();
+    }
+
+    private void addToAddedEntities(Class<?> entityClass, Long entityId)
+    {
+        addToEntitiesMap(entityClass, entityId, addedEntitiesIds);
+    }
+
+    private void addToRemovedEntities(Class<?> entityClass, Long entityId)
+    {
+        addToEntitiesMap(entityClass, entityId, removedEntitiesIds);
+    }
+
+    private void addToEntitiesMap(Class<?> entityClass, Long entityId,
+            Map<Class<?>, List<Long>> entitiesMap)
+    {
+        List<Long> ids = entitiesMap.get(entityClass);
+        if (ids == null)
+        {
+            ids = new ArrayList<Long>();
+            entitiesMap.put(entityClass, ids);
+        }
+        ids.add(entityId);
+    }
+
 }

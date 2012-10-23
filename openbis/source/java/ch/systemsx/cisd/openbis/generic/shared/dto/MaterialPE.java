@@ -29,6 +29,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
@@ -91,6 +93,8 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     private DatabaseInstancePE databaseInstance;
 
     private Set<MaterialPropertyPE> properties = new HashSet<MaterialPropertyPE>();
+
+    private Set<MetaprojectPE> metaprojects = new HashSet<MetaprojectPE>();
 
     /**
      * NOTE: Materials do not have permanent ids stored in the database.
@@ -376,6 +380,24 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     public String getPermId()
     {
         return createPermId(code, materialType.getCode());
+    }
+
+    @SuppressWarnings("unused")
+    @ManyToMany(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.SUBSELECT)
+    @JoinTable(name = TableNames.METAPROJECT_ASSIGNMENTS_VIEW, joinColumns =
+        { @JoinColumn(name = ColumnNames.MATERIAL_COLUMN) }, inverseJoinColumns =
+        { @JoinColumn(name = ColumnNames.METAPROJECT_ID_COLUMN) })
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_METAPROJECT)
+    private Set<MetaprojectPE> getMetaprojects()
+    {
+        return this.metaprojects;
+    }
+
+    @SuppressWarnings("unused")
+    private void setMetaprojects(Set<MetaprojectPE> metaprojects)
+    {
+        this.metaprojects = metaprojects;
     }
 
 }

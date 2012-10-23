@@ -32,7 +32,7 @@ public class MetaprojectIdentifier implements Serializable
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private static final String SEPARATOR = "/";
+    public static final String SEPARATOR = "/";
 
     private String metaprojectOwnerId;
 

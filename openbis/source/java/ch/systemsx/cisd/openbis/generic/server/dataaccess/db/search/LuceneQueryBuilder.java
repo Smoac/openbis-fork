@@ -54,10 +54,11 @@ public class LuceneQueryBuilder
     /**
      * @throws UserFailureException when some search patterns are incorrect
      */
-    public static Query createDetailedSearchQuery(DetailedSearchCriteria searchCriteria,
+    public static Query createDetailedSearchQuery(String userId,
+            DetailedSearchCriteria searchCriteria,
             List<DetailedSearchAssociationCriteria> associations, EntityKind entityKind)
     {
-        return DetailedQueryBuilder.createQuery(searchCriteria,
+        return DetailedQueryBuilder.createQuery(userId, searchCriteria,
                 DtoConverters.convertEntityKind(entityKind), associations);
     }
 
@@ -78,6 +79,12 @@ public class LuceneQueryBuilder
 
     public static String adaptQuery(String userQuery, boolean useWildcardSearchMode)
     {
+        return adaptQuery(userQuery, useWildcardSearchMode, true);
+    }
+
+    public static String adaptQuery(String userQuery, boolean useWildcardSearchMode,
+            boolean splitQuery)
+    {
         char[] escapedChars =
                 (useWildcardSearchMode == true) ? CHARS_ESCAPED_IN_WILCARD_MODE
                         : CHARS_ESCAPED_IN_BASIC_MODE;
@@ -89,12 +96,12 @@ public class LuceneQueryBuilder
         if (useWildcardSearchMode == false && isQuoted(result) == false
                 && result.contains("*") == false)
         {
-            result = addWildcards(result);
+            result = addWildcards(result, splitQuery);
         }
         return result;
     }
 
-    private static String addWildcards(String result)
+    private static String addWildcards(String result, boolean split)
     {
         String[] queryTokens = StringUtils.split(result, SPACE);
         List<String> transformedTokens = new ArrayList<String>();
@@ -105,17 +112,27 @@ public class LuceneQueryBuilder
                 transformedTokens.add(qt);
             } else
             {
-                transformedTokens.add(addWildcartdsToToken(qt));
+                transformedTokens.add(addWildcartdsToToken(qt, split));
             }
         }
         return StringUtils.join(transformedTokens, SPACE);
     }
 
-    private static String addWildcartdsToToken(String token)
+    private static String addWildcartdsToToken(String token, boolean split)
     {
         Collection<Character> tokenSeparators = CharacterHelper.getTokenSeparators();
         tokenSeparators.removeAll(new ArrayList<String>());
-        String[] miniTokens = StringUtils.split(token, StringUtils.join(tokenSeparators, ""));
+        String[] miniTokens = null;
+
+        if (split)
+        {
+            miniTokens = StringUtils.split(token, StringUtils.join(tokenSeparators, ""));
+        } else
+        {
+            miniTokens = new String[]
+                { token };
+        }
+
         List<String> transformedMiniTokens = new ArrayList<String>();
         for (String qt : miniTokens)
         {
@@ -171,12 +188,18 @@ public class LuceneQueryBuilder
     }
 
     // creates a query where any field matches the given pattern
-    public static Query parseQuery(final List<String> fieldNames, final String searchPattern,
-            Analyzer analyzer) throws UserFailureException
+    public static Query parseQuery(final List<String> fieldNames,
+            final List<String> searchPatterns, List<Analyzer> analyzers)
+            throws UserFailureException
     {
         BooleanQuery resultQuery = new BooleanQuery();
-        for (String fieldName : fieldNames)
+
+        for (int i = 0; i < fieldNames.size(); i++)
         {
+            String fieldName = fieldNames.get(i);
+            String searchPattern = searchPatterns.get(i);
+            Analyzer analyzer = analyzers.get(i);
+
             Query query = parseQuery(fieldName, searchPattern, analyzer);
             resultQuery.add(query, Occur.SHOULD);
         }

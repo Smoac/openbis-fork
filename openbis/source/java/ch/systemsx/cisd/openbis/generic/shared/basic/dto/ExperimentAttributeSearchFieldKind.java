@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 
-
 /**
  * Kinds of fields connected with Experiment attributes that can be used in detailed text queries.
  * 
@@ -33,6 +32,8 @@ public enum ExperimentAttributeSearchFieldKind implements Serializable, IAttribu
     PROJECT("Project"),
 
     PROJECT_SPACE("Space"),
+
+    METAPROJECT("Metaproject"),
 
     REGISTRATION_DATE(CommonAttributeSearchFieldKindDecsriptions.REGISTRATION_DATE_DESCRIPTION,
             null, new SearchFieldDateCriterionFactory()),

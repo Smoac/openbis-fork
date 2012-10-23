@@ -55,26 +55,28 @@ class SearchHelper
         this.daoFactory = daoFactory;
     }
 
-    public List<Sample> searchForSamples(DetailedSearchCriteria criteria)
+    public List<Sample> searchForSamples(String userId, DetailedSearchCriteria criteria)
     {
         final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
         final IHibernateSearchDAO searchDAO = daoFactory.getHibernateSearchDAO();
-        return new SampleSearchManager(searchDAO, sampleLister).searchForSamples(criteria);
+        return new SampleSearchManager(searchDAO, sampleLister).searchForSamples(userId, criteria);
     }
 
-    public List<ExternalData> searchForDataSets(DetailedSearchCriteria detailedSearchCriteria)
+    public List<ExternalData> searchForDataSets(String userId,
+            DetailedSearchCriteria detailedSearchCriteria)
     {
         IHibernateSearchDAO searchDAO = daoFactory.getHibernateSearchDAO();
         IDatasetLister dataSetLister = businessObjectFactory.createDatasetLister(session);
-        return new DataSetSearchManager(searchDAO, dataSetLister)
-                .searchForDataSets(detailedSearchCriteria);
+        return new DataSetSearchManager(searchDAO, dataSetLister).searchForDataSets(userId,
+                detailedSearchCriteria);
     }
 
-    public List<Material> searchForMaterials(DetailedSearchCriteria detailedSearchCriteria)
+    public List<Material> searchForMaterials(String userId,
+            DetailedSearchCriteria detailedSearchCriteria)
     {
         IHibernateSearchDAO searchDAO = daoFactory.getHibernateSearchDAO();
         IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
-        return new MaterialSearchManager(searchDAO, materialLister)
-                .searchForMaterials(detailedSearchCriteria);
+        return new MaterialSearchManager(searchDAO, materialLister).searchForMaterials(userId,
+                detailedSearchCriteria);
     }
 }

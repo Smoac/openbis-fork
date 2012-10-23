@@ -34,6 +34,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
@@ -116,6 +118,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     private Set<SampleRelationshipPE> parentRelationships = new HashSet<SampleRelationshipPE>();
 
     private Set<SampleRelationshipPE> childRelationships = new HashSet<SampleRelationshipPE>();
+
+    private Set<MetaprojectPE> metaprojects = new HashSet<MetaprojectPE>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentSample")
     @Fetch(FetchMode.SUBSELECT)
@@ -806,6 +810,24 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
             map.get(type).add(r.getParentSample());
         }
         return map;
+    }
+
+    @SuppressWarnings("unused")
+    @ManyToMany(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.SUBSELECT)
+    @JoinTable(name = TableNames.METAPROJECT_ASSIGNMENTS_VIEW, joinColumns =
+        { @JoinColumn(name = ColumnNames.SAMPLE_COLUMN) }, inverseJoinColumns =
+        { @JoinColumn(name = ColumnNames.METAPROJECT_ID_COLUMN) })
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_METAPROJECT)
+    private Set<MetaprojectPE> getMetaprojects()
+    {
+        return this.metaprojects;
+    }
+
+    @SuppressWarnings("unused")
+    private void setMetaprojects(Set<MetaprojectPE> metaprojects)
+    {
+        this.metaprojects = metaprojects;
     }
 
 }

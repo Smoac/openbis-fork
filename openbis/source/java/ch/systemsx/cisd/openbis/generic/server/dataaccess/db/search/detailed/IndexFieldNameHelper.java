@@ -133,6 +133,8 @@ class IndexFieldNameHelper
                 return SearchFieldConstants.PREFIX_FILE_FORMAT_TYPE + CODE;
             case STORAGE_CONFIRMATION:
                 return SearchFieldConstants.STORAGE_CONFIRMATION;
+            case METAPROJECT:
+                return SearchFieldConstants.PREFIX_METAPROJECT + SearchFieldConstants.IDENTIFIER;
             case REGISTRATION_DATE:
             case REGISTRATION_DATE_FROM:
             case REGISTRATION_DATE_UNTIL:
@@ -159,6 +161,8 @@ class IndexFieldNameHelper
             case PROJECT_SPACE:
                 return SearchFieldConstants.PREFIX_PROJECT + SearchFieldConstants.PREFIX_SPACE
                         + CODE;
+            case METAPROJECT:
+                return SearchFieldConstants.PREFIX_METAPROJECT + SearchFieldConstants.IDENTIFIER;
             case REGISTRATION_DATE:
             case REGISTRATION_DATE_FROM:
             case REGISTRATION_DATE_UNTIL:
@@ -180,6 +184,8 @@ class IndexFieldNameHelper
                 return CODE;
             case MATERIAL_TYPE:
                 return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
+            case METAPROJECT:
+                return SearchFieldConstants.PREFIX_METAPROJECT + SearchFieldConstants.IDENTIFIER;
             case REGISTRATION_DATE:
             case REGISTRATION_DATE_FROM:
             case REGISTRATION_DATE_UNTIL:
@@ -202,6 +208,8 @@ class IndexFieldNameHelper
                 return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
             case SPACE:
                 return SearchFieldConstants.PREFIX_SPACE + CODE;
+            case METAPROJECT:
+                return SearchFieldConstants.PREFIX_METAPROJECT + SearchFieldConstants.IDENTIFIER;
             case REGISTRATION_DATE:
             case REGISTRATION_DATE_FROM:
             case REGISTRATION_DATE_UNTIL:

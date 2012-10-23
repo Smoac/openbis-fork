@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 
-
 /**
  * Kinds of fields connected with Data Set attributes that can be used in detailed text queries.
  * 
@@ -34,6 +33,8 @@ public enum DataSetAttributeSearchFieldKind implements Serializable, IAttributeS
 
     STORAGE_CONFIRMATION("Storage confirmed", new SearchFieldAvailableForAdmins(),
             new SearchFieldBooleanCriterionFactory()),
+
+    METAPROJECT("Metaproject"),
 
     REGISTRATION_DATE(CommonAttributeSearchFieldKindDecsriptions.REGISTRATION_DATE_DESCRIPTION,
             null, new SearchFieldDateCriterionFactory()),

@@ -39,11 +39,11 @@ public class MaterialSearchManager extends AbstractSearchManager<IMaterialLister
         super(searchDAO, lister);
     }
 
-    public List<Material> searchForMaterials(DetailedSearchCriteria criteria)
+    public List<Material> searchForMaterials(String userId, DetailedSearchCriteria criteria)
             throws DataAccessException
     {
         List<Long> materialIds =
-                searchDAO.searchForEntityIds(criteria,
+                searchDAO.searchForEntityIds(userId, criteria,
                         ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL,
                         Collections.<DetailedSearchAssociationCriteria> emptyList());
 

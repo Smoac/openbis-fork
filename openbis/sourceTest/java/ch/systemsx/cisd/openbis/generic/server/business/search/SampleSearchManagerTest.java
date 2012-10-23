@@ -50,6 +50,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public class SampleSearchManagerTest extends AssertJUnit
 {
+    private static final String USER_ID = "test";
+
     private Mockery context;
 
     private IHibernateSearchDAO searchDAO;
@@ -103,11 +105,11 @@ public class SampleSearchManagerTest extends AssertJUnit
                     one(searchDAO).getResultSetSizeLimit();
                     will(returnValue(100));
 
-                    one(searchDAO).searchForEntityIds(with(mainCriteriaMatcher),
+                    one(searchDAO).searchForEntityIds(with(USER_ID), with(mainCriteriaMatcher),
                             with(EntityKind.SAMPLE),
                             with(Arrays.<DetailedSearchAssociationCriteria> asList()));
                     will(returnValue(new ArrayList<Long>(Arrays.asList(1L, 2L, 3L, 4L))));
-                    one(searchDAO).searchForEntityIds(with(parentCriteriaMatcher),
+                    one(searchDAO).searchForEntityIds(with(USER_ID), with(parentCriteriaMatcher),
                             with(EntityKind.SAMPLE),
                             with(Arrays.<DetailedSearchAssociationCriteria> asList()));
                     will(returnValue(new ArrayList<Long>(Arrays.asList(1L, 2L, 3L, 4L, 5L))));
@@ -122,7 +124,7 @@ public class SampleSearchManagerTest extends AssertJUnit
             });
 
         List<Long> sampleIds =
-                new ArrayList<Long>(searchManager.searchForSampleIDs(searchCriteria));
+                new ArrayList<Long>(searchManager.searchForSampleIDs(USER_ID, searchCriteria));
 
         Collections.sort(sampleIds);
         assertEquals("[1, 2]", sampleIds.toString());
@@ -163,11 +165,11 @@ public class SampleSearchManagerTest extends AssertJUnit
                     one(searchDAO).getResultSetSizeLimit();
                     will(returnValue(100));
 
-                    one(searchDAO).searchForEntityIds(with(mainCriteriaMatcher),
+                    one(searchDAO).searchForEntityIds(with(USER_ID), with(mainCriteriaMatcher),
                             with(EntityKind.SAMPLE),
                             with(Arrays.<DetailedSearchAssociationCriteria> asList()));
                     will(returnValue(new ArrayList<Long>(Arrays.asList(1L, 2L, 3L, 4L, 5L))));
-                    one(searchDAO).searchForEntityIds(with(parentCriteriaMatcher),
+                    one(searchDAO).searchForEntityIds(with(USER_ID), with(parentCriteriaMatcher),
                             with(EntityKind.SAMPLE),
                             with(Arrays.<DetailedSearchAssociationCriteria> asList()));
                     will(returnValue(new ArrayList<Long>(Arrays.asList(1L, 2L, 3L, 4L))));
@@ -181,7 +183,7 @@ public class SampleSearchManagerTest extends AssertJUnit
             });
 
         List<Long> sampleIds =
-                new ArrayList<Long>(searchManager.searchForSampleIDs(searchCriteria));
+                new ArrayList<Long>(searchManager.searchForSampleIDs(USER_ID, searchCriteria));
 
         Collections.sort(sampleIds);
         assertEquals("[1, 2]", sampleIds.toString());

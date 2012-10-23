@@ -32,6 +32,8 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
@@ -116,6 +118,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     private DataPE container = null;
 
     private List<DataPE> containedDataSets = new ArrayList<DataPE>();
+
+    private Set<MetaprojectPE> metaprojects = new HashSet<MetaprojectPE>();
 
     /**
      * Deletion information.
@@ -810,4 +814,23 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     {
         this.deletion = deletion;
     }
+
+    @SuppressWarnings("unused")
+    @ManyToMany(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.SUBSELECT)
+    @JoinTable(name = TableNames.METAPROJECT_ASSIGNMENTS_VIEW, joinColumns =
+        { @JoinColumn(name = ColumnNames.DATA_ID_COLUMN) }, inverseJoinColumns =
+        { @JoinColumn(name = ColumnNames.METAPROJECT_ID_COLUMN) })
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_METAPROJECT)
+    private Set<MetaprojectPE> getMetaprojects()
+    {
+        return this.metaprojects;
+    }
+
+    @SuppressWarnings("unused")
+    private void setMetaprojects(Set<MetaprojectPE> metaprojects)
+    {
+        this.metaprojects = metaprojects;
+    }
+
 }

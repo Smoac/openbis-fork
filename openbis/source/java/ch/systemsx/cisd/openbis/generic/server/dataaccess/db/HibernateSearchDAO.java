@@ -62,6 +62,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IgnoreCaseAnalyzer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
@@ -114,10 +115,10 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     // simple search for MatchingEntities
 
     @Override
-    public List<MatchingEntity> searchEntitiesByTerm(final SearchableEntity searchableEntity,
-            final String searchTerm, final HibernateSearchDataProvider dataProvider,
-            final boolean useWildcardSearchMode, final int alreadyFoundEntities, final int maxSize)
-            throws DataAccessException
+    public List<MatchingEntity> searchEntitiesByTerm(final String userId,
+            final SearchableEntity searchableEntity, final String searchTerm,
+            final HibernateSearchDataProvider dataProvider, final boolean useWildcardSearchMode,
+            final int alreadyFoundEntities, final int maxSize) throws DataAccessException
     {
         assert searchableEntity != null : "Unspecified searchable entity";
         assert StringUtils.isBlank(searchTerm) == false : "Unspecified search term.";
@@ -130,9 +131,9 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                         public final List<MatchingEntity> doInHibernate(final Session session)
                                 throws HibernateException, SQLException
                         {
-                            return doSearchEntitiesByTerm(session, searchableEntity, searchTerm,
-                                    dataProvider, useWildcardSearchMode, alreadyFoundEntities,
-                                    maxSize);
+                            return doSearchEntitiesByTerm(userId, session, searchableEntity,
+                                    searchTerm, dataProvider, useWildcardSearchMode,
+                                    alreadyFoundEntities, maxSize);
                         }
                     }));
         if (operationLog.isDebugEnabled())
@@ -144,8 +145,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         return list;
     }
 
-    private final List<MatchingEntity> doSearchEntitiesByTerm(final Session session,
-            final SearchableEntity searchableEntity, final String userQuery,
+    private final List<MatchingEntity> doSearchEntitiesByTerm(final String userId,
+            final Session session, final SearchableEntity searchableEntity, final String userQuery,
             final HibernateSearchDataProvider dataProvider, final boolean useWildcardSearchMode,
             int alreadyFoundEntities, int maxSize) throws DataAccessException, UserFailureException
     {
@@ -155,8 +156,6 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         MyIndexReaderProvider indexProvider =
                 new MyIndexReaderProvider(fullTextSession, searchableEntity);
 
-        String searchQuery = LuceneQueryBuilder.adaptQuery(userQuery, useWildcardSearchMode);
-
         try
         {
             List<MatchingEntity> result = new ArrayList<MatchingEntity>();
@@ -164,9 +163,10 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             for (String fieldName : fields)
             {
                 List<MatchingEntity> hits =
-                        searchTermInField(fullTextSession, fieldName, searchQuery,
+                        searchTermInField(userId, fullTextSession, fieldName, userQuery,
                                 searchableEntity, analyzer, indexProvider.getReader(),
-                                dataProvider, result.size() + alreadyFoundEntities, maxSize);
+                                dataProvider, useWildcardSearchMode, result.size()
+                                        + alreadyFoundEntities, maxSize);
                 result.addAll(hits);
             }
             return result;
@@ -176,11 +176,11 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
     }
 
-    private final List<MatchingEntity> searchTermInField(final FullTextSession fullTextSession,
-            final String fieldName, final String searchTerm,
+    private final List<MatchingEntity> searchTermInField(final String userId,
+            final FullTextSession fullTextSession, final String fieldName, final String userQuery,
             final SearchableEntity searchableEntity, Analyzer analyzer, IndexReader indexReader,
-            final HibernateSearchDataProvider dataProvider, int alreadyFoundResults, int maxSize)
-            throws DataAccessException, UserFailureException
+            final HibernateSearchDataProvider dataProvider, final boolean useWildcardSearchMode,
+            int alreadyFoundResults, int maxSize) throws DataAccessException, UserFailureException
     {
         int maxResults =
                 Math.max(0, Math.min(maxSize, hibernateSearchContext.getMaxResults())
@@ -189,7 +189,22 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         {
             return new ArrayList<MatchingEntity>();
         }
-        Query query = LuceneQueryBuilder.parseQuery(fieldName, searchTerm, analyzer);
+
+        Query query = null;
+
+        if (MetaprojectSearch.isMetaprojectField(fieldName))
+        {
+            String searchTerm =
+                    LuceneQueryBuilder.adaptQuery(
+                            MetaprojectSearch.getMetaprojectUserQuery(userQuery, userId),
+                            useWildcardSearchMode, false);
+            query = LuceneQueryBuilder.parseQuery(fieldName, searchTerm, new IgnoreCaseAnalyzer());
+        } else
+        {
+            String searchTerm = LuceneQueryBuilder.adaptQuery(userQuery, useWildcardSearchMode);
+            query = LuceneQueryBuilder.parseQuery(fieldName, searchTerm, analyzer);
+        }
+
         query = rewriteQuery(indexReader, query);
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query,
@@ -225,8 +240,9 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     // detailed search
 
     @Override
-    public List<Long> searchForEntityIds(final DetailedSearchCriteria criteria,
-            final EntityKind entityKind, final List<DetailedSearchAssociationCriteria> associations)
+    public List<Long> searchForEntityIds(final String userId,
+            final DetailedSearchCriteria criteria, final EntityKind entityKind,
+            final List<DetailedSearchAssociationCriteria> associations)
     {
         final List<Long> list =
                 AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
@@ -235,7 +251,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                         public final Object doInHibernate(final Session session)
                                 throws HibernateException, SQLException
                         {
-                            return searchForEntityIds(session, criteria, entityKind, associations);
+                            return searchForEntityIds(userId, session, criteria, entityKind,
+                                    associations);
                         }
                     }));
         if (operationLog.isDebugEnabled())
@@ -252,11 +269,12 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
      * <br>
      * Takes data only from Lucene index without hitting DB.
      */
-    private List<Long> searchForEntityIds(Session session, DetailedSearchCriteria searchCriteria,
-            EntityKind entityKind, List<DetailedSearchAssociationCriteria> associations)
+    private List<Long> searchForEntityIds(String userId, Session session,
+            DetailedSearchCriteria searchCriteria, EntityKind entityKind,
+            List<DetailedSearchAssociationCriteria> associations)
     {
         Query query =
-                LuceneQueryBuilder.createDetailedSearchQuery(searchCriteria, associations,
+                LuceneQueryBuilder.createDetailedSearchQuery(userId, searchCriteria, associations,
                         entityKind);
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
         final FullTextQuery hibernateQuery =
@@ -333,6 +351,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                     // same code. The first value will be taken.
                     matchingText = highlighter.getBestFragment(content, fieldName, documentId);
                 } else
+
                 {
                     // in some cases (e.g. attachments) we do not store content in the index
                     matchingText = "[content]";

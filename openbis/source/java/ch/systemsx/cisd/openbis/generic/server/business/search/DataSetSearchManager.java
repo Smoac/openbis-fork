@@ -47,10 +47,11 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
         {
 
             @Override
-            public Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
+            public Collection<Long> findRelatedIdsByCriteria(String userId,
+                    DetailedSearchCriteria criteria,
                     List<DetailedSearchSubCriteria> otherSubCriterias)
             {
-                return findDataSetIds(criteria, otherSubCriterias);
+                return findDataSetIds(userId, criteria, otherSubCriterias);
             }
 
             @Override
@@ -70,10 +71,11 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
         {
 
             @Override
-            public Collection<Long> findRelatedIdsByCriteria(DetailedSearchCriteria criteria,
+            public Collection<Long> findRelatedIdsByCriteria(String userId,
+                    DetailedSearchCriteria criteria,
                     List<DetailedSearchSubCriteria> otherSubCriterias)
             {
-                return findDataSetIds(criteria, otherSubCriterias);
+                return findDataSetIds(userId, criteria, otherSubCriterias);
             }
 
             @Override
@@ -94,7 +96,7 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
         super(searchDAO, lister);
     }
 
-    public List<ExternalData> searchForDataSets(DetailedSearchCriteria criteria)
+    public List<ExternalData> searchForDataSets(String userId, DetailedSearchCriteria criteria)
             throws DataAccessException
     {
 
@@ -105,34 +107,34 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
         groupDataSetSubCriteria(criteria.getSubCriterias(), parentCriteria, childCriteria,
                 otherSubCriterias);
 
-        List<Long> dataSetIds = findDataSetIds(criteria, otherSubCriterias);
+        List<Long> dataSetIds = findDataSetIds(userId, criteria, otherSubCriterias);
         Collection<Long> filteredDataSetIds = dataSetIds;
 
         if (false == parentCriteria.isEmpty())
         {
             filteredDataSetIds =
-                    filterSearchResultsBySubcriteria(dataSetIds, parentCriteria,
+                    filterSearchResultsBySubcriteria(userId, dataSetIds, parentCriteria,
                             PARENT_RELATIONSHIP_HANDLER);
         }
 
         if (false == childCriteria.isEmpty())
         {
             filteredDataSetIds =
-                    filterSearchResultsBySubcriteria(dataSetIds, childCriteria,
+                    filterSearchResultsBySubcriteria(userId, dataSetIds, childCriteria,
                             CHILDREN_RELATIONSHIP_HANDLER);
         }
 
         return lister.listByDatasetIds(restrictResultSetIfNecessary(filteredDataSetIds));
     }
 
-    private List<Long> findDataSetIds(DetailedSearchCriteria criteria,
+    private List<Long> findDataSetIds(String userId, DetailedSearchCriteria criteria,
             List<DetailedSearchSubCriteria> otherSubCriterias)
     {
         List<DetailedSearchAssociationCriteria> associations =
                 new ArrayList<DetailedSearchAssociationCriteria>();
         for (DetailedSearchSubCriteria subCriteria : otherSubCriterias)
         {
-            associations.add(findAssociatedEntities(subCriteria));
+            associations.add(findAssociatedEntities(userId, subCriteria));
         }
 
         if (criteria.getCriteria().isEmpty() && otherSubCriterias.isEmpty())
@@ -144,7 +146,7 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
         }
 
         final List<Long> dataSetIds =
-                searchDAO.searchForEntityIds(criteria,
+                searchDAO.searchForEntityIds(userId, criteria,
                         DtoConverters.convertEntityKind(EntityKind.DATA_SET), associations);
         return dataSetIds;
     }

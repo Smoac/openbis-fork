@@ -503,8 +503,7 @@ public class WellContentLoader extends AbstractContentLoader
                         singleImageAlreadyUsed = true;
                     }
                     clonedWellContents.add(wellContent.cloneWithImageDatasets(
-                            imagesDatasetReference,
-                            featureVectorDatasetReference));
+                            imagesDatasetReference, featureVectorDatasetReference));
                 }
             }
 
@@ -517,8 +516,7 @@ public class WellContentLoader extends AbstractContentLoader
                     DatasetImagesReference imagesDatasetReference =
                             childlessImageDatasetsToImageReference.get(childlessImageDataset);
                     clonedWellContents.add(wellContent.cloneWithImageDatasets(
-                            imagesDatasetReference,
-                            null));
+                            imagesDatasetReference, null));
                 }
             }
             // if there are no datasets for the well content, we add it without images
@@ -909,7 +907,7 @@ public class WellContentLoader extends AbstractContentLoader
         criteria.setUseWildcardSearchMode(codesCriteria.isExactMatchOnly());
         return ArrayUtils.toPrimitive(daoFactory
                 .getHibernateSearchDAO()
-                .searchForEntityIds(criteria,
+                .searchForEntityIds(session.getUserName(), criteria,
                         ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL,
                         Collections.<DetailedSearchAssociationCriteria> emptyList())
                 .toArray(new Long[0]));

@@ -1283,7 +1283,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(boFactory).createSampleLister(session);
                     will(returnValue(sampleLister));
 
-                    one(hibernateSearchDAO).searchForEntityIds(
+                    one(hibernateSearchDAO).searchForEntityIds(with(session.getUserName()),
                             with(aNonNull(DetailedSearchCriteria.class)),
                             with(equal(EntityKind.SAMPLE)), with(aNonNull(List.class)));
                     will(returnValue(Arrays.asList(new Long(1), new Long(2))));
