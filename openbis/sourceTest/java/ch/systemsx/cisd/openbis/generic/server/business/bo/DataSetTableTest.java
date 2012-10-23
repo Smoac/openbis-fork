@@ -679,8 +679,9 @@ public final class DataSetTableTest extends AbstractBOTest
 
                     prepareUpdateDatasetStatuses(allDataSets, ARCHIVE_PENDING);
 
+                    String userSessionToken = ManagerTestTool.EXAMPLE_SESSION.getSessionToken();
                     allowing(dataStoreService2).archiveDatasets(
-                            with(equal(dss2.getSessionToken())),
+                            with(equal(dss2.getSessionToken())), with(equal(userSessionToken)),
                             with(createDatasetDescriptionsMatcher(d2Array)),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getUserId())),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getEmail())),
@@ -688,7 +689,7 @@ public final class DataSetTableTest extends AbstractBOTest
                     will(throwException(new RuntimeException()));
 
                     allowing(dataStoreService3).archiveDatasets(
-                            with(equal(dss3.getSessionToken())),
+                            with(equal(dss3.getSessionToken())), with(equal(userSessionToken)),
                             with(createDatasetDescriptionsMatcher(d3Array)),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getUserId())),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getEmail())),
@@ -737,7 +738,9 @@ public final class DataSetTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
+                    String userSessionToken = ManagerTestTool.EXAMPLE_SESSION.getSessionToken();
                     one(service).archiveDatasets(with(equal(store.getSessionToken())),
+                            with(equal(userSessionToken)),
                             with(createDatasetDescriptionsMatcher(dataSets)),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getUserId())),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getEmail())),
@@ -752,7 +755,9 @@ public final class DataSetTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
+                    String userSessionToken = ManagerTestTool.EXAMPLE_SESSION.getSessionToken();
                     one(service).unarchiveDatasets(with(equal(store.getSessionToken())),
+                            with(equal(userSessionToken)),
                             with(createDatasetDescriptionsMatcher(dataSets)),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getUserId())),
                             with(equal(ManagerTestTool.EXAMPLE_PERSON.getEmail())));

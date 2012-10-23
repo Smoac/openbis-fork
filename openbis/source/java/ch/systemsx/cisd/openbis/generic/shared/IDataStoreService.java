@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.generic.shared;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.common.exception.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Conversational;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Progress;
-import ch.systemsx.cisd.common.exception.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -113,8 +113,9 @@ public interface IDataStoreService
      * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from
      *            the data store after a successful archiving operation.
      */
-    public void archiveDatasets(String sessionToken, List<DatasetDescription> datasets,
-            String userId, String userEmailOrNull, boolean removeFromDataStore);
+    public void archiveDatasets(String sessionToken, String userSessionToken,
+            List<DatasetDescription> datasets, String userId, String userEmailOrNull,
+            boolean removeFromDataStore);
 
     /**
      * Schedules unarchiving of provided datasets.
@@ -124,8 +125,8 @@ public interface IDataStoreService
      *            the task is finished. It may be null if the user doesn't have email and no message
      *            will be send in such case.
      */
-    public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
-            String userId, String userEmailOrNull);
+    public void unarchiveDatasets(String sessionToken, String userSessionToken,
+            List<DatasetDescription> datasets, String userId, String userEmailOrNull);
 
     /**
      * Gets the link from a service that supports the IReportingPluginTask#createLink method.

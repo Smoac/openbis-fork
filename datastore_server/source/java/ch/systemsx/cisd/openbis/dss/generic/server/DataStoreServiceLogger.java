@@ -146,7 +146,7 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
     }
 
     @Override
-    public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
+    public void unarchiveDatasets(String sessionToken, String userSessionToken, List<DatasetDescription> datasets,
             String userId, String userEmailOrNull)
     {
         log("activateDatasets", "NO_OF_DATASETS(%s) USER_ID (%s) USER_EMAIL(%s)", datasets.size(),
@@ -154,7 +154,7 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
     }
 
     @Override
-    public void archiveDatasets(String sessionToken, List<DatasetDescription> datasets,
+    public void archiveDatasets(String sessionToken, String userSessionToken, List<DatasetDescription> datasets,
             String userId, String userEmailOrNull, boolean removeFromDataStore)
     {
         log("archiveDatasets",

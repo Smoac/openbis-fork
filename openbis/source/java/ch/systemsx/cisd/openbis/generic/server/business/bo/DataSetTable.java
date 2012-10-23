@@ -757,7 +757,8 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                 public void execute(String sessionToken, IDataStoreService service,
                         List<DatasetDescription> descriptions, String userId, String userEmailOrNull)
                 {
-                    service.unarchiveDatasets(sessionToken, descriptions, userId, userEmailOrNull);
+                    service.unarchiveDatasets(sessionToken, session.getSessionToken(),
+                            descriptions, userId, userEmailOrNull);
                 }
 
                 @Override
@@ -779,8 +780,8 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                 public void execute(String sessionToken, IDataStoreService service,
                         List<DatasetDescription> descriptions, String userId, String userEmailOrNull)
                 {
-                    service.archiveDatasets(sessionToken, descriptions, userId, userEmailOrNull,
-                            removeFromDataStore);
+                    service.archiveDatasets(sessionToken, session.getSessionToken(), descriptions,
+                            userId, userEmailOrNull, removeFromDataStore);
                 }
 
                 @Override

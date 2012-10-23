@@ -365,24 +365,24 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
 
     @Override
-    public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
+    public void unarchiveDatasets(String sessionToken, String userSessionToken, List<DatasetDescription> datasets,
             String userId, String userEmailOrNull)
     {
         String description = "Unarchiving";
         IProcessingPluginTask task = new UnarchiveProcessingPluginTask(getArchiverPlugin());
 
-        scheduleTask(sessionToken, description, task, datasets, userId, userEmailOrNull);
+        scheduleTask(sessionToken, userSessionToken, description, task, datasets, userId, userEmailOrNull);
     }
 
     @Override
-    public void archiveDatasets(String sessionToken, List<DatasetDescription> datasets,
+    public void archiveDatasets(String sessionToken, String userSessionToken, List<DatasetDescription> datasets,
             String userId, String userEmailOrNull, boolean removeFromDataStore)
     {
         String description = removeFromDataStore ? "Archiving" : "Copying data sets to archive";
         IProcessingPluginTask task =
                 new ArchiveProcessingPluginTask(getArchiverPlugin(), removeFromDataStore);
 
-        scheduleTask(sessionToken, description, task, datasets, userId, userEmailOrNull);
+        scheduleTask(sessionToken, userSessionToken, description, task, datasets, userId, userEmailOrNull);
     }
 
     @Override
@@ -431,7 +431,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return new MailClient(mailClientParameters);
     }
 
-    private void scheduleTask(String sessionToken, String description,
+    private void scheduleTask(String sessionToken, String userSessionToken, String description,
             IProcessingPluginTask processingTask, List<DatasetDescription> datasets, String userId,
             String userEmailOrNull)
     {
@@ -440,7 +440,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 DatastoreServiceDescription.processing(description, description, null, null);
         Map<String, String> parameterBindings = Collections.<String, String> emptyMap();
         commandExecutor.scheduleProcessDatasets(processingTask, datasets, parameterBindings,
-                userId, userEmailOrNull, sessionToken, pluginDescription, mailClientParameters);
+                userId, userEmailOrNull, userSessionToken, pluginDescription, mailClientParameters);
     }
 
     private static class ArchiveProcessingPluginTask implements IProcessingPluginTask
