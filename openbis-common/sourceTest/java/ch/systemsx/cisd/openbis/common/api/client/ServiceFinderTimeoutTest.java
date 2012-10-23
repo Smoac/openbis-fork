@@ -82,8 +82,10 @@ public class ServiceFinderTimeoutTest extends AssertJUnit
 
         private AtomicBoolean keepRunning = new AtomicBoolean(true);
 
-        public void start()
+        public void start() throws Exception
         {
+            serverSocket = new ServerSocket(0);
+            serverSocket.setSoTimeout(1000);
             Runnable serverThread = new Runnable()
                 {
                     @Override
@@ -104,9 +106,6 @@ public class ServiceFinderTimeoutTest extends AssertJUnit
 
         private void runInternal() throws Exception
         {
-            serverSocket = new ServerSocket(0);
-            serverSocket.setSoTimeout(1000);
-            System.out.println("ServiceFinderTimeoutTest.NotRespondingServer.runInternal() "+serverSocket);
 
             while (keepRunning.get())
             {
@@ -157,7 +156,7 @@ public class ServiceFinderTimeoutTest extends AssertJUnit
             return serverSocket.getLocalPort();
         }
 
-        public static void main(String[] args)
+        public static void main(String[] args) throws Exception
         {
             new NotRespondingServer().start();
         }
