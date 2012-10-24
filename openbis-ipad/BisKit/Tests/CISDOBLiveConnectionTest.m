@@ -60,16 +60,6 @@
     return nil;
 }
 
-- (void)assertServiceDataRowIsParsable:(NSArray *)row
-{
-    // The only column we need to check is the properties column, which is the last one.
-    NSDictionary *propertiesRow = [row objectAtIndex: [row count] - 1];
-    NSString *propertiesValue = [propertiesRow objectForKey: @"value"];
-    NSError *error;
-    NSDictionary *jsonProperties = [NSJSONSerialization JSONObjectWithData:[propertiesValue dataUsingEncoding: NSUTF8StringEncoding] options: 0 error:&error];
-    STAssertNotNil(jsonProperties, @"Properties should have been parsed, %@", error);
-}
-
 - (void)testLoginAndListServices
 {
     CISDOBAsyncCall *call;
@@ -79,9 +69,11 @@
     call = [_connection listAggregationServices];
     [self configureAndRunCallSynchronously: call];
     STAssertNotNil(_callResult, @"There should be some aggregation services on the server");
-    NSDictionary *service = [self extractIpadService: _callResult];    
+    NSDictionary *service = [self extractIpadService: _callResult];
+    [service retain];
     STAssertNotNil(service, @"There should be a service with key \"ipad-read-service-v1\". Services: %@", _callResult);
     
+    // Call without any parameters
     call =
         [_connection
             createReportFromDataStore: [service objectForKey: @"dataStoreCode"]
@@ -90,9 +82,20 @@
     [self configureAndRunCallSynchronously: call];
     STAssertNotNil(_callResult, @"The ipad-read-service-v1 should have returned some data.");
     NSArray *rows = [_callResult objectForKey: @"rows"];
+    STAssertTrue([rows count] == 0, @"The ipad-read-service-v1 should have returned empty data.");
+    
+    // Call with the correct parameters
+    NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"ROOT" forKey: @"requestKey"];
+    call =
+        [_connection
+            createReportFromDataStore: [service objectForKey: @"dataStoreCode"]
+            aggregationService: [service objectForKey: @"serviceKey"]
+            parameters: parameters];
+    [self configureAndRunCallSynchronously: call];
+    STAssertNotNil(_callResult, @"The ipad-read-service-v1 should have returned some data.");
+    rows = [_callResult objectForKey: @"rows"];
     STAssertTrue([rows count] > 0, @"The ipad-read-service-v1 should have returned some data.");
-    for (NSArray* row in rows)
-        [self assertServiceDataRowIsParsable: row];
+    [service release];
 }
 
 @end
