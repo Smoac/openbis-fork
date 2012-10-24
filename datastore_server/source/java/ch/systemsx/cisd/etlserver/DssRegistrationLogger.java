@@ -76,9 +76,20 @@ public class DssRegistrationLogger
      */
     public void registerFailure()
     {
-        String logContent = FileUtilities.loadExactToString(file);
-        notificationLog.error("Data set registration failed. Registration log (" + file.getName() + "):\n" + logContent);
+        // No need to do this again.
+        if (isInFailureState())
+        {
+            return;
+        }
+
         moveToDir(helper.getFailedDir());
+        notificationLog.error("Data set registration failed. See log for details : "
+                + file.getAbsolutePath());
+    }
+
+    private boolean isInFailureState()
+    {
+        return helper.getFailedDir().equals(file.getParentFile());
     }
 
     /**
