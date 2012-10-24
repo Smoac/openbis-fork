@@ -170,6 +170,30 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForSamplesByMetaprojectNameWithDifferentCase()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "TeSt_MeTaPrOjEcTs"));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/TEST-SPACE/EV-TEST]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByMetaprojectNameWithWildcards()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "*TeSt_MeTa*"));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/3V-125, /TEST-SPACE/EV-TEST]", samples);
+    }
+
+    @Test
     public void testSearchForSamplesByMetaprojectNameOwnedBySomebodyElse()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
@@ -191,6 +215,28 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<Sample> samples =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
         assertEntities("[/TEST-SPACE/EV-TEST]", samples);
+    }
+
+    public void testSearchForSamplesByMetaprojectIdentifierWithDifferentCase()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "/test/TeSt_MeTaPrOjEcTs"));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/TEST-SPACE/EV-TEST]", samples);
+    }
+
+    public void testSearchForSamplesByMetaprojectIdentifierWithWildcards()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "/test/*TeSt_MeTa*"));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/3V-125, /TEST-SPACE/EV-TEST]", samples);
     }
 
     @Test
