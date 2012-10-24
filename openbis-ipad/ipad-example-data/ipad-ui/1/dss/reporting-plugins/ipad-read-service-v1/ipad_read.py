@@ -99,6 +99,12 @@ class AllDataRequestHandler(RequestHandler):
 	def optional_headers(self):
 		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "CHILDREN", "IDENTIFIER", "IMAGE_URL", "PROPERTIES"]
 
+class EmptyDataRequestHandler(RequestHandler):
+	"""Return nothing to the caller."""
+
+	def add_data_rows(self):
+		pass
+
 class RootRequestHandler(RequestHandler):
 	"""Abstract Handler for the ROOT request."""
 
@@ -202,6 +208,7 @@ def samples_to_dict(samples, material_by_perm_id):
 
 def retrieve_samples(sample_perm_ids_and_ref_cons):
 	sc = SearchCriteria()
+	sc.setOperator(sc.SearchOperator.MATCH_ANY_CLAUSES)
 	for sample in sample_perm_ids_and_ref_cons:
 		code = sample['REFCON']['code']	
 		sc.addMatchClause(sc.MatchClause.createAttributeMatch(sc.MatchClauseAttribute.CODE, code))
@@ -285,13 +292,10 @@ def aggregate(parameters, builder):
 	request_key = parameters.get('requestKey')
 	if 'ROOT' == request_key:
 		handler = ExampleRootRequestHandler(parameters, builder)
-		handler.process_request()
 	elif 'DRILL' == request_key:
 		handler = ExampleDrillRequestHandler(parameters, builder)
-		handler.process_request()
 	elif 'DETAIL' == request_key:
 		handler = ExampleDetailRequestHandler(parameters, builder)
-		handler.process_request()
-	else:
-		handler = ExampleAllDataRequestHandler(parameters, builder)
-		handler.process_request()
+	else:		
+		handler = EmptyDataRequestHandler(parameters, builder)
+	handler.process_request()		
