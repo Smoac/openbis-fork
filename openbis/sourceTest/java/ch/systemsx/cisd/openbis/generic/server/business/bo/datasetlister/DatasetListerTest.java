@@ -227,7 +227,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("20081105092259900-0", dataSets.get(0).getCode());
         assertEquals("STANDARD", dataSets.get(0).getDataStore().getCode());
         assertEquals(0, dataSets.get(0).getProperties().size());
-        assertEquals(23, dataSets.size());
+        assertEquals(24, dataSets.size());
     }
 
     @Test
@@ -389,7 +389,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("42", ((DataSet) dataSet).getShareId());
         assertEquals(4711L, ((DataSet) dataSet).getSize().longValue());
         assertEquals(DataSetArchivingStatus.AVAILABLE, ((DataSet) dataSet).getStatus());
-        assertEquals(29, list.size());
+        assertEquals(30, list.size());
     }
 
     @Test
