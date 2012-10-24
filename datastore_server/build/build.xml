@@ -104,6 +104,8 @@
         <include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
         <include name="ch/systemsx/cisd/common/api/**/*.class" />
         <exclude name="ch/systemsx/cisd/common/api/server/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/common/api/**/*.class" />
+        <exclude name="ch/systemsx/cisd/openbis/common/api/server/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/generic/shared/api/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/generic/shared/basic/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/plugin/query/**/api/**/*.class" />
