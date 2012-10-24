@@ -106,6 +106,12 @@ public final class ComponentProvider
         return DefaultTabItem.create(title, component, viewContext, true);
     }
 
+    private ITabItem createRegistrationTabWithoutCloseConfirmation(final String title,
+            DatabaseModificationAwareComponent component)
+    {
+        return DefaultTabItem.create(title, component, viewContext, false);
+    }
+
     /**
      * Creates a tab with the specified component. The tab is unaware of database modifications and
      * will not be automatically refreshed if changes occur.
@@ -1466,7 +1472,7 @@ public final class ComponentProvider
                 {
                     DatabaseModificationAwareComponent component =
                             DataSetUploadForm.create(viewContext, initialSampleIdentifierOrNull);
-                    return createRegistrationTab(getTabTitle(), component);
+                    return createRegistrationTabWithoutCloseConfirmation(getTabTitle(), component);
                 }
 
                 @Override
