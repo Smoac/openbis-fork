@@ -57,7 +57,7 @@
     
     if (nil == refcon) {
         NSError *error;
-        id refcon  = [NSJSONSerialization JSONObjectWithData: [self.refconJson dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: &error];
+        refcon  = [NSJSONSerialization JSONObjectWithData: [self.refconJson dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: &error];
         if (error) {
             NSLog(@"Could not deserialize refcon %@", error);
         }
