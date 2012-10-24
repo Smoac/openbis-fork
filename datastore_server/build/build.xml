@@ -394,6 +394,7 @@
     <recursive-jar destfile="${dss-client-jar.file}">
       <fileset dir="${classes}">
       	<include name="ch/systemsx/cisd/common/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbus/common/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/generic/shared/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/dss/client/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/**/*.class" />

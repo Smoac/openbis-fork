@@ -604,6 +604,7 @@
       <zipfileset src="${jar.file}">
         <include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
         <include name="ch/systemsx/cisd/common/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/common/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/generic/client/console/**/*.class" />
         <include name="**/shared/I*.class" />
         <include name="**/shared/basic/dto/**/*.class" />

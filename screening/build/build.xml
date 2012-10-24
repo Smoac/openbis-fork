@@ -481,6 +481,8 @@
         <include name="OpenBISScreeningML*.class" />
         <include name="ch/systemsx/cisd/common/api/**/*.class" />
         <exclude name="ch/systemsx/cisd/common/api/server/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/common/api/**/*.class" />
+        <exclude name="ch/systemsx/cisd/openbis/common/api/server/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/authorization/**/*.class" />
@@ -506,14 +508,11 @@
   		     	<include name="ch/systemsx/cisd/openbis/generic/client/cli/Login*.class" />
 			     	<include name="ch/systemsx/cisd/openbis/generic/shared/api/v1/**/*.class" />
   		</fileset> 
-  		<fileset dir="${classes.common-server}">
-  		     	<include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
-  		</fileset> 
       <fileset dir="${classes.common}">
             <include name="ch/systemsx/cisd/common/**/*.class" />
       </fileset> 
       <fileset dir="../openbis-common/targets/ant/classes">
-            <include name="ch/systemsx/cisd/openbis-common/**/*.class" />
+            <include name="ch/systemsx/cisd/openbis/common/**/*.class" />
       </fileset> 
     </jar>
 		<zip update="true" destfile="${dist.screening-api.jar}">
