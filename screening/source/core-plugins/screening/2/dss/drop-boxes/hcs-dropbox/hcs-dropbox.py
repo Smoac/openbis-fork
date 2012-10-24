@@ -35,7 +35,6 @@ def create_experiment_if_needed(transaction):
         create_project_if_needed(transaction)
         print 'Creating new experiment : ' + EXPERIMENT_ID
         exp = transaction.createNewExperiment(EXPERIMENT_ID, 'SIRNA_HCS')
-        exp.setPropertyValue("DESCRIPTION", "A sample experiment")
         
     return exp
     

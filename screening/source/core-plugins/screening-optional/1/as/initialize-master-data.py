@@ -8,9 +8,6 @@ file_type_CSV.setDescription('files with values separated by comma or semicolon'
 file_type_JPG = tr.getOrCreateNewFileFormatType('JPG')
 file_type_JPG.setDescription(None)
 
-file_type_PNG = tr.getOrCreateNewFileFormatType('PNG')
-file_type_PNG.setDescription(None)
-
 vocabulary_MICROSCOPE = tr.getOrCreateNewVocabulary('MICROSCOPE')
 vocabulary_MICROSCOPE.setDescription('Microscope used in an experiment.')
 vocabulary_MICROSCOPE.setUrlTemplate(None)
