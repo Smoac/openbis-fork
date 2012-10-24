@@ -189,7 +189,7 @@ function integration_tests_yeastx {
 	
     switch_dss "on" datastore_server_yeastx
 
-		sleep 90
+		sleep 180
     assert_correct_incoming_contents $MY_DATA/incoming
     
     switch_dss "off" datastore_server_yeastx
