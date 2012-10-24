@@ -350,11 +350,19 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
 
         A_3("a/3"),
 
+        A_4("a/4"),
+
         ANALYSIS_RESULT("analysis/result"),
 
         CONTAINED_1("contained/20110509092359990-11"),
 
         CONTAINED_2("contained/20110509092359990-12"),
+
+        XML_RESULT_8("xml/result-8"),
+
+        XML_RESULT_9("xml/result-9"),
+
+        XML_RESULT_10("xml/result-10"),
 
         XML_RESULT_11("xml/result-11"),
 
@@ -362,7 +370,23 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
 
         XML_RESULT_18("xml/result-18"),
 
-        XXX_YYY_ZZZ("xxx/yyy/zzz");
+        XML_RESULT_20("xml/result-20"),
+
+        XML_RESULT_21("xml/result-21"),
+
+        XML_RESULT_22("xml/result-22"),
+
+        XML_RESULT_27("xml/result-27"),
+
+        XML_RESULT_28("xml/result-28"),
+
+        XXX_YYY_ZZZ("xxx/yyy/zzz"),
+
+        COMPONENT_1A("contained/COMPONENT_1B"),
+
+        COMPONENT_1B("contained/COMPONENT_1B"),
+
+        COMPONENT_2A("contained/COMPONENT_2A");
 
         private final String location;
 
@@ -449,8 +473,11 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         DetailedSearchCriterion criterion1 = createAnyFieldCriterion("*-1*");
         DetailedSearchCriterion criterion2 = createFieldTypeCriterion(FILE_TYPE_XML);
         DetailedSearchCriteria criteria = createOrDatasetQuery(criterion1, criterion2);
-        assertAtLeastDatasetsFound(criteria, 14, DSLoc.A_1, DSLoc.XML_RESULT_11,
-                DSLoc.XML_RESULT_12, DSLoc.CONTAINED_1, DSLoc.CONTAINED_2, DSLoc.XML_RESULT_18);
+        assertAtLeastDatasetsFound(criteria, 18, DSLoc.A_1, DSLoc.A_4, DSLoc.XML_RESULT_8,
+                DSLoc.XML_RESULT_9, DSLoc.XML_RESULT_10, DSLoc.XML_RESULT_11, DSLoc.XML_RESULT_12,
+                DSLoc.XML_RESULT_18, DSLoc.XML_RESULT_20, DSLoc.XML_RESULT_21, DSLoc.XML_RESULT_22,
+                DSLoc.XML_RESULT_27, DSLoc.XML_RESULT_28, DSLoc.CONTAINED_1, DSLoc.CONTAINED_2,
+                DSLoc.COMPONENT_1A, DSLoc.COMPONENT_1B, DSLoc.COMPONENT_2A);
     }
 
     // @Test
