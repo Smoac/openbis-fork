@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTestCase
 {
     private DssRegistrationLogDirectoryHelper dssRegistrationLogDirHelper;
+
     private BufferedAppender logAppender;
 
     @BeforeMethod
@@ -69,9 +70,8 @@ public class DssRegistrationLogDirectoryHelperTest extends AbstractFileSystemTes
         logFile.registerFailure();
         assertTrue(logFile.getFile().exists());
         assertEquals("failed", logFile.getFile().getParentFile().getName());
-        assertEquals("Data set registration failed. Registration log "
-                + "(1970-01-01_01-00-00-000_threadname_filename.log):\n"
-                + "1970-01-01 01:00:01 hello", logAppender.getLogContent());
+        assertEquals("Data set registration failed. See log for details : "
+                + logFile.getFile().getAbsolutePath(), logAppender.getLogContent());
 
         // Check that duplicating a registerFailure does not cause problems
         logFile.registerFailure();
