@@ -20,18 +20,90 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
+import ch.systemsx.cisd.openbis.uitest.type.User;
 
 /**
  * @author anttil
  */
-public class MetaProjectCreation extends Suite
+public class MetaProjectCreation extends MetaProjectSuite
 {
     @Test
-    public void createdMetaProjectCanBeListed() throws Exception
+    public void createdMetaProjectAppearsInMetaProjectListing() throws Exception
     {
         MetaProject metaProject = create(aMetaProject());
 
         assertThat(listOfAllMetaProjects(), contains(metaProject));
+    }
+
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void metaProjectNamesDoNotAllowSpace() throws Exception
+    {
+        create(aMetaProject().withName("The Name"));
+    }
+
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void metaProjectNamesDoNotAllowSlash() throws Exception
+    {
+        create(aMetaProject().withName("This/That"));
+    }
+
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void metaProjectNamesDoNotAllowComma() throws Exception
+    {
+        create(aMetaProject().withName("This,That"));
+    }
+
+    @Test
+    public void metaProjectNamesPreserveCase() throws Exception
+    {
+        create(aMetaProject().withName("UPPERCASElowercase"));
+
+        MetaProject metaProject = assume(aMetaProject().withName("UPPERCASElowercase"));
+
+        assertThat(listOfAllMetaProjects(), contains(metaProject));
+    }
+
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void cannotCreateMetaProjectsWithSameNameInDifferentCases()
+    {
+        create(aMetaProject().withName("NamE"));
+        create(aMetaProject().withName("NAMe"));
+    }
+
+    @Test
+    public void differentUsersCanCreateMetaProjectWithSameName() throws Exception
+    {
+        User first = create(aUser());
+        User second = create(aUser());
+
+        as(user(first), create(aMetaProject().withName("metaproject")));
+        as(user(second), create(aMetaProject().withName("metaproject")));
+
+        MetaProject metaProject = assume(aMetaProject().withName("metaproject"));
+
+        assertThat(as(user(first), listOfAllMetaProjects()), containsExactly(metaProject));
+        assertThat(as(user(second), listOfAllMetaProjects()), containsExactly(metaProject));
+    }
+
+    @Test
+    public void metaProjectsOfOtherUsersAreNotVisible() throws Exception
+    {
+        User first = create(aUser());
+        User second = create(aUser());
+
+        MetaProject firstMeta =
+                as(user(first), create(aMetaProject().withName("metaProjectOfFirst")));
+        MetaProject secondMeta =
+                as(user(second), create(aMetaProject().withName("metaProjectOfSecond")));
+
+        assertThat(as(user(first), listOfAllMetaProjects()), containsExactly(firstMeta));
+        assertThat(as(user(second), listOfAllMetaProjects()), containsExactly(secondMeta));
+
     }
 }

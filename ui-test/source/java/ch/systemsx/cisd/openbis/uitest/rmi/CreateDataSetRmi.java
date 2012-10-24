@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
+import java.util.Collection;
+
 import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
 import ch.systemsx.cisd.openbis.uitest.request.CreateDataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
+import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 
 /**
@@ -61,6 +64,12 @@ public class CreateDataSetRmi extends Executor<CreateDataSet, DataSet>
                 public Experiment getExperiment()
                 {
                     return request.getDataSet().getExperiment();
+                }
+
+                @Override
+                public Collection<MetaProject> getMetaProjects()
+                {
+                    return request.getDataSet().getMetaProjects();
                 }
 
                 @Override

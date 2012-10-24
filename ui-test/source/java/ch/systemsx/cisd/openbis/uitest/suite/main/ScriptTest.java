@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Script;
 /**
  * @author anttil
  */
-public class ScriptTest extends MainSuiteTest
+public class ScriptTest extends MainSuite
 {
     @Test
     public void newScriptIsListedInScriptBrowser() throws Exception

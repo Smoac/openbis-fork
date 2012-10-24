@@ -14,35 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.suite.main;
+package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
-
-import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.type.User;
 
 /**
  * @author anttil
  */
-public abstract class MainSuiteTest extends SeleniumTest
+public class UserDsl implements User
 {
-    @BeforeTest
-    public void before()
+
+    private String name;
+
+    public UserDsl(String name)
     {
-        useGui();
-
-        login(ADMIN_USER, ADMIN_PASSWORD);
-
-        // this is because of BIS-184
-        if (tabsContain(sampleBrowser()))
-        {
-            switchTabTo(sampleBrowser()).allSpaces();
-        }
+        this.name = name;
     }
 
-    @AfterTest
-    public void after()
+    @Override
+    public String getName()
     {
-        logout();
+        return this.name;
     }
 }

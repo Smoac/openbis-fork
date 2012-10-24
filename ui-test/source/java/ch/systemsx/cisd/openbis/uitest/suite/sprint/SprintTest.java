@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 /**
  * @author anttil
  */
-public class SprintTest extends SprintSuiteTest
+public class SprintTest extends SprintSuite
 {
 
     @Test

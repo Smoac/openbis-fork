@@ -14,33 +14,29 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.suite.main;
+package ch.systemsx.cisd.openbis.uitest.suite.metaproject;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
-import ch.systemsx.cisd.openbis.uitest.type.Project;
-import ch.systemsx.cisd.openbis.uitest.type.Sample;
-import ch.systemsx.cisd.openbis.uitest.type.Space;
+import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 
 /**
  * @author anttil
  */
-public class ExperimentTest extends MainSuite
+public class ExperimentsContainMetaProjectInformation extends MetaProjectSuite
 {
 
-    @Test
-    public void creatingExperimentWithSampleChangesTheSample() throws Exception
+    @Test(enabled = false)
+    public void listedExperimentContainsMetaProjectInformation() throws Exception
     {
-        Space space = create(aSpace());
-        Project project = create(aProject().in(space));
-        Sample sample = create(aSample().in(space));
+        Experiment experiment = create(anExperiment());
+        MetaProject metaProject = create(aMetaProject());
+        addTo(metaProject, experiment);
 
-        Experiment experiment = create(anExperiment().in(project).withSamples(sample));
-
-        assertThat(browserEntryOf(sample), containsValue("Experiment", experiment.getCode()));
-        assertThat(browserEntryOf(sample), containsValue("Project", project.getCode()));
+        Experiment listResult = listExperiment(experiment);
+        assertThat(metaProjectsOf(listResult), containExactly(metaProject));
     }
 }

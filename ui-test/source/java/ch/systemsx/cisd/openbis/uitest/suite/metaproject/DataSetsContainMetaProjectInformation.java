@@ -20,35 +20,40 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.uitest.type.DataSet;
+import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 
 /**
  * @author anttil
  */
-public class SamplesContainMetaProjectData extends Suite
+public class DataSetsContainMetaProjectInformation extends MetaProjectSuite
 {
 
-    @Test
-    public void searchedSamplesContainMetaProjectInformation() throws Exception
+    @Test(enabled = false)
+    public void searchedDataSetContainsMetaProjectInformation() throws Exception
     {
-        Sample sample = create(aSample());
+        Experiment experiment = create(anExperiment());
+        Sample sample = create(aSample().in(experiment));
+        DataSet dataSet = create(aDataSet().in(sample));
         MetaProject metaProject = create(aMetaProject());
-        addTo(metaProject, sample);
+        addTo(metaProject, dataSet);
 
-        Sample result = searchSamples(sample).get(0);
-        assertThat(metaProjectsOf(result), containExactly(metaProject));
+        DataSet searchResult = searchDataSet(dataSet);
+        assertThat(metaProjectsOf(searchResult), containExactly(metaProject));
     }
 
     @Test(enabled = false)
-    public void listedSamplesContainMetaProjectInformation() throws Exception
+    public void listedDataSetContainsMetaProjectInformation() throws Exception
     {
-        Sample sample = create(aSample());
+        Experiment experiment = create(anExperiment());
+        Sample sample = create(aSample().in(experiment));
+        DataSet dataSet = create(aDataSet().in(sample));
         MetaProject metaProject = create(aMetaProject());
-        addTo(metaProject, sample);
+        addTo(metaProject, dataSet);
 
-        Sample result = searchSamples(sample).get(0);
-        assertThat(metaProjectsOf(result), containExactly(metaProject));
+        DataSet listResult = listDataSet(dataSet);
+        assertThat(metaProjectsOf(listResult), containExactly(metaProject));
     }
-
 }

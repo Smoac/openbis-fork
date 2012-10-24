@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -39,7 +38,7 @@ public class Identifiers
 
     public static SpaceIdentifier get(Space space)
     {
-        return new SpaceIdentifier(new DatabaseInstanceIdentifier("CISD"), space.getCode());
+        return new SpaceIdentifier(space.getCode());
     }
 
     public static ExperimentIdentifier get(Experiment experiment)

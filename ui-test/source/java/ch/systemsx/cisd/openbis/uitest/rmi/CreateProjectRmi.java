@@ -14,36 +14,28 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.type;
+package ch.systemsx.cisd.openbis.uitest.rmi;
+
+import java.util.ArrayList;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.request.CreateProject;
+import ch.systemsx.cisd.openbis.uitest.type.Project;
 
 /**
  * @author anttil
  */
-public abstract class MetaProject
+public class CreateProjectRmi extends Executor<CreateProject, Project>
 {
-    public abstract String getName();
-
-    public abstract String getDescription();
 
     @Override
-    public final boolean equals(Object o)
+    public Project run(CreateProject request)
     {
-        if (o instanceof MetaProject)
-        {
-            return ((MetaProject) o).getName().equals(getName());
-        }
-        return false;
+        Project project = request.getProject();
+        commonServer.registerProject(session, Identifiers.get(project), project.getDescription(),
+                "system", new ArrayList<NewAttachment>());
+        return project;
     }
 
-    @Override
-    public final int hashCode()
-    {
-        return getName().hashCode();
-    }
-
-    @Override
-    public String toString()
-    {
-        return this.getClass().getSimpleName() + " " + this.getName();
-    }
 }

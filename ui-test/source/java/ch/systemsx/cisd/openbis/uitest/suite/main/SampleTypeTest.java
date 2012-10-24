@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 /**
  * @author anttil
  */
-public class SampleTypeTest extends MainSuiteTest
+public class SampleTypeTest extends MainSuite
 {
 
     @Test

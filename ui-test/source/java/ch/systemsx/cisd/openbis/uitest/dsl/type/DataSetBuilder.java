@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
+import java.util.HashSet;
+
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
 import ch.systemsx.cisd.openbis.uitest.request.CreateDataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
+import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
@@ -76,6 +79,7 @@ public class DataSetBuilder implements Builder<DataSet>
             sample = new SampleBuilder(uid).build(openbis);
         }
 
-        return openbis.execute(new CreateDataSet(new DataSetDsl(type, sample, experiment)));
+        return openbis.execute(new CreateDataSet(new DataSetDsl(type, sample, experiment,
+                new HashSet<MetaProject>())));
     }
 }

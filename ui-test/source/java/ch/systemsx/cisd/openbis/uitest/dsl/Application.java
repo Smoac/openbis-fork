@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangin
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.uitest.request.Request;
+import ch.systemsx.cisd.openbis.uitest.type.User;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
@@ -60,27 +61,27 @@ public class Application
         this.pages = pages;
         this.commonServer =
                 HttpInvokerUtils.createServiceStub(ICommonServer.class,
-                        asUrl + "/openbis/rmi-common", 60000);
+                        asUrl + "/openbis/rmi-common", 600000);
 
         this.genericServer =
                 HttpInvokerUtils.createServiceStub(IGenericServer.class,
-                        asUrl + "/openbis/rmi-plugin-generic", 60000);
+                        asUrl + "/openbis/rmi-plugin-generic", 600000);
 
         this.generalInformationService =
                 HttpInvokerUtils.createServiceStub(IGeneralInformationService.class,
-                        asUrl + "/openbis/rmi-general-information-v1", 60000);
+                        asUrl + "/openbis/rmi-general-information-v1", 600000);
 
         this.generalInformationChangingService =
                 HttpInvokerUtils.createServiceStub(IGeneralInformationChangingService.class,
-                        asUrl + "/openbis/rmi-general-information-changing-v1", 60000);
+                        asUrl + "/openbis/rmi-general-information-changing-v1", 600000);
 
         this.etlService =
                 HttpInvokerUtils.createServiceStub(IETLLIMSService.class,
-                        asUrl + "/openbis/rmi-etl", 60000);
+                        asUrl + "/openbis/rmi-etl", 600000);
 
         this.dss =
                 HttpInvokerUtils.createStreamSupportingServiceStub(IDssServiceRpcGeneric.class,
-                        dssUrl + "/datastore_server/rmi-dss-api-v1", 60000);
+                        dssUrl + "/datastore_server/rmi-dss-api-v1", 600000);
 
         this.session =
                 commonServer
@@ -98,6 +99,14 @@ public class Application
             Executor<T, U> execution)
     {
         map.put(clazz.getName(), execution);
+    }
+
+    public void changeLogin(User user)
+    {
+        this.session =
+                commonServer
+                        .tryToAuthenticate(user.getName(), "pwd")
+                        .getSessionToken();
     }
 
     public <T extends Request<U>, U> U execute(T request)

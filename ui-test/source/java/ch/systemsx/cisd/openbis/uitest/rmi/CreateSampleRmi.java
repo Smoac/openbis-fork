@@ -35,11 +35,9 @@ public class CreateSampleRmi extends Executor<CreateSample, Sample>
     @Override
     public Sample run(CreateSample request)
     {
-
         Sample sample = request.getSample();
-
         genericServer.registerSample(session, convert(sample), new ArrayList<NewAttachment>());
-        return request.getSample();
+        return sample;
     }
 
     private NewSample convert(Sample sample)

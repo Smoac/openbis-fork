@@ -14,36 +14,35 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.type;
+package ch.systemsx.cisd.openbis.uitest.suite.main;
+
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 
 /**
  * @author anttil
  */
-public abstract class MetaProject
+public abstract class MainSuite extends SeleniumTest
 {
-    public abstract String getName();
-
-    public abstract String getDescription();
-
-    @Override
-    public final boolean equals(Object o)
+    @BeforeTest
+    public void before()
     {
-        if (o instanceof MetaProject)
+        useGui();
+
+        login(ADMIN_USER, ADMIN_PASSWORD);
+
+        // this is because of BIS-184
+        if (tabsContain(sampleBrowser()))
         {
-            return ((MetaProject) o).getName().equals(getName());
+            switchTabTo(sampleBrowser()).allSpaces();
         }
-        return false;
     }
 
-    @Override
-    public final int hashCode()
+    @AfterTest
+    public void after()
     {
-        return getName().hashCode();
-    }
-
-    @Override
-    public String toString()
-    {
-        return this.getClass().getSimpleName() + " " + this.getName();
+        logout();
     }
 }

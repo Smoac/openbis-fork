@@ -14,36 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.type;
+package ch.systemsx.cisd.openbis.uitest.request;
+
+import ch.systemsx.cisd.openbis.uitest.type.User;
 
 /**
  * @author anttil
  */
-public abstract class MetaProject
+public class CreateUser implements Request<User>
 {
-    public abstract String getName();
+    private final User user;
 
-    public abstract String getDescription();
-
-    @Override
-    public final boolean equals(Object o)
+    public CreateUser(User user)
     {
-        if (o instanceof MetaProject)
-        {
-            return ((MetaProject) o).getName().equals(getName());
-        }
-        return false;
+        this.user = user;
     }
 
-    @Override
-    public final int hashCode()
+    public User getUser()
     {
-        return getName().hashCode();
-    }
-
-    @Override
-    public String toString()
-    {
-        return this.getClass().getSimpleName() + " " + this.getName();
+        return user;
     }
 }

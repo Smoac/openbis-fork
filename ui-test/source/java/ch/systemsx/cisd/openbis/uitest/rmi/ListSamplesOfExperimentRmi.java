@@ -18,31 +18,32 @@ package ch.systemsx.cisd.openbis.uitest.rmi;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
 import ch.systemsx.cisd.openbis.uitest.help.Lambda;
-import ch.systemsx.cisd.openbis.uitest.request.ListMetaProjects;
-import ch.systemsx.cisd.openbis.uitest.rmi.eager.MetaProjectRmi;
-import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
+import ch.systemsx.cisd.openbis.uitest.request.ListSamplesOfExperiment;
+import ch.systemsx.cisd.openbis.uitest.rmi.eager.SampleRmi;
+import ch.systemsx.cisd.openbis.uitest.type.Sample;
 
 /**
  * @author anttil
  */
-public class ListMetaProjectsRmi extends Executor<ListMetaProjects, List<MetaProject>>
+public class ListSamplesOfExperimentRmi extends Executor<ListSamplesOfExperiment, List<Sample>>
 {
+
     @Override
-    public List<MetaProject> run(ListMetaProjects request)
+    public List<Sample> run(ListSamplesOfExperiment request)
     {
         return Lambda.foreach(
-                generalInformationService.listMetaprojects(session),
-                new Lambda<Metaproject, MetaProject>()
+                generalInformationService.listSamplesForExperiment(
+                        session, Identifiers.get(request.getExperiment()).toString()),
+                new Lambda<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample, Sample>()
                     {
                         @Override
-                        public MetaProject apply(Metaproject input)
+                        public Sample apply(
+                                ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample input)
                         {
-                            return new MetaProjectRmi(input);
+                            return new SampleRmi(input, session, commonServer);
                         }
-                    }
-                );
+                    });
     }
 }

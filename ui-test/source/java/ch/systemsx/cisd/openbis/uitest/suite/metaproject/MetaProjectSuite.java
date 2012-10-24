@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.suite.sprint;
+package ch.systemsx.cisd.openbis.uitest.suite.metaproject;
 
-import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
@@ -24,24 +23,12 @@ import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 /**
  * @author anttil
  */
-public abstract class SprintSuiteTest extends SeleniumTest
+public class MetaProjectSuite extends SeleniumTest
 {
+
     @BeforeTest
     public void before()
     {
-        useGui();
-        login(ADMIN_USER, ADMIN_PASSWORD);
-
-        // this is because of BIS-184
-        if (tabsContain(sampleBrowser()))
-        {
-            switchTabTo(sampleBrowser()).allSpaces();
-        }
-    }
-
-    @AfterTest
-    public void after()
-    {
-        logout();
+        usePublicApi();
     }
 }

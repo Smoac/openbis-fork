@@ -17,36 +17,37 @@
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
-import ch.systemsx.cisd.openbis.uitest.request.CreateMetaProject;
-import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
+import ch.systemsx.cisd.openbis.uitest.request.CreateUser;
+import ch.systemsx.cisd.openbis.uitest.type.User;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
  * @author anttil
  */
-public class MetaProjectBuilder implements Builder<MetaProject>
+public class UserBuilder implements Builder<User>
 {
+
     private String name;
 
-    private String description;
-
-    public MetaProjectBuilder(UidGenerator uid)
+    public UserBuilder(UidGenerator uid)
     {
         this.name = uid.uid();
-        this.description = "description of metaproject " + name;
+        if (name.length() > 50)
+        {
+            name = name.substring(0, 50);
+        }
     }
 
     @SuppressWarnings("hiding")
-    public MetaProjectBuilder withName(String name)
+    public UserBuilder withName(String name)
     {
         this.name = name;
         return this;
     }
 
     @Override
-    public MetaProject build(Application openbis)
+    public User build(Application openbis)
     {
-        return openbis.execute(new CreateMetaProject(new MetaProjectDsl(name, description)));
+        return openbis.execute(new CreateUser(new UserDsl(name)));
     }
-
 }

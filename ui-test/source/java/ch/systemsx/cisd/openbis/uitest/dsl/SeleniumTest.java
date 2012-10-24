@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.uitest.dsl.type.SampleTypeUpdateBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.ScriptBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.SpaceBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.UpdateBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.UserBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.VocabularyBuilder;
 import ch.systemsx.cisd.openbis.uitest.gui.CreateExperimentGui;
 import ch.systemsx.cisd.openbis.uitest.gui.CreateExperimentTypeGui;
@@ -111,6 +112,7 @@ import ch.systemsx.cisd.openbis.uitest.request.CreateSample;
 import ch.systemsx.cisd.openbis.uitest.request.CreateSampleType;
 import ch.systemsx.cisd.openbis.uitest.request.CreateScript;
 import ch.systemsx.cisd.openbis.uitest.request.CreateSpace;
+import ch.systemsx.cisd.openbis.uitest.request.CreateUser;
 import ch.systemsx.cisd.openbis.uitest.request.CreateVocabulary;
 import ch.systemsx.cisd.openbis.uitest.request.DeleteExperimentType;
 import ch.systemsx.cisd.openbis.uitest.request.DeleteExperimentsOfProject;
@@ -120,23 +122,36 @@ import ch.systemsx.cisd.openbis.uitest.request.DeleteSampleType;
 import ch.systemsx.cisd.openbis.uitest.request.DeleteSpace;
 import ch.systemsx.cisd.openbis.uitest.request.DeleteVocabulary;
 import ch.systemsx.cisd.openbis.uitest.request.EmptyTrash;
+import ch.systemsx.cisd.openbis.uitest.request.ListDataSetsOfSample;
+import ch.systemsx.cisd.openbis.uitest.request.ListExperiments;
 import ch.systemsx.cisd.openbis.uitest.request.ListMetaProjects;
+import ch.systemsx.cisd.openbis.uitest.request.ListSamplesOfExperiment;
 import ch.systemsx.cisd.openbis.uitest.request.Login;
 import ch.systemsx.cisd.openbis.uitest.request.Logout;
+import ch.systemsx.cisd.openbis.uitest.request.SearchForDataSets;
 import ch.systemsx.cisd.openbis.uitest.request.SearchForSamples;
 import ch.systemsx.cisd.openbis.uitest.request.UpdateSampleType;
 import ch.systemsx.cisd.openbis.uitest.rmi.AddEntitiesToMetaProjectRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.CreateDataSetRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.CreateDataSetTypeRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateExperimentRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateExperimentTypeRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.CreateMetaProjectRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateProjectRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.CreateSampleRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.CreateSampleTypeRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.CreateSpaceRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateUserRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.ListDataSetsOfSampleRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.ListExperimentsRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListMetaProjectsRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.ListSamplesOfExperimentRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.SearchForDataSetsRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.SearchForSamplesRmi;
 import ch.systemsx.cisd.openbis.uitest.screenshot.FileScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
+import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.type.Entity;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
@@ -151,6 +166,7 @@ import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.type.Script;
 import ch.systemsx.cisd.openbis.uitest.type.ScriptType;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
+import ch.systemsx.cisd.openbis.uitest.type.User;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 import ch.systemsx.cisd.openbis.uitest.uid.DictionaryUidGenerator;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
@@ -325,6 +341,18 @@ public abstract class SeleniumTest
     {
         openbis = defaultApplication;
         return t;
+    }
+
+    public <T> T as(User user, T t)
+    {
+        openbis.changeLogin(assume(aUser().withName(SeleniumTest.ADMIN_USER)));
+        return t;
+    }
+
+    public User user(User user)
+    {
+        openbis.changeLogin(user);
+        return user;
     }
 
     public static void setImplicitWait(long amount, TimeUnit unit)
@@ -581,6 +609,11 @@ public abstract class SeleniumTest
         openbis.execute(new DeleteVocabulary(vocabulary));
     }
 
+    protected UserBuilder aUser()
+    {
+        return new UserBuilder(uid);
+    }
+
     protected SpaceBuilder aSpace()
     {
         return new SpaceBuilder(uid);
@@ -686,9 +719,10 @@ public abstract class SeleniumTest
         builder.update(openbis);
     }
 
-    protected void addTo(MetaProject metaProject, Entity... entities)
+    protected Void addTo(MetaProject metaProject, Entity... entities)
     {
         openbis.execute(new AddEntitiesToMetaProject(metaProject, Arrays.asList(entities)));
+        return null;
     }
 
     public Application publicApi()
@@ -700,9 +734,17 @@ public abstract class SeleniumTest
         application.setExecutor(CreateDataSet.class, new CreateDataSetRmi());
         application.setExecutor(CreateDataSetType.class, new CreateDataSetTypeRmi());
         application.setExecutor(CreateMetaProject.class, new CreateMetaProjectRmi());
+        application.setExecutor(CreateExperiment.class, new CreateExperimentRmi());
+        application.setExecutor(CreateExperimentType.class, new CreateExperimentTypeRmi());
+        application.setExecutor(CreateProject.class, new CreateProjectRmi());
         application.setExecutor(ListMetaProjects.class, new ListMetaProjectsRmi());
         application.setExecutor(AddEntitiesToMetaProject.class, new AddEntitiesToMetaProjectRmi());
         application.setExecutor(SearchForSamples.class, new SearchForSamplesRmi());
+        application.setExecutor(ListSamplesOfExperiment.class, new ListSamplesOfExperimentRmi());
+        application.setExecutor(ListExperiments.class, new ListExperimentsRmi());
+        application.setExecutor(ListDataSetsOfSample.class, new ListDataSetsOfSampleRmi());
+        application.setExecutor(SearchForDataSets.class, new SearchForDataSetsRmi());
+        application.setExecutor(CreateUser.class, new CreateUserRmi());
         openbis = application;
         return application;
     }
@@ -801,6 +843,23 @@ public abstract class SeleniumTest
                             return request.getVocabulary();
                         }
                     });
+        application.setExecutor(CreateMetaProject.class,
+                new Executor<CreateMetaProject, MetaProject>()
+                    {
+                        @Override
+                        public MetaProject run(CreateMetaProject request)
+                        {
+                            return request.getMetaProject();
+                        }
+                    });
+        application.setExecutor(CreateUser.class, new Executor<CreateUser, User>()
+            {
+                @Override
+                public User run(CreateUser request)
+                {
+                    return request.getUser();
+                }
+            });
         openbis = application;
         return application;
     }
@@ -861,14 +920,83 @@ public abstract class SeleniumTest
         return pages.initializeWidget(widgetClass, context, false);
     }
 
-    public List<Sample> searchSamples(Sample sample)
+    public Sample searchSample(Sample sample)
     {
-        return openbis.execute(new SearchForSamples(sample.getCode()));
+        List<Sample> samples = openbis.execute(new SearchForSamples(sample.getCode()));
+        if (samples.size() != 1)
+        {
+            throw new IllegalStateException("Got wrong amount of samples: " + samples);
+        }
+        if (samples.get(0).equals(sample) == false)
+        {
+            throw new IllegalStateException("Got wrong sample: " + samples.get(0)
+                    + ", should have been " + sample);
+        }
+        return samples.get(0);
+    }
+
+    public Sample listSample(Sample sample)
+    {
+        List<Sample> samples = openbis.execute(new ListSamplesOfExperiment(sample.getExperiment()));
+        if (samples.size() != 1)
+        {
+            throw new IllegalStateException("Got wrong amount of samples: " + samples);
+        }
+        if (samples.get(0).equals(sample) == false)
+        {
+            throw new IllegalStateException("Got wrong sample: " + samples.get(0)
+                    + ", should have been " + sample);
+        }
+        return samples.get(0);
+    }
+
+    public Experiment listExperiment(Experiment experiment)
+    {
+        List<Experiment> experiments = openbis.execute(new ListExperiments(experiment));
+        if (experiments.size() != 1)
+        {
+            throw new IllegalStateException("Got wrong amount of experiments: " + experiments);
+        }
+        if (experiments.get(0).equals(experiment) == false)
+        {
+            throw new IllegalStateException("Got wrong experiment: " + experiments.get(0)
+                    + ", should have been " + experiment);
+        }
+        return experiments.get(0);
+    }
+
+    public DataSet listDataSet(DataSet dataSet)
+    {
+        List<DataSet> dataSets = openbis.execute(new ListDataSetsOfSample(dataSet.getSample()));
+        if (dataSets.size() != 1)
+        {
+            throw new IllegalStateException("Got wrong amount of datasets: " + dataSets);
+        }
+        if (dataSets.get(0).equals(dataSet) == false)
+        {
+            throw new IllegalStateException("Got wrong dataset: " + dataSets.get(0)
+                    + ", should have been " + dataSet);
+        }
+        return dataSets.get(0);
+    }
+
+    public DataSet searchDataSet(DataSet dataSet)
+    {
+        List<DataSet> dataSets = openbis.execute(new SearchForDataSets(dataSet.getCode()));
+        if (dataSets.size() != 1)
+        {
+            throw new IllegalStateException("Got wrong amount of datasets: " + dataSets);
+        }
+        if (dataSets.get(0).equals(dataSet) == false)
+        {
+            throw new IllegalStateException("Got wrong dataset: " + dataSets.get(0)
+                    + ", should have been " + dataSet);
+        }
+        return dataSets.get(0);
     }
 
     public Collection<MetaProject> metaProjectsOf(Entity entity)
     {
         return entity.getMetaProjects();
     }
-
 }

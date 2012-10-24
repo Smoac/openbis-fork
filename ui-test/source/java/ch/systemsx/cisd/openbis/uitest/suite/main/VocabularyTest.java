@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 
-public class VocabularyTest extends MainSuiteTest
+public class VocabularyTest extends MainSuite
 {
 
     @Test

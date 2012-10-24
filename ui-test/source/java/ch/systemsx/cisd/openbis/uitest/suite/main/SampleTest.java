@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 /**
  * @author anttil
  */
-public class SampleTest extends MainSuiteTest
+public class SampleTest extends MainSuite
 {
     @Test
     public void newSampleIsListedInSampleBrowser() throws Exception

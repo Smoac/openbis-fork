@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.type.Space;
 
-public class SpaceTest extends MainSuiteTest
+public class SpaceTest extends MainSuite
 {
 
     @Test

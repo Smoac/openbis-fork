@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 /**
  * @author anttil
  */
-public class PropertyTypeAssignmentTest extends MainSuiteTest
+public class PropertyTypeAssignmentTest extends MainSuite
 {
     @Test
     public void newPropertyTypeAssignmentIsListedInPropertyTypeAssignmentBrowser() throws Exception

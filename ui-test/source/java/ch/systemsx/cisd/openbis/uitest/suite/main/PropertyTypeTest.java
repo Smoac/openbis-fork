@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 /**
  * @author anttil
  */
-public class PropertyTypeTest extends MainSuiteTest
+public class PropertyTypeTest extends MainSuite
 {
     @Test
     public void newPropertyTypeIsListedInPropertyTypeBrowser() throws Exception

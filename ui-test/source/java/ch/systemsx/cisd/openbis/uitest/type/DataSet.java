@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.uitest.type;
 /**
  * @author anttil
  */
-public abstract class DataSet
+public abstract class DataSet implements Entity
 {
     public abstract String getCode();
 

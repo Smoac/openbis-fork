@@ -19,31 +19,7 @@ package ch.systemsx.cisd.openbis.uitest.type;
 /**
  * @author anttil
  */
-public abstract class MetaProject
+public interface User
 {
-    public abstract String getName();
-
-    public abstract String getDescription();
-
-    @Override
-    public final boolean equals(Object o)
-    {
-        if (o instanceof MetaProject)
-        {
-            return ((MetaProject) o).getName().equals(getName());
-        }
-        return false;
-    }
-
-    @Override
-    public final int hashCode()
-    {
-        return getName().hashCode();
-    }
-
-    @Override
-    public String toString()
-    {
-        return this.getClass().getSimpleName() + " " + this.getName();
-    }
+    public String getName();
 }

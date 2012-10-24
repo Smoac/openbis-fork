@@ -16,9 +16,12 @@
 
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
+import java.util.Collection;
+
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
+import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 
 /**
@@ -33,11 +36,15 @@ class DataSetDsl extends DataSet
 
     private Experiment experiment;
 
-    public DataSetDsl(DataSetType type, Sample sample, Experiment experiment)
+    private Collection<MetaProject> metaProjects;
+
+    public DataSetDsl(DataSetType type, Sample sample, Experiment experiment,
+            Collection<MetaProject> metaProjects)
     {
         this.type = type;
         this.sample = sample;
         this.experiment = experiment;
+        this.metaProjects = metaProjects;
     }
 
     @Override
@@ -64,6 +71,12 @@ class DataSetDsl extends DataSet
         return experiment;
     }
 
+    @Override
+    public Collection<MetaProject> getMetaProjects()
+    {
+        return this.metaProjects;
+    }
+
     void setType(DataSetType type)
     {
         this.type = type;
@@ -77,6 +90,11 @@ class DataSetDsl extends DataSet
     void setExperiment(Experiment experiment)
     {
         this.experiment = experiment;
+    }
+
+    void setMetaProjects(Collection<MetaProject> metaProjects)
+    {
+        this.metaProjects = metaProjects;
     }
 
     @Override

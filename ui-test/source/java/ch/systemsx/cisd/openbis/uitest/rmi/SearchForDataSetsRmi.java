@@ -16,45 +16,38 @@
 
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
-import java.util.EnumSet;
+import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
-import ch.systemsx.cisd.openbis.uitest.help.Lambda;
-import ch.systemsx.cisd.openbis.uitest.request.SearchForSamples;
-import ch.systemsx.cisd.openbis.uitest.rmi.eager.SampleRmi;
-import ch.systemsx.cisd.openbis.uitest.type.Sample;
+import ch.systemsx.cisd.openbis.uitest.request.SearchForDataSets;
+import ch.systemsx.cisd.openbis.uitest.rmi.eager.DataSetRmi;
+import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 
 /**
  * @author anttil
  */
-public class SearchForSamplesRmi extends Executor<SearchForSamples, List<Sample>>
+public class SearchForDataSetsRmi extends Executor<SearchForDataSets, List<DataSet>>
 {
 
     @Override
-    public List<Sample> run(SearchForSamples request)
+    public List<DataSet> run(SearchForDataSets request)
     {
-
         SearchCriteria criteria = new SearchCriteria();
         criteria.addMatchClause(
                 MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, request.getCode()));
 
-        return Lambda.foreach(
-                generalInformationService.searchForSamples(
-                        session, criteria, EnumSet.allOf(SampleFetchOption.class)),
-                new Lambda<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample, Sample>()
-                    {
-                        @Override
-                        public Sample apply(
-                                ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample input)
-                        {
-                            return new SampleRmi(input, session, commonServer);
-                        }
-                    }
-                );
+        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> dataSets =
+                generalInformationService.searchForDataSets(session, criteria);
+
+        List<DataSet> result = new ArrayList<DataSet>();
+        for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet dataSet : dataSets)
+        {
+            result.add(new DataSetRmi(dataSet, session, commonServer));
+        }
+        return result;
     }
 }

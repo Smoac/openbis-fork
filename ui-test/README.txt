@@ -36,7 +36,7 @@ Run target "create-webapp" from ui-test build file. This needs to done also when
 How to run the tests against already running openBIS?
 =====================================================
 
-See method SeleniumTest.initWebDriver(). Variables asUrl and dssUrl control which AS/DSS instance 
+See method SeleniumTest.initialization(). Variables asUrl and dssUrl control which AS/DSS instance 
 the tests are run against. If those variables are not set, new AS and DSS will be started.
 
 In comments in that method, there are few examples.

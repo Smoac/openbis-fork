@@ -14,36 +14,28 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.type;
+package ch.systemsx.cisd.openbis.uitest.request;
+
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.uitest.type.DataSet;
+import ch.systemsx.cisd.openbis.uitest.type.Sample;
 
 /**
  * @author anttil
  */
-public abstract class MetaProject
+public class ListDataSetsOfSample implements Request<List<DataSet>>
 {
-    public abstract String getName();
 
-    public abstract String getDescription();
+    private Sample sample;
 
-    @Override
-    public final boolean equals(Object o)
+    public ListDataSetsOfSample(Sample sample)
     {
-        if (o instanceof MetaProject)
-        {
-            return ((MetaProject) o).getName().equals(getName());
-        }
-        return false;
+        this.sample = sample;
     }
 
-    @Override
-    public final int hashCode()
+    public Sample getSample()
     {
-        return getName().hashCode();
-    }
-
-    @Override
-    public String toString()
-    {
-        return this.getClass().getSimpleName() + " " + this.getName();
+        return sample;
     }
 }

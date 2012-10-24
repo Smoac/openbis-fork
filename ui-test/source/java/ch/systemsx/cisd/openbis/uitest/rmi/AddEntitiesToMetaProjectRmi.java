@@ -17,11 +17,15 @@
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
 import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
 import ch.systemsx.cisd.openbis.uitest.request.AddEntitiesToMetaProject;
+import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.Entity;
+import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 
 /**
@@ -40,6 +44,13 @@ public class AddEntitiesToMetaProjectRmi extends Executor<AddEntitiesToMetaProje
             if (entity instanceof Sample)
             {
                 ids.addSample(new SampleIdentifierId(Identifiers.get((Sample) entity).toString()));
+            } else if (entity instanceof Experiment)
+            {
+                ids.addExperiment(new ExperimentIdentifierId(Identifiers.get((Experiment) entity)
+                        .toString()));
+            } else if (entity instanceof DataSet)
+            {
+                ids.addDataSet(new DataSetCodeId(((DataSet) entity).getCode()));
             } else
             {
                 throw new UnsupportedOperationException("not implemented yet for "
@@ -47,8 +58,9 @@ public class AddEntitiesToMetaProjectRmi extends Executor<AddEntitiesToMetaProje
             }
         }
 
-        generalInformationChangingService.addToMetaproject(session, new MetaprojectIdentifierId("/selenium/"
-                + request.getMetaProject().getName()), ids);
+        generalInformationChangingService.addToMetaproject(session, new MetaprojectIdentifierId(
+                "/selenium/"
+                        + request.getMetaProject().getName()), ids);
         return null;
     }
 }

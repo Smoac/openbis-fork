@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 
-public class ExperimentTypeTest extends MainSuiteTest
+public class ExperimentTypeTest extends MainSuite
 {
 
     @Test
