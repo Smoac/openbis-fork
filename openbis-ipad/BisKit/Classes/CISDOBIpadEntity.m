@@ -119,6 +119,11 @@
 {
     // These will always be non-nil
     self.permId = rawEntity.permId;
+    [self updateFromRawEntity: rawEntity];
+}
+
+- (void)updateFromRawEntity:(CISDOBIpadRawEntity *)rawEntity
+{
     self.refconJson = rawEntity.refcon;
     
     // Need to check if these values were transmitted with the raw entity

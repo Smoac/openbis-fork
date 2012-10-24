@@ -92,7 +92,7 @@ NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeURL, NSError
         [entity initializeFromRawEntity: rawEntity];
         
         // Make sure that the children collection is parsable
-        if ([rawEntity.children length] > 2) {
+        if (rawEntity.children && [rawEntity.children length] > 2) {
             STAssertTrue([entity.childrenPermIds count] > 0, @"%@ should result in an entity with children", rawEntity.children);
         }
     }
@@ -101,12 +101,44 @@ NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeURL, NSError
 	STAssertTrue([_moc save: &error], @"Could not save data %@", error);
 }
 
+- (void)checkUpdateRawEntities:(NSArray *)rawEntities
+{
+    STAssertTrue([rawEntities count] > 0, @"The Pad service should have returned some entities.");
+
+    NSEntityDescription *entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: _moc];
+    NSManagedObjectModel *model = [entity managedObjectModel];
+    NSError *error = nil;
+
+    for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
+        // Find existing entities in the moc, creating if necessary, and store them.
+        CISDOBIpadEntity *entity;
+        NSDictionary *fetchVariables = [NSDictionary dictionaryWithObject: [NSArray arrayWithObject: rawEntity.permId] forKey: @"PERM_IDS"];
+        NSFetchRequest *request = [model fetchRequestFromTemplateWithName: @"EntitiesByPermIds" substitutionVariables: fetchVariables];
+        NSArray *matchedEntities = [_moc executeFetchRequest: request error: &error];
+        STAssertNil(error, @"Encountered error retreiving entities %@", error);
+        if ([matchedEntities count] > 0) {
+            entity = [matchedEntities objectAtIndex: 0];
+            [entity updateFromRawEntity: rawEntity];
+        } else {
+            entity = [NSEntityDescription insertNewObjectForEntityForName: @"CISDOBIpadEntity" inManagedObjectContext: _moc];
+            [entity initializeFromRawEntity: rawEntity];
+        }
+
+        // Make sure that the children collection is parsable
+        if (rawEntity.children && [rawEntity.children length] > 2) {
+            STAssertTrue([entity.childrenPermIds count] > 0, @"%@ should result in an entity with children", rawEntity.children);
+        }
+    }
+
+    STAssertTrue([_moc save: &error], @"Could not save data %@", error);
+}
+
 - (void)checkEntityCardnalityEquals:(NSUInteger)count
 {
 	NSError* error;
 	NSFetchRequest* request = [[NSFetchRequest alloc] init];
 	NSEntityDescription* entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: _moc];
-	[request setEntity: entity];
+    [request setEntity: entity];
 	NSArray* elements = [_moc executeFetchRequest: request error: &error];
     STAssertEquals([elements count], count, @"%llu in db != %llu from server", [elements count], count);
 }
@@ -131,6 +163,34 @@ NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeURL, NSError
 
 }
 
+- (void)collectAllPermIds:(NSMutableArray *)permIds refcons:(NSMutableArray *)refcons
+{
+	NSError* error;
+	NSFetchRequest* request = [[NSFetchRequest alloc] init];
+	NSEntityDescription* entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: _moc];
+    [request setEntity: entity];
+	NSArray* elements = [_moc executeFetchRequest: request error: &error];
+    for (CISDOBIpadEntity *entity in elements) {
+        [permIds addObject: entity.permId];
+        [refcons addObject: entity.refcon];
+    }
+}
+
+- (void)collectAllDrillablePermIds:(NSMutableArray *)permIds refcons:(NSMutableArray *)refcons
+{
+	NSError* error;
+	NSFetchRequest* request = [[NSFetchRequest alloc] init];
+	NSEntityDescription* entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: _moc];
+    [request setEntity: entity];
+	NSArray* elements = [_moc executeFetchRequest: request error: &error];
+    for (CISDOBIpadEntity *entity in elements) {
+        if ([entity.childrenPermIds count] > 0) {
+            [permIds addObject: entity.permId];
+            [refcons addObject: entity.refcon];
+        }
+    }
+}
+
 - (void)testPersistEntities
 {
     CISDOBAsyncCall *call;
@@ -147,6 +207,17 @@ NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeURL, NSError
     
     // Check that the cardnality is equal
     [self checkEntityCardnalityEquals: [_callResult count]];
+
+    // Get drill information on all entities
+    NSMutableArray *permIds = [NSMutableArray array];
+    NSMutableArray *refcons = [NSMutableArray array];
+    [self collectAllDrillablePermIds: permIds refcons: refcons];
+    call = [_service drillOnEntities: permIds refcons: refcons];
+    [self configureAndRunCallSynchronously: call];
+    STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
+    [self checkUpdateRawEntities: _callResult];
+    
+    
     
     // Check that the children could be found
     [self checkFindingChildren];

@@ -63,6 +63,7 @@
 // Actions
 //! Take the values from the raw entity.
 - (void)initializeFromRawEntity:(CISDOBIpadRawEntity *)rawEntity;
+- (void)updateFromRawEntity:(CISDOBIpadRawEntity *)rawEntity;
 
 @end
 
