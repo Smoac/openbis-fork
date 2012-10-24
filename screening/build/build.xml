@@ -406,6 +406,8 @@
         <include name="OpenBISScreeningML*.class" />
         <include name="ch/systemsx/cisd/common/api/**/*.class" />
         <exclude name="ch/systemsx/cisd/common/api/server/**/*.class" />
+        <include name="ch/systemsx/cisd/openbis/common/api/**/*.class" />
+        <exclude name="ch/systemsx/cisd/openbis/common/api/server/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/authorization/**/*.class" />
