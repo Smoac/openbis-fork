@@ -12,30 +12,35 @@ function getAppWidth(){
 
 var didCreateVis = false;
 
+function parseJson(jsonString) { return eval('(' + jsonString + ')'); }
+
 
 /**
  * The model that manages state and implements the operations.
  */
-function CrudModel() {
-	this.clearModel();
+function IpadModel() {
+	this.initializeModel();
 }
 
-CrudModel.prototype.clearModel = function() {
-	this.operation = "INSERT";
-	this.infotext = "";
-	this.identifier = "";
+IpadModel.prototype.initializeModel = function() {
+	this.selectionStack = [];
 }
 
-CrudModel.prototype.callOperation = function() {
-	var parameters = {};
-	parameters["info"] = this.infotext;
-	parameters["id"] = this.identifier;
-	parameters["operation"] = this.operation;
+IpadModel.prototype.selectEntity = function(d) {
+	this.selectionStack.push(d);
+	var permId = d[0].value;
+	var refcon = parseJson(d[1].value);
+	var children = parseJson(d[5].value);
+	if (children.length > 0) {
+		console.log(["DETAILS", permId, refcon]);		
+	} else {
+		console.log(["DRILL", permId, refcon]);
+	}
 }
 
 /// The model that manages state and implements the operations
 var model;
-model = new CrudModel();
+model = new IpadModel();
 
 
 /// The visualization, referenced by functions that display content
@@ -61,10 +66,10 @@ function showTableHeader(table)
 {
 	var header = table.selectAll("thead").data(function(d) { return [d.columns] });
 	header.enter().append("thead");
-	var headerRows = header.selectAll("tr.header").data(function(d) { return [d] });
-	headerRows.enter().append("tr").attr("class", "header");
-	var headerData = headerRows.selectAll("th.header").data(function(d) { return d; });
-	headerData.enter().append("th").attr("class", "header");
+	var headerRows = header.selectAll("tr").data(function(d) { return [d] });
+	headerRows.enter().append("tr");
+	var headerData = headerRows.selectAll("th").data(function(d) { return d; });
+	headerData.enter().append("th");
 	headerData.text(function (d) { return d.title})
 }
 
@@ -73,12 +78,14 @@ function showTableHeader(table)
  */
 function showTableData(table)
 {
-	var dataRows = table.selectAll("tr.data").data(function(d) { return d.rows });
-	dataRows.enter().append("tr").attr("class", "data");
+	var tableBody = table.selectAll("tbody").data(function(d) { return [d.rows] });
+	tableBody.enter().append("tbody");
+	var dataRows = tableBody.selectAll("tr").data(function(d) { return d });
+	dataRows.enter().append("tr").on("click", function (d) { model.selectEntity(d); });
 	dataRows.exit().remove();
 
-	var dataData = dataRows.selectAll("td.data").data(function(d) { return d });
-	dataData.enter().append("td").attr("class", "data");
+	var dataData = dataRows.selectAll("td").data(function(d) { return d });
+	dataData.enter().append("td");
 	dataData.text(function (d) { return d.value});
 }
 
@@ -101,7 +108,7 @@ function displayRoot(data)
 	// Display the rows in a table
 	var table = root.selectAll("table").data([tableData]);
 	// Code under enter is run if there is no HTML element for a data element	
-	table.enter().append("table");
+	table.enter().append("table").attr("class", "table");
 	showTableHeader(table);
 	showTableData(table);
 }
