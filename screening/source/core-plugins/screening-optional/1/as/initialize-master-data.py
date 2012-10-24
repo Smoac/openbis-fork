@@ -11,9 +11,6 @@ file_type_JPG.setDescription(None)
 file_type_PNG = tr.getOrCreateNewFileFormatType('PNG')
 file_type_PNG.setDescription(None)
 
-file_type_UNKNOWN = tr.getOrCreateNewFileFormatType('UNKNOWN')
-file_type_UNKNOWN.setDescription('Unknown file format')
-
 vocabulary_MICROSCOPE = tr.getOrCreateNewVocabulary('MICROSCOPE')
 vocabulary_MICROSCOPE.setDescription('Microscope used in an experiment.')
 vocabulary_MICROSCOPE.setUrlTemplate(None)
