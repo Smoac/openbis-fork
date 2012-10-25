@@ -178,6 +178,12 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
         return 6000;
     }
     
+    @Override
+    protected boolean checkLogContentForFinishedDataSetRegistration(String logContent)
+    {
+        return super.checkLogContentForFinishedDataSetRegistration(logContent) && logContent.contains("Post registration of 4. of 4 data sets");
+    }
+
     private static class PlateImageReferenceList extends ArrayList<PlateImageReference> implements IModifiable
     {
 
