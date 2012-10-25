@@ -142,6 +142,7 @@ def material_to_dict(material):
 	material_dict['PERM_ID'] = material.getMaterialIdentifier()
 	refcon = {}
 	refcon['code'] =  material.getCode()
+	refcon['identifier'] = material.getMaterialIdentifier()
 	refcon['entityKind'] = 'MATERIAL'
 	refcon['entityType'] = material.getMaterialType()
 	material_dict['REFCON'] = json_encoded_value(refcon)
@@ -276,7 +277,7 @@ class ExampleDetailRequestHandler(DetailRequestHandler):
 		# with the samples we have retrieved
 		material_identifiers = gather_materials(self.samples)
 		for detail_material in detail_materials:
-			add_material_to_collection(detail_material, material_identifiers)
+			add_material_to_collection(detail_material['REFCON']['identifier'], material_identifiers)
 
 		materials = self.searchService.listMaterials(material_identifiers)
 		materials_to_return = [material for material in materials if material.getMaterialIdentifier() in detail_materials]

@@ -209,15 +209,22 @@ NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeURL, NSError
     [self checkEntityCardnalityEquals: [_callResult count]];
 
     // Get drill information on all entities
-    NSMutableArray *permIds = [NSMutableArray array];
-    NSMutableArray *refcons = [NSMutableArray array];
-    [self collectAllDrillablePermIds: permIds refcons: refcons];
-    call = [_service drillOnEntities: permIds refcons: refcons];
+    NSMutableArray *drillPermIds = [NSMutableArray array];
+    NSMutableArray *drillRefcons = [NSMutableArray array];
+    [self collectAllDrillablePermIds: drillPermIds refcons: drillRefcons];
+    call = [_service drillOnEntities: drillPermIds refcons: drillRefcons];
     [self configureAndRunCallSynchronously: call];
     STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
     [self checkUpdateRawEntities: _callResult];
     
-    
+    // Get detail information on all entities
+    NSMutableArray *permIds = [NSMutableArray array];
+    NSMutableArray *refcons = [NSMutableArray array];
+    [self collectAllPermIds: permIds refcons: refcons];
+    call = [_service detailsForEntities: permIds refcons: refcons];
+    [self configureAndRunCallSynchronously: call];
+    STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
+    [self checkUpdateRawEntities: _callResult];
     
     // Check that the children could be found
     [self checkFindingChildren];
