@@ -38,19 +38,6 @@
 	<target name="dist" depends="dist-standard-technologies">
 	</target>
 	
-	<target name="dist-generic" depends="compile">
-		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
-		
-    <antcall target="create-installation-tarball">
-      <param name="openbis.server.zip.folder" value="../openbis/targets/dist" />
-      <param name="datastore.server.zip.folder" value="../datastore_server/targets/dist" />
-      <param name="variant" value="" />
-      <param name="database.kind" value="productive" />
-      <param name="installation.customize.folder" value="../openbis/dist/installer" />
-      <param name="is-standard-technologies" value="false" />
-    </antcall>
-	</target>
-	
 	<target name="dist-standard-technologies" depends="compile">
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		
@@ -61,42 +48,6 @@
       <param name="database.kind" value="standard-technologies" />
       <param name="installation.customize.folder" value="../openbis_standard_technologies/dist/tarball/installer" />
       <param name="is-standard-technologies" value="true" />
-    </antcall>
-	</target>
-	
-	<target name="dist-screening" depends="compile">
-		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
-		
-    <antcall target="create-installation-tarball">
-      <param name="openbis.server.zip.folder" value="../screening/targets/dist" />
-      <param name="datastore.server.zip.folder" value="../screening/targets/dist" />
-      <param name="variant" value="-screening" />
-      <param name="database.kind" value="screening" />
-      <param name="installation.customize.folder" value="../screening/dist/tarball/installer" />
-      <param name="is-standard-technologies" value="false" />
-    </antcall>
-	</target>
-	
-	<target name="dist-proteomics" depends="compile">
-		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
-		
-  	<unzip dest="${installer.dist.dir}">
-	      <fileset dir="../datastore_server/targets/dist">
-          <include name="datastore_server-S*.zip"/>
-	      </fileset>
-		</unzip>
-  	<unzip dest="${installer.dist.dir}">
-	      <fileset dir="../rtd_phosphonetx/targets/dist">
-          <include name="datastore_server_plugin-proteomics-S*.zip"/>
-	      </fileset>
-		</unzip>
-    <antcall target="create-installation-tarball">
-      <param name="openbis.server.zip.folder" value="../rtd_phosphonetx/targets/dist" />
-      <param name="datastore.server.zip.folder" value="../datastore_server/targets/dist" />
-      <param name="variant" value="-proteomics" />
-      <param name="database.kind" value="proteomics" />
-      <param name="installation.customize.folder" value="../rtd_phosphonetx/dist/tarball/installer" />
-      <param name="is-standard-technologies" value="false" />
     </antcall>
 	</target>
 	
