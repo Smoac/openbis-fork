@@ -506,8 +506,8 @@ public class OpenBISScreeningML
         {
             final Object[] annotations =
                     new Object[]
-                        { list.get(i).getAugmentedCode(), plates.get(i).getPermId(),
-                                list.get(i).tryGetSpaceCode(), plates.get(i).getPlateCode(),
+                        { list.get(i).getAugmentedCode(), list.get(i).getPermId(),
+                                list.get(i).tryGetSpaceCode(), list.get(i).getPlateCode(),
                                 list.get(i).getExperimentIdentifier().getAugmentedCode(),
                                 list.get(i).getExperimentIdentifier().getPermId(),
                                 list.get(i).getExperimentIdentifier().getSpaceCode(),
