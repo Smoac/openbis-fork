@@ -181,7 +181,13 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
     @Override
     protected boolean checkLogContentForFinishedDataSetRegistration(String logContent)
     {
-        return super.checkLogContentForFinishedDataSetRegistration(logContent) && logContent.contains("Post registration of 4. of 4 data sets");
+        return super.checkLogContentForFinishedDataSetRegistration(logContent)
+                && checkForFinalPostRegistrationLogEntry(logContent);
+    }
+
+    private boolean checkForFinalPostRegistrationLogEntry(String logContent)
+    {
+        return logContent.contains("Post registration of");
     }
 
     private static class PlateImageReferenceList extends ArrayList<PlateImageReference> implements IModifiable
