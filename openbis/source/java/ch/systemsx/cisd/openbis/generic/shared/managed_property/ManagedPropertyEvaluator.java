@@ -112,7 +112,7 @@ public class ManagedPropertyEvaluator
 
     private final boolean updateFromBatchFunctionDefined;
 
-    private final Boolean showRawValueInForms;
+    private final boolean showRawValueInForms;
 
     private List<IManagedInputWidgetDescription> inputWidgetDescriptions;
 
@@ -186,7 +186,7 @@ public class ManagedPropertyEvaluator
 
     private boolean inputWidgetsAllowed()
     {
-        return showRawValueInForms == null || showRawValueInForms == false;
+        return showRawValueInForms == false;
     }
 
     private void checkCombinationsOfDefinedFunctions(boolean batchColumnNamesFunctionDefined,
@@ -208,12 +208,12 @@ public class ManagedPropertyEvaluator
         }
     }
 
-    private Boolean evalFunctionShowRawValue()
+    private boolean evalFunctionShowRawValue()
     {
         boolean showRawValueFunctionDefined = evaluator.hasFunction(SHOW_RAW_VALUE_FUNCTION);
         if (showRawValueFunctionDefined == false)
         {
-            return null;
+            return false;
         }
         Object result = evaluator.evalFunction(SHOW_RAW_VALUE_FUNCTION);
         if (result instanceof Boolean == false)
@@ -264,7 +264,7 @@ public class ManagedPropertyEvaluator
         evaluator.evalFunction(UPDATE_FROM_UI_FUNCTION, action);
     }
 
-    public Boolean getShowRawValueInForms()
+    public boolean getShowRawValueInForms()
     {
         return showRawValueInForms;
     }

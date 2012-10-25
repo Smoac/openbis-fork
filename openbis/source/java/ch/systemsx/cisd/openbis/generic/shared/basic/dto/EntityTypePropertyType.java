@@ -48,7 +48,7 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Se
 
     private boolean showInEditView;
 
-    private Boolean showRawValue;
+    private boolean showRawValue;
 
     private Script script;
 
@@ -133,12 +133,12 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Se
         this.showInEditView = showInEditView;
     }
 
-    public Boolean getShowRawValue()
+    public boolean getShowRawValue()
     {
         return showRawValue;
     }
 
-    public void setShowRawValue(Boolean showRawValue)
+    public void setShowRawValue(boolean showRawValue)
     {
         this.showRawValue = showRawValue;
     }

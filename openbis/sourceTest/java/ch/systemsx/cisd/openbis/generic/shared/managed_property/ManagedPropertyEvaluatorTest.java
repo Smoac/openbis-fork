@@ -428,7 +428,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     {
         ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator("");
 
-        assertEquals(null, evaluator.getShowRawValueInForms());
+        assertEquals(false, evaluator.getShowRawValueInForms());
     }
 
     @Test
@@ -437,7 +437,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         ManagedPropertyEvaluator evaluator =
                 new ManagedPropertyEvaluator("def showRawValueInForms():\n return True");
 
-        assertEquals(Boolean.TRUE, evaluator.getShowRawValueInForms());
+        assertEquals(true, evaluator.getShowRawValueInForms());
     }
 
     @Test
@@ -446,7 +446,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         ManagedPropertyEvaluator evaluator =
                 new ManagedPropertyEvaluator("def showRawValueInForms():\n return False");
 
-        assertEquals(Boolean.FALSE, evaluator.getShowRawValueInForms());
+        assertEquals(false, evaluator.getShowRawValueInForms());
     }
 
     @Test(expectedExceptionsMessageRegExp = "Function 'showRawValueInForms' doesn't return "

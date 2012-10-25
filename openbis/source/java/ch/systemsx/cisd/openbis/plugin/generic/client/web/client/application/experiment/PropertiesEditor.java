@@ -348,12 +348,12 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         {
             return true;
         }
-        Boolean showRawValue = etpt.getShowRawValue();
+        boolean showRawValue = etpt.getShowRawValue();
         if (editForm)
         {
-            return showRawValue == null || showRawValue;
+            return showRawValue;
         }
-        return showRawValue == null || showRawValue || hasInputWidgets(etpt);
+        return showRawValue || hasInputWidgets(etpt);
     }
 
 }
