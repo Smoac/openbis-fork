@@ -185,11 +185,6 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
                 && checkForFinalPostRegistrationLogEntry(logContent);
     }
 
-    private boolean checkForFinalPostRegistrationLogEntry(String logContent)
-    {
-        return logContent.contains("Post registration of");
-    }
-
     private static class PlateImageReferenceList extends ArrayList<PlateImageReference> implements IModifiable
     {
 

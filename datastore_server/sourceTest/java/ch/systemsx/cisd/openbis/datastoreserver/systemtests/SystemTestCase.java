@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParam
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.server.Connector;
@@ -265,5 +266,19 @@ public abstract class SystemTestCase extends AssertJUnit
     protected void moveFileToIncoming(File exampleDataSet) throws IOException
     {
         FileUtils.moveDirectoryToDirectory(exampleDataSet, getIncomingDirectory(), false);
+    }
+
+    protected boolean checkForFinalPostRegistrationLogEntry(String logContent)
+    {
+        Pattern pattern = Pattern.compile(".*Post registration of (\\d*). of \\1 data sets.*");
+        String[] lines = logContent.split("\\n");
+        for (String line : lines)
+        {
+            if (pattern.matcher(line).matches())
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
