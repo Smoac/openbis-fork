@@ -109,25 +109,52 @@ end
 # A module that implements some helpful operations
 #
 module JiraHelpers
-  def JiraHelpers.args(first_arg)
-    cmd = ARGV[first_arg .. -1].inject("") { | all, each | all + " " + each }
-    cmd.strip!
-    return cmd
-  end
-  
+
   def JiraHelpers.search(query, limit=nil)
     search_cmd = "curl -s --get --cookie #{$jira_cookie_path} '#{$jira_api_url}/search' --data-urlencode 'jql=#{query}' --data-urlencode 'fields=*all,-comment'"
     search_cmd = search_cmd + " --data-urlencode 'maxResults=#{limit}'" unless limit.nil?
     return `#{search_cmd}`
   end
   
+  def JiraHelpers.issue(issue_number, limit=nil)
+    issue_cmd = "curl -s --get --cookie #{$jira_cookie_path} '#{$jira_api_url}/issue/#{issue_number}'"
+    data = `#{issue_cmd}`
+    issue_data = JSON.load(data)
+    return Issue.new(issue_data)    
+  end  
+  
   def JiraHelpers.rank(issue, after, before=nil)
     rank_data = {"issueKeys" => [issue], "customFieldId" => 10050 }
     rank_data["rankAfterKey"] = after
     rank_data["rankBeforeKey"] = before unless before.nil?    
-    rank_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' '#{$jira_url}/rest/greenhopper/1.0/rank' -d '#{JSON.generate(rank_data)}'"
-    puts rank_cmd
+    rank_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' -X PUT '#{$jira_url}/rest/greenhopper/1.0/rank' -d '#{JSON.generate(rank_data)}'"
     return `#{rank_cmd}`
+  end 
+  
+  def JiraHelpers.create_sp_issue(summary, description, fixversion)
+    # May need to escape the summary
+    issue_data = {
+      "fields" => { 
+        "project" => {"key" => "SP" } , 
+        "summary" => summary, 
+        "description" => description, 
+        "fixVersions" => [ {"name" => fixversion } ],
+        "issuetype" => {"name" => "Task"} 
+      } 
+    }
+    issue_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' '#{$jira_api_url}/issue/' -d '#{JSON.generate(issue_data)}'"
+    ans = `#{issue_cmd}`
+    return JSON.load(ans)
+  end
+  
+  def JiraHelpers.link_sp_to_bis(sp_key, bis_key)
+    link_data = {
+      "type" => { "name" => "Hierarchy" },
+      "inwardIssue" => { "key" => sp_key },
+      "outwardIssue" => { "key" => bis_key }
+    }
+    link_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' '#{$jira_api_url}/issueLink' -d '#{JSON.generate(link_data)}'"
+    return `#{link_cmd}`
   end  
 
   # Search and return the full data for the found objects
@@ -162,7 +189,24 @@ module JiraHelpers
   end
 end
 
-
+#
+# A module that implements some helpful operations
+#
+module InputHelpers
+  def InputHelpers.args(first_arg)
+    cmd = ARGV[first_arg .. -1].inject("") { | all, each | all + " " + each }
+    cmd.strip!
+    return cmd
+  end
+  
+  def InputHelpers.sprint_name(sprint_name_or_number)
+    sprintNumber = "S" if sprint_name_or_number.nil?
+    sprintNumber = sprint_name_or_number.match("^[S|s].*") ? sprint_name_or_number : "S" + sprint_name_or_number
+    return sprintNumber
+  end
+    
+end
+  
 #
 # == Commands
 #
@@ -337,6 +381,101 @@ class RankIssue < LoggedInCommand
   
 end
 
+class RankSprint < LoggedInCommand
+  def initialize
+    super
+    @sprintNumber = InputHelpers.sprint_name(ARGV[1])
+  end
+  
+  def description
+    return "rank #{@sprintNumber}"
+  end
+  
+  
+  def run_logged_in_old
+    ans = JiraHelpers.rank(@issue, @after, @before)
+    return ans
+  end
+
+  def run_logged_in
+    sp_issues = retrieve_sprint_issues()
+    bis_issues = retrieve_bis_issues(sp_issues)
+    
+    self.rank_issues(sp_issues, bis_issues)
+    self.print_issues
+    # Nothing to show
+    return "#{sp_issues.length} issues"
+  end
+  
+  def retrieve_sprint_issues()
+    query = "project=SP AND fixVersion = #{@sprintNumber} ORDER BY \"Global Rank\" ASC" 
+    sp_issues = JiraHelpers.search_full(query, @silent)
+    init_sp_issue_dict(sp_issues)
+    return sp_issues
+  end
+  
+  def retrieve_bis_issues(sp_issues)
+    implemented_issues = []
+    sp_issues.each do | issue |
+      implements_key = issue.implements.key unless issue.implements.nil?
+      implemented_issues << issue.implements unless issue.implements.nil?
+    end
+    bis_issue_list = implemented_issues.collect{|issue| issue.key }.join(",")
+    bis_query= "project = BIS AND key in (#{bis_issue_list}) ORDER BY \"Global Rank\" ASC"
+    bis_issues = JiraHelpers.search_full(bis_query, @silent)
+    return bis_issues
+  end    
+  
+  def init_sp_issue_dict(sp_issues)
+    @sp_issue_dict = {}
+    sp_issues.each do | issue |
+      key = issue.key
+      @sp_issue_dict[key] = issue
+    end
+  end
+  
+  def rank_issues(sp_issues, bis_issues)
+    not_in_bis = []
+    bis_ranking = []
+    seen_sp_issues = [].to_set
+    bis_issues.each do | bis_issue |
+      bis_issue.implemented_by.each do | sp |
+        unless @sp_issue_dict[sp.key].nil?
+          seen_sp_issues << sp.key
+          bis_ranking << @sp_issue_dict[sp.key]
+        end
+      end
+    end
+    
+    sp_issues.each do | sp_issue |
+      not_in_bis << sp_issue unless seen_sp_issues.include?(sp_issue.key)
+    end
+    
+    # not in bis comes first, in arbitrary order, then the remaining issues
+    ranked_issues = not_in_bis + bis_ranking
+    ranked_issues.each_cons(2) do | first, second |
+      JiraHelpers.rank(second.key, first.key)
+    end
+    
+  end
+  
+  def print_issues
+    query = "project=SP AND fixVersion = #{@sprintNumber} ORDER BY \"Global Rank\" ASC" 
+    full_issues = JiraHelpers.search_full(query, @silent)
+    header = "%8s\t%12s\t%s" % ["Key", "Implements", "Summary"]
+    puts header
+    full_issues.each do | issue |
+      key = issue.key
+      implements_key = issue.implements.key unless issue.implements.nil?
+      summary = issue.summary
+      row = "%8s\t%12s\t%s" % [key, implements_key, summary]
+      puts row
+    end
+    print " ", ("-" * 27), "\n"
+  end  
+  
+end
+
 #
 # Shows the JSON for a search results -- useful for debugging
 #
@@ -369,9 +508,7 @@ end
 class ListSprint < LoggedInCommand
   def initialize
     super
-    @sprintNumber = ARGV[1]
-    @sprintNumber = "S" if @sprintNumber.nil?
-    @sprintNumber = "S" + @sprintNumber unless @sprintNumber.match("^[S|s].*")
+    @sprintNumber = InputHelpers.sprint_name(ARGV[1])
   end
   
   def description
@@ -410,14 +547,52 @@ class ListSprint < LoggedInCommand
 end
 
 #
+# Lists the issues in the kanban cycle
+#
+class ListKanban < LoggedInCommand
+  def initialize
+    super
+    @sprintNumber = InputHelpers.sprint_name(ARGV[1])
+  end
+  
+  def description
+    return "kanban #{@sprintNumber}"
+  end
+  
+  
+  def run_logged_in
+    query = "project=BIS AND status not in (Resolved, Closed) OR (status = Resolved AND fixVersion = #{@sprintNumber}) ORDER BY \"Global Rank\" ASC" 
+    full_issues = JiraHelpers.search_full(query, @silent)
+    self.print_issues_table(full_issues)
+    # Nothing to show
+    return "#{full_issues.length} issues"
+  end
+  
+  def print_issues_table(full_issues)
+    header = "%8s  %12s\t%12s\t%8s\t%s" % ["Key", "Implements", "Status", "Tester", "Summary"]
+    puts header
+    full_issues.each do | issue |
+      key = issue.key
+      implements_key = issue.implements.key unless issue.implements.nil?
+      status = issue.status
+      tester = issue.tester
+      summary = issue.summary
+      row = "%8s  %12s\t%12s\t%8s\t%s" % [key, implements_key, status, tester, summary]
+      puts row
+    end
+    print " ", ("-" * 27), "\n"
+  end
+end
+
+
+#
 # List the issues slated for a sprint in a form that is helpful for planning
 #
 class PlanSprint < LoggedInCommand
   def initialize
     super
-    @sprintNumber = ARGV[1]
-    @sprintNumber = "S" if @sprintNumber.nil?
-    @sprintNumber = "S" + @sprintNumber unless @sprintNumber.match("^[S|s].*")
+    @sprintNumber = InputHelpers.sprint_name(ARGV[1])
+    @total = 0
   end
   
   def description
@@ -446,6 +621,10 @@ class PlanSprint < LoggedInCommand
     print_issues_table("CCS", ccs_issues)    
     print_issues_table("SWE", swe_issues)    
     print_unseen_sp_issues_table(sp_issues)
+    
+    puts ("=" * 12)
+    puts "Total %8.1fh" % [@total / 3600.0]
+    puts ("-" * 12)
 
     # Nothing to show
     issue_count = bis_issues.length + ccs_issues.length + swe_issues.length
@@ -470,9 +649,9 @@ class PlanSprint < LoggedInCommand
       next if @sp_issue_dict[sp]
       
       status = issue.status
-      @sp_issue_dict[sp] = issue_dict unless (status == "Resolved" || status == "Closed")
+      @sp_issue_dict[sp] = issue unless (status == "Resolved" || status == "Closed")
     end 
-  end  
+  end
   
   def print_unseen_sp_issues_table(full_issues)
     puts ("=" * 12)
@@ -495,6 +674,7 @@ class PlanSprint < LoggedInCommand
       row = "%8.1fh\t%12s\t%12s\t%5.1fh\t%s" % [subtotal / 3600.0, key, sp, time / 3600.0, summary]
       puts row
     end
+    @total = @total + subtotal
   end
   
   def print_issues_table(title, full_issues)
@@ -551,7 +731,124 @@ class PlanSprint < LoggedInCommand
         @seen_sp_issues.add(sp)
       end
     end
+    @total = @total + subtotal
   end  
+end
+
+#
+# Create sprint issues for the issues in the sprint
+#
+class CreateSprint < LoggedInCommand
+  def initialize
+     super
+     @sprintNumber = ARGV[1]
+     @sprintNumber = "S" if @sprintNumber.nil?
+     @sprintNumber = "S" + @sprintNumber unless @sprintNumber.match("^[S|s].*")
+     @parent_issue = ARGV[2]
+   end
+
+  def description
+    return "create #{@sprintNumber}"
+  end
+
+
+  def run_logged_in
+    header = "%12s\t%12s\t%s" % ["Key", "SP", "Summary"]
+    puts header
+        
+    # if no issue is specified, create all issues that relate to bis
+    return create_bis_issues if @parent_issue.nil?
+    
+    # create the issue explicitly requested
+    return create_explicit_issue
+  end
+  
+  def create_explicit_issue
+    issue = JiraHelpers.issue(@parent_issue)
+    puts "issue ", issue    
+    create_issues(@parent_issue, [issue])
+    return "1 issue"
+  end
+   
+  def create_bis_issues
+    sp_query = "project=SP AND fixVersion = #{@sprintNumber} ORDER BY \"Global Rank\" ASC" 
+    sp_issues = JiraHelpers.search_full(sp_query, @silent)
+    init_sp_issue_dict(sp_issues)
+
+    bis_query= "project = BIS AND status not in (Resolved, Closed) AND \"Next Sprint\" = YES ORDER BY \"Global Rank\" ASC"
+    bis_issues = JiraHelpers.search_full(bis_query, @silent)
+    enrich_sp_issue_dict(JiraHelpers.retrieve_implementors(bis_issues, @silent))
+
+    ccs_query= "project = CCS AND status not in (Resolved, Closed) AND \"Next Sprint\" = YES ORDER BY \"Global Rank\" ASC"
+    ccs_issues = JiraHelpers.search_full(ccs_query, @silent)
+    enrich_sp_issue_dict(JiraHelpers.retrieve_implementors(ccs_issues, @silent))    
+
+    swe_query= "project = SWE AND status not in (Resolved, Closed) AND \"Next Sprint\" = YES ORDER BY \"Global Rank\" ASC"
+    swe_issues = JiraHelpers.search_full(swe_query, @silent)
+    enrich_sp_issue_dict(JiraHelpers.retrieve_implementors(swe_issues, @silent))
+
+    create_necessary_issues("BIS", bis_issues)
+    #     print_issues_table("CCS", ccs_issues)
+    #     print_issues_table("SWE", swe_issues)
+
+    # Nothing to show
+    issue_count = bis_issues.length + ccs_issues.length + swe_issues.length
+    return "#{issue_count} issues"
+  end
+
+  def init_sp_issue_dict(sp_issues)
+     @sp_issue_dict = {}
+     sp_issues.each do | issue |
+       key = issue.key
+       @sp_issue_dict[key] = issue
+     end
+     @seen_sp_issues = [].to_set
+  end
+
+  #
+  # Take those issues that are not yet resolved / closed and add them to the sp issues dict
+  #
+  def enrich_sp_issue_dict(implementors)
+     implementors.each do | issue |
+       sp = issue.key
+       next if @sp_issue_dict[sp]
+
+       status = issue.status
+       @sp_issue_dict[sp] = issue unless (status == "Resolved" || status == "Closed")
+     end 
+  end  
+
+  def create_necessary_issues(title, full_issues)
+    issues_to_create = []
+    full_issues.each do | issue |
+      is_umbrella = !issue.fields["sub-tasks"].nil?
+      next if is_umbrella
+      implementedby = []
+      issue.implemented_by.each do | sp_issue |
+        sp = sp_issue.key
+        # We are only interested in links to issues in the specified sprint
+        implementedby << sp if @sp_issue_dict[sp]
+      end
+
+      issues_to_create << issue if implementedby.length < 1
+    end
+    create_issues(title, issues_to_create)    
+  end
+  
+  def create_issues(title, issues_to_create)
+    puts ("=" * 12)
+    puts title
+    puts ("-" * 12)
+    issues_to_create.each do  | issue |
+      summary = "#{issue.key} : #{issue.summary}"
+      desc = "See #{issue.key}."
+      sp = JiraHelpers.create_sp_issue(summary, desc, @sprintNumber)
+      sp_key = sp["key"]
+      JiraHelpers.link_sp_to_bis(sp_key, issue.key)
+      row = "%12s\t%12s\t%s" % [issue.key, sp_key, summary]
+      puts row
+    end
+  end
 end
 
 #
@@ -651,7 +948,9 @@ def get_command
   when "search" then DumpSearch.new
   when "plan" then PlanSprint.new
 	when "cust" then CustIssues.new
-	when "rank" then RankIssue.new
+	when "rank" then ARGV.length > 2 ? RankIssue.new : RankSprint.new
+  when "kanban" then ListKanban.new
+  when "create" then CreateSprint.new
   else Help.new
   end
 
