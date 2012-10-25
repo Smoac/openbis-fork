@@ -140,7 +140,7 @@ function integration_tests_screening {
     # let openBIS AS start before starting DSS
     sleep 90
     switch_dss "on" datastore_server_screening
-    sleep 30
+    sleep 60
     assertSpotSizes "24x16" 
     prepare_data_second_phase
   	sleep 15
