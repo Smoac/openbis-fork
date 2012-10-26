@@ -32,9 +32,9 @@ import ch.systemsx.cisd.common.action.AbstractDelegatedActionWithResult;
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exception.HighLevelException;
 import ch.systemsx.cisd.common.exception.NotImplementedException;
 import ch.systemsx.cisd.common.exception.Status;
-import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.AssertionCatchingImmutableCopierWrapper;
 import ch.systemsx.cisd.common.filesystem.FastRecursiveHardLinkMaker;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
@@ -513,7 +513,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      */
     protected Throwable asSerializableException(Throwable throwable)
     {
-        if (throwable instanceof UserFailureException)
+        if (throwable instanceof HighLevelException)
         {
             return new RuntimeException(throwable.getMessage());
         }

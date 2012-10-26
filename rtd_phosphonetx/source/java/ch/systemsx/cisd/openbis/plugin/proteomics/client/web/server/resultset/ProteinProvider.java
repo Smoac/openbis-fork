@@ -27,7 +27,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exception.HighLevelException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractTableModelProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -139,9 +139,9 @@ public class ProteinProvider extends AbstractTableModelProvider<ProteinInfo>
             Throwable t = e;
             while (t != null)
             {
-                if (t instanceof UserFailureException)
+                if (t instanceof HighLevelException)
                 {
-                    throw (UserFailureException) t;
+                    throw (HighLevelException) t;
                 }
                 t = t.getCause();
             }

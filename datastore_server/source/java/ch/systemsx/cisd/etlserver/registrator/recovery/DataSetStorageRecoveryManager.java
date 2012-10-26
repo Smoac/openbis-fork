@@ -22,7 +22,7 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exception.HighLevelException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -190,11 +190,7 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     @Override
     public boolean canRecoverFromError(Throwable ex)
     {
-        if (ex instanceof UserFailureException)
-        {
-            return false;
-        }
-        return true;
+        return HighLevelException.isRetriable(ex);
     }
 
     @Override

@@ -35,6 +35,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exception.HighLevelException;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HierarchicalContentUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -319,7 +320,10 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
     private void printError(IRendererFactory rendererFactory, final HttpServletRequest request,
             final HttpServletResponse response, Exception exception) throws IOException
     {
-        if (exception instanceof UserFailureException == false)
+        if (exception instanceof HighLevelException)
+        {
+            operationLog.error(exception.getMessage());
+        } else if (operationLog.isInfoEnabled())
         {
             StringBuffer url = request.getRequestURL();
             String queryString = request.getQueryString();
@@ -328,9 +332,6 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
                 url.append("?").append(queryString);
             }
             operationLog.error("Request " + url + " caused an exception: ", exception);
-        } else if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("User failure: " + exception.getMessage());
         }
         String message = exception.getMessage();
         String errorText = StringUtils.isBlank(message) ? exception.toString() : message;

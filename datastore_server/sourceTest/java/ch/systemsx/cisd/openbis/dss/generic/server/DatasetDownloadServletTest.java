@@ -565,12 +565,6 @@ public class DatasetDownloadServletTest
                     one(request).getRequestURI();
                     will(returnValue("blabla"));
 
-                    one(request).getRequestURL();
-                    will(returnValue(new StringBuffer("requestURL")));
-
-                    one(request).getQueryString();
-                    will(returnValue("query"));
-
                     one(response).setContentType("text");
                     one(response).getWriter();
                     will(returnValue(new PrintWriter(writer)));
@@ -583,8 +577,9 @@ public class DatasetDownloadServletTest
                 + "Request URI 'blabla' expected to start with '/datastore_server/'."
                 + OSUtilities.LINE_SEPARATOR, writer.toString());
         String logContent = getNormalizedLogContent();
-        assertEquals("The following string does not start as expected: " + logContent, true,
-                logContent.startsWith(LOG_ERROR + "Request requestURL?query caused an exception:"));
+        final String expected =
+                LOG_ERROR + "Request URI 'blabla' expected to start with '/datastore_server/'.";
+        assertEquals(expected, logContent.substring(0, expected.length()));
 
         context.assertIsSatisfied();
     }

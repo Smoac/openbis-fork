@@ -36,6 +36,7 @@ import org.springframework.remoting.RemoteAccessException;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exception.HighLevelException;
 import ch.systemsx.cisd.common.exception.InvalidSessionException;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
@@ -204,7 +205,7 @@ public abstract class AbstractSwingGUI
                 (throwable instanceof Error) ? throwable : CheckedExceptionTunnel
                         .unwrapIfNecessary((Exception) throwable);
         final String message;
-        if (th instanceof UserFailureException)
+        if (th instanceof HighLevelException)
         {
             message = th.getMessage();
         } else
@@ -351,7 +352,7 @@ public abstract class AbstractSwingGUI
     private static String getErrorMessage(Throwable throwable)
     {
         final String message;
-        if (throwable instanceof UserFailureException)
+        if (throwable instanceof HighLevelException)
         {
             message = throwable.getMessage();
         } else

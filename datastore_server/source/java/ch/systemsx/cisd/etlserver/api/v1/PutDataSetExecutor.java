@@ -34,6 +34,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.action.AbstractDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exception.HighLevelException;
 import ch.systemsx.cisd.common.exception.Status;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FastRecursiveHardLinkMaker;
@@ -681,9 +682,9 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         protected void rollback(Throwable ex)
         {
             registrationAlgorithm.rollbackStorageProcessor(ex);
-            if (ex instanceof UserFailureException)
+            if (ex instanceof HighLevelException)
             {
-                throw (UserFailureException) ex;
+                throw (HighLevelException) ex;
             }
             throw new EnvironmentFailureException("Could not register data set " + newDataSet, ex);
         }

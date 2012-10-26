@@ -26,7 +26,7 @@ import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exception.HighLevelException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.JavaMailProperties;
@@ -34,8 +34,8 @@ import ch.systemsx.cisd.common.maintenance.MaintenanceTaskParameters;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
-import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.SystemExit;
@@ -269,7 +269,7 @@ public class Parameters
 
     private void outputException(final Exception ex)
     {
-        if (ex instanceof UserFailureException || ex instanceof CmdLineException)
+        if (ex instanceof HighLevelException || ex instanceof CmdLineException)
         {
             System.err.println(ex.getMessage());
         } else

@@ -37,4 +37,38 @@ public abstract class HighLevelException extends RuntimeException
         super(message, cause);
     }
 
+    /**
+     * Returns the assessment of the subsystem throwing the exception whether the failure could be
+     * temporarily and thus retrying the operation (on a higher level) could possibly help to cure
+     * the problem.
+     * <p>
+     * This class will always return <code>false</code>, but sub classes can override the method.
+     * 
+     * @return Whether retrying the operation can possibly rectify the situation or not.
+     */
+    public boolean isRetriable()
+    {
+        return false;
+    }
+
+    /**
+     * Returns the assessment of the subsystem throwing the exception whether the failure could be
+     * temporarily and thus retrying the operation (on a higher level) could possibly help to cure
+     * the problem.
+     * <p>
+     * This class will always return <code>false</code>, but sub classes can override the method.
+     * 
+     * @return Whether retrying the operation can possibly rectify the situation or not.
+     */
+    public static boolean isRetriable(Throwable th)
+    {
+        if (th instanceof HighLevelException)
+        {
+            return ((HighLevelException) th).isRetriable();
+        } else
+        {
+            return false;
+        }
+    }
+
 }

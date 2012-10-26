@@ -34,8 +34,8 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.exception.HighLevelException;
 import ch.systemsx.cisd.common.exception.InvalidSessionException;
-import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -175,10 +175,10 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
 
     private void printPretty(PrintWriter writer, Throwable throwable)
     {
-        if (throwable instanceof UserFailureException)
+        if (throwable instanceof HighLevelException)
         {
             Template template = ERROR_MESSAGE.createFreshCopy();
-            template.bind("error-message", ((UserFailureException) throwable).getMessage());
+            template.bind("error-message", ((HighLevelException) throwable).getMessage());
             writer.write(template.createText());
         } else
         {

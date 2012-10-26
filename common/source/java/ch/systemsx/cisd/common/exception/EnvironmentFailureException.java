@@ -18,8 +18,6 @@ package ch.systemsx.cisd.common.exception;
 /**
  * The <code>EnvironmentFailureException</code> is the super class of all exceptions that have
  * their cause in the software or hardware environment of the system failing.
- * <p>
- * Note that the user does not count as part of the environment in this respect.
  * 
  * @author Bernd Rinn
  */
@@ -60,13 +58,14 @@ public class EnvironmentFailureException extends HighLevelException
      * temporarily and thus retrying the operation (on a higher level) could possibly help to cure
      * the problem.
      * <p>
-     * This class will always return <code>false</code>, but sub classes can override the method.
+     * This class will always return <code>true</code>, but sub classes can override the method.
      * 
      * @return Whether retrying the operation can possibly rectify the situation or not.
      */
+    @Override
     public boolean isRetriable()
     {
-        return false;
+        return true;
     }
 
 }
