@@ -33,8 +33,6 @@ public final class PropertyTypeListDeletionConfirmationDialog extends
         AbstractDataListPermanentDeletionConfirmationDialog<TableModelRowWithObject<PropertyType>>
 {
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
-
     public PropertyTypeListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext,
             List<TableModelRowWithObject<PropertyType>> propertyTypes,
@@ -42,7 +40,6 @@ public final class PropertyTypeListDeletionConfirmationDialog extends
     {
         super(viewContext, propertyTypes, callback);
         this.setId("deletion-confirmation-dialog");
-        this.viewContext = viewContext;
     }
 
     @Override

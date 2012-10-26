@@ -554,7 +554,6 @@ public class ExperimentPE extends AttachmentHolderPE implements
         this.permId = permId;
     }
 
-    @SuppressWarnings("unused")
     @ManyToMany(fetch = FetchType.LAZY)
     @Fetch(FetchMode.SUBSELECT)
     @JoinTable(name = TableNames.METAPROJECT_ASSIGNMENTS_VIEW, joinColumns =

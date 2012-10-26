@@ -419,7 +419,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     // used only by Hibernate Search
-    @SuppressWarnings("unused")
     @Transient
     @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.SAMPLE_ID)
     private Long getSampleId()
@@ -523,7 +522,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     // used only by Hibernate Search
-    @SuppressWarnings("unused")
     @Transient
     @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.CONTAINER_ID)
     private Long getContainerId()
@@ -632,7 +630,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     // used only by Hibernate Search
-    @SuppressWarnings("unused")
     @Transient
     @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.EXPERIMENT_ID)
     private Long getExperimentId()
@@ -815,7 +812,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.deletion = deletion;
     }
 
-    @SuppressWarnings("unused")
     @ManyToMany(fetch = FetchType.LAZY)
     @Fetch(FetchMode.SUBSELECT)
     @JoinTable(name = TableNames.METAPROJECT_ASSIGNMENTS_VIEW, joinColumns =

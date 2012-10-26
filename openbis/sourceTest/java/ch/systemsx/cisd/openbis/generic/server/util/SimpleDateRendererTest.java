@@ -34,15 +34,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
  */
 public class SimpleDateRendererTest extends AssertJUnit
 {
-    @SuppressWarnings("unused")
     @DataProvider(name = "dates")
     private Object[][] getDates()
     {
         return new Object[][]
             {
-                { toDate(1991, 12, 3, 3, 13, 59, "CET"), "1991-12-03 03:13:59 GMT+01:00" },
-                { toDate(2008, 12, 6, 15, 35, 17, "CET"), "2008-12-06 15:35:17 GMT+01:00" },
-                { toDate(2008, 7, 31, 1, 2, 3, "CET"), "2008-07-31 01:02:03 GMT+02:00" } };
+                    { toDate(1991, 12, 3, 3, 13, 59, "CET"), "1991-12-03 03:13:59 GMT+01:00" },
+                    { toDate(2008, 12, 6, 15, 35, 17, "CET"), "2008-12-06 15:35:17 GMT+01:00" },
+                    { toDate(2008, 7, 31, 1, 2, 3, "CET"), "2008-07-31 01:02:03 GMT+02:00" } };
     }
 
     @Test(dataProvider = "dates")
@@ -51,7 +50,7 @@ public class SimpleDateRendererTest extends AssertJUnit
         String renderDate = SimpleDateRenderer.renderDate(date);
         assertEquals(formattedDate, renderDate);
     }
-    
+
     @Test
     public void testDateRendererForNullArgument()
     {

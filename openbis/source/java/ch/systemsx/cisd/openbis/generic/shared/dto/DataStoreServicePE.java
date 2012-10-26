@@ -74,7 +74,6 @@ public class DataStoreServicePE implements Serializable
     // which types of datasets can be processed by this plugin?
     private Set<DataSetTypePE> datasetTypes;
 
-    @SuppressWarnings("unused")
     @Id
     @SequenceGenerator(name = SequenceNames.DATA_STORE_SERVICE_SEQUENCE, sequenceName = SequenceNames.DATA_STORE_SERVICE_SEQUENCE, allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.DATA_STORE_SERVICE_SEQUENCE)

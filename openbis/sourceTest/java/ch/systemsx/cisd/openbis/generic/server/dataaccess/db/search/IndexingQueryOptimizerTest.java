@@ -67,7 +67,6 @@ public class IndexingQueryOptimizerTest
 
         class Entity
         {
-            @SuppressWarnings("unused")
             @ManyToOne(fetch = FetchType.EAGER)
             public Object getContent()
             {
@@ -95,7 +94,6 @@ public class IndexingQueryOptimizerTest
 
         class OuterContent
         {
-            @SuppressWarnings("unused")
             @IndexedEmbedded
             public InnerContent getInnerContent()
             {
@@ -105,7 +103,6 @@ public class IndexingQueryOptimizerTest
 
         class Entity
         {
-            @SuppressWarnings("unused")
             @IndexedEmbedded
             public OuterContent getContent()
             {
@@ -129,56 +126,48 @@ public class IndexingQueryOptimizerTest
 
         final class LazyEagerEntity
         {
-            @SuppressWarnings("unused")
             @OneToOne(fetch = FetchType.LAZY)
             public Object getOneToOneLazily()
             {
                 return null;
             }
 
-            @SuppressWarnings("unused")
             @OneToOne(fetch = FetchType.EAGER)
             public Object getOneToOneEagerly()
             {
                 return null;
             }
 
-            @SuppressWarnings("unused")
             @OneToMany(fetch = FetchType.LAZY)
             public Object getOneToManyLazily()
             {
                 return null;
             }
 
-            @SuppressWarnings("unused")
             @OneToMany(fetch = FetchType.EAGER)
             public Object getOneToManyEagerly()
             {
                 return null;
             }
 
-            @SuppressWarnings("unused")
             @ManyToOne(fetch = FetchType.LAZY)
             public Object getManyToOneLazily()
             {
                 return null;
             }
 
-            @SuppressWarnings("unused")
             @ManyToOne(fetch = FetchType.EAGER)
             public Object getManyToOneEagerly()
             {
                 return null;
             }
 
-            @SuppressWarnings("unused")
             @ManyToMany(fetch = FetchType.LAZY)
             public Object getManyToManyLazily()
             {
                 return null;
             }
 
-            @SuppressWarnings("unused")
             @ManyToMany(fetch = FetchType.EAGER)
             public Object getManyToManyEagerly()
             {
@@ -206,21 +195,18 @@ public class IndexingQueryOptimizerTest
 
         final class NonPublicEntity
         {
-            @SuppressWarnings("unused")
             @OneToOne(fetch = FetchType.EAGER)
             protected Object getProtected()
             {
                 return null;
             }
 
-            @SuppressWarnings("unused")
             @ManyToOne(fetch = FetchType.EAGER)
             Object getPackageProtected()
             {
                 return null;
             }
 
-            @SuppressWarnings("unused")
             @IndexedEmbedded
             private Object getPrivate()
             {
@@ -277,14 +263,12 @@ public class IndexingQueryOptimizerTest
     {
         final class RecursiveEntity
         {
-            @SuppressWarnings("unused")
             @IndexedEmbedded
             public RecursiveEntity getSelf()
             {
                 return null;
             }
 
-            @SuppressWarnings("unused")
             @IndexedEmbedded
             public Object getSome()
             {
@@ -307,7 +291,6 @@ public class IndexingQueryOptimizerTest
 
         class Super
         {
-            @SuppressWarnings("unused")
             @IndexedEmbedded
             public Object getObject()
             {
@@ -317,7 +300,6 @@ public class IndexingQueryOptimizerTest
 
         class Derived extends Super
         {
-            @SuppressWarnings("unused")
             @IndexedEmbedded
             public Object getAnotherObject()
             {
@@ -341,7 +323,6 @@ public class IndexingQueryOptimizerTest
     {
         class AnotherEntity
         {
-            @SuppressWarnings("unused")
             @IndexedEmbedded
             public Object getValue()
             {
@@ -350,7 +331,6 @@ public class IndexingQueryOptimizerTest
         }
         class Entity
         {
-            @SuppressWarnings("unused")
             @IndexedEmbedded
             public Set<AnotherEntity> getSet()
             {

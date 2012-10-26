@@ -111,17 +111,16 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
         assertNotNull(propertyTypeDAO.getDataTypeByCode(DataTypeCode.INTEGER));
     }
 
-    @SuppressWarnings("unused")
     @DataProvider
     private final Object[][] getEntityDataType()
     {
         return new Object[][]
             {
-                { DataTypeCode.BOOLEAN },
-                { DataTypeCode.INTEGER },
-                { DataTypeCode.REAL },
-                { DataTypeCode.TIMESTAMP },
-                { DataTypeCode.VARCHAR }, };
+                    { DataTypeCode.BOOLEAN },
+                    { DataTypeCode.INTEGER },
+                    { DataTypeCode.REAL },
+                    { DataTypeCode.TIMESTAMP },
+                    { DataTypeCode.VARCHAR }, };
     }
 
     @Test(dataProvider = "getEntityDataType")

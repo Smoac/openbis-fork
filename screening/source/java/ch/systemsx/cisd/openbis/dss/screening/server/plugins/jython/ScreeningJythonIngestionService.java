@@ -69,8 +69,8 @@ public class ScreeningJythonIngestionService extends JythonIngestionService
             NoOpDelegate delegate)
     {
         IDataSetRegistrationDetailsFactory<DataSetInformation> registrationDetailsFactory =
-                (IDataSetRegistrationDetailsFactory<DataSetInformation>) new JythonPlateDatasetFactory(
-                        getRegistratorState(), null);
+                new JythonPlateDatasetFactory(
+                getRegistratorState(), null);
 
         DataSetRegistrationService<DataSetInformation> service =
                 new DataSetRegistrationService<DataSetInformation>(this, incoming,

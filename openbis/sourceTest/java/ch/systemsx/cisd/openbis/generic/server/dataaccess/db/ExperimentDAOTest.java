@@ -620,16 +620,15 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEquals(e1.getRegistrationDate(), e2.getRegistrationDate());
     }
 
-    @SuppressWarnings("unused")
     @DataProvider
     private final static Object[][] illegalCodesProvider()
     {
         return new Object[][]
             {
-                { EXCEED_CODE_LENGTH_CHARACTERS },
-                { "" },
-                { null },
-                { "@XPERIMENT" }, };
+                    { EXCEED_CODE_LENGTH_CHARACTERS },
+                    { "" },
+                    { null },
+                    { "@XPERIMENT" }, };
     }
 
     @Test

@@ -61,7 +61,6 @@ public class JsonAnnotationTest
             new HashMap<String, Collection<Class<?>>>();
 
     // Used by TestNG
-    @SuppressWarnings("unused")
     @BeforeClass
     private void findAllClassesUsedByJsonRpcApi()
     {

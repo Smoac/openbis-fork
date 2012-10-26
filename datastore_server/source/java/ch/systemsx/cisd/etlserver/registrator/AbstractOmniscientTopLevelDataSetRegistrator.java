@@ -304,6 +304,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
 
     }
 
+    @Override
     public OmniscientTopLevelDataSetRegistratorState getRegistratorState()
     {
         return state;
@@ -315,6 +316,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         return state.registrationLock;
     }
 
+    @Override
     public File getRollBackStackParentFolder()
     {
         return getGlobalState().getDssInternalTempDir();
@@ -643,6 +645,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * Subclasses may override, but should call super.
      */
 
+    @Override
     public void didRollbackTransaction(DataSetRegistrationService<T> dataSetRegistrationService,
             DataSetRegistrationTransaction<T> transaction,
             DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex)
@@ -655,6 +658,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * <p>
      * Subclasses can override and implement their own handling logic.
      */
+    @Override
     public void didCommitTransaction(DataSetRegistrationService<T> dataSetRegistrationService,
             DataSetRegistrationTransaction<T> transaction)
     {
@@ -665,6 +669,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * <p>
      * Subclasses can override and implement their own handling logic.
      */
+    @Override
     public void didPreRegistration(DataSetRegistrationService<T> service,
             DataSetRegistrationContext.IHolder registrationContextHolder)
     {
@@ -675,6 +680,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * <p>
      * Subclasses can override and implement their own handling logic.
      */
+    @Override
     public void didPostRegistration(DataSetRegistrationService<T> service,
             DataSetRegistrationContext.IHolder registrationContextHolder)
     {
@@ -685,6 +691,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * <p>
      * Subclasses can override and implement their own handling logic.
      */
+    @Override
     public void didEncounterSecondaryTransactionErrors(
             DataSetRegistrationService<T> dataSetRegistrationService,
             DataSetRegistrationTransaction<T> transaction,

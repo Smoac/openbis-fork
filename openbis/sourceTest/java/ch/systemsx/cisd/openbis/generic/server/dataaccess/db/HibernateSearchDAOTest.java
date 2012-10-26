@@ -79,15 +79,14 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
 
     private static final String FILE_TYPE_XML = "XML";
 
-    @SuppressWarnings("unused")
     @DataProvider(name = "registratorTerm")
     private final static Object[][] getRegistratorTerm()
     {
         return new Object[][]
             {
-                { "john" },
-                { "Jo?n" },
-                { "*ohn" } };
+                    { "john" },
+                    { "Jo?n" },
+                    { "*ohn" } };
     }
 
     @Test
@@ -143,8 +142,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     {
         return new Object[][]
             {
-                { "exp-*", "exp-", true },
-                { "exp-", "exp-", false } };
+                    { "exp-*", "exp-", true },
+                    { "exp-", "exp-", false } };
     }
 
     @Test(dataProvider = "experimentQueriestAndModeToTest")

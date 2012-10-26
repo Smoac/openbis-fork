@@ -190,12 +190,12 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testLogout()
     {
-        final Session session = createSession(CommonTestUtils.USER_ID);
+        final Session mySession = createSession(CommonTestUtils.USER_ID);
         context.checking(new Expectations()
             {
                 {
                     allowing(sessionManager).getSession(SESSION_TOKEN);
-                    will(returnValue(session));
+                    will(returnValue(mySession));
                     one(sessionManager).closeSession(SESSION_TOKEN);
                 }
             });
@@ -209,13 +209,13 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final String user = "user";
         final String password = "password";
-        final Session session = createSession(user);
+        final Session mySession = createSession(user);
         context.checking(new Expectations()
             {
                 {
                     // Artefact of our test code
                     allowing(sessionManager).getSession(SESSION_TOKEN);
-                    will(returnValue(session));
+                    will(returnValue(mySession));
 
                     one(sessionManager).tryToOpenSession(user, password);
                     will(returnValue(null));
@@ -232,7 +232,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final String user = "user";
         final String password = "password";
-        final Session session = createSession(user);
+        final Session mySession = createSession(user);
         final PersonPE systemPerson = createSystemUser();
         final PersonPE person = createPersonWithRoleAssignmentsFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
@@ -242,7 +242,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(SESSION_TOKEN));
 
                     allowing(sessionManager).getSession(SESSION_TOKEN);
-                    will(returnValue(session));
+                    will(returnValue(mySession));
 
                     one(personDAO).listPersons();
                     will(returnValue(Arrays.asList(systemPerson))); // only 'system' in database
@@ -279,7 +279,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final String user = "user";
         final String password = "password";
-        final Session session = createSession(user);
+        final Session mySession = createSession(user);
         final PersonPE systemPerson = createSystemUser();
         final PersonPE person = createPersonWithRoleAssignmentsFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
@@ -289,7 +289,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(SESSION_TOKEN));
 
                     allowing(sessionManager).getSession(SESSION_TOKEN);
-                    will(returnValue(session));
+                    will(returnValue(mySession));
 
                     one(personDAO).listPersons();
                     will(returnValue(Arrays.asList(systemPerson, person)));
@@ -316,7 +316,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final String user = "user";
         final String password = "password";
-        final Session session = createSession(user);
+        final Session mySession = createSession(user);
         final PersonPE person = createPersonWithRoleAssignmentsFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
             {
@@ -325,13 +325,13 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(SESSION_TOKEN));
 
                     allowing(sessionManager).getSession(SESSION_TOKEN);
-                    will(returnValue(session));
+                    will(returnValue(mySession));
 
                     one(personDAO).tryFindPersonByUserId(user);
                     will(returnValue(person));
                 }
             });
-        assertEquals(null, session.tryGetPerson());
+        assertEquals(null, mySession.tryGetPerson());
 
         final SessionContextDTO s = createServer().tryToAuthenticate(user, password);
 
@@ -346,15 +346,15 @@ public final class CommonServerTest extends AbstractServerTestCase
         final DatabaseInstanceIdentifier identifier = DatabaseInstanceIdentifier.createHome();
         final SpacePE g1 = CommonTestUtils.createSpace("g1", homeDatabaseInstance);
         final SpacePE g2 = CommonTestUtils.createSpace("g2", homeDatabaseInstance);
-        final Session session = createSession(CommonTestUtils.USER_ID);
-        session.setPerson(person);
+        final Session mySession = createSession(CommonTestUtils.USER_ID);
+        mySession.setPerson(person);
         person.setHomeSpace(g1);
         g1.setId(42L);
         context.checking(new Expectations()
             {
                 {
                     allowing(sessionManager).getSession(SESSION_TOKEN);
-                    will(returnValue(session));
+                    will(returnValue(mySession));
                     one(groupDAO).listSpaces(homeDatabaseInstance);
                     will(returnValue(Arrays.asList(g1, g2)));
                 }
@@ -1535,9 +1535,9 @@ public final class CommonServerTest extends AbstractServerTestCase
             {
                 {
                     allowing(sessionManager).getSession(SESSION_TOKEN);
-                    Session session = createSession(CommonTestUtils.USER_ID);
-                    session.setPerson(person);
-                    will(returnValue(session));
+                    Session mySession = createSession(CommonTestUtils.USER_ID);
+                    mySession.setPerson(person);
+                    will(returnValue(mySession));
 
                     one(personDAO).updatePerson(person);
                 }
@@ -1593,9 +1593,9 @@ public final class CommonServerTest extends AbstractServerTestCase
             {
                 {
                     allowing(sessionManager).getSession(SESSION_TOKEN);
-                    Session session = createSession(CommonTestUtils.USER_ID);
-                    session.setPerson(person);
-                    will(returnValue(session));
+                    Session mySession = createSession(CommonTestUtils.USER_ID);
+                    mySession.setPerson(person);
+                    will(returnValue(mySession));
 
                     one(groupDAO).getByTechId(groupId);
                     will(returnValue(group));
@@ -1622,9 +1622,9 @@ public final class CommonServerTest extends AbstractServerTestCase
             {
                 {
                     allowing(sessionManager).getSession(SESSION_TOKEN);
-                    Session session = createSession(CommonTestUtils.USER_ID);
-                    session.setPerson(person);
-                    will(returnValue(session));
+                    Session mySession = createSession(CommonTestUtils.USER_ID);
+                    mySession.setPerson(person);
+                    will(returnValue(mySession));
                 }
             });
 

@@ -30,18 +30,18 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class GenericSystemTestCase extends SystemTestCase
 {
+    @SuppressWarnings("hiding")
     @Autowired
     protected IGenericClientService genericClientService;
-    
+
+    @SuppressWarnings("hiding")
     @Autowired
     protected IGenericServer genericServer;
-    
+
     protected void addMultiPartFile(String sessionAttributeKey, String fileName, byte[] data)
     {
         HttpSession session = request.getSession();

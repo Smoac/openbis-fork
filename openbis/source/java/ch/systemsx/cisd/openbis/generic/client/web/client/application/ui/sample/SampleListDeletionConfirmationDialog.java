@@ -39,8 +39,6 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
         AbstractDataListDeletionConfirmationDialog<T>
 {
 
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
-
     private final DisplayedAndSelectedEntities<T> selectedAndDisplayedItemsOrNull;
 
     private final T singleDataOrNull;
@@ -51,7 +49,6 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
     {
         super(viewContext, data, callback);
         this.withRadio();
-        this.viewContext = viewContext;
         this.singleDataOrNull = null;
         this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
     }
@@ -61,7 +58,6 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
             AsyncCallback<Void> deletionCallback, T sample)
     {
         super(viewContext, data, deletionCallback);
-        this.viewContext = viewContext;
         this.singleDataOrNull = sample;
         this.selectedAndDisplayedItemsOrNull = null;
     }

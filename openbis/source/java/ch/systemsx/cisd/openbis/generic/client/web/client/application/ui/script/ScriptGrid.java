@@ -251,14 +251,11 @@ public class ScriptGrid extends TypedTableGrid<Script>
             AbstractDataListPermanentDeletionConfirmationDialog<TableModelRowWithObject<Script>>
     {
 
-        private final IViewContext<ICommonClientServiceAsync> viewContext;
-
         public ScriptListDeletionConfirmationDialog(
                 IViewContext<ICommonClientServiceAsync> viewContext,
                 List<TableModelRowWithObject<Script>> data, AbstractAsyncCallback<Void> callback)
         {
             super(viewContext, data, callback);
-            this.viewContext = viewContext;
         }
 
         @Override

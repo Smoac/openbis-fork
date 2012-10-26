@@ -56,8 +56,6 @@ public class DataSetLister implements IDataSetLister
 
     private IDataSetListingQuery query;
 
-    private PersonPE person;
-
     public DataSetLister(IAuthorizationDAOFactory daoFactory, PersonPE person)
     {
         this(QueryTool.getQuery(DatabaseContextUtils.getConnection(daoFactory),
@@ -75,7 +73,6 @@ public class DataSetLister implements IDataSetLister
             throw new IllegalArgumentException("Person was null");
         }
         this.query = query;
-        this.person = person;
     }
 
     @Override

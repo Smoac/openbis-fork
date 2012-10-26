@@ -98,12 +98,16 @@ public class TransferAuthorizationAnnotations
 
         void addMethodSignatureLine(String line)
         {
+            final String methodSignatureLine;
             if (line.lastIndexOf(';') >= 0)
             {
-                line = line.substring(0, line.lastIndexOf(';'));
+                methodSignatureLine = line.substring(0, line.lastIndexOf(';'));
+            } else
+            {
+                methodSignatureLine = line;
             }
-            signatureLines.add(line);
-            joinedSignatureLines += line.trim();
+            signatureLines.add(methodSignatureLine);
+            joinedSignatureLines += methodSignatureLine.trim();
         }
 
         String getSignature()

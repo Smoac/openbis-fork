@@ -369,17 +369,17 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
     
-    private void prepareLoginLogout(final SessionContextDTO session)
+    private void prepareLoginLogout(final SessionContextDTO mySession)
     {
         context.checking(new Expectations()
             {
                 {
                     one(internalService).tryToAuthenticate("abc", "dummy-password");
-                    will(returnValue(session));
+                    will(returnValue(mySession));
                     
-                    if (session != null)
+                    if (mySession != null)
                     {
-                        one(internalService).logout(session.getSessionToken());
+                        one(internalService).logout(mySession.getSessionToken());
                     }
                 }
             });

@@ -123,20 +123,22 @@ public class JavaV2TestcaseRegistrationContext implements IJavaDataSetRegistrati
             String name, String expected)
     {
         Object value = context.getPersistentMap().get(name);
-        if ((expected == null && expected != value)
-                || (expected != null && (false == expected.equals(value))))
+        String expectedString = expected;
+        if ((expectedString == null && expectedString != value)
+                || (expectedString != null && (false == expectedString.equals(value))))
         {
-            if (value != null && expected != null && value.getClass() != expected.getClass())
+            if (value != null && expectedString != null
+                    && value.getClass() != expectedString.getClass())
             {
                 value = String.format("%s:%s", value.getClass(), value);
-                expected = String.format("%s:%s", expected.getClass(), expected);
+                expectedString = String.format("%s:%s", expectedString.getClass(), expected);
             }
             try
             {
                 jythonHookTestTool
                         .log(String
                                 .format("transaction context failed.in %s the value of %s should have been '%s', but was '%s'",
-                                        caller, name, expected, value));
+                                        caller, name, expectedString, value));
             } catch (IOException ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);

@@ -27,13 +27,13 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator;
-import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.SupportedDatePattern;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.SupportedDatePattern;
 import ch.systemsx.cisd.openbis.generic.shared.util.XmlUtilsTest;
 
 /**
@@ -104,41 +104,39 @@ public final class PropertyValidatorTest extends AbstractBOTest
         return propertyType;
     }
 
-    @SuppressWarnings("unused")
     @DataProvider
     private final static Object[][] getNonWorkingValues()
     {
         return new Object[][]
             {
-                { createTimestampPropertyType(), DateFormatUtils.format(new Date(), "yyyy") },
-                { createIntegerPropertyType(), "a" },
-                { createIntegerPropertyType(), "1.1" },
-                { createRealPropertyType(), "b" },
-                { createBooleanPropertyType(), "BOB" }, };
+                    { createTimestampPropertyType(), DateFormatUtils.format(new Date(), "yyyy") },
+                    { createIntegerPropertyType(), "a" },
+                    { createIntegerPropertyType(), "1.1" },
+                    { createRealPropertyType(), "b" },
+                    { createBooleanPropertyType(), "BOB" }, };
     }
 
-    @SuppressWarnings("unused")
     @DataProvider
     private final static Object[][] getWorkingValues()
     {
         return new Object[][]
             {
-                        { createVarcharPropertyType(), "" },
-                        { createVarcharPropertyType(), "varchar" },
-                        {
-                                createTimestampPropertyType(),
-                                DateFormatUtils.format(new Date(),
-                                        SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern()) },
-                        {
-                                createTimestampPropertyType(),
-                                DateFormatUtils.format(new Date(),
-                                        SupportedDatePattern.US_DATE_TIME_24_PATTERN.getPattern()) },
-                        { createIntegerPropertyType(), "1" },
-                        { createRealPropertyType(), "1" },
-                        { createRealPropertyType(), "1.1" },
-                        { createBooleanPropertyType(), "yes" },
-                        { createBooleanPropertyType(), "1" },
-                        { createBooleanPropertyType(), "true" } };
+                    { createVarcharPropertyType(), "" },
+                    { createVarcharPropertyType(), "varchar" },
+                    {
+                            createTimestampPropertyType(),
+                            DateFormatUtils.format(new Date(),
+                                    SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern()) },
+                    {
+                            createTimestampPropertyType(),
+                            DateFormatUtils.format(new Date(),
+                                    SupportedDatePattern.US_DATE_TIME_24_PATTERN.getPattern()) },
+                    { createIntegerPropertyType(), "1" },
+                    { createRealPropertyType(), "1" },
+                    { createRealPropertyType(), "1.1" },
+                    { createBooleanPropertyType(), "yes" },
+                    { createBooleanPropertyType(), "1" },
+                    { createBooleanPropertyType(), "true" } };
     }
 
     @Test

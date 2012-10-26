@@ -382,7 +382,6 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         return createPermId(code, materialType.getCode());
     }
 
-    @SuppressWarnings("unused")
     @ManyToMany(fetch = FetchType.LAZY)
     @Fetch(FetchMode.SUBSELECT)
     @JoinTable(name = TableNames.METAPROJECT_ASSIGNMENTS_VIEW, joinColumns =

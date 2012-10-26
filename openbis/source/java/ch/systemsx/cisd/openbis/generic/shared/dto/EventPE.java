@@ -118,7 +118,6 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
         this.entityType = entityType;
     }
 
-    @SuppressWarnings("unused")
     @NotNull(message = ValidationMessages.IDENTIFIER_NOT_NULL_MESSAGE)
     @Column(name = ColumnNames.IDENTIFIERS)
     private String getIdentifiersInternal()

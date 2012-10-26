@@ -168,25 +168,23 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
         return assignment;
     }
 
-    @SuppressWarnings("unused")
     @DataProvider
     private final static Object[][] entityKindsWithEntityTypeAndPropertyTypeMandatory()
     {
         return new Object[][]
             {
-                { EntityKind.EXPERIMENT, "SIRNA_HCS", "DESCRIPTION" },
-                { EntityKind.SAMPLE, "CONTROL_LAYOUT", "$PLATE_GEOMETRY" },
-                { EntityKind.MATERIAL, "BACTERIUM", "DESCRIPTION" } };
+                    { EntityKind.EXPERIMENT, "SIRNA_HCS", "DESCRIPTION" },
+                    { EntityKind.SAMPLE, "CONTROL_LAYOUT", "$PLATE_GEOMETRY" },
+                    { EntityKind.MATERIAL, "BACTERIUM", "DESCRIPTION" } };
     }
 
-    @SuppressWarnings("unused")
     @DataProvider
     private final static Object[][] entityKindsWithEntityTypeAndPropertyTypeNotAssigned()
     {
         return new Object[][]
             {
-                { EntityKind.EXPERIMENT, "SIRNA_HCS", "IS_VALID" },
-                { EntityKind.SAMPLE, "CONTROL_LAYOUT", "IS_VALID" },
-                { EntityKind.MATERIAL, "BACTERIUM", "IS_VALID" }, };
+                    { EntityKind.EXPERIMENT, "SIRNA_HCS", "IS_VALID" },
+                    { EntityKind.SAMPLE, "CONTROL_LAYOUT", "IS_VALID" },
+                    { EntityKind.MATERIAL, "BACTERIUM", "IS_VALID" }, };
     }
 }

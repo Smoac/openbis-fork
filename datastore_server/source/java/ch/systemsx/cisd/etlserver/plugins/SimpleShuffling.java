@@ -27,7 +27,6 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
