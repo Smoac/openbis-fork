@@ -16,23 +16,34 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.page.Browsable;
 import ch.systemsx.cisd.openbis.uitest.page.Browser;
-import ch.systemsx.cisd.openbis.uitest.request.DeleteVocabulary;
 import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
+import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class DeleteVocabularyGui extends Executor<DeleteVocabulary, Void>
+public class DeleteVocabularyGui implements Command<Void>
 {
+    @Inject
+    private Pages pages;
+
+    private Vocabulary vocabulary;
+
+    public DeleteVocabularyGui(Vocabulary vocabulary)
+    {
+        this.vocabulary = vocabulary;
+    }
 
     @Override
-    public Void run(DeleteVocabulary request)
+    public Void execute()
     {
-        Browsable browsable = new BrowsableWrapper(request.getVocabulary());
-        Browser browser = goTo(browsable.getBrowserLocation());
+        Browsable browsable = new BrowsableWrapper(vocabulary);
+        Browser browser = pages.goTo(browsable.getBrowserLocation());
         browser.delete(browsable);
         return null;
     }

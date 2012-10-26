@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.uitest.page;
 
 import java.util.concurrent.TimeUnit;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
@@ -56,6 +59,10 @@ public class RegisterExperiment
     @Locate("confirmation_dialog")
     private DeletionConfirmationBox dialog;
 
+    @Lazy
+    @Locate("openbis_experiment-registration_tab")
+    private WebElement infoBox;
+
     public void fillWith(Experiment experiment)
     {
         code.write(experiment.getCode());
@@ -89,7 +96,9 @@ public class RegisterExperiment
 
     public void save()
     {
+        String experimentCode = code.getValue().toUpperCase();
         this.saveButton.click();
+        infoBox.findElements(By.xpath(".//div/b[contains(text(), '" + experimentCode + "')]"));
     }
 
     @Override

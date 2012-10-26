@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
-import ch.systemsx.cisd.openbis.uitest.request.CreateMetaProject;
+import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateMetaProjectRmi;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
@@ -44,9 +45,20 @@ public class MetaProjectBuilder implements Builder<MetaProject>
     }
 
     @Override
-    public MetaProject build(Application openbis)
+    public MetaProject build(Application openbis, Ui ui)
     {
-        return openbis.execute(new CreateMetaProject(new MetaProjectDsl(name, description)));
+        MetaProject metaProject = new MetaProjectDsl(name, description);
+
+        if (Ui.WEB.equals(ui))
+        {
+            throw new UnsupportedOperationException();
+        } else if (Ui.PUBLIC_API.equals(ui))
+        {
+            return openbis.execute(new CreateMetaProjectRmi(metaProject));
+        } else
+        {
+            return metaProject;
+        }
     }
 
 }

@@ -16,26 +16,34 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.layout.AddVocabularyLocation;
 import ch.systemsx.cisd.openbis.uitest.page.AddVocabularyDialog;
-import ch.systemsx.cisd.openbis.uitest.request.CreateVocabulary;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class CreateVocabularyGui extends Executor<CreateVocabulary, Vocabulary>
+public class CreateVocabularyGui implements Command<Vocabulary>
 {
+    @Inject
+    private Pages pages;
+
+    private Vocabulary vocabulary;
+
+    public CreateVocabularyGui(Vocabulary vocabulary)
+    {
+        this.vocabulary = vocabulary;
+    }
 
     @Override
-    public Vocabulary run(CreateVocabulary request)
+    public Vocabulary execute()
     {
-        Vocabulary vocabulary = request.getVocabulary();
-        AddVocabularyDialog dialog = goTo(new AddVocabularyLocation());
+        AddVocabularyDialog dialog = pages.goTo(new AddVocabularyLocation());
         dialog.fillWith(vocabulary);
         dialog.save();
         return vocabulary;
     }
-
 }

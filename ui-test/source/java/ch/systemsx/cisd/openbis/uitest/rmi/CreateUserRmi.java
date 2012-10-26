@@ -16,22 +16,35 @@
 
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
-import ch.systemsx.cisd.openbis.uitest.request.CreateUser;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.type.User;
 
 /**
  * @author anttil
  */
-public class CreateUserRmi extends Executor<CreateUser, User>
+public class CreateUserRmi implements Command<User>
 {
 
-    @Override
-    public User run(CreateUser request)
+    @Inject
+    private String session;
+
+    @Inject
+    private ICommonServer commonServer;
+
+    private User user;
+
+    public CreateUserRmi(User user)
     {
-        User user = request.getUser();
+        this.user = user;
+    }
+
+    @Override
+    public User execute()
+    {
         String userName = user.getName();
         commonServer.registerPerson(session, userName);
         commonServer.registerInstanceRole(session, RoleCode.ADMIN, Grantee.createPerson(userName));

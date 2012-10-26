@@ -18,26 +18,39 @@ package ch.systemsx.cisd.openbis.uitest.rmi;
 
 import java.util.ArrayList;
 
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
-import ch.systemsx.cisd.openbis.uitest.request.CreateExperimentType;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 
 /**
  * @author anttil
  */
-public class CreateExperimentTypeRmi extends Executor<CreateExperimentType, ExperimentType>
+public class CreateExperimentTypeRmi implements Command<ExperimentType>
 {
+    @Inject
+    private String session;
+
+    @Inject
+    private ICommonServer commonServer;
+
+    private ExperimentType type;
+
+    public CreateExperimentTypeRmi(ExperimentType type)
+    {
+        this.type = type;
+    }
 
     @Override
-    public ExperimentType run(CreateExperimentType request)
+    public ExperimentType execute()
     {
-        ExperimentType type = request.getType();
         commonServer.registerExperimentType(session, convert(type));
         return type;
     }
 
     private ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType convert(
+            @SuppressWarnings("hiding")
             ExperimentType type)
     {
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType experimentType =

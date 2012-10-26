@@ -16,25 +16,35 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.layout.AddSpaceDialogLocation;
 import ch.systemsx.cisd.openbis.uitest.page.AddSpaceDialog;
-import ch.systemsx.cisd.openbis.uitest.request.CreateSpace;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class CreateSpaceGui extends Executor<CreateSpace, Space>
+public class CreateSpaceGui implements Command<Void>
 {
-    @Override
-    public Space run(CreateSpace function)
+    @Inject
+    private Pages pages;
+
+    private Space space;
+
+    public CreateSpaceGui(Space space)
     {
-        Space space = function.getSpace();
-        AddSpaceDialog dialog = goTo(new AddSpaceDialogLocation());
+        this.space = space;
+    }
+
+    @Override
+    public Void execute()
+    {
+        AddSpaceDialog dialog = pages.goTo(new AddSpaceDialogLocation());
         dialog.fillWith(space);
         dialog.save();
-        return space;
+        return null;
     }
 
 }

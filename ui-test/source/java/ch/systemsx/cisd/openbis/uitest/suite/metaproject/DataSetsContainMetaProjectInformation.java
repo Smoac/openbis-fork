@@ -38,20 +38,20 @@ public class DataSetsContainMetaProjectInformation extends MetaProjectSuite
         Sample sample = create(aSample().in(experiment));
         DataSet dataSet = create(aDataSet().in(sample));
         MetaProject metaProject = create(aMetaProject());
-        addTo(metaProject, dataSet);
+        tagWith(metaProject, dataSet);
 
         DataSet searchResult = searchDataSet(dataSet);
         assertThat(metaProjectsOf(searchResult), containExactly(metaProject));
     }
 
-    @Test(enabled = false)
+    @Test
     public void listedDataSetContainsMetaProjectInformation() throws Exception
     {
         Experiment experiment = create(anExperiment());
         Sample sample = create(aSample().in(experiment));
         DataSet dataSet = create(aDataSet().in(sample));
         MetaProject metaProject = create(aMetaProject());
-        addTo(metaProject, dataSet);
+        tagWith(metaProject, dataSet);
 
         DataSet listResult = listDataSet(dataSet);
         assertThat(metaProjectsOf(listResult), containExactly(metaProject));

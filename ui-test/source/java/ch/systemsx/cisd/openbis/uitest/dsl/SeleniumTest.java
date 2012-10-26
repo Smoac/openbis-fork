@@ -57,6 +57,8 @@ import ch.systemsx.cisd.openbis.uitest.dsl.type.DataSetBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.DataSetTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.ExperimentTypeBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.MaterialBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.MaterialTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.MetaProjectBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.ProjectBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.PropertyTypeAssignmentBuilder;
@@ -69,16 +71,6 @@ import ch.systemsx.cisd.openbis.uitest.dsl.type.SpaceBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.UpdateBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.UserBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.VocabularyBuilder;
-import ch.systemsx.cisd.openbis.uitest.gui.CreateExperimentGui;
-import ch.systemsx.cisd.openbis.uitest.gui.CreateExperimentTypeGui;
-import ch.systemsx.cisd.openbis.uitest.gui.CreateProjectGui;
-import ch.systemsx.cisd.openbis.uitest.gui.CreatePropertyTypeAssignmentGui;
-import ch.systemsx.cisd.openbis.uitest.gui.CreatePropertyTypeGui;
-import ch.systemsx.cisd.openbis.uitest.gui.CreateSampleGui;
-import ch.systemsx.cisd.openbis.uitest.gui.CreateSampleTypeGui;
-import ch.systemsx.cisd.openbis.uitest.gui.CreateScriptGui;
-import ch.systemsx.cisd.openbis.uitest.gui.CreateSpaceGui;
-import ch.systemsx.cisd.openbis.uitest.gui.CreateVocabularyGui;
 import ch.systemsx.cisd.openbis.uitest.gui.DeleteExperimentTypeGui;
 import ch.systemsx.cisd.openbis.uitest.gui.DeleteExperimentsOfProjectGui;
 import ch.systemsx.cisd.openbis.uitest.gui.DeleteProjectGui;
@@ -89,7 +81,6 @@ import ch.systemsx.cisd.openbis.uitest.gui.DeleteVocabularyGui;
 import ch.systemsx.cisd.openbis.uitest.gui.EmptyTrashGui;
 import ch.systemsx.cisd.openbis.uitest.gui.LoginGui;
 import ch.systemsx.cisd.openbis.uitest.gui.LogoutGui;
-import ch.systemsx.cisd.openbis.uitest.gui.UpdateSampleTypeGui;
 import ch.systemsx.cisd.openbis.uitest.layout.Location;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterSampleLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.SampleBrowserLocation;
@@ -99,49 +90,8 @@ import ch.systemsx.cisd.openbis.uitest.page.Browsable;
 import ch.systemsx.cisd.openbis.uitest.page.BrowserRow;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterSample;
 import ch.systemsx.cisd.openbis.uitest.page.SampleDetails;
-import ch.systemsx.cisd.openbis.uitest.request.AddEntitiesToMetaProject;
-import ch.systemsx.cisd.openbis.uitest.request.CreateDataSet;
-import ch.systemsx.cisd.openbis.uitest.request.CreateDataSetType;
-import ch.systemsx.cisd.openbis.uitest.request.CreateExperiment;
-import ch.systemsx.cisd.openbis.uitest.request.CreateExperimentType;
-import ch.systemsx.cisd.openbis.uitest.request.CreateMetaProject;
-import ch.systemsx.cisd.openbis.uitest.request.CreateProject;
-import ch.systemsx.cisd.openbis.uitest.request.CreatePropertyType;
-import ch.systemsx.cisd.openbis.uitest.request.CreatePropertyTypeAssignment;
-import ch.systemsx.cisd.openbis.uitest.request.CreateSample;
-import ch.systemsx.cisd.openbis.uitest.request.CreateSampleType;
-import ch.systemsx.cisd.openbis.uitest.request.CreateScript;
-import ch.systemsx.cisd.openbis.uitest.request.CreateSpace;
-import ch.systemsx.cisd.openbis.uitest.request.CreateUser;
-import ch.systemsx.cisd.openbis.uitest.request.CreateVocabulary;
-import ch.systemsx.cisd.openbis.uitest.request.DeleteExperimentType;
-import ch.systemsx.cisd.openbis.uitest.request.DeleteExperimentsOfProject;
-import ch.systemsx.cisd.openbis.uitest.request.DeleteProject;
-import ch.systemsx.cisd.openbis.uitest.request.DeletePropertyType;
-import ch.systemsx.cisd.openbis.uitest.request.DeleteSampleType;
-import ch.systemsx.cisd.openbis.uitest.request.DeleteSpace;
-import ch.systemsx.cisd.openbis.uitest.request.DeleteVocabulary;
-import ch.systemsx.cisd.openbis.uitest.request.EmptyTrash;
-import ch.systemsx.cisd.openbis.uitest.request.ListDataSetsOfSample;
-import ch.systemsx.cisd.openbis.uitest.request.ListExperiments;
-import ch.systemsx.cisd.openbis.uitest.request.ListMetaProjects;
-import ch.systemsx.cisd.openbis.uitest.request.ListSamplesOfExperiment;
-import ch.systemsx.cisd.openbis.uitest.request.Login;
-import ch.systemsx.cisd.openbis.uitest.request.Logout;
-import ch.systemsx.cisd.openbis.uitest.request.SearchForDataSets;
-import ch.systemsx.cisd.openbis.uitest.request.SearchForSamples;
-import ch.systemsx.cisd.openbis.uitest.request.UpdateSampleType;
 import ch.systemsx.cisd.openbis.uitest.rmi.AddEntitiesToMetaProjectRmi;
-import ch.systemsx.cisd.openbis.uitest.rmi.CreateDataSetRmi;
-import ch.systemsx.cisd.openbis.uitest.rmi.CreateDataSetTypeRmi;
-import ch.systemsx.cisd.openbis.uitest.rmi.CreateExperimentRmi;
-import ch.systemsx.cisd.openbis.uitest.rmi.CreateExperimentTypeRmi;
-import ch.systemsx.cisd.openbis.uitest.rmi.CreateMetaProjectRmi;
-import ch.systemsx.cisd.openbis.uitest.rmi.CreateProjectRmi;
-import ch.systemsx.cisd.openbis.uitest.rmi.CreateSampleRmi;
-import ch.systemsx.cisd.openbis.uitest.rmi.CreateSampleTypeRmi;
-import ch.systemsx.cisd.openbis.uitest.rmi.CreateSpaceRmi;
-import ch.systemsx.cisd.openbis.uitest.rmi.CreateUserRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.Identifiers;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListDataSetsOfSampleRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListExperimentsRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListMetaProjectsRmi;
@@ -187,7 +137,9 @@ public abstract class SeleniumTest
 
     private static Application openbis;
 
-    private static Application defaultApplication;
+    private static Ui ui;
+
+    private static Ui defaultUi;
 
     private static Pages pages;
 
@@ -241,6 +193,8 @@ public abstract class SeleniumTest
         System.out.println("startPage: " + startPage);
 
         pages = new Pages();
+        openbis = new Application(asUrl, dssUrl, pages);
+
     }
 
     private void startWebDriver()
@@ -337,9 +291,9 @@ public abstract class SeleniumTest
         f.delete();
     }
 
-    public <T> T using(Application application, T t)
+    public <T> T using(Void anything, T t)
     {
-        openbis = defaultApplication;
+        ui = defaultUi;
         return t;
     }
 
@@ -367,12 +321,12 @@ public abstract class SeleniumTest
 
     public void logout()
     {
-        openbis.execute(new Logout());
+        openbis.execute(new LogoutGui());
     }
 
     protected void login(String user, String password)
     {
-        openbis.execute(new Login(user, password));
+        openbis.execute(new LoginGui(user, password));
     }
 
     public String loggedInAs()
@@ -418,7 +372,7 @@ public abstract class SeleniumTest
 
     protected List<MetaProject> listOfAllMetaProjects()
     {
-        return openbis.execute(new ListMetaProjects());
+        return openbis.execute(new ListMetaProjectsRmi());
     }
 
     protected Pages browser()
@@ -489,7 +443,7 @@ public abstract class SeleniumTest
 
     protected void emptyTrash()
     {
-        openbis.execute(new EmptyTrash());
+        openbis.execute(new EmptyTrashGui());
     }
 
     public RegisterSample sampleRegistrationPageFor(SampleType type)
@@ -563,50 +517,50 @@ public abstract class SeleniumTest
         return new CollectionContainsExactlyMatcher<T>(t);
     }
 
-    protected <T> T create(Builder<T> builder)
+    public <T> T create(Builder<T> builder)
     {
-        return builder.build(openbis);
+        return builder.build(openbis, ui);
     }
 
     protected <T> T assume(Builder<T> builder)
     {
-        return using(dummyApplication(), builder.build(openbis));
+        return using(dummyApplication(), builder.build(openbis, ui));
     }
 
     protected Void delete(Space space)
     {
-        openbis.execute(new DeleteSpace(space));
+        openbis.execute(new DeleteSpaceGui(space));
         return null;
     }
 
     protected void deleteExperimentsFrom(Project project)
     {
-        openbis.execute(new DeleteExperimentsOfProject(project));
+        openbis.execute(new DeleteExperimentsOfProjectGui(project));
     }
 
     protected void delete(Project project)
     {
-        openbis.execute(new DeleteProject(project));
+        openbis.execute(new DeleteProjectGui(project));
     }
 
     protected void delete(SampleType sampleType)
     {
-        openbis.execute(new DeleteSampleType(sampleType));
+        openbis.execute(new DeleteSampleTypeGui(sampleType));
     }
 
     protected void delete(ExperimentType experimentType)
     {
-        openbis.execute(new DeleteExperimentType(experimentType));
+        openbis.execute(new DeleteExperimentTypeGui(experimentType));
     }
 
     protected void delete(PropertyType propertyType)
     {
-        openbis.execute(new DeletePropertyType(propertyType));
+        openbis.execute(new DeletePropertyTypeGui(propertyType));
     }
 
     protected void delete(Vocabulary vocabulary)
     {
-        openbis.execute(new DeleteVocabulary(vocabulary));
+        openbis.execute(new DeleteVocabularyGui(vocabulary));
     }
 
     protected UserBuilder aUser()
@@ -614,7 +568,7 @@ public abstract class SeleniumTest
         return new UserBuilder(uid);
     }
 
-    protected SpaceBuilder aSpace()
+    public SpaceBuilder aSpace()
     {
         return new SpaceBuilder(uid);
     }
@@ -694,6 +648,16 @@ public abstract class SeleniumTest
         return new DataSetBuilder(uid);
     }
 
+    protected MaterialTypeBuilder aMaterialType()
+    {
+        return new MaterialTypeBuilder(uid);
+    }
+
+    protected MaterialBuilder aMaterial()
+    {
+        return new MaterialBuilder(uid);
+    }
+
     protected ScriptBuilder anEntityValidationScript()
     {
         return new ScriptBuilder(uid, ScriptType.ENTITY_VALIDATOR);
@@ -716,195 +680,44 @@ public abstract class SeleniumTest
 
     protected void perform(UpdateBuilder builder)
     {
-        builder.update(openbis);
+        builder.update(openbis, ui);
     }
 
-    protected Void addTo(MetaProject metaProject, Entity... entities)
+    protected Void tagWith(MetaProject metaProject, Entity... entities)
     {
-        openbis.execute(new AddEntitiesToMetaProject(metaProject, Arrays.asList(entities)));
+        openbis.execute(new AddEntitiesToMetaProjectRmi(metaProject, Arrays.asList(entities)));
         return null;
     }
 
-    public Application publicApi()
+    public Void gui()
     {
-        Application application = new Application(asUrl, dssUrl, pages);
-        application.setExecutor(CreateSpace.class, new CreateSpaceRmi());
-        application.setExecutor(CreateSampleType.class, new CreateSampleTypeRmi());
-        application.setExecutor(CreateSample.class, new CreateSampleRmi());
-        application.setExecutor(CreateDataSet.class, new CreateDataSetRmi());
-        application.setExecutor(CreateDataSetType.class, new CreateDataSetTypeRmi());
-        application.setExecutor(CreateMetaProject.class, new CreateMetaProjectRmi());
-        application.setExecutor(CreateExperiment.class, new CreateExperimentRmi());
-        application.setExecutor(CreateExperimentType.class, new CreateExperimentTypeRmi());
-        application.setExecutor(CreateProject.class, new CreateProjectRmi());
-        application.setExecutor(ListMetaProjects.class, new ListMetaProjectsRmi());
-        application.setExecutor(AddEntitiesToMetaProject.class, new AddEntitiesToMetaProjectRmi());
-        application.setExecutor(SearchForSamples.class, new SearchForSamplesRmi());
-        application.setExecutor(ListSamplesOfExperiment.class, new ListSamplesOfExperimentRmi());
-        application.setExecutor(ListExperiments.class, new ListExperimentsRmi());
-        application.setExecutor(ListDataSetsOfSample.class, new ListDataSetsOfSampleRmi());
-        application.setExecutor(SearchForDataSets.class, new SearchForDataSetsRmi());
-        application.setExecutor(CreateUser.class, new CreateUserRmi());
-        openbis = application;
-        return application;
+        ui = Ui.WEB;
+        return null;
     }
 
-    public Application dummyApplication()
+    public Void publicApi()
     {
-        Application application = new Application();
-        application.setExecutor(CreateExperiment.class,
-                new Executor<CreateExperiment, Experiment>()
-                    {
-                        @Override
-                        public Experiment run(CreateExperiment request)
-                        {
-                            return request.getExperiment();
-                        }
-                    });
-        application.setExecutor(CreateExperimentType.class,
-                new Executor<CreateExperimentType, ExperimentType>()
-                    {
-                        @Override
-                        public ExperimentType run(CreateExperimentType request)
-                        {
-                            return request.getType();
-                        }
-                    });
-        application.setExecutor(CreateProject.class,
-                new Executor<CreateProject, Project>()
-                    {
-                        @Override
-                        public Project run(CreateProject request)
-                        {
-                            return request.getProject();
-                        }
-                    });
-        application.setExecutor(CreatePropertyTypeAssignment.class,
-                new Executor<CreatePropertyTypeAssignment, PropertyTypeAssignment>()
-                    {
-                        @Override
-                        public PropertyTypeAssignment run(CreatePropertyTypeAssignment request)
-                        {
-                            return request.getAssignment();
-                        }
-                    });
-        application.setExecutor(CreatePropertyType.class,
-                new Executor<CreatePropertyType, PropertyType>()
-                    {
-                        @Override
-                        public PropertyType run(CreatePropertyType request)
-                        {
-                            return request.getType();
-                        }
-                    });
-        application.setExecutor(CreateSample.class,
-                new Executor<CreateSample, Sample>()
-                    {
-                        @Override
-                        public Sample run(CreateSample request)
-                        {
-                            return request.getSample();
-                        }
-                    });
-        application.setExecutor(CreateSampleType.class,
-                new Executor<CreateSampleType, SampleType>()
-                    {
-                        @Override
-                        public SampleType run(CreateSampleType request)
-                        {
-                            System.out.println("RETURNING SAMPLE TYPE " + request.getType());
-                            return request.getType();
-                        }
-                    });
-        application.setExecutor(CreateScript.class,
-                new Executor<CreateScript, Script>()
-                    {
-                        @Override
-                        public Script run(CreateScript request)
-                        {
-                            return request.getScript();
-                        }
-                    });
-        application.setExecutor(CreateSpace.class,
-                new Executor<CreateSpace, Space>()
-                    {
-                        @Override
-                        public Space run(CreateSpace request)
-                        {
-                            return request.getSpace();
-                        }
-                    });
-        application.setExecutor(CreateVocabulary.class,
-                new Executor<CreateVocabulary, Vocabulary>()
-                    {
-                        @Override
-                        public Vocabulary run(CreateVocabulary request)
-                        {
-                            return request.getVocabulary();
-                        }
-                    });
-        application.setExecutor(CreateMetaProject.class,
-                new Executor<CreateMetaProject, MetaProject>()
-                    {
-                        @Override
-                        public MetaProject run(CreateMetaProject request)
-                        {
-                            return request.getMetaProject();
-                        }
-                    });
-        application.setExecutor(CreateUser.class, new Executor<CreateUser, User>()
-            {
-                @Override
-                public User run(CreateUser request)
-                {
-                    return request.getUser();
-                }
-            });
-        openbis = application;
-        return application;
+        ui = Ui.PUBLIC_API;
+        return null;
+    }
+
+    public Void dummyApplication()
+    {
+        ui = Ui.DUMMY;
+        return null;
     }
 
     protected void useGui()
     {
         startWebDriver();
-        openbis = gui();
-        defaultApplication = openbis;
+        ui = Ui.WEB;
+        defaultUi = ui;
     }
 
     protected void usePublicApi()
     {
-        openbis = publicApi();
-        defaultApplication = openbis;
-    }
-
-    public Application gui()
-    {
-        Application application = new Application(asUrl, dssUrl, pages);
-        application.setExecutor(CreateExperiment.class, new CreateExperimentGui());
-        application.setExecutor(CreateExperimentType.class, new CreateExperimentTypeGui());
-        application.setExecutor(CreateProject.class, new CreateProjectGui());
-        application.setExecutor(CreatePropertyTypeAssignment.class,
-                new CreatePropertyTypeAssignmentGui());
-        application.setExecutor(CreatePropertyType.class, new CreatePropertyTypeGui());
-        application.setExecutor(CreateSample.class, new CreateSampleGui());
-        application.setExecutor(CreateSampleType.class, new CreateSampleTypeGui());
-        application.setExecutor(CreateScript.class, new CreateScriptGui());
-        application.setExecutor(CreateSpace.class, new CreateSpaceGui());
-        application.setExecutor(CreateVocabulary.class, new CreateVocabularyGui());
-        application.setExecutor(DeleteExperimentsOfProject.class,
-                new DeleteExperimentsOfProjectGui());
-        application.setExecutor(DeleteExperimentType.class, new DeleteExperimentTypeGui());
-        application.setExecutor(DeleteProject.class, new DeleteProjectGui());
-        application.setExecutor(DeletePropertyType.class, new DeletePropertyTypeGui());
-        application.setExecutor(DeleteSampleType.class, new DeleteSampleTypeGui());
-        application.setExecutor(DeleteSpace.class, new DeleteSpaceGui());
-        application.setExecutor(DeleteVocabulary.class, new DeleteVocabularyGui());
-        application.setExecutor(EmptyTrash.class, new EmptyTrashGui());
-        application.setExecutor(Login.class, new LoginGui());
-        application.setExecutor(Logout.class, new LogoutGui());
-        application.setExecutor(UpdateSampleType.class, new UpdateSampleTypeGui());
-        openbis = application;
-        return application;
+        ui = Ui.PUBLIC_API;
+        defaultUi = ui;
     }
 
     public static void mouseOver(WebElement element)
@@ -922,7 +735,7 @@ public abstract class SeleniumTest
 
     public Sample searchSample(Sample sample)
     {
-        List<Sample> samples = openbis.execute(new SearchForSamples(sample.getCode()));
+        List<Sample> samples = openbis.execute(new SearchForSamplesRmi(sample.getCode()));
         if (samples.size() != 1)
         {
             throw new IllegalStateException("Got wrong amount of samples: " + samples);
@@ -937,7 +750,8 @@ public abstract class SeleniumTest
 
     public Sample listSample(Sample sample)
     {
-        List<Sample> samples = openbis.execute(new ListSamplesOfExperiment(sample.getExperiment()));
+        List<Sample> samples =
+                openbis.execute(new ListSamplesOfExperimentRmi(sample.getExperiment()));
         if (samples.size() != 1)
         {
             throw new IllegalStateException("Got wrong amount of samples: " + samples);
@@ -952,7 +766,8 @@ public abstract class SeleniumTest
 
     public Experiment listExperiment(Experiment experiment)
     {
-        List<Experiment> experiments = openbis.execute(new ListExperiments(experiment));
+        List<Experiment> experiments =
+                openbis.execute(new ListExperimentsRmi(Identifiers.get(experiment).toString()));
         if (experiments.size() != 1)
         {
             throw new IllegalStateException("Got wrong amount of experiments: " + experiments);
@@ -967,7 +782,7 @@ public abstract class SeleniumTest
 
     public DataSet listDataSet(DataSet dataSet)
     {
-        List<DataSet> dataSets = openbis.execute(new ListDataSetsOfSample(dataSet.getSample()));
+        List<DataSet> dataSets = openbis.execute(new ListDataSetsOfSampleRmi(dataSet.getSample()));
         if (dataSets.size() != 1)
         {
             throw new IllegalStateException("Got wrong amount of datasets: " + dataSets);
@@ -982,7 +797,7 @@ public abstract class SeleniumTest
 
     public DataSet searchDataSet(DataSet dataSet)
     {
-        List<DataSet> dataSets = openbis.execute(new SearchForDataSets(dataSet.getCode()));
+        List<DataSet> dataSets = openbis.execute(new SearchForDataSetsRmi(dataSet.getCode()));
         if (dataSets.size() != 1)
         {
             throw new IllegalStateException("Got wrong amount of datasets: " + dataSets);
@@ -999,4 +814,5 @@ public abstract class SeleniumTest
     {
         return entity.getMetaProjects();
     }
+
 }

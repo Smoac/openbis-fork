@@ -21,40 +21,52 @@ import java.util.ArrayList;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
-import ch.systemsx.cisd.openbis.uitest.request.CreateSample;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 /**
  * @author anttil
  */
-public class CreateSampleRmi extends Executor<CreateSample, Sample>
+public class CreateSampleRmi implements Command<Sample>
 {
+    @Inject
+    private String session;
+
+    @Inject
+    private IGenericServer genericServer;
+
+    private Sample sample;
+
+    public CreateSampleRmi(Sample sample)
+    {
+        this.sample = sample;
+    }
 
     @Override
-    public Sample run(CreateSample request)
+    public Sample execute()
     {
-        Sample sample = request.getSample();
         genericServer.registerSample(session, convert(sample), new ArrayList<NewAttachment>());
         return sample;
     }
 
-    private NewSample convert(Sample sample)
+    private NewSample convert(Sample s)
     {
         NewSample data = new NewSample();
-        data.setIdentifier(Identifiers.get(sample).toString());
+        data.setIdentifier(Identifiers.get(s).toString());
         data.setAttachments(new ArrayList<NewAttachment>());
         data.setContainerIdentifier(null);
 
-        if (sample.getExperiment() != null)
+        if (s.getExperiment() != null)
         {
-            data.setExperimentIdentifier(Identifiers.get(sample.getExperiment()).toString());
+            data.setExperimentIdentifier(Identifiers.get(s.getExperiment()).toString());
         }
 
-        String[] parentIds = new String[sample.getParents().size()];
+        String[] parentIds = new String[s.getParents().size()];
         int i = 0;
-        for (Sample parent : sample.getParents())
+        for (Sample parent : s.getParents())
         {
             parentIds[i] = Identifiers.get(parent).toString();
             i++;
@@ -62,7 +74,7 @@ public class CreateSampleRmi extends Executor<CreateSample, Sample>
 
         data.setParentsOrNull(parentIds);
         data.setProperties(new IEntityProperty[0]);
-        data.setSampleType(convert(sample.getType()));
+        data.setSampleType(convert(s.getType()));
         return data;
     }
 

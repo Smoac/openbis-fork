@@ -14,24 +14,36 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.request;
-
-import ch.systemsx.cisd.openbis.uitest.type.Sample;
+package ch.systemsx.cisd.openbis.uitest.type;
 
 /**
  * @author anttil
  */
-public class CreateSample implements Request<Sample>
+public abstract class Material implements Entity
 {
-    private final Sample sample;
+    public abstract String getCode();
 
-    public CreateSample(Sample sample)
+    public abstract MaterialType getType();
+
+    @Override
+    public final boolean equals(Object o)
     {
-        this.sample = sample;
+        if (o instanceof Material)
+        {
+            return ((Material) o).getCode().equalsIgnoreCase(getCode());
+        }
+        return false;
     }
 
-    public Sample getSample()
+    @Override
+    public final int hashCode()
     {
-        return sample;
+        return getCode().toUpperCase().hashCode();
+    }
+
+    @Override
+    public String toString()
+    {
+        return this.getClass().getSimpleName() + " " + this.getCode();
     }
 }

@@ -20,7 +20,9 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
-import ch.systemsx.cisd.openbis.uitest.request.CreateSampleType;
+import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
+import ch.systemsx.cisd.openbis.uitest.gui.CreateSampleTypeGui;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateSampleTypeRmi;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
@@ -97,12 +99,21 @@ public class SampleTypeBuilder implements Builder<SampleType>
     }
 
     @Override
-    public SampleType build(Application openbis)
+    public SampleType build(Application openbis, Ui ui)
     {
-        return openbis.execute(new CreateSampleType(
+        SampleType type =
                 new SampleTypeDsl(code, description, listable, showsContainer, showsParents,
                         hasUniqueSubcodes, generatesCodes, showsParentMetadata,
-                        generatedCodePrefix,
-                        propertyTypeAssignments)));
+                        generatedCodePrefix, propertyTypeAssignments);
+        if (Ui.WEB.equals(ui))
+        {
+            return openbis.execute(new CreateSampleTypeGui(type));
+        } else if (Ui.PUBLIC_API.equals(ui))
+        {
+            return openbis.execute(new CreateSampleTypeRmi(type));
+        } else
+        {
+            return type;
+        }
     }
 }

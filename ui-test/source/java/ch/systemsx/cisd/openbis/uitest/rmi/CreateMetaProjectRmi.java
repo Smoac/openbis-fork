@@ -16,21 +16,35 @@
 
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
-import ch.systemsx.cisd.openbis.uitest.request.CreateMetaProject;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 
 /**
  * @author anttil
  */
-public class CreateMetaProjectRmi extends Executor<CreateMetaProject, MetaProject>
+public class CreateMetaProjectRmi implements Command<MetaProject>
 {
 
-    @Override
-    public MetaProject run(CreateMetaProject request)
+    @Inject
+    private String session;
+
+    @Inject
+    private IGeneralInformationChangingService generalInformationChangingService;
+
+    private MetaProject metaProject;
+
+    public CreateMetaProjectRmi(MetaProject metaProject)
     {
-        MetaProject metaProject = request.getMetaProject();
-        generalInformationChangingService.createMetaproject(session, metaProject.getName(), metaProject.getDescription());
+        this.metaProject = metaProject;
+    }
+
+    @Override
+    public MetaProject execute()
+    {
+        generalInformationChangingService.createMetaproject(session, metaProject.getName(),
+                metaProject.getDescription());
         return metaProject;
     }
 

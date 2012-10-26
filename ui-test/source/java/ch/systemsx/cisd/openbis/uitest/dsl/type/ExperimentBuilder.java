@@ -21,7 +21,9 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
-import ch.systemsx.cisd.openbis.uitest.request.CreateExperiment;
+import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
+import ch.systemsx.cisd.openbis.uitest.gui.CreateExperimentGui;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateExperimentRmi;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
@@ -84,19 +86,29 @@ public class ExperimentBuilder implements Builder<Experiment>
     }
 
     @Override
-    public Experiment build(Application openbis)
+    public Experiment build(Application openbis, Ui ui)
     {
         if (type == null)
         {
-            type = new ExperimentTypeBuilder(uid).build(openbis);
+            type = new ExperimentTypeBuilder(uid).build(openbis, ui);
         }
         if (project == null)
         {
-            project = new ProjectBuilder(uid).build(openbis);
+            project = new ProjectBuilder(uid).build(openbis, ui);
         }
 
-        return openbis
-                .execute(new CreateExperiment(new ExperimentDsl(type, code, project, samples,
-                        new HashSet<MetaProject>())));
+        Experiment experiment =
+                new ExperimentDsl(type, code, project, samples, new HashSet<MetaProject>());
+
+        if (Ui.WEB.equals(ui))
+        {
+            return openbis.execute(new CreateExperimentGui(experiment));
+        } else if (Ui.PUBLIC_API.equals(ui))
+        {
+            return openbis.execute(new CreateExperimentRmi(experiment));
+        } else
+        {
+            return experiment;
+        }
     }
 }

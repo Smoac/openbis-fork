@@ -16,19 +16,34 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
-import ch.systemsx.cisd.openbis.uitest.request.Login;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class LoginGui extends Executor<Login, Void>
+public class LoginGui implements Command<Void>
 {
-    @Override
-    public Void run(Login request)
+
+    @Inject
+    private Pages pages;
+
+    private String user;
+
+    private String password;
+
+    public LoginGui(String user, String password)
     {
-        load(LoginPage.class).loginAs(request.getUser(), request.getPassword());
+        this.user = user;
+        this.password = password;
+    }
+
+    @Override
+    public Void execute()
+    {
+        pages.load(LoginPage.class).loginAs(user, password);
         return null;
     }
 }

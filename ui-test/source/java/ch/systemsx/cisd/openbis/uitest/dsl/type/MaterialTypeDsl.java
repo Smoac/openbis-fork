@@ -14,25 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.request;
+package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
-import ch.systemsx.cisd.openbis.uitest.type.Project;
+import ch.systemsx.cisd.openbis.uitest.type.MaterialType;
 
 /**
  * @author anttil
  */
-public class CreateProject implements Request<Project>
+public class MaterialTypeDsl extends MaterialType
 {
 
-    private final Project project;
+    public String code;
 
-    public CreateProject(Project project)
+    public MaterialTypeDsl(String code)
     {
-        this.project = project;
+        this.code = code;
     }
 
-    public Project getProject()
+    @Override
+    public String getCode()
     {
-        return project;
+        return this.code;
     }
+
 }

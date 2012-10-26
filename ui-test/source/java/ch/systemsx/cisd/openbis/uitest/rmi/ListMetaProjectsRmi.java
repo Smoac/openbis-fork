@@ -18,20 +18,27 @@ package ch.systemsx.cisd.openbis.uitest.rmi;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.help.Lambda;
-import ch.systemsx.cisd.openbis.uitest.request.ListMetaProjects;
 import ch.systemsx.cisd.openbis.uitest.rmi.eager.MetaProjectRmi;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 
 /**
  * @author anttil
  */
-public class ListMetaProjectsRmi extends Executor<ListMetaProjects, List<MetaProject>>
+public class ListMetaProjectsRmi implements Command<List<MetaProject>>
 {
+    @Inject
+    private String session;
+
+    @Inject
+    private IGeneralInformationService generalInformationService;
+
     @Override
-    public List<MetaProject> run(ListMetaProjects request)
+    public List<MetaProject> execute()
     {
         return Lambda.foreach(
                 generalInformationService.listMetaprojects(session),

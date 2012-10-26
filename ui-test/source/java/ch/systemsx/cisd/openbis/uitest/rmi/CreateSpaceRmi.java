@@ -16,20 +16,33 @@
 
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
-import ch.systemsx.cisd.openbis.uitest.request.CreateSpace;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
 
 /**
  * @author anttil
  */
-public class CreateSpaceRmi extends Executor<CreateSpace, Space>
+public class CreateSpaceRmi implements Command<Space>
 {
 
-    @Override
-    public Space run(CreateSpace request)
+    private final Space space;
+
+    @Inject
+    private ICommonServer commonServer;
+
+    @Inject
+    private String session;
+
+    public CreateSpaceRmi(Space space)
     {
-        Space space = request.getSpace();
+        this.space = space;
+    }
+
+    @Override
+    public Space execute()
+    {
         commonServer.registerSpace(session, space.getCode(), space.getDescription());
         return space;
     }

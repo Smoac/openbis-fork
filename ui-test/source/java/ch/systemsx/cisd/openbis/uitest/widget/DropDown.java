@@ -62,6 +62,11 @@ public class DropDown implements Widget, Fillable
         throw new IllegalArgumentException("Selection " + text + " not found, got " + found);
     }
 
+    public String getValue()
+    {
+        return textField.getValue();
+    }
+
     public List<String> getChoices()
     {
         List<String> choices = new ArrayList<String>();

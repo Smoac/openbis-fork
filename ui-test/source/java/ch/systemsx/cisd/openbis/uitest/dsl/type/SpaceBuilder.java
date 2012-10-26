@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
-import ch.systemsx.cisd.openbis.uitest.request.CreateSpace;
+import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
+import ch.systemsx.cisd.openbis.uitest.gui.CreateSpaceGui;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateSpaceRmi;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
@@ -45,9 +47,18 @@ public class SpaceBuilder implements Builder<Space>
     }
 
     @Override
-    public Space build(Application openbis)
+    public Space build(Application openbis, Ui ui)
     {
-        return openbis.execute(new CreateSpace(new SpaceDsl(code, description)));
-    }
+        Space space = new SpaceDsl(code, description);
 
+        if (Ui.WEB.equals(ui))
+        {
+            openbis.execute(new CreateSpaceGui(space));
+        } else if (Ui.PUBLIC_API.equals(ui))
+        {
+            openbis.execute(new CreateSpaceRmi(space));
+        }
+
+        return space;
+    }
 }

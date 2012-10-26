@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.request;
+package ch.systemsx.cisd.openbis.uitest.dsl;
 
-/**
- * @author anttil
- */
-public class Logout implements Request<Void>
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Inject
 {
 }

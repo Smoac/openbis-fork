@@ -14,11 +14,35 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.request;
+package ch.systemsx.cisd.openbis.uitest.type;
 
 /**
  * @author anttil
  */
-public class EmptyTrash implements Request<Void>
+public abstract class MaterialType
 {
+
+    public abstract String getCode();
+
+    @Override
+    public final boolean equals(Object o)
+    {
+        if (o instanceof MaterialType)
+        {
+            return ((MaterialType) o).getCode().equalsIgnoreCase(getCode());
+        }
+        return false;
+    }
+
+    @Override
+    public final int hashCode()
+    {
+        return getCode().toUpperCase().hashCode();
+    }
+
+    @Override
+    public String toString()
+    {
+        return this.getClass().getSimpleName() + " " + this.getCode();
+    }
 }

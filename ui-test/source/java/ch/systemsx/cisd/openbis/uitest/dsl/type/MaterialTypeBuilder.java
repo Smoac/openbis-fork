@@ -18,45 +18,32 @@ package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
 import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
-import ch.systemsx.cisd.openbis.uitest.gui.CreateExperimentTypeGui;
-import ch.systemsx.cisd.openbis.uitest.rmi.CreateExperimentTypeRmi;
-import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateMaterialTypeRmi;
+import ch.systemsx.cisd.openbis.uitest.type.MaterialType;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
  * @author anttil
  */
-@SuppressWarnings("hiding")
-public class ExperimentTypeBuilder implements Builder<ExperimentType>
+public class MaterialTypeBuilder implements Builder<MaterialType>
 {
-
     private String code;
 
-    private String description;
-
-    public ExperimentTypeBuilder(UidGenerator uid)
+    public MaterialTypeBuilder(UidGenerator uid)
     {
         this.code = uid.uid();
-        this.description = "";
-    }
-
-    public ExperimentTypeBuilder withCode(String code)
-    {
-        this.code = code;
-        return this;
     }
 
     @Override
-    public ExperimentType build(Application openbis, Ui ui)
+    public MaterialType build(Application openbis, Ui ui)
     {
-        ExperimentType type = new ExperimentTypeDsl(code, description);
-
+        MaterialType type = new MaterialTypeDsl(code);
         if (Ui.WEB.equals(ui))
         {
-            return openbis.execute(new CreateExperimentTypeGui(type));
+            throw new UnsupportedOperationException();
         } else if (Ui.PUBLIC_API.equals(ui))
         {
-            return openbis.execute(new CreateExperimentTypeRmi(type));
+            return openbis.execute(new CreateMaterialTypeRmi(type));
         } else
         {
             return type;

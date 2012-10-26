@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
-import ch.systemsx.cisd.openbis.uitest.request.CreateScript;
+import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
+import ch.systemsx.cisd.openbis.uitest.gui.CreateScriptGui;
 import ch.systemsx.cisd.openbis.uitest.type.EntityKind;
 import ch.systemsx.cisd.openbis.uitest.type.Script;
 import ch.systemsx.cisd.openbis.uitest.type.ScriptType;
@@ -56,10 +57,14 @@ public class ScriptBuilder implements Builder<Script>
     }
 
     @Override
-    public Script build(Application openbis)
+    public Script build(Application openbis, Ui ui)
     {
-        return openbis
-                .execute(new CreateScript(new ScriptDsl(name, type, kind, description, content)));
-    }
+        Script script = new ScriptDsl(name, type, kind, description, content);
+        if (Ui.WEB.equals(ui))
+        {
+            return openbis.execute(new CreateScriptGui(script));
+        }
+        throw new UnsupportedOperationException();
 
+    }
 }

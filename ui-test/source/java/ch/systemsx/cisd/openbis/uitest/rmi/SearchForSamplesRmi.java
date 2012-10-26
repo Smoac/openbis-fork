@@ -19,29 +19,45 @@ package ch.systemsx.cisd.openbis.uitest.rmi;
 import java.util.EnumSet;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.help.Lambda;
-import ch.systemsx.cisd.openbis.uitest.request.SearchForSamples;
 import ch.systemsx.cisd.openbis.uitest.rmi.eager.SampleRmi;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 
 /**
  * @author anttil
  */
-public class SearchForSamplesRmi extends Executor<SearchForSamples, List<Sample>>
+public class SearchForSamplesRmi implements Command<List<Sample>>
 {
+    @Inject
+    private String session;
+
+    @Inject
+    private IGeneralInformationService generalInformationService;
+
+    @Inject
+    private ICommonServer commonServer;
+
+    private String code;
+
+    public SearchForSamplesRmi(String code)
+    {
+        this.code = code;
+    }
 
     @Override
-    public List<Sample> run(SearchForSamples request)
+    public List<Sample> execute()
     {
-
         SearchCriteria criteria = new SearchCriteria();
         criteria.addMatchClause(
-                MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, request.getCode()));
+                MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, code));
 
         return Lambda.foreach(
                 generalInformationService.searchForSamples(

@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -26,9 +28,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 
 /**
  * Immutable value object representing an experiment.
@@ -67,6 +72,8 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
         private boolean isStub;
 
         private HashMap<String, String> properties = new HashMap<String, String>();
+
+        private List<Metaproject> metaprojects = new ArrayList<Metaproject>();
 
         public void setId(Long id)
         {
@@ -128,6 +135,16 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
             properties.put(propCode, value);
         }
 
+        public List<Metaproject> getMetaprojects()
+        {
+            return metaprojects;
+        }
+
+        public void addMetaproject(Metaproject metaproject)
+        {
+            metaprojects.add(metaproject);
+        }
+
         public void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
         {
             this.registrationDetails = registrationDetails;
@@ -157,6 +174,8 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
     private EntityRegistrationDetails registrationDetails;
 
     private HashMap<String, String> properties;
+
+    private List<Metaproject> metaprojects;
 
     private boolean isStub;
 
@@ -188,6 +207,8 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
             InitializingChecks.checkValidString(initializer.getExperimentTypeCode(),
                     "Unspecified experiment type code.");
             this.experimentTypeCode = initializer.getExperimentTypeCode();
+
+            this.metaprojects = initializer.getMetaprojects();
 
             InitializingChecks.checkValidRegistrationDetails(initializer.getRegistrationDetails(),
                     "Unspecified entity registration details.");
@@ -248,6 +269,15 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
     public Map<String, String> getProperties()
     {
         return Collections.unmodifiableMap(properties);
+    }
+
+    public List<Metaproject> getMetaprojects() throws IllegalArgumentException
+    {
+        if (metaprojects == null)
+        {
+            return new ArrayList<Metaproject>();
+        }
+        return Collections.unmodifiableList(metaprojects);
     }
 
     public boolean isStub()
@@ -344,4 +374,11 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
     {
         this.isStub = isStub;
     }
+
+    @JsonProperty("metaprojects")
+    private void setMetaprojectsJson(List<Metaproject> metaprojects)
+    {
+        this.metaprojects = metaprojects;
+    }
+
 }

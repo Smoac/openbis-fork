@@ -19,7 +19,8 @@ package ch.systemsx.cisd.openbis.uitest.dsl.type;
 import java.util.HashSet;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
-import ch.systemsx.cisd.openbis.uitest.request.CreateDataSet;
+import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateDataSetRmi;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
@@ -67,19 +68,19 @@ public class DataSetBuilder implements Builder<DataSet>
     }
 
     @Override
-    public DataSet build(Application openbis)
+    public DataSet build(Application openbis, Ui ui)
     {
         if (type == null)
         {
-            type = new DataSetTypeBuilder(uid).build(openbis);
+            type = new DataSetTypeBuilder(uid).build(openbis, ui);
         }
 
         if (sample == null && experiment == null)
         {
-            sample = new SampleBuilder(uid).build(openbis);
+            sample = new SampleBuilder(uid).build(openbis, ui);
         }
 
-        return openbis.execute(new CreateDataSet(new DataSetDsl(type, sample, experiment,
+        return openbis.execute(new CreateDataSetRmi(new DataSetDsl(type, sample, experiment,
                 new HashSet<MetaProject>())));
     }
 }

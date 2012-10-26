@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.dsl;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Field;
 
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
@@ -26,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
-import ch.systemsx.cisd.openbis.uitest.request.Request;
 import ch.systemsx.cisd.openbis.uitest.type.User;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
@@ -35,9 +33,6 @@ import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
  */
 public class Application
 {
-
-    private Map<String, Object> map;
-
     private Pages pages;
 
     private ICommonServer commonServer;
@@ -54,10 +49,10 @@ public class Application
 
     private IGeneralInformationChangingService generalInformationChangingService;
 
+    private User user;
+
     public Application(String asUrl, String dssUrl, Pages pages)
     {
-        map = new HashMap<String, Object>();
-
         this.pages = pages;
         this.commonServer =
                 HttpInvokerUtils.createServiceStub(ICommonServer.class,
@@ -87,46 +82,78 @@ public class Application
                 commonServer
                         .tryToAuthenticate(SeleniumTest.ADMIN_USER, SeleniumTest.ADMIN_PASSWORD)
                         .getSessionToken();
+        this.user = new User()
+            {
+                @Override
+                public String getName()
+                {
+                    return SeleniumTest.ADMIN_USER;
+                }
+            };
 
     }
 
-    public Application()
-    {
-        map = new HashMap<String, Object>();
-    }
-
-    public <T extends Request<U>, U> void setExecutor(Class<? extends Request<U>> clazz,
-            Executor<T, U> execution)
-    {
-        map.put(clazz.getName(), execution);
-    }
-
-    public void changeLogin(User user)
+    public void changeLogin(User newUser)
     {
         this.session =
                 commonServer
-                        .tryToAuthenticate(user.getName(), "pwd")
+                        .tryToAuthenticate(newUser.getName(), "pwd")
                         .getSessionToken();
+        this.user = newUser;
     }
 
-    public <T extends Request<U>, U> U execute(T request)
+    public <T extends Command<U>, U> U execute(T command)
     {
+        for (Field field : command.getClass().getDeclaredFields())
+        {
+            Inject inject = field.getAnnotation(Inject.class);
+            if (inject == null)
+            {
+                continue;
+            }
 
-        // There is no way to express this in type of field 'map'.
-        // But as the field 'map' is private and the methods manipulating it are defined to ensure
-        // this requirement, we can safely do the unchecked cast.
-        @SuppressWarnings("unchecked")
-        Executor<T, U> execution =
-                (Executor<T, U>) map.get(request.getClass().getName());
-        execution.setApplicationRunner(this);
-        execution.setPages(pages);
-        execution.setCommonServer(commonServer);
-        execution.setDss(dss);
-        execution.setEtlService(etlService);
-        execution.setSession(session);
-        execution.setGenericServer(genericServer);
-        execution.setGeneralInformationService(generalInformationService);
-        execution.setGeneralInformationChangingService(generalInformationChangingService);
-        return execution.run(request);
+            Class<?> fieldType = field.getType();
+            field.setAccessible(true);
+            try
+            {
+                if (fieldType.equals(ICommonServer.class))
+                {
+                    field.set(command, commonServer);
+                } else if (fieldType.equals(String.class))
+                {
+                    field.set(command, session);
+                } else if (fieldType.equals(Pages.class))
+                {
+                    field.set(command, pages);
+                } else if (fieldType.equals(User.class))
+                {
+                    field.set(command, user);
+                } else if (fieldType.equals(IGeneralInformationService.class))
+                {
+                    field.set(command, generalInformationService);
+                } else if (fieldType.equals(IGeneralInformationChangingService.class))
+                {
+                    field.set(command, generalInformationChangingService);
+                } else if (fieldType.equals(IGenericServer.class))
+                {
+                    field.set(command, genericServer);
+                } else if (fieldType.equals(IETLLIMSService.class))
+                {
+                    field.set(command, etlService);
+                } else if (fieldType.equals(IDssServiceRpcGeneric.class))
+                {
+                    field.set(command, dss);
+                } else
+                {
+                    throw new UnsupportedOperationException(fieldType.getCanonicalName());
+                }
+            } catch (Exception ex)
+            {
+                throw new RuntimeException(ex);
+            }
+
+        }
+
+        return command.execute();
     }
 }

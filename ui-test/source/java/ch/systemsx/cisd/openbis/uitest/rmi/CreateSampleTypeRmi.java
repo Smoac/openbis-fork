@@ -18,36 +18,48 @@ package ch.systemsx.cisd.openbis.uitest.rmi;
 
 import java.util.ArrayList;
 
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
-import ch.systemsx.cisd.openbis.uitest.request.CreateSampleType;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 /**
  * @author anttil
  */
-public class CreateSampleTypeRmi extends Executor<CreateSampleType, SampleType>
+public class CreateSampleTypeRmi implements Command<SampleType>
 {
+    @Inject
+    private String session;
 
-    @Override
-    public SampleType run(CreateSampleType request)
+    @Inject
+    private ICommonServer commonServer;
+
+    private SampleType type;
+
+    public CreateSampleTypeRmi(SampleType type)
     {
-        SampleType sampleType = request.getType();
-        commonServer.registerSampleType(session, convert(sampleType));
-        return sampleType;
+        this.type = type;
     }
 
-    private ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType convert(SampleType type)
+    @Override
+    public SampleType execute()
+    {
+        commonServer.registerSampleType(session, convert(type));
+        return type;
+    }
+
+    private ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType convert(SampleType sampleType)
     {
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType result =
                 new ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType();
 
-        result.setCode(type.getCode());
+        result.setCode(sampleType.getCode());
         result.setContainerHierarchyDepth(0);
 
-        result.setDescription(type.getDescription());
-        result.setGeneratedCodePrefix(type.getGeneratedCodePrefix());
-        result.setListable(type.isListable());
+        result.setDescription(sampleType.getDescription());
+        result.setGeneratedCodePrefix(sampleType.getGeneratedCodePrefix());
+        result.setListable(sampleType.isListable());
         result.setGeneratedFromHierarchyDepth(0);
         result.setSampleTypePropertyTypes(new ArrayList<SampleTypePropertyType>());
 

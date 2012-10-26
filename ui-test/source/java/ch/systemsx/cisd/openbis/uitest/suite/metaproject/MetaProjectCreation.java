@@ -63,9 +63,11 @@ public class MetaProjectCreation extends MetaProjectSuite
     {
         create(aMetaProject().withName("UPPERCASElowercase"));
 
-        MetaProject metaProject = assume(aMetaProject().withName("UPPERCASElowercase"));
+        MetaProject existing = assume(aMetaProject().withName("UPPERCASElowercase"));
+        MetaProject nonExisting = assume(aMetaProject().withName("uppercaselowercase"));
 
-        assertThat(listOfAllMetaProjects(), contains(metaProject));
+        assertThat(listOfAllMetaProjects(), contains(existing));
+        assertThat(listOfAllMetaProjects(), doesNotContain(nonExisting));
     }
 
     @Test(expectedExceptions =

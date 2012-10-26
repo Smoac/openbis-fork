@@ -22,7 +22,9 @@ import java.util.HashSet;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
-import ch.systemsx.cisd.openbis.uitest.request.CreateSample;
+import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
+import ch.systemsx.cisd.openbis.uitest.gui.CreateSampleGui;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateSampleRmi;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
@@ -91,19 +93,19 @@ public class SampleBuilder implements Builder<Sample>
     }
 
     @Override
-    public Sample build(Application openbis)
+    public Sample build(Application openbis, Ui ui)
     {
         if (experiment != null)
         {
             space = experiment.getProject().getSpace();
         } else if (space == null)
         {
-            space = new SpaceBuilder(uid).build(openbis);
+            space = new SpaceBuilder(uid).build(openbis, ui);
         }
 
         if (type == null)
         {
-            type = new SampleTypeBuilder(uid).build(openbis);
+            type = new SampleTypeBuilder(uid).build(openbis, ui);
         }
 
         for (PropertyTypeAssignment assignment : type.getPropertyTypeAssignments())
@@ -115,7 +117,19 @@ public class SampleBuilder implements Builder<Sample>
             }
         }
 
-        return openbis.execute(new CreateSample(new SampleDsl(type, code, experiment, space,
-                parents, properties, new HashSet<MetaProject>())));
+        Sample sample =
+                new SampleDsl(type, code, experiment, space, parents, properties,
+                        new HashSet<MetaProject>());
+
+        if (Ui.WEB.equals(ui))
+        {
+            return openbis.execute(new CreateSampleGui(sample));
+        } else if (Ui.PUBLIC_API.equals(ui))
+        {
+            return openbis.execute(new CreateSampleRmi(sample));
+        } else
+        {
+            return sample;
+        }
     }
 }

@@ -16,50 +16,57 @@
 
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
 import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
-import ch.systemsx.cisd.openbis.uitest.gui.CreateExperimentTypeGui;
-import ch.systemsx.cisd.openbis.uitest.rmi.CreateExperimentTypeRmi;
-import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateMaterialRmi;
+import ch.systemsx.cisd.openbis.uitest.type.Material;
+import ch.systemsx.cisd.openbis.uitest.type.MaterialType;
+import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
  * @author anttil
  */
-@SuppressWarnings("hiding")
-public class ExperimentTypeBuilder implements Builder<ExperimentType>
+public class MaterialBuilder implements Builder<Material>
 {
 
     private String code;
 
-    private String description;
+    private MaterialType materialType;
 
-    public ExperimentTypeBuilder(UidGenerator uid)
+    @SuppressWarnings("unused")
+    private Collection<MetaProject> metaProjects;
+
+    private UidGenerator uid;
+
+    public MaterialBuilder(UidGenerator uid)
     {
+        this.uid = uid;
         this.code = uid.uid();
-        this.description = "";
-    }
-
-    public ExperimentTypeBuilder withCode(String code)
-    {
-        this.code = code;
-        return this;
     }
 
     @Override
-    public ExperimentType build(Application openbis, Ui ui)
+    public Material build(Application openbis, Ui ui)
     {
-        ExperimentType type = new ExperimentTypeDsl(code, description);
+        if (materialType == null)
+        {
+            materialType = new MaterialTypeBuilder(uid).build(openbis, ui);
+        }
+
+        Material material = new MaterialDsl(code, materialType, new HashSet<MetaProject>());
 
         if (Ui.WEB.equals(ui))
         {
-            return openbis.execute(new CreateExperimentTypeGui(type));
+            throw new UnsupportedOperationException();
         } else if (Ui.PUBLIC_API.equals(ui))
         {
-            return openbis.execute(new CreateExperimentTypeRmi(type));
+            return openbis.execute(new CreateMaterialRmi(material));
         } else
         {
-            return type;
+            return material;
         }
     }
 }

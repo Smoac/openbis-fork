@@ -21,6 +21,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
@@ -64,6 +67,10 @@ public class RegisterSample
     @Locate("confirmation_dialog")
     private DeletionConfirmationBox dialog;
 
+    @Lazy
+    @Locate("openbis_sample-registration_tab")
+    private WebElement infoBox;
+
     public void fillWith(Sample sample)
     {
         code.write(sample.getCode());
@@ -102,7 +109,9 @@ public class RegisterSample
 
     public void save()
     {
+        String sampleCode = code.getValue();
         save.click();
+        infoBox.findElements(By.xpath(".//div/b[text()='" + sampleCode + "']"));
     }
 
     public Collection<String> getProperties()

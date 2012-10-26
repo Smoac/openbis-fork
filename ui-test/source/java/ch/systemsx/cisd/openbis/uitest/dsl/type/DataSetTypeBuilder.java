@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
-import ch.systemsx.cisd.openbis.uitest.request.CreateDataSetType;
+import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateDataSetTypeRmi;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
@@ -45,8 +46,8 @@ public class DataSetTypeBuilder implements Builder<DataSetType>
     }
 
     @Override
-    public DataSetType build(Application openbis)
+    public DataSetType build(Application openbis, Ui ui)
     {
-        return openbis.execute(new CreateDataSetType(new DataSetTypeDsl(code, description)));
+        return openbis.execute(new CreateDataSetTypeRmi(new DataSetTypeDsl(code, description)));
     }
 }

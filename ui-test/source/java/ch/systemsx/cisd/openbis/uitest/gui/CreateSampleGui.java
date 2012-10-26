@@ -16,23 +16,32 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterSampleLocation;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterSample;
-import ch.systemsx.cisd.openbis.uitest.request.CreateSample;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class CreateSampleGui extends Executor<CreateSample, Sample>
+public class CreateSampleGui implements Command<Sample>
 {
+    @Inject
+    private Pages pages;
+
+    private Sample sample;
+
+    public CreateSampleGui(Sample sample)
+    {
+        this.sample = sample;
+    }
 
     @Override
-    public Sample run(CreateSample request)
+    public Sample execute()
     {
-        Sample sample = request.getSample();
-        RegisterSample register = goTo(new RegisterSampleLocation());
+        RegisterSample register = pages.goTo(new RegisterSampleLocation());
         register.selectSampleType(sample.getType());
         register.fillWith(sample);
         register.save();

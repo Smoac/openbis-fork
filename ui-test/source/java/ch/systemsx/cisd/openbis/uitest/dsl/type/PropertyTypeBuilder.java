@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
-import ch.systemsx.cisd.openbis.uitest.request.CreatePropertyType;
+import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
+import ch.systemsx.cisd.openbis.uitest.gui.CreatePropertyTypeGui;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
@@ -74,10 +75,20 @@ public class PropertyTypeBuilder implements Builder<PropertyType>
     }
 
     @Override
-    public PropertyType build(Application openbis)
+    public PropertyType build(Application openbis, Ui ui)
     {
-        return openbis.execute(new CreatePropertyType(new PropertyTypeDsl(code, label, description,
-                dataType, vocabulary)));
+        PropertyType type = new PropertyTypeDsl(code, label, description, dataType, vocabulary);
+
+        if (Ui.WEB.equals(ui))
+        {
+            return openbis.execute(new CreatePropertyTypeGui(type));
+        } else if (Ui.PUBLIC_API.equals(ui))
+        {
+            throw new UnsupportedOperationException();
+        } else
+        {
+            return type;
+        }
     }
 
 }

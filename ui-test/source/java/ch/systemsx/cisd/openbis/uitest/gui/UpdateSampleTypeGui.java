@@ -16,34 +16,42 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.layout.SampleTypeBrowserLocation;
 import ch.systemsx.cisd.openbis.uitest.page.Browsable;
 import ch.systemsx.cisd.openbis.uitest.page.EditSampleTypeDialog;
 import ch.systemsx.cisd.openbis.uitest.page.SampleTypeBrowser;
-import ch.systemsx.cisd.openbis.uitest.request.UpdateSampleType;
 import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class UpdateSampleTypeGui extends Executor<UpdateSampleType, Void>
+public class UpdateSampleTypeGui implements Command<Void>
 {
+    private SampleType type;
+
+    @Inject
+    private Pages pages;
+
+    public UpdateSampleTypeGui(SampleType type)
+    {
+        this.type = type;
+    }
 
     @Override
-    public Void run(UpdateSampleType request)
+    public Void execute()
     {
-        SampleType sampleType = request.getType();
-        Browsable b = new BrowsableWrapper(sampleType);
-        SampleTypeBrowser browser = goTo(new SampleTypeBrowserLocation());
+        Browsable b = new BrowsableWrapper(type);
+        SampleTypeBrowser browser = pages.goTo(new SampleTypeBrowserLocation());
         browser.select(b);
         browser.edit();
-        EditSampleTypeDialog dialog = load(EditSampleTypeDialog.class);
-        dialog.fillWith(sampleType);
+        EditSampleTypeDialog dialog = pages.load(EditSampleTypeDialog.class);
+        dialog.fillWith(type);
         dialog.save();
         browser.resetFilters();
         return null;
     }
-
 }

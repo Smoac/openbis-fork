@@ -914,7 +914,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             experimentTable.load(experimentType.getCode(), spaceIdentifierOrNull);
         }
         final List<ExperimentPE> experiments = experimentTable.getExperiments();
-
         final Collection<MetaprojectAssignmentPE> assignmentPEs =
                 getDAOFactory()
                         .getMetaprojectDAO()
@@ -924,7 +923,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                                 ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT);
         Map<Long, Set<Metaproject>> assignments =
                 MetaprojectTranslator.translateMetaprojectAssignments(assignmentPEs);
-
         Collections.sort(experiments);
         return ExperimentTranslator.translate(experiments, session.getBaseIndexURL(), assignments);
     }
@@ -1326,11 +1324,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Set<DataPE> resultSet = new LinkedHashSet<DataPE>();
         // TODO 2009-08-17, Piotr Buczek: [LMS-1149] optimize performance
         addRelatedDataSets(resultSet, relatedEntities.getEntities());
+
+        IMetaprojectDAO mpd = this.getDAOFactory().getMetaprojectDAO();
+
+        Collection<MetaprojectAssignmentPE> assignments =
+                mpd.listMetaprojectAssignmentsForEntities(session.tryGetPerson(), resultSet,
+                        ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.DATA_SET);
+
+        Map<Long, Set<Metaproject>> translation =
+                MetaprojectTranslator.translateMetaprojectAssignments(assignments);
+
         final List<ExternalData> list = new ArrayList<ExternalData>(resultSet.size());
         for (final DataPE hit : resultSet)
         {
             HibernateUtils.initialize(hit.getChildRelationships());
-            list.add(DataSetTranslator.translate(hit, session.getBaseIndexURL(), withDetails, null));
+            list.add(DataSetTranslator.translate(hit, session.getBaseIndexURL(), withDetails,
+                    translation.get(hit.getId())));
         }
         return list;
     }

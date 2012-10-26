@@ -29,12 +29,12 @@ import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 public class ExperimentsContainMetaProjectInformation extends MetaProjectSuite
 {
 
-    @Test(enabled = false)
+    @Test
     public void listedExperimentContainsMetaProjectInformation() throws Exception
     {
         Experiment experiment = create(anExperiment());
         MetaProject metaProject = create(aMetaProject());
-        addTo(metaProject, experiment);
+        tagWith(metaProject, experiment);
 
         Experiment listResult = listExperiment(experiment);
         assertThat(metaProjectsOf(listResult), containExactly(metaProject));

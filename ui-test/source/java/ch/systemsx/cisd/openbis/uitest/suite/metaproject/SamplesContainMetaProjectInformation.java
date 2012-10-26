@@ -35,7 +35,7 @@ public class SamplesContainMetaProjectInformation extends MetaProjectSuite
     {
         Sample sample = create(aSample());
         MetaProject metaProject = create(aMetaProject());
-        addTo(metaProject, sample);
+        tagWith(metaProject, sample);
 
         Sample searchResult = searchSample(sample);
         assertThat(metaProjectsOf(searchResult), containExactly(metaProject));
@@ -47,7 +47,7 @@ public class SamplesContainMetaProjectInformation extends MetaProjectSuite
         Experiment experiment = create(anExperiment());
         Sample sample = create(aSample().in(experiment));
         MetaProject metaProject = create(aMetaProject());
-        addTo(metaProject, sample);
+        tagWith(metaProject, sample);
 
         Sample result = listSample(sample);
         assertThat(metaProjectsOf(result), containExactly(metaProject));

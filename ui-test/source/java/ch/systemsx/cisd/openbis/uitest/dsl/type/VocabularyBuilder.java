@@ -20,7 +20,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
-import ch.systemsx.cisd.openbis.uitest.request.CreateVocabulary;
+import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
+import ch.systemsx.cisd.openbis.uitest.gui.CreateVocabularyGui;
 import ch.systemsx.cisd.openbis.uitest.type.Vocabulary;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
@@ -71,9 +72,9 @@ public class VocabularyBuilder implements Builder<Vocabulary>
     }
 
     @Override
-    public Vocabulary build(Application openbis)
+    public Vocabulary build(Application openbis, Ui ui)
     {
-        return openbis.execute(new CreateVocabulary(
-                new VocabularyDsl(code, description, terms, url)));
+        Vocabulary vocabulary = new VocabularyDsl(code, description, terms, url);
+        return openbis.execute(new CreateVocabularyGui(vocabulary));
     }
 }

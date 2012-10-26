@@ -16,26 +16,35 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.layout.AddSampleTypeLocation;
 import ch.systemsx.cisd.openbis.uitest.page.AddSampleTypeDialog;
-import ch.systemsx.cisd.openbis.uitest.request.CreateSampleType;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class CreateSampleTypeGui extends Executor<CreateSampleType, SampleType>
+public class CreateSampleTypeGui implements Command<SampleType>
 {
+    @Inject
+    private Pages pages;
+
+    private SampleType type;
+
+    public CreateSampleTypeGui(SampleType type)
+    {
+        this.type = type;
+    }
 
     @Override
-    public SampleType run(CreateSampleType request)
+    public SampleType execute()
     {
-        SampleType sampleType = request.getType();
-        AddSampleTypeDialog dialog = goTo(new AddSampleTypeLocation());
-        dialog.fillWith(sampleType);
+        AddSampleTypeDialog dialog = pages.goTo(new AddSampleTypeLocation());
+        dialog.fillWith(type);
         dialog.save();
-        return sampleType;
+        return type;
     }
 
 }

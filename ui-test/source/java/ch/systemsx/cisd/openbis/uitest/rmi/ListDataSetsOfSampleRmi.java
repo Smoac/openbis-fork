@@ -18,13 +18,17 @@ package ch.systemsx.cisd.openbis.uitest.rmi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
-import ch.systemsx.cisd.openbis.uitest.request.ListDataSetsOfSample;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.rmi.eager.DataSetRmi;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
@@ -32,34 +36,40 @@ import ch.systemsx.cisd.openbis.uitest.type.Sample;
 /**
  * @author anttil
  */
-public class ListDataSetsOfSampleRmi extends Executor<ListDataSetsOfSample, List<DataSet>>
+public class ListDataSetsOfSampleRmi implements Command<List<DataSet>>
 {
+    @Inject
+    private String session;
+
+    @Inject
+    private IGeneralInformationService generalInformationService;
+
+    @Inject
+    private ICommonServer commonServer;
+
+    private Sample sample;
+
+    public ListDataSetsOfSampleRmi(Sample sample)
+    {
+        this.sample = sample;
+    }
 
     @Override
-    public List<DataSet> run(ListDataSetsOfSample request)
+    public List<DataSet> execute()
     {
-        Sample s = request.getSample();
-
-        SampleInitializer init = new SampleInitializer();
-        init.setId(1L);
-        init.setPermId("aef");
-        init.setCode(s.getCode());
-        init.setSpaceCode(s.getSpace().getCode());
-        init.setSampleTypeCode(s.getType().getCode());
-        init.setIdentifier(Identifiers.get(s).toString());
-        init.setSampleTypeId(1L);
-        init.setRegistrationDetails(new EntityRegistrationDetails(
-                new EntityRegistrationDetailsInitializer()));
-
-        ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample sample =
-                new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample(init);
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addMatchClause(
+                MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, sample.getCode()));
+        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample> searchResult =
+                generalInformationService.searchForSamples(
+                        session, criteria, EnumSet.allOf(SampleFetchOption.class));
 
         List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> dataSets =
                 generalInformationService
                         .listDataSets(
                                 session,
                                 Arrays.asList(new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample[]
-                                    { sample }));
+                                    { searchResult.get(0) }));
 
         List<DataSet> result = new ArrayList<DataSet>();
         for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet dataSet : dataSets)

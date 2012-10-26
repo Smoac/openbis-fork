@@ -16,24 +16,33 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.layout.AssignSamplePropertyLocation;
 import ch.systemsx.cisd.openbis.uitest.page.AssignSamplePropertyType;
-import ch.systemsx.cisd.openbis.uitest.request.CreatePropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class CreatePropertyTypeAssignmentGui extends
-        Executor<CreatePropertyTypeAssignment, PropertyTypeAssignment>
+public class CreatePropertyTypeAssignmentGui implements Command<PropertyTypeAssignment>
 {
 
-    @Override
-    public PropertyTypeAssignment run(CreatePropertyTypeAssignment request)
+    @Inject
+    private Pages pages;
+
+    private PropertyTypeAssignment assignment;
+
+    public CreatePropertyTypeAssignmentGui(PropertyTypeAssignment assignment)
     {
-        PropertyTypeAssignment assignment = request.getAssignment();
-        AssignSamplePropertyType assign = goTo(new AssignSamplePropertyLocation());
+        this.assignment = assignment;
+    }
+
+    @Override
+    public PropertyTypeAssignment execute()
+    {
+        AssignSamplePropertyType assign = pages.goTo(new AssignSamplePropertyLocation());
         assign.fillWith(assignment);
         assign.save();
         return assignment;

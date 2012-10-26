@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
@@ -47,6 +50,10 @@ public class AddPropertyType
     @Locate("openbis_property-type-registration_formsave-button")
     private Button save;
 
+    @Lazy
+    @Locate("openbis_property-type-registration_form_tab")
+    private WebElement infoBox;
+
     public void fillWith(PropertyType propertyType)
     {
         code.write(propertyType.getCode());
@@ -62,6 +69,9 @@ public class AddPropertyType
 
     public void save()
     {
+        String propertyCode = code.getValue().toUpperCase();
         save.click();
+        infoBox.findElements(By.xpath(".//div/b[text()='" + propertyCode + "']"));
+
     }
 }

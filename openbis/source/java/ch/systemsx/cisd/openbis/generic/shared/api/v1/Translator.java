@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetUrl;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
@@ -184,6 +185,14 @@ public class Translator
         EntityRegistrationDetails registrationDetails =
                 translateRegistrationDetailsWithModificationDate(privateExperiment);
         initializer.setRegistrationDetails(registrationDetails);
+
+        if (privateExperiment.getMetaprojects() != null)
+        {
+            for (Metaproject metaproject : privateExperiment.getMetaprojects())
+            {
+                initializer.addMetaproject(metaproject);
+            }
+        }
 
         return new Experiment(initializer);
     }
@@ -418,6 +427,14 @@ public class Translator
         EntityRegistrationDetails registrationDetails =
                 translateRegistrationDetailsWithModificationDate(externalDatum);
         initializer.setRegistrationDetails(registrationDetails);
+
+        if (externalDatum.getMetaprojects() != null)
+        {
+            for (Metaproject mp : externalDatum.getMetaprojects())
+            {
+                initializer.addMetaproject(mp);
+            }
+        }
 
         return new DataSet(initializer);
     }

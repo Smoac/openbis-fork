@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
-import ch.systemsx.cisd.openbis.uitest.request.CreatePropertyTypeAssignment;
+import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
+import ch.systemsx.cisd.openbis.uitest.gui.CreatePropertyTypeAssignmentGui;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
@@ -75,26 +76,29 @@ public class PropertyTypeAssignmentBuilder implements Builder<PropertyTypeAssign
     }
 
     @Override
-    public PropertyTypeAssignment build(Application openbis)
+    public PropertyTypeAssignment build(Application openbis, Ui ui)
     {
         if (propertyType == null)
         {
             propertyType =
-                    new PropertyTypeBuilder(uid, PropertyTypeDataType.BOOLEAN).build(openbis);
+                    new PropertyTypeBuilder(uid, PropertyTypeDataType.BOOLEAN).build(openbis, ui);
         }
 
         if (entityType == null)
         {
-            entityType = new SampleTypeBuilder(uid).build(openbis);
+            entityType = new SampleTypeBuilder(uid).build(openbis, ui);
         }
 
         PropertyTypeAssignment assignment =
-                openbis.execute(
-                        new CreatePropertyTypeAssignment(
-                                new PropertyTypeAssignmentDsl(propertyType, entityType, mandatory,
-                                        initialValue)));
+                new PropertyTypeAssignmentDsl(propertyType, entityType, mandatory, initialValue);
+        if (Ui.WEB.equals(ui))
+        {
+            assignment = openbis.execute(new CreatePropertyTypeAssignmentGui(assignment));
+        } else
+        {
+            throw new UnsupportedOperationException();
+        }
         entityType.getPropertyTypeAssignments().add(assignment);
         return assignment;
     }
-
 }

@@ -18,8 +18,9 @@ package ch.systemsx.cisd.openbis.uitest.rmi;
 
 import java.util.Collection;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
-import ch.systemsx.cisd.openbis.uitest.request.CreateDataSet;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
@@ -29,12 +30,24 @@ import ch.systemsx.cisd.openbis.uitest.type.Sample;
 /**
  * @author anttil
  */
-public class CreateDataSetRmi extends Executor<CreateDataSet, DataSet>
+public class CreateDataSetRmi implements Command<DataSet>
 {
-    @Override
-    public DataSet run(final CreateDataSet request)
+    @Inject
+    private String session;
+
+    @Inject
+    private IDssServiceRpcGeneric dss;
+
+    private final DataSet dataSet;
+
+    public CreateDataSetRmi(DataSet dataSet)
     {
-        DataSet dataSet = request.getDataSet();
+        this.dataSet = dataSet;
+    }
+
+    @Override
+    public DataSet execute()
+    {
         DataSetCreator creator = new DataSetCreator("data set content");
         final String code =
                 dss.putDataSet(session, creator.getMetadata(dataSet), creator.getData());
@@ -51,25 +64,25 @@ public class CreateDataSetRmi extends Executor<CreateDataSet, DataSet>
                 @Override
                 public DataSetType getType()
                 {
-                    return request.getDataSet().getType();
+                    return dataSet.getType();
                 }
 
                 @Override
                 public Sample getSample()
                 {
-                    return request.getDataSet().getSample();
+                    return dataSet.getSample();
                 }
 
                 @Override
                 public Experiment getExperiment()
                 {
-                    return request.getDataSet().getExperiment();
+                    return dataSet.getExperiment();
                 }
 
                 @Override
                 public Collection<MetaProject> getMetaProjects()
                 {
-                    return request.getDataSet().getMetaProjects();
+                    return dataSet.getMetaProjects();
                 }
 
                 @Override

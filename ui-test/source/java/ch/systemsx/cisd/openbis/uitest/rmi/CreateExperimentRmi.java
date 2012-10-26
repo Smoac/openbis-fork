@@ -21,39 +21,52 @@ import java.util.ArrayList;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
-import ch.systemsx.cisd.openbis.uitest.request.CreateExperiment;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 
 /**
  * @author anttil
  */
-public class CreateExperimentRmi extends Executor<CreateExperiment, Experiment>
+public class CreateExperimentRmi implements Command<Experiment>
 {
 
-    @Override
-    public Experiment run(CreateExperiment request)
+    @Inject
+    private String session;
+
+    @Inject
+    private IGenericServer genericServer;
+
+    private Experiment experiment;
+
+    public CreateExperimentRmi(Experiment experiment)
     {
-        Experiment experiment = request.getExperiment();
+        this.experiment = experiment;
+    }
+
+    @Override
+    public Experiment execute()
+    {
         genericServer.registerExperiment(session, convert(experiment),
                 new ArrayList<NewAttachment>());
         return experiment;
     }
 
-    private NewExperiment convert(Experiment experiment)
+    private NewExperiment convert(Experiment exp)
     {
-        String experimentId = Identifiers.get(experiment).toString();
-        NewExperiment data = new NewExperiment(experimentId, experiment.getType().getCode());
+        String experimentId = Identifiers.get(exp).toString();
+        NewExperiment data = new NewExperiment(experimentId, exp.getType().getCode());
         data.setAttachments(new ArrayList<NewAttachment>());
         data.setGenerateCodes(false);
         data.setNewSamples(null);
         data.setProperties(new IEntityProperty[0]);
         data.setRegisterSamples(false);
 
-        String[] sampleIds = new String[experiment.getSamples().size()];
+        String[] sampleIds = new String[exp.getSamples().size()];
         int i = 0;
-        for (Sample sample : experiment.getSamples())
+        for (Sample sample : exp.getSamples())
         {
             sampleIds[i] = sample.getCode();
             i++;

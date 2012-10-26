@@ -16,15 +16,18 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
 import ch.systemsx.cisd.openbis.uitest.widget.Checkbox;
-import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.Dynamic;
 import ch.systemsx.cisd.openbis.uitest.widget.Fillable;
+import ch.systemsx.cisd.openbis.uitest.widget.Widget;
 
 public class AssignSamplePropertyType
 {
@@ -45,6 +48,10 @@ public class AssignSamplePropertyType
     @Locate("openbis_property-type-assignment_SAMPLEsave-button")
     private Button save;
 
+    @Lazy
+    @Locate("openbis_property-type-assignment_SAMPLE_tab")
+    private WebElement infoBox;
+
     public void fillWith(PropertyTypeAssignment assignment)
     {
         propertyType.select(assignment.getPropertyType().getLabel());
@@ -61,6 +68,8 @@ public class AssignSamplePropertyType
 
     public void save()
     {
+        String sampleTypeCode = sampleType.getValue();
         this.save.click();
+        infoBox.findElements(By.xpath(".//div[contains(text(), '" + sampleTypeCode + "')]"));
     }
 }

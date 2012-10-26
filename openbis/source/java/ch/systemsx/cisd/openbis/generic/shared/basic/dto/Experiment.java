@@ -225,7 +225,7 @@ public class Experiment extends CodeWithRegistrationAndModificationDate<Experime
         return isStub;
     }
 
-    public Collection<Metaproject> getMetaprojecs()
+    public Collection<Metaproject> getMetaprojects()
     {
         return metaprojects;
     }

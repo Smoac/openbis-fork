@@ -14,16 +14,30 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.request;
+package ch.systemsx.cisd.openbis.uitest.suite.metaproject;
 
-import java.util.List;
+import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.uitest.type.Material;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 
 /**
  * @author anttil
  */
-public class ListMetaProjects implements Request<List<MetaProject>>
+public class MaterialsContainMetaProjectInformation extends MetaProjectSuite
 {
+
+    @Test
+    public void listedMaterialContainsMetaProjectInformation() throws Exception
+    {
+        Material material = create(aMaterial());
+        MetaProject metaProject = create(aMetaProject());
+        tagWith(metaProject, material);
+
+        /*
+        Experiment listResult = listExperiment(experiment);
+        assertThat(metaProjectsOf(listResult), containExactly(metaProject));
+        */
+    }
 
 }

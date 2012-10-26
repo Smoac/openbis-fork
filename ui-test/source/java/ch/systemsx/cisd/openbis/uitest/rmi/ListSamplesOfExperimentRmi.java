@@ -18,24 +18,42 @@ package ch.systemsx.cisd.openbis.uitest.rmi;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.help.Lambda;
-import ch.systemsx.cisd.openbis.uitest.request.ListSamplesOfExperiment;
 import ch.systemsx.cisd.openbis.uitest.rmi.eager.SampleRmi;
+import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 
 /**
  * @author anttil
  */
-public class ListSamplesOfExperimentRmi extends Executor<ListSamplesOfExperiment, List<Sample>>
+public class ListSamplesOfExperimentRmi implements Command<List<Sample>>
 {
+    @Inject
+    private String session;
+
+    @Inject
+    private IGeneralInformationService generalInformationService;
+
+    @Inject
+    private ICommonServer commonServer;
+
+    private Experiment experiment;
+
+    public ListSamplesOfExperimentRmi(Experiment experiment)
+    {
+        this.experiment = experiment;
+    }
 
     @Override
-    public List<Sample> run(ListSamplesOfExperiment request)
+    public List<Sample> execute()
     {
         return Lambda.foreach(
                 generalInformationService.listSamplesForExperiment(
-                        session, Identifiers.get(request.getExperiment()).toString()),
+                        session, Identifiers.get(experiment).toString()),
                 new Lambda<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample, Sample>()
                     {
                         @Override

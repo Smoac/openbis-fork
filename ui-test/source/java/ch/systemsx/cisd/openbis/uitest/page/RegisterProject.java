@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
 import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
@@ -36,6 +39,10 @@ public class RegisterProject
     @Locate("openbis_project-register_formsave-button")
     private Button save;
 
+    @Lazy
+    @Locate("openbis_project-register_form_tab")
+    private WebElement infoBox;
+
     public void fillWith(Project project)
     {
         code.write(project.getCode());
@@ -44,7 +51,9 @@ public class RegisterProject
 
     public void save()
     {
+        String projectCode = code.getValue().toUpperCase();
         save.click();
+        infoBox.findElements(By.xpath(".//div/b[contains(text(), '" + projectCode + "')]"));
     }
 
     @Override

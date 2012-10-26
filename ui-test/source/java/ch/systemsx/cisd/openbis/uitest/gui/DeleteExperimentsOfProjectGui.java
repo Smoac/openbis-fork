@@ -16,23 +16,34 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.layout.ExperimentBrowserLocation;
 import ch.systemsx.cisd.openbis.uitest.page.ExperimentBrowser;
-import ch.systemsx.cisd.openbis.uitest.request.DeleteExperimentsOfProject;
+import ch.systemsx.cisd.openbis.uitest.type.Project;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class DeleteExperimentsOfProjectGui extends
-        Executor<DeleteExperimentsOfProject, Void>
+public class DeleteExperimentsOfProjectGui implements Command<Void>
 {
 
-    @Override
-    public Void run(DeleteExperimentsOfProject request)
+    @Inject
+    private Pages pages;
+
+    private Project project;
+
+    public DeleteExperimentsOfProjectGui(Project project)
     {
-        ExperimentBrowser browser = goTo(new ExperimentBrowserLocation());
-        if (browser.selectProject(request.getProject()))
+        this.project = project;
+    }
+
+    @Override
+    public Void execute()
+    {
+        ExperimentBrowser browser = pages.goTo(new ExperimentBrowserLocation());
+        if (browser.selectProject(project))
         {
             browser.deleteAll();
         }

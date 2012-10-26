@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
-import ch.systemsx.cisd.openbis.uitest.request.CreateUser;
+import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateUserRmi;
 import ch.systemsx.cisd.openbis.uitest.type.User;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
@@ -46,8 +47,17 @@ public class UserBuilder implements Builder<User>
     }
 
     @Override
-    public User build(Application openbis)
+    public User build(Application openbis, Ui ui)
     {
-        return openbis.execute(new CreateUser(new UserDsl(name)));
+        if (Ui.PUBLIC_API.equals(ui))
+        {
+            return openbis.execute(new CreateUserRmi(new UserDsl(name)));
+        } else if (Ui.DUMMY.equals(ui))
+        {
+            return new UserDsl(name);
+        } else
+        {
+            throw new UnsupportedOperationException();
+        }
     }
 }

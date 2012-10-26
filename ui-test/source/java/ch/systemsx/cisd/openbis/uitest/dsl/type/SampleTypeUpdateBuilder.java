@@ -17,7 +17,8 @@
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
-import ch.systemsx.cisd.openbis.uitest.request.UpdateSampleType;
+import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
+import ch.systemsx.cisd.openbis.uitest.gui.UpdateSampleTypeGui;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 
 /**
@@ -46,8 +47,8 @@ public class SampleTypeUpdateBuilder implements UpdateBuilder
     }
 
     @Override
-    public void update(Application openbis)
+    public void update(Application openbis, Ui ui)
     {
-        openbis.execute(new UpdateSampleType(type));
+        openbis.execute(new UpdateSampleTypeGui(type));
     }
 }

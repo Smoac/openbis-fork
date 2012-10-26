@@ -16,23 +16,34 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.page.Browsable;
 import ch.systemsx.cisd.openbis.uitest.page.Browser;
-import ch.systemsx.cisd.openbis.uitest.request.DeleteExperimentType;
 import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
+import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class DeleteExperimentTypeGui extends Executor<DeleteExperimentType, Void>
+public class DeleteExperimentTypeGui implements Command<Void>
 {
+    @Inject
+    private Pages pages;
+
+    private ExperimentType type;
+
+    public DeleteExperimentTypeGui(ExperimentType type)
+    {
+        this.type = type;
+    }
 
     @Override
-    public Void run(DeleteExperimentType request)
+    public Void execute()
     {
-        Browsable browsable = new BrowsableWrapper(request.getType());
-        Browser browser = goTo(browsable.getBrowserLocation());
+        Browsable browsable = new BrowsableWrapper(type);
+        Browser browser = pages.goTo(browsable.getBrowserLocation());
         browser.delete(browsable);
         return null;
     }

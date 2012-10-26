@@ -16,26 +16,36 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.layout.AddPropertyTypeLocation;
 import ch.systemsx.cisd.openbis.uitest.page.AddPropertyType;
-import ch.systemsx.cisd.openbis.uitest.request.CreatePropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class CreatePropertyTypeGui extends Executor<CreatePropertyType, PropertyType>
+public class CreatePropertyTypeGui implements Command<PropertyType>
 {
 
-    @Override
-    public PropertyType run(CreatePropertyType request)
+    @Inject
+    private Pages pages;
+
+    private PropertyType type;
+
+    public CreatePropertyTypeGui(PropertyType type)
     {
-        PropertyType propertyType = request.getType();
-        AddPropertyType dialog = goTo(new AddPropertyTypeLocation());
-        dialog.fillWith(propertyType);
+        this.type = type;
+    }
+
+    @Override
+    public PropertyType execute()
+    {
+        AddPropertyType dialog = pages.goTo(new AddPropertyTypeLocation());
+        dialog.fillWith(type);
         dialog.save();
-        return propertyType;
+        return type;
     }
 
 }

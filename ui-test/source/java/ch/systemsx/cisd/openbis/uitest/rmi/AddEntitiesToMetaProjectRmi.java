@@ -16,30 +16,66 @@
 
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialCodeAndTypeCodeId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
-import ch.systemsx.cisd.openbis.uitest.request.AddEntitiesToMetaProject;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.Entity;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
+import ch.systemsx.cisd.openbis.uitest.type.Material;
+import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
+import ch.systemsx.cisd.openbis.uitest.type.User;
 
 /**
  * @author anttil
  */
-public class AddEntitiesToMetaProjectRmi extends Executor<AddEntitiesToMetaProject, Void>
+public class AddEntitiesToMetaProjectRmi implements Command<Void>
 {
 
+    @Inject
+    private User user;
+
+    @Inject
+    private String session;
+
+    @Inject
+    private IGeneralInformationChangingService openbis;
+
+    private MetaProject metaProject;
+
+    private Collection<Entity> entities;
+
+    public AddEntitiesToMetaProjectRmi(MetaProject metaProject, Entity first, Entity... rest)
+    {
+        this.metaProject = metaProject;
+        this.entities = new HashSet<Entity>();
+        this.entities.add(first);
+        this.entities.addAll(Arrays.asList(rest));
+    }
+
+    public AddEntitiesToMetaProjectRmi(MetaProject metaProject, Collection<Entity> entities)
+    {
+        this.metaProject = metaProject;
+        this.entities = entities;
+    }
+
     @Override
-    public Void run(AddEntitiesToMetaProject request)
+    public Void execute()
     {
         MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
 
-        for (Entity entity : request.getEntities())
+        for (Entity entity : entities)
         {
             if (entity instanceof Sample)
             {
@@ -51,16 +87,20 @@ public class AddEntitiesToMetaProjectRmi extends Executor<AddEntitiesToMetaProje
             } else if (entity instanceof DataSet)
             {
                 ids.addDataSet(new DataSetCodeId(((DataSet) entity).getCode()));
+            } else if (entity instanceof Material)
+            {
+                Material material = (Material) entity;
+                ids.addMaterial(new MaterialCodeAndTypeCodeId(material.getCode(), material
+                        .getType().getCode()));
             } else
             {
-                throw new UnsupportedOperationException("not implemented yet for "
-                        + entity.getClass());
+                throw new IllegalArgumentException(entity.getClass().getCanonicalName());
             }
         }
 
-        generalInformationChangingService.addToMetaproject(session, new MetaprojectIdentifierId(
-                "/selenium/"
-                        + request.getMetaProject().getName()), ids);
+        openbis.addToMetaproject(session,
+                new MetaprojectIdentifierId("/" + user.getName() + "/" + metaProject.getName()),
+                ids);
         return null;
     }
 }

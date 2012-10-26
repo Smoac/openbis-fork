@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
-import ch.systemsx.cisd.openbis.uitest.request.CreateProject;
+import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
+import ch.systemsx.cisd.openbis.uitest.gui.CreateProjectGui;
+import ch.systemsx.cisd.openbis.uitest.rmi.CreateProjectRmi;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
@@ -58,12 +60,23 @@ public class ProjectBuilder implements Builder<Project>
     }
 
     @Override
-    public Project build(Application openbis)
+    public Project build(Application openbis, Ui ui)
     {
         if (space == null)
         {
-            space = new SpaceBuilder(uid).build(openbis);
+            space = new SpaceBuilder(uid).build(openbis, ui);
         }
-        return openbis.execute(new CreateProject(new ProjectDsl(code, description, space)));
+
+        Project project = new ProjectDsl(code, description, space);
+        if (Ui.WEB.equals(ui))
+        {
+            return openbis.execute(new CreateProjectGui(project));
+        } else if (Ui.PUBLIC_API.equals(ui))
+        {
+            return openbis.execute(new CreateProjectRmi(project));
+        } else
+        {
+            return project;
+        }
     }
 }

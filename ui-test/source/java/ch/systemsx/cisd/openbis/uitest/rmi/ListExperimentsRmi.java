@@ -17,25 +17,45 @@
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
-import ch.systemsx.cisd.openbis.uitest.request.ListExperiments;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.rmi.eager.ExperimentRmi;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 
 /**
  * @author anttil
  */
-public class ListExperimentsRmi extends Executor<ListExperiments, List<Experiment>>
+public class ListExperimentsRmi implements Command<List<Experiment>>
 {
 
-    @Override
-    public List<Experiment> run(ListExperiments request)
+    @Inject
+    private String session;
+
+    @Inject
+    private IGeneralInformationService generalInformationService;
+
+    @Inject
+    private ICommonServer commonServer;
+
+    private List<String> ids;
+
+    public ListExperimentsRmi(String firstId, String... rest)
     {
-        List<String> experimentIds = new ArrayList<String>(request.getExperimentIds());
+        this.ids = new ArrayList<String>();
+        this.ids.add(firstId);
+        this.ids.addAll(Arrays.asList(rest));
+    }
+
+    @Override
+    public List<Experiment> execute()
+    {
         List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment> experiments =
-                generalInformationService.listExperiments(session, experimentIds);
+                generalInformationService.listExperiments(session, ids);
 
         List<Experiment> result = new ArrayList<Experiment>();
         for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment e : experiments)

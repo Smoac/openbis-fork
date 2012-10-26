@@ -16,44 +16,42 @@
 
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
+import java.util.ArrayList;
+
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
-import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
+import ch.systemsx.cisd.openbis.uitest.type.MaterialType;
 
 /**
  * @author anttil
  */
-public class CreateDataSetTypeRmi implements Command<DataSetType>
+public class CreateMaterialTypeRmi implements Command<MaterialType>
 {
+
     @Inject
     private String session;
 
     @Inject
     private ICommonServer commonServer;
 
-    private DataSetType type;
+    private MaterialType type;
 
-    public CreateDataSetTypeRmi(DataSetType type)
+    public CreateMaterialTypeRmi(MaterialType type)
     {
         this.type = type;
     }
 
     @Override
-    public DataSetType execute()
+    public MaterialType execute()
     {
-        commonServer.registerDataSetType(session, convert(type));
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType materialType =
+                new ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType();
+        materialType.setCode(type.getCode());
+        materialType.setDescription("");
+        materialType.setMaterialTypePropertyTypes(new ArrayList<MaterialTypePropertyType>());
+        commonServer.registerMaterialType(session, materialType);
         return type;
     }
-
-    private ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType convert(DataSetType dataSetType)
-    {
-        ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType t =
-                new ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType();
-        t.setCode(dataSetType.getCode());
-        t.setDataSetKind(DataSetKind.PHYSICAL);
-        return t;
-    }
-
 }

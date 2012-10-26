@@ -16,19 +16,23 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.layout.TrashLocation;
-import ch.systemsx.cisd.openbis.uitest.request.EmptyTrash;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class EmptyTrashGui extends Executor<EmptyTrash, Void>
+public class EmptyTrashGui implements Command<Void>
 {
+    @Inject
+    private Pages pages;
+
     @Override
-    public Void run(EmptyTrash request)
+    public Void execute()
     {
-        goTo(new TrashLocation()).empty();
+        pages.goTo(new TrashLocation()).empty();
         return null;
     }
 }

@@ -31,10 +31,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 
 /**
  * Immutable value object representing a data set.
@@ -90,6 +92,8 @@ public final class DataSet implements Serializable, IIdHolder
         private List<DataSet> containedDataSets = Collections.emptyList();
 
         private HashMap<String, String> properties = new HashMap<String, String>();
+
+        private List<Metaproject> metaprojects = new ArrayList<Metaproject>();
 
         private EntityRegistrationDetails registrationDetails;
 
@@ -155,6 +159,16 @@ public final class DataSet implements Serializable, IIdHolder
         public void putProperty(String propCode, String value)
         {
             properties.put(propCode, value);
+        }
+
+        public List<Metaproject> getMetaprojects()
+        {
+            return metaprojects;
+        }
+
+        public void addMetaproject(Metaproject metaproject)
+        {
+            metaprojects.add(metaproject);
         }
 
         public void setRetrievedConnections(EnumSet<Connections> retrievedConnections)
@@ -301,6 +315,8 @@ public final class DataSet implements Serializable, IIdHolder
 
     private HashMap<String, String> properties;
 
+    private List<Metaproject> metaprojects;
+
     // For handling connections to entities
     private EnumSet<Connections> retrievedConnections;
 
@@ -343,6 +359,8 @@ public final class DataSet implements Serializable, IIdHolder
             this.dataSetTypeCode = initializer.getDataSetTypeCode();
 
             this.properties = initializer.getProperties();
+
+            this.metaprojects = initializer.getMetaprojects();
 
             this.parentCodes = initializer.getParentCodes();
             this.childrenCodes = initializer.getChildrenCodes();
@@ -410,6 +428,15 @@ public final class DataSet implements Serializable, IIdHolder
     public HashMap<String, String> getProperties()
     {
         return properties;
+    }
+
+    public List<Metaproject> getMetaprojects() throws IllegalArgumentException
+    {
+        if (metaprojects == null)
+        {
+            return new ArrayList<Metaproject>();
+        }
+        return Collections.unmodifiableList(metaprojects);
     }
 
     public EnumSet<Connections> getRetrievedConnections()
@@ -582,6 +609,12 @@ public final class DataSet implements Serializable, IIdHolder
     private void setProperties(HashMap<String, String> properties)
     {
         this.properties = properties;
+    }
+
+    @JsonProperty("metaprojects")
+    private void setMetaprojectsJson(List<Metaproject> metaprojects)
+    {
+        this.metaprojects = metaprojects;
     }
 
     private void setRetrievedConnections(EnumSet<Connections> retrievedConnections)

@@ -18,24 +18,35 @@ package ch.systemsx.cisd.openbis.uitest.rmi;
 
 import java.util.ArrayList;
 
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
-import ch.systemsx.cisd.openbis.uitest.request.CreateProject;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
 
 /**
  * @author anttil
  */
-public class CreateProjectRmi extends Executor<CreateProject, Project>
+public class CreateProjectRmi implements Command<Project>
 {
+    @Inject
+    private String session;
+
+    @Inject
+    private ICommonServer commonServer;
+
+    private Project project;
+
+    public CreateProjectRmi(Project project)
+    {
+        this.project = project;
+    }
 
     @Override
-    public Project run(CreateProject request)
+    public Project execute()
     {
-        Project project = request.getProject();
         commonServer.registerProject(session, Identifiers.get(project), project.getDescription(),
                 "system", new ArrayList<NewAttachment>());
         return project;
     }
-
 }

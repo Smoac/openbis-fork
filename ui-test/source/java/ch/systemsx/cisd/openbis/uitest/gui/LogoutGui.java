@@ -16,25 +16,27 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.menu.UserMenu;
 import ch.systemsx.cisd.openbis.uitest.page.LoginPage;
-import ch.systemsx.cisd.openbis.uitest.request.Logout;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class LogoutGui extends Executor<Logout, Void>
+public class LogoutGui implements Command<Void>
 {
+    @Inject
+    private Pages pages;
 
     @Override
-    public Void run(Logout request)
+    public Void execute()
     {
-        load(TopBar.class).user();
-        load(UserMenu.class).logout();
-        load(LoginPage.class);
+        pages.load(TopBar.class).user();
+        pages.load(UserMenu.class).logout();
+        pages.load(LoginPage.class);
         return null;
     }
-
 }

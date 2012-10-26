@@ -16,23 +16,33 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterScriptLocation;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterScript;
-import ch.systemsx.cisd.openbis.uitest.request.CreateScript;
 import ch.systemsx.cisd.openbis.uitest.type.Script;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class CreateScriptGui extends Executor<CreateScript, Script>
+public class CreateScriptGui implements Command<Script>
 {
 
-    @Override
-    public Script run(CreateScript request)
+    @Inject
+    private Pages pages;
+
+    private Script script;
+
+    public CreateScriptGui(Script script)
     {
-        Script script = request.getScript();
-        RegisterScript register = goTo(new RegisterScriptLocation());
+        this.script = script;
+    }
+
+    @Override
+    public Script execute()
+    {
+        RegisterScript register = pages.goTo(new RegisterScriptLocation());
         register.fillWith(script);
         register.save();
         return script;

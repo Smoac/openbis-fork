@@ -16,24 +16,34 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.layout.AddExperimentTypeLocation;
 import ch.systemsx.cisd.openbis.uitest.page.AddExperimentTypeDialog;
-import ch.systemsx.cisd.openbis.uitest.request.CreateExperimentType;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class CreateExperimentTypeGui extends Executor<CreateExperimentType, ExperimentType>
+public class CreateExperimentTypeGui implements Command<ExperimentType>
 {
-    @Override
-    public ExperimentType run(CreateExperimentType request)
+    @Inject
+    private Pages pages;
+
+    private ExperimentType type;
+
+    public CreateExperimentTypeGui(ExperimentType type)
     {
-        ExperimentType experimentType = request.getType();
-        AddExperimentTypeDialog dialog = goTo(new AddExperimentTypeLocation());
-        dialog.fillWith(experimentType);
+        this.type = type;
+    }
+
+    @Override
+    public ExperimentType execute()
+    {
+        AddExperimentTypeDialog dialog = pages.goTo(new AddExperimentTypeLocation());
+        dialog.fillWith(type);
         dialog.save();
-        return experimentType;
+        return type;
     }
 }

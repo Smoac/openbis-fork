@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.openbis.uitest.rmi.eager;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
@@ -50,15 +52,12 @@ public class DataSetRmi extends DataSet
     @Override
     public Collection<MetaProject> getMetaProjects()
     {
-        /*
         Collection<MetaProject> metaProjects = new HashSet<MetaProject>();
         for (Metaproject m : dataSet.getMetaprojects())
         {
             metaProjects.add(new MetaProjectRmi(m));
         }
         return metaProjects;
-        */
-        return null;
     }
 
     @Override

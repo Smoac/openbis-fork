@@ -16,23 +16,34 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.page.Browsable;
 import ch.systemsx.cisd.openbis.uitest.page.Browser;
-import ch.systemsx.cisd.openbis.uitest.request.DeleteSpace;
 import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
+import ch.systemsx.cisd.openbis.uitest.type.Space;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class DeleteSpaceGui extends Executor<DeleteSpace, Void>
+public class DeleteSpaceGui implements Command<Void>
 {
+    @Inject
+    private Pages pages;
+
+    private Space space;
+
+    public DeleteSpaceGui(Space space)
+    {
+        this.space = space;
+    }
 
     @Override
-    public Void run(DeleteSpace request)
+    public Void execute()
     {
-        Browsable browsable = new BrowsableWrapper(request.getSpace());
-        Browser browser = goTo(browsable.getBrowserLocation());
+        Browsable browsable = new BrowsableWrapper(space);
+        Browser browser = pages.goTo(browsable.getBrowserLocation());
         browser.delete(browsable);
         return null;
     }

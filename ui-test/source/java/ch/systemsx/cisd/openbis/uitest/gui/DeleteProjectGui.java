@@ -16,23 +16,35 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.page.Browsable;
 import ch.systemsx.cisd.openbis.uitest.page.Browser;
-import ch.systemsx.cisd.openbis.uitest.request.DeleteProject;
 import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
+import ch.systemsx.cisd.openbis.uitest.type.Project;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class DeleteProjectGui extends Executor<DeleteProject, Void>
+public class DeleteProjectGui implements Command<Void>
 {
 
-    @Override
-    public Void run(DeleteProject request)
+    @Inject
+    private Pages pages;
+
+    private Project project;
+
+    public DeleteProjectGui(Project project)
     {
-        Browsable browsable = new BrowsableWrapper(request.getProject());
-        Browser browser = goTo(browsable.getBrowserLocation());
+        this.project = project;
+    }
+
+    @Override
+    public Void execute()
+    {
+        Browsable browsable = new BrowsableWrapper(project);
+        Browser browser = pages.goTo(browsable.getBrowserLocation());
         browser.delete(browsable);
         return null;
     }

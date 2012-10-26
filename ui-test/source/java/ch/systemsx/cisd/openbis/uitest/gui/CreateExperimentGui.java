@@ -16,22 +16,32 @@
 
 package ch.systemsx.cisd.openbis.uitest.gui;
 
-import ch.systemsx.cisd.openbis.uitest.dsl.Executor;
+import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterExperimentLocation;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterExperiment;
-import ch.systemsx.cisd.openbis.uitest.request.CreateExperiment;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
+import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class CreateExperimentGui extends Executor<CreateExperiment, Experiment>
+public class CreateExperimentGui implements Command<Experiment>
 {
-    @Override
-    public Experiment run(CreateExperiment request)
+    @Inject
+    private Pages pages;
+
+    private Experiment experiment;
+
+    public CreateExperimentGui(Experiment experiment)
     {
-        Experiment experiment = request.getExperiment();
-        RegisterExperiment register = goTo(new RegisterExperimentLocation());
+        this.experiment = experiment;
+    }
+
+    @Override
+    public Experiment execute()
+    {
+        RegisterExperiment register = pages.goTo(new RegisterExperimentLocation());
         register.selectExperimentType(experiment.getType());
         register.fillWith(experiment);
         register.save();

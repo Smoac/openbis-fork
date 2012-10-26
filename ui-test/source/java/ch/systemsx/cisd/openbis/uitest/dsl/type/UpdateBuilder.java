@@ -17,11 +17,12 @@
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
+import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
 
 /**
  * @author anttil
  */
 public interface UpdateBuilder
 {
-    public void update(Application openbis);
+    public void update(Application openbis, Ui ui);
 }

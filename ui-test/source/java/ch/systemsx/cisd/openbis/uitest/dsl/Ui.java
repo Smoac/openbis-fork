@@ -14,24 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.request;
-
-import ch.systemsx.cisd.openbis.uitest.type.Space;
+package ch.systemsx.cisd.openbis.uitest.dsl;
 
 /**
  * @author anttil
  */
-public class DeleteSpace implements Request<Void>
+public enum Ui
 {
-    private final Space space;
-
-    public DeleteSpace(Space space)
-    {
-        this.space = space;
-    }
-
-    public Space getSpace()
-    {
-        return space;
-    }
+    WEB, PUBLIC_API, DUMMY
 }

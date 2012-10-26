@@ -40,9 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
- * A predicate for lists of entities of {@link Sample}s. This
- * predicate authorizes for read-only access, i.e. it will allow access to shared samples for all
- * users.
+ * A predicate for lists of entities of {@link Sample}s. This predicate authorizes for read-only
+ * access, i.e. it will allow access to shared samples for all users.
  * <p>
  * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
@@ -136,7 +135,7 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
 
     private final static int ARRAY_SIZE_LIMIT = 999;
 
-    interface ISampleToSpaceQuery extends BaseQuery
+    public static interface ISampleToSpaceQuery extends BaseQuery
     {
         @Select(sql = "select distinct space_id from samples where id = any(?{1}) "
                 + "union select distinct space_id from samples where perm_id = any(?{2})", parameterBindings =

@@ -14,24 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.request;
-
-import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
+package ch.systemsx.cisd.openbis.uitest.dsl;
 
 /**
  * @author anttil
  */
-public class DeleteExperimentType implements Request<Void>
+public interface Command<U>
 {
-    private final ExperimentType type;
-
-    public DeleteExperimentType(ExperimentType type)
-    {
-        this.type = type;
-    }
-
-    public ExperimentType getType()
-    {
-        return type;
-    }
+    public U execute();
 }
