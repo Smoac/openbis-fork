@@ -23,6 +23,7 @@ import javax.activation.DataHandler;
 
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exception.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -95,7 +96,9 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
         this.mailClient = mailClient;
     }
 
-    private static final class ProxyMailClient implements IMailClient
+    @Private
+    // For unit tests
+    static final class ProxyMailClient implements IMailClient
     {
         private final IMailClient mailClient;
 
@@ -167,9 +170,8 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
         try
         {
             DataSetProcessingContext context =
-                    new DataSetProcessingContext(contentProvider, dataSetDirectoryProvider,
-                            parameterBindings, proxyMailClient, userId, userEmailOrNull,
-                            sessionTokenOrNull);
+                    createDataSetProcessingContext(contentProvider, dataSetDirectoryProvider,
+                    proxyMailClient);
             processingStatusOrNull = task.process(dataSets, context);
         } catch (RuntimeException e)
         {
@@ -197,6 +199,18 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
                 createContentAndSendMessage(errorMessageOrNull, processingStatusOrNull);
             }
         }
+    }
+
+    /**
+     * Can be overridden in unit tests to avoid trying to create the openBIS service.
+     */
+    DataSetProcessingContext createDataSetProcessingContext(
+            IHierarchicalContentProvider contentProvider,
+            IDataSetDirectoryProvider dataSetDirectoryProvider, ProxyMailClient proxyMailClient)
+    {
+        return new DataSetProcessingContext(contentProvider, dataSetDirectoryProvider,
+                parameterBindings, proxyMailClient, userId, userEmailOrNull,
+                sessionTokenOrNull);
     }
 
     private void createContentAndSendMessage(String errorMessageOrNull,
@@ -301,6 +315,16 @@ public class ProcessDatasetsCommand extends AbstractDataSetDescriptionBasedComma
             mailClient = new MailClient(mailClientParameters);
         }
         return mailClient;
+    }
+
+    String getUserId()
+    {
+        return userId;
+    }
+
+    String tryGetUserEmail()
+    {
+        return userEmailOrNull;
     }
 
 }

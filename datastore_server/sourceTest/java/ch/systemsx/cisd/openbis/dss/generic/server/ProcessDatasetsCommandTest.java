@@ -39,6 +39,8 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -91,7 +93,19 @@ public class ProcessDatasetsCommandTest extends AssertJUnit
         command =
                 new ProcessDatasetsCommand(task, dataSets, parameterBindings, USER_ID, E_MAIL,
                         null, DatastoreServiceDescription.processing("MY_TASK", EXAMPLE_TASK_LABEL,
-                                new String[0], "DSS1"), mailClient);
+                                new String[0], "DSS1"), mailClient)
+        {
+            private static final long serialVersionUID = 1L;
+            
+            @Override
+            DataSetProcessingContext createDataSetProcessingContext(
+                    IHierarchicalContentProvider contentProvider,
+                    IDataSetDirectoryProvider dataSetDirectoryProvider, ProxyMailClient proxyMailClient)
+            {
+                return new DataSetProcessingContext(contentProvider, dataSetDirectoryProvider,
+                        parameterBindings, proxyMailClient, getUserId(), tryGetUserEmail());
+            }
+        };
         subjectRecorder = new RecordingMatcher<String>();
         contentRecorder = new RecordingMatcher<String>();
         context.checking(new Expectations()
