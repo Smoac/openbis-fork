@@ -338,7 +338,7 @@ public class DatasetDownloadServletTest
         String logContent = logRecorder.getLogContent();
         assertContains(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR
                 + CONTENT_PROVIDER_LOG_ERROR + "Data set '1234-1' not found in openBIS server."
-                + OSUtilities.LINE_SEPARATOR + LOG_INFO + "User failure: Unknown data set: 1234-1",
+                + OSUtilities.LINE_SEPARATOR + LOG_ERROR + "Unknown data set: 1234-1",
                 logContent);
 
         context.assertIsSatisfied();
