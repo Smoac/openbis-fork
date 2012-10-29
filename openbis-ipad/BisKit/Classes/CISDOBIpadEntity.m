@@ -24,6 +24,14 @@
 #import "CISDOBIpadEntity.h"
 #import "CISDOBIpadService.h"
 
+///! Convert a JSON string to objects. Returns nil if the string is nil.
+id ObjectFromJsonData(NSString *jsonData, NSError **error)
+{
+    if (nil == jsonData) return nil;
+
+    return [NSJSONSerialization JSONObjectWithData: [jsonData dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: error];
+}
+
 
 @implementation CISDOBIpadEntity
 
@@ -57,7 +65,8 @@
     
     if (nil == refcon) {
         NSError *error;
-        refcon  = [NSJSONSerialization JSONObjectWithData: [self.refconJson dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: &error];
+        refcon = ObjectFromJsonData(self.refconJson, &error);
+        if (!refcon) return nil;
         if (error) {
             NSLog(@"Could not deserialize refcon %@", error);
         }
@@ -75,7 +84,8 @@
     
     if (nil == properties) {
         NSError *error;
-        NSDictionary *propertiesDict = [NSJSONSerialization JSONObjectWithData: [self.propertiesJson dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: &error];
+        NSDictionary *propertiesDict = ObjectFromJsonData(self.propertiesJson, &error);
+        if (!propertiesDict) return nil;
         properties = [[NSMutableArray alloc] init];
         for (NSString *key in [propertiesDict allKeys]) {
             NSDictionary *property = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -100,12 +110,9 @@
     [self didAccessValueForKey: @"childrenPermIds"];
     
     if (nil == childrenPermIds) {
-            // This value has not yet been initialized from the server.
-            // Leave it as nil
-        if (nil == self.childrenPermIdsJson) return nil;
-
         NSError *error;
-        childrenPermIds = [NSJSONSerialization JSONObjectWithData: [self.childrenPermIdsJson dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: &error];
+        childrenPermIds = ObjectFromJsonData(self.childrenPermIdsJson, &error);
+        if (!childrenPermIds) return nil;
         if (error) {
             NSLog(@"Could not deserialize childrenPermIds %@", error);
         }
