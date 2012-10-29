@@ -133,20 +133,26 @@
     CISDOBIpadRawEntity *entityWithChildren = nil;
     for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
         if ([rawEntity.children length] > 2) {
-            entityWithChildren = rawEntity;
+            entityWithChildren = [rawEntity retain];
             break;
         }
     }
-    
-    // Details
+    // Drill
     NSError *error;
     id refconObject = [NSJSONSerialization JSONObjectWithData: [entityWithChildren.refcon dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: &error];
     STAssertNotNil(refconObject, @"Could not parse refcon string %@ : %@", entityWithChildren.refcon, error);
+    call = [_service drillOnEntityWithPermId: entityWithChildren.permId refcon: refconObject];
+    [self configureAndRunCallSynchronously: call];
+    rawEntities = _callResult;
+    STAssertEquals([rawEntities count], (NSUInteger) 3, @"The Pad service should have returned three entity for drill.");
+    
+    // Details
     call = [_service detailsForEntityWithPermId: entityWithChildren.permId refcon: refconObject];
     [self configureAndRunCallSynchronously: call];
     
     rawEntities = _callResult;
     STAssertEquals([rawEntities count], (NSUInteger) 1, @"The Pad service should have returned one entity for details.");
+    [entityWithChildren release];
 }
 
 @end
