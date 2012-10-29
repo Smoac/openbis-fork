@@ -195,6 +195,11 @@ public class DataSetProcessingContext
             };
     }
     
+    public IHierarchicalContentProvider getHierarchicalContentProviderUnfiltered()
+    {
+        return hierarchicalContentProvider;
+    }
+
     private void assertAuthorization(String dataSetCode)
     {
         if (sessionTokenOrNull == null)
