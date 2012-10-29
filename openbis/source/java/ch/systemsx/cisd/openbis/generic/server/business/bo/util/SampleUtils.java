@@ -45,14 +45,14 @@ public class SampleUtils
         return dataDAO.hasDataSet(sample);
     }
 
-    /** for all experiment samples which belonged to a group the specified group will be set */
-    public static void setSamplesGroup(ExperimentPE experiment, SpacePE group)
+    /** for all experiment samples which belonged to a space the specified space will be set */
+    public static void setSamplesSpace(ExperimentPE experiment, SpacePE space)
     {
         for (SamplePE sample : experiment.getSamples())
         {
             if (sample.getSpace() != null)
             {
-                sample.setSpace(group);
+                sample.setSpace(space);
             }
         }
     }

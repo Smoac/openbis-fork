@@ -59,7 +59,7 @@ public class RelationshipService implements IRelationshipService
     public void assignExperimentToProject(IAuthSession session, ExperimentPE experiment,
             ProjectPE project)
     {
-        SampleUtils.setSamplesGroup(experiment, project.getSpace());
+        SampleUtils.setSamplesSpace(experiment, project.getSpace());
         experiment.setProject(project);
     }
 
@@ -69,7 +69,7 @@ public class RelationshipService implements IRelationshipService
         project.setSpace(space);
         for (ExperimentPE experiment : project.getExperiments())
         {
-            SampleUtils.setSamplesGroup(experiment, space);
+            SampleUtils.setSamplesSpace(experiment, space);
         }
     }
 
