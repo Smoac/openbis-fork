@@ -22,9 +22,11 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IndexCreationUtil;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexerRunnable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
 
@@ -33,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
  */
 public class TestInitializer
 {
-    public static final String LUCENE_INDEX_TEMPLATE_PATH = "../openbis/sourceTest/lucene/indices";
+    public static final String LUCENE_INDEX_TEMPLATE_PATH = "../openbis/targets/tempLuceneIndices";
 
     public static final String LUCENE_INDEX_PATH = "../openbis/targets/lucene/indices";
 
@@ -61,9 +63,33 @@ public class TestInitializer
         init(IndexMode.NO_INDEX, SCRIPT_FOLDER_EMPTY_DB);
     }
 
+    private static boolean firstTry = true;
+
     private static void init(IndexMode hibernateIndexMode, String scriptFolder)
     {
         LogInitializer.init();
+
+        if (firstTry)
+        {
+            try
+            {
+                File temporaryFile = new File(LUCENE_INDEX_TEMPLATE_PATH);
+                FileUtilities.deleteRecursively(temporaryFile);
+                temporaryFile.mkdirs();
+
+                IndexCreationUtil.main("test", temporaryFile.getAbsolutePath());
+
+            } catch (Exception ex)
+            {
+                CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+            firstTry = false;
+        }
+
+        // make sure the search index is up-to-date
+        // and in the right place when we run tests
+        restoreSearchIndex();
+
         System.setProperty("database.create-from-scratch", "true");
         System.setProperty("database.kind", "test");
         System.setProperty("script-folder", scriptFolder);
@@ -71,18 +97,15 @@ public class TestInitializer
         System.setProperty("hibernate.search.index-base", LUCENE_INDEX_PATH);
         System.setProperty("hibernate.search.worker.execution", "sync");
 
-        // make sure the search index is up-to-date
-        // and in the right place when we run tests
-        restoreSearchIndex();
     }
 
     // create a fresh copy of the Lucene index
     public static void restoreSearchIndex()
     {
-        File targetPath = new File(TestInitializer.LUCENE_INDEX_PATH);
+        File targetPath = new File(TestInitializer.LUCENE_INDEX_PATH).getAbsoluteFile();
         FileUtilities.deleteRecursively(targetPath);
         targetPath.mkdirs();
-        File srcPath = new File(LUCENE_INDEX_TEMPLATE_PATH);
+        File srcPath = new File(LUCENE_INDEX_TEMPLATE_PATH).getAbsoluteFile();
         try
         {
             FileUtils.copyDirectory(srcPath, targetPath, new FileFilter()

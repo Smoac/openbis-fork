@@ -61,31 +61,30 @@ public final class IndexCreationUtil
 
     private static HibernateSearchContext hibernateSearchContext;
 
-    private static BeanFactory beanFactory;
+    private static AbstractApplicationContext applicationContext;
 
     private IndexCreationUtil()
     {
         // Can not be instantiated.
     }
 
-    private final static BeanFactory getBeanFactory()
+    private final static AbstractApplicationContext getApplicationContext()
     {
-        if (beanFactory == null)
+        if (applicationContext == null)
         {
-            final AbstractApplicationContext applicationContext =
-                    new ClassPathXmlApplicationContext(new String[]
-                        { "applicationContext.xml" }, true);
-            IndexCreationUtil.beanFactory = applicationContext;
+            final AbstractApplicationContext appC = new ClassPathXmlApplicationContext(new String[]
+                { "applicationContext.xml" }, true);
+            IndexCreationUtil.applicationContext = appC;
         }
-        return beanFactory;
+        return applicationContext;
     }
 
     /**
      * Performs a full text index because the test database has been migrated.
      */
-    private final static void performFullTextIndex() throws Exception
+    private final static void createAndRunFullTextIndexer() throws Exception
     {
-        final BeanFactory factory = getBeanFactory();
+        final BeanFactory factory = getApplicationContext();
         final IFullTextIndexUpdater updater = createDummyUpdater();
         final FullTextIndexerRunnable fullTextIndexer =
                 new FullTextIndexerRunnable(
@@ -135,7 +134,43 @@ public final class IndexCreationUtil
     // Main method
     //
 
-    public static void main(final String[] args) throws Exception
+    public static void main(final String... args) throws Exception
+    {
+        Parameters parameters = parseArguments(args);
+
+        LogInitializer.init();
+
+        if (parameters.getDuplicatedDatabaseKind() != null)
+        {
+            dumpDatabase(parameters);
+        }
+
+        performIsolatedIndexing(parameters);
+
+        releaseResources();
+    }
+
+    private static void dumpDatabase(Parameters parameters)
+    {
+        String databaseKind = parameters.getDatabaseKind();
+        String duplicatedDatabaseKind = parameters.getDuplicatedDatabaseKind();
+        String indexFolder = parameters.getIndexFolder();
+
+        String databaseName = DATABASE_NAME_PREFIX + databaseKind;
+        String duplicatedDatabaseName = DATABASE_NAME_PREFIX + duplicatedDatabaseKind;
+        boolean ok = duplicateDatabase(duplicatedDatabaseName, databaseName);
+        if (ok == false)
+        {
+            throw new IllegalStateException("Execution failed");
+        }
+        File dumpFile = parameters.getDumpFile();
+        operationLog.info("Dump '" + duplicatedDatabaseName + "' into '" + dumpFile + "'.");
+        DumpPreparator.createDatabaseDump(duplicatedDatabaseName, dumpFile);
+        databaseKind = duplicatedDatabaseKind;
+        FileUtilities.deleteRecursively(new File(indexFolder));
+    }
+
+    private static Parameters parseArguments(final String... args)
     {
         Parameters parameters = null;
         try
@@ -144,46 +179,49 @@ public final class IndexCreationUtil
         } catch (IllegalArgumentException e)
         {
             System.out.println(Parameters.getUsage());
-            System.exit(1);
-            return; // for Eclipse
+            throw e;
         }
-        LogInitializer.init();
-        String databaseKind = parameters.getDatabaseKind();
-        String duplicatedDatabaseKind = parameters.getDuplicatedDatabaseKind();
-        String indexFolder = parameters.getIndexFolder();
-        if (duplicatedDatabaseKind != null)
-        {
+        return parameters;
+    }
 
-            String databaseName = DATABASE_NAME_PREFIX + databaseKind;
-            String duplicatedDatabaseName = DATABASE_NAME_PREFIX + duplicatedDatabaseKind;
-            boolean ok = duplicateDatabase(duplicatedDatabaseName, databaseName);
-            if (ok == false)
-            {
-                System.exit(1);
-            }
-            File dumpFile = parameters.getDumpFile();
-            operationLog.info("Dump '" + duplicatedDatabaseName + "' into '" + dumpFile + "'.");
-            DumpPreparator.createDatabaseDump(duplicatedDatabaseName, dumpFile);
-            databaseKind = duplicatedDatabaseKind;
-            FileUtilities.deleteRecursively(new File(indexFolder));
-        }
+    private static void releaseResources()
+    {
+        applicationContext.stop();
+        applicationContext.close();
+        applicationContext.destroy();
+    }
+
+    /**
+     * Performs indexing and restored the environment to original state
+     */
+    private static void performIsolatedIndexing(Parameters parameters) throws Exception
+    {
+        String databaseKind = parameters.getDatabaseKind();
+        String indexFolder = parameters.getIndexFolder();
+
         System.setProperty("database.kind", databaseKind);
         // Deactivate the indexing in the application context loaded by Spring.
         System.setProperty("hibernate.search.index-mode", "NO_INDEX");
         System.setProperty("hibernate.search.index-base", indexFolder);
         System.setProperty("database.create-from-scratch", "false");
+
+        performAndTimeIndexing(databaseKind, indexFolder);
+
+    }
+
+    private static void performAndTimeIndexing(String databaseKind, String indexFolder)
+            throws Exception
+    {
         hibernateSearchContext = createHibernateSearchContext(indexFolder);
         hibernateSearchContext.afterPropertiesSet();
         operationLog.info("=========== Start indexing ===========");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        performFullTextIndex();
+        createAndRunFullTextIndexer();
         stopWatch.stop();
         operationLog.info("Index of database '" + DATABASE_NAME_PREFIX + databaseKind
                 + "' successfully built in '" + indexFolder + "' after "
                 + ((stopWatch.getTime() + 30000) / 60000) + " minutes.");
-        Thread.sleep(10000);
-        System.exit(0);
     }
 
     static boolean duplicateDatabase(String destinationDatabase, String sourceDatabase)
