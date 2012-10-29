@@ -21,10 +21,13 @@ import java.io.FileFilter;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IndexCreationUtil;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexerRunnable;
@@ -35,6 +38,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
  */
 public class TestInitializer
 {
+    static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            TestInitializer.class);
+
     public static final String LUCENE_INDEX_TEMPLATE_PATH = "../openbis/targets/tempLuceneIndices";
 
     public static final String LUCENE_INDEX_PATH = "../openbis/targets/lucene/indices";
@@ -81,6 +87,7 @@ public class TestInitializer
 
             } catch (Exception ex)
             {
+                operationLog.error(ex);
                 CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
             firstTry = false;
