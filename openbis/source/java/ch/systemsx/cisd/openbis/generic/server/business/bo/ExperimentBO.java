@@ -606,7 +606,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         // if the group has changes, move all samples to that group
         if (project.getSpace().equals(previousProject.getSpace()) == false)
         {
-            SampleUtils.setSamplesGroup(experiment, project.getSpace());
+            SampleUtils.setSamplesSpace(experiment, project.getSpace());
         }
         experiment.setProject(project);
     }
