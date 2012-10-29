@@ -43,8 +43,8 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
-import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
@@ -1271,6 +1271,33 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         SearchHelper searchHelper =
                 new SearchHelper(session, businessObjectFactory, getDAOFactory());
         return searchHelper.searchForDataSets(session.getUserName(), criteria);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    @Capability("SEARCH_ON_BEHALF_OF_USER")
+    public List<ExternalData> searchForDataSetsOnBehalfOfUser(String sessionToken,
+            DetailedSearchCriteria criteria, String userId)
+    {
+        final Session session = getSession(sessionToken);
+        SearchHelper searchHelper =
+                new SearchHelper(session, businessObjectFactory, getDAOFactory());
+        List<ExternalData> unfilteredDatasets = searchHelper.searchForDataSets(userId, criteria);
+
+        // Filter for user
+        final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+        final ExternalDataValidator validator = new ExternalDataValidator();
+        final ArrayList<ExternalData> datasets =
+                new ArrayList<ExternalData>(unfilteredDatasets.size());
+
+        for (ExternalData dataset : unfilteredDatasets)
+        {
+            if (validator.doValidation(person, dataset))
+            {
+                datasets.add(dataset);
+            }
+        }
+        return datasets;
     }
 
     @Override

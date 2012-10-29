@@ -577,6 +577,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
+    public List<ExternalData> searchForDataSetsOnBehalfOfUser(String sessionToken,
+            DetailedSearchCriteria criteria, String userId)
+    {
+        logAccess(sessionToken, "search_for_datasets", "criteria(%s) user_id(%s)", criteria, userId);
+        return null;
+    }
+
+    @Override
     public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria)
     {
         logAccess(sessionToken, "search_for_samples", "criteria(%s)", criteria);

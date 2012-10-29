@@ -158,6 +158,78 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForSamplesOnBehalfOfUser()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "*TEST*"));
+
+        // executed by test
+        List<Sample> testResult =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities(
+                "[/CISD/CP-TEST-1, /CISD/CP-TEST-2, /CISD/CP-TEST-3, /CISD/DYNA-TEST-1, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST]",
+                testResult);
+
+        // executed by test on behalf of test_space
+        List<Sample> onBehalfOfTestSpaceResult =
+                generalInformationService.searchForSamplesOnBehalfOfUser(sessionToken,
+                        searchCriteria, EnumSet.of(SampleFetchOption.BASIC), "test_space");
+        assertEntities("[/TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST]", onBehalfOfTestSpaceResult);
+
+        // executed by test_space
+        generalInformationService.logout(sessionToken);
+        sessionToken =
+                generalInformationService.tryToAuthenticateForAllServices("test_space", "password");
+
+        List<Sample> testSpaceResult =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST]", testSpaceResult);
+    }
+
+    @Test(expectedExceptions = AuthorizationFailureException.class)
+    public void testSearchForSamplesOnBehalfOfUserExecutedByNotInstanceUser()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "SOME_CODE"));
+
+        generalInformationService.logout(sessionToken);
+        sessionToken =
+                generalInformationService.tryToAuthenticateForAllServices("test_role", "password");
+        generalInformationService.searchForSamplesOnBehalfOfUser(sessionToken, searchCriteria,
+                EnumSet.of(SampleFetchOption.BASIC), "admin");
+    }
+
+    @Test
+    public void testSearchForSamplesOnBehalfOfUserByMetaprojectName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "TEST_METAPROJECTS"));
+
+        // executed by test
+        List<Sample> testResult =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/TEST-SPACE/EV-TEST]", testResult);
+
+        // executed by test on behalf of test_space
+        List<Sample> onBehalfOfTestSpaceResult =
+                generalInformationService.searchForSamplesOnBehalfOfUser(sessionToken,
+                        searchCriteria, EnumSet.of(SampleFetchOption.BASIC), "test_space");
+        assertEntities("[/TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST]", onBehalfOfTestSpaceResult);
+
+        // executed by test_space
+        generalInformationService.logout(sessionToken);
+        sessionToken =
+                generalInformationService.tryToAuthenticateForAllServices("test_space", "password");
+
+        List<Sample> testSpaceResult =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST]", testSpaceResult);
+    }
+
+    @Test
     public void testSearchForSamplesByMetaprojectName()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
@@ -831,6 +903,84 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForDataSetsOnBehalfOfUser()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "*9000-2*"));
+
+        // executed by test
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertCollection(
+                "[20081105092259000-20, 20081105092259000-21, 20120619092259000-22, 20120628092259000-23, 20120628092259000-24, 20120628092259000-25]",
+                dataSets, new DataSetToCode());
+
+        // executed by test on behalf of test_space
+        List<DataSet> onBehalfOfTestSpaceResult =
+                generalInformationService.searchForDataSetsOnBehalfOfUser(sessionToken,
+                        searchCriteria, "test_space");
+        assertCollection(
+                "[20120619092259000-22, 20120628092259000-23, 20120628092259000-24, 20120628092259000-25]",
+                onBehalfOfTestSpaceResult, new DataSetToCode());
+
+        // executed by test_space
+        generalInformationService.logout(sessionToken);
+        sessionToken =
+                generalInformationService.tryToAuthenticateForAllServices("test_space", "password");
+
+        List<DataSet> testSpaceResult =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertCollection(
+                "[20120619092259000-22, 20120628092259000-23, 20120628092259000-24, 20120628092259000-25]",
+                testSpaceResult, new DataSetToCode());
+    }
+
+    @Test(expectedExceptions = AuthorizationFailureException.class)
+    public void testSearchForDataSetsOnBehalfOfUserExecutedByNotInstanceUser()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "SOME_CODE"));
+
+        generalInformationService.logout(sessionToken);
+        sessionToken =
+                generalInformationService.tryToAuthenticateForAllServices("test_role", "password");
+        generalInformationService.searchForDataSetsOnBehalfOfUser(sessionToken, searchCriteria,
+                "admin");
+    }
+
+    @Test
+    public void testSearchForDataSetsOnBehalfOfUserByMetaprojectName()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.METAPROJECT, "TEST_METAPROJECTS"));
+
+        // executed by test
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertCollection("[20120619092259000-22]", dataSets, new DataSetToCode());
+
+        // executed by test on behalf of test_space
+        List<DataSet> onBehalfOfTestSpaceResult =
+                generalInformationService.searchForDataSetsOnBehalfOfUser(sessionToken,
+                        searchCriteria, "test_space");
+        assertCollection("[20120619092259000-22, 20120628092259000-23]", onBehalfOfTestSpaceResult,
+                new DataSetToCode());
+
+        // executed by test_space
+        generalInformationService.logout(sessionToken);
+        sessionToken =
+                generalInformationService.tryToAuthenticateForAllServices("test_space", "password");
+
+        List<DataSet> testSpaceResult =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertCollection("[20120619092259000-22, 20120628092259000-23]", testSpaceResult,
+                new DataSetToCode());
+    }
+
+    @Test
     public void testSearchForDataSetsByMetaprojectName()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
@@ -1313,6 +1463,15 @@ public class GeneralInformationServiceTest extends SystemTestCase
         public String toString(Material t)
         {
             return t.getMaterialCode();
+        }
+    }
+
+    private static class DataSetToCode implements IToStringDelegate<DataSet>
+    {
+        @Override
+        public String toString(DataSet t)
+        {
+            return t.getCode();
         }
     }
 

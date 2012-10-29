@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public interface IMetaprojectDAO extends IGenericDAO<MetaprojectPE>
 {
     /**
-     * Finds a metaproject by the specified owner id and metaproject name. Returns null is no
+     * Finds a metaproject by the specified owner id and metaproject name. Returns null if no
      * metaproject is found.
      */
     public MetaprojectPE tryFindByOwnerAndName(String ownerId, String metaprojectName);

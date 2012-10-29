@@ -564,10 +564,19 @@ public interface ICommonServer extends IServer
             String description, String leaderId, Collection<NewAttachment> attachments);
 
     /**
-     * Performs an <i>Hibernate Search</i> based on given parameters.
+     * Searches for samples that fulfill the specified search criteria.
      */
     @Transactional(readOnly = true)
     public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria);
+
+    /**
+     * Searches for samples that fulfill the specified search criteria. The search is executed on
+     * behalf of a user identified by the userId (the returned results are exactly the same as if
+     * that user called the search method).
+     */
+    @Transactional(readOnly = true)
+    public List<ExternalData> searchForDataSetsOnBehalfOfUser(String sessionToken,
+            DetailedSearchCriteria criteria, String userId);
 
     /**
      * For given {@link TechId} returns the corresponding {@link ExternalData}.
@@ -1389,4 +1398,5 @@ public interface ICommonServer extends IServer
     @Transactional
     public Metaproject updateMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             String name, String descriptionOrNull);
+
 }
