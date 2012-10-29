@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
@@ -680,6 +681,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     {
         logAccess(Level.DEBUG, token, "tryGetExternalDataManagementSystem", "CODE(%s)",
                 externalDataManagementSystemCode);
+        return null;
+    }
+
+    @Override
+    public Vocabulary tryGetVocabulary(String token, String code)
+    {
+        logAccess(Level.DEBUG, token, "tryGetVocabulary", "CODE(%s)", code);
         return null;
     }
 

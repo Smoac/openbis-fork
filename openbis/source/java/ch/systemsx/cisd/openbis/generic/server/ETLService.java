@@ -144,6 +144,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
@@ -211,6 +212,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SimpleDataSetHelper;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SpaceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -1193,6 +1195,23 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                     vocabularyCode));
         }
         return VocabularyTermTranslator.translateTerms(vocabularyOrNull.getTerms());
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public Vocabulary tryGetVocabulary(String sessionToken, String vocabularyCode)
+    {
+        checkSession(sessionToken);
+        VocabularyPE vocabularyOrNull =
+                getDAOFactory().getVocabularyDAO().tryFindVocabularyByCode(vocabularyCode);
+
+        if (vocabularyOrNull == null)
+        {
+            return null;
+        } else
+        {
+            return VocabularyTranslator.translate(vocabularyOrNull, true);
+        }
     }
 
     @Override

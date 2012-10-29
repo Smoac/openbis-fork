@@ -22,9 +22,9 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Conversational;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Progress;
-import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
@@ -144,6 +145,12 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     public Collection<VocabularyTerm> listVocabularyTerms(String sessionToken, String vocabulary)
             throws UserFailureException;
+
+    /**
+     * Returns a vocabulary with given code
+     */
+    @Transactional(readOnly = true)
+    public Vocabulary tryGetVocabulary(String sessionToken, String code);
 
     /**
      * Returns the SampleType together with assigned property types for specified sample type code.
