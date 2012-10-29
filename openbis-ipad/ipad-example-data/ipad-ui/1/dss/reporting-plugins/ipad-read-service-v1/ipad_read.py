@@ -275,12 +275,13 @@ class ExampleDetailRequestHandler(DetailRequestHandler):
 
 		# We need to get data for materials explicitly requested as well as those associated
 		# with the samples we have retrieved
+		detail_material_identifiers = set([detail_material['REFCON']['identifier'] for detail_material in detail_materials])
 		material_identifiers = gather_materials(self.samples)
-		for detail_material in detail_materials:
-			add_material_to_collection(detail_material['REFCON']['identifier'], material_identifiers)
+		for identifier in detail_material_identifiers:
+			add_material_to_collection(identifier, material_identifiers)
 
 		materials = self.searchService.listMaterials(material_identifiers)
-		materials_to_return = [material for material in materials if material.getMaterialIdentifier() in detail_materials]
+		materials_to_return = [material for material in materials if material.getMaterialIdentifier() in detail_material_identifiers]
 		# We internally need more materials, but only return those explicitly asked for
 		self.material_dict_array = materials_to_dict(materials_to_return)
 		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
