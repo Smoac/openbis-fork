@@ -115,6 +115,111 @@ id RunCallSynchronously(CISDOBAsyncCall *call, int seconds)
     return callResult;
 }
 
+void CollectAllEntities(NSMutableArray *permIds, NSMutableArray *refcons, NSManagedObjectContext *moc, NSError **error)
+{
+	NSFetchRequest* request = [[NSFetchRequest alloc] init];
+	NSEntityDescription* entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: moc];
+    [request setEntity: entity];
+	NSArray* elements = [moc executeFetchRequest: request error: error];
+    for (CISDOBIpadEntity *entity in elements) {
+        [permIds addObject: entity.permId];
+        [refcons addObject: entity.refcon];
+    }
+}
+
+void CollectAllDrillableEntities(NSMutableArray *permIds, NSMutableArray *refcons, NSManagedObjectContext *moc, NSError **error)
+{
+	NSFetchRequest* request = [[NSFetchRequest alloc] init];
+	NSEntityDescription* entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: moc];
+    [request setEntity: entity];
+	NSArray* elements = [moc executeFetchRequest: request error: error];
+    for (CISDOBIpadEntity *entity in elements) {
+        if ([entity.childrenPermIds count] > 0) {
+            [permIds addObject: entity.permId];
+            [refcons addObject: entity.refcon];
+        }
+    }
+}
+
+void SynchEntityWithManagedObjectContext(CISDOBIpadRawEntity *rawEntity, NSManagedObjectModel *model, NSManagedObjectContext *moc, NSError **error)
+{
+    // Create new entities in the moc, and store them.
+    CISDOBIpadEntity *entity;
+    NSDictionary *fetchVariables = [NSDictionary dictionaryWithObject: [NSArray arrayWithObject: rawEntity.permId] forKey: @"PERM_IDS"];
+    NSFetchRequest *request = [model fetchRequestFromTemplateWithName: @"EntitiesByPermIds" substitutionVariables: fetchVariables];
+    NSArray *matchedEntities = [moc executeFetchRequest: request error: error];
+    if (!matchedEntities) return;
+    if ([matchedEntities count] > 0) {
+        entity = [matchedEntities objectAtIndex: 0];
+        [entity updateFromRawEntity: rawEntity];
+    } else {
+        entity = [NSEntityDescription insertNewObjectForEntityForName: @"CISDOBIpadEntity" inManagedObjectContext: moc];
+        [entity initializeFromRawEntity: rawEntity];
+    }
+}
+
+BOOL SaveManagedObjectContext(NSManagedObjectContext *moc, NSError **error)
+{
+    // Save the managed object context
+    BOOL success = [moc save: error];
+    if (!success) {
+        NSLog(@"Error while saving %@", (error && [*error localizedDescription] != nil) ? [*error localizedDescription] : @"Unknown Error");
+        exit(1);
+    }
+    return success;
+}
+
+void RetrieveRootLevel(CISDOBIpadService *service, int waitTime, NSManagedObjectContext *moc, NSError **error)
+{
+    CISDOBAsyncCall *call;
+    call = [service listRootLevelEntities];
+    NSArray *rawEntities = RunCallSynchronously(call, waitTime);
+    
+    NSEntityDescription *entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: moc];
+    NSManagedObjectModel *model = [entity managedObjectModel];
+    
+    for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
+        SynchEntityWithManagedObjectContext(rawEntity, model, moc, error);
+    }
+    SaveManagedObjectContext(moc, error);
+}
+
+void RetrieveDrillEntities(CISDOBIpadService *service, int waitTime, NSManagedObjectContext *moc, NSError **error)
+{
+    NSMutableArray *drillPermIds = [NSMutableArray array];
+    NSMutableArray *drillRefcons = [NSMutableArray array];
+    CollectAllDrillableEntities(drillPermIds, drillRefcons, moc, error);
+    CISDOBAsyncCall *call;
+    call = [service drillOnEntities: drillPermIds refcons: drillRefcons];
+    NSArray *rawEntities = RunCallSynchronously(call, waitTime);
+    
+    NSEntityDescription *entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: moc];
+    NSManagedObjectModel *model = [entity managedObjectModel];
+    
+    for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
+        SynchEntityWithManagedObjectContext(rawEntity, model, moc, error);
+    }
+    SaveManagedObjectContext(moc, error);
+}
+
+void RetrieveDetailEntities(CISDOBIpadService *service, int waitTime, NSManagedObjectContext *moc, NSError **error)
+{
+    NSMutableArray *allPermIds = [NSMutableArray array];
+    NSMutableArray *allRefcons = [NSMutableArray array];
+    CollectAllEntities(allPermIds, allRefcons, moc, error);
+    CISDOBAsyncCall *call;
+    call = [service detailsForEntities: allPermIds refcons: allRefcons];
+    NSArray *rawEntities = RunCallSynchronously(call, waitTime);
+    
+    NSEntityDescription *entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: moc];
+    NSManagedObjectModel *model = [entity managedObjectModel];
+    
+    for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
+        SynchEntityWithManagedObjectContext(rawEntity, model, moc, error);
+    }
+    SaveManagedObjectContext(moc, error);
+}
+
 void InitializeDatabase(NSManagedObjectContext *moc, NSError **error)
 {
     NSURL *url = [NSURL URLWithString: @"https://localhost:8443"];
@@ -126,14 +231,9 @@ void InitializeDatabase(NSManagedObjectContext *moc, NSError **error)
     call = [service loginUser: @"admin" password: @"password"];
     RunCallSynchronously(call, waitTime);
     
-    call = [service listAllEntities];
-    NSArray *rawEntities = RunCallSynchronously(call, waitTime);
-    
-       for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
-        // Create new entities in the moc, and store them.
-       	CISDOBIpadEntity *entity = [NSEntityDescription insertNewObjectForEntityForName: @"CISDOBIpadEntity" inManagedObjectContext: moc];
-        [entity initializeFromRawEntity: rawEntity];
-    }
+    RetrieveRootLevel(service, waitTime, moc, error);
+    RetrieveDrillEntities(service, waitTime, moc, error);
+    RetrieveDetailEntities(service, waitTime, moc, error);
 }
 
 int main(int argc, const char * argv[])
@@ -154,11 +254,6 @@ int main(int argc, const char * argv[])
         NSDate *start = [NSDate date];
         InitializeDatabase(moc, &error);
         
-        // Save the managed object context
-        if (![moc save:&error]) {
-            NSLog(@"Error while saving %@", ([error localizedDescription] != nil) ? [error localizedDescription] : @"Unknown Error");
-            exit(1);
-        }
         NSDate *end = [NSDate date];
         NSLog(@"END  Init DB (%.2f sec) %@", [end timeIntervalSinceDate: start], databaseUrl);
     }
