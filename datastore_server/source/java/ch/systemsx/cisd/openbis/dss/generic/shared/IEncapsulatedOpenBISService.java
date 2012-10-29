@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
@@ -192,6 +193,12 @@ public interface IEncapsulatedOpenBISService
     @ManagedAuthentication
     public Collection<VocabularyTerm> listVocabularyTerms(String vocabularyCode)
             throws UserFailureException;
+
+    /**
+     * Returns a vocabulary with given code
+     */
+    @ManagedAuthentication
+    public Vocabulary tryGetVocabulary(String code);
 
     /**
      * Gets the experiment type with assigned property types for the specified experiment type code.

@@ -102,4 +102,9 @@ public interface ISearchService
      * @return a list of materials matching the specified collection.
      */
     public List<IMaterialImmutable> listMaterials(MaterialIdentifierCollection identifierCollection);
+
+    /**
+     * @return a controlled vocabulary with the given code.
+     */
+    public IVocabularyImmutable searchForVocabulary(String code);
 }

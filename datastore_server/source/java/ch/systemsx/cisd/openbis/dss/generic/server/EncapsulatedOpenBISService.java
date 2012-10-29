@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
@@ -238,6 +239,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             throws UserFailureException
     {
         return service.listVocabularyTerms(session.getSessionToken(), vocabularyCode);
+    }
+
+    @Override
+    public Vocabulary tryGetVocabulary(String code)
+    {
+        return service.tryGetVocabulary(session.getSessionToken(), code);
     }
 
     @Override

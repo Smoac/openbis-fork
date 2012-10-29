@@ -55,6 +55,13 @@ def updateExperiment(transaction):
     ex = transaction.getExperimentForUpdate("/CISD/NEMO/EXP1")
     ex.setPropertyValue("DESCRIPTION", "modified experiment description")
 
+def createBacterias(transaction):
+    vocabulary = transaction.getSearchService().searchForVocabulary("ORGANISM")
+    for term in vocabulary.getTerms():
+        mat = transaction.createNewMaterial("BC_%s" % term.getCode(), "BACTERIUM")
+        mat.setPropertyValue("DESCRIPTION", term.getDescription())
+        mat.setPropertyValue("ORGANISM", term.getCode())
+        
 def process(transaction):
     # create experiment
     experiment = create_experiment_if_needed(transaction)
@@ -76,5 +83,8 @@ def process(transaction):
 
     # register samples
     createSamples(transaction)
-
+    
+    # read controlled vocabularies and create materials
+    createBacterias(transaction)
+    
     transaction.getRegistrationContext().getPersistentMap().put("email_text", "rich_email_text")

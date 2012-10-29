@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -80,6 +81,8 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         assertMaterialUpdated(openBISService);
 
         assertExperimentUpdated(openBISService);
+
+        assertVocabularyMaterialsCreated(openBISService);
     }
 
     private void assertExperimentUpdated(IEncapsulatedOpenBISService openBISService)
@@ -162,6 +165,47 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
             assertEquals(expectedGeneSymbol, property.getValue());
         }
 
+    }
+
+    private void assertVocabularyMaterialsCreated(IEncapsulatedOpenBISService openBISService)
+    {
+        String[] items = new String[]
+            { "RAT", "DOG", "HUMAN", "GORILLA", "FLY" };
+        
+        LinkedList<MaterialIdentifier> ids = new LinkedList<MaterialIdentifier>();
+
+        for (String item : items)
+        {
+            MaterialIdentifier ident = new MaterialIdentifier("BC_" + item, "BACTERIUM");
+            ids.add(ident);
+        }
+
+        ListMaterialCriteria criteria = ListMaterialCriteria.createFromMaterialIdentifiers(ids);
+        List<Material> materials = openBISService.listMaterials(criteria, true);
+
+        assertEquals(items.length, materials.size());
+
+        for (Material m : materials)
+        {
+            String code = m.getCode();
+            
+            HashMap<String , IEntityProperty> properties = new HashMap<String , IEntityProperty>();
+            
+            for (IEntityProperty property : m.getProperties())
+            {
+                properties.put(property.getPropertyType().getCode(), property);
+            }
+
+            IEntityProperty descriptionProperty = properties.get("DESCRIPTION");
+            IEntityProperty organismProperty = properties.get("ORGANISM");
+
+            assertNotNull(descriptionProperty);
+            assertEquals(code.substring(3), organismProperty.getVocabularyTerm().getCode());
+
+            assertEquals(descriptionProperty.getValue(), organismProperty.getVocabularyTerm()
+                    .getDescription());
+
+        }
     }
 
     private void assertMaterialUpdated(IEncapsulatedOpenBISService openBISService)
