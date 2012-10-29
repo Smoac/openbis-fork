@@ -46,10 +46,13 @@ public class QueryFacadeTest extends SystemTestCase
 
     private IQueryApiFacade queryFacade;
 
+    private IQueryApiFacade observerFacade;
+
     @BeforeMethod
     public void beforeMethod()
     {
         queryFacade = createServiceFacade("test");
+        observerFacade = createServiceFacade("observer");
     }
 
     @Test
@@ -168,6 +171,69 @@ public class QueryFacadeTest extends SystemTestCase
         }
 
         assertTrue("Did not find a sample called [JYTHON-TEST]", foundSample);
+    }
+
+    /**
+     * The observer trying to access the forbidden dataset via the authorized content provider.
+     */
+    @Test(expectedExceptions = Exception.class)
+    public void testJythonAggregationServiceWithContentProviderAuthentication() throws Exception
+    {
+        AggregationServiceDescription service =
+                getAggregationServiceDescription("content-provider-aggregation-service");
+        HashMap<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("dataset-code", "20081105092159111-1");
+
+        File content = new File(new File(new File(store, "42"), "a"), "1");
+        content.mkdirs();
+
+        observerFacade.createReportFromAggregationService(service, parameters);
+    }
+
+    /**
+     * The testcase, where the observer tries to acces the dataset that he cannot see, but through
+     * the non-authorized content provider.
+     */
+    @Test
+    public void testJythonAggregationServiceWithoutContentProviderAuthentication() throws Exception
+    {
+        AggregationServiceDescription service =
+                getAggregationServiceDescription("content-provider-aggregation-service-no-authorization");
+        HashMap<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("dataset-code", "20081105092159111-1");
+
+        File content = new File(new File(new File(store, "42"), "a"), "1");
+        content.mkdirs();
+
+        QueryTableModel table =
+                observerFacade.createReportFromAggregationService(service, parameters);
+
+        assertEquals("[name]", getHeaders(table).toString());
+        assertEquals("[1]", Arrays.asList(table.getRows().get(0)).toString());
+        assertEquals(1, table.getRows().size());
+    }
+
+    /**
+     * The authorized user tries to access the dataset via the authorized content provider.
+     */
+    @Test
+    public void testJythonAggregationServiceWithContentProviderAuthenticationAndAuthorizedUser()
+            throws Exception
+    {
+        AggregationServiceDescription service =
+                getAggregationServiceDescription("content-provider-aggregation-service");
+        HashMap<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("dataset-code", "20081105092159111-1");
+
+        File content = new File(new File(new File(store, "42"), "a"), "1");
+        content.mkdirs();
+
+        QueryTableModel table =
+ queryFacade.createReportFromAggregationService(service, parameters);
+
+        assertEquals("[name]", getHeaders(table).toString());
+        assertEquals("[1]", Arrays.asList(table.getRows().get(0)).toString());
+        assertEquals(1, table.getRows().size());
     }
 
     private IQueryApiFacade createServiceFacade(String userName)
