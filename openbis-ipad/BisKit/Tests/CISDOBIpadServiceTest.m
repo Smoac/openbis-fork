@@ -115,6 +115,15 @@
     STAssertTrue([rawEntities count] > 0, @"The Pad service should have returned some entities.");
 }
 
+- (void)collectFromEntities:(NSArray *)rawEntities permIds:(NSMutableArray *)permIds refcons:(NSMutableArray *)refcons error:(NSError **)error
+{
+    for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
+        id refconObject = [NSJSONSerialization JSONObjectWithData: [rawEntity.refcon dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: error];
+        [permIds addObject: rawEntity.permId];
+        [refcons addObject: refconObject];
+    }
+}
+
 - (void)testDetails
 {
     CISDOBAsyncCall *call;
@@ -147,11 +156,18 @@
     STAssertEquals([rawEntities count], (NSUInteger) 3, @"The Pad service should have returned three entity for drill.");
     
     // Details
-    call = [_service detailsForEntityWithPermId: entityWithChildren.permId refcon: refconObject];
+    NSMutableArray *permIds = [NSMutableArray array];
+    NSMutableArray *refcons = [NSMutableArray array];
+    [self collectFromEntities: rawEntities permIds: permIds refcons: refcons error: &error];
+    call = [_service detailsForEntities: permIds refcons: refcons];
     [self configureAndRunCallSynchronously: call];
     
     rawEntities = _callResult;
-    STAssertEquals([rawEntities count], (NSUInteger) 1, @"The Pad service should have returned one entity for details.");
+    STAssertEquals([rawEntities count], (NSUInteger) 3, @"The Pad service should have returned three entities with details.");
+    for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
+        STAssertNotNil(rawEntity.properties, @"After a details request, properties should not be nil");
+    }    
+    
     [entityWithChildren release];
 }
 
