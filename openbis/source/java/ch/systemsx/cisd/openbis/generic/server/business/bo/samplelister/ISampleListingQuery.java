@@ -404,7 +404,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
      * @param sampleIds The set of sample ids to get the property values for.
      */
     @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, stpt.script_id, stpt.ordinal, "
-            + "           cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal as term_ordinal, cvte.is_official"
+            + "           cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal as term_ordinal, cvte.is_official, cvte.description"
             + "      FROM sample_properties sp"
             + "      JOIN sample_type_property_types stpt ON sp.stpt_id=stpt.id"
             + "      JOIN controlled_vocabulary_terms cvte ON sp.cvte_id=cvte.id"

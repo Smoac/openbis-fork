@@ -95,7 +95,7 @@ public interface IMaterialListingQuery extends TransactionQuery, IPropertyListin
      * 
      * @param entityIds The set of material ids to get the property values for.
      */
-    @Select(sql = "SELECT pr.mate_id as entity_id, etpt.prty_id, etpt.script_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal, cvte.is_official"
+    @Select(sql = "SELECT pr.mate_id as entity_id, etpt.prty_id, etpt.script_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal, cvte.is_official, cvte.description"
             + "      FROM material_properties pr"
             + "      JOIN material_type_property_types etpt ON pr.mtpt_id=etpt.id"
             + "      JOIN controlled_vocabulary_terms cvte ON pr.cvte_id=cvte.id"

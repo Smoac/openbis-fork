@@ -13,5 +13,7 @@ public class VocabularyTermRecord extends BaseEntityPropertyRecord
 
     public String label;
 
+    public String description;
+
     public long term_ordinal;
 }
