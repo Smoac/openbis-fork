@@ -23,18 +23,19 @@ function IpadModel() {
 }
 
 IpadModel.prototype.initializeModel = function() {
-	this.selectionStack = [];
+	this.selectedEntity = null;
 }
 
 IpadModel.prototype.selectEntity = function(d) {
-	this.selectionStack.push(d);
+	this.selectedEntity = d;
 	var permId = d[0].value;
 	var refcon = parseJson(d[1].value);
 	var children = parseJson(d[5].value);
 	if (children.length > 0) {
-		console.log(["DETAILS", permId, refcon]);		
+		drillOnEntity(permId, refcon);
+		detailsForEntity(permId, refcon);
 	} else {
-		console.log(["DRILL", permId, refcon]);
+		detailsForEntity(permId, refcon);
 	}
 }
 
@@ -44,7 +45,7 @@ model = new IpadModel();
 
 
 /// The visualization, referenced by functions that display content
-var root;
+var root, drill, detail;
 
 /**
  * Create the DOM elements to store the visualization (tree + inspectors)
@@ -55,6 +56,8 @@ function createVis()
 	
 	// Create a div to house the tree visualization and the inspectors
 	root = d3.select("#root");
+	drill = d3.select("#drill");	
+	detail = d3.select("#detail");
 
 	didCreateVis = true;
 }
@@ -91,9 +94,9 @@ function showTableData(table)
 
 
 /**
- * Display the samples returned by the server
+ * Display the data returned by the server
  */
-function displayRoot(data)
+function displayResults(node, data)
 {
 	if (data.error) {
 		console.log(data.error);
@@ -106,21 +109,53 @@ function displayRoot(data)
 	var tableData = data.result;
 	
 	// Display the rows in a table
-	var table = root.selectAll("table").data([tableData]);
+	var table = node.selectAll("table").data([tableData]);
 	// Code under enter is run if there is no HTML element for a data element	
 	table.enter().append("table").attr("class", "table");
 	showTableHeader(table);
 	showTableData(table);
 }
 
+function displayRoot(data)
+{
+	displayResults(root, data)
+}
+
+function displayDrill(data)
+{
+	console.log(data);
+	displayResults(drill, data)
+}
+
+function displayDetail(data)
+{
+	displayResults(detail, data)
+}
+
 /**
  * Request samples matching some criteria from the server and show them in the Page.
  */
-function callAggregationService()
+function listRootLevelEntities()
 {
 	var parameters = {requestKey : 'ROOT'};
 
 	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displayRoot);
+}
+
+function drillOnEntity(permId, refcon)
+{
+	var entities = [{"PERM_ID" : permId, "REFCON" : refcon}];
+	var parameters = {requestKey : 'DRILL', entities: entities};
+
+	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displayDrill);
+}
+
+function detailsForEntity(permId, refcon)
+{
+	var entities = [{"PERM_ID" : permId, "REFCON" : refcon}];
+	var parameters = {requestKey : 'DETAIL', entities: entities};
+
+	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displayDetail);
 }
 
 
@@ -136,5 +171,5 @@ function enterApp(data)
     $('#main').show();
 
     createVis();
-    callAggregationService();
+    listRootLevelEntities();
 }

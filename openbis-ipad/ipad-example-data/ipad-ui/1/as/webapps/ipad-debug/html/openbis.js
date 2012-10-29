@@ -112,6 +112,8 @@ openbis.prototype.useSession = function(sessionToken){
 }
 
 openbis.prototype.isSessionActive = function(action) {
+	if (this.sessionToken == null) return;
+	if (this.sessionToken == "") return;	
 	ajaxRequest({
 		url: this.generalInfoServiceUrl,
 		data: { "method" : "isSessionActive",

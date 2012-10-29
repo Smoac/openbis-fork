@@ -208,6 +208,8 @@ def samples_to_dict(samples, material_by_perm_id):
 	return result
 
 def retrieve_samples(sample_perm_ids_and_ref_cons):
+	if not sample_perm_ids_and_ref_cons:
+		return []
 	sc = SearchCriteria()
 	sc.setOperator(sc.SearchOperator.MATCH_ANY_CLAUSES)
 	for sample in sample_perm_ids_and_ref_cons:
