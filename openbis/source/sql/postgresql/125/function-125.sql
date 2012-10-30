@@ -507,7 +507,8 @@ CREATE OR REPLACE RULE sample_insert AS
          registration_timestamp, 
          samp_id_part_of,
          saty_id, 
-         space_id
+         space_id,
+         version
        ) VALUES (
          NEW.id, 
          NEW.code, 
@@ -521,7 +522,8 @@ CREATE OR REPLACE RULE sample_insert AS
          NEW.registration_timestamp, 
          NEW.samp_id_part_of,
          NEW.saty_id, 
-         NEW.space_id
+         NEW.space_id,
+         NEW.version
        );
      
 CREATE OR REPLACE RULE sample_update AS
@@ -538,7 +540,8 @@ CREATE OR REPLACE RULE sample_update AS
               registration_timestamp = NEW.registration_timestamp,
               samp_id_part_of = NEW.samp_id_part_of,
               saty_id = NEW.saty_id,
-              space_id = NEW.space_id
+              space_id = NEW.space_id,
+              version = NEW.version
           WHERE id = NEW.id;
      
 CREATE OR REPLACE RULE sample_delete AS
@@ -550,7 +553,8 @@ CREATE OR REPLACE RULE sample_deleted_update AS
     ON UPDATE TO samples_deleted DO INSTEAD 
        UPDATE samples_all
           SET del_id = NEW.del_id,
-              modification_timestamp = NEW.modification_timestamp
+              modification_timestamp = NEW.modification_timestamp,
+              version = NEW.version
           WHERE id = NEW.id;
      
 CREATE OR REPLACE RULE sample_deleted_delete AS
@@ -575,7 +579,8 @@ CREATE OR REPLACE RULE experiment_insert AS
        pers_id_registerer, 
        pers_id_modifier, 
        proj_id,
-       registration_timestamp
+       registration_timestamp,
+       version
      ) VALUES (
        NEW.id, 
        NEW.code, 
@@ -587,7 +592,8 @@ CREATE OR REPLACE RULE experiment_insert AS
        NEW.pers_id_registerer, 
        NEW.pers_id_modifier, 
        NEW.proj_id,
-       NEW.registration_timestamp
+       NEW.registration_timestamp,
+       NEW.version
      );
      
 CREATE OR REPLACE RULE experiment_update AS
@@ -602,7 +608,8 @@ CREATE OR REPLACE RULE experiment_update AS
               pers_id_registerer = NEW.pers_id_registerer,
               pers_id_modifier = NEW.pers_id_modifier,
               proj_id = NEW.proj_id,
-              registration_timestamp = NEW.registration_timestamp
+              registration_timestamp = NEW.registration_timestamp,
+              version = NEW.version
           WHERE id = NEW.id;
      
 CREATE OR REPLACE RULE experiment_delete AS
@@ -614,7 +621,8 @@ CREATE OR REPLACE RULE experiments_deleted_update AS
     ON UPDATE TO experiments_deleted DO INSTEAD 
        UPDATE experiments_all
           SET del_id = NEW.del_id,
-              modification_timestamp = NEW.modification_timestamp
+              modification_timestamp = NEW.modification_timestamp,
+              version = NEW.version
           WHERE id = NEW.id;
      
 CREATE OR REPLACE RULE experiments_deleted_delete AS
@@ -646,7 +654,8 @@ CREATE OR REPLACE RULE data_insert AS
        pers_id_modifier,
        production_timestamp,
        registration_timestamp,
-       samp_id
+       samp_id,
+       version
      ) VALUES (
        NEW.id, 
        NEW.code, 
@@ -665,7 +674,8 @@ CREATE OR REPLACE RULE data_insert AS
        NEW.pers_id_modifier,
        NEW.production_timestamp,
        NEW.registration_timestamp,
-       NEW.samp_id
+       NEW.samp_id,
+       NEW.version
      );
      
 CREATE OR REPLACE RULE data_update AS
@@ -687,7 +697,8 @@ CREATE OR REPLACE RULE data_update AS
               pers_id_modifier = NEW.pers_id_modifier,
               production_timestamp = NEW.production_timestamp,
               registration_timestamp = NEW.registration_timestamp,
-              samp_id = NEW.samp_id
+              samp_id = NEW.samp_id,
+              version = NEW.version
        WHERE id = NEW.id;
               
 CREATE OR REPLACE RULE data_all AS
@@ -699,7 +710,8 @@ CREATE OR REPLACE RULE data_deleted_update AS
     ON UPDATE TO data_deleted DO INSTEAD 
        UPDATE data_all
           SET del_id = NEW.del_id,
-              modification_timestamp = NEW.modification_timestamp
+              modification_timestamp = NEW.modification_timestamp,
+              version = NEW.version
           WHERE id = NEW.id;
      
 CREATE OR REPLACE RULE data_deleted_delete AS
@@ -953,13 +965,15 @@ CREATE OR REPLACE RULE data_set_relationships_insert AS
          data_id_child,
          pers_id_author,
 			   registration_timestamp,
-			   modification_timestamp
+			   modification_timestamp,
+			   version
        ) VALUES (
          NEW.data_id_parent, 
          NEW.data_id_child,
          NEW.pers_id_author,
 			   NEW.registration_timestamp,
-			   NEW.modification_timestamp
+			   NEW.modification_timestamp,
+			   NEW.version
        );
 
 CREATE OR REPLACE RULE data_set_relationships_update AS
@@ -971,7 +985,8 @@ CREATE OR REPLACE RULE data_set_relationships_update AS
 			      del_id = NEW.del_id,
 			      pers_id_author = NEW.pers_id_author,
 			      registration_timestamp = NEW.registration_timestamp,
-			      modification_timestamp = NEW.modification_timestamp
+			      modification_timestamp = NEW.modification_timestamp,
+			      version = NEW.version
           WHERE data_id_parent = NEW.data_id_parent and data_id_child = NEW.data_id_child;
           
 CREATE OR REPLACE RULE data_set_relationships_delete AS
@@ -988,7 +1003,8 @@ CREATE OR REPLACE RULE sample_relationships_insert AS
          sample_id_child,
          pers_id_author,
 			   registration_timestamp,
-   	     modification_timestamp
+   	     modification_timestamp,
+   	     version
        ) VALUES (
          NEW.id, 
          NEW.sample_id_parent, 
@@ -996,7 +1012,8 @@ CREATE OR REPLACE RULE sample_relationships_insert AS
          NEW.sample_id_child,
          NEW.pers_id_author,
 			   NEW.registration_timestamp,
-			   NEW.modification_timestamp
+			   NEW.modification_timestamp,
+			   NEW.version
        );
        
 CREATE OR REPLACE RULE sample_relationships_update AS
@@ -1009,7 +1026,8 @@ CREATE OR REPLACE RULE sample_relationships_update AS
 			      del_id = NEW.del_id,
 			      pers_id_author = NEW.pers_id_author,
 			      registration_timestamp = NEW.registration_timestamp,
-			      modification_timestamp = NEW.modification_timestamp
+			      modification_timestamp = NEW.modification_timestamp,
+			      version = NEW.version
           WHERE id = NEW.id;
      
 CREATE OR REPLACE RULE sample_relationships_delete AS
