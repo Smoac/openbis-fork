@@ -33,14 +33,22 @@
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 @synthesize rootOpenBisModel = _rootOpenBisModel;
 
+- (void)configureControllers;
+{
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+        UISplitViewController *splitViewController = (UISplitViewController *)self.window.rootViewController;
+        UINavigationController *navigationController = [splitViewController.viewControllers lastObject];
+        splitViewController.delegate = (id)navigationController.topViewController;
+    } else {
+
+    }
+}
+
 - (CISDOBMasterViewController *)masterViewController
 {
     CISDOBMasterViewController *controller;
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
         UISplitViewController *splitViewController = (UISplitViewController *)self.window.rootViewController;
-        UINavigationController *navigationController = [splitViewController.viewControllers lastObject];
-        splitViewController.delegate = (id)navigationController.topViewController;
-        
         UINavigationController *masterNavigationController = splitViewController.viewControllers[0];
         controller = (CISDOBMasterViewController *)masterNavigationController.topViewController;
     } else {
@@ -54,6 +62,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Initialize the controller
+    [self configureControllers];
     CISDOBMasterViewController *controller = [self masterViewController];
     controller.openBisModel = self.rootOpenBisModel;
     return YES;
