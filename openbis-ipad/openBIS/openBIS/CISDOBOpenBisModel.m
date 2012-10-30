@@ -22,6 +22,8 @@
 
 #import "CISDOBOpenBisModel.h"
 #import "CISDOBIpadEntity.h"
+#import "CISDOBIpadServiceManager.h"
+#import "CISDOBAsyncCall.h"
 
 @implementation CISDOBOpenBisModel
 
@@ -42,6 +44,7 @@
     
     if (self.parentModel) {
         self.managedObjectContext = parentModel.managedObjectContext;
+        self.serviceManager = parentModel.serviceManager;
     }
     
     return self;
@@ -120,6 +123,14 @@
 }
 
 #pragma mark - Server Communication
+- (void)syncRootEntities:(SuccessBlock)success;
+{
+    // The manager has connected, initialize the root
+    CISDOBAsyncCall *call = [self.serviceManager retrieveRootLevelEntities];
+    call.success = success;
+    [call start];
+}
+
 - (void)syncSelectedObjectForDetailOnSuccess:(SuccessBlock)success
 {
     // Load the image if necessary

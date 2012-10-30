@@ -227,6 +227,14 @@
 }
  */
 
+#pragma mark - Server Communication
+- (void)didConnectServiceManager:(CISDOBIpadServiceManager *)serviceManager
+{
+    [self.openBisModel syncRootEntities: ^(id result) {
+        [self.tableView reloadData];
+    }];
+}
+
 
 #pragma mark - Properties
 

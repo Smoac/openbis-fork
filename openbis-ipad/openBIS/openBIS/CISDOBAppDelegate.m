@@ -25,6 +25,8 @@
 
 #import "CISDOBMasterViewController.h"
 #import "CISDOBOpenBisModel.h"
+#import "CISDOBIpadServiceManager.h"
+#import "CISDOBAsyncCall.h"
 
 @implementation CISDOBAppDelegate
 
@@ -32,6 +34,7 @@
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 @synthesize rootOpenBisModel = _rootOpenBisModel;
+@synthesize serviceManager = _serviceManager;
 
 - (void)configureControllers;
 {
@@ -65,6 +68,14 @@
     [self configureControllers];
     CISDOBMasterViewController *controller = [self masterViewController];
     controller.openBisModel = self.rootOpenBisModel;
+
+    // Initialize the connection to openBIS
+    CISDOBAsyncCall *call = [self.serviceManager loginUser: @"admin" password: @"password"];
+    call.success = ^(id result) {
+        [controller didConnectServiceManager: self.serviceManager];
+    };
+    [call start];    
+    
     return YES;
 }
 							
@@ -162,8 +173,24 @@
     
     _rootOpenBisModel = [[CISDOBOpenBisModel alloc] init];
     _rootOpenBisModel.managedObjectContext = self.managedObjectContext;
+    _rootOpenBisModel.serviceManager = self.serviceManager;
     
     return _rootOpenBisModel;
+}
+
+- (CISDOBIpadServiceManager *)serviceManager
+{
+    if (_serviceManager) return _serviceManager;
+    
+    NSURL *storeUrl = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"openBISData.sqlite"];
+    NSURL *openbisUrl = [NSURL URLWithString: @"https://localhost:8443"];
+    
+    NSError *error;
+    _serviceManager =
+        [[CISDOBIpadServiceManager alloc]
+            initWithStoreUrl: storeUrl openbisUrl: openbisUrl trusted: YES error: &error];
+    
+    return _serviceManager;
 }
 
 #pragma mark - Application's Documents directory

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		362B81EC163FFB6C00127554 /* CISDOBIpadServiceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 362B81EB163FFB6C00127554 /* CISDOBIpadServiceManager.m */; };
 		364D509E161C6ADB00A739B0 /* openBISData.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 364D509C161C6ADB00A739B0 /* openBISData.sqlite */; };
 		3687D8FF162D3AB500622690 /* openbis-icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 3687D8FD162D3AB500622690 /* openbis-icon-72.png */; };
 		3687D900162D3AB500622690 /* openbis-icon-144.png in Resources */ = {isa = PBXBuildFile; fileRef = 3687D8FE162D3AB500622690 /* openbis-icon-144.png */; };
@@ -73,6 +74,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		362B81EA163FFB6C00127554 /* CISDOBIpadServiceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBIpadServiceManager.h; sourceTree = "<group>"; };
+		362B81EB163FFB6C00127554 /* CISDOBIpadServiceManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBIpadServiceManager.m; sourceTree = "<group>"; };
 		364D5098161C6A3600A739B0 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
 		364D509C161C6ADB00A739B0 /* openBISData.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = openBISData.sqlite; sourceTree = "<group>"; };
 		3687D8FD162D3AB500622690 /* openbis-icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "openbis-icon-72.png"; sourceTree = "<group>"; };
@@ -279,6 +282,8 @@
 				36F71ED0161C453D00C87277 /* CISDOBIpadEntity.m */,
 				36F71ED1161C453D00C87277 /* CISDOBIpadService.h */,
 				36F71ED2161C453D00C87277 /* CISDOBIpadService.m */,
+				362B81EA163FFB6C00127554 /* CISDOBIpadServiceManager.h */,
+				362B81EB163FFB6C00127554 /* CISDOBIpadServiceManager.m */,
 				36F71ED3161C453D00C87277 /* CISDOBJsonRpcCall.h */,
 				36F71ED4161C453D00C87277 /* CISDOBJsonRpcCall.m */,
 				36F71ED6161C453D00C87277 /* persistent-data-model.xcdatamodeld */,
@@ -457,6 +462,7 @@
 				36F71EE8161C453D00C87277 /* CISDOBJsonRpcCall.m in Sources */,
 				36F71EE9161C453D00C87277 /* persistent-data-model.xcdatamodeld in Sources */,
 				36F97A2E1628123F005D063E /* CISDOBOpenBisModel.m in Sources */,
+				362B81EC163FFB6C00127554 /* CISDOBIpadServiceManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

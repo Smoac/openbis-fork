@@ -23,7 +23,7 @@
 
 #import <UIKit/UIKit.h>
 
-@class CISDOBDetailViewController, CISDOBOpenBisModel;
+@class CISDOBDetailViewController, CISDOBOpenBisModel, CISDOBIpadServiceManager;
 
 #import <CoreData/CoreData.h>
 
@@ -31,5 +31,8 @@
 
 @property (strong, nonatomic) CISDOBDetailViewController *detailViewController;
 @property (strong, nonatomic) CISDOBOpenBisModel *openBisModel;
+
+// Server Communication
+- (void)didConnectServiceManager:(CISDOBIpadServiceManager *)serviceManager;
 
 @end

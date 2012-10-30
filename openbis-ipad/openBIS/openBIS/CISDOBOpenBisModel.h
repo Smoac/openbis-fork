@@ -23,7 +23,7 @@
 #import <Foundation/Foundation.h>
 #import "CISDOBShared.h"
 
-@class CISDOBIpadEntity;
+@class CISDOBIpadEntity, CISDOBIpadServiceManager;
 
 /**
  * \brief A model for the interaction with openBIS.
@@ -37,6 +37,7 @@
 @property (weak, nonatomic) id <NSFetchedResultsControllerDelegate> delegate;
 
 @property (weak, nonatomic) CISDOBOpenBisModel *parentModel;
+@property (weak, nonatomic) CISDOBIpadServiceManager *serviceManager;
 
 // Initialize
 - (id)initWithParentModel:(CISDOBOpenBisModel *)parentModel; //!< The designated initializer
@@ -60,6 +61,8 @@
 - (BOOL)deleteObjectAtIndexPath:(NSIndexPath *)indexPath error:(NSError **)error; //!< Return YES if operation succeeded
 
 // Server Communication
+- (void)syncRootEntities:(SuccessBlock)success;
+
 //! Get the full selected object from the server and invoke the success block when the data is here
 - (void)syncSelectedObjectForDetailOnSuccess:(SuccessBlock)success;
 
