@@ -30,11 +30,12 @@
  */
 @interface CISDOBIpadServiceManager : NSObject
 
-@property (readonly) CISDOBIpadService *service;
-@property (readonly) NSURL *storeUrl;
-@property (readonly) NSManagedObjectContext *managedObjectContext;
-@property (readonly) NSManagedObjectModel *model;
-@property (readonly) NSEntityDescription *ipadEntityDescription;
+@property (readonly, strong) CISDOBIpadService *service;
+@property (readonly, strong) NSURL *storeUrl;
+@property (readonly, strong) NSManagedObjectContext *managedObjectContext;
+@property (readonly, strong) NSManagedObjectModel *model;
+@property (readonly, strong) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+@property (readonly, strong) NSEntityDescription *ipadEntityDescription;
 
 
 // Initialization

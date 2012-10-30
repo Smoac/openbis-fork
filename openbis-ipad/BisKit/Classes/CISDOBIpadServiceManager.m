@@ -61,14 +61,14 @@ static NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeUrl, 
 	return moc;
 }
 
-static void SynchEntityWithManagedObjectContext(CISDOBIpadRawEntity *rawEntity, NSManagedObjectModel *model, NSManagedObjectContext *moc, NSError **error)
+static BOOL SynchEntityWithManagedObjectContext(CISDOBIpadRawEntity *rawEntity, NSManagedObjectModel *model, NSManagedObjectContext *moc, NSError **error)
 {
     // Create new entities in the moc, and store them.
     CISDOBIpadEntity *entity;
     NSDictionary *fetchVariables = [NSDictionary dictionaryWithObject: [NSArray arrayWithObject: rawEntity.permId] forKey: @"PERM_IDS"];
     NSFetchRequest *request = [model fetchRequestFromTemplateWithName: @"EntitiesByPermIds" substitutionVariables: fetchVariables];
     NSArray *matchedEntities = [moc executeFetchRequest: request error: error];
-    if (!matchedEntities) return;
+    if (!matchedEntities) return NO;
     if ([matchedEntities count] > 0) {
         entity = [matchedEntities objectAtIndex: 0];
         [entity updateFromRawEntity: rawEntity];
@@ -76,6 +76,7 @@ static void SynchEntityWithManagedObjectContext(CISDOBIpadRawEntity *rawEntity, 
         entity = [NSEntityDescription insertNewObjectForEntityForName: @"CISDOBIpadEntity" inManagedObjectContext: moc];
         [entity initializeFromRawEntity: rawEntity];
     }
+    return YES;
 }
 
 
@@ -91,6 +92,7 @@ static void SynchEntityWithManagedObjectContext(CISDOBIpadRawEntity *rawEntity, 
     _storeUrl = [storeUrl copy];
     _service = [[CISDOBIpadService alloc] initWithConnection: connection];
     _managedObjectContext = GetDatabaseManagedObjectContext(self.storeUrl, error);
+    _persistentStoreCoordinator = _managedObjectContext.persistentStoreCoordinator;
     if (!_managedObjectContext) return nil;
     
     _ipadEntityDescription = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: _managedObjectContext];
@@ -99,12 +101,15 @@ static void SynchEntityWithManagedObjectContext(CISDOBIpadRawEntity *rawEntity, 
     return self;
 }
 
-- (void)syncEntities:(NSArray *)rawEntities
+- (BOOL)syncEntities:(NSArray *)rawEntities error:(NSError **)error
 {
-    NSError *error;
+    BOOL success;
     for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
-        SynchEntityWithManagedObjectContext(rawEntity, self.model, self.managedObjectContext, &error);
+        success = SynchEntityWithManagedObjectContext(rawEntity, self.model, self.managedObjectContext, error);
+        if (!success) return NO;
     }
+    success = [self.managedObjectContext save: error];
+    return success;
 }
 
 - (CISDOBIpadServiceManagerCall *)managerCallWrappingServiceCall:(CISDOBAsyncCall *)serviceCall
@@ -113,8 +118,11 @@ static void SynchEntityWithManagedObjectContext(CISDOBIpadRawEntity *rawEntity, 
     
     serviceCall.success = ^(id result) {
         // Update the cache
-        [self syncEntities: result];
-        if (managerCall.success) {
+        NSError *error;
+        BOOL didSync = [self syncEntities: result error: &error];
+        if (!didSync) {
+            serviceCall.fail(error);
+        } else if (managerCall.success) {
             managerCall.success(result);
         }
     };    
