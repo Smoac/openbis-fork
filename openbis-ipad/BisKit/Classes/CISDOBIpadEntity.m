@@ -141,7 +141,10 @@ id ObjectFromJsonData(NSString *jsonData, NSError **error)
     if (rawEntity.identifier) self.identifier = rawEntity.identifier;
     if (rawEntity.imageUrl) self.imageUrl = rawEntity.imageUrl;
     if (rawEntity.properties) self.propertiesJson = rawEntity.properties;
-    if (rawEntity.rootLevel) self.rootLevel = [NSNumber numberWithBool: [rawEntity.rootLevel length] > 0];
+    if (rawEntity.rootLevel) {
+        BOOL rootLevel = [rawEntity.rootLevel length] > 0;
+        self.rootLevel = [NSNumber numberWithBool: rootLevel];
+    }
 }
 
 @end

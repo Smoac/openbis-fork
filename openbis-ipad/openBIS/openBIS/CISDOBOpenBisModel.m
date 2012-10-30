@@ -151,6 +151,9 @@
     [fetchRequest setEntity:entity];
     [fetchRequest setFetchBatchSize:20];
     
+    NSPredicate *predicate = [NSPredicate predicateWithFormat: @"rootLevel == YES"];
+    [fetchRequest setPredicate: predicate];
+    
     NSSortDescriptor *categorySortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"category" ascending: NO];
     NSSortDescriptor *summaryHeaderSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"summaryHeader" ascending: YES];
     NSArray *sortDescriptors = @[categorySortDescriptor, summaryHeaderSortDescriptor];

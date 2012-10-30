@@ -17,6 +17,7 @@
     </entity>
     <fetchRequest name="EntitiesByPermIds" entity="CISDOBIpadEntity" predicateString="permId IN $PERM_IDS" fetchBatchSize="20"/>
     <fetchRequest name="EntityAndChildren" entity="CISDOBIpadEntity" predicateString="SELF == $ENTITY OR permId IN $CHILDREN" fetchBatchSize="20"/>
+    <fetchRequest name="RootEntities" entity="CISDOBIpadEntity" predicateString="rootLevel == 0" fetchBatchSize="20"/>
     <elements>
         <element name="CISDOBIpadEntity" positionX="0" positionY="0" width="128" height="240"/>
     </elements>
