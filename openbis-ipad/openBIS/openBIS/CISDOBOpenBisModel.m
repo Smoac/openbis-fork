@@ -133,24 +133,40 @@
 
 - (void)syncSelectedObjectForDetailOnSuccess:(SuccessBlock)success
 {
-    // Load the image if necessary
-    if (_selectedObject.imageUrl && !_selectedObject.image) {
-        NSBlockOperation *blockOp = [NSBlockOperation blockOperationWithBlock:  ^{
-            NSURL *imageUrl = [NSURL URLWithString: _selectedObject.imageUrl];
-            NSData *imageData = [NSData dataWithContentsOfURL: imageUrl];
-            _selectedObject.image = [UIImage imageWithData: imageData];
-            success(_selectedObject);
-        }];
-        [blockOp start];        
-    } else {
-        success(_selectedObject);
-    }
+    // Call the server to get the children.
+    CISDOBAsyncCall *call = [self.serviceManager detailsForEntity: _selectedObject];
+    // Assign this to a local var to get the compiler to copy it
+    SuccessBlock localSuccess = success;
+    call.success = ^(id result) {
+        // Update the UI
+        localSuccess(_selectedObject);
+
+        // Load the image if necessary
+        if (_selectedObject.imageUrl && !_selectedObject.image) {
+            NSBlockOperation *blockOp = [NSBlockOperation blockOperationWithBlock:  ^{
+                NSURL *imageUrl = [NSURL URLWithString: _selectedObject.imageUrl];
+                NSData *imageData = [NSData dataWithContentsOfURL: imageUrl];
+                _selectedObject.image = [UIImage imageWithData: imageData];
+                // Update the UI again
+                localSuccess(_selectedObject);
+            }];
+            [blockOp start];
+        }
+    };
+    [call start];
+
 }
 
 - (void)syncSelectedObjectForNavigationOnSuccess:(SuccessBlock)success
 {
-    // TODO : Call the server to get the children.
-    success(_selectedObject);
+    // Call the server to get the children.
+    CISDOBAsyncCall *call = [self.serviceManager drillOnEntity: _selectedObject];
+    // Assign this to a local var to get the compiler to copy it
+    SuccessBlock localSuccess = success;
+    call.success = ^(id result) {
+        localSuccess(_selectedObject);
+    };
+    [call start];
 }
 
 #pragma mark - Fetched results controller
