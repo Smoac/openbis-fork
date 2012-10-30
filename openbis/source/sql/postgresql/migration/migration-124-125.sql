@@ -98,6 +98,11 @@ CREATE OR REPLACE RULE data_update AS
               version = NEW.version
        WHERE id = NEW.id;
               
+CREATE OR REPLACE RULE data_all AS
+    ON DELETE TO data DO INSTEAD
+       DELETE FROM data_all
+              WHERE id = OLD.id;
+              
 DROP VIEW data_deleted;
 CREATE VIEW data_deleted AS
      SELECT id, code, dsty_id, dast_id, expe_id, data_producer_code, production_timestamp, samp_id, registration_timestamp, pers_id_registerer, pers_id_modifier, is_placeholder, is_valid, modification_timestamp, is_derived, ctnr_order, ctnr_id, del_id, version 
@@ -112,6 +117,11 @@ CREATE OR REPLACE RULE data_deleted_update AS
               version = NEW.version
           WHERE id = NEW.id;
      
+CREATE OR REPLACE RULE data_deleted_delete AS
+    ON DELETE TO data_deleted DO INSTEAD
+       DELETE FROM data_all
+              WHERE id = OLD.id;               
+              
 DROP VIEW data_set_relationships;
 CREATE VIEW data_set_relationships AS
    SELECT data_id_parent, data_id_child, del_id, pers_id_author, registration_timestamp, modification_timestamp, version
@@ -149,6 +159,11 @@ CREATE OR REPLACE RULE data_set_relationships_update AS
 			      version = NEW.version
           WHERE data_id_parent = NEW.data_id_parent and data_id_child = NEW.data_id_child;
           
+CREATE OR REPLACE RULE data_set_relationships_delete AS
+    ON DELETE TO data_set_relationships DO INSTEAD
+       DELETE FROM data_set_relationships_all
+              WHERE data_id_parent = OLD.data_id_parent and data_id_child = OLD.data_id_child;
+
 ---------------------
 -- experiment view --
 ---------------------
@@ -205,6 +220,11 @@ CREATE OR REPLACE RULE experiment_update AS
               version = NEW.version
           WHERE id = NEW.id;
      
+CREATE OR REPLACE RULE experiment_delete AS
+    ON DELETE TO experiments DO INSTEAD
+       DELETE FROM experiments_all
+              WHERE id = OLD.id;
+ 
 DROP VIEW experiments_deleted;
 CREATE VIEW experiments_deleted AS
      SELECT id, perm_id, code, exty_id, pers_id_registerer, pers_id_modifier, registration_timestamp, modification_timestamp, proj_id, del_id, is_public, version 
@@ -219,6 +239,11 @@ CREATE OR REPLACE RULE experiments_deleted_update AS
               version = NEW.version
           WHERE id = NEW.id;
      
+CREATE OR REPLACE RULE experiments_deleted_delete AS
+    ON DELETE TO experiments_deleted DO INSTEAD
+       DELETE FROM experiments_all
+              WHERE id = OLD.id;
+                           
 -----------------
 -- sample view --
 -----------------
@@ -281,6 +306,11 @@ CREATE OR REPLACE RULE sample_update AS
               version = NEW.version
           WHERE id = NEW.id;
      
+CREATE OR REPLACE RULE sample_delete AS
+    ON DELETE TO samples DO INSTEAD
+       DELETE FROM samples_all
+              WHERE id = OLD.id;
+              
 DROP VIEW samples_deleted;
 CREATE VIEW samples_deleted AS
      SELECT id, perm_id, code, expe_id, saty_id, registration_timestamp, modification_timestamp, pers_id_registerer, pers_id_modifier, del_id, dbin_id, space_id, samp_id_part_of, version 
@@ -295,6 +325,11 @@ CREATE OR REPLACE RULE sample_deleted_update AS
               version = NEW.version
           WHERE id = NEW.id;
      
+CREATE OR REPLACE RULE sample_deleted_delete AS
+    ON DELETE TO samples_deleted DO INSTEAD
+       DELETE FROM samples_all
+              WHERE id = OLD.id;
+              
 DROP VIEW sample_relationships;
 CREATE VIEW sample_relationships AS
    SELECT id, sample_id_parent, relationship_id, sample_id_child, del_id, pers_id_author, registration_timestamp, modification_timestamp, version
@@ -336,6 +371,12 @@ CREATE OR REPLACE RULE sample_relationships_update AS
 			      modification_timestamp = NEW.modification_timestamp,
 			      version = NEW.version
           WHERE id = NEW.id;
+
+CREATE OR REPLACE RULE sample_relationships_delete AS
+    ON DELETE TO sample_relationships DO INSTEAD
+       DELETE FROM sample_relationships_all
+              WHERE id = OLD.id;
+
      
 
               
