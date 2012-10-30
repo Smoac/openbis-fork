@@ -30,9 +30,6 @@
 
 @implementation CISDOBAppDelegate
 
-@synthesize managedObjectContext = _managedObjectContext;
-@synthesize managedObjectModel = _managedObjectModel;
-@synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
 @synthesize rootOpenBisModel = _rootOpenBisModel;
 @synthesize serviceManager = _serviceManager;
 
@@ -121,62 +118,11 @@
 }
 
 #pragma mark - Core Data stack
-- (NSManagedObjectContext *)managedObjectContext
-{
-    if (_managedObjectContext != nil) {
-        return _managedObjectContext;
-    }
-    
-    NSPersistentStoreCoordinator *coordinator = [self persistentStoreCoordinator];
-    if (coordinator != nil) {
-        _managedObjectContext = [[NSManagedObjectContext alloc] init];
-        [_managedObjectContext setPersistentStoreCoordinator:coordinator];
-    }
-    return _managedObjectContext;
-}
+- (NSManagedObjectContext *)managedObjectContext { return self.serviceManager.managedObjectContext; }
 
-- (NSManagedObjectModel *)managedObjectModel
-{
-    if (_managedObjectModel != nil) {
-        return _managedObjectModel;
-    }
-    NSURL *modelURL = [[NSBundle mainBundle] URLForResource:@"persistent-data-model" withExtension:@"momd"];
-    _managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
-    return _managedObjectModel;
-}
+- (NSManagedObjectModel *)managedObjectModel { return self.serviceManager.managedObjectModel; }
 
-- (NSPersistentStoreCoordinator *)persistentStoreCoordinator
-{
-    if (_persistentStoreCoordinator != nil) {
-        return _persistentStoreCoordinator;
-    }
-    
-    // TODO Eventually, we will want to retrieve the data from the server and store it in the documents directory. For UI prototyping, however, we use a pre-computed database.
-//    NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"openBISData.sqlite"];
-    NSURL *storeURL = [[NSBundle mainBundle] URLForResource: @"openBISData" withExtension: @"sqlite"];
-    
-    NSError *error = nil;
-    _persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[self managedObjectModel]];
-    NSDictionary *optionsDict = [NSDictionary dictionaryWithObject: [NSNumber numberWithBool: YES] forKey: NSReadOnlyPersistentStoreOption];
-    if (![_persistentStoreCoordinator addPersistentStoreWithType: NSSQLiteStoreType configuration: nil URL: storeURL options: optionsDict error: &error]) {
-        // TODO Implement error handling
-        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-        abort();
-    }    
-    
-    return _persistentStoreCoordinator;
-}
-
-- (CISDOBOpenBisModel *)rootOpenBisModel
-{
-    if (_rootOpenBisModel != nil) return _rootOpenBisModel;
-    
-    _rootOpenBisModel = [[CISDOBOpenBisModel alloc] init];
-    _rootOpenBisModel.managedObjectContext = self.managedObjectContext;
-    _rootOpenBisModel.serviceManager = self.serviceManager;
-    
-    return _rootOpenBisModel;
-}
+- (NSPersistentStoreCoordinator *)persistentStoreCoordinator { return self.serviceManager.persistentStoreCoordinator; }
 
 - (CISDOBIpadServiceManager *)serviceManager
 {
@@ -192,6 +138,18 @@
     
     return _serviceManager;
 }
+
+- (CISDOBOpenBisModel *)rootOpenBisModel
+{
+    if (_rootOpenBisModel != nil) return _rootOpenBisModel;
+    
+    _rootOpenBisModel = [[CISDOBOpenBisModel alloc] init];
+    _rootOpenBisModel.managedObjectContext = self.managedObjectContext;
+    _rootOpenBisModel.serviceManager = self.serviceManager;
+    
+    return _rootOpenBisModel;
+}
+
 
 #pragma mark - Application's Documents directory
 
