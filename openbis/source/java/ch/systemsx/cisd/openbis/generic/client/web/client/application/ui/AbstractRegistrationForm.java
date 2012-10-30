@@ -88,6 +88,8 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
 
     protected InfoBox infoBox;
 
+    protected InfoBoxResetListener infoBoxResetListener;
+
     protected FormPanelWithSavePoint formPanel;
 
     protected final int labelWidth;
@@ -107,6 +109,8 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
     private Button resetButton;
 
     private Button revertButton;
+
+    private boolean dirtyCheckEnabled = true;
 
     protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String id)
     {
@@ -177,7 +181,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
 
     protected void updateDirtyCheckAfterChange(boolean isDirty)
     {
-        if (isDirty)
+        if (isDirtyCheckEnabled() && isDirty)
         {
             unsavedChangesInfo.setVisible(true);
         } else
@@ -231,7 +235,8 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
     private FormPanelWithSavePoint createFormPanel()
     {
         final FormPanelWithSavePoint panel = new FormPanelWithSavePoint();
-        panel.addClickListener(new InfoBoxResetListener(infoBox));
+        infoBoxResetListener = new InfoBoxResetListener(infoBox);
+        panel.addClickListener(infoBoxResetListener);
         panel.setHeaderVisible(false);
         panel.setBodyBorder(false);
         panel.setWidth(labelWidth + fieldWidth + PANEL_MARGIN);
@@ -279,7 +284,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
                 @Override
                 public final void componentSelected(final ButtonEvent ce)
                 {
-                    if (panel.isDirtyForSavePoint())
+                    if (isDirtyCheckEnabled() && panel.isDirtyForSavePoint())
                     {
                         ce.setCancelled(true);
                         new ConfirmationDialog(
@@ -313,7 +318,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
                 @Override
                 public final void componentSelected(final ButtonEvent ce)
                 {
-                    if (panel.isDirtyForSavePoint())
+                    if (isDirtyCheckEnabled() && panel.isDirtyForSavePoint())
                     {
                         ce.setCancelled(true);
                         new ConfirmationDialog(
@@ -368,7 +373,8 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
                 @Override
                 public void handleEvent(BaseEvent be)
                 {
-                    if (formPanel.isValid() && formPanel.isDirtyForSavePoint() == false)
+                    if (formPanel.isValid() && isDirtyCheckEnabled()
+                            && formPanel.isDirtyForSavePoint() == false)
                     {
                         be.setCancelled(true);
                         new ConfirmationDialog(messageProvider
@@ -429,7 +435,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
         protected abstract String createSuccessfullRegistrationInfo(T result);
 
         @Override
-        public final void finishOnFailure(final Throwable caught)
+        public void finishOnFailure(final Throwable caught)
         {
             setUploadEnabled(true);
         }
@@ -440,6 +446,8 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
     {
         private final InfoBox infoBox;
 
+        private boolean enabled = true;
+
         public InfoBoxResetListener(final InfoBox infoBox)
         {
             assert infoBox != null : "Unspecified info box.";
@@ -448,7 +456,15 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
 
         private void resetInfoBox()
         {
-            infoBox.reset();
+            if (enabled)
+            {
+                infoBox.reset();
+            }
+        }
+
+        public void setEnabled(boolean enabled)
+        {
+            this.enabled = enabled;
         }
 
         //
@@ -524,7 +540,17 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
     @Override
     public boolean shouldAskForCloseConfirmation()
     {
-        return formPanel.isDirtyForSavePoint();
+        return isDirtyCheckEnabled() && formPanel.isDirtyForSavePoint();
+    }
+
+    public void setDirtyCheckEnabled(boolean dirtyCheckEnabled)
+    {
+        this.dirtyCheckEnabled = dirtyCheckEnabled;
+    }
+
+    public boolean isDirtyCheckEnabled()
+    {
+        return dirtyCheckEnabled;
     }
 
 }

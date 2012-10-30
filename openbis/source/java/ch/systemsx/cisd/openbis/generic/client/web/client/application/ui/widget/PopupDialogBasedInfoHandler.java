@@ -20,23 +20,29 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 
 /**
  * Info handler which shows info in a popup dialog.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class PopupDialogBasedInfoHandler implements IInfoHandler
 {
     public static final IInfoHandler INSTANCE = new PopupDialogBasedInfoHandler();
-    
+
     @Override
     public void displayInfo(String text)
     {
         MessageBox.info("Info", text, null);
     }
-    
+
     @Override
     public void displayError(String text)
     {
         MessageBox.alert("Error", text, null);
+    }
+
+    @Override
+    public void displayProgress(String text)
+    {
+        MessageBox.alert("Progress", text, null);
     }
 
 }

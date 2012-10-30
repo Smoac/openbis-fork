@@ -162,6 +162,8 @@ public abstract class Dict
 
     public static final String BUTTON_SAVE = "button_save";
 
+    public static final String BUTTON_UPLOAD = "button_upload";
+
     public static final String BUTTON_SAVE_AND_UPLOAD = "button_save_and_upload";
 
     public static final String BUTTON_CHOOSE = "button_choose";
@@ -1296,6 +1298,12 @@ public abstract class Dict
             "active_users_email_sent_confirmation";
 
     public static final String ACTIVE_USERS_DIALOG = "active_users_dialog";
+
+    // Progress
+
+    public static final String PROGRESS_UPLOADING = "progress_uploading";
+
+    public static final String PROGRESS_PROCESSING = "progress_processing";
 
     // ----- end generic ------------------
 }

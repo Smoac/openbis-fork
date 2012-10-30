@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 
@@ -41,6 +42,8 @@ public final class InfoBox extends Html implements IInfoHandler
     private static final String PLACEHOLDER_TEXT = "X";
 
     private static final String WHITE = "#ffffff";
+
+    private Timer timer;
 
     /**
      * Default constructor with {@link HasHorizontalAlignment#ALIGN_CENTER}.
@@ -78,10 +81,43 @@ public final class InfoBox extends Html implements IInfoHandler
     }
 
     /**
+     * Display given <var>text</var> as <i>progress</i> text.
+     */
+    @Override
+    public final void displayProgress(final String text)
+    {
+        display(text, Type.PROGRESS);
+
+        timer = new Timer()
+            {
+                String dots = "";
+
+                @Override
+                public void run()
+                {
+                    if (dots.length() < 5)
+                    {
+                        dots += ".";
+                    } else
+                    {
+                        dots = "";
+                    }
+                    setHtml(text + dots);
+                }
+            };
+        timer.scheduleRepeating(500);
+    }
+
+    /**
      * Displays given <var>text</var> of given <var>type</var>.
      */
     public final void display(final String text, final Type type)
     {
+        if (timer != null)
+        {
+            timer.cancel();
+            timer = null;
+        }
         if (StringUtils.isBlank(text) == false)
         {
             setStyleAttribute("color", "#000000");
@@ -101,6 +137,11 @@ public final class InfoBox extends Html implements IInfoHandler
      */
     public final void reset()
     {
+        if (timer != null)
+        {
+            timer.cancel();
+            timer = null;
+        }
         setStyleAttribute("backgroundColor", WHITE);
         setStyleAttribute("borderColor", WHITE);
         // Make placeholder text invisible.
@@ -115,7 +156,7 @@ public final class InfoBox extends Html implements IInfoHandler
     private static enum Type
     {
 
-        ERROR("#f6cece", "#f5a9a9"), INFO("#cef6ce", "#a9f5a9");
+        ERROR("#f6cece", "#f5a9a9"), INFO("#cef6ce", "#a9f5a9"), PROGRESS("#cef6ce", "#a9f5a9");
 
         private final String backgroundColor;
 

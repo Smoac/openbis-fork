@@ -153,6 +153,7 @@ var common = {
   
   button_add: "Add {0}",
   button_save: "Save",
+  button_upload: "Upload",
   button_save_and_upload: "Save + Upload Data Set",
   button_choose: "Choose",
   button_cancel: "Cancel",
@@ -892,7 +893,13 @@ warning_no_script_message: "No script provided",
 //
 last_visits: "Last Visited Places",
 clear: "Clear",
- 
+
+//
+// Progress
+//
+progress_uploading: "Uploading",
+progress_processing: "Processing",
+
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.application.fra
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
@@ -67,7 +68,11 @@ public class CustomImportForm extends AbstractRegistrationForm
             CustomImport customImport)
     {
         super(viewContext, id);
+
+        saveButton.setText(messageProvider.getMessage(Dict.BUTTON_UPLOAD));
         setResetButtonVisible(true);
+        setDirtyCheckEnabled(false);
+
         this.sessionKey = id + "-" + customImport.getCode();
         this.customImport = customImport;
         this.viewContext = viewContext;
@@ -90,6 +95,15 @@ public class CustomImportForm extends AbstractRegistrationForm
         }
         addUploadFeatures(sessionKey);
 
+        formPanel.addListener(Events.BeforeSubmit, new Listener<FormEvent>()
+            {
+                @Override
+                public void handleEvent(FormEvent be)
+                {
+                    infoBox.displayProgress(messageProvider.getMessage(Dict.PROGRESS_UPLOADING));
+                }
+            });
+
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
@@ -101,6 +115,8 @@ public class CustomImportForm extends AbstractRegistrationForm
                 @Override
                 protected void onSuccessfullUpload()
                 {
+                    infoBox.displayProgress(messageProvider.getMessage(Dict.PROGRESS_PROCESSING));
+
                     CustomImportForm.this.viewContext.getCommonService().performCustomImport(
                             sessionKey,
                             CustomImportForm.this.customImport.getCode(),
@@ -108,17 +124,28 @@ public class CustomImportForm extends AbstractRegistrationForm
                                     CustomImportForm.this.viewContext)
                                 {
                                     @Override
+                                    protected void process(String result)
+                                    {
+                                        super.process(result);
+                                        resetPanel();
+                                    }
+
+                                    @Override
                                     protected String createSuccessfullRegistrationInfo(String result)
                                     {
                                         return result
                                                 + " succesfully uploaded to the datastore server.";
                                     }
+
+                                    @Override
+                                    public void finishOnFailure(Throwable caught)
+                                    {
+                                        super.finishOnFailure(caught);
+                                        resetPanel();
+                                    }
+
                                 });
-                    for (FileUploadField field : fileFieldsManager.getFields())
-                    {
-                        field.clear();
-                    }
-                    setUploadEnabled();
+
                 }
             });
     }
@@ -263,6 +290,13 @@ public class CustomImportForm extends AbstractRegistrationForm
     {
         return customImport.getProperty(CustomImport.PropertyNames.TEMPLATE_ATTACHMENT_NAME
                 .getName());
+    }
+
+    @Override
+    protected void setUploadEnabled(boolean enabled)
+    {
+        super.setUploadEnabled(enabled);
+        infoBoxResetListener.setEnabled(enabled);
     }
 
     private void openUrl(String url)

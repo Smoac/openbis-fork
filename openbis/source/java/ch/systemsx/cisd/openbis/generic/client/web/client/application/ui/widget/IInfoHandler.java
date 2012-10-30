@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 
 /**
  * Handles info and error texts.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IInfoHandler
@@ -33,5 +33,10 @@ public interface IInfoHandler
      * Display given <var>text</var> as <i>info</i> text.
      */
     public abstract void displayInfo(final String text);
+
+    /**
+     * Display given <var>text</var> as <i>progress</i> text.
+     */
+    public abstract void displayProgress(final String text);
 
 }
