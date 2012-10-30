@@ -90,21 +90,22 @@ public final class InfoBox extends Html implements IInfoHandler
 
         timer = new Timer()
             {
-                String dots = "";
+                String dots;
 
                 @Override
                 public void run()
                 {
-                    if (dots.length() < 5)
+                    if (dots != null && dots.length() < 6)
                     {
                         dots += ".";
                     } else
                     {
-                        dots = "";
+                        dots = "...";
                     }
                     setHtml(text + dots);
                 }
             };
+        timer.run();
         timer.scheduleRepeating(500);
     }
 
