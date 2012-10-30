@@ -83,6 +83,8 @@ public class TestInitializer
                 FileUtilities.deleteRecursively(temporaryFile);
                 temporaryFile.mkdirs();
 
+                System.setProperty("script-folder", SCRIPT_FOLDER_TEST_DB);
+
                 IndexCreationUtil.main("test", temporaryFile.getAbsolutePath());
 
             } catch (Exception ex)
