@@ -96,7 +96,7 @@ static BOOL SynchEntityWithManagedObjectContext(CISDOBIpadRawEntity *rawEntity, 
     if (!_managedObjectContext) return nil;
     
     _ipadEntityDescription = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: _managedObjectContext];
-    _model = [_ipadEntityDescription managedObjectModel];
+    _managedObjectModel = [_ipadEntityDescription managedObjectModel];
     
     return self;
 }
@@ -105,7 +105,7 @@ static BOOL SynchEntityWithManagedObjectContext(CISDOBIpadRawEntity *rawEntity, 
 {
     BOOL success;
     for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
-        success = SynchEntityWithManagedObjectContext(rawEntity, self.model, self.managedObjectContext, error);
+        success = SynchEntityWithManagedObjectContext(rawEntity, self.managedObjectModel, self.managedObjectContext, error);
         if (!success) return NO;
     }
     success = [self.managedObjectContext save: error];
@@ -164,7 +164,7 @@ static BOOL SynchEntityWithManagedObjectContext(CISDOBIpadRawEntity *rawEntity, 
 - (NSArray *)entitiesByPermId:(NSArray *)permIds error:(NSError **)error
 {
     NSDictionary *fetchVariables = [NSDictionary dictionaryWithObject: permIds forKey: @"PERM_IDS"];
-    NSFetchRequest *request = [self.model fetchRequestFromTemplateWithName: @"EntitiesByPermIds" substitutionVariables: fetchVariables];
+    NSFetchRequest *request = [self.managedObjectModel fetchRequestFromTemplateWithName: @"EntitiesByPermIds" substitutionVariables: fetchVariables];
     return [self executeFetchRequest: request error: error];
 }
 

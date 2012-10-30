@@ -33,7 +33,7 @@
 @property (readonly, strong) CISDOBIpadService *service;
 @property (readonly, strong) NSURL *storeUrl;
 @property (readonly, strong) NSManagedObjectContext *managedObjectContext;
-@property (readonly, strong) NSManagedObjectModel *model;
+@property (readonly, strong) NSManagedObjectModel *managedObjectModel;
 @property (readonly, strong) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 @property (readonly, strong) NSEntityDescription *ipadEntityDescription;
 
