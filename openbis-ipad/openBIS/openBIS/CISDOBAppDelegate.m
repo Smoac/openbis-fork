@@ -33,6 +33,11 @@
 @synthesize rootOpenBisModel = _rootOpenBisModel;
 @synthesize serviceManager = _serviceManager;
 
+#pragma mark - User management
+
+- (NSString *)username { return @"admin"; }
+- (NSString *)password { return @"password"; }
+
 - (void)configureControllers;
 {
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
@@ -67,7 +72,7 @@
     controller.openBisModel = self.rootOpenBisModel;
 
     // Initialize the connection to openBIS
-    CISDOBAsyncCall *call = [self.serviceManager loginUser: @"admin" password: @"password"];
+    CISDOBAsyncCall *call = [self.serviceManager loginUser: [self username] password: [self password]];
     call.success = ^(id result) {
         [controller didConnectServiceManager: self.serviceManager];
     };
