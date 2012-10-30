@@ -80,7 +80,10 @@ class RequestHandler:
 		"""Append a row of data to the table"""
 		row = self.builder.addRow()
 		for header in self.headers:
-			row.setCell(header, str(entry.get(header)))
+			if entry.get(header):
+				row.setCell(header, str(entry.get(header)))
+			else:
+				row.setCell(header, "")
 
 	def add_rows(self, entities):
 		"""Take a collection of dictionaries and add a row for each one"""
