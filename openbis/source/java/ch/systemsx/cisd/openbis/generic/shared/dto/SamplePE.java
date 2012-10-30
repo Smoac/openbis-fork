@@ -388,6 +388,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     }
 
     // used only by Hibernate Search
+    @SuppressWarnings("unused")
     @Transient
     @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.CONTAINER_ID)
     private Long getContainerId()
@@ -488,6 +489,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     }
 
     // used only by Hibernate Search
+    @SuppressWarnings("unused")
     @Transient
     @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.EXPERIMENT_ID)
     private Long getExperimentId()
@@ -525,6 +527,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     }
 
     // used only by Hibernate Search
+    @SuppressWarnings("unused")
     @Transient
     @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
     private String getFullCode()
@@ -809,7 +812,9 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         return map;
     }
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    // used only by Hibernate Search
+    @SuppressWarnings("unused")
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Fetch(FetchMode.SUBSELECT)
     @JoinTable(name = TableNames.METAPROJECT_ASSIGNMENTS_VIEW, joinColumns =
         { @JoinColumn(name = ColumnNames.SAMPLE_COLUMN) }, inverseJoinColumns =

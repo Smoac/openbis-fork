@@ -554,7 +554,9 @@ public class ExperimentPE extends AttachmentHolderPE implements
         this.permId = permId;
     }
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    // used only by Hibernate Search
+    @SuppressWarnings("unused")
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Fetch(FetchMode.SUBSELECT)
     @JoinTable(name = TableNames.METAPROJECT_ASSIGNMENTS_VIEW, joinColumns =
         { @JoinColumn(name = ColumnNames.EXPERIMENT_COLUMN) }, inverseJoinColumns =

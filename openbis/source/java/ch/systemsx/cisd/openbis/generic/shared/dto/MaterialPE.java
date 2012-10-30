@@ -382,7 +382,9 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         return createPermId(code, materialType.getCode());
     }
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    // used only by Hibernate Search
+    @SuppressWarnings("unused")
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Fetch(FetchMode.SUBSELECT)
     @JoinTable(name = TableNames.METAPROJECT_ASSIGNMENTS_VIEW, joinColumns =
         { @JoinColumn(name = ColumnNames.MATERIAL_COLUMN) }, inverseJoinColumns =
