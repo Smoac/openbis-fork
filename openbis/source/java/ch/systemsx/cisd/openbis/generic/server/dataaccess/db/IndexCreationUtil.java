@@ -203,7 +203,7 @@ public final class IndexCreationUtil
         // Deactivate the indexing in the application context loaded by Spring.
         System.setProperty("hibernate.search.index-mode", "NO_INDEX");
         System.setProperty("hibernate.search.index-base", indexFolder);
-        System.setProperty("database.create-from-scratch", "false");
+        System.setProperty("database.create-from-scratch", parameters.getFromScratch());
 
         performAndTimeIndexing(databaseKind, indexFolder);
 
@@ -273,6 +273,8 @@ public final class IndexCreationUtil
 
         private String indexFolder = "sourceTest/lucene/indices";
 
+        private String fromScratch;
+
         Parameters(String[] args)
         {
             List<String> arguments = new ArrayList<String>(Arrays.asList(args));
@@ -288,8 +290,9 @@ public final class IndexCreationUtil
             databaseKind = arguments.remove(0);
             if (arguments.size() > 0)
             {
-                indexFolder = arguments.get(0);
+                indexFolder = arguments.remove(0);
             }
+            fromScratch = arguments.isEmpty() ? "false" : arguments.remove(0);
         }
 
         private void throwExceptionIfEmpty(List<String> arguments, String entityType)
@@ -318,6 +321,11 @@ public final class IndexCreationUtil
         final String getIndexFolder()
         {
             return indexFolder;
+        }
+
+        final String getFromScratch()
+        {
+            return fromScratch;
         }
 
     }

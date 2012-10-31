@@ -85,7 +85,7 @@ public class TestInitializer
 
                 System.setProperty("script-folder", SCRIPT_FOLDER_TEST_DB);
 
-                IndexCreationUtil.main("test", temporaryFile.getAbsolutePath());
+                IndexCreationUtil.main("test", temporaryFile.getAbsolutePath(), "true");
 
             } catch (Exception ex)
             {
