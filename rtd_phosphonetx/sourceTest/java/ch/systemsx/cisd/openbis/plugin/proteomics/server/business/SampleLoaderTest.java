@@ -25,7 +25,8 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.SampleLoader;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * 
@@ -39,7 +40,9 @@ public class SampleLoaderTest extends AbstractLoaderTestCase
     @Test
     public void test()
     {
-        SampleLoader loader = new SampleLoader(SESSION, daoFactory, boFactory);
+        Session session = session();
+        session.setPerson(new PersonPE());
+        SampleLoader loader = new SampleLoader(session, daoFactory, boFactory);
         List<Sample> samples = loader.listSamplesWithParentsByTypeAndSpace("CELL_PLATE", "CISD");
         Collections.sort(samples, new Comparator<Sample>()
             {

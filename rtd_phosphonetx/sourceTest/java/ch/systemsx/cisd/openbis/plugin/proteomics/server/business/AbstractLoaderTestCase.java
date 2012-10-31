@@ -43,14 +43,17 @@ public abstract class AbstractLoaderTestCase extends AbstractDAOWithoutContextTe
 
     private static final String SESSION_TOKEN = "session-token";
 
-    protected static final Session SESSION = new Session(CommonTestUtils.USER_ID, SESSION_TOKEN,
-            PRINCIPAL, "remote-host", 1);
-    
     protected ICommonBusinessObjectFactory boFactory;
 
     @Autowired
     public final void setBoFactory(final ICommonBusinessObjectFactory boFactory)
     {
         this.boFactory = boFactory;
+    }
+    
+    protected Session session()
+    {
+        return new Session(CommonTestUtils.USER_ID, SESSION_TOKEN,
+                PRINCIPAL, "remote-host", 1);
     }
 }
