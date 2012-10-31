@@ -66,6 +66,9 @@
         <property name="lastNameAttributeName" value="${ldap.attributenames.last.name}" />
         <property name="queryEmailForAliases" value="${ldap.queryEmailForAliases}" />
         <property name="queryTemplate" value="${ldap.queryTemplate}" />
+        <property name="maxRetriesStr" value="${ldap.maxRetries}" />
+        <property name="timeoutStr" value="${ldap.timeout}" />
+        <property name="timeToWaitAfterFailureStr" value="${ldap.timeToWaitAfterFailure}" />
     </bean>
 
     <bean id="ldap-authentication-service"

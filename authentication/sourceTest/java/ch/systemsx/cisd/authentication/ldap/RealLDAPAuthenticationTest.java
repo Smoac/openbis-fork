@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 
 import static org.testng.AssertJUnit.*;
 
@@ -48,12 +49,14 @@ public class RealLDAPAuthenticationTest
     @BeforeTest
     public void setUp()
     {
+        LogInitializer.init();
         final LDAPDirectoryConfiguration config = new LDAPDirectoryConfiguration();
         config.setServerUrl(SERVER_URL);
         config.setSecurityPrincipalDistinguishedName(SECURITY_PRINCIPAL_DISTINGUISHED_NAME);
         config.setSecurityPrincipalPassword(SECURITY_PRINCIPAL_PASSWORD);
-        config.setEmailAttributeName("proxyAddresses");
-        config.setEmailAttributePrefix("smtp:");
+        config.setQueryEmailForAliases("true");
+        config.setTimeoutStr("1000");
+        config.setTimeToWaitAfterFailureStr("1000");
         service = new LDAPAuthenticationService(config);
     }
 

@@ -59,6 +59,12 @@ public final class LDAPDirectoryConfiguration
     private String securityAuthenticationMethod = "simple";
 
     private String referral = "follow";
+    
+    private long timeout = 10000L;
+    
+    private int maxRetries = 1;
+    
+    private long timeToWaitAfterFailure = 10000L;
 
     private String queryTemplate =
             DEFAULT_QUERY_TEMPLATE;
@@ -305,6 +311,89 @@ public final class LDAPDirectoryConfiguration
         if (isResolved(queryTemplate))
         {
             this.queryTemplate = queryTemplate;
+        }
+    }
+
+    /**
+     * The read timeout (in ms).
+     * 
+     * Default value: <code>-1</code> (which means: wait forever)
+     */
+    public String getTimeoutStr()
+    {
+        return Long.toString(timeout);
+    }
+
+    /**
+     * Set the read timeout (in ms).
+     */
+    public void setTimeoutStr(String timeoutMillis)
+    {
+        if (isResolved(timeoutMillis))
+        {
+            this.timeout = Long.parseLong(timeoutMillis);
+        }
+    }
+
+    /**
+     * The time to wait after failure before retrying (in ms).
+     * 
+     * Default value: <code>-1</code> (which means: wait forever)
+     */
+    public long getTimeToWaitAfterFailure()
+    {
+        return timeToWaitAfterFailure;
+    }
+
+    /**
+     * The time to wait after failure before retrying (in ms).
+     * 
+     * Default value: <code>-1</code> (which means: wait forever)
+     */
+    public String getTimeToWaitAfterFailureStr()
+    {
+        return Long.toString(timeToWaitAfterFailure);
+    }
+
+    /**
+     * Set the time to wait after failure before retrying (in ms).
+     */
+    public void setTimeToWaitAfterFailureStr(String timeToWaitOnFailureMillis)
+    {
+        if (isResolved(timeToWaitOnFailureMillis))
+        {
+            this.timeToWaitAfterFailure = Long.parseLong(timeToWaitOnFailureMillis);
+        }
+    }
+
+    /**
+     * The maximum number of times a failed query is retried.
+     * 
+     * Default value: <code>9</code>
+     */
+    public int getMaxRetries()
+    {
+        return maxRetries;
+    }
+
+    /**
+     * The maximum number of times a failed query is retried.
+     * 
+     * Default value: <code>9</code>
+     */
+    public String getMaxRetriesStr()
+    {
+        return Integer.toString(maxRetries);
+    }
+
+    /**
+     * Sets the maximum number of times a failed query is retried.
+     */
+    public void setMaxRetriesStr(String maxRetries)
+    {
+        if (isResolved(maxRetries))
+        {
+            this.maxRetries = Integer.parseInt(maxRetries);
         }
     }
 

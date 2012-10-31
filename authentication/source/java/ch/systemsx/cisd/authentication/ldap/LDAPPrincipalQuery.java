@@ -38,8 +38,10 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exception.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
@@ -51,8 +53,6 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
  */
 public final class LDAPPrincipalQuery implements ISelfTestable
 {
-    private static final int MAX_RETRIES = 10;
-
     private static final String DISTINGUISHED_NAME_ATTRIBUTE_NAME = "distinguishedName";
 
     private static final String UID_NUMBER_ATTRIBUTE_NAME = "uidNumber";
@@ -63,6 +63,10 @@ public final class LDAPPrincipalQuery implements ISelfTestable
             LogFactory.getLogger(LogCategory.OPERATION, LDAPPrincipalQuery.class);
 
     private static final String LDAP_CONTEXT_FACTORY_CLASSNAME = "com.sun.jndi.ldap.LdapCtxFactory";
+
+    private static final String LDAP_CONTEXT_READ_TIMEOUT = "com.sun.jndi.ldap.read.timeout";
+
+    private static final String LDAP_CONTEXT_CONNECT_TIMEOUT = "com.sun.jndi.ldap.connect.timeout";
 
     private static final String AUTHENTICATION_FAILURE_TEMPLATE =
             "Authentication failure connecting to LDAP server '%s'.";
@@ -242,14 +246,16 @@ public final class LDAPPrincipalQuery implements ISelfTestable
     {
         try
         {
-            createContextForDistinguishedName(dn, password, false);
+            createContextForDistinguishedName(dn, password, false, true);
             return true;
-        } catch (AuthenticationException ex)
+        } catch (InvalidAuthenticationException ex)
         {
             return false;
-        } catch (NamingException ex)
+        } catch (RuntimeException ex)
         {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            operationLog.error(
+                    String.format("Error on creating context to authenticate dn=<%s>", dn), ex);
+            throw ex;
         }
     }
 
@@ -276,10 +282,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
             Collection<String> additionalAttributesOrNull, int limit)
     {
         RuntimeException firstException = null;
-        // See bug
-        // http://bugs.sun.com/bugdatabase/view_bug.do;jsessionid=b399a5ff102b13d178b4c703df19?bug_id=6924489
-        // on Solaris with SSL connections
-        for (int i = 0; i < MAX_RETRIES; ++i)
+        for (int i = 0; i <= config.getMaxRetries(); ++i)
         {
             try
             {
@@ -290,13 +293,19 @@ public final class LDAPPrincipalQuery implements ISelfTestable
                 if (firstException == null)
                 {
                     firstException = ex;
+                    if (operationLog.isDebugEnabled() && i < config.getMaxRetries())
+                    {
+                        operationLog.debug(String.format(
+                                "Error listing principle by %s=%s, retrying...", key, value), ex);
+                    }
                 }
-                if (operationLog.isDebugEnabled())
+                if (i < config.getMaxRetries())
                 {
-                    operationLog.debug("Exception in SSL protocol, retrying.");
+                    ConcurrencyUtilities.sleep(config.getTimeToWaitAfterFailure());
                 }
             }
         }
+        operationLog.error(String.format("Error on LDAP query %s=%s", key, value), firstException);
         throw firstException;
     }
 
@@ -308,7 +317,7 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         final String query = String.format(config.getQueryTemplate(), filter);
         try
         {
-            final DirContext context = createContext();
+            final DirContext context = createContext(false);
             final SearchControls ctrl = new SearchControls();
             ctrl.setSearchScope(SearchControls.SUBTREE_SCOPE);
             final NamingEnumeration<SearchResult> enumeration = context.search("", query, ctrl);
@@ -367,15 +376,15 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         }
     }
 
-    private DirContext createContext() throws NamingException
+    private DirContext createContext(boolean retry)
     {
         return createContextForDistinguishedName(config.getSecurityPrincipalDistinguishedName(),
-                config.getSecurityPrincipalPassword(), true);
+                config.getSecurityPrincipalPassword(), true, retry);
     }
 
     @SuppressWarnings("null")
     private DirContext createContextForDistinguishedName(String dn, String password,
-            boolean useThreadContext) throws NamingException
+            boolean useThreadContext, boolean retry)
     {
         final DirContext threadContext = useThreadContext ? contextHolder.get() : null;
         if (threadContext != null)
@@ -390,16 +399,15 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         env.put(Context.REFERRAL, config.getReferral());
         env.put(Context.SECURITY_PRINCIPAL, dn);
         env.put(Context.SECURITY_CREDENTIALS, password);
+        env.put(LDAP_CONTEXT_READ_TIMEOUT, config.getTimeoutStr());
+        env.put(LDAP_CONTEXT_CONNECT_TIMEOUT, config.getTimeoutStr());
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("Try to login to %s with dn=%s",
                     config.getServerUrl(), dn));
         }
         RuntimeException firstException = null;
-        // See bug
-        // http://bugs.sun.com/bugdatabase/view_bug.do;jsessionid=b399a5ff102b13d178b4c703df19?bug_id=6924489
-        // on Solaris with SSL connections
-        for (int i = 0; i < MAX_RETRIES; ++i)
+        for (int i = 0; i <= config.getMaxRetries(); ++i)
         {
             try
             {
@@ -409,20 +417,33 @@ public final class LDAPPrincipalQuery implements ISelfTestable
                     contextHolder.set(initialDirContext);
                 }
                 return initialDirContext;
-            } catch (RuntimeException ex)
+            } catch (Exception ex)
             {
+                if (ex instanceof AuthenticationException)
+                {
+                    throw new InvalidAuthenticationException("Failed to authenticate dn=<" + dn
+                            + ">", ex);
+                }
                 if (firstException == null)
                 {
-                    firstException = ex;
+                    firstException = CheckedExceptionTunnel.wrapIfNecessary(ex);
+                    if (operationLog.isDebugEnabled() && retry)
+                    {
+                        operationLog.debug(
+                                "Error connecting to LDAP service: cannot open a context for dn=<"
+                                        + dn + ">, retrying...", ex);
+                    }
                 }
-                if (operationLog.isDebugEnabled())
+                if (retry == false)
                 {
-                    operationLog.debug("Exception in SSL protocol, retrying.");
+                    break;
+                }
+                if (i < config.getMaxRetries())
+                {
+                    ConcurrencyUtilities.sleep(config.getTimeToWaitAfterFailure());
                 }
             }
         }
-        operationLog.error("Error connecting to LDAP service: cannot open a context for dn=<" + dn
-                + ">.");
         throw firstException;
     }
 
@@ -497,15 +518,16 @@ public final class LDAPPrincipalQuery implements ISelfTestable
     {
         try
         {
-            createContext();
-        } catch (AuthenticationException ex)
+            createContext(true);
+        } catch (InvalidAuthenticationException ex)
         {
             throw ConfigurationFailureException.fromTemplate(ex, AUTHENTICATION_FAILURE_TEMPLATE,
                     config.getServerUrl());
-        } catch (NamingException ex)
+        } catch (RuntimeException ex)
         {
-            throw EnvironmentFailureException.fromTemplate(ex, LDAP_ERROR_TEMPLATE, config
-                    .getServerUrl());
+            throw EnvironmentFailureException.fromTemplate(
+                    CheckedExceptionTunnel.unwrapIfNecessary(ex), LDAP_ERROR_TEMPLATE, config
+                            .getServerUrl());
         }
     }
 
