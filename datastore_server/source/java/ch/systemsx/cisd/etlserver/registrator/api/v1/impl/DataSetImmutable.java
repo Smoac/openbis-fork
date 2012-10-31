@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedBasicOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
@@ -42,7 +42,7 @@ public class DataSetImmutable extends AbstractDataSetImmutable
 {
     protected final ExternalData dataSet;
 
-    public DataSetImmutable(ExternalData dataSet, IEncapsulatedOpenBISService service)
+    public DataSetImmutable(ExternalData dataSet, IEncapsulatedBasicOpenBISService service)
     {
         super(service);
         this.dataSet = dataSet;

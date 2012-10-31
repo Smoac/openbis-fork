@@ -223,6 +223,12 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
     }
 
     @Override
+    public ISearchService getSearchServiceUnfiltered()
+    {
+        return transaction.getSearchServiceUnfiltered();
+    }
+
+    @Override
     public IAuthorizationService getAuthorizationService()
     {
         return transaction.getAuthorizationService();

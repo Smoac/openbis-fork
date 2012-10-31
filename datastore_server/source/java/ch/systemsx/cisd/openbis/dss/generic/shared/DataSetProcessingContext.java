@@ -50,6 +50,9 @@ public class DataSetProcessingContext
 
     private final IHierarchicalContentProvider hierarchicalContentProvider;
 
+    /**
+     * Session token of a user on behalf of who, the script is executed.
+     */
     private final String sessionTokenOrNull;
 
     private final ISessionWorkspaceProvider sessionWorkspaceProviderOrNull;

@@ -263,11 +263,21 @@ public interface IDataSetRegistrationTransaction
     String createNewFile(IDataSet dst, String dstInDataset, String fileName);
 
     /**
-     * Retrieve the search service for this transaction
+     * Retrieve the search service for this transaction. If the user is available for this
+     * transaction, then the search service results will be filtered for this user.
      * 
      * @return The search service for this transaction.
      */
     ISearchService getSearchService();
+
+    /**
+     * Retrieve the search service for this transaction. It returns the results unfiltered by the
+     * user, even if the user is available.
+     * 
+     * @return The search service for this transaction.
+     */
+    ISearchService getSearchServiceUnfiltered();
+
 
     /**
      * @return A service which can be used to get authorization information about a user.

@@ -16,19 +16,16 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -38,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -51,8 +47,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
@@ -75,8 +69,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  * @see IETLLIMSService
  * @author Christian Ribeaud
  */
-public interface IEncapsulatedOpenBISService
+public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISService
 {
+
+    /**
+     * Get the basic version of this service, that will filter the results.
+     * 
+     * @param userName The user used for filtering.
+     */
+    @ManagedAuthentication
+    public IEncapsulatedBasicOpenBISService getBasicFilteredOpenBISService(String userName);
 
     /**
      * Tries to get the data set location for the specified data set code, using the ETL server's
@@ -180,27 +182,6 @@ public interface IEncapsulatedOpenBISService
     public Material tryGetMaterial(MaterialIdentifier materialIdentifier);
 
     /**
-     * Lists materials using given criteria.
-     * 
-     * @return a sorted list of {@link Material}.
-     */
-    @ManagedAuthentication
-    public List<Material> listMaterials(ListMaterialCriteria criteria, boolean withProperties);
-
-    /**
-     * Lists vocabulary terms.
-     */
-    @ManagedAuthentication
-    public Collection<VocabularyTerm> listVocabularyTerms(String vocabularyCode)
-            throws UserFailureException;
-
-    /**
-     * Returns a vocabulary with given code
-     */
-    @ManagedAuthentication
-    public Vocabulary tryGetVocabulary(String code);
-
-    /**
      * Gets the experiment type with assigned property types for the specified experiment type code.
      */
     @ManagedAuthentication
@@ -211,13 +192,6 @@ public interface IEncapsulatedOpenBISService
      */
     @ManagedAuthentication
     public SampleType getSampleType(String sampleTypeCode) throws UserFailureException;
-
-    /**
-     * Returns the data set type together with assigned property types for the specified data set
-     * type code.
-     */
-    @ManagedAuthentication
-    public DataSetTypeWithVocabularyTerms getDataSetType(String dataSetTypeCode);
 
     /**
      * Lists all data sets of the specified experiment ID.
@@ -464,28 +438,10 @@ public interface IEncapsulatedOpenBISService
             AtomicEntityOperationDetails operationDetails);
 
     /**
-     * {@link IETLLIMSService#searchForSamples(String, SearchCriteria)}
-     */
-    @ManagedAuthentication
-    public List<Sample> searchForSamples(SearchCriteria searchCriteria);
-
-    /**
-     * {@link IETLLIMSService#searchForDataSets(String, SearchCriteria)}
-     */
-    @ManagedAuthentication
-    public List<ExternalData> searchForDataSets(SearchCriteria searchCriteria);
-
-    /**
      * {@link IETLLIMSService#listProjects(String)}
      */
     @ManagedAuthentication
     public List<Project> listProjects();
-
-    /**
-     * {@link IETLLIMSService#listExperiments(String, ProjectIdentifier)}
-     */
-    @ManagedAuthentication
-    public List<Experiment> listExperiments(ProjectIdentifier projectIdentifier);
 
     /**
      * {@link IETLLIMSService#removeDataSetsPermanently(String, List, String)}

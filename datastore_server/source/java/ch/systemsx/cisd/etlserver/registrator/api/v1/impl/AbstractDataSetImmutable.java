@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedBasicOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.Translator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
@@ -37,9 +37,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
  */
 abstract class AbstractDataSetImmutable implements IDataSetImmutable 
 {
-    protected final IEncapsulatedOpenBISService service;
+    protected final IEncapsulatedBasicOpenBISService service;
 
-    AbstractDataSetImmutable(IEncapsulatedOpenBISService service)
+    AbstractDataSetImmutable(IEncapsulatedBasicOpenBISService service)
     {
         this.service = service;
     }

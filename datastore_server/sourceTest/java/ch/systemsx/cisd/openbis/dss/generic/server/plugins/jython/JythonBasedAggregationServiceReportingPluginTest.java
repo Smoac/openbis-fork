@@ -220,7 +220,13 @@ public class JythonBasedAggregationServiceReportingPluginTest extends AbstractFi
                 private static final long serialVersionUID = 1L;
 
                 @Override
-                protected ISearchService createSearchService()
+                protected ISearchService createUnfilteredSearchService()
+                {
+                    return searchService;
+                }
+
+                @Override
+                protected ISearchService createUserSearchService(DataSetProcessingContext dscontext)
                 {
                     return searchService;
                 }

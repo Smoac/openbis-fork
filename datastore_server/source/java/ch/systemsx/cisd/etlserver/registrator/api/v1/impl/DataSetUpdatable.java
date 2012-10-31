@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedBasicOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
@@ -54,7 +54,7 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
 
     private final DataSetBatchUpdateDetails updateDetails;
 
-    public DataSetUpdatable(ExternalData dataSet, IEncapsulatedOpenBISService service)
+    public DataSetUpdatable(ExternalData dataSet, IEncapsulatedBasicOpenBISService service)
     {
         super(dataSet, service);
         if (dataSet.getProperties() == null)

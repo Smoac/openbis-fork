@@ -24,7 +24,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.collection.CollectionUtils.ICollectionFilter;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedBasicOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
@@ -52,9 +52,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
  */
 public class SearchService implements ISearchService
 {
-    private final IEncapsulatedOpenBISService openBisService;
+    private final IEncapsulatedBasicOpenBISService openBisService;
 
-    public SearchService(IEncapsulatedOpenBISService openBisService)
+    public SearchService(IEncapsulatedBasicOpenBISService openBisService)
     {
         this.openBisService = openBisService;
     }

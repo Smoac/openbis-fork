@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedBasicOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -152,6 +153,13 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         assert sessionHolder != null : "Given OpenBISSessionHolder can not be null.";
         this.service = service;
         this.session = sessionHolder;
+    }
+
+    @Override
+    public IEncapsulatedBasicOpenBISService getBasicFilteredOpenBISService(String user)
+    {
+        return new EncapsulatedFilteredBasicOpenBISService(user, service, this,
+                session.getSessionToken());
     }
 
     private IShareIdManager getShareIdManager()

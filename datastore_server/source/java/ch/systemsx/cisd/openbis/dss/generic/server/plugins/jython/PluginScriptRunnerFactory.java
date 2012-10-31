@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.SearchService;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
@@ -59,6 +60,8 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
             PluginScriptRunnerFactory.class);
 
     private final static String SEARCH_SERVICE_VARIABLE_NAME = "searchService";
+
+    private final static String SEARCH_SERVICE_UNFILTERED_VARIABLE_NAME = "searchServiceUnfiltered";
 
     private final static String DATA_SOURCE_QUERY_SERVICE_VARIABLE_NAME = "queryService";
 
@@ -96,7 +99,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         {
             AbstractAggregationServiceReportingPluginScriptRunner.InputData inputData =
                     createInputDataForReportingPluginScriptRunner(context, scriptString);
-            
+
             return new AggregationServiceReportingPluginScriptRunner(inputData);
         } catch (EvaluatorException ex)
         {
@@ -139,6 +142,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
                         contentProvider, contentProviderUnfiltered);
         return inputData;
     }
+
     /**
      * Factory method for creating an IReportingPluginScriptRunner for a given processing context.
      */
@@ -206,7 +210,10 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     protected Evaluator createEvaluator(String scriptString, DataSetProcessingContext context)
     {
         final Evaluator evaluator = new Evaluator("", null, scriptString, false);
-        evaluator.set(SEARCH_SERVICE_VARIABLE_NAME, createSearchService());
+
+        evaluator.set(SEARCH_SERVICE_VARIABLE_NAME, createUserSearchService(context));
+        evaluator.set(SEARCH_SERVICE_UNFILTERED_VARIABLE_NAME, createUnfilteredSearchService());
+
         evaluator.set(MAIL_SERVICE_VARIABLE_NAME, createMailService(context));
         evaluator.set(DATA_SOURCE_QUERY_SERVICE_VARIABLE_NAME, createDataSourceQueryService());
         evaluator.set(AUTHORIZATION_SERVICE, createAuthorizationService());
@@ -220,7 +227,16 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         return evaluator;
     }
 
-    protected ISearchService createSearchService()
+    protected ISearchService createUserSearchService(DataSetProcessingContext context)
+    {
+        if (context.getUserId() == null)
+            return createUnfilteredSearchService();
+        else
+            return new SearchService(ServiceProvider.getOpenBISService()
+                    .getBasicFilteredOpenBISService(context.getUserId()));
+    }
+
+    protected ISearchService createUnfilteredSearchService()
     {
         return ServiceProvider.getSearchService();
     }
@@ -287,7 +303,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
                 this.contentProviders = contentProviders;
             }
         }
-        
+
         final Evaluator evaluator;
 
         final DataSetContentProvider[] contentProviders;
@@ -315,7 +331,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
             evaluator.releaseResources();
         }
     }
-    
+
     private static class AggregationServiceReportingPluginScriptRunner extends
             AbstractAggregationServiceReportingPluginScriptRunner implements
             IAggregationServiceReportingPluginScriptRunner
@@ -348,7 +364,6 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
             IDbModifyingAggregationServiceReportingPluginScriptRunner
     {
         private final static String FUNCTION_NAME = "process";
-
 
         DbModifyingAggregationServiceReportingPluginScriptRunner(
                 AbstractAggregationServiceReportingPluginScriptRunner.InputData inputData)

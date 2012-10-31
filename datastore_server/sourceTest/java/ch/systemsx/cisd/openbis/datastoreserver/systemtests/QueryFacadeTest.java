@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -46,13 +47,17 @@ public class QueryFacadeTest extends SystemTestCase
 
     private IQueryApiFacade queryFacade;
 
-    private IQueryApiFacade observerFacade;
+    private Map<String, IQueryApiFacade> facades;
 
     @BeforeMethod
     public void beforeMethod()
     {
         queryFacade = createServiceFacade("test");
-        observerFacade = createServiceFacade("observer");
+
+        facades = new HashMap<String, IQueryApiFacade>();
+        facades.put("test", queryFacade);
+        facades.put("observer", createServiceFacade("observer"));
+        facades.put("test_space", createServiceFacade("test_space"));
     }
 
     @Test
@@ -187,7 +192,7 @@ public class QueryFacadeTest extends SystemTestCase
         File content = new File(new File(new File(store, "42"), "a"), "1");
         content.mkdirs();
 
-        observerFacade.createReportFromAggregationService(service, parameters);
+        facades.get("observer").createReportFromAggregationService(service, parameters);
     }
 
     /**
@@ -206,7 +211,7 @@ public class QueryFacadeTest extends SystemTestCase
         content.mkdirs();
 
         QueryTableModel table =
-                observerFacade.createReportFromAggregationService(service, parameters);
+                facades.get("observer").createReportFromAggregationService(service, parameters);
 
         assertEquals("[name]", getHeaders(table).toString());
         assertEquals("[1]", Arrays.asList(table.getRows().get(0)).toString());
@@ -228,8 +233,7 @@ public class QueryFacadeTest extends SystemTestCase
         File content = new File(new File(new File(store, "42"), "a"), "1");
         content.mkdirs();
 
-        QueryTableModel table =
- queryFacade.createReportFromAggregationService(service, parameters);
+        QueryTableModel table = queryFacade.createReportFromAggregationService(service, parameters);
 
         assertEquals("[name]", getHeaders(table).toString());
         assertEquals("[1]", Arrays.asList(table.getRows().get(0)).toString());
@@ -291,5 +295,120 @@ public class QueryFacadeTest extends SystemTestCase
             }
         }
         return latestFile;
+    }
+
+    /**
+     * The testcase, that checks whether the results of the search service calls for different users
+     */
+    @Test
+    public void testDataSetSearchServiceInAggregationService() throws Exception
+    {
+        int allTest = getSearchServiceAggregationServiceResult("datasetsAll", facades.get("test"));
+        int allObserver =
+                getSearchServiceAggregationServiceResult("datasetsAll", facades.get("observer"));
+
+        int filteredTest =
+                getSearchServiceAggregationServiceResult("datasetsFiltered", facades.get("test"));
+        int filteredObserver =
+                getSearchServiceAggregationServiceResult("datasetsFiltered",
+                        facades.get("test_space"));
+
+        assertEquals(allTest, allObserver);
+        assertEquals(allTest, filteredTest);
+        assertTrue("There are " + allTest
+                + " datasets, and observer should see less, but he did see " + filteredObserver,
+                allTest > filteredObserver);
+        assertTrue("There should be some datasets visible to the observer, but there are no",
+                filteredObserver > 0);
+    }
+
+    /**
+     * Test searching for samples via search service for different users
+     */
+    @Test
+    public void testSampleSearchServiceInAggregationService() throws Exception
+    {
+        int allTest = getSearchServiceAggregationServiceResult("samplesAll", facades.get("test"));
+        int allObserver =
+                getSearchServiceAggregationServiceResult("samplesAll", facades.get("observer"));
+
+        int filteredTest =
+                getSearchServiceAggregationServiceResult("samplesFiltered", facades.get("test"));
+        int filteredObserver =
+                getSearchServiceAggregationServiceResult("samplesFiltered", facades.get("observer"));
+        int filteredObserver2 =
+                getSearchServiceAggregationServiceResult("samplesFiltered",
+                        facades.get("test_space"));
+
+        assertEquals(allTest, allObserver);
+        assertEquals(allTest, filteredTest);
+        assertTrue("There are " + allTest
+                + " samples, and observer should see less, but he did see " + filteredObserver,
+                allTest > filteredObserver);
+        assertTrue("There are " + allTest
+                + " samples, and test_space should see less, but he did see " + filteredObserver,
+                allTest > filteredObserver2);
+        assertTrue("There should be some samples visible to the observer, but there are no",
+                filteredObserver > 0);
+        assertTrue("There should be some samples visible to the test_space, but there are no",
+                filteredObserver2 > 0);
+    }
+
+    /**
+     * Check listing experiments for different users via search service
+     */
+    @Test
+    public void testExperimentSearchServiceInAggregationService() throws Exception
+    {
+        int allNemoTest =
+                getSearchServiceAggregationServiceResult("experimentsAll", facades.get("test"),
+                        "projectId", "/CISD/NEMO");
+        int allNemoObserver =
+                getSearchServiceAggregationServiceResult("experimentsAll", facades.get("observer"),
+                        "projectId", "/CISD/NEMO");
+
+        assertTrue(allNemoTest > 0);
+        assertEquals(allNemoTest, allNemoObserver);
+
+        int filteredNemoTest =
+                getSearchServiceAggregationServiceResult("experimentsFiltered",
+                        facades.get("test"), "projectId", "/CISD/NEMO");
+        int filteredNemoObserver =
+                getSearchServiceAggregationServiceResult("experimentsFiltered",
+                        facades.get("observer"), "projectId", "/CISD/NEMO");
+        int filteredNemoTestSpace =
+                getSearchServiceAggregationServiceResult("experimentsFiltered",
+                        facades.get("test_space"), "projectId", "/CISD/NEMO");
+
+        assertEquals(allNemoTest, filteredNemoTest);
+        assertEquals(0, filteredNemoObserver);
+        assertEquals(0, filteredNemoTestSpace);
+
+        int filteredTestSpace =
+                getSearchServiceAggregationServiceResult("experimentsFiltered",
+                        facades.get("test_space"), "projectId", "/TEST-SPACE/TEST-PROJECT");
+
+        assertTrue(filteredTestSpace > 0);
+    }
+
+    private int getSearchServiceAggregationServiceResult(String mode, IQueryApiFacade facade,
+            String... params)
+    {
+        HashMap<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("mode", mode);
+
+        for (int i = 0; 2 * i + 1 < params.length; i += 2)
+        {
+            parameters.put(params[2 * i], params[2 * i + 1]);
+        }
+
+        AggregationServiceDescription service =
+                getAggregationServiceDescription("search-service-aggregation-service");
+
+        QueryTableModel table = facade.createReportFromAggregationService(service, parameters);
+
+        assertEquals("[result]", getHeaders(table).toString());
+        assertEquals(1, table.getRows().size());
+        return Integer.parseInt(table.getRows().get(0)[0].toString());
     }
 }

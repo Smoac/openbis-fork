@@ -660,6 +660,18 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     @Override
     public ISearchService getSearchService()
     {
+        if (getUserId() == null)
+            return getSearchServiceUnfiltered();
+        else
+            return new SearchService(
+                    openBisService
+                            .getBasicFilteredOpenBISService(getStateAsLiveState()
+                            .getUserId()));
+    }
+
+    @Override
+    public ISearchService getSearchServiceUnfiltered()
+    {
         return new SearchService(openBisService);
     }
 
