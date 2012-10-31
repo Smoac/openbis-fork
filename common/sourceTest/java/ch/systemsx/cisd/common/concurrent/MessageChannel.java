@@ -23,6 +23,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.LogLevel;
+
 /**
  * Message channel for controlling multiple threads in unit testing. The channel is a
  * {@link BlockingQueue}.
@@ -34,6 +37,10 @@ public class MessageChannel
     private final BlockingQueue<Object> _queue;
 
     private final long _timeOutInMilliSeconds;
+    
+    private String name = "?";
+    
+    private ISimpleLogger logger;
 
     /**
      * Creates an instance with time out 1 second.
@@ -53,6 +60,22 @@ public class MessageChannel
     }
 
     /**
+     * Sets the name of this channel. Will be used if logging is enabled.
+     */
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    /**
+     * Sets an optional logger which log sending and receiving messages.
+     */
+    public void setLogger(ISimpleLogger logger)
+    {
+        this.logger = logger;
+    }
+
+    /**
      * Sends specified message. <code>null</code> are not allowed.
      */
     public void send(Object message)
@@ -62,6 +85,15 @@ public class MessageChannel
             throw new IllegalArgumentException("Null message not allowed.");
         }
         _queue.offer(message);
+        log("Message '" + message + "' has been sent.");
+    }
+    
+    private void log(String message)
+    {
+        if (logger != null)
+        {
+            logger.log(LogLevel.INFO, "MessageChannel[" + name + "]: " + message);
+        }
     }
 
     /**
@@ -72,12 +104,24 @@ public class MessageChannel
     {
         try
         {
-            assertEquals(expectedMessage,
-                    _queue.poll(_timeOutInMilliSeconds, TimeUnit.MILLISECONDS));
+            assertEquals(expectedMessage, receivesMessage());
         } catch (InterruptedException e)
         {
             // ignored
         }
+    }
+
+    private Object receivesMessage() throws InterruptedException
+    {
+        Object message = _queue.poll(_timeOutInMilliSeconds, TimeUnit.MILLISECONDS);
+        if (message == null)
+        {
+            log("No message could be received. Timeout: " + _timeOutInMilliSeconds + " msec");
+        } else
+        {
+            log("Message '" + message + "' has been received.");
+        }
+        return message;
     }
 
     /**
@@ -88,7 +132,8 @@ public class MessageChannel
     {
         try
         {
-            assertTrue(_queue.poll(_timeOutInMilliSeconds, TimeUnit.MILLISECONDS).toString()
+            Object receivedMessage = receivesMessage();
+            assertTrue("Unexpected message: " + receivedMessage, receivedMessage.toString()
                     .contains(expectedMessagePart.toString()));
         } catch (InterruptedException e)
         {
