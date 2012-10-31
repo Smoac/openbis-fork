@@ -23,6 +23,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import net.lemnik.eodsql.DataIterator;
@@ -39,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropert
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.AbstractLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectSpaceCodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaProjectWithEntityId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
@@ -50,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -157,14 +160,17 @@ final class SampleListingWorker extends AbstractLister
 
     private final long parentRelationhipTypeId;
 
+    private final Long userId;
+
     public static SampleListingWorker create(ListOrSearchSampleCriteria criteria,
-            String baseIndexURL, SampleListerDAO dao, SecondaryEntityDAO referencedEntityDAO)
+            String baseIndexURL, SampleListerDAO dao, SecondaryEntityDAO referencedEntityDAO,
+            Long userId)
     {
         ISampleListingQuery query = dao.getQuery();
         EntityPropertiesEnricher propertiesEnricher =
                 new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
         return new SampleListingWorker(criteria, baseIndexURL, dao.getDatabaseInstanceId(),
-                dao.getDatabaseInstance(), query, propertiesEnricher, referencedEntityDAO);
+                dao.getDatabaseInstance(), query, propertiesEnricher, referencedEntityDAO, userId);
     }
 
     //
@@ -176,7 +182,8 @@ final class SampleListingWorker extends AbstractLister
             final long databaseInstanceId, final DatabaseInstance databaseInstance,
             final ISampleListingQuery query,
             IEntityPropertiesEnricher samplePropertiesEnricherOrNull,
-            SecondaryEntityDAO referencedEntityDAO)
+            SecondaryEntityDAO referencedEntityDAO,
+            Long userId)
     {
         super(referencedEntityDAO);
         assert criteria != null;
@@ -194,6 +201,7 @@ final class SampleListingWorker extends AbstractLister
         this.referencedEntityDAO = referencedEntityDAO;
         this.parentRelationhipTypeId =
                 getRelationId(query, BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+        this.userId = userId;
     }
 
     static long getRelationId(ISampleListingQuery query, String fullRelationCode)
@@ -250,7 +258,39 @@ final class SampleListingWorker extends AbstractLister
             enrichRetrievedSamplesWithProperties(watch);
         }
 
+        enrichWithMetaProjects();
+
         return sampleList;
+    }
+
+    private void enrichWithMetaProjects()
+    {
+        for (MetaProjectWithEntityId metaProject : query.getMetaprojects(
+                sampleMap.keySet(), userId))
+        {
+            Metaproject mp = new Metaproject();
+            mp.setId(metaProject.id);
+            mp.setCreationDate(metaProject.creation_date);
+            mp.setDescription(metaProject.description);
+            mp.setIdentifier("/" + metaProject.ownerId + "/" + metaProject.name);
+            mp.setName(metaProject.name);
+            mp.setOwnerId(metaProject.ownerId + "");
+            mp.setPrivate(metaProject.is_private);
+
+            Sample sample = sampleMap.get(metaProject.entity_id);
+
+            if (sample != null)
+            {
+                Collection<Metaproject> mps = sample.getMetaprojects();
+                if (mps == null)
+                {
+                    mps = new HashSet<Metaproject>();
+                    sample.setMetaprojects(mps);
+                }
+                mps.add(mp);
+            }
+        }
+
     }
 
     private static void log(StopWatch watch, String message)

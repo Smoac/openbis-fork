@@ -55,25 +55,29 @@ public class SampleLister implements ISampleLister
 
     private final String baseIndexURL;
 
-    public static SampleLister create(IDAOFactory daoFactory, String baseIndexURL)
+    private final Long userId;
+
+    public static SampleLister create(IDAOFactory daoFactory, String baseIndexURL, Long userId)
     {
         SampleListerDAO sampleListerDAO = SampleListerDAO.create(daoFactory);
         SecondaryEntityDAO referencedEntityDAO = SecondaryEntityDAO.create(daoFactory);
-        return new SampleLister(baseIndexURL, sampleListerDAO, referencedEntityDAO);
+        return new SampleLister(baseIndexURL, sampleListerDAO, referencedEntityDAO, userId);
     }
 
     private SampleLister(String baseIndexURL, SampleListerDAO dao,
-            SecondaryEntityDAO referencedEntityDAO)
+            SecondaryEntityDAO referencedEntityDAO, Long userId)
     {
         this.baseIndexURL = baseIndexURL;
         this.dao = dao;
         this.referencedEntityDAO = referencedEntityDAO;
+        this.userId = userId;
     }
 
     @Override
     public List<Sample> list(final ListOrSearchSampleCriteria criteria)
     {
-        return SampleListingWorker.create(criteria, baseIndexURL, dao, referencedEntityDAO).load();
+        return SampleListingWorker.create(criteria, baseIndexURL, dao, referencedEntityDAO, userId)
+                .load();
     }
 
     @Override

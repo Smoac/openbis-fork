@@ -41,7 +41,7 @@ public class SamplesContainMetaProjectInformation extends MetaProjectSuite
         assertThat(metaProjectsOf(searchResult), containExactly(metaProject));
     }
 
-    @Test(enabled = false)
+    @Test
     public void listedSampleContainsMetaProjectInformation() throws Exception
     {
         Experiment experiment = create(anExperiment());

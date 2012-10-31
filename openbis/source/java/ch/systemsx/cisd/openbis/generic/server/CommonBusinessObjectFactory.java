@@ -140,13 +140,15 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public ISampleLister createSampleLister(Session session)
     {
-        return SampleLister.create(getDaoFactory(), session.getBaseIndexURL());
+        return SampleLister.create(getDaoFactory(), session.getBaseIndexURL(), session
+                .tryGetPerson().getId());
     }
 
     @Override
     public IDatasetLister createDatasetLister(Session session)
     {
-        return DatasetLister.create(getDaoFactory(), session.getBaseIndexURL());
+        return DatasetLister.create(getDaoFactory(), session.getBaseIndexURL(), session
+                .tryGetPerson().getId());
     }
 
     @Override

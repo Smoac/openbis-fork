@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropert
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.AbstractLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaProjectWithEntityId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
@@ -75,6 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
@@ -97,6 +99,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     private final DatabaseInstance databaseInstance;
 
     private final String baseIndexURL;
+
+    private final Long userId;
 
     //
     // Working interfaces
@@ -124,28 +128,28 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     private final Long2ObjectMap<ExternalDataManagementSystem> externalDataManagementSystems =
             new Long2ObjectOpenHashMap<ExternalDataManagementSystem>();
 
-    public static IDatasetLister create(IDAOFactory daoFactory, String baseIndexURL)
+    public static IDatasetLister create(IDAOFactory daoFactory, String baseIndexURL, Long userId)
     {
         DatasetListerDAO dao = DatasetListerDAO.create(daoFactory);
         SecondaryEntityDAO referencedEntityDAO = SecondaryEntityDAO.create(daoFactory);
 
-        return create(dao, referencedEntityDAO, baseIndexURL);
+        return create(dao, referencedEntityDAO, baseIndexURL, userId);
     }
 
     static IDatasetLister create(DatasetListerDAO dao, SecondaryEntityDAO referencedEntityDAO,
-            String baseIndexURL)
+            String baseIndexURL, Long userId)
     {
         IDatasetListingQuery query = dao.getQuery();
         EntityPropertiesEnricher propertiesEnricher =
                 new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
         return new DatasetLister(dao.getDatabaseInstanceId(), dao.getDatabaseInstance(), query,
-                propertiesEnricher, referencedEntityDAO, baseIndexURL);
+                propertiesEnricher, referencedEntityDAO, baseIndexURL, userId);
     }
 
     // For unit tests
     DatasetLister(final long databaseInstanceId, final DatabaseInstance databaseInstance,
             final IDatasetListingQuery query, IEntityPropertiesEnricher propertiesEnricher,
-            SecondaryEntityDAO referencedEntityDAO, String baseIndexURL)
+            SecondaryEntityDAO referencedEntityDAO, String baseIndexURL, Long userId)
     {
         super(referencedEntityDAO);
         assert databaseInstance != null;
@@ -157,6 +161,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         this.propertiesEnricher = propertiesEnricher;
         this.referencedEntityDAO = referencedEntityDAO;
         this.baseIndexURL = baseIndexURL;
+        this.userId = userId;
     }
 
     @Override
@@ -480,7 +485,43 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         enrichWithContainers(datasetMap);
         enrichWithContainedDataSets(datasetMap);
         enrichWithParents(datasetMap);
+        if (this.userId != null)
+        {
+            enrichWithMetaProjects(datasetMap);
+        }
         return asList(datasetMap);
+    }
+
+    private void enrichWithMetaProjects(Long2ObjectMap<ExternalData> datasetMap)
+    {
+        LongSet set = new LongOpenHashSet();
+        set.addAll(datasetMap.keySet());
+
+        for (MetaProjectWithEntityId metaProject : query.getMetaprojects(
+                set, userId))
+        {
+            Metaproject mp = new Metaproject();
+            mp.setId(metaProject.id);
+            mp.setCreationDate(metaProject.creation_date);
+            mp.setDescription(metaProject.description);
+            mp.setIdentifier("/" + metaProject.ownerId + "/" + metaProject.name);
+            mp.setName(metaProject.name);
+            mp.setOwnerId(metaProject.ownerId + "");
+            mp.setPrivate(metaProject.is_private);
+
+            ExternalData data = datasetMap.get(metaProject.entity_id);
+
+            if (data != null)
+            {
+                Collection<Metaproject> mps = data.getMetaprojects();
+                if (mps == null)
+                {
+                    mps = new HashSet<Metaproject>();
+                    data.setMetaprojects(mps);
+                }
+                mps.add(mp);
+            }
+        }
     }
 
     // assumes that the connection to the sample has been already established and sample has the

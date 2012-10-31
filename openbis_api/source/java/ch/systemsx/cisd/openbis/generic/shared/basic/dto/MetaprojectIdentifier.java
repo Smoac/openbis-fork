@@ -74,7 +74,7 @@ public class MetaprojectIdentifier implements Serializable
         } else
         {
             throw new IllegalArgumentException("Metaproject identifier must have " + SEPARATOR
-                    + "USER_ID" + SEPARATOR + "METAPROJECT_NAME format");
+                    + "USER_ID" + SEPARATOR + "METAPROJECT_NAME format - was " + str);
         }
     }
 

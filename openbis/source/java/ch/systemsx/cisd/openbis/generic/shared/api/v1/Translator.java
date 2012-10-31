@@ -149,6 +149,14 @@ public class Translator
                 translateRegistrationDetailsWithModificationDate(privateSample);
         initializer.setRegistrationDetails(registrationDetails);
 
+        if (privateSample.getMetaprojects() != null)
+        {
+            initializer.getRetrievedFetchOptions().add(SampleFetchOption.METAPROJECTS);
+            for (Metaproject m : privateSample.getMetaprojects())
+            {
+                initializer.addMetaproject(m);
+            }
+        }
         return new Sample(initializer);
     }
 

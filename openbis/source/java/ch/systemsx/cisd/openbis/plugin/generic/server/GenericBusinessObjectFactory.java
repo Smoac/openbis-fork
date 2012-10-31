@@ -22,12 +22,12 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.MaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
@@ -113,7 +113,8 @@ public final class GenericBusinessObjectFactory extends AbstractPluginBusinessOb
     @Override
     public ISampleLister createSampleLister(Session session)
     {
-        return SampleLister.create(getDaoFactory(), session.getBaseIndexURL());
+        return SampleLister.create(getDaoFactory(), session.getBaseIndexURL(), session
+                .tryGetPerson().getId());
     }
 
     @Override

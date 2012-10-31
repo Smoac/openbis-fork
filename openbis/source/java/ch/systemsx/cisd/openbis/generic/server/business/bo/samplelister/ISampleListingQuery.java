@@ -20,6 +20,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.EoDException;
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListi
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectSpaceCodeRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaProjectWithEntityId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -426,5 +428,12 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet sampleIds);
+
+    @Select(sql = "select m.id as id, m.name as name, m.description as description, "
+            + " m.private as is_private, m.creation_date as creation_date, ma.samp_id as entity_id "
+            + " from metaprojects m, metaproject_assignments ma "
+            + " where ma.samp_id = any(?{1}) and m.owner = ?{2} and m.id = ma.mepr_id", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<MetaProjectWithEntityId> getMetaprojects(LongSet entityIds, Long userId);
 
 }

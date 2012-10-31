@@ -83,7 +83,8 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         baseCriteria.setIncludeSpace(true);
         final ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(baseCriteria);
         final SampleListingWorker worker =
-                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO);
+                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO,
+                        null);
         final List<Sample> list = worker.load();
         assertTrue(list.size() > 0);
         for (Sample s : list)
@@ -103,7 +104,8 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         sampleIds.addAll(Arrays.asList(CHILDREN_IDS));
         final ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(sampleIds);
         final SampleListingWorker worker =
-                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO);
+                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO,
+                        null);
         final List<Sample> list = worker.load();
         assertEquals(CHILDREN_IDS.length, list.size());
         for (Sample s : list)
@@ -121,7 +123,8 @@ public class SampleListingWorkerTest extends AbstractDAOTest
                 ListSampleCriteria.createForContainer(new TechId(CONTAINER_ID));
         final ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(baseCriteria);
         final SampleListingWorker worker =
-                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO);
+                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO,
+                        null);
         final List<Sample> list = worker.load();
         assertTrue(list.size() > 0);
         for (Sample s : list)
@@ -139,7 +142,8 @@ public class SampleListingWorkerTest extends AbstractDAOTest
                 ListSampleCriteria.createForParent(new TechId(PARENT1_ID));
         final ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(baseCriteria);
         final SampleListingWorker worker =
-                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO);
+                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO,
+                        null);
         final List<Sample> list = worker.load();
         assertEquals(CHILDREN_IDS.length, list.size());
         for (Sample s : list)
@@ -157,7 +161,8 @@ public class SampleListingWorkerTest extends AbstractDAOTest
                 ListSampleCriteria.createForChild(new TechId(CHILD_WITH_2_PARENTS_ID));
         final ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(baseCriteria);
         final SampleListingWorker worker =
-                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO);
+                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO,
+                        null);
         final List<Sample> list = worker.load();
         assertEquals(2, list.size());
         for (Sample s : list)
@@ -185,7 +190,8 @@ public class SampleListingWorkerTest extends AbstractDAOTest
                 ListSampleCriteria.createForChildren(Arrays.asList(CHILDREN_IDS));
         final ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(baseCriteria);
         final SampleListingWorker worker =
-                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO);
+                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO,
+                        null);
         final List<Sample> list = worker.load();
         assertEquals(2, list.size());
         for (Sample s : list)
@@ -214,7 +220,8 @@ public class SampleListingWorkerTest extends AbstractDAOTest
                 ListSampleCriteria.createForExperiment(new TechId(expId));
         final ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(baseCriteria);
         final SampleListingWorker worker =
-                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO);
+                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO,
+                        null);
         final List<Sample> list = worker.load();
         assertTrue(list.size() > 0);
         for (Sample s : list)

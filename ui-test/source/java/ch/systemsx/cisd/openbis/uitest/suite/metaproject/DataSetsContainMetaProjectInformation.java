@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Sample;
 public class DataSetsContainMetaProjectInformation extends MetaProjectSuite
 {
 
-    @Test(enabled = false)
+    @Test
     public void searchedDataSetContainsMetaProjectInformation() throws Exception
     {
         Experiment experiment = create(anExperiment());

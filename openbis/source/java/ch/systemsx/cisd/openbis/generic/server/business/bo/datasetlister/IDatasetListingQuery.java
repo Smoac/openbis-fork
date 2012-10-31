@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.Date;
+import java.util.List;
 
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityP
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaProjectWithEntityId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 
@@ -306,5 +308,12 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
             + "    FROM connected_data AS cd INNER JOIN data AS d ON cd.id = d.ctnr_id LEFT OUTER JOIN external_data AS ed ON d.id = ed.data_id"
             + ")" + "SELECT * FROM connected_data")
     public DataIterator<DatasetLocationNodeRecord> listLocationsByDatasetCode(String datasetCode);
+
+    @Select(sql = "select m.id as id, m.name as name, m.description as description, "
+            + " m.private as is_private, m.creation_date as creation_date, ma.data_id as entity_id "
+            + " from metaprojects m, metaproject_assignments ma "
+            + " where ma.data_id = any(?{1}) and m.owner = ?{2} and m.id = ma.mepr_id", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<MetaProjectWithEntityId> getMetaprojects(LongSet entityIds, Long userId);
 
 }
