@@ -295,9 +295,9 @@ def getSampleProperties(parentsKey, service, logger):
 
 
 def createSampleSheetDict(configMap, control, sampleSheetDict, flowCellName, flowCellOperator,
-                           end_type, cycles, lane, gaNumber, index, sample, sampleProperties):
+                           end_type, cycles, lane, gaNumber, index, sample, sampleProperties, library):
   sampleSheetDict[lane + '_' + sample.getCode()] = [
-    flowCellName + COMMA + configMap['lanePrefix'] + lane + COMMA + sample.getCode() + COMMA +
+    flowCellName + COMMA + lane + COMMA + library.getCode() + COMMA +
     sampleProperties[configMap['species']] + COMMA + index + COMMA +
     sanitizeString(sampleProperties[configMap['sampleName']]) + COMMA + control + COMMA +
     end_type + '_' + cycles + COMMA + flowCellOperator + COMMA + gaNumber]
@@ -349,7 +349,7 @@ def createHiseqSampleSheet(laneParentDict, flowCellDict, configMap, service, log
         sample, sampleProperties = getSampleProperties(getParents(library.getCode(), service), service, logger)
 
         createSampleSheetDict(configMap, control, sampleSheetDict, flowCellName, flowCellOperator,
-                          end_type, cycles, lane, gaNumber, index, sample, sampleProperties)
+                          end_type, cycles, lane, gaNumber, index, sample, sampleProperties, library)
 
   logger.debug(sampleSheetDict)
   sortedSampleSheetList = sampleSheetDict.keys()
