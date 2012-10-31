@@ -18,12 +18,15 @@ package ch.systemsx.cisd.openbis.uitest.suite.metaproject;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.util.List;
+
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
+import ch.systemsx.cisd.openbis.uitest.type.User;
 
 /**
  * @author anttil
@@ -40,12 +43,14 @@ public class DataSetsContainMetaProjectInformation extends MetaProjectSuite
         MetaProject metaProject = create(aMetaProject());
         tagWith(metaProject, dataSet);
 
-        DataSet searchResult = searchDataSet(dataSet);
-        assertThat(metaProjectsOf(searchResult), containExactly(metaProject));
+        List<DataSet> searchResult = searchFor(dataSets().withCode(dataSet.getCode()));
+
+        assertThat(searchResult, containsExactly(dataSet));
+        assertThat(metaProjectsOf(searchResult.get(0)), containExactly(metaProject));
     }
 
     @Test
-    public void listedDataSetContainsMetaProjectInformation() throws Exception
+    public void dataSetsOfSamplesListingContainMetaProjectInformation() throws Exception
     {
         Experiment experiment = create(anExperiment());
         Sample sample = create(aSample().in(experiment));
@@ -53,7 +58,44 @@ public class DataSetsContainMetaProjectInformation extends MetaProjectSuite
         MetaProject metaProject = create(aMetaProject());
         tagWith(metaProject, dataSet);
 
-        DataSet listResult = listDataSet(dataSet);
-        assertThat(metaProjectsOf(listResult), containExactly(metaProject));
+        List<DataSet> listResult = listDataSetsOfSamples(sample);
+
+        assertThat(listResult, containsExactly(dataSet));
+        assertThat(metaProjectsOf(listResult.get(0)), containExactly(metaProject));
+    }
+
+    @Test
+    public void dataSetsOfSampleListingContainMetaProjectInformation() throws Exception
+    {
+        Experiment experiment = create(anExperiment());
+        Sample sample = create(aSample().in(experiment));
+        DataSet dataSet = create(aDataSet().in(sample));
+        MetaProject metaProject = create(aMetaProject());
+        tagWith(metaProject, dataSet);
+
+        List<DataSet> listResult = listDataSetsOfSample(sample);
+
+        assertThat(listResult, containsExactly(dataSet));
+        assertThat(metaProjectsOf(listResult.get(0)), containExactly(metaProject));
+    }
+
+    @Test(enabled = false)
+    public void listingOfDataSetsOnBehalfOfAnotherUsersContainMetaProjectInformation()
+            throws Exception
+    {
+        Experiment experiment = create(anExperiment());
+        Sample sample = create(aSample().in(experiment));
+        DataSet dataSet = create(aDataSet().in(sample));
+        MetaProject metaProject = create(aMetaProject());
+        tagWith(metaProject, dataSet);
+
+        User john = create(aUser());
+        MetaProject anotherMetaProject = as(user(john), create(aMetaProject()));
+        as(user(john), tagWith(anotherMetaProject, dataSet));
+
+        List<DataSet> listResult = listDataSetsOfSamplesOnBehalfOfUser(john, sample);
+
+        assertThat(listResult, containsExactly(dataSet));
+        assertThat(metaProjectsOf(listResult.get(0)), containExactly(anotherMetaProject));
     }
 }

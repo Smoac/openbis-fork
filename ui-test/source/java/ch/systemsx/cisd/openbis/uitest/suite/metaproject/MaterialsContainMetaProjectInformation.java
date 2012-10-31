@@ -16,8 +16,13 @@
 
 package ch.systemsx.cisd.openbis.uitest.suite.metaproject;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import java.util.List;
+
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.uitest.rmi.Identifiers;
 import ch.systemsx.cisd.openbis.uitest.type.Material;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 
@@ -28,16 +33,28 @@ public class MaterialsContainMetaProjectInformation extends MetaProjectSuite
 {
 
     @Test
+    public void searchedMaterialContainsMetaProjectInformation() throws Exception
+    {
+        Material material = create(aMaterial());
+        MetaProject metaProject = create(aMetaProject());
+        tagWith(metaProject, material);
+
+        List<Material> searchResult = searchFor(materials().withCode(material.getCode()));
+
+        assertThat(searchResult, containsExactly(material));
+        assertThat(metaProjectsOf(searchResult.get(0)), containExactly(metaProject));
+    }
+
+    @Test
     public void listedMaterialContainsMetaProjectInformation() throws Exception
     {
         Material material = create(aMaterial());
         MetaProject metaProject = create(aMetaProject());
         tagWith(metaProject, material);
 
-        /*
-        Experiment listResult = listExperiment(experiment);
-        assertThat(metaProjectsOf(listResult), containExactly(metaProject));
-        */
-    }
+        List<Material> listResult = listMaterials(Identifiers.get(material));
 
+        assertThat(listResult, containsExactly(material));
+        assertThat(metaProjectsOf(listResult.get(0)), containExactly(metaProject));
+    }
 }

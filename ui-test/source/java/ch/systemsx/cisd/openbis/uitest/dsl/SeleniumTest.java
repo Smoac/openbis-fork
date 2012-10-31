@@ -46,6 +46,7 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.uitest.dsl.matcher.CellContentMatcher;
 import ch.systemsx.cisd.openbis.uitest.dsl.matcher.CollectionContainsExactlyMatcher;
 import ch.systemsx.cisd.openbis.uitest.dsl.matcher.CollectionContainsMatcher;
@@ -91,13 +92,13 @@ import ch.systemsx.cisd.openbis.uitest.page.BrowserRow;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterSample;
 import ch.systemsx.cisd.openbis.uitest.page.SampleDetails;
 import ch.systemsx.cisd.openbis.uitest.rmi.AddEntitiesToMetaProjectRmi;
-import ch.systemsx.cisd.openbis.uitest.rmi.Identifiers;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListDataSetsOfSampleRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.ListDataSetsOfSamplesOnBehalfOfUserRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.ListDataSetsOfSamplesRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListExperimentsRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.ListMaterialsRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListMetaProjectsRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListSamplesOfExperimentRmi;
-import ch.systemsx.cisd.openbis.uitest.rmi.SearchForDataSetsRmi;
-import ch.systemsx.cisd.openbis.uitest.rmi.SearchForSamplesRmi;
 import ch.systemsx.cisd.openbis.uitest.screenshot.FileScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
@@ -106,6 +107,7 @@ import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.type.Entity;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
+import ch.systemsx.cisd.openbis.uitest.type.Material;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
@@ -733,81 +735,55 @@ public abstract class SeleniumTest
         return pages.initializeWidget(widgetClass, context, false);
     }
 
-    public Sample searchSample(Sample sample)
+    public List<DataSet> listDataSetsOfSamples(Sample sample)
     {
-        List<Sample> samples = openbis.execute(new SearchForSamplesRmi(sample.getCode()));
-        if (samples.size() != 1)
-        {
-            throw new IllegalStateException("Got wrong amount of samples: " + samples);
-        }
-        if (samples.get(0).equals(sample) == false)
-        {
-            throw new IllegalStateException("Got wrong sample: " + samples.get(0)
-                    + ", should have been " + sample);
-        }
-        return samples.get(0);
+        return openbis.execute(new ListDataSetsOfSamplesRmi(sample));
     }
 
-    public Sample listSample(Sample sample)
+    public List<DataSet> listDataSetsOfSample(Sample sample)
     {
-        List<Sample> samples =
-                openbis.execute(new ListSamplesOfExperimentRmi(sample.getExperiment()));
-        if (samples.size() != 1)
-        {
-            throw new IllegalStateException("Got wrong amount of samples: " + samples);
-        }
-        if (samples.get(0).equals(sample) == false)
-        {
-            throw new IllegalStateException("Got wrong sample: " + samples.get(0)
-                    + ", should have been " + sample);
-        }
-        return samples.get(0);
+        return openbis.execute(new ListDataSetsOfSampleRmi(sample));
     }
 
-    public Experiment listExperiment(Experiment experiment)
+    public List<DataSet> listDataSetsOfSamplesOnBehalfOfUser(User user, Sample first,
+            Sample... rest)
     {
-        List<Experiment> experiments =
-                openbis.execute(new ListExperimentsRmi(Identifiers.get(experiment).toString()));
-        if (experiments.size() != 1)
-        {
-            throw new IllegalStateException("Got wrong amount of experiments: " + experiments);
-        }
-        if (experiments.get(0).equals(experiment) == false)
-        {
-            throw new IllegalStateException("Got wrong experiment: " + experiments.get(0)
-                    + ", should have been " + experiment);
-        }
-        return experiments.get(0);
+        return openbis.execute(new ListDataSetsOfSamplesOnBehalfOfUserRmi(user, first, rest));
     }
 
-    public DataSet listDataSet(DataSet dataSet)
+    public List<Experiment> listExperiments(String experimentId, String... rest)
     {
-        List<DataSet> dataSets = openbis.execute(new ListDataSetsOfSampleRmi(dataSet.getSample()));
-        if (dataSets.size() != 1)
-        {
-            throw new IllegalStateException("Got wrong amount of datasets: " + dataSets);
-        }
-        if (dataSets.get(0).equals(dataSet) == false)
-        {
-            throw new IllegalStateException("Got wrong dataset: " + dataSets.get(0)
-                    + ", should have been " + dataSet);
-        }
-        return dataSets.get(0);
+        return openbis.execute(new ListExperimentsRmi(experimentId, rest));
     }
 
-    public DataSet searchDataSet(DataSet dataSet)
+    public List<Sample> listSamplesOfExperiment(Experiment experiment)
     {
-        List<DataSet> dataSets = openbis.execute(new SearchForDataSetsRmi(dataSet.getCode()));
-        if (dataSets.size() != 1)
-        {
-            throw new IllegalStateException("Got wrong amount of datasets: " + dataSets);
-        }
-        if (dataSets.get(0).equals(dataSet) == false)
-        {
-            throw new IllegalStateException("Got wrong dataset: " + dataSets.get(0)
-                    + ", should have been " + dataSet);
-        }
-        return dataSets.get(0);
+        return openbis.execute(new ListSamplesOfExperimentRmi(experiment));
+    }
+
+    public List<Material> listMaterials(MaterialIdentifier first, MaterialIdentifier... rest)
+    {
+        return openbis.execute(new ListMaterialsRmi(first, rest));
+    }
+
+    public DataSetSearchCommandBuilder dataSets()
+    {
+        return new DataSetSearchCommandBuilder();
+    }
+
+    public MaterialSearchCommandBuilder materials()
+    {
+        return new MaterialSearchCommandBuilder();
+    }
+
+    public SampleSearchCommandBuilder samples()
+    {
+        return new SampleSearchCommandBuilder();
+    }
+
+    public <T extends Entity> List<T> searchFor(SearchCommandBuilder<T> builder)
+    {
+        return openbis.execute(builder.build());
     }
 
     public Collection<MetaProject> metaProjectsOf(Entity entity)

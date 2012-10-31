@@ -18,8 +18,11 @@ package ch.systemsx.cisd.openbis.uitest.suite.metaproject;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.util.List;
+
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.uitest.rmi.Identifiers;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 
@@ -36,7 +39,9 @@ public class ExperimentsContainMetaProjectInformation extends MetaProjectSuite
         MetaProject metaProject = create(aMetaProject());
         tagWith(metaProject, experiment);
 
-        Experiment listResult = listExperiment(experiment);
-        assertThat(metaProjectsOf(listResult), containExactly(metaProject));
+        List<Experiment> listResult = listExperiments(Identifiers.get(experiment).toString());
+
+        assertThat(listResult, containsExactly(experiment));
+        assertThat(metaProjectsOf(listResult.get(0)), containExactly(metaProject));
     }
 }

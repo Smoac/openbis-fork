@@ -17,22 +17,21 @@
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
-import ch.systemsx.cisd.openbis.uitest.rmi.eager.DataSetRmi;
-import ch.systemsx.cisd.openbis.uitest.type.DataSet;
+import ch.systemsx.cisd.openbis.uitest.rmi.eager.MaterialRmi;
+import ch.systemsx.cisd.openbis.uitest.type.Material;
 
 /**
  * @author anttil
  */
-public class SearchForDataSetsRmi implements Command<List<DataSet>>
+public class ListMaterialsRmi implements Command<List<Material>>
 {
 
     @Inject
@@ -44,27 +43,27 @@ public class SearchForDataSetsRmi implements Command<List<DataSet>>
     @Inject
     private ICommonServer commonServer;
 
-    private SearchCriteria criteria;
+    private List<MaterialIdentifier> identifiers;
 
-    public SearchForDataSetsRmi(String code)
+    public ListMaterialsRmi(MaterialIdentifier first, MaterialIdentifier... rest)
     {
-        criteria = new SearchCriteria();
-        criteria.addMatchClause(
-                MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, code));
+        this.identifiers = new ArrayList<MaterialIdentifier>();
+        this.identifiers.add(first);
+        this.identifiers.addAll(Arrays.asList(rest));
     }
 
     @Override
-    public List<DataSet> execute()
+    public List<Material> execute()
     {
+        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material> materials =
+                generalInformationService.getMaterialByCodes(session, identifiers);
 
-        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> dataSets =
-                generalInformationService.searchForDataSets(session, criteria);
-
-        List<DataSet> result = new ArrayList<DataSet>();
-        for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet dataSet : dataSets)
+        List<Material> result = new ArrayList<Material>();
+        for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material m : materials)
         {
-            result.add(new DataSetRmi(dataSet, session, commonServer));
+            result.add(new MaterialRmi(m, session, commonServer));
         }
         return result;
+
     }
 }

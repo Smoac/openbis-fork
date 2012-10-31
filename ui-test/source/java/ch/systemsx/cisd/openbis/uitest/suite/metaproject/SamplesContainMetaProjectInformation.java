@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.uitest.suite.metaproject;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.util.List;
+
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
@@ -37,8 +39,10 @@ public class SamplesContainMetaProjectInformation extends MetaProjectSuite
         MetaProject metaProject = create(aMetaProject());
         tagWith(metaProject, sample);
 
-        Sample searchResult = searchSample(sample);
-        assertThat(metaProjectsOf(searchResult), containExactly(metaProject));
+        List<Sample> searchResult = searchFor(samples().withCode(sample.getCode()));
+
+        assertThat(searchResult, containsExactly(sample));
+        assertThat(metaProjectsOf(searchResult.get(0)), containExactly(metaProject));
     }
 
     @Test
@@ -49,8 +53,10 @@ public class SamplesContainMetaProjectInformation extends MetaProjectSuite
         MetaProject metaProject = create(aMetaProject());
         tagWith(metaProject, sample);
 
-        Sample result = listSample(sample);
-        assertThat(metaProjectsOf(result), containExactly(metaProject));
+        List<Sample> listResult = listSamplesOfExperiment(experiment);
+
+        assertThat(listResult, containsExactly(sample));
+        assertThat(metaProjectsOf(listResult.get(0)), containExactly(metaProject));
     }
 
 }

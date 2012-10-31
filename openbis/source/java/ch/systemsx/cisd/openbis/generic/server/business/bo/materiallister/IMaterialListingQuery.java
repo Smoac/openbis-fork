@@ -17,6 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
+
+import java.util.List;
+
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
@@ -27,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityP
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaProjectWithEntityId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 
@@ -117,5 +121,12 @@ public interface IMaterialListingQuery extends TransactionQuery, IPropertyListin
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet entityIds);
+
+    @Select(sql = "select m.id as id, m.name as name, m.description as description, "
+            + " m.private as is_private, m.creation_date as creation_date, ma.mate_id as entity_id "
+            + " from metaprojects m, metaproject_assignments ma "
+            + " where ma.mate_id = any(?{1}) and m.owner = ?{2} and m.id = ma.mepr_id", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<MetaProjectWithEntityId> getMetaprojects(LongSet entityIds, Long userId);
 
 }

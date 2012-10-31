@@ -527,6 +527,11 @@ public class Translator
 
         mi.setRegistrationDetails(translateRegistrationDetails(material));
 
+        for (Metaproject mp : material.getMetaprojects())
+        {
+            mi.addMetaproject(mp);
+        }
+
         return new Material(mi);
     }
 

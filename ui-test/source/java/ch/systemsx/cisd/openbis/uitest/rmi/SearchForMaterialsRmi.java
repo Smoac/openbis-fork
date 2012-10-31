@@ -16,26 +16,23 @@
 
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
-import ch.systemsx.cisd.openbis.uitest.rmi.eager.DataSetRmi;
-import ch.systemsx.cisd.openbis.uitest.type.DataSet;
-import ch.systemsx.cisd.openbis.uitest.type.Sample;
+import ch.systemsx.cisd.openbis.uitest.help.Lambda;
+import ch.systemsx.cisd.openbis.uitest.rmi.eager.MaterialRmi;
+import ch.systemsx.cisd.openbis.uitest.type.Material;
 
 /**
  * @author anttil
  */
-public class ListDataSetsOfSampleRmi implements Command<List<DataSet>>
+public class SearchForMaterialsRmi implements Command<List<Material>>
 {
     @Inject
     private String session;
@@ -46,33 +43,31 @@ public class ListDataSetsOfSampleRmi implements Command<List<DataSet>>
     @Inject
     private ICommonServer commonServer;
 
-    private Sample sample;
+    private String code;
 
-    public ListDataSetsOfSampleRmi(Sample sample)
+    public SearchForMaterialsRmi(String code)
     {
-        this.sample = sample;
+        this.code = code;
     }
 
     @Override
-    public List<DataSet> execute()
+    public List<Material> execute()
     {
         SearchCriteria criteria = new SearchCriteria();
         criteria.addMatchClause(
-                MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, sample.getCode()));
-        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample> searchResult =
-                generalInformationService.searchForSamples(
-                        session, criteria, EnumSet.allOf(SampleFetchOption.class));
-        assert searchResult.size() == 1;
+                MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, code));
 
-        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> dataSets =
-                generalInformationService
-                        .listDataSetsForSample(session, searchResult.get(0), false);
-
-        List<DataSet> result = new ArrayList<DataSet>();
-        for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet dataSet : dataSets)
-        {
-            result.add(new DataSetRmi(dataSet, session, commonServer));
-        }
-        return result;
+        return Lambda.foreach(
+                generalInformationService.searchForMaterials(session, criteria),
+                new Lambda<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material, Material>()
+                    {
+                        @Override
+                        public Material apply(
+                                ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material input)
+                        {
+                            return new MaterialRmi(input, session, commonServer);
+                        }
+                    }
+                );
     }
 }

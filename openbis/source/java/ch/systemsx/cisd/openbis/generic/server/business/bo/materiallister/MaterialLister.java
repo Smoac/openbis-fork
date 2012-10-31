@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropert
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.AbstractLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaProjectWithEntityId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 
 /**
  * Fast DB operations on material table.
@@ -73,28 +75,30 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
 
     private final IEntityPropertiesEnricher propertiesEnricher;
 
-    public static IMaterialLister create(IDAOFactory daoFactory, String baseIndexURL)
+    private final Long userId;
+
+    public static IMaterialLister create(IDAOFactory daoFactory, String baseIndexURL, Long userId)
     {
         MaterialListerDAO dao = MaterialListerDAO.create(daoFactory);
         SecondaryEntityDAO referencedEntityDAO = SecondaryEntityDAO.create(daoFactory);
 
-        return create(dao, referencedEntityDAO, baseIndexURL);
+        return create(dao, referencedEntityDAO, baseIndexURL, userId);
     }
 
     static IMaterialLister create(MaterialListerDAO dao, SecondaryEntityDAO referencedEntityDAO,
-            String baseIndexURL)
+            String baseIndexURL, Long userId)
     {
         IMaterialListingQuery query = dao.getQuery();
         EntityPropertiesEnricher propertiesEnricher =
                 new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
         return new MaterialLister(dao.getDatabaseInstanceId(), dao.getDatabaseInstance(), query,
-                propertiesEnricher, referencedEntityDAO);
+                propertiesEnricher, referencedEntityDAO, userId);
     }
 
     // For unit tests
     MaterialLister(final long databaseInstanceId, DatabaseInstance databaseInstance,
             final IMaterialListingQuery query, IEntityPropertiesEnricher propertiesEnricher,
-            SecondaryEntityDAO referencedEntityDAO)
+            SecondaryEntityDAO referencedEntityDAO, Long userId)
     {
         super(referencedEntityDAO);
         assert query != null;
@@ -103,6 +107,7 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
         this.databaseInstance = databaseInstance;
         this.query = query;
         this.propertiesEnricher = propertiesEnricher;
+        this.userId = userId;
     }
 
     //
@@ -203,6 +208,12 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
         {
             enrichWithProperties(materialMap);
         }
+
+        if (userId != null)
+        {
+            enrichWithMetaProjects(materialMap);
+        }
+
         return asList(materialMap);
     }
 
@@ -291,6 +302,36 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
         List<T> result = new ArrayList<T>();
         result.addAll(items.values());
         return result;
+    }
+
+    private void enrichWithMetaProjects(final Long2ObjectMap<Material> resultMap)
+    {
+        for (MetaProjectWithEntityId metaProject : query.getMetaprojects(
+                resultMap.keySet(), userId))
+        {
+            Metaproject mp = new Metaproject();
+            mp.setId(metaProject.id);
+            mp.setCreationDate(metaProject.creation_date);
+            mp.setDescription(metaProject.description);
+            mp.setIdentifier("/" + metaProject.ownerId + "/" + metaProject.name);
+            mp.setName(metaProject.name);
+            mp.setOwnerId(metaProject.ownerId + "");
+            mp.setPrivate(metaProject.is_private);
+
+            Material material = resultMap.get(metaProject.entity_id);
+
+            if (material != null)
+            {
+                Collection<Metaproject> mps = material.getMetaprojects();
+                if (mps == null)
+                {
+                    mps = new HashSet<Metaproject>();
+                    material.setMetaprojects(mps);
+                }
+                mps.add(mp);
+            }
+        }
+
     }
 
     private void enrichWithProperties(final Long2ObjectMap<Material> resultMap)

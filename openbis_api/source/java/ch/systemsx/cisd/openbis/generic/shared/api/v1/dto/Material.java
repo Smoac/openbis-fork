@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 
 /**
  * @author jakubs
@@ -39,6 +42,8 @@ public class Material extends MaterialIdentifier implements IIdHolder
 
     private EntityRegistrationDetails registrationDetails;
 
+    private List<Metaproject> metaprojects;
+
     public static final class MaterialInitializer
     {
         private MaterialTypeIdentifier materialTypeIdentifier;
@@ -52,6 +57,8 @@ public class Material extends MaterialIdentifier implements IIdHolder
         private Map<String, Material> materialProperties;
 
         private EntityRegistrationDetails registrationDetails;
+
+        private List<Metaproject> metaprojects = new ArrayList<Metaproject>();
 
         public MaterialTypeIdentifier getMaterialTypeIdentifier()
         {
@@ -103,6 +110,16 @@ public class Material extends MaterialIdentifier implements IIdHolder
             this.materialProperties = materialProperties;
         }
 
+        public List<Metaproject> getMetaprojects()
+        {
+            return metaprojects;
+        }
+
+        public void addMetaproject(Metaproject metaproject)
+        {
+            metaprojects.add(metaproject);
+        }
+
         public EntityRegistrationDetails getRegistrationDetails()
         {
             return registrationDetails;
@@ -122,6 +139,7 @@ public class Material extends MaterialIdentifier implements IIdHolder
         this.properties = initializer.getProperties();
         this.materialProperties = initializer.getMaterialProperties();
         this.registrationDetails = initializer.getRegistrationDetails();
+        this.metaprojects = initializer.getMetaprojects();
     }
 
     @Override
@@ -148,6 +166,15 @@ public class Material extends MaterialIdentifier implements IIdHolder
         return registrationDetails;
     }
 
+    public List<Metaproject> getMetaprojects() throws IllegalArgumentException
+    {
+        if (metaprojects == null)
+        {
+            return Collections.unmodifiableList(new ArrayList<Metaproject>());
+        }
+        return Collections.unmodifiableList(metaprojects);
+    }
+
     //
     // JSON-RPC
     //
@@ -170,5 +197,10 @@ public class Material extends MaterialIdentifier implements IIdHolder
     private void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
     {
         this.registrationDetails = registrationDetails;
+    }
+
+    private void setMetaProjects(List<Metaproject> metaprojects)
+    {
+        this.metaprojects = metaprojects;
     }
 }

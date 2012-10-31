@@ -59,7 +59,7 @@ public class MaterialListerTest extends AbstractDAOTest
         SecondaryEntityDAO secondaryEntityDAO =
                 SecondaryEntityListingQueryTest.createSecondaryEntityDAO(daoFactory);
         databaseInstance = materialListerDAO.getDatabaseInstance();
-        lister = MaterialLister.create(materialListerDAO, secondaryEntityDAO, "url");
+        lister = MaterialLister.create(materialListerDAO, secondaryEntityDAO, "url", null);
     }
 
     @Test

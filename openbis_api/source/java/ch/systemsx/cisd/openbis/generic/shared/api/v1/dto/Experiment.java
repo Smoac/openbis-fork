@@ -275,7 +275,7 @@ public final class Experiment implements Serializable, IIdentifierHolder, IIdHol
     {
         if (metaprojects == null)
         {
-            return new ArrayList<Metaproject>();
+            return Collections.unmodifiableList(new ArrayList<Metaproject>());
         }
         return Collections.unmodifiableList(metaprojects);
     }
