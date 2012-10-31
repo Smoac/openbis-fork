@@ -253,6 +253,12 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     }
 
     @Override
+    public ISearchService getSearchServiceUnfiltered()
+    {
+        return transaction.getSearchServiceUnfiltered();
+    }
+
+    @Override
     public IAuthorizationService getAuthorizationService()
     {
         return transaction.getAuthorizationService();

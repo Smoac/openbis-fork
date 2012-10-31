@@ -30,7 +30,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedBasicOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -46,7 +46,7 @@ public class PlateGeometryOracle
 {
     public static String figureGeometry(
             DataSetRegistrationDetails<ImageDataSetInformation> registrationDetails,
-            IEncapsulatedOpenBISService openBisService)
+            IEncapsulatedBasicOpenBISService openBisService)
     {
         List<ImageFileInfo> images =
                 registrationDetails.getDataSetInformation().getImageDataSetStructure().getImages();
@@ -56,7 +56,7 @@ public class PlateGeometryOracle
         return PlateGeometryOracle.figureGeometry(locations, plateGeometries);
     }
 
-    private static List<String> loadPlateGeometries(IEncapsulatedOpenBISService openbisService)
+    private static List<String> loadPlateGeometries(IEncapsulatedBasicOpenBISService openbisService)
     {
         Collection<VocabularyTerm> terms =
                 openbisService.listVocabularyTerms(ScreeningConstants.PLATE_GEOMETRY);
