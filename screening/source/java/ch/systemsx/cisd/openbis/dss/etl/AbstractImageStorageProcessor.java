@@ -42,8 +42,6 @@ import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.filesystem.SoftLinkMaker;
-import ch.systemsx.cisd.openbis.common.hdf5.HDF5Container;
-import ch.systemsx.cisd.openbis.common.hdf5.HierarchicalStructureDuplicatorFileToHDF5;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -56,6 +54,8 @@ import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.utils.Unzipper;
 import ch.systemsx.cisd.hcs.Geometry;
+import ch.systemsx.cisd.openbis.common.hdf5.HDF5Container;
+import ch.systemsx.cisd.openbis.common.hdf5.HierarchicalStructureDuplicatorFileToHDF5;
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor.DatasetOwnerInformation;
 import ch.systemsx.cisd.openbis.dss.etl.PlateStorageProcessor.ImageDatasetOwnerInformation;
@@ -302,7 +302,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
 
             return rootDirectory;
         }
-        
+
         private boolean getRegisterAsOverviewImageDataSet(DataSetInformation dataSetInfo)
         {
             if (dataSetInfo instanceof ImageDataSetInformation == false)
@@ -625,7 +625,8 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
         return dataSetInformation instanceof ImageDataSetInformation
                 || dataSetTypeCode.matches(ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN)
                 || dataSetTypeCode
-                        .matches(ScreeningConstants.ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
+                        .matches(ScreeningConstants.ANY_MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN)
+                || dataSetTypeCode.matches(ScreeningConstants.ANALYSIS_FEATURE_LIST);
     }
 
     private ImageFileExtractionWithConfig extractImages(
