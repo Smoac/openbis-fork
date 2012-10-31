@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -696,7 +695,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#updateProject(ProjectUpdates)
      */
-    public void updateProject(ProjectUpdates updates, AsyncCallback<Date> projectEditCallback);
+    public void updateProject(ProjectUpdates updates, AsyncCallback<Integer> projectEditCallback);
 
     /**
      * @see ICommonClientService#deleteEntityTypes(EntityKind, List)

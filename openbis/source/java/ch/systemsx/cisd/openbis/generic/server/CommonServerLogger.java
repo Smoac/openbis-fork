@@ -957,11 +957,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public Date updateProject(String sessionToken, ProjectUpdatesDTO updates)
+    public int updateProject(String sessionToken, ProjectUpdatesDTO updates)
     {
         logTracking(sessionToken, "edit_project", "PROJECT_ID(%s) ATTACHMENTS_ADDED(%s)",
                 updates.getTechId(), updates.getAttachments().size());
-        return null;
+        return 0;
     }
 
     @Override

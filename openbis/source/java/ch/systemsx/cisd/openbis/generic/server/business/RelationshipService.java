@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business;
 
+import java.util.Date;
+
 import javax.annotation.Resource;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
@@ -60,7 +62,21 @@ public class RelationshipService implements IRelationshipService
             ProjectPE project)
     {
         SampleUtils.setSamplesSpace(experiment, project.getSpace());
+        PersonPE modifier = experiment.getModifier();
+        ProjectPE previousProject = experiment.getProject();
+        setModifierAndModificationDate(previousProject, modifier);
         experiment.setProject(project);
+        setModifierAndModificationDate(project, modifier);
+    }
+
+    private void setModifierAndModificationDate(ProjectPE projectOrNull, PersonPE modifier)
+    {
+        if (projectOrNull == null)
+        {
+            return;
+        }
+        projectOrNull.setModifier(modifier);
+        projectOrNull.setModificationDate(new Date());
     }
 
     @Override

@@ -2192,7 +2192,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("WRITE_PROJECT")
-    public Date updateProject(String sessionToken,
+    public int updateProject(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class)
             ProjectUpdatesDTO updates)
     {
@@ -2200,7 +2200,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
         bo.update(updates);
         bo.save();
-        return bo.getProject().getModificationDate();
+        return bo.getProject().getVersion();
     }
 
     private void deleteEntityTypes(String sessionToken, EntityKind entityKind, List<String> codes)

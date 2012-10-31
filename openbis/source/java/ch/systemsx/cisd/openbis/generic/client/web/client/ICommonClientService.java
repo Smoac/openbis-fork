@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -664,7 +663,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Updates project.
      */
-    public Date updateProject(ProjectUpdates updates) throws UserFailureException;
+    public int updateProject(ProjectUpdates updates) throws UserFailureException;
 
     /** Deletes/Trashes the specified data sets. */
     public void deleteDataSets(

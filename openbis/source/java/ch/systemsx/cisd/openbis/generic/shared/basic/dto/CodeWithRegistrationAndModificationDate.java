@@ -30,6 +30,8 @@ public class CodeWithRegistrationAndModificationDate<T extends CodeWithRegistrat
 
     private Date modificationDate;
 
+    private int version;
+
     private Person modifier;
 
     public Date getModificationDate()
@@ -51,5 +53,15 @@ public class CodeWithRegistrationAndModificationDate<T extends CodeWithRegistrat
     public final void setModifier(final Person modifier)
     {
         this.modifier = modifier;
+    }
+
+    public int getVersion()
+    {
+        return version;
+    }
+
+    public void setVersion(int version)
+    {
+        this.version = version;
     }
 }

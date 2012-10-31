@@ -878,7 +878,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
-    public Date updateProject(String sessionToken, ProjectUpdatesDTO updates);
+    public int updateProject(String sessionToken, ProjectUpdatesDTO updates);
 
     /**
      * Deletes specified data set types.

@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project;
 
-import java.util.Date;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -63,7 +61,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
         updates.setAttachmentSessionKey(sessionKey);
         updates.setDescription(projectDescriptionField.getValue());
         updates.setTechId(projectId);
-        updates.setVersion(originalProject.getModificationDate());
+        updates.setVersion(originalProject.getVersion());
         Space space = spaceField.tryGetSelected();
         updates.setGroupCode(space == null ? null : space.getCode());
 
@@ -71,7 +69,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
     }
 
     private final class ProjectEditCallback extends
-            AbstractRegistrationForm.AbstractRegistrationCallback<Date>
+            AbstractRegistrationForm.AbstractRegistrationCallback<Integer>
     {
 
         ProjectEditCallback(final IViewContext<?> viewContext)
@@ -80,15 +78,15 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
         }
 
         @Override
-        protected void process(final Date result)
+        protected void process(final Integer result)
         {
-            originalProject.setModificationDate(result);
+            originalProject.setVersion(result);
             updateOriginalValues();
             super.process(result);
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(Date result)
+        protected String createSuccessfullRegistrationInfo(Integer result)
         {
             return "Project <b>" + originalProject.getCode() + "</b> successfully updated.";
         }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -125,6 +126,7 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
 
         project.setCode(CodeConverter.tryToDatabase(project.getCode()));
         project.setModifier(modifier);
+        project.setModificationDate(new Date());
         final HibernateTemplate template = getHibernateTemplate();
         template.saveOrUpdate(project);
         template.flush();

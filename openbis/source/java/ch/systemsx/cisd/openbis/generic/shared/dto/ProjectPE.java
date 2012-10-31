@@ -47,6 +47,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
+import org.hibernate.annotations.OptimisticLock;
 import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
@@ -110,6 +111,8 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
 
     private Date modificationDate;
 
+    private int version;
+
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
     @Generated(GenerationTime.INSERT)
     public Date getRegistrationDate()
@@ -134,6 +137,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
         this.registrator = registrator;
     }
 
+    @OptimisticLock(excluded = true)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PERSON_MODIFIER_COLUMN)
     public PersonPE getModifier()
@@ -168,6 +172,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
         return space;
     }
 
+    @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "projectInternal")
     @ContainedIn
     private List<ExperimentPE> getExperimentsInternal()
@@ -374,7 +379,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
         return projectIdentifier.toString();
     }
 
-    @Version
+    @OptimisticLock(excluded = true)
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
     public Date getModificationDate()
     {
@@ -384,6 +389,18 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     public void setModificationDate(Date versionDate)
     {
         this.modificationDate = versionDate;
+    }
+
+    @Version
+    @Column(name = ColumnNames.VERSION_COLUMN, nullable = false)
+    public int getVersion()
+    {
+        return version;
+    }
+
+    public void setVersion(int version)
+    {
+        this.version = version;
     }
 
 }

@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -47,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -448,29 +450,49 @@ public final class ExperimentBOTest extends AbstractBOTest
     {
 
         ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
-        ExperimentPE exp = CommonTestUtils.createExperiment(identifier);
-
-        SpacePE group = CommonTestUtils.createSpace(identifier);
+        ExperimentTypePE experimentType = CommonTestUtils.createExperimentType();
+        final ExperimentPE exp = CommonTestUtils.createExperiment(identifier);
+        exp.setExperimentType(experimentType);
+        SpacePE space = CommonTestUtils.createSpace(identifier);
         SamplePE assignedSample = createSampleWithCode("assignedSample");
-        assignedSample.setSpace(group);
+        assignedSample.setSpace(space);
         exp.setSamples(Arrays.asList(assignedSample));
-
-        prepareLoadExperimentByIdentifier(identifier, exp);
-        ExperimentBO expBO = loadExperiment(identifier, exp);
-
+        // prepareLoadExperimentByIdentifier(identifier, exp);
         final ProjectIdentifier newProjectIdentifier =
-                new ProjectIdentifier(identifier.getDatabaseInstanceCode(), "anotherGroup",
+                new ProjectIdentifier(identifier.getDatabaseInstanceCode(), "anotherSpace",
                         "anotherProject");
         final ProjectPE newProject = CommonTestUtils.createProject(newProjectIdentifier);
+        ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
+        updates.setExperimentId(new TechId(exp));
+        updates.setVersion(exp.getModificationDate());
+        updates.setProjectIdentifier(newProjectIdentifier);
+        updates.setProperties(Collections.<IEntityProperty> emptyList());
+        updates.setAttachments(Collections.<NewAttachment> emptyList());
+        prepareAnyDaoCreation();
+        context.checking(new Expectations()
+            {
+                {
+                    one(experimentDAO).tryGetByTechId(new TechId(exp.getId()),
+                            ExperimentBO.PROPERTY_TYPES);
+                    will(returnValue(exp));
+
+                    one(entityTypeDAO).listEntityTypes();
+                    will(returnValue(Arrays.asList(exp.getExperimentType())));
+
+                    allowing(entityPropertyTypeDAO)
+                            .listEntityPropertyTypes(exp.getExperimentType());
+                    one(relationshipService).assignExperimentToProject(
+                            ManagerTestTool.EXAMPLE_SESSION, exp, newProject);
+                }
+            });
         prepareTryFindProject(newProjectIdentifier, newProject);
+
+        ExperimentBO expBO = createExperimentBO();
+        expBO.update(updates);
 
         assertFalse(newProject.equals(exp.getProject()));
         assertFalse(newProject.getSpace().equals(assignedSample.getSpace()));
 
-        expBO.updateProject(newProjectIdentifier);
-
-        assertEquals(newProject, exp.getProject());
-        assertEquals(newProject.getSpace(), assignedSample.getSpace());
     }
 
     @Test

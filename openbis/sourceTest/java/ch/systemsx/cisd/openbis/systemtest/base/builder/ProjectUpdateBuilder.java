@@ -39,7 +39,7 @@ public class ProjectUpdateBuilder extends UpdateBuilder<ProjectUpdatesDTO>
         updates.setAttachments(new ArrayList<NewAttachment>());
         updates.setDescription(project.getDescription());
         updates.setTechId(new TechId(project.getId()));
-        updates.setVersion(project.getModificationDate());
+        updates.setVersion(project.getVersion());
     }
 
     public ProjectUpdateBuilder toSpace(Space space)

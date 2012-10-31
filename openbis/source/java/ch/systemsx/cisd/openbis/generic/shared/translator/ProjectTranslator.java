@@ -61,6 +61,7 @@ public final class ProjectTranslator
         result.setPermId(project.getPermId());
         result.setModifier(PersonTranslator.translate(project.getModifier()));
         result.setModificationDate(project.getModificationDate());
+        result.setVersion(project.getVersion());
         result.setCode(project.getCode());
         result.setDescription(project.getDescription());
         result.setSpace(SpaceTranslator.translate(project.getSpace()));

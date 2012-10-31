@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
@@ -31,7 +30,7 @@ public class AbstractProjectUpdates implements Serializable
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private Date version;
+    private int version;
 
     private TechId id;
 
@@ -52,12 +51,12 @@ public class AbstractProjectUpdates implements Serializable
         this.groupCodeOrNull = groupCode;
     }
 
-    public Date getVersion()
+    public int getVersion()
     {
         return version;
     }
 
-    public void setVersion(Date version)
+    public void setVersion(int version)
     {
         this.version = version;
     }

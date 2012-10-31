@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.http.HttpSession;
 
@@ -42,9 +42,9 @@ import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.reflection.BeanUtils;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
-import ch.systemsx.cisd.openbis.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.string.ReflectingStringUnescaper;
 import ch.systemsx.cisd.common.string.UnicodeUtils;
+import ch.systemsx.cisd.openbis.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
@@ -1638,11 +1638,11 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public Date updateProject(final ProjectUpdates updates)
+    public int updateProject(final ProjectUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        final Date modificationDate = new Date();
+        final AtomicInteger version = new AtomicInteger();
         new AttachmentRegistrationHelper()
             {
                 @Override
@@ -1650,11 +1650,11 @@ public final class CommonClientService extends AbstractClientService implements
                 {
                     ProjectUpdatesDTO updatesDTO = translate(updates);
                     updatesDTO.setAttachments(attachments);
-                    Date date = commonServer.updateProject(sessionToken, updatesDTO);
-                    modificationDate.setTime(date.getTime());
+                    int versionNumber = commonServer.updateProject(sessionToken, updatesDTO);
+                    version.set(versionNumber);
                 }
             }.process(updates.getAttachmentSessionKey(), getHttpSession(), updates.getAttachments());
-        return modificationDate;
+        return version.get();
     }
 
     private static ProjectUpdatesDTO translate(ProjectUpdates updates)

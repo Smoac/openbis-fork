@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -129,8 +130,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
     }
 
-    private static final String PROPERTY_TYPES =
-            "experimentType.experimentTypePropertyTypesInternal";
+    @Private
+    static final String PROPERTY_TYPES = "experimentType.experimentTypePropertyTypesInternal";
 
     @Override
     public void loadDataByTechId(TechId experimentId)
@@ -368,6 +369,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         {
             throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND, newExperiment);
         }
+        project.setModificationDate(new Date());
+        project.setModifier(findPerson());
         experiment.setProject(project);
     }
 
@@ -453,6 +456,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         {
             throwModifiedEntityException("Experiment");
         }
+        experiment.setModifier(findPerson());
         updateProperties(updates.getProperties());
 
         ProjectPE project = findProject(updates.getProjectIdentifier());
@@ -592,23 +596,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     private static Set<String> asSet(String[] objects)
     {
         return new HashSet<String>(Arrays.asList(objects));
-    }
-
-    @Private
-    void updateProject(ProjectIdentifier newProjectIdentifier)
-    {
-        ProjectPE project = findProject(newProjectIdentifier);
-        ProjectPE previousProject = experiment.getProject();
-        if (project.equals(previousProject))
-        {
-            return; // nothing to change
-        }
-        // if the group has changes, move all samples to that group
-        if (project.getSpace().equals(previousProject.getSpace()) == false)
-        {
-            SampleUtils.setSamplesSpace(experiment, project.getSpace());
-        }
-        experiment.setProject(project);
     }
 
     private ProjectPE findProject(ProjectIdentifier newProjectIdentifier)

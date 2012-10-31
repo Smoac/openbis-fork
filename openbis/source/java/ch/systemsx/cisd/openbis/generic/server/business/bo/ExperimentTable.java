@@ -245,6 +245,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
                     "No experiment could be found with given identifier '%s'.",
                     updates.getOldExperimentIdentifier());
         }
+        experiment.setModifier(findPerson());
         ExperimentBatchUpdateDetails details = updates.getDetails();
         batchUpdateProperties(experiment, updates.getProperties(), details.getPropertiesToUpdate());
 

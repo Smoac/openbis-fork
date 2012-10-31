@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -345,10 +346,12 @@ public class CommonTestUtils
         final ExperimentPE exp = new ExperimentPE();
         final ExperimentTypePE expType = new ExperimentTypePE();
         expType.setCode("expType");
+        exp.setId(42L);
         exp.setExperimentType(expType);
         exp.setCode(ei.getExperimentCode());
         exp.setProject(createProject(new ProjectIdentifier(ei.getDatabaseInstanceCode(), ei
                 .getSpaceCode(), ei.getProjectCode())));
+        exp.setModificationDate(new Date(4711L));
         return exp;
     }
 
