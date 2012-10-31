@@ -71,6 +71,16 @@ class SearchHelper
                 detailedSearchCriteria);
     }
 
+    public List<ExternalData> searchForDataSets(String userId, Long userTechId,
+            DetailedSearchCriteria detailedSearchCriteria)
+    {
+        IHibernateSearchDAO searchDAO = daoFactory.getHibernateSearchDAO();
+        IDatasetLister dataSetLister =
+                businessObjectFactory.createDatasetLister(session, userTechId);
+        return new DataSetSearchManager(searchDAO, dataSetLister).searchForDataSets(userId,
+                detailedSearchCriteria);
+    }
+
     public List<Material> searchForMaterials(String userId,
             DetailedSearchCriteria detailedSearchCriteria)
     {

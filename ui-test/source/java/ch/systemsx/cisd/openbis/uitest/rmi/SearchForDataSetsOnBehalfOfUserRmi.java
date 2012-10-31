@@ -17,14 +17,10 @@
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
@@ -32,13 +28,14 @@ import ch.systemsx.cisd.openbis.uitest.dsl.Command;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.rmi.eager.DataSetRmi;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
-import ch.systemsx.cisd.openbis.uitest.type.Sample;
+import ch.systemsx.cisd.openbis.uitest.type.User;
 
 /**
  * @author anttil
  */
-public class ListDataSetsOfSamplesRmi implements Command<List<DataSet>>
+public class SearchForDataSetsOnBehalfOfUserRmi implements Command<List<DataSet>>
 {
+
     @Inject
     private String session;
 
@@ -48,39 +45,25 @@ public class ListDataSetsOfSamplesRmi implements Command<List<DataSet>>
     @Inject
     private ICommonServer commonServer;
 
-    private Collection<Sample> samples;
+    private SearchCriteria criteria;
 
-    public ListDataSetsOfSamplesRmi(Sample first, Sample... rest)
+    private User user;
+
+    public SearchForDataSetsOnBehalfOfUserRmi(String code, User user)
     {
-        this.samples = new ArrayList<Sample>();
-        this.samples.add(first);
-        this.samples.addAll(Arrays.asList(rest));
+        this.user = user;
+        criteria = new SearchCriteria();
+        criteria.addMatchClause(
+                MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, code));
     }
 
     @Override
     public List<DataSet> execute()
     {
 
-        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample> rmiSamples =
-                new ArrayList<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample>();
-
-        for (Sample sample : samples)
-        {
-
-            SearchCriteria criteria = new SearchCriteria();
-            criteria.addMatchClause(
-                    MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, sample.getCode()));
-            List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample> searchResult =
-                    generalInformationService.searchForSamples(
-                            session, criteria, EnumSet.allOf(SampleFetchOption.class));
-
-            assert searchResult.size() == 1;
-            rmiSamples.addAll(searchResult);
-        }
-
         List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> dataSets =
-                generalInformationService
-                        .listDataSets(session, rmiSamples);
+                generalInformationService.searchForDataSetsOnBehalfOfUser(session, criteria, user
+                        .getName());
 
         List<DataSet> result = new ArrayList<DataSet>();
         for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet dataSet : dataSets)

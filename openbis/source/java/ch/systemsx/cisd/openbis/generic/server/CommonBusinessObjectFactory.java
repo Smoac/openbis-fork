@@ -152,6 +152,12 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     }
 
     @Override
+    public IDatasetLister createDatasetLister(Session session, Long userId)
+    {
+        return DatasetLister.create(getDaoFactory(), session.getBaseIndexURL(), userId);
+    }
+
+    @Override
     public IMaterialLister createMaterialLister(Session session)
     {
         return MaterialLister.create(getDaoFactory(), session.getBaseIndexURL(), session

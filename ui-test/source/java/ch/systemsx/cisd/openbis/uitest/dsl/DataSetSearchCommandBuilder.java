@@ -18,8 +18,10 @@ package ch.systemsx.cisd.openbis.uitest.dsl;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.uitest.rmi.SearchForDataSetsOnBehalfOfUserRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.SearchForDataSetsRmi;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
+import ch.systemsx.cisd.openbis.uitest.type.User;
 
 /**
  * @author anttil
@@ -29,6 +31,8 @@ public class DataSetSearchCommandBuilder implements SearchCommandBuilder<DataSet
 
     private String code;
 
+    private User user;
+
     @SuppressWarnings("hiding")
     public DataSetSearchCommandBuilder withCode(String code)
     {
@@ -36,10 +40,22 @@ public class DataSetSearchCommandBuilder implements SearchCommandBuilder<DataSet
         return this;
     }
 
+    @SuppressWarnings("hiding")
+    public DataSetSearchCommandBuilder onBehalfOf(User user)
+    {
+        this.user = user;
+        return this;
+    }
+
     @Override
     public Command<List<DataSet>> build()
     {
-        return new SearchForDataSetsRmi(code);
+        if (this.user == null)
+        {
+            return new SearchForDataSetsRmi(code);
+        } else
+        {
+            return new SearchForDataSetsOnBehalfOfUserRmi(code, user);
+        }
     }
-
 }

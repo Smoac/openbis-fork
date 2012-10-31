@@ -92,9 +92,16 @@ import ch.systemsx.cisd.openbis.uitest.page.BrowserRow;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterSample;
 import ch.systemsx.cisd.openbis.uitest.page.SampleDetails;
 import ch.systemsx.cisd.openbis.uitest.rmi.AddEntitiesToMetaProjectRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.GetDataSetMetaDataRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.ListDataSetsOfExperimentsOnBehalfOfUserRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.ListDataSetsOfExperimentsRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListDataSetsOfSampleRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListDataSetsOfSamplesOnBehalfOfUserRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListDataSetsOfSamplesRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.ListDataSetsOfSamplesWithConnectionsRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.ListExperimentsHavingDataSetsOfProjectsRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.ListExperimentsHavingSamplesOfProjectsRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.ListExperimentsOfProjectsRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListExperimentsRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListMaterialsRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListMetaProjectsRmi;
@@ -735,9 +742,19 @@ public abstract class SeleniumTest
         return pages.initializeWidget(widgetClass, context, false);
     }
 
-    public List<DataSet> listDataSetsOfSamples(Sample sample)
+    public List<DataSet> listDataSetsOfSamples(Sample first, Sample... rest)
     {
-        return openbis.execute(new ListDataSetsOfSamplesRmi(sample));
+        return openbis.execute(new ListDataSetsOfSamplesRmi(first, rest));
+    }
+
+    public List<DataSet> listDataSetsOfSamplesWithConnections(Sample first, Sample... rest)
+    {
+        return openbis.execute(new ListDataSetsOfSamplesWithConnectionsRmi(first, rest));
+    }
+
+    public List<DataSet> listDataSetsOfExperiments(Experiment first, Experiment... rest)
+    {
+        return openbis.execute(new ListDataSetsOfExperimentsRmi(first, rest));
     }
 
     public List<DataSet> listDataSetsOfSample(Sample sample)
@@ -751,9 +768,35 @@ public abstract class SeleniumTest
         return openbis.execute(new ListDataSetsOfSamplesOnBehalfOfUserRmi(user, first, rest));
     }
 
+    public List<DataSet> listDataSetsOfExperimentsOnBehalfOfUser(User user, Experiment first,
+            Experiment... rest)
+    {
+        return openbis.execute(new ListDataSetsOfExperimentsOnBehalfOfUserRmi(user, first, rest));
+    }
+
+    public List<DataSet> getDataSetMetaData(String firstCode, String... rest)
+    {
+        return openbis.execute(new GetDataSetMetaDataRmi(firstCode, rest));
+    }
+
     public List<Experiment> listExperiments(String experimentId, String... rest)
     {
         return openbis.execute(new ListExperimentsRmi(experimentId, rest));
+    }
+
+    public List<Experiment> listExperimentsOfProjects(Project first, Project... rest)
+    {
+        return openbis.execute(new ListExperimentsOfProjectsRmi(first, rest));
+    }
+
+    public List<Experiment> listExperimentsHavingSamplesOfProjects(Project first, Project... rest)
+    {
+        return openbis.execute(new ListExperimentsHavingSamplesOfProjectsRmi(first, rest));
+    }
+
+    public List<Experiment> listExperimentsHavingDataSetsOfProjects(Project first, Project... rest)
+    {
+        return openbis.execute(new ListExperimentsHavingDataSetsOfProjectsRmi(first, rest));
     }
 
     public List<Sample> listSamplesOfExperiment(Experiment experiment)

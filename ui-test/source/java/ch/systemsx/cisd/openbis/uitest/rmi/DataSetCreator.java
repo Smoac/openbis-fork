@@ -61,17 +61,20 @@ public class DataSetCreator
     {
 
         String id;
+        DataSetOwnerType ownerType;
         if (dataset.getSample() != null)
         {
             id = Identifiers.get(dataset.getSample()).toString();
+            ownerType = DataSetOwnerType.SAMPLE;
         } else
         {
             id = Identifiers.get(dataset.getExperiment()).toString();
+            ownerType = DataSetOwnerType.EXPERIMENT;
         }
 
         String typeCode = dataset.getType().getCode();
 
-        return getNewDataSet(file, id, typeCode);
+        return getNewDataSet(file, id, typeCode, ownerType);
     }
 
     public InputStream getData()
@@ -124,9 +127,9 @@ public class DataSetCreator
     }
 
     @SuppressWarnings("hiding")
-    private NewDataSetDTO getNewDataSet(File fileToUpload, String ownerId, String typeCode)
+    private NewDataSetDTO getNewDataSet(File fileToUpload, String ownerId, String typeCode,
+            DataSetOwnerType ownerType)
     {
-        DataSetOwnerType ownerType = DataSetOwnerType.SAMPLE;
         String ownerIdentifier = ownerId;
         DataSetOwner owner = new NewDataSetDTO.DataSetOwner(ownerType, ownerIdentifier);
 

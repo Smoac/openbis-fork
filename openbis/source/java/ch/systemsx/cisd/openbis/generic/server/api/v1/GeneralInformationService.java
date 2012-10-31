@@ -687,7 +687,21 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     public List<DataSet> listDataSetsOnBehalfOfUser(String sessionToken, List<Sample> samples,
             EnumSet<Connections> connections, String userId)
     {
-        final List<DataSet> unfilteredDatasets = listDataSets(sessionToken, samples, connections);
+        checkSession(sessionToken);
+        EnumSet<Connections> connectionsToGet =
+                (connections != null) ? connections : EnumSet.noneOf(Connections.class);
+
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType> sampleTypes =
+                commonServer.listSampleTypes(sessionToken);
+        SampleToDataSetRelatedEntitiesTranslator translator =
+                new SampleToDataSetRelatedEntitiesTranslator(sampleTypes, samples);
+        DataSetRelatedEntities dsre = translator.convertToDataSetRelatedEntities();
+
+        List<ExternalData> dataSets =
+                commonServer.listRelatedDataSetsOnBehalfOfUser(sessionToken, dsre, true, userId);
+
+        final List<DataSet> unfilteredDatasets = Translator.translate(dataSets, connectionsToGet);
+
         // Filter for user
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
         final DataSetByExperimentIdentifierValidator validator =
@@ -731,8 +745,20 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     public List<DataSet> listDataSetsForExperimentsOnBehalfOfUser(String sessionToken,
             List<Experiment> experiments, EnumSet<Connections> connections, String userId)
     {
-        final List<DataSet> unfilteredDatasets =
-                listDataSetsForExperiments(sessionToken, experiments, connections);
+
+        checkSession(sessionToken);
+        EnumSet<Connections> connectionsToGet =
+                (connections != null) ? connections : EnumSet.noneOf(Connections.class);
+
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType> experimentTypes =
+                commonServer.listExperimentTypes(sessionToken);
+        ExperimentToDataSetRelatedEntitiesTranslator translator =
+                new ExperimentToDataSetRelatedEntitiesTranslator(experimentTypes, experiments);
+        DataSetRelatedEntities dsre = translator.convertToDataSetRelatedEntities();
+        List<ExternalData> dataSets =
+                commonServer.listRelatedDataSetsOnBehalfOfUser(sessionToken, dsre, true, userId);
+
+        final List<DataSet> unfilteredDatasets = Translator.translate(dataSets, connectionsToGet);
         // Filter for user
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
         final DataSetByExperimentIdentifierValidator validator =

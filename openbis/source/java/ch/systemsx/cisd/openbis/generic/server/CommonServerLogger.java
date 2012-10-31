@@ -614,6 +614,16 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
+    public List<ExternalData> listRelatedDataSetsOnBehalfOfUser(String sessionToken,
+            DataSetRelatedEntities entities, boolean withDetails, String userId)
+    {
+        logAccess(sessionToken, "list_related_datasets_on_behalf_of_user", "WITH_DETAILS(%s)",
+                "WITH_USER(%s)",
+                withDetails, userId);
+        return null;
+    }
+
+    @Override
     public List<MaterialType> listMaterialTypes(String sessionToken)
     {
         logAccess(sessionToken, "list_material_types");

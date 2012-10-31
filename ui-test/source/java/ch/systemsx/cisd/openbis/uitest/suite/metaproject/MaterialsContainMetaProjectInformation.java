@@ -33,7 +33,7 @@ public class MaterialsContainMetaProjectInformation extends MetaProjectSuite
 {
 
     @Test
-    public void searchedMaterialContainsMetaProjectInformation() throws Exception
+    public void materialSearchReturnsMetaProjectInformation() throws Exception
     {
         Material material = create(aMaterial());
         MetaProject metaProject = create(aMetaProject());
@@ -46,7 +46,7 @@ public class MaterialsContainMetaProjectInformation extends MetaProjectSuite
     }
 
     @Test
-    public void listedMaterialContainsMetaProjectInformation() throws Exception
+    public void materialListingContainsMetaProjectInformation() throws Exception
     {
         Material material = create(aMaterial());
         MetaProject metaProject = create(aMetaProject());

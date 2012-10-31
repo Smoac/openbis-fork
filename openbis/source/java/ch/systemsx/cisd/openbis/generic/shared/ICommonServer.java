@@ -605,6 +605,13 @@ public interface ICommonServer extends IServer
             DataSetRelatedEntities entities, boolean withDetails);
 
     /**
+     * Returns all data sets related to specified entities on behalf of given user.
+     */
+    @Transactional(readOnly = true)
+    public List<ExternalData> listRelatedDataSetsOnBehalfOfUser(String sessionToken,
+            DataSetRelatedEntities entities, boolean withDetails, String userId);
+
+    /**
      * List material types.
      * 
      * @return a sorted list of {@link MaterialType}.

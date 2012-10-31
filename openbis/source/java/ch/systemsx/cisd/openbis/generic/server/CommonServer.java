@@ -1280,12 +1280,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             DetailedSearchCriteria criteria, String userId)
     {
         final Session session = getSession(sessionToken);
+        final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+
         SearchHelper searchHelper =
                 new SearchHelper(session, businessObjectFactory, getDAOFactory());
-        List<ExternalData> unfilteredDatasets = searchHelper.searchForDataSets(userId, criteria);
+        List<ExternalData> unfilteredDatasets =
+                searchHelper.searchForDataSets(userId, person.getId(), criteria);
 
-        // Filter for user
-        final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
         final ExternalDataValidator validator = new ExternalDataValidator();
         final ArrayList<ExternalData> datasets =
                 new ArrayList<ExternalData>(unfilteredDatasets.size());
@@ -1356,6 +1357,39 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         Collection<MetaprojectAssignmentPE> assignments =
                 mpd.listMetaprojectAssignmentsForEntities(session.tryGetPerson(), resultSet,
+                        ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.DATA_SET);
+
+        Map<Long, Set<Metaproject>> translation =
+                MetaprojectTranslator.translateMetaprojectAssignments(assignments);
+
+        final List<ExternalData> list = new ArrayList<ExternalData>(resultSet.size());
+        for (final DataPE hit : resultSet)
+        {
+            HibernateUtils.initialize(hit.getChildRelationships());
+            list.add(DataSetTranslator.translate(hit, session.getBaseIndexURL(), withDetails,
+                    translation.get(hit.getId())));
+        }
+        return list;
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    @Capability("SEARCH_ON_BEHALF_OF_USER")
+    @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
+    public List<ExternalData> listRelatedDataSetsOnBehalfOfUser(String sessionToken,
+            DataSetRelatedEntities relatedEntities, boolean withDetails, String userId)
+    {
+        final Session session = getSession(sessionToken);
+        final Set<DataPE> resultSet = new LinkedHashSet<DataPE>();
+        // TODO 2009-08-17, Piotr Buczek: [LMS-1149] optimize performance
+        addRelatedDataSets(resultSet, relatedEntities.getEntities());
+
+        IMetaprojectDAO mpd = this.getDAOFactory().getMetaprojectDAO();
+
+        final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+
+        Collection<MetaprojectAssignmentPE> assignments =
+                mpd.listMetaprojectAssignmentsForEntities(person, resultSet,
                         ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.DATA_SET);
 
         Map<Long, Set<Metaproject>> translation =
@@ -2283,7 +2317,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         if ((entityKind.equals(EntityKind.SAMPLE) || entityKind.equals(EntityKind.DATA_SET) || entityKind
-                .equals(EntityKind.MATERIAL)) && EntityType.isDefinedInFileEntityTypeCode(type))
+                .equals(EntityKind.MATERIAL))
+                && EntityType.isDefinedInFileEntityTypeCode(type))
         {
             types.addAll(getDAOFactory().getEntityTypeDAO(
                     DtoConverters.convertEntityKind(entityKind)).listEntityTypes());

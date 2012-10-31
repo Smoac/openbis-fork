@@ -107,7 +107,7 @@ public class ExperimentListPredicate extends AbstractSpacePredicate<List<Experim
 
     private final static int ARRAY_SIZE_LIMIT = 999;
 
-    interface IExperimentToSpaceQuery extends BaseQuery
+    public static interface IExperimentToSpaceQuery extends BaseQuery
     {
         @Select(sql = "select distinct space_id from projects p left join experiments e on e.proj_id = p.id "
                 + "where e.id = any(?{1}) union "

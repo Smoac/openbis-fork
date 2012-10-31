@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.uitest.rmi.Identifiers;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
+import ch.systemsx.cisd.openbis.uitest.type.Project;
 
 /**
  * @author anttil
@@ -33,7 +34,7 @@ public class ExperimentsContainMetaProjectInformation extends MetaProjectSuite
 {
 
     @Test
-    public void listedExperimentContainsMetaProjectInformation() throws Exception
+    public void experimentListingContainsMetaProjectInformation() throws Exception
     {
         Experiment experiment = create(anExperiment());
         MetaProject metaProject = create(aMetaProject());
@@ -44,4 +45,46 @@ public class ExperimentsContainMetaProjectInformation extends MetaProjectSuite
         assertThat(listResult, containsExactly(experiment));
         assertThat(metaProjectsOf(listResult.get(0)), containExactly(metaProject));
     }
+
+    @Test
+    public void experimentsOfProjectsListingContainsMetaProjectInformation() throws Exception
+    {
+        Project project = create(aProject());
+        Experiment experiment = create(anExperiment().in(project));
+        MetaProject metaProject = create(aMetaProject());
+        tagWith(metaProject, experiment);
+        List<Experiment> listResult = listExperimentsOfProjects(project);
+
+        assertThat(listResult, containsExactly(experiment));
+        assertThat(metaProjectsOf(listResult.get(0)), containExactly(metaProject));
+    }
+
+    @Test
+    public void experimentsHavingSamplesListingContainsMetaProjectInformation() throws Exception
+    {
+        Project project = create(aProject());
+        Experiment experiment = create(anExperiment().in(project));
+        create(aSample().in(experiment));
+        MetaProject metaProject = create(aMetaProject());
+        tagWith(metaProject, experiment);
+        List<Experiment> listResult = listExperimentsHavingSamplesOfProjects(project);
+
+        assertThat(listResult, containsExactly(experiment));
+        assertThat(metaProjectsOf(listResult.get(0)), containExactly(metaProject));
+    }
+
+    @Test
+    public void experimentsHavingDataSetsListingContainsMetaProjectInformation() throws Exception
+    {
+        Project project = create(aProject());
+        Experiment experiment = create(anExperiment().in(project));
+        create(aDataSet().in(experiment));
+        MetaProject metaProject = create(aMetaProject());
+        tagWith(metaProject, experiment);
+        List<Experiment> listResult = listExperimentsHavingDataSetsOfProjects(project);
+
+        assertThat(listResult, containsExactly(experiment));
+        assertThat(metaProjectsOf(listResult.get(0)), containExactly(metaProject));
+    }
+
 }

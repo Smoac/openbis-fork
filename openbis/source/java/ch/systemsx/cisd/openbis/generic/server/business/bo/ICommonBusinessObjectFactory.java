@@ -87,5 +87,7 @@ public interface ICommonBusinessObjectFactory extends IAbstractBussinessObjectFa
 
     public IDatasetLister createDatasetLister(Session session);
 
+    public IDatasetLister createDatasetLister(Session session, Long userId);
+
     public IMetaprojectBO createMetaprojectBO(Session session);
 }

@@ -24,6 +24,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
@@ -37,7 +38,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Sample;
 /**
  * @author anttil
  */
-public class ListDataSetsOfSamplesRmi implements Command<List<DataSet>>
+public class ListDataSetsOfSamplesWithConnectionsRmi implements Command<List<DataSet>>
 {
     @Inject
     private String session;
@@ -50,7 +51,7 @@ public class ListDataSetsOfSamplesRmi implements Command<List<DataSet>>
 
     private Collection<Sample> samples;
 
-    public ListDataSetsOfSamplesRmi(Sample first, Sample... rest)
+    public ListDataSetsOfSamplesWithConnectionsRmi(Sample first, Sample... rest)
     {
         this.samples = new ArrayList<Sample>();
         this.samples.add(first);
@@ -79,8 +80,8 @@ public class ListDataSetsOfSamplesRmi implements Command<List<DataSet>>
         }
 
         List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> dataSets =
-                generalInformationService
-                        .listDataSets(session, rmiSamples);
+                generalInformationService.listDataSets(session, rmiSamples, EnumSet
+                        .allOf(Connections.class));
 
         List<DataSet> result = new ArrayList<DataSet>();
         for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet dataSet : dataSets)
