@@ -84,7 +84,6 @@ static NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeUrl, 
 
 - (BOOL)synchEntity:(CISDOBIpadRawEntity *)rawEntity lastUpdateDate:(NSDate *)date error:(NSError **)error
 {
-{
     // Create new entities in the moc, and store them.
     CISDOBIpadEntity *entity;
     NSArray *matchedEntities = [self entitiesByPermId: [NSArray arrayWithObject: rawEntity.permId] error: error];
@@ -100,7 +99,6 @@ static NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeUrl, 
     entity.serverUrlString =  [((CISDOBLiveConnection *)(self.service.connection)).url absoluteString];
     
     return YES;
-}
 }
 
 - (BOOL)syncEntities:(NSArray *)rawEntities pruning:(BOOL)prune error:(NSError **)error
