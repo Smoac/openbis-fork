@@ -2174,11 +2174,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @Capability("WRITE_MATERIAL")
     public Date updateMaterial(String sessionToken, TechId materialId,
-            List<IEntityProperty> properties, Date version)
+            List<IEntityProperty> properties, String[] metaprojects, Date version)
     {
         final Session session = getSession(sessionToken);
         final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
-        materialBO.update(new MaterialUpdateDTO(materialId, properties, version));
+        MaterialUpdateDTO updates = new MaterialUpdateDTO(materialId, properties, version);
+        updates.setMetaprojectsOrNull(metaprojects);
+        materialBO.update(updates);
         materialBO.save();
         return materialBO.getMaterial().getModificationDate();
     }
@@ -3328,7 +3330,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 getDAOFactory().getMaterialDAO().tryGetByTechId(entityId).getModificationDate();
         Map<String, String> properties = createPropertiesMap(modifiedProperties);
         updateMaterial(sessionToken, entityId,
-                EntityHelper.translatePropertiesMapToList(properties), modificationDate);
+                EntityHelper.translatePropertiesMapToList(properties), null, modificationDate);
     }
 
     private Map<String, String> createPropertiesMap(List<PropertyUpdates> updates)

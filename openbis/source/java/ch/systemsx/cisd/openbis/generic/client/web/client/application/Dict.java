@@ -80,6 +80,14 @@ public abstract class Dict
 
     public static final String BREADCRUMBS_SEPARATOR = "breadcrumbs_separator";
 
+    public static final String METAPROJECTS = "metaprojects";
+
+    public static final String METAPROJECTS_HINT = "metaprojects_hint";
+
+    public static final String ADD_METAPROJECT = "add_metaproject";
+
+    public static final String CHOOSE_METAPROJECT = "choose_metaproject";
+
     //
     // Form
     //

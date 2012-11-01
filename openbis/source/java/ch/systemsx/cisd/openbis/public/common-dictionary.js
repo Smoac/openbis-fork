@@ -21,6 +21,7 @@ var common = {
   modifier: "Modifier",
   registration_date: "Registration Date",
   modification_date: "Modification Date",
+  creation_date: "Creation Date",
   filter: "Filter",
   filters: "Filters",
   not_implemented: "Sorry, feature has not been implemented yet!",
@@ -59,7 +60,11 @@ var common = {
   add_unofficial_vocabulary_term_dialog_title: "Add Ad Hoc Term",
   breadcrumbs_separator: "»",
   storage_confirmation: "Storage Confirmed",
-
+  metaprojects: "Metaprojects",
+  metaprojects_hint: "List of metaprojects names separated by commas (\",\") or one metaproject name per line.",
+  add_metaproject: "Add Metaproject...",
+  choose_metaproject: "Choose a Metaproject",
+  
   //
   // Form
   // 

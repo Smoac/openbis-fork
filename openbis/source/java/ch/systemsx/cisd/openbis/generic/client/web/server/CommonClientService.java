@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityHistoryCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMetaprojectsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
@@ -90,6 +91,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.GridCustomFi
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MatchingEntitiesProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MetaprojectProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.PersonsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ProjectsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.PropertyTypeProvider;
@@ -158,6 +160,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -521,6 +524,13 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
+    public String prepareExportMetaprojects(
+            TableExportCriteria<TableModelRowWithObject<Metaproject>> criteria)
+    {
+        return prepareExportEntities(criteria);
+    }
+
+    @Override
     public String prepareExportSpaces(TableExportCriteria<TableModelRowWithObject<Space>> criteria)
     {
         return prepareExportEntities(criteria);
@@ -670,6 +680,15 @@ public final class CommonClientService extends AbstractClientService implements
                 new ScriptProvider(commonServer, getSessionToken(), criteria.tryGetScriptType(),
                         criteria.tryGetEntityKind());
         return listEntities(scriptProvider, criteria);
+    }
+
+    @Override
+    public TypedTableResultSet<Metaproject> listMetaprojects(ListMetaprojectsCriteria criteria)
+            throws UserFailureException
+    {
+        MetaprojectProvider metaprojectProvider =
+                new MetaprojectProvider(commonServer, getSessionToken());
+        return listEntities(metaprojectProvider, criteria);
     }
 
     @Override

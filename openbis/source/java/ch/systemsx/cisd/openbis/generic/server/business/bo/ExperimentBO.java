@@ -341,6 +341,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                 newExperiment.getProperties(), registrator);
         defineExperimentProject(newExperiment, experimentIdentifier);
         experiment.setPermId(getOrCreatePermID(newExperiment));
+        setMetaprojects(experiment, newExperiment.getMetaprojectsOrNull());
         dataChanged = true;
     }
 
@@ -472,6 +473,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             addAttachment(AttachmentTranslator.translate(attachment));
         }
         updateSamples(updates);
+
+        setMetaprojects(experiment, updates.getMetaprojectsOrNull());
 
         dataChanged = true;
     }

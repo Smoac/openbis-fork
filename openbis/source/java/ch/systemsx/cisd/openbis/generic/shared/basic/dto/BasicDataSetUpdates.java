@@ -40,6 +40,8 @@ public class BasicDataSetUpdates implements Serializable
 
     private String[] modifiedParentDatasetCodesOrNull;
 
+    private String[] metaprojectsOrNull;
+
     // Optional:
 
     // 1. external data (non-virtual)
@@ -154,6 +156,16 @@ public class BasicDataSetUpdates implements Serializable
     public void setExternalCode(String externalCode)
     {
         this.externalCode = externalCode;
+    }
+
+    public String[] getMetaprojectsOrNull()
+    {
+        return metaprojectsOrNull;
+    }
+
+    public void setMetaprojectsOrNull(String[] metaprojectsOrNull)
+    {
+        this.metaprojectsOrNull = metaprojectsOrNull;
     }
 
 }

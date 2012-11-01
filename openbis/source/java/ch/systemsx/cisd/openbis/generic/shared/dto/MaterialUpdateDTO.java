@@ -22,6 +22,8 @@ public class MaterialUpdateDTO extends AbstractHashable implements Serializable
 
     private final List<IEntityProperty> properties;
 
+    private String[] metaprojectsOrNull;
+
     private final Date version;
 
     public MaterialUpdateDTO(TechId materialId, List<IEntityProperty> properties, Date version)
@@ -39,6 +41,16 @@ public class MaterialUpdateDTO extends AbstractHashable implements Serializable
     public List<IEntityProperty> getProperties()
     {
         return properties;
+    }
+
+    public String[] getMetaprojectsOrNull()
+    {
+        return metaprojectsOrNull;
+    }
+
+    public void setMetaprojectsOrNull(String[] metaprojectsOrNull)
+    {
+        this.metaprojectsOrNull = metaprojectsOrNull;
     }
 
     public Date getVersion()

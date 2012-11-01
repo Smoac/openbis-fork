@@ -528,14 +528,18 @@ public class GenericClientService extends AbstractClientService implements IGene
                                 new SampleIdentifierFactory(updates.getSampleIdentifier())
                                         .createIdentifier();
                     }
+
+                    SampleUpdatesDTO updatesDTO =
+                            new SampleUpdatesDTO(updates.getSampleIdOrNull(),
+                                    updates.getProperties(), convExperimentIdentifierOrNull,
+                                    attachments, updates.getVersion(), sampleOwner,
+                                    updates.getContainerIdentifierOrNull(),
+                                    updates.getModifiedParentCodesOrNull());
+                    updatesDTO.setMetaprojectsOrNull(updates.getMetaprojectsOrNull());
+
                     SampleUpdateResult updateResult =
-                            genericServer.updateSample(
-                                    sessionToken,
-                                    new SampleUpdatesDTO(updates.getSampleIdOrNull(), updates
-                                            .getProperties(), convExperimentIdentifierOrNull,
-                                            attachments, updates.getVersion(), sampleOwner, updates
-                                                    .getContainerIdentifierOrNull(), updates
-                                                    .getModifiedParentCodesOrNull()));
+                            genericServer.updateSample(sessionToken, updatesDTO);
+
                     result.copyFrom(updateResult);
                 }
             }.process(updates.getSessionKey(), getHttpSession(), updates.getAttachments());
@@ -543,12 +547,14 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     @Override
-    public Date updateMaterial(TechId materialId, List<IEntityProperty> properties, Date version)
+    public Date updateMaterial(TechId materialId, List<IEntityProperty> properties,
+            String[] metaprojects, Date version)
     {
         try
         {
             final String sessionToken = getSessionToken();
-            return genericServer.updateMaterial(sessionToken, materialId, properties, version);
+            return genericServer.updateMaterial(sessionToken, materialId, properties, metaprojects,
+                    version);
         } catch (final ch.systemsx.cisd.common.exception.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -606,6 +612,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         updatesDTO.setRegisterSamples(updates.isRegisterSamples());
         updatesDTO.setNewSamples(updates.getNewSamples());
         updatesDTO.setSampleType(updates.getSampleType());
+        updatesDTO.setMetaprojectsOrNull(updates.getMetaprojectsOrNull());
         return updatesDTO;
     }
 
@@ -637,6 +644,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         updatesDTO.setExternalCode(updates.getExternalCode());
         updatesDTO.setExternalDataManagementSystemCode(updates
                 .getExternalDataManagementSystemCode());
+        updatesDTO.setMetaprojectsOrNull(updates.getMetaprojectsOrNull());
         return updatesDTO;
     }
 

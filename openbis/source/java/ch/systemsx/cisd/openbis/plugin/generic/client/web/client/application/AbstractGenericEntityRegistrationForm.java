@@ -35,6 +35,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeFieldWithGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MetaprojectArea;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MetaprojectChooserButton;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -42,6 +45,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
@@ -70,6 +75,10 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     protected CodeFieldWithGenerator codeField;
 
     protected PropertiesEditor<T, S> propertiesEditor;
+
+    protected MetaprojectArea metaprojectArea;
+
+    protected MetaprojectChooserButton metaprojectChooserButton;
 
     private final Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions;
 
@@ -208,6 +217,22 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
         {
             formPanel.addDirtyCheckIgnoredField(codeField);
         }
+
+        metaprojectArea = new MetaprojectArea(viewContext, getId());
+        metaprojectChooserButton = new MetaprojectChooserButton(viewContext, getId());
+        metaprojectChooserButton
+                .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>()
+                    {
+                        @Override
+                        public void entitiesChosen(
+                                List<TableModelRowWithObject<Metaproject>> entities)
+                        {
+                            for (TableModelRowWithObject<Metaproject> entity : entities)
+                            {
+                                metaprojectArea.appendItem(entity.getObjectOrNull().getName());
+                            }
+                        }
+                    });
     }
 
     /**
@@ -251,6 +276,8 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
         {
             fields.add(specificField);
         }
+        fields.add(DatabaseModificationAwareField.wrapUnaware(metaprojectArea));
+        fields.add(DatabaseModificationAwareField.wrapUnaware(metaprojectChooserButton.getField()));
         return fields;
     }
 

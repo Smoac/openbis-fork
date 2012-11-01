@@ -141,6 +141,7 @@ public final class GenericDataSetEditForm extends
             result.setExperimentIdentifierOrNull(extractExperimentIdentifier());
         }
         result.setModifiedParentDatasetCodesOrNull(extractParentDatasetCodes());
+        result.setMetaprojectsOrNull(metaprojectArea.tryGetMetaprojects());
         builder.fillUpdates(result);
         return result;
     }
@@ -199,6 +200,7 @@ public final class GenericDataSetEditForm extends
         connectedWithSampleCheckbox.updateOriginalValue(connectedWithSampleCheckbox.getValue());
         sampleChooser.updateOriginalValue();
         experimentChooser.updateOriginalValue();
+        updateFieldOriginalValue(metaprojectArea);
         builder.updateOriginalValues(result);
     }
 
@@ -297,6 +299,7 @@ public final class GenericDataSetEditForm extends
         propertiesEditor.initWithProperties(originalDataSet.getDataSetType()
                 .getAssignedPropertyTypes(), originalDataSet.getProperties());
         codeField.setValue(originalDataSet.getCode());
+        metaprojectArea.setMetaprojects(originalDataSet.getMetaprojects());
         // data set fields are initialized when they are created
         parentsArea.setValue(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
         builder.initializeFormFields();

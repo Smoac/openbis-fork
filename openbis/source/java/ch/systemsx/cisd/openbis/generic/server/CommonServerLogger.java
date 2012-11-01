@@ -984,7 +984,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     @Override
     public Date updateMaterial(String sessionToken, TechId materialId,
-            List<IEntityProperty> properties, Date version)
+            List<IEntityProperty> properties, String[] metaprojects, Date version)
     {
         logTracking(sessionToken, "edit_material", "MATERIAL(%s)", materialId);
         return null;

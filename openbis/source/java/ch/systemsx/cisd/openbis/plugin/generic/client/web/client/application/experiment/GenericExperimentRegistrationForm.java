@@ -104,6 +104,7 @@ public final class GenericExperimentRegistrationForm extends
         newExp.setGenerateCodes(autoGenerateCodes.getValue().booleanValue());
         newExp.setRegisterSamples(existingSamplesRadio.getValue() == false);
         newExp.setAttachments(attachmentsManager.extractAttachments());
+        newExp.setMetaprojectsOrNull(metaprojectArea.tryGetMetaprojects());
         viewContext.getService().registerExperiment(attachmentsSessionKey, samplesSessionKey,
                 newExp, new RegisterExperimentCallback(viewContext));
     }

@@ -70,10 +70,14 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
                 experimentField != null ? experimentField.tryToGetValue() : null;
         final String containerOrNull = StringUtils.trimToNull(container.getValue());
         final String[] parents = getParents();
-        viewContext.getService().updateSample(
+
+        SampleUpdates sampleUpdates =
                 new SampleUpdates(attachmentsSessionKey, techIdOrNull, properties, attachments,
                         experimentIdent, originalSample.getModificationDate(),
-                        createSampleIdentifier(), containerOrNull, parents),
+                        createSampleIdentifier(), containerOrNull, parents);
+        sampleUpdates.setMetaprojectsOrNull(metaprojectArea.tryGetMetaprojects());
+
+        viewContext.getService().updateSample(sampleUpdates,
                 enrichWithPostRegistration(new UpdateSampleCallback(viewContext)));
     }
 
@@ -108,6 +112,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         updateFieldOriginalValue(groupSelectionWidget);
         container.updateOriginalValue();
         parentsArea.setSamples(parents);
+        updateFieldOriginalValue(metaprojectArea);
     }
 
     private void setOriginalSample(Sample sample)
@@ -126,6 +131,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         ExperimentIdentifier originalExperiment =
                 experiment == null ? null : ExperimentIdentifier.createIdentifier(experiment);
         experimentField.updateValue(originalExperiment);
+        metaprojectArea.setMetaprojects(originalSample.getMetaprojects());
         initializeGroup();
         initializeContainedInParent();
         initializeParents();

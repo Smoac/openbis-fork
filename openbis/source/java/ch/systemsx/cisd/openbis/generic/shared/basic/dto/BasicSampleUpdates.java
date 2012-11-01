@@ -46,6 +46,8 @@ public class BasicSampleUpdates implements Serializable
     // If some previously assigned parent sample is missing on this list, it will be unassigned.
     private String[] modifiedParentCodesOrNull;
 
+    private String[] metaprojectsOrNull;
+
     public String getParentIdentifierOrNull()
     {
         if (modifiedParentCodesOrNull == null || modifiedParentCodesOrNull.length == 0)
@@ -120,6 +122,16 @@ public class BasicSampleUpdates implements Serializable
     public void setModifiedParentCodesOrNull(String[] modifiedParentCodesOrNull)
     {
         this.modifiedParentCodesOrNull = modifiedParentCodesOrNull;
+    }
+
+    public String[] getMetaprojectsOrNull()
+    {
+        return metaprojectsOrNull;
+    }
+
+    public void setMetaprojectsOrNull(String[] metaprojectsOrNull)
+    {
+        this.metaprojectsOrNull = metaprojectsOrNull;
     }
 
 }

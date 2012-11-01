@@ -597,6 +597,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         }
 
         setParents(data, asListOrNull(updates.getModifiedParentDatasetCodesOrNull()));
+        setMetaprojects(data, updates.getMetaprojectsOrNull());
         updateContainer(updates.getModifiedContainerDatasetCodeOrNull());
         updateComponents(updates.getModifiedContainedDatasetCodesOrNull());
         updateFileFormatType(data, updates.getFileFormatTypeCode());

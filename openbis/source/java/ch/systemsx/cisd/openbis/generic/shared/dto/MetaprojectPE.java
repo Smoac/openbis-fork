@@ -166,7 +166,7 @@ public class MetaprojectPE implements Serializable, IIdHolder
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "metaproject", orphanRemoval = true)
     @Fetch(FetchMode.SUBSELECT)
-    private Set<MetaprojectAssignmentPE> getAssignmentsInternal()
+    Set<MetaprojectAssignmentPE> getAssignmentsInternal()
     {
         return assignments;
     }
@@ -181,18 +181,6 @@ public class MetaprojectPE implements Serializable, IIdHolder
     public Set<MetaprojectAssignmentPE> getAssignments()
     {
         return Collections.unmodifiableSet(getAssignmentsInternal());
-    }
-
-    public void addAssignment(MetaprojectAssignmentPE metaprojectAssignment)
-    {
-        metaprojectAssignment.setMetaproject(this);
-        getAssignmentsInternal().add(metaprojectAssignment);
-    }
-
-    public void removeAssignment(MetaprojectAssignmentPE metaprojectAssignment)
-    {
-        getAssignmentsInternal().remove(metaprojectAssignment);
-        metaprojectAssignment.setMetaproject(null);
     }
 
     @Override

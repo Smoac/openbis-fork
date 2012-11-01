@@ -713,13 +713,13 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonServer)
-                            .updateMaterial(SESSION_TOKEN, materialId, properties, version);
+                    one(commonServer).updateMaterial(SESSION_TOKEN, materialId, properties, null,
+                            version);
                     will(returnValue(newModificationDate));
                 }
             });
         assertEquals(newModificationDate,
-                createServer().updateMaterial(SESSION_TOKEN, materialId, properties, version));
+                createServer().updateMaterial(SESSION_TOKEN, materialId, properties, null, version));
         context.assertIsSatisfied();
     }
 

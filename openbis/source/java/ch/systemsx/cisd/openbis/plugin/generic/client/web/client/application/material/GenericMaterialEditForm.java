@@ -67,7 +67,8 @@ public final class GenericMaterialEditForm extends
     public final void submitValidForm()
     {
         viewContext.getService().updateMaterial(techIdOrNull, extractProperties(),
-                originalMaterial.getModificationDate(), new UpdateMaterialCallback(viewContext));
+                metaprojectArea.tryGetMetaprojects(), originalMaterial.getModificationDate(),
+                new UpdateMaterialCallback(viewContext));
     }
 
     private final class UpdateMaterialCallback extends
@@ -98,6 +99,7 @@ public final class GenericMaterialEditForm extends
     public void updateOriginalValues()
     {
         updatePropertyFieldsOriginalValues();
+        updateFieldOriginalValue(metaprojectArea);
     }
 
     @Override
@@ -127,6 +129,7 @@ public final class GenericMaterialEditForm extends
         propertiesEditor.initWithProperties(originalMaterial.getMaterialType()
                 .getAssignedPropertyTypes(), originalMaterial.getProperties());
         codeField.setValue(originalMaterial.getCode());
+        metaprojectArea.setMetaprojects(originalMaterial.getMetaprojects());
     }
 
     private void setOriginalMaterial(Material material)

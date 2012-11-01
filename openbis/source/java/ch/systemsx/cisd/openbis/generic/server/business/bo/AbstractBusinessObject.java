@@ -72,6 +72,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IHasMetaprojectsPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -196,6 +198,61 @@ abstract class AbstractBusinessObject implements IDAOFactory
         }
         return entityPropertiesConverter.updateProperties(existingProperties, type, properties,
                 registrator, propertiesToUpdate);
+    }
+
+    protected void setMetaprojects(IHasMetaprojectsPE entity, String[] metaprojectsOrNull)
+    {
+        if (entity == null)
+        {
+            throw new IllegalArgumentException("Entity cannot be null");
+        }
+        if (metaprojectsOrNull == null)
+        {
+            return;
+        }
+
+        Set<MetaprojectPE> currentMetaprojects = entity.getMetaprojects();
+        Set<MetaprojectPE> metaprojects = new HashSet<MetaprojectPE>();
+
+        for (String metaprojectsOrNullItem : metaprojectsOrNull)
+        {
+            MetaprojectPE metaproject =
+                    getMetaprojectDAO().tryFindByOwnerAndName(session.getUserName(),
+                            metaprojectsOrNullItem);
+            if (metaproject == null)
+            {
+                throw new UserFailureException("Metaproject '" + metaprojectsOrNullItem
+                        + "' couldn't be found.");
+            }
+            metaprojects.add(metaproject);
+        }
+
+        Set<MetaprojectPE> metaprojectsToAdd = new HashSet<MetaprojectPE>();
+        Set<MetaprojectPE> metaprojectsToRemove = new HashSet<MetaprojectPE>();
+
+        for (MetaprojectPE metaproject : metaprojects)
+        {
+            if (currentMetaprojects.contains(metaproject) == false)
+            {
+                metaprojectsToAdd.add(metaproject);
+            }
+        }
+        for (MetaprojectPE currentMetaproject : currentMetaprojects)
+        {
+            if (metaprojects.contains(currentMetaproject) == false)
+            {
+                metaprojectsToRemove.add(currentMetaproject);
+            }
+        }
+
+        for (MetaprojectPE metaprojectToAdd : metaprojectsToAdd)
+        {
+            entity.addMetaproject(metaprojectToAdd);
+        }
+        for (MetaprojectPE metaprojectToRemove : metaprojectsToRemove)
+        {
+            entity.removeMetaproject(metaprojectToRemove);
+        }
     }
 
     //

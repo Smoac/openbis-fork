@@ -44,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -241,9 +240,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
                 throw new IllegalArgumentException("Experiment for id: " + experimentId
                         + " doesn't exist.");
             }
-            MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
-            metaprojectAssignmentPE.setExperiment(experimentPE);
-            metaproject.addAssignment(metaprojectAssignmentPE);
+            experimentPE.addMetaproject(metaproject);
             addToAddedEntities(ExperimentPE.class, experimentPE.getId());
         }
 
@@ -260,9 +257,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             {
                 throw new IllegalArgumentException("Sample for id: " + sampleId + " doesn't exist.");
             }
-            MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
-            metaprojectAssignmentPE.setSample(samplePE);
-            metaproject.addAssignment(metaprojectAssignmentPE);
+            samplePE.addMetaproject(metaproject);
             addToAddedEntities(SamplePE.class, samplePE.getId());
         }
 
@@ -280,9 +275,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
                 throw new IllegalArgumentException("Data set for id: " + dataSetId
                         + " doesn't exist.");
             }
-            MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
-            metaprojectAssignmentPE.setDataSet(dataPE);
-            metaproject.addAssignment(metaprojectAssignmentPE);
+            dataPE.addMetaproject(metaproject);
             addToAddedEntities(DataPE.class, dataPE.getId());
         }
 
@@ -300,9 +293,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
                 throw new IllegalArgumentException("Material for id: " + materialId
                         + " doesn't exist.");
             }
-            MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
-            metaprojectAssignmentPE.setMaterial(materialPE);
-            metaproject.addAssignment(metaprojectAssignmentPE);
+            materialPE.addMetaproject(metaproject);
             addToAddedEntities(MaterialPE.class, materialPE.getId());
         }
 
@@ -317,9 +308,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             ExperimentPE experimentPE = experimentBO.tryFindByExperimentId(experimentId);
             if (experimentPE != null)
             {
-                MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
-                metaprojectAssignmentPE.setExperiment(experimentPE);
-                metaproject.removeAssignment(metaprojectAssignmentPE);
+                experimentPE.removeMetaproject(metaproject);
                 addToRemovedEntities(ExperimentPE.class, experimentPE.getId());
             }
         }
@@ -335,9 +324,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             SamplePE samplePE = sampleBO.tryFindBySampleId(sampleId);
             if (samplePE != null)
             {
-                MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
-                metaprojectAssignmentPE.setSample(samplePE);
-                metaproject.removeAssignment(metaprojectAssignmentPE);
+                samplePE.removeMetaproject(metaproject);
                 addToRemovedEntities(SamplePE.class, samplePE.getId());
             }
         }
@@ -353,9 +340,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             DataPE dataPE = dataBO.tryFindByDataSetId(dataSetId);
             if (dataPE != null)
             {
-                MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
-                metaprojectAssignmentPE.setDataSet(dataPE);
-                metaproject.removeAssignment(metaprojectAssignmentPE);
+                dataPE.removeMetaproject(metaproject);
                 addToRemovedEntities(DataPE.class, dataPE.getId());
             }
         }
@@ -371,21 +356,12 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             MaterialPE materialPE = materialBO.tryFindByMaterialId(materialId);
             if (materialPE != null)
             {
-                MetaprojectAssignmentPE metaprojectAssignmentPE = createAssignement();
-                metaprojectAssignmentPE.setMaterial(materialPE);
-                metaproject.removeAssignment(metaprojectAssignmentPE);
+                materialPE.removeMetaproject(metaproject);
                 addToRemovedEntities(MaterialPE.class, materialPE.getId());
             }
         }
 
         dataChanged = true;
-    }
-
-    private MetaprojectAssignmentPE createAssignement()
-    {
-        MetaprojectAssignmentPE metaprojectAssignmentPE = new MetaprojectAssignmentPE();
-        metaprojectAssignmentPE.setMetaproject(metaproject);
-        return metaprojectAssignmentPE;
     }
 
     private void initEntitiesMaps()

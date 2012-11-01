@@ -121,10 +121,11 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<ExperimentUpdateResult> asyncCallback) throws UserFailureException;
 
     /**
-     * @see IGenericClientService#updateMaterial(TechId, List, Date)
+     * @see IGenericClientService#updateMaterial(TechId, List, String[], Date)
      */
     public void updateMaterial(final TechId materialId, List<IEntityProperty> properties,
-            Date version, final AsyncCallback<Date> asyncCallback) throws UserFailureException;
+            String[] metaprojects, Date version, final AsyncCallback<Date> asyncCallback)
+            throws UserFailureException;
 
     /**
      * @see IGenericClientService#updateSample(SampleUpdates)

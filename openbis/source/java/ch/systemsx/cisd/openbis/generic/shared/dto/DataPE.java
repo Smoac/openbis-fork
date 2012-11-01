@@ -32,8 +32,6 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
@@ -82,7 +80,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Indexed(index = "DataPE")
 public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
-        IEntityInformationWithPropertiesHolder, IMatchingEntity, IIdentifierHolder, IDeletablePE
+        IEntityInformationWithPropertiesHolder, IMatchingEntity, IIdentifierHolder, IDeletablePE,
+        IHasMetaprojectsPE
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -119,7 +118,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private List<DataPE> containedDataSets = new ArrayList<DataPE>();
 
-    private Set<MetaprojectPE> metaprojects = new HashSet<MetaprojectPE>();
+    private Set<MetaprojectAssignmentPE> metaprojectAssignments =
+            new HashSet<MetaprojectAssignmentPE>();
 
     /**
      * Deletion information.
@@ -815,23 +815,61 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.deletion = deletion;
     }
 
-    // used only by Hibernate Search
-    @SuppressWarnings("unused")
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @Fetch(FetchMode.SUBSELECT)
-    @JoinTable(name = TableNames.METAPROJECT_ASSIGNMENTS_VIEW, joinColumns =
-        { @JoinColumn(name = ColumnNames.DATA_ID_COLUMN) }, inverseJoinColumns =
-        { @JoinColumn(name = ColumnNames.METAPROJECT_ID_COLUMN) })
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_METAPROJECT)
-    private Set<MetaprojectPE> getMetaprojects()
+    @Override
+    public void addMetaproject(MetaprojectPE metaprojectPE)
     {
-        return this.metaprojects;
+        if (metaprojectPE == null)
+        {
+            throw new IllegalArgumentException("Metaproject cannot be null");
+        }
+        MetaprojectAssignmentPE assignmentPE = new MetaprojectAssignmentPE();
+        assignmentPE.setMetaproject(metaprojectPE);
+        assignmentPE.setDataSet(this);
+
+        getMetaprojectAssignmentsInternal().add(assignmentPE);
+        metaprojectPE.getAssignmentsInternal().add(assignmentPE);
+    }
+
+    @Override
+    public void removeMetaproject(MetaprojectPE metaprojectPE)
+    {
+        if (metaprojectPE == null)
+        {
+            throw new IllegalArgumentException("Metaproject cannot be null");
+        }
+        MetaprojectAssignmentPE assignmentPE = new MetaprojectAssignmentPE();
+        assignmentPE.setMetaproject(metaprojectPE);
+        assignmentPE.setDataSet(this);
+
+        getMetaprojectAssignmentsInternal().remove(assignmentPE);
+        metaprojectPE.getAssignmentsInternal().remove(assignmentPE);
+    }
+
+    @Override
+    @Transient
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_METAPROJECT)
+    public Set<MetaprojectPE> getMetaprojects()
+    {
+        Set<MetaprojectPE> metaprojects = new HashSet<MetaprojectPE>();
+        for (MetaprojectAssignmentPE assignment : getMetaprojectAssignmentsInternal())
+        {
+            metaprojects.add(assignment.getMetaproject());
+        }
+        return new UnmodifiableSetDecorator<MetaprojectPE>(metaprojects);
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "dataSet")
+    @Fetch(FetchMode.SUBSELECT)
+    private Set<MetaprojectAssignmentPE> getMetaprojectAssignmentsInternal()
+    {
+        return this.metaprojectAssignments;
     }
 
     @SuppressWarnings("unused")
-    private void setMetaprojects(Set<MetaprojectPE> metaprojects)
+    private void setMetaprojectAssignmentsInternal(
+            Set<MetaprojectAssignmentPE> metaprojectAssignments)
     {
-        this.metaprojects = metaprojects;
+        this.metaprojectAssignments = metaprojectAssignments;
     }
 
 }

@@ -34,8 +34,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
@@ -89,7 +87,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
         + " IS NULL AND " + ColumnNames.SPACE_COLUMN + " IS NOT NULL)")
 @Indexed(index = "SamplePE")
 public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Comparable<SamplePE>,
-        IEntityInformationWithPropertiesHolder, IMatchingEntity, IDeletablePE, Serializable
+        IEntityInformationWithPropertiesHolder, IMatchingEntity, IDeletablePE, IHasMetaprojectsPE,
+        Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -119,7 +118,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     private Set<SampleRelationshipPE> childRelationships = new HashSet<SampleRelationshipPE>();
 
-    private Set<MetaprojectPE> metaprojects = new HashSet<MetaprojectPE>();
+    private Set<MetaprojectAssignmentPE> metaprojectAssignments =
+            new HashSet<MetaprojectAssignmentPE>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentSample")
     @Fetch(FetchMode.SUBSELECT)
@@ -812,23 +812,61 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         return map;
     }
 
-    // used only by Hibernate Search
-    @SuppressWarnings("unused")
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @Fetch(FetchMode.SUBSELECT)
-    @JoinTable(name = TableNames.METAPROJECT_ASSIGNMENTS_VIEW, joinColumns =
-        { @JoinColumn(name = ColumnNames.SAMPLE_COLUMN) }, inverseJoinColumns =
-        { @JoinColumn(name = ColumnNames.METAPROJECT_ID_COLUMN) })
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_METAPROJECT)
-    private Set<MetaprojectPE> getMetaprojects()
+    @Override
+    public void addMetaproject(MetaprojectPE metaprojectPE)
     {
-        return this.metaprojects;
+        if (metaprojectPE == null)
+        {
+            throw new IllegalArgumentException("Metaproject cannot be null");
+        }
+        MetaprojectAssignmentPE assignmentPE = new MetaprojectAssignmentPE();
+        assignmentPE.setMetaproject(metaprojectPE);
+        assignmentPE.setSample(this);
+
+        getMetaprojectAssignmentsInternal().add(assignmentPE);
+        metaprojectPE.getAssignmentsInternal().add(assignmentPE);
+    }
+
+    @Override
+    public void removeMetaproject(MetaprojectPE metaprojectPE)
+    {
+        if (metaprojectPE == null)
+        {
+            throw new IllegalArgumentException("Metaproject cannot be null");
+        }
+        MetaprojectAssignmentPE assignmentPE = new MetaprojectAssignmentPE();
+        assignmentPE.setMetaproject(metaprojectPE);
+        assignmentPE.setSample(this);
+
+        getMetaprojectAssignmentsInternal().remove(assignmentPE);
+        metaprojectPE.getAssignmentsInternal().remove(assignmentPE);
+    }
+
+    @Override
+    @Transient
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_METAPROJECT)
+    public Set<MetaprojectPE> getMetaprojects()
+    {
+        Set<MetaprojectPE> metaprojects = new HashSet<MetaprojectPE>();
+        for (MetaprojectAssignmentPE assignment : getMetaprojectAssignmentsInternal())
+        {
+            metaprojects.add(assignment.getMetaproject());
+        }
+        return new UnmodifiableSetDecorator<MetaprojectPE>(metaprojects);
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "sample")
+    @Fetch(FetchMode.SUBSELECT)
+    private Set<MetaprojectAssignmentPE> getMetaprojectAssignmentsInternal()
+    {
+        return this.metaprojectAssignments;
     }
 
     @SuppressWarnings("unused")
-    private void setMetaprojects(Set<MetaprojectPE> metaprojects)
+    private void setMetaprojectAssignmentsInternal(
+            Set<MetaprojectAssignmentPE> metaprojectAssignments)
     {
-        this.metaprojects = metaprojects;
+        this.metaprojectAssignments = metaprojectAssignments;
     }
 
 }

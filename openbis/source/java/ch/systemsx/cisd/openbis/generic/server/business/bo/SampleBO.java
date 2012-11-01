@@ -329,6 +329,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             addAttachment(AttachmentTranslator.translate(attachment));
         }
         updateParents(updates);
+        setMetaprojects(sample, updates.getMetaprojectsOrNull());
+
         dataChanged = true;
     }
 

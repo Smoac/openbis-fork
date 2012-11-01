@@ -101,6 +101,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
         updates.setGenerateCodes(autoGenerateCodes.getValue().booleanValue());
         updates.setRegisterSamples(existingSamplesRadio.getValue() == false);
         updates.setSamplesSessionKey(samplesSessionKey);
+        updates.setMetaprojectsOrNull(metaprojectArea.tryGetMetaprojects());
         viewContext.getService().updateExperiment(updates,
                 new UpdateExperimentCallback(viewContext));
     }
@@ -135,6 +136,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
         updatePropertyFieldsOriginalValues();
         updateFieldOriginalValue(projectChooser);
         samplesArea.setSampleCodes(samples);
+        updateFieldOriginalValue(metaprojectArea);
     }
 
     private void setOriginalExperiment(Experiment experiment)
@@ -154,6 +156,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
         codeField.setValue(originalExperiment.getCode());
         projectChooser.selectProjectAndUpdateOriginal(originalExperiment.getProject()
                 .getIdentifier());
+        metaprojectArea.setMetaprojects(originalExperiment.getMetaprojects());
     }
 
     @Override

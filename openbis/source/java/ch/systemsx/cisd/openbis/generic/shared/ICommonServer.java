@@ -977,7 +977,7 @@ public interface ICommonServer extends IServer
     @Transactional
     @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
     public Date updateMaterial(String sessionToken, TechId materialId,
-            List<IEntityProperty> properties, Date version);
+            List<IEntityProperty> properties, String[] metaprojects, Date version);
 
     /**
      * Returns file template available during batch operation of entity of given type.

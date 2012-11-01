@@ -80,6 +80,8 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     SAMPLE_TYPE_BROWSER("sample-type-browser"),
 
+    METAPROJECT_CHOOSER_GRID("metaproject-chooser-grid"),
+
     // -------------- Sections
 
     ATTACHMENT_SECTION("attachment-section"),

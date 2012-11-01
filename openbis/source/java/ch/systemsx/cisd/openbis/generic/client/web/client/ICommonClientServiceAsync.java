@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IUpdateResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityHistoryCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMetaprojectsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
@@ -90,6 +91,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -134,9 +136,18 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listScripts(ListScriptsCriteria criteria,
             final AsyncCallback<TypedTableResultSet<Script>> asyncCallback);
 
+    /** @see ICommonClientService#listMetaprojects(ListMetaprojectsCriteria) */
+    public void listMetaprojects(ListMetaprojectsCriteria criteria,
+            final AsyncCallback<TypedTableResultSet<Metaproject>> asyncCallback);
+
     /** @see ICommonClientService#prepareExportScripts(TableExportCriteria) */
     public void prepareExportScripts(
             TableExportCriteria<TableModelRowWithObject<Script>> exportCriteria,
+            AsyncCallback<String> callback);
+
+    /** @see ICommonClientService#prepareExportMetaprojects(TableExportCriteria) */
+    public void prepareExportMetaprojects(
+            TableExportCriteria<TableModelRowWithObject<Metaproject>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#prepareExportSpaces(TableExportCriteria) */

@@ -158,6 +158,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             setParents(samplePE, parents, newSample.getDefaultSpaceIdentifier());
         }
         samplePE.setPermId(getOrCreatePermID(newSample));
+        setMetaprojects(samplePE, newSample.getMetaprojectsOrNull());
         return samplePE;
     }
 

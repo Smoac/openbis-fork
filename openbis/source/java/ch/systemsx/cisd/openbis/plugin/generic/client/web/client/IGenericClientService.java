@@ -153,7 +153,7 @@ public interface IGenericClientService extends IClientService
      * Updates material.
      */
     public Date updateMaterial(final TechId materialId, List<IEntityProperty> properties,
-            Date version) throws UserFailureException;
+            String[] metaprojects, Date version) throws UserFailureException;
 
     /**
      * Updates sample.

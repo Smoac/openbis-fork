@@ -738,9 +738,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @Capability("WRITE_MATERIAL")
     public Date updateMaterial(String sessionToken, TechId materialId,
-            List<IEntityProperty> properties, Date version)
+            List<IEntityProperty> properties, String[] metaprojects, Date version)
     {
-        return commonServer.updateMaterial(sessionToken, materialId, properties, version);
+        return commonServer.updateMaterial(sessionToken, materialId, properties, metaprojects,
+                version);
     }
 
     @Override

@@ -89,6 +89,8 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
 
     private List<NewAttachment> attachments;
 
+    private String[] metaprojectsOrNull;
+
     public NewSample()
     {
     }
@@ -265,6 +267,16 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
         this.properties = properties;
     }
 
+    public String[] getMetaprojectsOrNull()
+    {
+        return metaprojectsOrNull;
+    }
+
+    public void setMetaprojectsOrNull(String[] metaprojectsOrNull)
+    {
+        this.metaprojectsOrNull = metaprojectsOrNull;
+    }
+
     //
     // Object
     //
@@ -313,4 +325,5 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
                         + that.getContainerIdentifier() + that.getCurrentContainerIdentifier();
         return thisCombinedIdentifier.equals(thatCombinedIdentifier);
     }
+
 }

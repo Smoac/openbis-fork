@@ -29,8 +29,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
@@ -78,7 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
             ColumnNames.DATABASE_INSTANCE_COLUMN }))
 @Indexed(index = "MaterialPE")
 public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
-        IEntityInformationWithPropertiesHolder, Serializable, IMatchingEntity
+        IEntityInformationWithPropertiesHolder, Serializable, IMatchingEntity, IHasMetaprojectsPE
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -94,7 +92,8 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
 
     private Set<MaterialPropertyPE> properties = new HashSet<MaterialPropertyPE>();
 
-    private Set<MetaprojectPE> metaprojects = new HashSet<MetaprojectPE>();
+    private Set<MetaprojectAssignmentPE> metaprojectAssignments =
+            new HashSet<MetaprojectAssignmentPE>();
 
     /**
      * NOTE: Materials do not have permanent ids stored in the database.
@@ -382,23 +381,61 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         return createPermId(code, materialType.getCode());
     }
 
-    // used only by Hibernate Search
-    @SuppressWarnings("unused")
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @Fetch(FetchMode.SUBSELECT)
-    @JoinTable(name = TableNames.METAPROJECT_ASSIGNMENTS_VIEW, joinColumns =
-        { @JoinColumn(name = ColumnNames.MATERIAL_COLUMN) }, inverseJoinColumns =
-        { @JoinColumn(name = ColumnNames.METAPROJECT_ID_COLUMN) })
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_METAPROJECT)
-    private Set<MetaprojectPE> getMetaprojects()
+    @Override
+    public void addMetaproject(MetaprojectPE metaprojectPE)
     {
-        return this.metaprojects;
+        if (metaprojectPE == null)
+        {
+            throw new IllegalArgumentException("Metaproject cannot be null");
+        }
+        MetaprojectAssignmentPE assignmentPE = new MetaprojectAssignmentPE();
+        assignmentPE.setMetaproject(metaprojectPE);
+        assignmentPE.setMaterial(this);
+
+        getMetaprojectAssignmentsInternal().add(assignmentPE);
+        metaprojectPE.getAssignmentsInternal().add(assignmentPE);
+    }
+
+    @Override
+    public void removeMetaproject(MetaprojectPE metaprojectPE)
+    {
+        if (metaprojectPE == null)
+        {
+            throw new IllegalArgumentException("Metaproject cannot be null");
+        }
+        MetaprojectAssignmentPE assignmentPE = new MetaprojectAssignmentPE();
+        assignmentPE.setMetaproject(metaprojectPE);
+        assignmentPE.setMaterial(this);
+
+        getMetaprojectAssignmentsInternal().remove(assignmentPE);
+        metaprojectPE.getAssignmentsInternal().remove(assignmentPE);
+    }
+
+    @Override
+    @Transient
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_METAPROJECT)
+    public Set<MetaprojectPE> getMetaprojects()
+    {
+        Set<MetaprojectPE> metaprojects = new HashSet<MetaprojectPE>();
+        for (MetaprojectAssignmentPE assignment : getMetaprojectAssignmentsInternal())
+        {
+            metaprojects.add(assignment.getMetaproject());
+        }
+        return new UnmodifiableSetDecorator<MetaprojectPE>(metaprojects);
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "material")
+    @Fetch(FetchMode.SUBSELECT)
+    private Set<MetaprojectAssignmentPE> getMetaprojectAssignmentsInternal()
+    {
+        return this.metaprojectAssignments;
     }
 
     @SuppressWarnings("unused")
-    private void setMetaprojects(Set<MetaprojectPE> metaprojects)
+    private void setMetaprojectAssignmentsInternal(
+            Set<MetaprojectAssignmentPE> metaprojectAssignments)
     {
-        this.metaprojects = metaprojects;
+        this.metaprojectAssignments = metaprojectAssignments;
     }
 
 }

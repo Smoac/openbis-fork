@@ -228,7 +228,7 @@ public interface IGenericServer extends IServer
     @Transactional
     @DatabaseUpdateModification(value = ObjectKind.MATERIAL)
     public Date updateMaterial(String sessionToken, TechId materialId,
-            List<IEntityProperty> properties, Date version);
+            List<IEntityProperty> properties, String[] metaprojects, Date version);
 
     /**
      * Saves changed sample.

@@ -43,6 +43,8 @@ public final class NewExperiment extends Identifier<NewExperiment> implements IP
 
     private List<NewAttachment> attachments;
 
+    private String[] metaprojectsOrNull;
+
     public NewExperiment()
     {
     }
@@ -139,6 +141,16 @@ public final class NewExperiment extends Identifier<NewExperiment> implements IP
     public void setAttachments(List<NewAttachment> attachments)
     {
         this.attachments = attachments;
+    }
+
+    public String[] getMetaprojectsOrNull()
+    {
+        return metaprojectsOrNull;
+    }
+
+    public void setMetaprojectsOrNull(String[] metaprojectsOrNull)
+    {
+        this.metaprojectsOrNull = metaprojectsOrNull;
     }
 
 }

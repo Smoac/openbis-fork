@@ -49,6 +49,8 @@ public class BasicExperimentUpdates implements Serializable
 
     private List<NewSamplesWithTypes> newSamples;
 
+    private String[] metaprojectsOrNull;
+
     public int getVersion()
     {
         return version;
@@ -99,4 +101,15 @@ public class BasicExperimentUpdates implements Serializable
     {
         return registerSamples;
     }
+
+    public String[] getMetaprojectsOrNull()
+    {
+        return metaprojectsOrNull;
+    }
+
+    public void setMetaprojectsOrNull(String[] metaprojectsOrNull)
+    {
+        this.metaprojectsOrNull = metaprojectsOrNull;
+    }
+
 }
