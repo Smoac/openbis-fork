@@ -38,14 +38,34 @@
 
 @end
 
-static NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeUrl, NSError** error)
+// Internal class that synchronizes result data to the managed object context
+@interface CISDOBBackgroundDataSynchronizer : NSObject
+
+@property(readonly, weak) CISDOBIpadServiceManager *serviceManager;
+@property(readonly) CISDOBIpadServiceManagerCall *managerCall;
+@property(readonly) NSArray *rawEntities;
+@property(readonly) NSManagedObjectContext *managedObjectContext;
+@property(readonly) NSError *error;
+
+@property(nonatomic) BOOL prune;
+
+// Initialization
+- (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager managerCall:(CISDOBIpadServiceManagerCall *)call rawEntities:(NSArray *)rawEntities;
+
+// Actions
+- (void)run;
+- (void)notifyCallOfResult:(id)args;
+
+@end
+
+static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl, NSError** error)
 {
 	// Explicitly specify which db schema we want to use
 	NSBundle* bundle = [NSBundle bundleForClass: [CISDOBIpadEntity class]];
 	NSString* momPath = [bundle pathForResource: @"persistent-data-model" ofType: @"momd"];
 	NSManagedObjectModel* mom = [[NSManagedObjectModel alloc] initWithContentsOfURL: [NSURL fileURLWithPath: momPath]];
 
-	NSManagedObjectContext* moc = [[NSManagedObjectContext alloc] init];
+	NSManagedObjectContext* moc = [[NSManagedObjectContext alloc] initWithConcurrencyType: NSMainQueueConcurrencyType];
 	NSPersistentStoreCoordinator* coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel: mom];
 	[moc setPersistentStoreCoordinator: coordinator];	
 	NSPersistentStore* store = 
@@ -72,7 +92,7 @@ static NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeUrl, 
     CISDOBLiveConnection *connection = [[CISDOBLiveConnection alloc] initWithUrl: openbisUrl trusted: trusted];
     _storeUrl = [storeUrl copy];
     _service = [[CISDOBIpadService alloc] initWithConnection: connection];
-    _managedObjectContext = GetDatabaseManagedObjectContext(self.storeUrl, error);
+    _managedObjectContext = GetMainThreadManagedObjectContext(self.storeUrl, error);
     _persistentStoreCoordinator = _managedObjectContext.persistentStoreCoordinator;
     if (!_managedObjectContext) return nil;
     
@@ -82,45 +102,16 @@ static NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeUrl, 
     return self;
 }
 
-- (BOOL)synchEntity:(CISDOBIpadRawEntity *)rawEntity lastUpdateDate:(NSDate *)date error:(NSError **)error
+- (void)syncEntities:(NSArray *)rawEntities pruning:(BOOL)prune notifying:(CISDOBIpadServiceManagerCall *)managerCall
 {
-    // Create new entities in the moc, and store them.
-    CISDOBIpadEntity *entity;
-    NSArray *matchedEntities = [self entitiesByPermId: [NSArray arrayWithObject: rawEntity.permId] error: error];
-    if (!matchedEntities) return NO;
-    if ([matchedEntities count] > 0) {
-        entity = [matchedEntities objectAtIndex: 0];
-        [entity updateFromRawEntity: rawEntity];
-    } else {
-        entity = [NSEntityDescription insertNewObjectForEntityForName: @"CISDOBIpadEntity" inManagedObjectContext: self.managedObjectContext];
-        [entity initializeFromRawEntity: rawEntity];
-    }
-    entity.lastUpdateDate = date;
-    entity.serverUrlString =  [((CISDOBLiveConnection *)(self.service.connection)).url absoluteString];
-    
-    return YES;
-}
-
-- (BOOL)syncEntities:(NSArray *)rawEntities pruning:(BOOL)prune error:(NSError **)error
-{
-    NSDate *lastUpdateDate = [NSDate date];
-    BOOL success;
-    for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
-        success = [self synchEntity: rawEntity lastUpdateDate: lastUpdateDate error: error];
-        if (!success) return NO;
-    }
-    // If pruning is requested, remove entities that cannot be reached from the server result set.
-    // TODO : we should treat the intial results as a root set and trace out to do a gc, but the simpler implementation is just to remove everything that is not mentioned
-    if (prune) {
-        // Remove all entities that were not mentioned
-        NSArray *entitiesToDelete = [self entitiesNotUpdatedSince: lastUpdateDate error: error];
-        for (CISDOBIpadEntity *entity in entitiesToDelete) {
-            [self.managedObjectContext deleteObject: entity];
-        }
-    }
-    
-    success = [self.managedObjectContext save: error];
-    return success;
+    void (^syncBlock)(void) = ^{
+        CISDOBBackgroundDataSynchronizer *synchronizer = [[CISDOBBackgroundDataSynchronizer alloc] initWithServiceManager: self managerCall: managerCall rawEntities: rawEntities];
+        synchronizer.prune = prune;
+        [synchronizer run];
+        [synchronizer performSelectorOnMainThread: @selector(notifyCallOfResult:) withObject: nil waitUntilDone: NO];
+    };
+    NSBlockOperation *blockOp = [NSBlockOperation blockOperationWithBlock:  syncBlock];
+    [blockOp start];
 }
 
 - (CISDOBIpadServiceManagerCall *)managerCallWrappingServiceCall:(CISDOBAsyncCall *)serviceCall pruning:(BOOL)prune
@@ -129,13 +120,7 @@ static NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeUrl, 
     
     serviceCall.success = ^(id result) {
         // Update the cache
-        NSError *error;
-        BOOL didSync = [self syncEntities: result pruning: prune error: &error];
-        if (!didSync) {
-            serviceCall.fail(error);
-        } else if (managerCall.success) {
-            managerCall.success(result);
-        }
+        [self syncEntities: result pruning: prune notifying: managerCall];
     };    
     
     serviceCall.fail = ^(NSError *error) { if (managerCall.fail) managerCall.fail(error); };
@@ -221,6 +206,87 @@ static NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeUrl, 
 - (void)start
 {
     [_serviceCall start];
+}
+
+@end
+
+@implementation CISDOBBackgroundDataSynchronizer
+
+// Initialization
+- (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager managerCall:(CISDOBIpadServiceManagerCall *)call rawEntities:(NSArray *)rawEntities
+{
+    if (!(self = [super init])) return nil;
+    
+    _serviceManager = serviceManager;
+    _managerCall = call;
+    _rawEntities = rawEntities;
+    _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType: NSConfinementConcurrencyType];
+    _managedObjectContext.parentContext = _serviceManager.managedObjectContext;
+    _prune = NO;
+    _error = nil;
+    
+    return self;
+}
+
+- (BOOL)synchEntity:(CISDOBIpadRawEntity *)rawEntity lastUpdateDate:(NSDate *)date error:(NSError **)error
+{
+    // Create new entities in the moc, and store them.
+    CISDOBIpadEntity *entity;
+    NSArray *matchedEntities = [self.serviceManager entitiesByPermId: [NSArray arrayWithObject: rawEntity.permId] error: error];
+    if (!matchedEntities) return NO;
+    if ([matchedEntities count] > 0) {
+        entity = [matchedEntities objectAtIndex: 0];
+        [entity updateFromRawEntity: rawEntity];
+    } else {
+        entity = [NSEntityDescription insertNewObjectForEntityForName: @"CISDOBIpadEntity" inManagedObjectContext: self.managedObjectContext];
+        [entity initializeFromRawEntity: rawEntity];
+    }
+    entity.lastUpdateDate = date;
+    entity.serverUrlString =  [((CISDOBLiveConnection *)(self.serviceManager.service.connection)).url absoluteString];
+    
+    return YES;
+}
+
+
+- (void)run
+{
+    NSError *error;
+    NSDate *lastUpdateDate = [NSDate date];
+    BOOL success;
+    for (CISDOBIpadRawEntity *rawEntity in self.rawEntities) {
+        success = [self synchEntity: rawEntity lastUpdateDate: lastUpdateDate error: &error];
+        if (!success) {
+            _error = [error copy];
+            return;
+        }
+    }
+    // If pruning is requested, remove entities that cannot be reached from the server result set.
+    // TODO : we should treat the intial results as a root set and trace out to do a gc, but the simpler implementation is just to remove everything that is not mentioned
+    if (_prune) {
+        // Remove all entities that were not mentioned
+        NSArray *entitiesToDelete = [self.serviceManager entitiesNotUpdatedSince: lastUpdateDate error: &error];
+        for (CISDOBIpadEntity *entity in entitiesToDelete) {
+            [self.managedObjectContext deleteObject: entity];
+        }
+    }
+    
+    success = [self.managedObjectContext save: &error];
+    if (!success) {
+        _error = [error copy];
+        return;
+    }
+    
+    _error = nil;
+}
+
+- (void)notifyCallOfResult:(id)args
+{
+    if (_error) {
+        self.managerCall.serviceCall.fail(self.error);
+    } else if (self.managerCall.success) {
+        self.managerCall.success(self.rawEntities);
+    }
+    
 }
 
 @end
