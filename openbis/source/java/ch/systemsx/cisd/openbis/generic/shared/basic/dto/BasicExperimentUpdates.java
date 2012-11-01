@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,7 +26,7 @@ public class BasicExperimentUpdates implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private Date version;
+    private int version;
 
     // ----- the data which should be changed:
 
@@ -50,12 +49,12 @@ public class BasicExperimentUpdates implements Serializable
 
     private List<NewSamplesWithTypes> newSamples;
 
-    public Date getVersion()
+    public int getVersion()
     {
         return version;
     }
 
-    public void setVersion(Date version)
+    public void setVersion(int version)
     {
         this.version = version;
     }

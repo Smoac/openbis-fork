@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -246,6 +247,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
                     updates.getOldExperimentIdentifier());
         }
         experiment.setModifier(findPerson());
+        experiment.setModificationDate(new Date());
         ExperimentBatchUpdateDetails details = updates.getDetails();
         batchUpdateProperties(experiment, updates.getProperties(), details.getPropertiesToUpdate());
 

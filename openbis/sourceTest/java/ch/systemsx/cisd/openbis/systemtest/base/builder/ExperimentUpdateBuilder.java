@@ -40,12 +40,12 @@ public class ExperimentUpdateBuilder extends UpdateBuilder<ExperimentUpdatesDTO>
         super(commonServer, genericServer);
         updates = new ExperimentUpdatesDTO();
         Experiment experiment =
-                commonServer.getExperimentInfo(systemSession, new ExperimentIdentifier(
-                        "CISD", exp.getProject().getSpace().getCode(), exp.getProject()
-                                .getCode(), exp.getCode()));
+                commonServer.getExperimentInfo(systemSession,
+                        new ExperimentIdentifier("CISD", exp.getProject().getSpace().getCode(), exp
+                                .getProject().getCode(), exp.getCode()));
 
         updates.setExperimentId(new TechId(experiment));
-        updates.setVersion(experiment.getModificationDate());
+        updates.setVersion(experiment.getVersion());
         updates.setProperties(experiment.getProperties());
         updates.setAttachments(new ArrayList<NewAttachment>());
         updates.setNewSamples(new ArrayList<NewSamplesWithTypes>());
@@ -55,8 +55,8 @@ public class ExperimentUpdateBuilder extends UpdateBuilder<ExperimentUpdatesDTO>
 
     public ExperimentUpdateBuilder toProject(Project project)
     {
-        updates.setProjectIdentifier(new ProjectIdentifier("CISD", project.getSpace()
-                .getCode(), project.getCode()));
+        updates.setProjectIdentifier(new ProjectIdentifier("CISD", project.getSpace().getCode(),
+                project.getCode()));
         return this;
     }
 

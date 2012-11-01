@@ -57,8 +57,7 @@ public class AtomicEntityOperationDetailsBuilder
 
     private final List<MaterialUpdateDTO> materialUpdates = new ArrayList<MaterialUpdateDTO>();
 
-    private final List<? extends NewExternalData> dataSetRegistrations =
-            new ArrayList<NewExternalData>();
+    private final List<NewExternalData> dataSetRegistrations = new ArrayList<NewExternalData>();
 
     private final List<DataSetBatchUpdatesDTO> dataSetUpdates =
             new ArrayList<DataSetBatchUpdatesDTO>();
@@ -81,15 +80,40 @@ public class AtomicEntityOperationDetailsBuilder
         return this;
     }
 
-    public AtomicEntityOperationDetailsBuilder addNewExperiment(NewExperiment newExperiment)
+    public AtomicEntityOperationDetailsBuilder experiment(NewExperiment newExperiment)
     {
         experimentRegistrations.add(newExperiment);
         return this;
     }
 
-    public AtomicEntityOperationDetailsBuilder addNewSample(NewSample newSample)
+    public AtomicEntityOperationDetailsBuilder experimentUpdate(
+            ExperimentUpdatesDTO experimentUpdate)
+    {
+        experimentUpdates.add(experimentUpdate);
+        return this;
+    }
+
+    public AtomicEntityOperationDetailsBuilder sample(NewSample newSample)
     {
         sampleRegistrations.add(newSample);
+        return this;
+    }
+
+    public AtomicEntityOperationDetailsBuilder sampleUpdate(SampleUpdatesDTO sampleUpdate)
+    {
+        sampleUpdates.add(sampleUpdate);
+        return this;
+    }
+
+    public AtomicEntityOperationDetailsBuilder dataSet(NewExternalData newDataSet)
+    {
+        dataSetRegistrations.add(newDataSet);
+        return this;
+    }
+
+    public AtomicEntityOperationDetailsBuilder dataSetUpdate(DataSetBatchUpdatesDTO dataSetUpdate)
+    {
+        dataSetUpdates.add(dataSetUpdate);
         return this;
     }
 

@@ -16,11 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business;
 
-import java.util.Date;
-
 import javax.annotation.Resource;
 
 import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
@@ -62,21 +61,10 @@ public class RelationshipService implements IRelationshipService
             ProjectPE project)
     {
         SampleUtils.setSamplesSpace(experiment, project.getSpace());
-        PersonPE modifier = experiment.getModifier();
         ProjectPE previousProject = experiment.getProject();
-        setModifierAndModificationDate(previousProject, modifier);
+        RelationshipUtils.updateModificationDateAndModifier(previousProject, session);
         experiment.setProject(project);
-        setModifierAndModificationDate(project, modifier);
-    }
-
-    private void setModifierAndModificationDate(ProjectPE projectOrNull, PersonPE modifier)
-    {
-        if (projectOrNull == null)
-        {
-            return;
-        }
-        projectOrNull.setModifier(modifier);
-        projectOrNull.setModificationDate(new Date());
+        RelationshipUtils.updateModificationDateAndModifier(project, session);
     }
 
     @Override
@@ -93,16 +81,18 @@ public class RelationshipService implements IRelationshipService
     public void assignSampleToExperiment(IAuthSession session, SamplePE sample,
             ExperimentPE experiment)
     {
-        if (sample.getExperiment() != null)
+        ExperimentPE currentExperiment = sample.getExperiment();
+        if (currentExperiment != null)
         {
             service.checkCanUnassignSampleFromExperiment(session, sample);
+            RelationshipUtils.updateModificationDateAndModifier(currentExperiment, session);
         }
 
         sample.setExperiment(experiment);
 
         for (DataPE dataset : sample.getDatasets())
         {
-            dataset.setExperiment(experiment);
+            RelationshipUtils.setExperimentForDataSet(dataset, experiment, session);
         }
     }
 
@@ -115,9 +105,11 @@ public class RelationshipService implements IRelationshipService
     @Override
     public void unassignSampleFromExperiment(IAuthSession session, SamplePE sample)
     {
-        if (sample.getExperiment() != null)
+        ExperimentPE experiment = sample.getExperiment();
+        if (experiment != null)
         {
-            sample.getExperiment().removeSample(sample);
+            experiment.removeSample(sample);
+            RelationshipUtils.updateModificationDateAndModifier(experiment, session);
         }
     }
 
@@ -145,14 +137,15 @@ public class RelationshipService implements IRelationshipService
     @Override
     public void assignDataSetToExperiment(IAuthSession session, DataPE data, ExperimentPE experiment)
     {
-        data.setExperiment(experiment);
+        RelationshipUtils.setExperimentForDataSet(data, experiment, session);
         data.setSample(null);
     }
 
     @Override
     public void assignDataSetToSample(IAuthSession session, DataPE data, SamplePE sample)
     {
-        data.setExperiment(sample.getExperiment());
+        ExperimentPE experiment = sample.getExperiment();
+        RelationshipUtils.setExperimentForDataSet(data, experiment, session);
         data.setSample(sample);
     }
 
@@ -244,4 +237,5 @@ public class RelationshipService implements IRelationshipService
     {
         this.daoFactory = daoFactory;
     }
+
 }

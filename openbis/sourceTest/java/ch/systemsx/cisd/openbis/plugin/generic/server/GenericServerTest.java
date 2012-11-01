@@ -770,8 +770,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         final ExperimentPE experiment = new ExperimentPE();
         final Long id = 1L;
         experiment.setId(id);
-        Date newModificationDate = new Date(2);
-        experiment.setModificationDate(newModificationDate);
+        experiment.setVersion(2);
         ArrayList<SamplePE> newSamples = new ArrayList<SamplePE>();
         experiment.setSamples(newSamples);
         prepareGetSession();
@@ -790,7 +789,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                 }
             });
         ExperimentUpdateResult result = createServer().updateExperiment(SESSION_TOKEN, updates);
-        assertEquals(newModificationDate, result.getModificationDate());
+        assertEquals(experiment.getVersion(), result.getVersion());
         assertEquals(newSamples.size(), result.getSamples().size());
         context.assertIsSatisfied();
     }

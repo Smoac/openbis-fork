@@ -30,6 +30,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
@@ -222,7 +223,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         final ExperimentPE experiment = sample.getExperiment();
 
         data.setSample(sample);
-        data.setExperiment(experiment);
+        RelationshipUtils.setExperimentForDataSet(data, experiment, session);
 
         setParentDataSets(experiment, newData);
     }
@@ -245,7 +246,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             define(newData, sourceType);
         }
 
-        data.setExperiment(experiment);
+        RelationshipUtils.setExperimentForDataSet(data, experiment, session);
         setParentDataSets(experiment, newData);
     }
 
@@ -475,7 +476,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             result.setCode(dataSetCode);
             String code = DataSetTypeCode.UNKNOWN.getCode();
             result.setDataSetType(getDataSetTypeDAO().tryToFindDataSetTypeByCode(code));
-            result.setExperiment(experiment);
+            RelationshipUtils.setExperimentForDataSet(result, experiment, session);
             result.setPlaceholder(true);
             dataDAO.createDataSet(result, findPerson());
         }

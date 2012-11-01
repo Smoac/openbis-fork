@@ -452,11 +452,12 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     public void update(ExperimentUpdatesDTO updates)
     {
         loadDataByTechId(updates.getExperimentId());
-        if (updates.getVersion().equals(experiment.getModificationDate()) == false)
+        if (updates.getVersion() != experiment.getVersion())
         {
             throwModifiedEntityException("Experiment");
         }
         experiment.setModifier(findPerson());
+        experiment.setModificationDate(new Date());
         updateProperties(updates.getProperties());
 
         ProjectPE project = findProject(updates.getProjectIdentifier());

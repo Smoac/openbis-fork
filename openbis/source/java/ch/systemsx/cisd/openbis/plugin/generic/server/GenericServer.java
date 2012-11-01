@@ -729,7 +729,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         experimentBO.save();
         ExperimentUpdateResult result = new ExperimentUpdateResult();
         ExperimentPE experiment = experimentBO.getExperiment();
-        result.setModificationDate(experiment.getModificationDate());
+        result.setVersion(experiment.getVersion());
         result.setSamples(getDAOFactory().getExperimentDAO().getSampleCodes(experiment));
         return result;
     }

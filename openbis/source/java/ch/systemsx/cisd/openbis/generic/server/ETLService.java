@@ -1881,13 +1881,18 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         List<List<NewExternalData>> orderedRegistrations =
                 NewExternalDataDAG.groupByDepencies(dataSetRegistrations);
 
+        int total = 0;
+        for (List<NewExternalData> dependencyLevel : orderedRegistrations)
+        {
+            total += dependencyLevel.size();
+        }
         int index = 0;
         for (List<NewExternalData> dependencyLevel : orderedRegistrations)
         {
             for (NewExternalData dataSet : dependencyLevel)
             {
                 registerDatasetInternal(session, dataSetsCreated, dataSet);
-                progress.update("createDataSets", orderedRegistrations.size(), ++index);
+                progress.update("createDataSets", total, ++index);
             }
         }
         return index;

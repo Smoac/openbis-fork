@@ -78,7 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
         { ColumnNames.CODE_COLUMN, ColumnNames.SPACE_COLUMN }) })
 @Friend(toClasses = ExperimentPE.class)
 public final class ProjectPE extends AttachmentHolderPE implements Comparable<ProjectPE>,
-        IIdAndCodeHolder, Serializable
+        IIdAndCodeHolder, IModifierAndModificationDateBean, Serializable
 {
     public static final ProjectPE[] EMPTY_ARRAY = new ProjectPE[0];
 
@@ -137,6 +137,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
         this.registrator = registrator;
     }
 
+    @Override
     @OptimisticLock(excluded = true)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PERSON_MODIFIER_COLUMN)
@@ -145,6 +146,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
         return modifier;
     }
 
+    @Override
     public void setModifier(final PersonPE modifier)
     {
         this.modifier = modifier;
@@ -379,6 +381,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
         return projectIdentifier.toString();
     }
 
+    @Override
     @OptimisticLock(excluded = true)
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
     public Date getModificationDate()
@@ -386,6 +389,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
         return modificationDate;
     }
 
+    @Override
     public void setModificationDate(Date versionDate)
     {
         this.modificationDate = versionDate;

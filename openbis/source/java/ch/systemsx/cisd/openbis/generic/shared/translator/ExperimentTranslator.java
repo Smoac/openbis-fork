@@ -115,6 +115,7 @@ public final class ExperimentTranslator
         result.setRegistrator(PersonTranslator.translate(experiment.getRegistrator()));
         result.setModifier(PersonTranslator.translate(experiment.getModifier()));
         result.setDeletion(DeletionTranslator.translate(experiment.getDeletion()));
+        result.setVersion(experiment.getVersion());
         for (final LoadableFields field : withFields)
         {
             switch (field)

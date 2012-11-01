@@ -86,14 +86,13 @@ public class ConversionUtils
 
         ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
 
-        updates.setVersion(experiment.getModificationDate());
+        updates.setVersion(experiment.getVersion());
         updates.setExperimentId(new TechId(experiment.getId()));
         updates.setAttachments(Collections.<NewAttachment> emptySet());
         updates.setProjectIdentifier(new ProjectIdentifierFactory(experiment.getProject()
                 .getIdentifier()).createIdentifier());
 
         updates.setProperties(experiment.getProperties());
-        updates.setVersion(experiment.getModificationDate());
 
         return updates;
     }

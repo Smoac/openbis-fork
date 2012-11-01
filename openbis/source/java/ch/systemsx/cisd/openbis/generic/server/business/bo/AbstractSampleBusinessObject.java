@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -138,6 +139,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         ExperimentPE experimentPE =
                 tryFindExperiment(experimentCacheOrNull, experimentIdentifier,
                         newSample.getDefaultSpaceIdentifier());
+        updateModifierAndModificationDate(experimentPE);
         final SamplePE samplePE = new SamplePE();
         samplePE.setExperiment(experimentPE);
         samplePE.setCode(sampleIdentifier.getSampleSubCode());
@@ -157,6 +159,15 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         }
         samplePE.setPermId(getOrCreatePermID(newSample));
         return samplePE;
+    }
+
+    private void updateModifierAndModificationDate(ExperimentPE experimentOrNull)
+    {
+        if (experimentOrNull != null)
+        {
+            experimentOrNull.setModifier(findPerson());
+            experimentOrNull.setModificationDate(new Date());
+        }
     }
 
     protected SampleOwner getSampleOwner(

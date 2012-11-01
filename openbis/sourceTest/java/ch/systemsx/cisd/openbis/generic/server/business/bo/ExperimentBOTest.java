@@ -464,7 +464,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         final ProjectPE newProject = CommonTestUtils.createProject(newProjectIdentifier);
         ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
         updates.setExperimentId(new TechId(exp));
-        updates.setVersion(exp.getModificationDate());
+        updates.setVersion(exp.getVersion());
         updates.setProjectIdentifier(newProjectIdentifier);
         updates.setProperties(Collections.<IEntityProperty> emptyList());
         updates.setAttachments(Collections.<NewAttachment> emptyList());

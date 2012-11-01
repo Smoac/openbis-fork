@@ -52,6 +52,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
+import org.hibernate.annotations.OptimisticLock;
 import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
@@ -90,7 +91,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
     { AttachmentPE.class, ProjectPE.class })
 public class ExperimentPE extends AttachmentHolderPE implements
         IEntityInformationWithPropertiesHolder, IIdAndCodeHolder, Comparable<ExperimentPE>,
-        IMatchingEntity, IDeletablePE, Serializable
+        IModifierAndModificationDateBean, IMatchingEntity, IDeletablePE, Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -144,6 +145,8 @@ public class ExperimentPE extends AttachmentHolderPE implements
 
     private Date modificationDate;
 
+    private int version;
+
     private String permId;
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
@@ -174,6 +177,8 @@ public class ExperimentPE extends AttachmentHolderPE implements
         this.registrator = registrator;
     }
 
+    @Override
+    @OptimisticLock(excluded = true)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PERSON_MODIFIER_COLUMN)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_MODIFIER)
@@ -182,6 +187,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return modifier;
     }
 
+    @Override
     public void setModifier(final PersonPE modifier)
     {
         this.modifier = modifier;
@@ -351,6 +357,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return new UnmodifiableListDecorator<SamplePE>(getExperimentSamples());
     }
 
+    @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
     private List<SamplePE> getExperimentSamples()
     {
@@ -396,6 +403,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return new UnmodifiableListDecorator<DataPE>(getExperimentDataSets());
     }
 
+    @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
     private List<DataPE> getExperimentDataSets()
     {
@@ -517,7 +525,8 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return EntityKind.EXPERIMENT;
     }
 
-    @Version
+    @Override
+    @OptimisticLock(excluded = true)
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
     @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
     @DateBridge(resolution = Resolution.SECOND)
@@ -526,9 +535,22 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return modificationDate;
     }
 
+    @Override
     public void setModificationDate(Date versionDate)
     {
         this.modificationDate = versionDate;
+    }
+
+    @Version
+    @Column(name = ColumnNames.VERSION_COLUMN, nullable = false)
+    public int getVersion()
+    {
+        return version;
+    }
+
+    public void setVersion(int version)
+    {
+        this.version = version;
     }
 
     @Override

@@ -31,15 +31,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentTypeBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifierFactory;
 import ch.systemsx.cisd.openbis.systemtest.PersistentSystemTestCase;
@@ -84,14 +88,16 @@ public class OptimisticLockingTestCase extends PersistentSystemTestCase
 
     private void deleteSpace(Space space)
     {
-        List<Experiment> experiments =
-                commonServer.listExperiments(systemSessionToken,
-                        new ExperimentTypeBuilder().code(EXPERIMENT_TYPE_CODE).getExperimentType(),
-                        new SpaceIdentifierFactory(space.getIdentifier()).createIdentifier());
-        commonServer.deleteExperiments(systemSessionToken, TechId.createList(experiments),
-                "cleanup", DeletionType.TRASH);
-        List<Deletion> deletions = commonServer.listDeletions(systemSessionToken, false);
-        commonServer.deletePermanently(systemSessionToken, TechId.createList(deletions));
+        trashExperiments(space);
+        trashSamples(space);
+        emptyTrashCan();
+        deleteProjects(space);
+        commonServer.deleteSpaces(systemSessionToken, Arrays.asList(new TechId(space.getId())),
+                "cleanup");
+    }
+
+    private void deleteProjects(Space space)
+    {
         List<Project> projects = commonServer.listProjects(systemSessionToken);
         List<TechId> projectIds = new ArrayList<TechId>();
         for (Project project : projects)
@@ -102,8 +108,36 @@ public class OptimisticLockingTestCase extends PersistentSystemTestCase
             }
         }
         commonServer.deleteProjects(systemSessionToken, projectIds, "cleanup");
-        commonServer.deleteSpaces(systemSessionToken, Arrays.asList(new TechId(space.getId())),
-                "cleanup");
+    }
+
+    private void emptyTrashCan()
+    {
+        List<Deletion> deletions = commonServer.listDeletions(systemSessionToken, false);
+        commonServer.deletePermanently(systemSessionToken, TechId.createList(deletions));
+    }
+
+    private void trashSamples(Space space)
+    {
+        ListSampleCriteria criteria = new ListSampleCriteria();
+        criteria.setSampleType(SampleType.createAllSampleType(Collections.<SampleType> emptyList(),
+                false));
+        criteria.setSpaceCode(space.getCode());
+        criteria.setIncludeSpace(true);
+        criteria.setIncludeInstance(false);
+        criteria.setExcludeWithoutExperiment(false);
+        List<Sample> samples = commonServer.listSamples(systemSessionToken, criteria);
+        commonServer.deleteSamples(systemSessionToken, TechId.createList(samples), "cleanup",
+                DeletionType.TRASH);
+    }
+
+    private void trashExperiments(Space space)
+    {
+        List<Experiment> experiments =
+                commonServer.listExperiments(systemSessionToken,
+                        new ExperimentTypeBuilder().code(EXPERIMENT_TYPE_CODE).getExperimentType(),
+                        new SpaceIdentifierFactory(space.getIdentifier()).createIdentifier());
+        commonServer.deleteExperiments(systemSessionToken, TechId.createList(experiments),
+                "cleanup", DeletionType.TRASH);
     }
 
     private void createInstanceAdmin(String userId)
@@ -192,6 +226,11 @@ public class OptimisticLockingTestCase extends PersistentSystemTestCase
         }
         Collections.sort(result);
         return result;
+    }
+
+    protected ProjectIdentifier createProjectIdentifier(String identifier)
+    {
+        return new ProjectIdentifierFactory(identifier).createIdentifier();
     }
 
 }

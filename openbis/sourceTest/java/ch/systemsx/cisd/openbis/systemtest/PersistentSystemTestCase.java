@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,11 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -170,50 +163,6 @@ public abstract class PersistentSystemTestCase extends AbstractTestNGSpringConte
         } catch (InterruptedException ex)
         {
             ex.printStackTrace();
-        }
-    }
-
-    public final class NewSampleBuilder
-    {
-        private NewSample sample = new NewSample();
-
-        private List<IEntityProperty> propertis = new ArrayList<IEntityProperty>();
-
-        public NewSampleBuilder(String identifier)
-        {
-            sample.setIdentifier(identifier);
-        }
-
-        public NewSampleBuilder type(String type)
-        {
-            SampleType sampleType = new SampleType();
-            sampleType.setCode(type);
-            sample.setSampleType(sampleType);
-            return this;
-        }
-
-        public NewSampleBuilder experiment(String identifier)
-        {
-            sample.setExperimentIdentifier(identifier);
-            return this;
-        }
-
-        public NewSampleBuilder parents(String... parentIdentifiers)
-        {
-            sample.setParentsOrNull(parentIdentifiers);
-            return this;
-        }
-
-        public NewSampleBuilder property(String key, String value)
-        {
-            propertis.add(new PropertyBuilder(key).value(value).getProperty());
-            return this;
-        }
-
-        public void register()
-        {
-            sample.setProperties(propertis.toArray(new IEntityProperty[propertis.size()]));
-            genericClientService.registerSample(SESSION_KEY, sample);
         }
     }
 

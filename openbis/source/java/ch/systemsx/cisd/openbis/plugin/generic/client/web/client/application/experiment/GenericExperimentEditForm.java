@@ -91,7 +91,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
     {
         ExperimentUpdates updates = new ExperimentUpdates();
         updates.setExperimentId(TechId.create(originalExperiment));
-        updates.setVersion(originalExperiment.getModificationDate());
+        updates.setVersion(originalExperiment.getVersion());
         updates.setProperties(extractProperties());
         updates.setProjectIdentifier(extractProjectIdentifier());
         updates.setAttachmentSessionKey(attachmentsSessionKey);
@@ -117,7 +117,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
         @Override
         protected void process(final ExperimentUpdateResult result)
         {
-            originalExperiment.setModificationDate(result.getModificationDate());
+            originalExperiment.setVersion(result.getVersion());
             updateOriginalValues(result.getSamples());
             super.process(result);
         }

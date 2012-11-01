@@ -2086,7 +2086,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         experimentBO.save();
         ExperimentUpdateResult result = new ExperimentUpdateResult();
         ExperimentPE experiment = experimentBO.getExperiment();
-        result.setModificationDate(experiment.getModificationDate());
+        result.setVersion(experiment.getVersion());
         result.setSamples(Code.extractCodes(experiment.getSamples()));
         return result;
     }
@@ -3284,7 +3284,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         try
         {
             ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
-            updates.setVersion(experiment.getModificationDate());
+            updates.setVersion(experiment.getVersion());
             updates.setExperimentId(entityId);
             updates.setAttachments(Collections.<NewAttachment> emptySet());
             updates.setProjectIdentifier(new ProjectIdentifierFactory(experiment.getProject()

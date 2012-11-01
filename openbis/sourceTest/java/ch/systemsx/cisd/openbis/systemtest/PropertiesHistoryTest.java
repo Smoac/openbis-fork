@@ -73,7 +73,7 @@ public class PropertiesHistoryTest extends SystemTestCase
         updates.setExperimentId(id);
         updates.setSamplesSessionKey(SESSION_KEY);
         updates.setAttachmentSessionKey("");
-        updates.setVersion(experiment.getModificationDate());
+        updates.setVersion(experiment.getVersion());
         updates.setProjectIdentifier(experiment.getProject().getIdentifier());
         IEntityProperty p1 = new PropertyBuilder("DESCRIPTION").value("hello world").getProperty();
         IEntityProperty p2 =
@@ -130,7 +130,7 @@ public class PropertiesHistoryTest extends SystemTestCase
         updates.setExperimentId(id);
         updates.setSamplesSessionKey(SESSION_KEY);
         updates.setAttachmentSessionKey("");
-        updates.setVersion(experiment.getModificationDate());
+        updates.setVersion(experiment.getVersion());
         updates.setProjectIdentifier(experiment.getProject().getIdentifier());
         IEntityProperty p1 = new PropertyBuilder("DESCRIPTION").value((String) null).getProperty();
         IEntityProperty p2 =

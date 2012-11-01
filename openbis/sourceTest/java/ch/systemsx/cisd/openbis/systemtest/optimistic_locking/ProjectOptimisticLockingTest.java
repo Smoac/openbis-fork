@@ -45,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilde
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 
 /**
  * @author Franz-Josef Elmer
@@ -83,11 +82,6 @@ public class ProjectOptimisticLockingTest extends OptimisticLockingTestCase
         assertEquals("test", p.getModifier().getUserId());
         timeIntervalChecker.assertDateInInterval(p.getRegistrationDate());
         timeIntervalChecker.assertDateInInterval(p.getModificationDate());
-    }
-
-    private ProjectIdentifier createProjectIdentifier(String identifier)
-    {
-        return new ProjectIdentifierFactory(identifier).createIdentifier();
     }
 
     @Test
@@ -163,7 +157,7 @@ public class ProjectOptimisticLockingTest extends OptimisticLockingTestCase
         assertEquals("system", project1.getModifier().getUserId());
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
         builder.user(USER_ID);
-        builder.addNewExperiment(experiment(1)).addNewExperiment(experiment(2));
+        builder.experiment(experiment(1)).experiment(experiment(2));
         TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker(1);
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
@@ -176,8 +170,15 @@ public class ProjectOptimisticLockingTest extends OptimisticLockingTestCase
         checkModifierAndModificationDateOfProject1(timeIntervalChecker, USER_ID);
     }
 
+    /*
+     * This test registers three experiments for the same project. Two of them are registered by the
+     * main thread using performEntityOperations(). A second thread registers an experiment between
+     * the registration of the two other experiments. This is done by using a
+     * IServiceConversationProgressListener together with two message channels to coordinate the
+     * order of actions in both threads.
+     */
     @Test
-    public void testRegisterExperiments2()
+    public void testRegisterExperimentsInTwoThreads()
     {
         assertEquals("system", project1.getModifier().getUserId());
         final StringBuilder stringBuilder = new StringBuilder();
@@ -186,10 +187,10 @@ public class ProjectOptimisticLockingTest extends OptimisticLockingTestCase
         final MessageChannel messageChannelSecond =
                 new MessageChannelBuilder(10000).name("second").logger(operationLog).getChannel();
         final IServiceConversationProgressListener listener =
-                new IServiceConversationProgressListener()
+                new AbstractServiceConversationProgressListener(operationLog)
                     {
                         @Override
-                        public void update(String phaseName, int totalItemsToProcess,
+                        public void handleProgress(String phaseName, int totalItemsToProcess,
                                 int numItemsProcessed)
                         {
                             stringBuilder.append(phaseName).append(" ").append(numItemsProcessed)
@@ -199,11 +200,6 @@ public class ProjectOptimisticLockingTest extends OptimisticLockingTestCase
                             {
                                 messageChannelMain.send(FIRST_REGISTERED);
                             }
-                        }
-
-                        @Override
-                        public void close()
-                        {
                         }
                     };
         TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker(1);
@@ -226,7 +222,7 @@ public class ProjectOptimisticLockingTest extends OptimisticLockingTestCase
         ServiceConversationsThreadContext.setProgressListener(listener);
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
         builder.user(USER_ID);
-        builder.addNewExperiment(experiment(1)).addNewExperiment(experiment(2));
+        builder.experiment(experiment(1)).experiment(experiment(2));
         AtomicEntityOperationDetails details = builder.getDetails();
 
         etlService.performEntityOperations(systemSessionToken, details);
