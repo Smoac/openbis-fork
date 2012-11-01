@@ -67,15 +67,15 @@ public class RelationshipUtils
         {
             if (stackTraceElement.getClassName().contains("OptimisticLockingTest"))
             {
-                System.err.println("===== UPDATE modification date and modifier ===== "
+                System.out.println("===== UPDATE modification date and modifier ===== "
                         + stackTraceElement.getMethodName());
-                System.err.println("bean: " + beanOrNull);
-                System.err.println("user: " + session.tryGetPerson());
-                System.err.println("\t" + stackTrace[3]);
-                System.err.println("\t" + stackTrace[4]);
-                System.err.println("\t" + stackTrace[5]);
-                System.err.println("\t...");
-                System.err.println("\t" + stackTraceElement);
+                System.out.println("bean: " + beanOrNull);
+                System.out.println("user: " + session.tryGetPerson());
+                System.out.println("\t" + stackTrace[3]);
+                System.out.println("\t" + stackTrace[4]);
+                System.out.println("\t" + stackTrace[5]);
+                System.out.println("\t...");
+                System.out.println("\t" + stackTraceElement);
                 break;
             }
         }

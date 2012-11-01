@@ -42,11 +42,11 @@ public class TimeIntervalChecker extends AssertJUnit
     }
 
     /**
-     * Creates an instance for now minus specified shift in seconds.
+     * Creates an instance for now minus specified shift in milliseconds.
      */
-    public TimeIntervalChecker(long shiftInSeconds)
+    public TimeIntervalChecker(long shiftInMillisecond)
     {
-        notBeforeDate = new Date(System.currentTimeMillis() - shiftInSeconds * 1000);
+        notBeforeDate = new Date(System.currentTimeMillis() - shiftInMillisecond);
     }
 
     /**

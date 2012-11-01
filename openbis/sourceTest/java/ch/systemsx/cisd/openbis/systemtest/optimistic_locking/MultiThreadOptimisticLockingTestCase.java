@@ -16,16 +16,18 @@
 
 package ch.systemsx.cisd.openbis.systemtest.optimistic_locking;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
+import ch.systemsx.cisd.openbis.systemtest.PersistentSystemTestCase;
 
 /**
- * Super class of system tests with rollback after each test.
+ * Super class of system test doing commit after each service operation. Can be used to write tests
+ * with more than one Thread.
  * 
  * @author Franz-Josef Elmer
  */
-public class OptimisticLockingTestCase extends SystemTestCase
+public class MultiThreadOptimisticLockingTestCase extends PersistentSystemTestCase
 {
     protected ToolBox toolBox;
 
@@ -34,5 +36,11 @@ public class OptimisticLockingTestCase extends SystemTestCase
     {
         toolBox = new ToolBox(commonServer, genericServer, etlService, systemSessionToken);
         toolBox.createSpacesAndProjects();
+    }
+
+    @AfterMethod
+    public void deleteSpaces()
+    {
+        toolBox.deleteSpaces();
     }
 }

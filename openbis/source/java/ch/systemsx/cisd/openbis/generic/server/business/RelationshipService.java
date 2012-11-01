@@ -89,6 +89,7 @@ public class RelationshipService implements IRelationshipService
         }
 
         sample.setExperiment(experiment);
+        RelationshipUtils.updateModificationDateAndModifier(experiment, session);
 
         for (DataPE dataset : sample.getDatasets())
         {
