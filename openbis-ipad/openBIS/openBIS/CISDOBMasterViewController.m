@@ -232,13 +232,13 @@
 {
     // TODO Put the controller in search mode
     NSLog(@"searchBarTextDidBeginEditing:");
+    searchBar.showsCancelButton = YES;
 }
 
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
 {
     // TODO Figure out what to do here
     NSLog(@"searchBarTextDidEndEditing:");
-    [self.searchBar resignFirstResponder];
 }
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
@@ -250,13 +250,9 @@
 - (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar
 {
     // TODO Take the controller out of search mode
-    NSLog(@"searchBarCancelButtonClicked:");
-}
-
-- (void)searchBarResultsListButtonClicked:(UISearchBar *)searchBar
-{
-    // TODO Figure out what to do here
-    NSLog(@"searchBarResultsListButtonClicked:");
+    searchBar.showsCancelButton = NO;
+    [self.searchBar resignFirstResponder];
+    [self.tableView becomeFirstResponder];
 }
 
 #pragma mark - Server Communication
