@@ -62,7 +62,10 @@
 - (NSArray *)entitiesByPermId:(NSArray *)permIds error:(NSError **)error;
 - (NSArray *)entitiesNotUpdatedSince:(NSDate *)date error:(NSError **)error;
 
-- (NSFetchRequest *)entityFetchRequest;
+- (NSFetchRequest *)fetchRequestForEntities;
+- (NSFetchRequest *)fetchRequestForEntitiesByPermId:(NSArray *)permIds;
+- (NSFetchRequest *)fetchRequestForEntitiesNotUpdatedSince:(NSDate *)date;
+
 - (NSArray *)executeFetchRequest:(NSFetchRequest *)fetchRequest error:(NSError **)error;
 
 @end

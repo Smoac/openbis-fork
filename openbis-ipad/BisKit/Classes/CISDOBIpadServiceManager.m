@@ -165,25 +165,23 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 
 - (NSArray *)allIpadEntitiesOrError:(NSError **)error;
 {
-	NSFetchRequest* request = self.entityFetchRequest;
+	NSFetchRequest* request = [self fetchRequestForEntities];
 	return [self executeFetchRequest: request error: error];
 }
 
 - (NSArray *)entitiesByPermId:(NSArray *)permIds error:(NSError **)error
 {
-    NSDictionary *fetchVariables = [NSDictionary dictionaryWithObject: permIds forKey: @"PERM_IDS"];
-    NSFetchRequest *request = [self.managedObjectModel fetchRequestFromTemplateWithName: @"EntitiesByPermIds" substitutionVariables: fetchVariables];
+    NSFetchRequest *request = [self fetchRequestForEntitiesByPermId: permIds];
     return [self executeFetchRequest: request error: error];
 }
 
 - (NSArray *)entitiesNotUpdatedSince:(NSDate *)date error:(NSError **)error
 {
-    NSDictionary *fetchVariables = [NSDictionary dictionaryWithObject: date forKey: @"LAST_UPDATE_DATE"];
-    NSFetchRequest *request = [self.managedObjectModel fetchRequestFromTemplateWithName: @"EntitiesNotUpdatedSince" substitutionVariables: fetchVariables];
+    NSFetchRequest *request = [self fetchRequestForEntitiesNotUpdatedSince: date];
     return [self executeFetchRequest: request error: error];
 }
 
-- (NSFetchRequest *)entityFetchRequest
+- (NSFetchRequest *)fetchRequestForEntities
 {
 	NSFetchRequest *request = [[NSFetchRequest alloc] init];
     [request setEntity: self.ipadEntityDescription];
@@ -193,6 +191,20 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 - (NSArray *)executeFetchRequest:(NSFetchRequest *)fetchRequest error:(NSError **)error
 {
     return [self.managedObjectContext executeFetchRequest: fetchRequest error: error];
+}
+
+- (NSFetchRequest *)fetchRequestForEntitiesByPermId:(NSArray *)permIds
+{
+    NSDictionary *fetchVariables = [NSDictionary dictionaryWithObject: permIds forKey: @"PERM_IDS"];
+    NSFetchRequest *request = [self.managedObjectModel fetchRequestFromTemplateWithName: @"EntitiesByPermIds" substitutionVariables: fetchVariables];
+    return request;
+}
+
+- (NSFetchRequest *)fetchRequestForEntitiesNotUpdatedSince:(NSDate *)date
+{
+    NSDictionary *fetchVariables = [NSDictionary dictionaryWithObject: date forKey: @"LAST_UPDATE_DATE"];
+    NSFetchRequest *request = [self.managedObjectModel fetchRequestFromTemplateWithName: @"EntitiesNotUpdatedSince" substitutionVariables: fetchVariables];
+    return request;
 }
 
 @end

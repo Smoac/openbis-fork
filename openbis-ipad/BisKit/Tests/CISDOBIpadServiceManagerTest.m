@@ -58,7 +58,7 @@
 - (NSArray *)entitiesWithChildren
 {
 	NSError *error;
-	NSFetchRequest* request = self.serviceManager.entityFetchRequest;
+	NSFetchRequest* request = [self.serviceManager fetchRequestForEntities];
     
    	NSArray *elements = [self.serviceManager executeFetchRequest: request error: &error];
     
