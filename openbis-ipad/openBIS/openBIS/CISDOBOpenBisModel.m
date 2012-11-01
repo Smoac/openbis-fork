@@ -192,12 +192,13 @@
     NSArray *sortDescriptors = @[categorySortDescriptor, summaryHeaderSortDescriptor];
     [fetchRequest setSortDescriptors:sortDescriptors];
     
+
     NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"category" cacheName: @"Root"];
     aFetchedResultsController.delegate = self;
     self.fetchedResultsController = aFetchedResultsController;
-    
-	NSError *error = nil;
-	if (![self.fetchedResultsController performFetch:&error]) {
+
+    NSError *error;
+    if (![self.fetchedResultsController performFetch: &error]) {
         // TODO Implement error handling
 	    NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
 	    abort();
