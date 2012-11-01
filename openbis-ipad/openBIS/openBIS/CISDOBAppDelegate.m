@@ -117,7 +117,7 @@
     if (managedObjectContext != nil) {
         if ([managedObjectContext hasChanges] && ![managedObjectContext save:&error]) {
             // TODO Implement error handling
-            NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+            NSLog(@"Unresolved error -- could not save %@, %@", error, [error userInfo]);
             abort();
         } 
     }
@@ -141,6 +141,12 @@
     _serviceManager =
         [[CISDOBIpadServiceManager alloc]
             initWithStoreUrl: storeUrl openbisUrl: openbisUrl trusted: YES error: &error];
+    
+    if (!_serviceManager) {
+        // TODO Implement error handling
+        NSLog(@"Unresolved error -- could not create service manager %@, %@", error, [error userInfo]);
+        abort();
+    }
     
     return _serviceManager;
 }
