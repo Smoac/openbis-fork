@@ -42,10 +42,10 @@
 @interface CISDOBBackgroundDataSynchronizer : NSObject
 
 @property(readonly, weak) CISDOBIpadServiceManager *serviceManager;
-@property(readonly) CISDOBIpadServiceManagerCall *managerCall;
-@property(readonly) NSArray *rawEntities;
-@property(readonly) NSManagedObjectContext *managedObjectContext;
-@property(readonly) NSError *error;
+@property(readonly, strong) CISDOBIpadServiceManagerCall *managerCall;
+@property(readonly, strong) NSArray *rawEntities;
+@property(readonly, strong) NSManagedObjectContext *managedObjectContext;
+@property(nonatomic, copy) NSError *error;
 
 @property(nonatomic) BOOL prune;
 
@@ -112,10 +112,23 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 - (void)syncEntities:(NSArray *)rawEntities pruning:(BOOL)prune notifying:(CISDOBIpadServiceManagerCall *)managerCall
 {
     void (^syncBlock)(void) = ^{
+        // Run the synchronizer in the background thread
         CISDOBBackgroundDataSynchronizer *synchronizer = [[CISDOBBackgroundDataSynchronizer alloc] initWithServiceManager: self managerCall: managerCall rawEntities: rawEntities];
         synchronizer.prune = prune;
         [synchronizer run];
-        [synchronizer performSelectorOnMainThread: @selector(notifyCallOfResult:) withObject: nil waitUntilDone: NO];
+        
+        void (^notifyBlock)(void) = ^ {
+            // Save the MOC and notifiy the client on the main thread
+            CISDOBBackgroundDataSynchronizer *notifySynchronizer = synchronizer;
+            if(!notifySynchronizer.error) {
+                NSError *error;
+                if (![self.managedObjectContext save: &error]) {
+                    notifySynchronizer.error = error;
+                }
+            }
+            [notifySynchronizer notifyCallOfResult: nil];
+        };
+        [[NSOperationQueue mainQueue] addOperationWithBlock: notifyBlock];
     };
     [_queue addOperationWithBlock: syncBlock];
 }
@@ -276,7 +289,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     for (CISDOBIpadRawEntity *rawEntity in self.rawEntities) {
         success = [self synchEntity: rawEntity lastUpdateDate: lastUpdateDate error: &error];
         if (!success) {
-            _error = [error copy];
+            self.error = error;
             return;
         }
     }
@@ -293,16 +306,16 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     
     success = [self.managedObjectContext save: &error];
     if (!success) {
-        _error = [error copy];
+        self.error = error;
         return;
     }
     
-    _error = nil;
+    self.error = nil;
 }
 
 - (void)notifyCallOfResult:(id)args
 {
-    if (_error) {
+    if (self.error) {
         self.managerCall.serviceCall.fail(self.error);
     } else if (self.managerCall.success) {
         self.managerCall.success(self.rawEntities);
