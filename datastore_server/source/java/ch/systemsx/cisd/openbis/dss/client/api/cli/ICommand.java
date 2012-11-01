@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
 import java.io.PrintStream;
 
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * A <code>ICommand</code> encapsulates one action that gets called on the client side using the

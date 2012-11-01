@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.exception.Status;
+import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
  * A wrapper on an {@link IImmutableCopier} that catches assertions and returns a failure status if

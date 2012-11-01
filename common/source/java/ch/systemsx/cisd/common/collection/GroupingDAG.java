@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 
 import ch.systemsx.cisd.common.collection.GroupingDAG;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * The implementation of a DAG, that returns the group of items, where the first group includes the

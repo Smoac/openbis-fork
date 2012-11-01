@@ -18,7 +18,7 @@ package ch.systemsx.cisd.cifex.rpc;
 
 import java.util.Locale;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * An exception that indicates that either the file size or file count quota have been exceeded.

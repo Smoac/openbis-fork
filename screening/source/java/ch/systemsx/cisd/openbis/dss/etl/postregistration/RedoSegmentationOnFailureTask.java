@@ -25,8 +25,8 @@ import net.lemnik.eodsql.QueryTool;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exception.Status;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FastRecursiveHardLinkMaker;
 import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.logging.LogCategory;

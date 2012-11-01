@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
 import java.util.List;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 
 /**

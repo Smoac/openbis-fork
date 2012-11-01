@@ -22,7 +22,7 @@ import java.util.List;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.systemsx.cisd.common.collection.TableMap;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;

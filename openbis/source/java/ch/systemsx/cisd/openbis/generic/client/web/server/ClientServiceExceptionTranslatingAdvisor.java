@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 
 /**
- * Translates server side {@link ch.systemsx.cisd.common.exception.UserFailureException} thrown by
+ * Translates server side {@link ch.systemsx.cisd.common.exceptions.UserFailureException} thrown by
  * all {@link IClientService} methods to client side
  * {@link ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException}.
  * 
@@ -69,7 +69,7 @@ public class ClientServiceExceptionTranslatingAdvisor extends DefaultPointcutAdv
             try
             {
                 return invocation.proceed();
-            } catch (ch.systemsx.cisd.common.exception.UserFailureException ex)
+            } catch (ch.systemsx.cisd.common.exceptions.UserFailureException ex)
             {
                 throw UserFailureExceptionTranslator.translate(ex);
             }

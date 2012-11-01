@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.common.concurrent;
 
-import ch.systemsx.cisd.common.exception.Status;
-import ch.systemsx.cisd.common.exception.StatusFlag;
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.StatusFlag;
 
 
 /**

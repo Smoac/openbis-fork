@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,33 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exception;
+package ch.systemsx.cisd.common.exceptions;
+
+import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
- * Exception to be thrown when authentication of a service at another service fails.
- *
  * @author Franz-Josef Elmer
  */
-public class InvalidAuthenticationException extends HighLevelException
+public final class ExceptionWithStatus extends RuntimeException
 {
     private static final long serialVersionUID = 1L;
 
-    public InvalidAuthenticationException(String message)
+    private final Status status;
+
+    public ExceptionWithStatus(Status status)
     {
-        super(message);
+        super(status.tryGetErrorMessage());
+        this.status = status;
     }
 
-    public InvalidAuthenticationException(String message, Throwable cause)
+    public ExceptionWithStatus(Status status, Exception ex)
     {
-        super(message, cause);
+        super(ex);
+        this.status = status;
     }
 
+    public Status getStatus()
+    {
+        return status;
+    }
 }

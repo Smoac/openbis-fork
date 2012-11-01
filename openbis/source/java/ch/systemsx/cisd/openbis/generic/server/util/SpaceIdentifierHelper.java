@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.util;
 import java.util.List;
 
 import ch.systemsx.cisd.common.collection.TableMap;
-import ch.systemsx.cisd.common.exception.InternalErr;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.InternalErr;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;

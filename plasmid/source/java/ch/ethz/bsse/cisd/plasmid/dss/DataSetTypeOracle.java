@@ -25,8 +25,8 @@ import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
 
-import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.FileTypeExtractor;
 
 /**

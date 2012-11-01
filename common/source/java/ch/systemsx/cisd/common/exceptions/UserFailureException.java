@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exception;
+package ch.systemsx.cisd.common.exceptions;
+
+import ch.systemsx.cisd.common.exceptions.HighLevelException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * The <code>UserFailureException</code> is the super class of all exceptions that have their

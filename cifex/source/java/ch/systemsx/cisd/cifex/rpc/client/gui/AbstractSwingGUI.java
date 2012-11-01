@@ -37,10 +37,10 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.PersistenceStore;
 import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
-import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exception.InvalidSessionException;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * @author Chandrasekhar Ramakrishnan

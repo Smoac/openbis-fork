@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
-import ch.systemsx.cisd.common.exception.Status;
+import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
  * Class that keeps around the result of running an Operating System process.

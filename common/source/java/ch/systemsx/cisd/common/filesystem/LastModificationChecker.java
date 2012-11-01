@@ -18,8 +18,8 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.exception.StatusWithResult;
-import ch.systemsx.cisd.common.exception.UnknownLastChangedException;
+import ch.systemsx.cisd.common.exceptions.StatusWithResult;
+import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
 
 /**
  * @author Tomasz Pylak

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.ant.task.subversion;
 import java.util.Arrays;
 
 import ch.systemsx.cisd.ant.common.StringUtils;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * A class for assembling and storing the subversion repository definition of a project.

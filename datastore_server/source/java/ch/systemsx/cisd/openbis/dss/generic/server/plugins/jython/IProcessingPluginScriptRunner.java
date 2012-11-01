@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
 
-import ch.systemsx.cisd.common.exception.Status;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
 
 public interface IProcessingPluginScriptRunner

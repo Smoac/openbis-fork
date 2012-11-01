@@ -25,8 +25,8 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exception.Status;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;

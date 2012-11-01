@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.InputStream;
 
 import ch.systemsx.cisd.common.api.retry.Retry;
-import ch.systemsx.cisd.common.exception.InvalidSessionException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 
 /**

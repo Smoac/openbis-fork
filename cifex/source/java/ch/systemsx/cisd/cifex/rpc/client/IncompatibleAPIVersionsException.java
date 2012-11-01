@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.cifex.rpc.client;
 
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * An exception for communicating a mismatch in client-server API.

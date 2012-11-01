@@ -20,9 +20,9 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IInactivityObserver;
-import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exception.Status;
-import ch.systemsx.cisd.common.exception.StatusFlag;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.logging.ConditionalNotificationLogger;

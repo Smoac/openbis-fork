@@ -18,7 +18,7 @@ package ch.ethz.bsse.cisd.dsu.tracking.utils;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 

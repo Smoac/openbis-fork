@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.cifex.rpc;
 
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * An exception that indicates a mismatch of CRC32 checksums for a file.

@@ -31,8 +31,8 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
 
-import ch.systemsx.cisd.common.exception.ExceptionUtils;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.io.DelegatedReader;
 import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
@@ -306,7 +306,7 @@ public final class CommonClientService extends AbstractClientService implements
             // Not directly needed but this refreshes the session.
             getSessionToken();
             getResultSetManager().removeResultSet(resultSetKey);
-        } catch (ch.systemsx.cisd.common.exception.InvalidSessionException e)
+        } catch (ch.systemsx.cisd.common.exceptions.InvalidSessionException e)
         {
             return; // there is no session, so nothing has to be removed from it
         } catch (InvalidSessionException e)
@@ -897,7 +897,7 @@ public final class CommonClientService extends AbstractClientService implements
                             .asList(ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity
                                     .values()));
             return searchableEntities;
-        } catch (final ch.systemsx.cisd.common.exception.UserFailureException e)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }

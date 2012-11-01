@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.springframework.aop.ThrowsAdvice;
 
-import ch.systemsx.cisd.common.exception.ExceptionUtils;
+import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 
 /**
  * A <code>ThrowsAdvice</code> implementation which remove proprietary/external libraries specific

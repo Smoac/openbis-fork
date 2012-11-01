@@ -133,7 +133,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                     genericServer.getSampleInfo(sessionToken, sampleId);
             transformXML(sampleParentWithDerived.getParent());
             return sampleParentWithDerived;
-        } catch (final ch.systemsx.cisd.common.exception.UserFailureException e)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
@@ -175,7 +175,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             final String sessionToken = getSessionToken();
             genericServer.registerOrUpdateSamples(sessionToken, info.getSamples());
             return info.getResultList();
-        } catch (final ch.systemsx.cisd.common.exception.UserFailureException e)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             if (e.getCause() instanceof SampleUniqueCodeViolationExceptionAbstract)
             {
@@ -249,7 +249,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                 results.addAll(samplesInfo.getResultList());
                 return results;
             }
-        } catch (final ch.systemsx.cisd.common.exception.UserFailureException e)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         } finally
@@ -270,7 +270,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             final String sessionToken = getSessionToken();
             genericServer.updateSamples(sessionToken, info.getSamples());
             return info.getResultList();
-        } catch (final ch.systemsx.cisd.common.exception.UserFailureException e)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
@@ -286,7 +286,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             final ExternalData dataset = genericServer.getDataSetInfo(sessionToken, datasetId);
             transformXML(dataset);
             return dataset;
-        } catch (final ch.systemsx.cisd.common.exception.UserFailureException e)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
@@ -555,7 +555,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             final String sessionToken = getSessionToken();
             return genericServer.updateMaterial(sessionToken, materialId, properties, metaprojects,
                     version);
-        } catch (final ch.systemsx.cisd.common.exception.UserFailureException e)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }

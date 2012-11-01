@@ -24,7 +24,7 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.Counters;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;

@@ -1,6 +1,6 @@
 package ch.systemsx.cisd.common.concurrent;
 
-import ch.systemsx.cisd.common.exception.Status;
+import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
  * Defines the action which should be performed on the task item.

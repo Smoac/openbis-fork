@@ -31,7 +31,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import ch.systemsx.cisd.cifex.rpc.server.IExtendedCIFEXRPCService;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-import ch.systemsx.cisd.common.exception.InvalidSessionException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.string.Template;
 
 /**

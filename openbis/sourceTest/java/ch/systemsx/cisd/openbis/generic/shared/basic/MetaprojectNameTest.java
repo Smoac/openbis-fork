@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * @author pkupczyk

@@ -26,7 +26,7 @@ import jline.ConsoleReader;
 
 import org.apache.commons.lang.time.DateUtils;
 
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;

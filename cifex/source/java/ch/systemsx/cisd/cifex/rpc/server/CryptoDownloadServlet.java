@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.cifex.server.AbstractFileUploadDownloadServlet;
-import ch.systemsx.cisd.common.exception.InvalidSessionException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.string.Template;
 
 /**

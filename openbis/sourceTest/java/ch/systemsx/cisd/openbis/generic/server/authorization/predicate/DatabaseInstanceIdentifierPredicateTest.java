@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exception.Status;
-import ch.systemsx.cisd.common.exception.StatusFlag;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.StatusFlag;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DatabaseInstanceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;

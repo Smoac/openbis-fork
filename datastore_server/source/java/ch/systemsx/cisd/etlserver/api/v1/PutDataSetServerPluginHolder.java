@@ -19,9 +19,9 @@ package ch.systemsx.cisd.etlserver.api.v1;
 import java.io.File;
 import java.util.concurrent.locks.Lock;
 
-import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exception.NotImplementedException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.etlserver.AbstractTopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.ETLServerPluginFactory;
 import ch.systemsx.cisd.etlserver.IETLServerPlugin;

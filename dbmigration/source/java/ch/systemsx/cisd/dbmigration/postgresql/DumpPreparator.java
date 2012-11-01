@@ -42,7 +42,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.utilities.OSUtilities;
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.dbmigration.SimpleDatabaseMetaData;
 import ch.systemsx.cisd.dbmigration.SimpleTableMetaData;

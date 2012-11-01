@@ -23,7 +23,7 @@ import java.util.Arrays;
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SampleTypePEBuilder;

@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmutable;
 
 /**

@@ -22,7 +22,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 

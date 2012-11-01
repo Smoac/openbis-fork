@@ -32,7 +32,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.xml.sax.InputSource;
 
-import ch.systemsx.cisd.common.exception.ExceptionUtils;
+import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.customcolumn.core.CustomColumnMethod;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.customcolumn.extension.link.CustomColumnLinkParam;
 import ch.systemsx.cisd.openbis.generic.shared.calculator.customcolumn.CustomColumnJSONBuilder;

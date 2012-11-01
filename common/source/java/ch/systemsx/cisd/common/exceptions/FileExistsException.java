@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.common.exception;
+package ch.systemsx.cisd.common.exceptions;
 
 import java.io.File;
 import java.io.IOException;

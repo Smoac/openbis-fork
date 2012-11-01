@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exception;
+package ch.systemsx.cisd.common.exceptions;
 
 import java.io.Serializable;
 

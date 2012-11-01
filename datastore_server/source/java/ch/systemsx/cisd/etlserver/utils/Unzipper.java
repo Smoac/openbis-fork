@@ -28,8 +28,8 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
 
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exception.Status;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
  * {@link ZipFile} based utility class, unzipping files.

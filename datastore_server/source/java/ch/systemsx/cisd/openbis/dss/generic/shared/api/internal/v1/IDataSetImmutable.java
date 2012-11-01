@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1;
 
 import java.util.List;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 

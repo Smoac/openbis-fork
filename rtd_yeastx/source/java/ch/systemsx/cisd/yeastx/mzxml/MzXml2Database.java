@@ -23,7 +23,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.xml.JaxbXmlParser;
 import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
 import ch.systemsx.cisd.yeastx.db.generic.DMDataSetDTO;

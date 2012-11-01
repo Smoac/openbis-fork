@@ -20,7 +20,7 @@ import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.IncompatibleAPIVersionsException;
 import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
-import ch.systemsx.cisd.common.exception.MasqueradingException;
+import ch.systemsx.cisd.common.exceptions.MasqueradingException;
 
 final class CIFEXRPCServiceFactory implements ICIFEXRPCServiceFactory
 {

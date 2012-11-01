@@ -32,7 +32,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
@@ -565,7 +565,7 @@ public abstract class AbstractClientService implements IClientService,
         {
             final SessionContextDTO session = getServer().tryToAuthenticateAnonymously();
             return tryToLogin(session);
-        } catch (final ch.systemsx.cisd.common.exception.UserFailureException e)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         } catch (final IllegalStateException e)
@@ -649,7 +649,7 @@ public abstract class AbstractClientService implements IClientService,
         } catch (InvalidSessionException e)
         {
             // ignored
-        } catch (final ch.systemsx.cisd.common.exception.UserFailureException e)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
@@ -666,7 +666,7 @@ public abstract class AbstractClientService implements IClientService,
         } catch (InvalidSessionException e)
         {
             // ignored
-        } catch (final ch.systemsx.cisd.common.exception.UserFailureException e)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
@@ -685,7 +685,7 @@ public abstract class AbstractClientService implements IClientService,
         } catch (InvalidSessionException e)
         {
             // ignored
-        } catch (final ch.systemsx.cisd.common.exception.UserFailureException e)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
@@ -703,7 +703,7 @@ public abstract class AbstractClientService implements IClientService,
         } catch (InvalidSessionException e)
         {
             // ignored
-        } catch (final ch.systemsx.cisd.common.exception.UserFailureException e)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }

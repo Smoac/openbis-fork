@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.filesystem.rsync;
 
-import ch.systemsx.cisd.common.exception.StatusFlag;
+import ch.systemsx.cisd.common.exceptions.StatusFlag;
 
 /**
  * A class that the return value of the <a href="http://rsync.samba.org">rsync</a> program into a

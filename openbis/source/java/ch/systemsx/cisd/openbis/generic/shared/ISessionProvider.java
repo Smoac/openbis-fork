@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 
 /**

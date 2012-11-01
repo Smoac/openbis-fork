@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 
 import java.lang.reflect.Method;
 
-import ch.systemsx.cisd.common.exception.Status;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 
 /**

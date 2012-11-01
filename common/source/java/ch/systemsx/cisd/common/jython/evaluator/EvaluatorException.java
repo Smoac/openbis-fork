@@ -15,7 +15,7 @@
  */
 
 package ch.systemsx.cisd.common.jython.evaluator;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * An exception which occurs when {@link Evaluator} evaluates an expression.

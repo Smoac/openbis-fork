@@ -21,7 +21,7 @@ import java.io.File;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 /**
  * Class which adds a prefix to a path. Which prefix is added depends on whether the path starts

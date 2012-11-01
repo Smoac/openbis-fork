@@ -20,7 +20,7 @@ import java.util.Collections;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exception.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;

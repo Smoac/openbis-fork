@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exception;
+package ch.systemsx.cisd.common.exceptions;
+
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * Used to signal the error of getting last modification time of a store item

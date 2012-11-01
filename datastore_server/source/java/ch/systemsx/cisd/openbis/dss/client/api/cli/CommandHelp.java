@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.dss.client.api.cli;
 import java.io.PrintStream;
 import java.util.List;
 
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Command that gives help about the program and other commands.

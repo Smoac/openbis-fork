@@ -22,7 +22,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ch.systemsx.cisd.common.exception.ExceptionUtils;
+import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.customcolumn.core.CustomColumnParam;
 
 /**

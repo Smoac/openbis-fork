@@ -24,7 +24,7 @@ import java.util.Properties;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.TypeExtractorForMSInjection;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;

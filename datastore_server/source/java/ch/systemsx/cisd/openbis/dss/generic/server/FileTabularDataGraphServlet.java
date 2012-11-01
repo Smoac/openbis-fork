@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.File;
 import java.io.IOException;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CsvFileReaderHelper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ITabularData;
 

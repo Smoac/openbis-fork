@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.datamover.filesystem.intf;
 
-import ch.systemsx.cisd.common.exception.Status;
-import ch.systemsx.cisd.common.exception.StatusWithResult;
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.StatusWithResult;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.ILastModificationChecker;
 import ch.systemsx.cisd.common.filesystem.StoreItem;

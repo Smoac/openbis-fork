@@ -25,8 +25,8 @@ import org.python.core.PyFunction;
 import org.python.core.PyObject;
 
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
-import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exception.NotImplementedException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.jython.PythonInterpreter;
 import ch.systemsx.cisd.common.properties.PropertyUtils;

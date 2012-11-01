@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.authentication;
 
-import ch.systemsx.cisd.common.exception.InvalidSessionException;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 
 /**

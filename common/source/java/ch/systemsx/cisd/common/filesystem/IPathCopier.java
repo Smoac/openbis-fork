@@ -20,7 +20,7 @@ import java.io.File;
 
 import ch.systemsx.cisd.common.action.ITerminable;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
-import ch.systemsx.cisd.common.exception.Status;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 
 /**

@@ -18,7 +18,7 @@ package ch.systemsx.cisd.datamover.filesystem.intf;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.exception.Status;
+import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
  * Interface that represents a role that deletes files and directories from a file system.

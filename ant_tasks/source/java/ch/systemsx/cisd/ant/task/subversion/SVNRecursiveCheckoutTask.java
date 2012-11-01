@@ -29,7 +29,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.ant.common.AbstractEclipseClasspathExecutor;
 import ch.systemsx.cisd.ant.common.EclipseClasspathEntry;
 import ch.systemsx.cisd.ant.common.StringUtils;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * An <code>ant</code> task that allows to recursively check out a project that follows the CISD

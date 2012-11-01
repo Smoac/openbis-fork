@@ -24,8 +24,8 @@ import java.io.InputStream;
 
 import com.csvreader.CsvReader;
 
-import ch.systemsx.cisd.common.exception.Status;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.string.UnicodeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider;
 

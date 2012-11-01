@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.validation;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Interface for a validator of a table cell value.

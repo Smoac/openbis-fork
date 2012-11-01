@@ -21,7 +21,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.Iterator;
 
-import ch.systemsx.cisd.common.exception.NotImplementedException;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 
 /**
  * Allows to convert an memory-inefficient iterator into a one which has lower memory consumption.

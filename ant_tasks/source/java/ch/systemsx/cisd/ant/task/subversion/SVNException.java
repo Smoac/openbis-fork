@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.ant.task.subversion;
 
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * An exception indicating a problem performing a subversion command.

@@ -18,7 +18,7 @@ package ch.systemsx.cisd.ant.task.subversion;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * A {@link ISVNProjectPathProvider} that works on a subversion working directory.

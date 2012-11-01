@@ -46,7 +46,7 @@ public class FeatureVectorContainerDataSetTest extends AbstractFileSystemTestCas
                 FeatureVectorContainerDataSet.getContainerAnalysisType(mainType));
     }
 
-    @Test(expectedExceptions = ch.systemsx.cisd.common.exception.UserFailureException.class)
+    @Test(expectedExceptions = ch.systemsx.cisd.common.exceptions.UserFailureException.class)
     public void testGenerateAnalysisContainerTypeFailsWithIncorrectType()
     {
         FeatureVectorContainerDataSet.getContainerAnalysisType("HCS_IMAGE_RAW");

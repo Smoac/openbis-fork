@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.exception.Status;
+import ch.systemsx.cisd.common.exceptions.Status;
 
 /**
  * A role which can perform an immutable copy of a file or directory. <i>Immutable</i> here means,

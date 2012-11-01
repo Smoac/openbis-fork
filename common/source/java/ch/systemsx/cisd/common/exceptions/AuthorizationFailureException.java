@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exception;
+package ch.systemsx.cisd.common.exceptions;
+
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * A {@link UserFailureException} for authorization failure.

@@ -109,7 +109,7 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
             String rollBackReason = rolledBackTransactions.get(tx);
             if (rollBackReason != null)
             {
-                throw new ch.systemsx.cisd.common.exception.UserFailureException(rollBackReason);
+                throw new ch.systemsx.cisd.common.exceptions.UserFailureException(rollBackReason);
             } else
             {
                 throw ex;

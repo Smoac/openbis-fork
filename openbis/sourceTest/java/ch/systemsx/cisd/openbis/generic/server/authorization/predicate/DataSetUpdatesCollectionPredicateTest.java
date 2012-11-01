@@ -22,7 +22,7 @@ import java.util.HashSet;
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exception.Status;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.server.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetUpdatesCollectionPredicate;

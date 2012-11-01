@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 /**
  * Utility class to parse properties.

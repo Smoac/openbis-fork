@@ -19,7 +19,7 @@ package ch.systemsx.cisd.etlserver.validation;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 

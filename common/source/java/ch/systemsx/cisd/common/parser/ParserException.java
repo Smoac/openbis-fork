@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import ch.systemsx.cisd.common.exception.HighLevelException;
+import ch.systemsx.cisd.common.exceptions.HighLevelException;
 
 /**
  * A top level exception for the parser.

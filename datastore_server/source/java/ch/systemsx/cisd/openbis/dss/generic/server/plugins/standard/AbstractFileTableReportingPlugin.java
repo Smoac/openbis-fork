@@ -29,7 +29,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import com.csvreader.CsvReader;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.parser.ParsingException;
 import ch.systemsx.cisd.common.properties.PropertyUtils;

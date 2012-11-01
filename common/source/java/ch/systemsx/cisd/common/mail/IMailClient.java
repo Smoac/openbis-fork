@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.mail;
 
 import javax.activation.DataHandler;
 
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * Implementations of this interface are able to send email.

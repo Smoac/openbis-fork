@@ -18,7 +18,7 @@ package ch.systemsx.cisd.datamover.utils;
 
 import java.io.File;
 
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.highwatermark.HostAwareFileWithHighwaterMark;
 
 /**

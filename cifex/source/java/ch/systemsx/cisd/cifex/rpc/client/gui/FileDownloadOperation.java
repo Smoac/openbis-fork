@@ -29,7 +29,7 @@ import ch.systemsx.cisd.cifex.rpc.client.encryption.OpenPGPSymmetricKeyEncryptio
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo.Status;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
-import ch.systemsx.cisd.common.exception.FileExistsException;
+import ch.systemsx.cisd.common.exceptions.FileExistsException;
 import ch.systemsx.cisd.common.filesystem.IFileOverwriteStrategy;
 
 /**

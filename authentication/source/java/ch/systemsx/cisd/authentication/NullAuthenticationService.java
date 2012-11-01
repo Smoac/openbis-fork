@@ -18,8 +18,8 @@ package ch.systemsx.cisd.authentication;
 
 import java.util.List;
 
-import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * An implementation of {@link IAuthenticationService} which supports as a <code>null</code>

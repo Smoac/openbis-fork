@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exception;
+package ch.systemsx.cisd.common.exceptions;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.MasqueradingException;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 
 /**
@@ -35,7 +36,7 @@ public final class ExceptionUtils
      * Default packages (and subpackages) for not been masqueraded.
      */
     private final static String[] ACCEPTED_PACKAGE_NAME_DEPENDENCIES =
-                { "java.lang", "ch.systemsx.cisd.base", "ch.systemsx.cisd.common.exception" };
+                { "java.lang", "ch.systemsx.cisd.base", "ch.systemsx.cisd.common.exceptions" };
 
     ExceptionUtils()
     {

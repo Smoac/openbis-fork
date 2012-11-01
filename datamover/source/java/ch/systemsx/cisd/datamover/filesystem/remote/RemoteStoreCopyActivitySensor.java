@@ -19,7 +19,7 @@ package ch.systemsx.cisd.datamover.filesystem.remote;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
-import ch.systemsx.cisd.common.exception.StatusWithResult;
+import ch.systemsx.cisd.common.exceptions.StatusWithResult;
 import ch.systemsx.cisd.common.filesystem.AbstractCopyActivitySensor;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.logging.LogCategory;

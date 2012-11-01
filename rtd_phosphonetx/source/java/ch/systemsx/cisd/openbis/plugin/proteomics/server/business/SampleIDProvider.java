@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.server.business;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;

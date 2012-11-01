@@ -31,7 +31,7 @@ import java.util.List;
 import com.csvreader.CsvReader;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetFileLines;
 
 /**

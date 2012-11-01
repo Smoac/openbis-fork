@@ -25,7 +25,7 @@ import java.util.List;
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exception.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;

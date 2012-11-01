@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exception;
+package ch.systemsx.cisd.common.exceptions;
 
 import static org.testng.AssertJUnit.*;
 
@@ -22,7 +22,7 @@ import java.util.MissingFormatArgumentException;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Test cases for the {@link UserFailureException}
@@ -34,7 +34,7 @@ public final class UserFailureExceptionTest
 
     /**
      * Test method for
-     * {@link ch.systemsx.cisd.common.exception.UserFailureException#fromTemplate(java.lang.String, java.lang.Object[])}.
+     * {@link ch.systemsx.cisd.common.exceptions.UserFailureException#fromTemplate(java.lang.String, java.lang.Object[])}.
      */
     @Test
     public final void testFromTemplateStringObjectArray()

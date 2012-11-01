@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exception;
+package ch.systemsx.cisd.common.exceptions;
 
-import ch.systemsx.cisd.common.shared.basic.exception.IOptionalStackTraceLoggingException;
+import ch.systemsx.cisd.common.exceptions.HighLevelException;
 
 /**
- * This <code>UserFailureException</code> extension signals that a session has expired.
- * 
- * @author Christian Ribeaud
+ * Exception to be thrown when authentication of a service at another service fails.
+ *
+ * @author Franz-Josef Elmer
  */
-public final class InvalidSessionException extends UserFailureException implements
-        IOptionalStackTraceLoggingException
+public class InvalidAuthenticationException extends HighLevelException
 {
     private static final long serialVersionUID = 1L;
 
-    public InvalidSessionException(final String message)
+    public InvalidAuthenticationException(String message)
     {
         super(message);
+    }
+
+    public InvalidAuthenticationException(String message, Throwable cause)
+    {
+        super(message, cause);
     }
 
 }

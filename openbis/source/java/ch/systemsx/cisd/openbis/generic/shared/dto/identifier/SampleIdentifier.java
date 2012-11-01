@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 
-import ch.systemsx.cisd.common.exception.InternalErr;
+import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**

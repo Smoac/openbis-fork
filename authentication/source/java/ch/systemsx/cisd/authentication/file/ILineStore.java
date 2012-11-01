@@ -18,8 +18,8 @@ package ch.systemsx.cisd.authentication.file;
 
 import java.util.List;
 
-import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * An abstraction of a file that allows to store and retrieve lines.

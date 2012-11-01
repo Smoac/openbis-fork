@@ -22,7 +22,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 

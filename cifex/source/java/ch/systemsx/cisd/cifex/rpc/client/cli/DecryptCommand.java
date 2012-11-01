@@ -22,8 +22,8 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.cifex.rpc.client.encryption.OpenPGPSymmetricKeyEncryption;
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * A command for decrypting a file from an OpenPGP container.

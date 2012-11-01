@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Parses the given text in the constructor to extract the database instance, group, project and

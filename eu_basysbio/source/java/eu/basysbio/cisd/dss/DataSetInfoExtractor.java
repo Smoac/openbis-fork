@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.cifex.CifexDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.cifex.CifexTypeExtractor;

@@ -192,7 +192,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             currentUser.setHasFilesForDownload(domainModel.getUserManager()
                     .hasUserFilesForDownload(userDTOOrNull));
             return currentUser;
-        } catch (ch.systemsx.cisd.common.exception.EnvironmentFailureException ex)
+        } catch (ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
         {
             throw new EnvironmentFailureException(ex.getMessage());
         }
@@ -250,7 +250,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         try
         {
             userDTOOrNull = tryExternalAuthenticationServiceLogin(userCode, plainPassword);
-        } catch (ch.systemsx.cisd.common.exception.EnvironmentFailureException ex)
+        } catch (ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
         {
             throw new EnvironmentFailureException(ex.getMessage());
         }
@@ -362,10 +362,10 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
                 userDTO = createdUser;
                 success = true;
                 return BeanUtils.createBean(UserInfoDTO.class, createdUser);
-            } catch (final ch.systemsx.cisd.common.exception.UserFailureException ex)
+            } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
             {
                 throw new UserFailureException(ex.getMessage());
-            } catch (final ch.systemsx.cisd.common.exception.EnvironmentFailureException ex)
+            } catch (final ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
             {
                 throw new EnvironmentFailureException(ex.getMessage());
             }
@@ -489,7 +489,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         try
         {
             domainModel.getUserManager().deleteUser(id, privGetCurrentUser(), userActionLog);
-        } catch (final ch.systemsx.cisd.common.exception.UserFailureException ex)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
         {
             throw new UserNotFoundException(ex.getMessage());
         }
@@ -917,7 +917,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             invalidEmailAddresses =
                     fileManager.shareFilesWith(url, requestUser, userIdentifierList, files,
                             fileInfo.getFileDTO().getComment(), userActionLog);
-        } catch (final ch.systemsx.cisd.common.exception.UserFailureException e)
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw new UserFailureException(e.getMessage());
         }

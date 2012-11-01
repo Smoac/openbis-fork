@@ -34,8 +34,8 @@ import org.apache.lucene.search.TermRangeQuery;
 import org.hibernate.search.annotations.Resolution;
 import org.hibernate.search.bridge.builtin.DateBridge;
 
-import ch.systemsx.cisd.common.exception.InternalErr;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.InternalErr;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.MetaprojectSearch;

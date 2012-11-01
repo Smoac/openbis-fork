@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exception;
+package ch.systemsx.cisd.common.exceptions;
+
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.HighLevelException;
 
 /**
  * The <code>ConfigurationFailureException</code> is the super class of all exceptions that have

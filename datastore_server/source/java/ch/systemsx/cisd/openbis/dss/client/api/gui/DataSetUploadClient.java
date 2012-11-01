@@ -48,8 +48,8 @@ import javax.swing.table.TableColumn;
 import org.python.core.Py;
 import org.python.core.PySystemState;
 
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**

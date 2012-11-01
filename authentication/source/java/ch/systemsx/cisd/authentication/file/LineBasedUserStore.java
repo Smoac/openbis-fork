@@ -19,7 +19,7 @@ package ch.systemsx.cisd.authentication.file;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 /**
  * A class to read and write {@link UserEntry}.

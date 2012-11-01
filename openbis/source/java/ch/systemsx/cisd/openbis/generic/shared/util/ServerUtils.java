@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.collection.CollectionUtils;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Tools to be used by servers.

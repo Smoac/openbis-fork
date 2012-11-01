@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization;
 
 import java.util.List;
 
-import ch.systemsx.cisd.common.exception.Status;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**

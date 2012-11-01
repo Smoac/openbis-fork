@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * 

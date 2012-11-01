@@ -20,7 +20,7 @@ import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
 
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * The {@link IFileConversionStrategy} for tiff compressions.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2008 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exception;
+package ch.systemsx.cisd.common.exceptions;
+
+import ch.systemsx.cisd.common.utilities.SystemExit;
 
 /**
- * @author Franz-Josef Elmer
+ * Thrown by {@link SystemExit} instead of plain {@link RuntimeException}
+ * 
+ * @author Izabela Adamczyk
  */
-public final class ExceptionWithStatus extends RuntimeException
+public final class SystemExitException extends RuntimeException
 {
     private static final long serialVersionUID = 1L;
 
-    private final Status status;
-
-    public ExceptionWithStatus(Status status)
+    public SystemExitException(final String msg)
     {
-        super(status.tryGetErrorMessage());
-        this.status = status;
+        super(msg);
     }
 
-    public ExceptionWithStatus(Status status, Exception ex)
-    {
-        super(ex);
-        this.status = status;
-    }
-
-    public Status getStatus()
-    {
-        return status;
-    }
 }

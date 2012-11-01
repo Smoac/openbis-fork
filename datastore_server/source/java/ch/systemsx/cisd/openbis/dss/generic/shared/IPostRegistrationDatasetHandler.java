@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 import java.io.File;
 import java.util.Map;
 
-import ch.systemsx.cisd.common.exception.Status;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**

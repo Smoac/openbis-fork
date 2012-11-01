@@ -30,8 +30,8 @@ import javax.mail.util.ByteArrayDataSource;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 
 /**

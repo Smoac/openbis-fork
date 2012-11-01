@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.exception.InvalidAuthenticationException;
+import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.security.TokenGenerator;
 
 /**

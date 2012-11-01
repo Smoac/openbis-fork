@@ -26,7 +26,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * An ant task that allows branching of projects with all dependent projects (using Eclipse'

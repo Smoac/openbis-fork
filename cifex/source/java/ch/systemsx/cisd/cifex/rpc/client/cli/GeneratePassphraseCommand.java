@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.cifex.rpc.client.cli;
 
 import ch.systemsx.cisd.args4j.Option;
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * A command for generating strong passphrases.

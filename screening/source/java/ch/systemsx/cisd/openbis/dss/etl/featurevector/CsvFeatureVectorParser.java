@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.common.utilities.Counters;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinition;

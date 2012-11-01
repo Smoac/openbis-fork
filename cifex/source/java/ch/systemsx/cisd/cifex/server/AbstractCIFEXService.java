@@ -37,8 +37,8 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.common.Password;
 import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exception.HighLevelException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LoggingContextHandler;
@@ -140,7 +140,7 @@ abstract public class AbstractCIFEXService
             } catch (HighLevelException ex)
             {
                 if (externalAuthenticationService.isRemote()
-                        && ex instanceof ch.systemsx.cisd.common.exception.EnvironmentFailureException)
+                        && ex instanceof ch.systemsx.cisd.common.exceptions.EnvironmentFailureException)
                 {
                     notificationLog
                             .error(
@@ -317,7 +317,7 @@ abstract public class AbstractCIFEXService
             {
                 userManager.createUser(userDTO, null);
                 success = true;
-            } catch (final ch.systemsx.cisd.common.exception.UserFailureException ex)
+            } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
             {
                 operationLog.error(ex.getMessage(), ex);
                 // This is actually an environment failure since the user couldn't have done

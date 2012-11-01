@@ -22,7 +22,7 @@ import static org.testng.AssertJUnit.fail;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Test cases for corresponding {@link DataSetNameEntitiesProvider} class.

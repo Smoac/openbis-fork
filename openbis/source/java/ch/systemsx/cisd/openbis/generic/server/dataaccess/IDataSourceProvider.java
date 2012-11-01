@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import javax.sql.DataSource;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Interface for providing a {@link DataSource} for a technology specific database based on data set

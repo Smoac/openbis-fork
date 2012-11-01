@@ -21,8 +21,8 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * A command that computes CRC32 checksums of files. 

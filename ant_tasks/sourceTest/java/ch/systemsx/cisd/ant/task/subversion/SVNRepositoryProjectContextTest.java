@@ -28,7 +28,7 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.ant.common.StringUtils;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Test cases for {@link SVNRepositoryProjectContext}.

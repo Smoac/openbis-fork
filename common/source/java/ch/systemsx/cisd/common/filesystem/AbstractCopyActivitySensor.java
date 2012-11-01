@@ -20,8 +20,8 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
-import ch.systemsx.cisd.common.exception.StatusFlag;
-import ch.systemsx.cisd.common.exception.StatusWithResult;
+import ch.systemsx.cisd.common.exceptions.StatusFlag;
+import ch.systemsx.cisd.common.exceptions.StatusWithResult;
 
 /**
  * A super class for {@link IDescribingActivitySensor}s that sense changes in some sort of copy

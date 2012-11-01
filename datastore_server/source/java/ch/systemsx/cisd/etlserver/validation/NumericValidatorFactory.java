@@ -19,8 +19,8 @@ package ch.systemsx.cisd.etlserver.validation;
 import java.util.Properties;
 import java.util.Set;
 
-import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Factory for validators of numeric values.

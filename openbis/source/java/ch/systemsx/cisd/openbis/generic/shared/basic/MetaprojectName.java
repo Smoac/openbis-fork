@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 import java.util.regex.Pattern;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Metaproject name representation. The name cannot be null, empty or contain white spaces, commas,

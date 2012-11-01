@@ -28,7 +28,7 @@ import org.springframework.core.Ordered;
 import org.springframework.dao.DeadlockLoserDataAccessException;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 
-import ch.systemsx.cisd.common.exception.ExceptionUtils;
+import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;

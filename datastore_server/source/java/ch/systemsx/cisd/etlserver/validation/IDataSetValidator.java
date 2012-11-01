@@ -19,7 +19,7 @@ package ch.systemsx.cisd.etlserver.validation;
 import java.io.File;
 import java.io.Reader;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**

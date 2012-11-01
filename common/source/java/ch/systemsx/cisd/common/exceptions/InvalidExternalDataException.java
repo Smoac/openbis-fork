@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exception;
+package ch.systemsx.cisd.common.exceptions;
+
+import ch.systemsx.cisd.common.exceptions.HighLevelException;
+import ch.systemsx.cisd.common.exceptions.InvalidExternalDataException;
 
 /**
  * Data provided to the system from another system is invalid. This class is supposed to be used in

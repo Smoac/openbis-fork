@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2007 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exception;
+package ch.systemsx.cisd.common.exceptions;
 
-import ch.systemsx.cisd.common.utilities.SystemExit;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.shared.basic.exception.IOptionalStackTraceLoggingException;
 
 /**
- * Thrown by {@link SystemExit} instead of plain {@link RuntimeException}
+ * This <code>UserFailureException</code> extension signals that a session has expired.
  * 
- * @author Izabela Adamczyk
+ * @author Christian Ribeaud
  */
-public final class SystemExitException extends RuntimeException
+public final class InvalidSessionException extends UserFailureException implements
+        IOptionalStackTraceLoggingException
 {
     private static final long serialVersionUID = 1L;
 
-    public SystemExitException(final String msg)
+    public InvalidSessionException(final String message)
     {
-        super(msg);
+        super(message);
     }
 
 }

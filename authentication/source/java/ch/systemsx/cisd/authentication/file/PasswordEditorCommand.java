@@ -21,8 +21,8 @@ import java.io.IOException;
 
 import jline.ConsoleReader;
 
-import ch.systemsx.cisd.common.exception.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exception.HighLevelException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.HighLevelException;
 
 /**
  * A class to create and edit password entries.

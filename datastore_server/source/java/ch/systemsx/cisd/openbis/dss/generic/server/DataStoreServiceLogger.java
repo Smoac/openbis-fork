@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exception.InvalidAuthenticationException;
+import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.resource.IInitializable;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;

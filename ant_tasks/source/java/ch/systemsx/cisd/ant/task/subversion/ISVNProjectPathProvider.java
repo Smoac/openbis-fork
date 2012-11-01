@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.ant.task.subversion;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * A provider for subversion project paths, either in a repository or a working copy. The provider

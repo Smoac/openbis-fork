@@ -25,7 +25,7 @@ import java.util.List;
 
 import com.csvreader.CsvReader;
 
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * @author Piotr Buczek

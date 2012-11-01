@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.exception;
+package ch.systemsx.cisd.common.exceptions;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -34,9 +34,9 @@ import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exception.ExceptionUtils;
-import ch.systemsx.cisd.common.exception.MasqueradingException;
-import ch.systemsx.cisd.common.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
+import ch.systemsx.cisd.common.exceptions.MasqueradingException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Test cases for the {@link ExceptionUtilsTest}.

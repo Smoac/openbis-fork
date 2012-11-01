@@ -19,7 +19,7 @@ package ch.systemsx.cisd.cifex.rpc.client;
 import java.io.File;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exception.FileExistsException;
+import ch.systemsx.cisd.common.exceptions.FileExistsException;
 import ch.systemsx.cisd.common.filesystem.IFileOverwriteStrategy;
 
 /**
