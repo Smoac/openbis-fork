@@ -98,8 +98,8 @@
     // Find an entity with children and drill on it
     CISDOBIpadRawEntity *entityWithChildren = nil;
     for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
-        if ([rawEntity.children length] > 2) {
-            entityWithChildren = rawEntity;
+        if ([@"5HT_PROBE" isEqualToString: rawEntity.category] && [rawEntity.children length] > 2) {
+            entityWithChildren = [rawEntity retain];
             break;
         }
     }
@@ -141,11 +141,12 @@
     // Find an entity with children and drill on it
     CISDOBIpadRawEntity *entityWithChildren = nil;
     for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
-        if ([rawEntity.children length] > 2) {
+        if ([@"5HT_PROBE" isEqualToString: rawEntity.category] && [rawEntity.children length] > 2) {
             entityWithChildren = [rawEntity retain];
             break;
         }
     }
+    STAssertNotNil(entityWithChildren, @"Should have found an entity with children");
     // Drill
     NSError *error;
     id refconObject = [NSJSONSerialization JSONObjectWithData: [entityWithChildren.refcon dataUsingEncoding: NSASCIIStringEncoding] options: 0 error: &error];
