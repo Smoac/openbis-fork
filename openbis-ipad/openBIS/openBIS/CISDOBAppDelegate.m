@@ -37,6 +37,7 @@
 
 - (NSString *)username { return @"admin"; }
 - (NSString *)password { return @"password"; }
+- (NSURL *)openbisUrl { return [NSURL URLWithString: @"https://localhost:8443"]; }
 
 - (void)configureControllers;
 {
@@ -134,7 +135,7 @@
     if (_serviceManager) return _serviceManager;
     
     NSURL *storeUrl = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"openBISData.sqlite"];
-    NSURL *openbisUrl = [NSURL URLWithString: @"https://localhost:8443"];
+    NSURL *openbisUrl = [self openbisUrl];
     
     NSError *error;
     _serviceManager =
