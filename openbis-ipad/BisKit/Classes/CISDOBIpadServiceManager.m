@@ -99,6 +99,8 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     _ipadEntityDescription = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: _managedObjectContext];
     _managedObjectModel = [_ipadEntityDescription managedObjectModel];
     
+    _queue = [[NSOperationQueue alloc] init];
+    
     return self;
 }
 
@@ -110,8 +112,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         [synchronizer run];
         [synchronizer performSelectorOnMainThread: @selector(notifyCallOfResult:) withObject: nil waitUntilDone: NO];
     };
-    NSBlockOperation *blockOp = [NSBlockOperation blockOperationWithBlock:  syncBlock];
-    [blockOp start];
+    [_queue addOperationWithBlock: syncBlock];
 }
 
 - (CISDOBIpadServiceManagerCall *)managerCallWrappingServiceCall:(CISDOBAsyncCall *)serviceCall pruning:(BOOL)prune

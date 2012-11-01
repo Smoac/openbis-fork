@@ -36,6 +36,7 @@
 @property (readonly, strong) NSManagedObjectModel *managedObjectModel;
 @property (readonly, strong) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 @property (readonly, strong) NSEntityDescription *ipadEntityDescription;
+@property (readonly, strong) NSOperationQueue *queue;
 
 
 // Initialization
