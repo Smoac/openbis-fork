@@ -250,7 +250,9 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 {
     // Create new entities in the moc, and store them.
     CISDOBIpadEntity *entity;
-    NSArray *matchedEntities = [self.serviceManager entitiesByPermId: [NSArray arrayWithObject: rawEntity.permId] error: error];
+    NSFetchRequest *fetchRequest = [self.serviceManager fetchRequestForEntitiesByPermId: [NSArray arrayWithObject: rawEntity.permId]];
+    // Run the fetch request against our own MOC -- running it against the serviceManager's MOC will cause problems (deadlocks)
+    NSArray *matchedEntities = [self.managedObjectContext executeFetchRequest: fetchRequest error: error];
     if (!matchedEntities) return NO;
     if ([matchedEntities count] > 0) {
         entity = [matchedEntities objectAtIndex: 0];
@@ -282,7 +284,8 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     // TODO : we should treat the intial results as a root set and trace out to do a gc, but the simpler implementation is just to remove everything that is not mentioned
     if (_prune) {
         // Remove all entities that were not mentioned
-        NSArray *entitiesToDelete = [self.serviceManager entitiesNotUpdatedSince: lastUpdateDate error: &error];
+        NSFetchRequest *fetchRequest = [self.serviceManager fetchRequestForEntitiesNotUpdatedSince: lastUpdateDate];
+        NSArray *entitiesToDelete = [self.managedObjectContext executeFetchRequest: fetchRequest error: &error];
         for (CISDOBIpadEntity *entity in entitiesToDelete) {
             [self.managedObjectContext deleteObject: entity];
         }
