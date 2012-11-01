@@ -227,6 +227,38 @@
 }
  */
 
+#pragma mark - UISearchBarDelegate
+- (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
+{
+    // TODO Put the controller in search mode
+    NSLog(@"searchBarTextDidBeginEditing:");
+}
+
+- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
+{
+    // TODO Figure out what to do here
+    NSLog(@"searchBarTextDidEndEditing:");
+    [self.searchBar resignFirstResponder];
+}
+
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
+{
+    // TODO Update the results
+    NSLog(@"searchBar:textDidChange:");
+}
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar
+{
+    // TODO Take the controller out of search mode
+    NSLog(@"searchBarCancelButtonClicked:");
+}
+
+- (void)searchBarResultsListButtonClicked:(UISearchBar *)searchBar
+{
+    // TODO Figure out what to do here
+    NSLog(@"searchBarResultsListButtonClicked:");
+}
+
 #pragma mark - Server Communication
 - (void)didConnectServiceManager:(CISDOBIpadServiceManager *)serviceManager
 {
