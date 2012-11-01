@@ -138,6 +138,28 @@ def image_url_for_compound(material):
 	chemblId =  material.getCode()
 	return 'https://www.ebi.ac.uk/chemblws/compounds/%s/image' % chemblId
 
+def navigation_dict(name, children):
+	"""Create a navigational entity"""
+	navigation_dict = {}
+	navigation_dict['SUMMARY_HEADER'] = name
+	navigation_dict['SUMMARY'] = None
+	navigation_dict['IDENTIFIER'] = None
+	navigation_dict['PERM_ID'] = name.upper()
+	refcon = {}
+	refcon['code'] =  name.upper()
+	refcon['entityKind'] = 'NAVIGATION'
+	refcon['entityType'] = 'NAVIGATION'
+	navigation_dict['REFCON'] = json_encoded_value(refcon)
+	navigation_dict['CATEGORY'] = 'Navigation'
+
+	navigation_dict['CHILDREN'] = json_encoded_value(children)
+
+	properties = dict()
+	navigation_dict['PROPERTIES'] = json_encoded_value(properties)
+	navigation_dict['ROOT_LEVEL'] = True
+	# Need to handle the material links as entity links: "TARGET", "COMPOUND"
+	return navigation_dict
+
 def material_to_dict(material):
 	material_dict = {}
 	material_dict['SUMMARY_HEADER'] = material.getCode()
@@ -156,7 +178,7 @@ def material_to_dict(material):
 	else:
 		material_dict['SUMMARY'] = material.getPropertyValue("DESC")
 		material_dict['IMAGE_URL'] = ""
-		material_dict['ROOT_LEVEL'] = True
+		material_dict['ROOT_LEVEL'] = None
 
 	material_dict['CHILDREN'] = json_encoded_value([])
 
@@ -186,7 +208,7 @@ def sample_to_dict(five_ht_sample, material_by_perm_id):
 	prop_names = ["DESC"]
 	properties = dict((name, five_ht_sample.getPropertyValue(name)) for name in prop_names if five_ht_sample.getPropertyValue(name) is not None)
 	sample_dict['PROPERTIES'] = json_encoded_value(properties)
-	sample_dict['ROOT_LEVEL'] = True
+	sample_dict['ROOT_LEVEL'] = None
 	# Need to handle the material links as entity links: "TARGET", "COMPOUND"
 	return sample_dict
 
@@ -246,7 +268,18 @@ class ExampleRootRequestHandler(RootRequestHandler):
 		self.material_dict_array = materials_to_dict(materials)
 		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
 
+	def add_navigation_rows(self):
+		"""Add entities that are purely for navigation"""
+		children = [material_dict['PERM_ID'] for material_dict in self.material_dict_array]
+		materials_nav = navigation_dict('Targets and Compounds', children)
+
+		children = [sample.getPermId() for sample in self.samples]
+		probe_nav = navigation_dict('Probes', children)
+		self.add_rows([materials_nav, probe_nav])
+
+
 	def add_data_rows(self):
+		self.add_navigation_rows()
 		self.add_rows(self.material_dict_array)
 		self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id))
 
