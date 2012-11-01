@@ -41,6 +41,8 @@
 @property (nonatomic, retain) NSString * permId;
 @property (nonatomic, retain) NSString * refconJson;
 @property (readonly) id refcon;
+@property (nonatomic, retain) NSString * serverUrlString;
+@property (nonatomic, retain) NSDate * lastUpdateDate;
 
 // Potentially nil properties
 @property (nonatomic, retain) NSString * summaryHeader;

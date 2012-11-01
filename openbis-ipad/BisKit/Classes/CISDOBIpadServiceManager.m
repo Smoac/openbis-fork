@@ -61,25 +61,6 @@ static NSManagedObjectContext* GetDatabaseManagedObjectContext(NSURL* storeUrl, 
 	return moc;
 }
 
-static BOOL SynchEntityWithManagedObjectContext(CISDOBIpadRawEntity *rawEntity, NSManagedObjectModel *model, NSManagedObjectContext *moc, NSError **error)
-{
-    // Create new entities in the moc, and store them.
-    CISDOBIpadEntity *entity;
-    NSDictionary *fetchVariables = [NSDictionary dictionaryWithObject: [NSArray arrayWithObject: rawEntity.permId] forKey: @"PERM_IDS"];
-    NSFetchRequest *request = [model fetchRequestFromTemplateWithName: @"EntitiesByPermIds" substitutionVariables: fetchVariables];
-    NSArray *matchedEntities = [moc executeFetchRequest: request error: error];
-    if (!matchedEntities) return NO;
-    if ([matchedEntities count] > 0) {
-        entity = [matchedEntities objectAtIndex: 0];
-        [entity updateFromRawEntity: rawEntity];
-    } else {
-        entity = [NSEntityDescription insertNewObjectForEntityForName: @"CISDOBIpadEntity" inManagedObjectContext: moc];
-        [entity initializeFromRawEntity: rawEntity];
-    }
-    return YES;
-}
-
-
 
 @implementation CISDOBIpadServiceManager
 
@@ -101,25 +82,57 @@ static BOOL SynchEntityWithManagedObjectContext(CISDOBIpadRawEntity *rawEntity, 
     return self;
 }
 
-- (BOOL)syncEntities:(NSArray *)rawEntities error:(NSError **)error
+- (BOOL)synchEntity:(CISDOBIpadRawEntity *)rawEntity lastUpdateDate:(NSDate *)date error:(NSError **)error
 {
+{
+    // Create new entities in the moc, and store them.
+    CISDOBIpadEntity *entity;
+    NSArray *matchedEntities = [self entitiesByPermId: [NSArray arrayWithObject: rawEntity.permId] error: error];
+    if (!matchedEntities) return NO;
+    if ([matchedEntities count] > 0) {
+        entity = [matchedEntities objectAtIndex: 0];
+        [entity updateFromRawEntity: rawEntity];
+    } else {
+        entity = [NSEntityDescription insertNewObjectForEntityForName: @"CISDOBIpadEntity" inManagedObjectContext: self.managedObjectContext];
+        [entity initializeFromRawEntity: rawEntity];
+    }
+    entity.lastUpdateDate = date;
+    entity.serverUrlString =  [((CISDOBLiveConnection *)(self.service.connection)).url absoluteString];
+    
+    return YES;
+}
+}
+
+- (BOOL)syncEntities:(NSArray *)rawEntities pruning:(BOOL)prune error:(NSError **)error
+{
+    NSDate *lastUpdateDate = [NSDate date];
     BOOL success;
     for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
-        success = SynchEntityWithManagedObjectContext(rawEntity, self.managedObjectModel, self.managedObjectContext, error);
+        success = [self synchEntity: rawEntity lastUpdateDate: lastUpdateDate error: error];
         if (!success) return NO;
     }
+    // If pruning is requested, remove entities that cannot be reached from the server result set.
+    // TODO : we should treat the intial results as a root set and trace out to do a gc, but the simpler implementation is just to remove everything that is not mentioned
+    if (prune) {
+        // Remove all entities that were not mentioned
+        NSArray *entitiesToDelete = [self entitiesNotUpdatedSince: lastUpdateDate error: error];
+        for (CISDOBIpadEntity *entity in entitiesToDelete) {
+            [self.managedObjectContext deleteObject: entity];
+        }
+    }
+    
     success = [self.managedObjectContext save: error];
     return success;
 }
 
-- (CISDOBIpadServiceManagerCall *)managerCallWrappingServiceCall:(CISDOBAsyncCall *)serviceCall
+- (CISDOBIpadServiceManagerCall *)managerCallWrappingServiceCall:(CISDOBAsyncCall *)serviceCall pruning:(BOOL)prune
 {
     CISDOBIpadServiceManagerCall *managerCall = [[CISDOBIpadServiceManagerCall alloc] initWithServiceManager: self serviceCall: serviceCall];
     
     serviceCall.success = ^(id result) {
         // Update the cache
         NSError *error;
-        BOOL didSync = [self syncEntities: result error: &error];
+        BOOL didSync = [self syncEntities: result pruning: prune error: &error];
         if (!didSync) {
             serviceCall.fail(error);
         } else if (managerCall.success) {
@@ -132,6 +145,11 @@ static BOOL SynchEntityWithManagedObjectContext(CISDOBIpadRawEntity *rawEntity, 
     return managerCall;
 }
 
+- (CISDOBIpadServiceManagerCall *)managerCallWrappingServiceCall:(CISDOBAsyncCall *)serviceCall
+{
+    return [self managerCallWrappingServiceCall: serviceCall pruning: NO];
+}
+
 - (CISDOBAsyncCall *)loginUser:(NSString *)user password:(NSString *)password
 {
     return [self.service loginUser: user password: password];
@@ -140,7 +158,8 @@ static BOOL SynchEntityWithManagedObjectContext(CISDOBIpadRawEntity *rawEntity, 
 - (CISDOBAsyncCall *)retrieveRootLevelEntities
 {
     CISDOBAsyncCall *call = [self.service listRootLevelEntities];
-    return [self managerCallWrappingServiceCall: call];
+        // get rid of entities not mentioned in the original call
+    return [self managerCallWrappingServiceCall: call pruning: YES];
 }
 
 - (CISDOBAsyncCall *)drillOnEntity:(CISDOBIpadEntity *)entity
@@ -165,6 +184,13 @@ static BOOL SynchEntityWithManagedObjectContext(CISDOBIpadRawEntity *rawEntity, 
 {
     NSDictionary *fetchVariables = [NSDictionary dictionaryWithObject: permIds forKey: @"PERM_IDS"];
     NSFetchRequest *request = [self.managedObjectModel fetchRequestFromTemplateWithName: @"EntitiesByPermIds" substitutionVariables: fetchVariables];
+    return [self executeFetchRequest: request error: error];
+}
+
+- (NSArray *)entitiesNotUpdatedSince:(NSDate *)date error:(NSError **)error
+{
+    NSDictionary *fetchVariables = [NSDictionary dictionaryWithObject: date forKey: @"LAST_UPDATE_DATE"];
+    NSFetchRequest *request = [self.managedObjectModel fetchRequestFromTemplateWithName: @"EntitiesNotUpdatedSince" substitutionVariables: fetchVariables];
     return [self executeFetchRequest: request error: error];
 }
 

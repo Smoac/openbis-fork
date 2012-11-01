@@ -58,6 +58,7 @@
 // Local Actions -- actions that do not require a network connection
 - (NSArray *)allIpadEntitiesOrError:(NSError **)error;
 - (NSArray *)entitiesByPermId:(NSArray *)permIds error:(NSError **)error;
+- (NSArray *)entitiesNotUpdatedSince:(NSDate *)date error:(NSError **)error;
 
 - (NSFetchRequest *)entityFetchRequest;
 - (NSArray *)executeFetchRequest:(NSFetchRequest *)fetchRequest error:(NSError **)error;

@@ -45,6 +45,8 @@ id ObjectFromJsonData(NSString *jsonData, NSError **error)
 @dynamic childrenPermIdsJson;
 @dynamic propertiesJson;
 @dynamic rootLevel;
+@dynamic serverUrlString;
+@dynamic lastUpdateDate;
 
 @synthesize image;
 

@@ -6,19 +6,22 @@
         <attribute name="childrenPermIdsJson" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="imageUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="lastUpdateDate" optional="YES" attributeType="Date" indexed="YES" syncable="YES"/>
         <attribute name="permId" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="properties" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="propertiesJson" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="refcon" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="refconJson" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="rootLevel" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="rootLevel" optional="YES" attributeType="Boolean" indexed="YES" syncable="YES"/>
+        <attribute name="serverUrlString" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="summary" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="summaryHeader" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <fetchRequest name="EntitiesByPermIds" entity="CISDOBIpadEntity" predicateString="permId IN $PERM_IDS" fetchBatchSize="20"/>
+    <fetchRequest name="EntitiesNotUpdatedSince" entity="CISDOBIpadEntity" predicateString="lastUpdateDate &lt; $LAST_UPDATE_DATE"/>
     <fetchRequest name="EntityAndChildren" entity="CISDOBIpadEntity" predicateString="SELF == $ENTITY OR permId IN $CHILDREN" fetchBatchSize="20"/>
     <fetchRequest name="RootEntities" entity="CISDOBIpadEntity" predicateString="rootLevel == 0" fetchBatchSize="20"/>
     <elements>
-        <element name="CISDOBIpadEntity" positionX="0" positionY="0" width="128" height="240"/>
+        <element name="CISDOBIpadEntity" positionX="0" positionY="0" width="128" height="270"/>
     </elements>
 </model>
