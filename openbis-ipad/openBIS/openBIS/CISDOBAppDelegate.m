@@ -135,6 +135,7 @@
     if (_serviceManager) return _serviceManager;
     
     NSURL *storeUrl = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"openBISData.sqlite"];
+    
     NSURL *openbisUrl = [self openbisUrl];
     
     NSError *error;
@@ -143,9 +144,17 @@
             initWithStoreUrl: storeUrl openbisUrl: openbisUrl trusted: YES error: &error];
     
     if (!_serviceManager) {
-        // TODO Implement error handling
-        NSLog(@"Unresolved error -- could not create service manager %@, %@", error, [error userInfo]);
-        abort();
+        // We couldn't open the store, probably because we changed the database model. Remove the old cache and create the service manager again.
+        [[NSFileManager defaultManager] removeItemAtURL: storeUrl error: nil];
+        
+        _serviceManager =
+            [[CISDOBIpadServiceManager alloc]
+                initWithStoreUrl: storeUrl openbisUrl: openbisUrl trusted: YES error: &error];
+        if (_serviceManager) {        
+            // TODO Implement error handling
+            NSLog(@"Unresolved error -- could not create service manager %@, %@", error, [error userInfo]);
+            abort();
+        }
     }
     
     return _serviceManager;
