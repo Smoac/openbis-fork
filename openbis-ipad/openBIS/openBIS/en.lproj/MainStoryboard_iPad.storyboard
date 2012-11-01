@@ -52,6 +52,7 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="118" id="Txf-bY-brd"/>
+                                    <constraint firstAttribute="width" constant="415" id="mHb-8C-05c"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" size="system"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -90,25 +91,26 @@
                                     <outlet property="delegate" destination="4" id="ZAW-uH-UCE"/>
                                 </connections>
                             </tableView>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NAn-y2-IQm">
+                            <webView contentMode="scaleToFill" scalesPageToFit="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rUU-Fj-t5t">
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="240" id="TCn-VB-07Q"/>
+                                    <constraint firstAttribute="width" constant="231" id="1jB-hU-Cjx"/>
                                 </constraints>
-                            </imageView>
+                                <dataDetectorType key="dataDetectorTypes"/>
+                            </webView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="T4E-dH-b3j" firstAttribute="leading" secondItem="26" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="1JH-U6-rvC"/>
                             <constraint firstItem="bUx-j7-YCF" firstAttribute="top" secondItem="T4E-dH-b3j" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="34W-Bo-fwe"/>
                             <constraint firstItem="T4E-dH-b3j" firstAttribute="top" secondItem="gor-tF-mFh" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="8xN-U9-aRY"/>
-                            <constraint firstItem="NAn-y2-IQm" firstAttribute="top" secondItem="26" secondAttribute="top" constant="20" symbolic="YES" type="default" id="9gN-uv-Q6Q"/>
                             <constraint firstAttribute="bottom" secondItem="bUx-j7-YCF" secondAttribute="bottom" constant="20" symbolic="YES" type="default" id="BOD-5p-64L"/>
-                            <constraint firstItem="bUx-j7-YCF" firstAttribute="top" secondItem="NAn-y2-IQm" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="Ep0-Ma-f3g"/>
                             <constraint firstItem="27" firstAttribute="top" secondItem="26" secondAttribute="top" constant="20" symbolic="YES" type="user" id="FD4-HZ-RnC"/>
-                            <constraint firstItem="27" firstAttribute="trailing" secondItem="gor-tF-mFh" secondAttribute="trailing" type="default" id="HeN-P2-X4T"/>
-                            <constraint firstItem="NAn-y2-IQm" firstAttribute="leading" secondItem="T4E-dH-b3j" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="R01-gk-yuU"/>
+                            <constraint firstItem="bUx-j7-YCF" firstAttribute="top" secondItem="rUU-Fj-t5t" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="NfB-38-VMG"/>
+                            <constraint firstItem="rUU-Fj-t5t" firstAttribute="top" secondItem="26" secondAttribute="top" constant="20" symbolic="YES" type="default" id="QCg-PZ-dXE"/>
+                            <constraint firstAttribute="trailing" secondItem="rUU-Fj-t5t" secondAttribute="trailing" constant="20" symbolic="YES" type="default" id="Qpl-Gy-9XI"/>
                             <constraint firstItem="gor-tF-mFh" firstAttribute="top" secondItem="27" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="T1F-6Z-kbc"/>
-                            <constraint firstAttribute="trailing" secondItem="NAn-y2-IQm" secondAttribute="trailing" constant="20" symbolic="YES" type="default" id="ftL-M6-1yr"/>
+                            <constraint firstItem="gor-tF-mFh" firstAttribute="trailing" secondItem="27" secondAttribute="trailing" type="default" id="Tl9-Ul-Mrh"/>
                             <constraint firstAttribute="trailing" secondItem="bUx-j7-YCF" secondAttribute="trailing" constant="20" symbolic="YES" type="default" id="jU1-bA-JE1"/>
                             <constraint firstItem="27" firstAttribute="leading" secondItem="26" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="lGv-yZ-eAZ"/>
                             <constraint firstItem="bUx-j7-YCF" firstAttribute="leading" secondItem="26" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="qCU-93-jXk"/>
@@ -119,10 +121,10 @@
                     <navigationItem key="navigationItem" title="Detail" id="53"/>
                     <connections>
                         <outlet property="identifierLabel" destination="gor-tF-mFh" id="NCy-K7-tLT"/>
-                        <outlet property="imageView" destination="NAn-y2-IQm" id="4m7-UX-7kG"/>
                         <outlet property="propertiesTableView" destination="bUx-j7-YCF" id="QW1-J0-g9j"/>
                         <outlet property="summaryHeaderLabel" destination="27" id="f5M-Ao-eBL"/>
                         <outlet property="summaryLabel" destination="T4E-dH-b3j" id="qVC-t4-llZ"/>
+                        <outlet property="webView" destination="rUU-Fj-t5t" id="N50-LI-vy0"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="15" sceneMemberID="firstResponder"/>
@@ -215,14 +217,17 @@
             <source key="sourceIdentifier" type="project" relativePath="./Classes/CISDOBDetailViewController.h"/>
             <relationships>
                 <relationship kind="outlet" name="identifierLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="propertiesTableView" candidateClass="UITableView"/>
                 <relationship kind="outlet" name="summaryHeaderLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="summaryLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="webView" candidateClass="UIWebView"/>
             </relationships>
         </class>
         <class className="CISDOBMasterViewController" superclassName="UITableViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/CISDOBMasterViewController.h"/>
+            <relationships>
+                <relationship kind="outlet" name="searchBar" candidateClass="UISearchBar"/>
+            </relationships>
         </class>
         <class className="NSLayoutConstraint" superclassName="NSObject">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>

@@ -31,6 +31,7 @@
 
 @property (strong, nonatomic) CISDOBDetailViewController *detailViewController;
 @property (strong, nonatomic) CISDOBOpenBisModel *openBisModel;
+@property (weak, nonatomic) IBOutlet UISearchBar *searchBar;
 
 // Server Communication
 - (void)didConnectServiceManager:(CISDOBIpadServiceManager *)serviceManager;

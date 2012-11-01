@@ -60,6 +60,9 @@
 - (BOOL)insertNewObjectOrError:(NSError **)error; //!< Return YES if operation succeeded
 - (BOOL)deleteObjectAtIndexPath:(NSIndexPath *)indexPath error:(NSError **)error; //!< Return YES if operation succeeded
 
+// Utilities
+- (NSURL *)urlFromUrlString:(NSString *)urlString;
+
 // Server Communication
 - (void)syncRootEntities:(SuccessBlock)success;
 

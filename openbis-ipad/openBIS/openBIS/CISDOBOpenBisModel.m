@@ -76,6 +76,24 @@
     return [self.fetchedResultsController objectAtIndexPath:indexPath];
 }
 
+#pragma mark - Utilities
+- (NSString *)sessionToken
+{
+    return self.serviceManager.sessionToken;
+}
+
+- (NSURL *)urlFromUrlString:(NSString *)urlString
+{
+    // if this is a datastore_server url, add the session token
+    NSRange dataStoreServerRange = [urlString rangeOfString: @"datastore_server"];
+    if (dataStoreServerRange.length == 0) return [NSURL URLWithString: urlString];
+    
+    NSMutableString *urlStringWithSession = [NSMutableString stringWithString: urlString];
+    [urlStringWithSession appendFormat: @"?sessionID=%@", [self sessionToken]];
+
+    return [NSURL URLWithString: urlStringWithSession];
+}
+
 #pragma mark - Selection
 - (CISDOBIpadEntity *)selectObjectAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -140,18 +158,6 @@
     call.success = ^(id result) {
         // Update the UI
         localSuccess(_selectedObject);
-
-        // Load the image if necessary
-        if (_selectedObject.imageUrl && !_selectedObject.image) {
-            NSBlockOperation *blockOp = [NSBlockOperation blockOperationWithBlock:  ^{
-                NSURL *imageUrl = [NSURL URLWithString: _selectedObject.imageUrl];
-                NSData *imageData = [NSData dataWithContentsOfURL: imageUrl];
-                _selectedObject.image = [UIImage imageWithData: imageData];
-                // Update the UI again
-                localSuccess(_selectedObject);
-            }];
-            [blockOp start];
-        }
     };
     [call start];
 

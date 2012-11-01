@@ -80,8 +80,14 @@
     self.summaryLabel.text = self.detailItem.summary;
     self.identifierLabel.text = self.detailItem.identifier;
 
-    if (self.imageView.image != self.detailItem.image) {
-        self.imageView.image = self.detailItem.image;
+    if (self.detailItem.imageUrlString) {
+        NSURL *url = [self.openBisModel urlFromUrlString: self.detailItem.imageUrlString];
+        NSURLRequest *request = [NSURLRequest requestWithURL: url];
+        [self.webView loadRequest: request];
+    } else {
+        NSURL *url = [NSURL URLWithString: @"about:blank"];
+        NSURLRequest *request = [NSURLRequest requestWithURL: url];
+        [self.webView loadRequest: request];
     }
     
     [self.propertiesTableView reloadData];

@@ -37,6 +37,7 @@
 @property (readonly, strong) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 @property (readonly, strong) NSEntityDescription *ipadEntityDescription;
 @property (readonly, strong) NSOperationQueue *queue;
+@property (readonly) NSString *sessionToken;
 
 
 // Initialization

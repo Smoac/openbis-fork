@@ -104,6 +104,11 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     return self;
 }
 
+- (NSString *)sessionToken
+{
+   return ((CISDOBLiveConnection *)(self.service.connection)).sessionToken;
+}
+
 - (void)syncEntities:(NSArray *)rawEntities pruning:(BOOL)prune notifying:(CISDOBIpadServiceManagerCall *)managerCall
 {
     void (^syncBlock)(void) = ^{
