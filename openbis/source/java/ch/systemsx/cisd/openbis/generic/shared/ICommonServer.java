@@ -284,6 +284,15 @@ public interface ICommonServer extends IServer
     public List<Sample> listSamples(final String sessionToken, final ListSampleCriteria criteria);
 
     /**
+     * Lists samples using given configuration on behalf of another user.
+     * 
+     * @return a sorted list of {@link Sample}.
+     */
+    @Transactional(readOnly = true)
+    public List<Sample> listSamplesOnBehalfOfUser(final String sessionToken,
+            final ListSampleCriteria criteria, String userId);
+
+    /**
      * Lists experiments by project.
      * 
      * @return a sorted list of {@link Experiment}.

@@ -18,8 +18,10 @@ package ch.systemsx.cisd.openbis.uitest.dsl;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.uitest.rmi.SearchForSamplesOnBehalfOfUserRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.SearchForSamplesRmi;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
+import ch.systemsx.cisd.openbis.uitest.type.User;
 
 /**
  * @author anttil
@@ -29,6 +31,8 @@ public class SampleSearchCommandBuilder implements SearchCommandBuilder<Sample>
 
     private String code;
 
+    private User user;
+
     @SuppressWarnings("hiding")
     public SampleSearchCommandBuilder withCode(String code)
     {
@@ -36,10 +40,23 @@ public class SampleSearchCommandBuilder implements SearchCommandBuilder<Sample>
         return this;
     }
 
+    @SuppressWarnings("hiding")
+    public SampleSearchCommandBuilder onBehalfOf(User user)
+    {
+        this.user = user;
+        return this;
+    }
+
     @Override
     public Command<List<Sample>> build()
     {
-        return new SearchForSamplesRmi(code);
+        if (this.user == null)
+        {
+            return new SearchForSamplesRmi(code);
+        } else
+        {
+            return new SearchForSamplesOnBehalfOfUserRmi(code, user);
+        }
     }
 
 }

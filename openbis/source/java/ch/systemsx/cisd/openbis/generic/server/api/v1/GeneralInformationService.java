@@ -310,26 +310,6 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             EnumSet<SampleFetchOption> fetchOptions)
     {
         Session session = getSession(sessionToken);
-        return searchForSamples(sessionToken, searchCriteria, fetchOptions, session.getUserName());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
-    @Capability("SEARCH_ON_BEHALF_OF_USER")
-    public List<Sample> searchForSamplesOnBehalfOfUser(String sessionToken,
-            SearchCriteria searchCriteria, EnumSet<SampleFetchOption> fetchOptions, String userId)
-    {
-        final List<Sample> unfilteredSamples =
-                searchForSamples(sessionToken, searchCriteria, fetchOptions, userId);
-        return filterSamplesVisibleToUser(sessionToken, unfilteredSamples, userId);
-    }
-
-    private List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria,
-            EnumSet<SampleFetchOption> fetchOptions, String userId)
-    {
-        Session session = getSession(sessionToken);
-
         EnumSet<SampleFetchOption> sampleFetchOptions =
                 (fetchOptions != null) ? fetchOptions : EnumSet.noneOf(SampleFetchOption.class);
         DetailedSearchCriteria detailedSearchCriteria =
@@ -339,8 +319,38 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 boFactory.createSampleLister(session);
         Collection<Long> sampleIDs =
                 new SampleSearchManager(getDAOFactory().getHibernateSearchDAO(), sampleLister)
-                        .searchForSampleIDs(userId, detailedSearchCriteria);
+                        .searchForSampleIDs(session.getUserName(),
+                                detailedSearchCriteria);
         return createSampleLister(session.tryGetPerson()).getSamples(sampleIDs, sampleFetchOptions);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    @Capability("SEARCH_ON_BEHALF_OF_USER")
+    public List<Sample> searchForSamplesOnBehalfOfUser(String sessionToken,
+            SearchCriteria searchCriteria, EnumSet<SampleFetchOption> fetchOptions, String userId)
+    {
+        Session session = getSession(sessionToken);
+
+        EnumSet<SampleFetchOption> sampleFetchOptions =
+                (fetchOptions != null) ? fetchOptions : EnumSet.noneOf(SampleFetchOption.class);
+        DetailedSearchCriteria detailedSearchCriteria =
+                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(
+                        SearchableEntityKind.SAMPLE, searchCriteria);
+
+        final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+
+        ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister sampleLister =
+                boFactory.createSampleLister(session, person.getId());
+        Collection<Long> sampleIDs =
+                new SampleSearchManager(getDAOFactory().getHibernateSearchDAO(), sampleLister)
+                        .searchForSampleIDs(userId, detailedSearchCriteria);
+
+        final List<Sample> unfilteredSamples =
+                createSampleLister(person)
+                        .getSamples(sampleIDs, sampleFetchOptions);
+        return filterSamplesVisibleToUser(sessionToken, unfilteredSamples, userId);
     }
 
     @Override
@@ -401,9 +411,19 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class)
             String experimentIdentifierString, String userId)
     {
-        final List<Sample> unfilteredSamples =
-                listSamplesForExperiment(sessionToken, experimentIdentifierString);
+        checkSession(sessionToken);
+        ExperimentIdentifier experimentId =
+                new ExperimentIdentifierFactory(experimentIdentifierString).createIdentifier();
 
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment privateExperiment =
+                commonServer.getExperimentInfo(sessionToken, experimentId);
+
+        ListSampleCriteria listSampleCriteria =
+                ListSampleCriteria.createForExperiment(new TechId(privateExperiment.getId()));
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> privateSamples =
+                commonServer.listSamplesOnBehalfOfUser(sessionToken, listSampleCriteria, userId);
+
+        final List<Sample> unfilteredSamples = Translator.translateSamples(privateSamples);
         // Filter for user
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
         final SampleByIdentiferValidator validator = new SampleByIdentiferValidator();

@@ -669,6 +669,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleValidator.class)
+    public List<Sample> listSamplesOnBehalfOfUser(final String sessionToken,
+            @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class)
+            final ListSampleCriteria criteria, String userId)
+    {
+        final Session session = getSession(sessionToken);
+
+        final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+
+        final ISampleLister sampleLister =
+                businessObjectFactory.createSampleLister(session, person.getId());
+        return sampleLister.list(new ListOrSearchSampleCriteria(criteria));
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria)
     {
         final Session session = getSession(sessionToken);

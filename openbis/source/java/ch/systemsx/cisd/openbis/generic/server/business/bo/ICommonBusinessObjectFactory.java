@@ -85,6 +85,8 @@ public interface ICommonBusinessObjectFactory extends IAbstractBussinessObjectFa
     // Fast listing operations
     public ISampleLister createSampleLister(Session session);
 
+    public ISampleLister createSampleLister(Session session, Long userId);
+
     public IDatasetLister createDatasetLister(Session session);
 
     public IDatasetLister createDatasetLister(Session session, Long userId);

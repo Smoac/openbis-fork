@@ -298,6 +298,37 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
+    public List<Sample> listSamplesOnBehalfOfUser(String sessionToken, ListSampleCriteria criteria,
+            String userId)
+    {
+        if (criteria.isIncludeSpace())
+        {
+            logAccess(sessionToken, "list_samples",
+                    "TYPE(%s) OWNERS(space=%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)",
+                    criteria.getSampleType(), criteria.getSpaceCode(),
+                    criteria.getContainerSampleIds(), criteria.getParentSampleId(),
+                    criteria.getChildSampleId(), criteria.getExperimentId());
+        } else if (criteria.isIncludeInstance())
+        {
+            logAccess(
+                    sessionToken,
+                    "list_samples",
+                    "TYPE(%s) OWNERS(instance=%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)",
+                    criteria.getSampleType(), criteria.getSampleType().getDatabaseInstance(),
+                    criteria.getContainerSampleIds(), criteria.getParentSampleId(),
+                    criteria.getChildSampleId(), criteria.getExperimentId());
+        } else
+        {
+            logAccess(sessionToken, "list_samples",
+                    "TYPE(%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)",
+                    criteria.getSampleType(), criteria.getContainerSampleIds(),
+                    criteria.getParentSampleId(), criteria.getChildSampleId(),
+                    criteria.getExperimentId());
+        }
+        return null;
+    }
+
     public final List<SamplePropertyPE> listSamplesProperties(final String sessionToken,
             final ListSampleCriteriaDTO criteria, final List<PropertyTypePE> propertyCodes)
     {
@@ -1540,5 +1571,4 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 metaprojectId, name, descriptionOrNull);
         return null;
     }
-
 }

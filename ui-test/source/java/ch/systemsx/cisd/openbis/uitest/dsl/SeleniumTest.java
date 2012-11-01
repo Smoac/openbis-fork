@@ -105,6 +105,7 @@ import ch.systemsx.cisd.openbis.uitest.rmi.ListExperimentsOfProjectsRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListExperimentsRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListMaterialsRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListMetaProjectsRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.ListSamplesOfExperimentOnBehalfOfUserRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListSamplesOfExperimentRmi;
 import ch.systemsx.cisd.openbis.uitest.screenshot.FileScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.screenshot.ScreenShotter;
@@ -802,6 +803,11 @@ public abstract class SeleniumTest
     public List<Sample> listSamplesOfExperiment(Experiment experiment)
     {
         return openbis.execute(new ListSamplesOfExperimentRmi(experiment));
+    }
+
+    public List<Sample> listSamplesOfExperimentOnBehalfOf(Experiment experiment, User user)
+    {
+        return openbis.execute(new ListSamplesOfExperimentOnBehalfOfUserRmi(experiment, user));
     }
 
     public List<Material> listMaterials(MaterialIdentifier first, MaterialIdentifier... rest)

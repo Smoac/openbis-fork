@@ -145,6 +145,12 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     }
 
     @Override
+    public ISampleLister createSampleLister(Session session, Long userId)
+    {
+        return SampleLister.create(getDaoFactory(), session.getBaseIndexURL(), userId);
+    }
+
+    @Override
     public IDatasetLister createDatasetLister(Session session)
     {
         return DatasetLister.create(getDaoFactory(), session.getBaseIndexURL(), session
@@ -308,4 +314,5 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         return new MetaprojectBO(getDaoFactory(), createExperimentBO(session),
                 createSampleBO(session), createDataBO(session), createMaterialBO(session), session);
     }
+
 }
