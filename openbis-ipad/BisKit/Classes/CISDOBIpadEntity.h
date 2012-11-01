@@ -49,7 +49,7 @@
 @property (nonatomic, retain) NSString * summary;
 @property (nonatomic, retain) NSString * identifier;
 @property (nonatomic, retain) NSString * category;
-@property (nonatomic, retain) NSString * imageUrl;
+@property (nonatomic, retain) NSString * imageUrlString;
 
 @property (nonatomic, retain) NSString * childrenPermIdsJson;
 @property (readonly)          NSArray * childrenPermIds;
@@ -59,8 +59,6 @@
 
 @property (nonatomic, retain) NSNumber * rootLevel;
 
-///! The image contained at the imageUrl or nil if there is no image. Could be a UIImage or CIImage depending on the platform.
-@property (nonatomic, strong) id image;
 
 // Actions
 //! Take the values from the raw entity.

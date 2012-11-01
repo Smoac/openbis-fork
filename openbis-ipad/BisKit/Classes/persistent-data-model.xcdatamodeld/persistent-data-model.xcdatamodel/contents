@@ -5,7 +5,7 @@
         <attribute name="childrenPermIds" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="childrenPermIdsJson" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
-        <attribute name="imageUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="imageUrlString" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="lastUpdateDate" optional="YES" attributeType="Date" indexed="YES" syncable="YES"/>
         <attribute name="permId" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="properties" optional="YES" transient="YES" syncable="YES"/>
@@ -22,6 +22,6 @@
     <fetchRequest name="EntityAndChildren" entity="CISDOBIpadEntity" predicateString="SELF == $ENTITY OR permId IN $CHILDREN" fetchBatchSize="20"/>
     <fetchRequest name="RootEntities" entity="CISDOBIpadEntity" predicateString="rootLevel == 0" fetchBatchSize="20"/>
     <elements>
-        <element name="CISDOBIpadEntity" positionX="0" positionY="0" width="128" height="270"/>
+        <element name="CISDOBIpadEntity" positionX="0" positionY="0" width="0" height="0"/>
     </elements>
 </model>

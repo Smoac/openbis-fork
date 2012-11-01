@@ -41,14 +41,12 @@ id ObjectFromJsonData(NSString *jsonData, NSError **error)
 @dynamic permId;
 @dynamic refconJson;
 @dynamic category;
-@dynamic imageUrl;
+@dynamic imageUrlString;
 @dynamic childrenPermIdsJson;
 @dynamic propertiesJson;
 @dynamic rootLevel;
 @dynamic serverUrlString;
 @dynamic lastUpdateDate;
-
-@synthesize image;
 
 - (void)setRefconJson:(NSString *)refconJson
 {
@@ -141,7 +139,7 @@ id ObjectFromJsonData(NSString *jsonData, NSError **error)
     if (rawEntity.summary) self.summary = rawEntity.summary;
     if (rawEntity.children) self.childrenPermIdsJson = rawEntity.children;
     if (rawEntity.identifier) self.identifier = rawEntity.identifier;
-    if (rawEntity.imageUrl) self.imageUrl = rawEntity.imageUrl;
+    if (rawEntity.imageUrl) self.imageUrlString = rawEntity.imageUrl;
     if (rawEntity.properties) self.propertiesJson = rawEntity.properties;
     if (rawEntity.rootLevel) {
         BOOL rootLevel = [rawEntity.rootLevel length] > 0;
