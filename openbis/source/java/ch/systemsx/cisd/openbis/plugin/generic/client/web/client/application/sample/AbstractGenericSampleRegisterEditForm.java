@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.S
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
@@ -196,7 +197,8 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     private Button createSaveAndUploadButton()
     {
-        Button button = new Button(viewContext.getMessage(Dict.BUTTON_SAVE_AND_UPLOAD));
+        ButtonWithConfirmations button = new ButtonWithConfirmations();
+        button.setText(viewContext.getMessage(Dict.BUTTON_SAVE_AND_UPLOAD));
         addSaveButtonConfirmationListener(button);
         button.addSelectionListener(new SelectionListener<ButtonEvent>()
             {

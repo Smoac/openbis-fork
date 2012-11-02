@@ -64,6 +64,8 @@ var common = {
   metaprojects_hint: "List of metaprojects names separated by commas (\",\") or one metaproject name per line.",
   add_metaproject: "Add Metaproject...",
   choose_metaproject: "Choose a Metaproject",
+  create_not_existing_metaprojects_confirmation_title: "Confirm metaprojects creation",
+  create_not_existing_metaprojects_confirmation_msg: "Metaprojects {0} do not exist. Do you want to create them?",
   
   //
   // Form

@@ -219,10 +219,14 @@ abstract class AbstractBusinessObject implements IDAOFactory
             MetaprojectPE metaproject =
                     getMetaprojectDAO().tryFindByOwnerAndName(session.getUserName(),
                             metaprojectsOrNullItem);
+
             if (metaproject == null)
             {
-                throw new UserFailureException("Metaproject '" + metaprojectsOrNullItem
-                        + "' couldn't be found.");
+                PersonPE owner = getPersonDAO().tryFindPersonByUserId(session.getUserName());
+                metaproject = new MetaprojectPE();
+                metaproject.setName(metaprojectsOrNullItem);
+                metaproject.setOwner(owner);
+                getMetaprojectDAO().createOrUpdateMetaproject(metaproject, owner);
             }
             metaprojects.add(metaproject);
         }

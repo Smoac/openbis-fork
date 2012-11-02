@@ -88,6 +88,12 @@ public abstract class Dict
 
     public static final String CHOOSE_METAPROJECT = "choose_metaproject";
 
+    public static final String CREATE_NOT_EXISTING_METAPROJECTS_CONFIRMATION_TITLE =
+            "create_not_existing_metaprojects_confirmation_title";
+
+    public static final String CREATE_NOT_EXISTING_METAPROJECTS_CONFIRMATION_MSG =
+            "create_not_existing_metaprojects_confirmation_msg";
+
     //
     // Form
     //

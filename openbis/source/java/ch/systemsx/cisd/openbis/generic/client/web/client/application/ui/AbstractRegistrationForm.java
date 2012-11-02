@@ -21,9 +21,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -47,6 +45,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithCloseConfirmation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations.IConfirmation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations.IConfirmationChain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint.DirtyChangeEvent;
@@ -96,7 +97,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
 
     protected final int fieldWidth;
 
-    protected Button saveButton;
+    protected ButtonWithConfirmations saveButton;
 
     private boolean sessionKeysInitiated = false;
 
@@ -252,7 +253,8 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
                 }
             });
 
-        saveButton = new Button(messageProvider.getMessage(Dict.BUTTON_SAVE));
+        saveButton = new ButtonWithConfirmations();
+        saveButton.setText(messageProvider.getMessage(Dict.BUTTON_SAVE));
         saveButton.setStyleAttribute("marginRight", "20px");
         saveButton.setId(getId() + SAVE_BUTTON);
         saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
@@ -366,17 +368,18 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
         addSaveButtonConfirmationListener(saveButton);
     }
 
-    protected void addSaveButtonConfirmationListener(final Button button)
+    protected void addSaveButtonConfirmationListener(final ButtonWithConfirmations button)
     {
-        button.addListener(Events.BeforeSelect, new Listener<BaseEvent>()
+        button.clearConfirmations();
+
+        button.addConfirmation(new IConfirmation()
             {
                 @Override
-                public void handleEvent(BaseEvent be)
+                public void confirm(final IConfirmationChain chain)
                 {
                     if (formPanel.isValid() && isDirtyCheckEnabled()
                             && formPanel.isDirtyForSavePoint() == false)
                     {
-                        be.setCancelled(true);
                         new ConfirmationDialog(messageProvider
                                 .getMessage(Dict.SAVE_UNCHANGED_FORM_CONFIRMATION_TITLE),
                                 messageProvider
@@ -385,10 +388,14 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
                                 @Override
                                 protected void onYes()
                                 {
-                                    button.fireEvent(Events.Select);
+                                    chain.next();
                                 }
                             }.show();
+                    } else
+                    {
+                        chain.next();
                     }
+
                 }
             });
     }

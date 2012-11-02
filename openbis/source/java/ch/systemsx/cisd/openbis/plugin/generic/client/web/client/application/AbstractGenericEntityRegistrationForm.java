@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -38,6 +41,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.C
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MetaprojectArea;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MetaprojectChooserButton;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations.IConfirmation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations.IConfirmationChain;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -233,6 +240,85 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
                             }
                         }
                     });
+    }
+
+    @Override
+    protected void addSaveButtonConfirmationListener(ButtonWithConfirmations button)
+    {
+        super.addSaveButtonConfirmationListener(button);
+
+        button.addConfirmation(new IConfirmation()
+            {
+                @Override
+                public void confirm(final IConfirmationChain confirmationChain)
+                {
+                    String[] requestedMetaprojects = metaprojectArea.tryGetMetaprojects();
+
+                    if (formPanel.isValid() && requestedMetaprojects != null
+                            && requestedMetaprojects.length > 0)
+                    {
+                        viewContext.getCommonService().listMetaprojects(
+                                new CreateNonExistingMetaprojectsConfirmationCallback(viewContext,
+                                        confirmationChain, requestedMetaprojects));
+                    } else
+                    {
+                        confirmationChain.next();
+                    }
+                }
+            });
+    }
+
+    private static class CreateNonExistingMetaprojectsConfirmationCallback extends
+            AbstractAsyncCallback<List<Metaproject>>
+    {
+
+        private IConfirmationChain confirmationChain;
+
+        private String[] requestedMetaprojects;
+
+        public CreateNonExistingMetaprojectsConfirmationCallback(IViewContext<?> viewContext,
+                IConfirmationChain confirmationChain, String[] requestedMetaprojects)
+        {
+            super(viewContext);
+            this.confirmationChain = confirmationChain;
+            this.requestedMetaprojects = requestedMetaprojects;
+        }
+
+        @Override
+        protected void process(List<Metaproject> existingMetaprojects)
+        {
+            Set<String> notExistingMetaprojects = new LinkedHashSet<String>();
+            notExistingMetaprojects.addAll(Arrays.asList(requestedMetaprojects));
+
+            if (existingMetaprojects != null)
+            {
+                for (Metaproject existingMetaproject : existingMetaprojects)
+                {
+                    notExistingMetaprojects.remove(existingMetaproject.getName());
+                }
+            }
+
+            if (notExistingMetaprojects.isEmpty())
+            {
+                confirmationChain.next();
+            } else
+            {
+                new ConfirmationDialog(
+                        viewContext
+                                .getMessage(Dict.CREATE_NOT_EXISTING_METAPROJECTS_CONFIRMATION_TITLE),
+                        viewContext.getMessage(
+                                Dict.CREATE_NOT_EXISTING_METAPROJECTS_CONFIRMATION_MSG,
+                                notExistingMetaprojects))
+                    {
+                        @Override
+                        protected void onYes()
+                        {
+                            confirmationChain.next();
+                        }
+                    }.show();
+            }
+        }
+
     }
 
     /**

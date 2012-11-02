@@ -136,6 +136,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listScripts(ListScriptsCriteria criteria,
             final AsyncCallback<TypedTableResultSet<Script>> asyncCallback);
 
+    /** @see ICommonClientService#listMetaprojects() */
+    public void listMetaprojects(final AsyncCallback<List<Metaproject>> asyncCallback);
+
     /** @see ICommonClientService#listMetaprojects(ListMetaprojectsCriteria) */
     public void listMetaprojects(ListMetaprojectsCriteria criteria,
             final AsyncCallback<TypedTableResultSet<Metaproject>> asyncCallback);

@@ -151,6 +151,11 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of all metaprojects.
      */
+    public List<Metaproject> listMetaprojects() throws UserFailureException;
+
+    /**
+     * Returns a list of all metaprojects.
+     */
     public TypedTableResultSet<Metaproject> listMetaprojects(ListMetaprojectsCriteria criteria)
             throws UserFailureException;
 

@@ -683,6 +683,13 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
+    public List<Metaproject> listMetaprojects()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return commonServer.listMetaprojects(getSessionToken());
+    }
+
+    @Override
     public TypedTableResultSet<Metaproject> listMetaprojects(ListMetaprojectsCriteria criteria)
             throws UserFailureException
     {
