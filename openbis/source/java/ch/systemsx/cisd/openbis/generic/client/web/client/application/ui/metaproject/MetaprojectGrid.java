@@ -84,6 +84,7 @@ public class MetaprojectGrid extends TypedTableGrid<Metaproject>
             AbstractAsyncCallback<TypedTableResultSet<Metaproject>> callback)
     {
         ListMetaprojectsCriteria criteria = new ListMetaprojectsCriteria();
+        criteria.copyPagingConfig(resultSetConfig);
         viewContext.getService().listMetaprojects(criteria, callback);
     }
 
