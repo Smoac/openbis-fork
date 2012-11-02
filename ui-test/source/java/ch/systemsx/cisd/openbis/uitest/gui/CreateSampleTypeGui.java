@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.uitest.dsl.Command;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.layout.AddSampleTypeLocation;
 import ch.systemsx.cisd.openbis.uitest.page.AddSampleTypeDialog;
+import ch.systemsx.cisd.openbis.uitest.page.SampleTypeBrowser;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
@@ -44,6 +45,8 @@ public class CreateSampleTypeGui implements Command<SampleType>
         AddSampleTypeDialog dialog = pages.goTo(new AddSampleTypeLocation());
         dialog.fillWith(type);
         dialog.save();
+        // wait for browser to update before moving on
+        pages.load(SampleTypeBrowser.class);
         return type;
     }
 

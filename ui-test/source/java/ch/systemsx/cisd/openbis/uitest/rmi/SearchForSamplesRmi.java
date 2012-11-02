@@ -23,8 +23,6 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.help.Lambda;
@@ -45,20 +43,16 @@ public class SearchForSamplesRmi implements Command<List<Sample>>
     @Inject
     private ICommonServer commonServer;
 
-    private String code;
+    private SearchCriteria criteria;
 
-    public SearchForSamplesRmi(String code)
+    public SearchForSamplesRmi(SearchCriteria criteria)
     {
-        this.code = code;
+        this.criteria = criteria;
     }
 
     @Override
     public List<Sample> execute()
     {
-        SearchCriteria criteria = new SearchCriteria();
-        criteria.addMatchClause(
-                MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, code));
-
         return Lambda.foreach(
                 generalInformationService.searchForSamples(
                         session, criteria, EnumSet.allOf(SampleFetchOption.class)),
