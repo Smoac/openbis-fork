@@ -499,6 +499,19 @@ public class DatabaseConfigurationContext implements DisposableBean
     }
 
     /**
+     * Set the time interval (in seconds) after which an active database connection is considered
+     * "old" and thus a warning log is issued for this connection. Set to 0 to disable this feature.
+     */
+    public void setOldActiveConnectionTimeProp(String oldActiveConnectionTimeStr)
+    {
+        if (isSet(oldActiveConnectionTimeStr))
+        {
+            this.dataSourceFactory.setOldActiveConnectionTime(Integer
+                    .parseInt(oldActiveConnectionTimeStr) * 1000L);
+        }
+    }
+
+    /**
      * Sets the number of active connections that will trigger a NOTIFY log and will switch on
      * detailed connection logging.
      */
@@ -689,7 +702,8 @@ public class DatabaseConfigurationContext implements DisposableBean
     {
         if (isSet(databaseEngineCode))
         {
-            this.databaseEngine = DatabaseEngine.getEngineForCode(StringUtils.trim(databaseEngineCode));
+            this.databaseEngine =
+                    DatabaseEngine.getEngineForCode(StringUtils.trim(databaseEngineCode));
         } else
         {
             this.databaseEngine = DatabaseEngine.POSTGRESQL;

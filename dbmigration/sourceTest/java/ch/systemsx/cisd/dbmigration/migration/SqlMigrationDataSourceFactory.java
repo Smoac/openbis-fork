@@ -80,4 +80,15 @@ public class SqlMigrationDataSourceFactory implements IDataSourceFactory
     {
     }
 
+    @Override
+    public void setOldActiveConnectionTime(long oldActiveConnectionTimeMillis)
+    {
+    }
+
+    @Override
+    public long getOldActiveConnectionTime()
+    {
+        return 0;
+    }
+
 }

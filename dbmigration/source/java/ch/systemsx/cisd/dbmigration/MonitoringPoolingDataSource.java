@@ -23,6 +23,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -51,9 +52,14 @@ class MonitoringPoolingDataSource extends PoolingDataSource
     private final static Logger notifyLog =
             LogFactory.getLogger(LogCategory.NOTIFY, MonitoringPoolingDataSource.class);
 
+    private final Map<PoolGuardConnectionWrapper, Long> activeConnectionMap =
+            new IdentityHashMap<MonitoringPoolingDataSource.PoolGuardConnectionWrapper, Long>();
+
     private final long activeConnectionsLogInterval;
 
     private final int activeConnectionsLogThreshold;
+
+    private final long oldActiveConnectionTimeMillis;
 
     private final boolean logStackTrace;
 
@@ -63,12 +69,14 @@ class MonitoringPoolingDataSource extends PoolingDataSource
 
     private volatile boolean logConnection;
 
-    public MonitoringPoolingDataSource(ObjectPool pool, long activeConnectionsLogInternval,
-            int activeConnectionsLogThreshold, boolean logStackTrace)
+    public MonitoringPoolingDataSource(ObjectPool pool, long activeConnectionsLogInterval,
+            int activeConnectionsLogThreshold, long oldActiveConnectionTimeMillis,
+            boolean logStackTrace)
     {
         super(pool);
         this.activeConnectionsLogThreshold = activeConnectionsLogThreshold;
-        this.activeConnectionsLogInterval = activeConnectionsLogInternval;
+        this.activeConnectionsLogInterval = activeConnectionsLogInterval;
+        this.oldActiveConnectionTimeMillis = oldActiveConnectionTimeMillis;
         this.logStackTrace = logStackTrace;
     }
 
@@ -86,11 +94,41 @@ class MonitoringPoolingDataSource extends PoolingDataSource
             final long now = System.currentTimeMillis();
             final int numActive = _pool.getNumActive();
             maxActiveSinceLastLogged = Math.max(maxActiveSinceLastLogged, numActive);
-            if (logConnection
-                    || ((activeConnectionsLogInterval > 0)
-                            && (now - lastLogged > activeConnectionsLogInterval) && maxActiveSinceLastLogged > 1))
+            if (numActive > activeConnectionsLogThreshold)
             {
+                if (logConnection == false)
+                {
+                    logConnection = true;
+                    if (activeConnectionsLogThreshold > 0)
+                    {
+                        notifyLog.warn(String.format(
+                                "Switch on database connection logging: %d > %d",
+                                numActive, activeConnectionsLogThreshold));
+                    } else
+                    {
+                        if (machineLog.isInfoEnabled())
+                        {
+                            machineLog.info(String.format(
+                                    "Switch on database connection logging: %d > %d",
+                                    numActive, activeConnectionsLogThreshold));
+                        }
+                    }
+                }
+            } else
+            {
+                logConnection = false;
                 if (machineLog.isInfoEnabled())
+                {
+                    machineLog.info(String.format(
+                            "Switch off database connection logging: %d <= %d",
+                            numActive, activeConnectionsLogThreshold));
+                }
+            }
+            if ((activeConnectionsLogInterval > 0)
+                    && (now - lastLogged > activeConnectionsLogInterval)
+                    && maxActiveSinceLastLogged > 1)
+            {
+                if (machineLog.isInfoEnabled() && logConnection == false)
                 {
                     machineLog.info(String.format(
                             "Active database connections: current: %d, peak: %d.", numActive,
@@ -98,22 +136,36 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                 }
                 lastLogged = now;
                 maxActiveSinceLastLogged = 0;
-            }
-            if (numActive > activeConnectionsLogThreshold)
-            {
-                if (logConnection == false)
+                if (doLogOldConnections())
                 {
-                    logConnection = true;
-                    notifyLog.warn(String.format("Active database connections: %d > %d", numActive,
-                            activeConnectionsLogThreshold));
+                    for (Map.Entry<PoolGuardConnectionWrapper, Long> entry : activeConnectionMap
+                            .entrySet())
+                    {
+                        if (now - entry.getValue() > oldActiveConnectionTimeMillis)
+                        {
+                            final StackTraceElement[] stackTraceOrNull =
+                                    entry.getKey().tryGetCreationStackTrace();
+                            if (stackTraceOrNull != null)
+                            {
+                                machineLog.warn("Database connection has not been returned: id="
+                                        + entry.getKey().hashCode() + ".\n"
+                                        + traceToString(stackTraceOrNull));
+                            } else
+                            {
+                                machineLog.warn("Database connection has not been returned: id="
+                                        + entry.getKey().hashCode() + ".");
+                            }
+                        }
+                    }
                 }
-            } else
-            {
-                logConnection = false;
             }
             if (conn != null)
             {
                 conn = new PoolGuardConnectionWrapper(conn);
+                if (doLogOldConnections())
+                {
+                    activeConnectionMap.put((PoolGuardConnectionWrapper) conn, now);
+                }
             }
             return conn;
         } catch (SQLException e)
@@ -131,6 +183,11 @@ class MonitoringPoolingDataSource extends PoolingDataSource
             throw new org.apache.commons.dbcp.SQLNestedException(
                     "Cannot get a connection, general error", e);
         }
+    }
+
+    boolean doLogOldConnections()
+    {
+        return oldActiveConnectionTimeMillis > 0;
     }
 
     static StackTraceElement[] getStackTrace()
@@ -170,40 +227,56 @@ class MonitoringPoolingDataSource extends PoolingDataSource
      */
     private class PoolGuardConnectionWrapper extends DelegatingConnection
     {
-
-        private Connection delegate;
+        private final StackTraceElement[] creationStackTraceOrNull;
 
         PoolGuardConnectionWrapper(Connection delegate)
         {
             super(delegate);
-            this.delegate = delegate;
+            if (doLogOldConnections())
+            {
+                creationStackTraceOrNull = getStackTrace();
+            } else
+            {
+                creationStackTraceOrNull = null;
+            }
             log("Hand out database connection");
+        }
+
+        StackTraceElement[] tryGetCreationStackTrace()
+        {
+            return creationStackTraceOrNull;
         }
 
         void log(String action)
         {
             if (logConnection && machineLog.isInfoEnabled())
             {
+                final int numActive = _pool.getNumActive();
                 final StackTraceElement[] stackTrace = getStackTrace();
                 final String serviceMethod = tryGetServiceMethodName(stackTrace);
                 if (serviceMethod == null)
                 {
                     if (logStackTrace)
                     {
-                        machineLog.info(action + ".\n" + traceToString(stackTrace));
+                        machineLog.info(action + ", id=" + hashCode() + ", active=" + numActive
+                                + ".\n" + traceToString(stackTrace));
                     } else
                     {
-                        machineLog.info(action + ".");
+                        machineLog
+                                .info(action + ", id=" + hashCode() + ", active=" + numActive + ".");
                     }
                 } else
                 {
                     if (logStackTrace)
                     {
-                        machineLog.info(action + ", service method: " + serviceMethod + ".\n"
+                        machineLog.info(action + ", id=" + hashCode() + ", active=" + numActive
+                                + ", service method: "
+                                + serviceMethod + ".\n"
                                 + traceToString(stackTrace));
                     } else
                     {
-                        machineLog.info(action + ", service method: " + serviceMethod + ".");
+                        machineLog.info(action + ", id=" + hashCode() + ", active=" + numActive
+                                + ", service method: " + serviceMethod + ".");
                     }
                 }
             }
@@ -212,7 +285,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         @Override
         protected void checkOpen() throws SQLException
         {
-            if (delegate == null)
+            if (_conn == null)
             {
                 throw new SQLException("Connection is closed.");
             }
@@ -221,44 +294,47 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         @Override
         public void close() throws SQLException
         {
-            log("Return database connection");
-            if (delegate != null)
+            if (_conn != null)
             {
-                this.delegate.close();
-                this.delegate = null;
+                this._conn.close();
                 super.setDelegate(null);
+                if (doLogOldConnections())
+                {
+                    activeConnectionMap.remove(this);
+                }
+                log("Return database connection");
             }
         }
 
         @Override
         public boolean isClosed() throws SQLException
         {
-            if (delegate == null)
+            if (_conn == null)
             {
                 return true;
             }
-            return delegate.isClosed();
+            return _conn.isClosed();
         }
 
         @Override
         public void clearWarnings() throws SQLException
         {
             checkOpen();
-            delegate.clearWarnings();
+            _conn.clearWarnings();
         }
 
         @Override
         public void commit() throws SQLException
         {
             checkOpen();
-            delegate.commit();
+            _conn.commit();
         }
 
         @Override
         public Statement createStatement() throws SQLException
         {
             checkOpen();
-            return new DelegatingStatement(this, delegate.createStatement());
+            return new DelegatingStatement(this, _conn.createStatement());
         }
 
         @Override
@@ -266,7 +342,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                 throws SQLException
         {
             checkOpen();
-            return new DelegatingStatement(this, delegate.createStatement(resultSetType,
+            return new DelegatingStatement(this, _conn.createStatement(resultSetType,
                     resultSetConcurrency));
         }
 
@@ -287,28 +363,28 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         public boolean getAutoCommit() throws SQLException
         {
             checkOpen();
-            return delegate.getAutoCommit();
+            return _conn.getAutoCommit();
         }
 
         @Override
         public String getCatalog() throws SQLException
         {
             checkOpen();
-            return delegate.getCatalog();
+            return _conn.getCatalog();
         }
 
         @Override
         public DatabaseMetaData getMetaData() throws SQLException
         {
             checkOpen();
-            return delegate.getMetaData();
+            return _conn.getMetaData();
         }
 
         @Override
         public int getTransactionIsolation() throws SQLException
         {
             checkOpen();
-            return delegate.getTransactionIsolation();
+            return _conn.getTransactionIsolation();
         }
 
         @SuppressWarnings(
@@ -317,73 +393,35 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         public Map getTypeMap() throws SQLException
         {
             checkOpen();
-            return delegate.getTypeMap();
+            return _conn.getTypeMap();
         }
 
         @Override
         public SQLWarning getWarnings() throws SQLException
         {
             checkOpen();
-            return delegate.getWarnings();
-        }
-
-        @Override
-        public int hashCode()
-        {
-            if (delegate == null)
-            {
-                return 0;
-            }
-            return delegate.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (obj == null)
-            {
-                return false;
-            }
-            if (obj == this)
-            {
-                return true;
-            }
-            // Use superclass accessor to skip access test
-            Connection conn = super.getInnermostDelegate();
-            if (conn == null)
-            {
-                return false;
-            }
-            if (obj instanceof DelegatingConnection)
-            {
-                DelegatingConnection c = (DelegatingConnection) obj;
-                return c.innermostDelegateEquals(conn);
-            }
-            else
-            {
-                return conn.equals(obj);
-            }
+            return _conn.getWarnings();
         }
 
         @Override
         public boolean isReadOnly() throws SQLException
         {
             checkOpen();
-            return delegate.isReadOnly();
+            return _conn.isReadOnly();
         }
 
         @Override
         public String nativeSQL(String sql) throws SQLException
         {
             checkOpen();
-            return delegate.nativeSQL(sql);
+            return _conn.nativeSQL(sql);
         }
 
         @Override
         public CallableStatement prepareCall(String sql) throws SQLException
         {
             checkOpen();
-            return new DelegatingCallableStatement(this, delegate.prepareCall(sql));
+            return new DelegatingCallableStatement(this, _conn.prepareCall(sql));
         }
 
         @Override
@@ -391,7 +429,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                 throws SQLException
         {
             checkOpen();
-            return new DelegatingCallableStatement(this, delegate.prepareCall(sql, resultSetType,
+            return new DelegatingCallableStatement(this, _conn.prepareCall(sql, resultSetType,
                     resultSetConcurrency));
         }
 
@@ -399,7 +437,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         public PreparedStatement prepareStatement(String sql) throws SQLException
         {
             checkOpen();
-            return new DelegatingPreparedStatement(this, delegate.prepareStatement(sql));
+            return new DelegatingPreparedStatement(this, _conn.prepareStatement(sql));
         }
 
         @Override
@@ -407,7 +445,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                 int resultSetConcurrency) throws SQLException
         {
             checkOpen();
-            return new DelegatingPreparedStatement(this, delegate.prepareStatement(sql,
+            return new DelegatingPreparedStatement(this, _conn.prepareStatement(sql,
                     resultSetType, resultSetConcurrency));
         }
 
@@ -415,35 +453,35 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         public void rollback() throws SQLException
         {
             checkOpen();
-            delegate.rollback();
+            _conn.rollback();
         }
 
         @Override
         public void setAutoCommit(boolean autoCommit) throws SQLException
         {
             checkOpen();
-            delegate.setAutoCommit(autoCommit);
+            _conn.setAutoCommit(autoCommit);
         }
 
         @Override
         public void setCatalog(String catalog) throws SQLException
         {
             checkOpen();
-            delegate.setCatalog(catalog);
+            _conn.setCatalog(catalog);
         }
 
         @Override
         public void setReadOnly(boolean readOnly) throws SQLException
         {
             checkOpen();
-            delegate.setReadOnly(readOnly);
+            _conn.setReadOnly(readOnly);
         }
 
         @Override
         public void setTransactionIsolation(int level) throws SQLException
         {
             checkOpen();
-            delegate.setTransactionIsolation(level);
+            _conn.setTransactionIsolation(level);
         }
 
         @Override
@@ -452,59 +490,59 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         public void setTypeMap(Map map) throws SQLException
         {
             checkOpen();
-            delegate.setTypeMap(map);
+            _conn.setTypeMap(map);
         }
 
         @Override
         public String toString()
         {
-            if (delegate == null)
+            if (_conn == null)
             {
                 return "NULL";
             }
-            return delegate.toString();
+            return _conn.toString();
         }
 
         @Override
         public int getHoldability() throws SQLException
         {
             checkOpen();
-            return delegate.getHoldability();
+            return _conn.getHoldability();
         }
 
         @Override
         public void setHoldability(int holdability) throws SQLException
         {
             checkOpen();
-            delegate.setHoldability(holdability);
+            _conn.setHoldability(holdability);
         }
 
         @Override
         public java.sql.Savepoint setSavepoint() throws SQLException
         {
             checkOpen();
-            return delegate.setSavepoint();
+            return _conn.setSavepoint();
         }
 
         @Override
         public java.sql.Savepoint setSavepoint(String name) throws SQLException
         {
             checkOpen();
-            return delegate.setSavepoint(name);
+            return _conn.setSavepoint(name);
         }
 
         @Override
         public void releaseSavepoint(java.sql.Savepoint savepoint) throws SQLException
         {
             checkOpen();
-            delegate.releaseSavepoint(savepoint);
+            _conn.releaseSavepoint(savepoint);
         }
 
         @Override
         public void rollback(java.sql.Savepoint savepoint) throws SQLException
         {
             checkOpen();
-            delegate.rollback(savepoint);
+            _conn.rollback(savepoint);
         }
 
         @Override
@@ -512,7 +550,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                 int resultSetHoldability) throws SQLException
         {
             checkOpen();
-            return new DelegatingStatement(this, delegate.createStatement(resultSetType,
+            return new DelegatingStatement(this, _conn.createStatement(resultSetType,
                     resultSetConcurrency, resultSetHoldability));
         }
 
@@ -521,7 +559,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                 int resultSetConcurrency, int resultSetHoldability) throws SQLException
         {
             checkOpen();
-            return new DelegatingCallableStatement(this, delegate.prepareCall(sql, resultSetType,
+            return new DelegatingCallableStatement(this, _conn.prepareCall(sql, resultSetType,
                     resultSetConcurrency, resultSetHoldability));
         }
 
@@ -530,7 +568,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                 throws SQLException
         {
             checkOpen();
-            return new DelegatingPreparedStatement(this, delegate.prepareStatement(sql,
+            return new DelegatingPreparedStatement(this, _conn.prepareStatement(sql,
                     autoGeneratedKeys));
         }
 
@@ -539,7 +577,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                 int resultSetConcurrency, int resultSetHoldability) throws SQLException
         {
             checkOpen();
-            return new DelegatingPreparedStatement(this, delegate.prepareStatement(sql,
+            return new DelegatingPreparedStatement(this, _conn.prepareStatement(sql,
                     resultSetType, resultSetConcurrency, resultSetHoldability));
         }
 
@@ -548,7 +586,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                 throws SQLException
         {
             checkOpen();
-            return new DelegatingPreparedStatement(this, delegate.prepareStatement(sql,
+            return new DelegatingPreparedStatement(this, _conn.prepareStatement(sql,
                     columnIndexes));
         }
 
@@ -558,7 +596,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         {
             checkOpen();
             return new DelegatingPreparedStatement(this,
-                    delegate.prepareStatement(sql, columnNames));
+                    _conn.prepareStatement(sql, columnNames));
         }
 
         /**

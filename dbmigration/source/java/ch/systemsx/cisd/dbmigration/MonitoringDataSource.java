@@ -39,6 +39,8 @@ public class MonitoringDataSource extends BasicDataSource
 
     private int activeConnectionsLogThreshold;
 
+    private long oldActiveConnectionTimeMillis;
+
     private boolean logStackTrace;
 
     @Override
@@ -106,12 +108,30 @@ public class MonitoringDataSource extends BasicDataSource
         this.logStackTrace = logStackTrace;
     }
 
+    /**
+     * Returns the time (in ms) after which an active database connection is considered old and thus
+     * logged.
+     */
+    public long getOldActiveConnectionTimeMillis()
+    {
+        return oldActiveConnectionTimeMillis;
+    }
+
+    /**
+     * Sets the time (in ms) after which an active database connection is considered old and thus
+     * logged. 0 means: do not log old database connections.
+     */
+    public void setOldActiveConnectionTimeMillis(long oldActiveConnectionTimeMillis)
+    {
+        this.oldActiveConnectionTimeMillis = oldActiveConnectionTimeMillis;
+    }
+
     @Override
     protected void createDataSourceInstance() throws SQLException
     {
         final MonitoringPoolingDataSource pds =
                 new MonitoringPoolingDataSource(connectionPool, activeConnectionsLogInterval,
-                        activeConnectionsLogThreshold, logStackTrace);
+                        activeConnectionsLogThreshold, oldActiveConnectionTimeMillis, logStackTrace);
         pds.setAccessToUnderlyingConnectionAllowed(isAccessToUnderlyingConnectionAllowed());
         pds.setLogWriter(logWriter);
         dataSource = pds;

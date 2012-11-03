@@ -39,6 +39,8 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     private static final int DEFAULT_ACTIVE_NUM_CONNECTIONS_LOG_THRESHOLD =
             (int) (DEFAULT_MAX_ACTIVE * 0.8);
 
+    private static final int DEFAULT_OLD_ACTIVE_CONNECTION_TIME = 0;
+
     private long maxWaitMillis = DEFAULT_MAX_WAIT;
 
     private int maxIdle = DEFAULT_MAX_IDLE;
@@ -48,6 +50,8 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     private long activeConnectionsLogIntervalMillis = DEFAULT_ACTIVE_CONNECTIONS_LOG_INTERVAL;
 
     private int activeNumConnectionsLogThreshold = DEFAULT_ACTIVE_NUM_CONNECTIONS_LOG_THRESHOLD;
+    
+    private long oldActiveConnectionTimeMillis = DEFAULT_OLD_ACTIVE_CONNECTION_TIME;
     
     private boolean activeNumConnectionLogThresholdIsDefault = true;
     
@@ -73,6 +77,7 @@ public class BasicDataSourceFactory implements IDataSourceFactory
         dataSource.setMaxWait(maxWaitMillis * 1000L);
         dataSource.setActiveConnectionsLogInterval(activeConnectionsLogIntervalMillis);
         dataSource.setActiveConnectionsLogThreshold(activeNumConnectionsLogThreshold);
+        dataSource.setOldActiveConnectionTimeMillis(oldActiveConnectionTimeMillis);
         dataSource.setLogStackTrace(logStackTraceOnConnectionLogging);
         dataSource.setValidationQuery(validationQuery);
         return dataSource;
@@ -130,9 +135,9 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     }
     
     @Override
-    public void setActiveConnectionsLogInterval(long activeConnectionLogInterval)
+    public void setActiveConnectionsLogInterval(long activeConnectionLogIntervalMillis)
     {
-        this.activeConnectionsLogIntervalMillis = activeConnectionLogInterval;
+        this.activeConnectionsLogIntervalMillis = activeConnectionLogIntervalMillis;
     }
 
     @Override
@@ -146,6 +151,18 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     {
         this.activeNumConnectionsLogThreshold = activeConnectionsLogThreshold;
         this.activeNumConnectionLogThresholdIsDefault = false;
+    }
+
+    @Override
+    public void setOldActiveConnectionTime(long oldActiveConnectionTimeMillis)
+    {
+        this.oldActiveConnectionTimeMillis = oldActiveConnectionTimeMillis;
+    }
+
+    @Override
+    public long getOldActiveConnectionTime()
+    {
+        return oldActiveConnectionTimeMillis;
     }
 
     @Override

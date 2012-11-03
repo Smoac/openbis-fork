@@ -61,13 +61,21 @@ public interface IDataSourceFactory
     public long getActiveConnectionsLogInterval();
 
     /**
-     * Set the interval (in seconds) between two regular log entries of currently active database
+     * Set the interval (in ms) between two regular log entries of currently active database
      * connections if more than one connection is active. Set to a negative value to disable this
      * feature.
      */
-    public void setActiveConnectionsLogInterval(long activeConnectionLogInterval);
+    public void setActiveConnectionsLogInterval(long activeConnectionLogIntervalMillis);
 
     public int getActiveNumConnectionsLogThreshold();
+
+    /**
+     * Sets the time interval (in ms) after which an active database connection is considered
+     * "old" and a warning is issued. 0 means: no logging of old database connections.
+     */
+    public void setOldActiveConnectionTime(long oldActiveConnectionTimeMillis);
+
+    public long getOldActiveConnectionTime();
 
     /**
      * Sets the number of active connections that will trigger a NOTIFY log and will switch on
