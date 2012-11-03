@@ -199,14 +199,15 @@ class MonitoringPoolingDataSource extends PoolingDataSource
 
     static String tryGetServiceMethodName(StackTraceElement[] stackTrace)
     {
+        String methodName = null;
         for (StackTraceElement e : stackTrace)
         {
             if (e.getClassName().contains("$Proxy"))
             {
-                return e.getMethodName();
+                methodName = e.getMethodName();
             }
         }
-        return null;
+        return methodName;
     }
 
     static String traceToString(StackTraceElement[] trace)
