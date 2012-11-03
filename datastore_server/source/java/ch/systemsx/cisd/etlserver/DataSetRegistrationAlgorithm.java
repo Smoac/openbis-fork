@@ -27,6 +27,7 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileConstants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -450,7 +452,13 @@ public class DataSetRegistrationAlgorithm
             state.transaction.commit();
         } finally
         {
-            getFileOperations().delete(markerFile);
+            try
+            {
+                getFileOperations().delete(markerFile);
+            } catch (TimeoutExceptionUnchecked ex)
+            {
+                QueueingPathRemoverService.removeRecursively(markerFile);
+            }
         }
     }
 
