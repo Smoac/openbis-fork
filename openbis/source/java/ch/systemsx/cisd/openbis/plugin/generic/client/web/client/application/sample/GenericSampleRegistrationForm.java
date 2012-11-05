@@ -110,7 +110,7 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
         newSample.setProperties(properties.toArray(IEntityProperty.EMPTY_ARRAY));
         newSample.setAttachments(attachmentsManager.extractAttachments());
         newSample.setExperimentIdentifier(experimentIdentifier);
-        newSample.setMetaprojectsOrNull(metaprojectArea.tryGetMetaprojects());
+        newSample.setMetaprojectsOrNull(metaprojectArea.tryGetModifiedMetaprojects());
 
         viewContext.getService().registerSample(attachmentsSessionKey, newSample,
                 enrichWithPostRegistration(new RegisterSampleCallback(viewContext)));

@@ -141,7 +141,7 @@ public final class GenericDataSetEditForm extends
             result.setExperimentIdentifierOrNull(extractExperimentIdentifier());
         }
         result.setModifiedParentDatasetCodesOrNull(extractParentDatasetCodes());
-        result.setMetaprojectsOrNull(metaprojectArea.tryGetMetaprojects());
+        result.setMetaprojectsOrNull(metaprojectArea.tryGetModifiedMetaprojects());
         builder.fillUpdates(result);
         return result;
     }

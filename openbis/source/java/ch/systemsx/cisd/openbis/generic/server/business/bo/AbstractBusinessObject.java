@@ -216,6 +216,11 @@ abstract class AbstractBusinessObject implements IDAOFactory
 
         for (String metaprojectsOrNullItem : metaprojectsOrNull)
         {
+            if (metaprojectsOrNullItem == null)
+            {
+                throw new IllegalArgumentException("Metaproject cannot be null");
+            }
+
             MetaprojectPE metaproject =
                     getMetaprojectDAO().tryFindByOwnerAndName(session.getUserName(),
                             metaprojectsOrNullItem);

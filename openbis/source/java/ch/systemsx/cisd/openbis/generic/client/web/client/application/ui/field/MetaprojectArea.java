@@ -64,7 +64,31 @@ public class MetaprojectArea extends MultilineItemsField
 
     public final String[] tryGetMetaprojects()
     {
-        return tryGetModifiedItemList();
+        return getNotEmptyItems(getItems());
+    }
+
+    public final String[] tryGetModifiedMetaprojects()
+    {
+        return getNotEmptyItems(tryGetModifiedItemList());
+    }
+
+    private String[] getNotEmptyItems(String[] items)
+    {
+        if (items != null)
+        {
+            List<String> notEmptyItems = new ArrayList<String>();
+            for (String item : items)
+            {
+                if (item != null && item.trim().length() > 0)
+                {
+                    notEmptyItems.add(item.trim());
+                }
+            }
+            return notEmptyItems.toArray(new String[notEmptyItems.size()]);
+        } else
+        {
+            return null;
+        }
     }
 
 }

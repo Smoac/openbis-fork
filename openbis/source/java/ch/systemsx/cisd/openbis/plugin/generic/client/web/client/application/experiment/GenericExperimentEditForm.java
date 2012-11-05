@@ -101,7 +101,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
         updates.setGenerateCodes(autoGenerateCodes.getValue().booleanValue());
         updates.setRegisterSamples(existingSamplesRadio.getValue() == false);
         updates.setSamplesSessionKey(samplesSessionKey);
-        updates.setMetaprojectsOrNull(metaprojectArea.tryGetMetaprojects());
+        updates.setMetaprojectsOrNull(metaprojectArea.tryGetModifiedMetaprojects());
         viewContext.getService().updateExperiment(updates,
                 new UpdateExperimentCallback(viewContext));
     }

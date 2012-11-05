@@ -67,7 +67,7 @@ public final class GenericMaterialEditForm extends
     public final void submitValidForm()
     {
         viewContext.getService().updateMaterial(techIdOrNull, extractProperties(),
-                metaprojectArea.tryGetMetaprojects(), originalMaterial.getModificationDate(),
+                metaprojectArea.tryGetModifiedMetaprojects(), originalMaterial.getModificationDate(),
                 new UpdateMaterialCallback(viewContext));
     }
 
