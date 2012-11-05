@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import ch.systemsx.cisd.common.shared.basic.string.IgnoreCaseComparator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
@@ -55,7 +56,7 @@ public class MetaprojectArea extends MultilineItemsField
             }
         }
 
-        Collections.sort(names);
+        Collections.sort(names, new IgnoreCaseComparator());
 
         setItems(names);
     }

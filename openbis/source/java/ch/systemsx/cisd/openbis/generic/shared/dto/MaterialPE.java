@@ -76,7 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
             ColumnNames.DATABASE_INSTANCE_COLUMN }))
 @Indexed(index = "MaterialPE")
 public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
-        IEntityInformationWithPropertiesHolder, Serializable, IMatchingEntity, IHasMetaprojectsPE
+        IEntityInformationWithPropertiesHolder, Serializable, IMatchingEntity, IEntityWithMetaprojects
 {
     private static final long serialVersionUID = IServer.VERSION;
 

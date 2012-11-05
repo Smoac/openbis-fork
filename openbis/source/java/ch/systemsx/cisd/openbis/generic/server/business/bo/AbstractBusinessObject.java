@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.sql.Connection;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -72,7 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IHasMetaprojectsPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -200,7 +201,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
                 registrator, propertiesToUpdate);
     }
 
-    protected void setMetaprojects(IHasMetaprojectsPE entity, String[] metaprojectsOrNull)
+    protected void setMetaprojects(IEntityWithMetaprojects entity, String[] metaprojectsOrNull)
     {
         if (entity == null)
         {
@@ -211,7 +212,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
             return;
         }
 
-        Set<MetaprojectPE> currentMetaprojects = entity.getMetaprojects();
+        PersonPE owner = getPersonDAO().tryFindPersonByUserId(session.getUserName());
         Set<MetaprojectPE> metaprojects = new HashSet<MetaprojectPE>();
 
         for (String metaprojectsOrNullItem : metaprojectsOrNull)
@@ -227,7 +228,6 @@ abstract class AbstractBusinessObject implements IDAOFactory
 
             if (metaproject == null)
             {
-                PersonPE owner = getPersonDAO().tryFindPersonByUserId(session.getUserName());
                 metaproject = new MetaprojectPE();
                 metaproject.setName(metaprojectsOrNullItem);
                 metaproject.setOwner(owner);
@@ -235,6 +235,9 @@ abstract class AbstractBusinessObject implements IDAOFactory
             }
             metaprojects.add(metaproject);
         }
+
+        Collection<MetaprojectPE> currentMetaprojects =
+                getMetaprojectDAO().listMetaprojectsForEntity(owner, entity);
 
         Set<MetaprojectPE> metaprojectsToAdd = new HashSet<MetaprojectPE>();
         Set<MetaprojectPE> metaprojectsToRemove = new HashSet<MetaprojectPE>();

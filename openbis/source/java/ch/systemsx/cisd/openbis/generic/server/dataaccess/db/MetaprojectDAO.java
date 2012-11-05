@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.MetaprojectName;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
@@ -112,7 +113,7 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
 
     @Override
     public Collection<MetaprojectPE> listMetaprojectsForEntity(PersonPE owner,
-            IEntityInformationWithPropertiesHolder entity)
+            IEntityInformationHolderDTO entity)
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(MetaprojectAssignmentPE.class);
         criteria.createAlias("metaproject", "m");

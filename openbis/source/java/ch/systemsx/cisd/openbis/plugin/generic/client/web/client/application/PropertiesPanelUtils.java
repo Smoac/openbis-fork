@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.common.shared.basic.string.IgnoreCaseComparator;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -68,7 +69,7 @@ public class PropertiesPanelUtils
                 names[index++] = metaproject.getName();
             }
 
-            Arrays.sort(names);
+            Arrays.sort(names, new IgnoreCaseComparator());
 
             properties
                     .put(viewContext.getMessage(Dict.METAPROJECTS), StringUtils.join(names, ", "));
