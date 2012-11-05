@@ -1998,8 +1998,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         sampleBO.enrichWithAttachments();
         sampleBO.enrichWithPropertyTypes();
         final SamplePE sample = sampleBO.getSample();
+        Collection<MetaprojectPE> metaprojectPEs =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                        session.tryGetPerson(), sample);
         return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
-                .getSampleInfo(session, sample), session.getBaseIndexURL());
+                .getSampleInfo(session, sample), session.getBaseIndexURL(), MetaprojectTranslator
+                .translate(metaprojectPEs));
     }
 
     @Override
@@ -2335,8 +2339,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         if ((entityKind.equals(EntityKind.SAMPLE) || entityKind.equals(EntityKind.DATA_SET) || entityKind
-                .equals(EntityKind.MATERIAL))
-                && EntityType.isDefinedInFileEntityTypeCode(type))
+                .equals(EntityKind.MATERIAL)) && EntityType.isDefinedInFileEntityTypeCode(type))
         {
             types.addAll(getDAOFactory().getEntityTypeDAO(
                     DtoConverters.convertEntityKind(entityKind)).listEntityTypes());

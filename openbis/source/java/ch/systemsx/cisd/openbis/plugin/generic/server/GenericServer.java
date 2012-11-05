@@ -186,8 +186,12 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         sampleBO.enrichWithAttachments();
         sampleBO.enrichWithPropertyTypes();
         final SamplePE sample = sampleBO.getSample();
+        Collection<MetaprojectPE> metaprojectPEs =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                        session.tryGetPerson(), sample);
         return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
-                .getSampleInfo(session, sample), session.getBaseIndexURL());
+                .getSampleInfo(session, sample), session.getBaseIndexURL(), MetaprojectTranslator
+                .translate(metaprojectPEs));
     }
 
     @Override

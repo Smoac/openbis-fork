@@ -197,23 +197,18 @@ public final class SampleTranslator
     }
 
     public final static SampleParentWithDerived translate(
-            final SampleParentWithDerivedDTO sampleGenerationDTO, String baseIndexURL)
+            final SampleParentWithDerivedDTO sampleGenerationDTO, String baseIndexURL,
+            Collection<Metaproject> metaprojects)
     {
         final SampleParentWithDerived sampleGeneration = new SampleParentWithDerived();
 
-        Collection<Metaproject> parentMetaprojects =
-                MetaprojectTranslator.translate(sampleGenerationDTO.getParent().getMetaprojects());
-
         sampleGeneration.setParent(SampleTranslator.translate(sampleGenerationDTO.getParent(),
-                baseIndexURL, parentMetaprojects));
+                baseIndexURL, metaprojects));
 
         final List<Sample> generated = new ArrayList<Sample>();
         for (SamplePE samplePE : sampleGenerationDTO.getDerived())
         {
-            Collection<Metaproject> derivedMetaprojects =
-                    MetaprojectTranslator.translate(samplePE.getMetaprojects());
-            generated.add(SampleTranslator.translate(samplePE, baseIndexURL, false, false,
-                    derivedMetaprojects));
+            generated.add(SampleTranslator.translate(samplePE, baseIndexURL, false, false, null));
         }
         sampleGeneration.setDerived(generated.toArray(new Sample[generated.size()]));
         return sampleGeneration;

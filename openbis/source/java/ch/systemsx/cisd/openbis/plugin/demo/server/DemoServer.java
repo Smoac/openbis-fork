@@ -42,10 +42,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
 import ch.systemsx.cisd.openbis.plugin.demo.shared.ResourceNames;
@@ -122,7 +124,11 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
         ISampleTypeSlaveServerPlugin plugin =
                 getSampleTypeSlaveServerPlugin(sample.getSampleType());
         SampleParentWithDerivedDTO sampleInfo = plugin.getSampleInfo(session, sample);
-        return SampleTranslator.translate(sampleInfo, session.getBaseIndexURL());
+        Collection<MetaprojectPE> metaprojectPEs =
+                getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
+                        session.tryGetPerson(), sample);
+        return SampleTranslator.translate(sampleInfo, session.getBaseIndexURL(),
+                MetaprojectTranslator.translate(metaprojectPEs));
     }
 
     @Override
