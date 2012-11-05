@@ -48,7 +48,8 @@ public class MetaprojectChooserButton extends Button implements
     private final List<IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>> listeners =
             new ArrayList<IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>>();
 
-    public MetaprojectChooserButton(final IViewContext<?> viewContext, final String idPrefix)
+    public MetaprojectChooserButton(final IViewContext<?> viewContext, final String idPrefix,
+            final IChosenEntitiesProvider<String> chosenProvider)
     {
         super(viewContext.getMessage(Dict.ADD_METAPROJECT));
 
@@ -60,7 +61,7 @@ public class MetaprojectChooserButton extends Button implements
                 public void componentSelected(ButtonEvent ce)
                 {
                     DisposableEntityChooser<TableModelRowWithObject<Metaproject>> chooserGrid =
-                            MetaprojectGrid.createChooser(viewContext);
+                            MetaprojectGrid.createChooser(viewContext, chosenProvider);
 
                     new EntityChooserDialog<TableModelRowWithObject<Metaproject>>(chooserGrid,
                             MetaprojectChooserButton.this,

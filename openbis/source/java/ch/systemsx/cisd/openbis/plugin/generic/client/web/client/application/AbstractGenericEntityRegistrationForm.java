@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeFieldWithGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MetaprojectArea;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MetaprojectChooserButton;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations;
@@ -226,7 +227,18 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
         }
 
         metaprojectArea = new MetaprojectArea(viewContext, getId());
-        metaprojectChooserButton = new MetaprojectChooserButton(viewContext, getId());
+        metaprojectChooserButton =
+                new MetaprojectChooserButton(viewContext, getId(),
+                        new IChosenEntitiesProvider<String>()
+                            {
+                                @Override
+                                public List<String> getEntities()
+                                {
+                                    String[] metaprojects = metaprojectArea.tryGetMetaprojects();
+                                    return metaprojects != null ? Arrays.asList(metaprojects)
+                                            : null;
+                                }
+                            });
         metaprojectChooserButton
                 .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>()
                     {

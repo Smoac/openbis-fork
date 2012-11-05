@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.Set;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
@@ -29,8 +31,16 @@ public class ListMetaprojectsCriteria extends
         IsSerializable
 {
 
-    public ListMetaprojectsCriteria()
+    private Set<String> blacklist;
+
+    public Set<String> getBlacklist()
     {
+        return blacklist;
+    }
+
+    public void setBlacklist(Set<String> blacklist)
+    {
+        this.blacklist = blacklist;
     }
 
 }

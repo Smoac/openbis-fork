@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -24,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -43,23 +45,26 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 public class MetaprojectGrid extends TypedTableGrid<Metaproject>
 {
 
+    private IChosenEntitiesProvider<String> chosenProvider;
+
     public static final String METAPROJECT_CHOOSER_GRID_ID = GenericConstants.ID_PREFIX
             + "metaproject-chooser" + TypedTableGrid.GRID_POSTFIX;
 
     public static DisposableEntityChooser<TableModelRowWithObject<Metaproject>> createChooser(
-            final IViewContext<?> viewContext)
+            final IViewContext<?> viewContext, IChosenEntitiesProvider<String> chosenProvider)
     {
         final MetaprojectGrid grid =
                 new MetaprojectGrid(viewContext, METAPROJECT_CHOOSER_GRID_ID,
-                        DisplayTypeIDGenerator.METAPROJECT_CHOOSER_GRID);
+                        DisplayTypeIDGenerator.METAPROJECT_CHOOSER_GRID, chosenProvider);
         grid.allowMultipleSelection();
         return grid.asDisposableWithoutToolbar();
     }
 
     private MetaprojectGrid(IViewContext<?> viewContext, String gridId,
-            DisplayTypeIDGenerator gridDisplayTypeId)
+            DisplayTypeIDGenerator gridDisplayTypeId, IChosenEntitiesProvider<String> chosenProvider)
     {
         super(viewContext.getCommonViewContext(), gridId, true, gridDisplayTypeId);
+        this.chosenProvider = chosenProvider;
     }
 
     @Override
@@ -83,9 +88,16 @@ public class MetaprojectGrid extends TypedTableGrid<Metaproject>
             DefaultResultSetConfig<String, TableModelRowWithObject<Metaproject>> resultSetConfig,
             AbstractAsyncCallback<TypedTableResultSet<Metaproject>> callback)
     {
-        ListMetaprojectsCriteria criteria = new ListMetaprojectsCriteria();
-        criteria.copyPagingConfig(resultSetConfig);
-        viewContext.getService().listMetaprojects(criteria, callback);
+        ListMetaprojectsCriteria listCriteria = new ListMetaprojectsCriteria();
+        List<String> chosenMetaprojects = chosenProvider.getEntities();
+
+        if (chosenMetaprojects != null)
+        {
+            listCriteria.setBlacklist(new HashSet<String>(chosenMetaprojects));
+        }
+
+        listCriteria.copyPagingConfig(resultSetConfig);
+        viewContext.getService().listMetaprojects(listCriteria, callback);
     }
 
     @Override

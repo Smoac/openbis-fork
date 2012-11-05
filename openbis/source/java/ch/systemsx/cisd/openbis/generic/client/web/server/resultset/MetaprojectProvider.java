@@ -22,6 +22,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.Metaproject
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMetaprojectsCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -33,9 +34,13 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 public class MetaprojectProvider extends AbstractCommonTableModelProvider<Metaproject>
 {
 
-    public MetaprojectProvider(ICommonServer commonServer, String sessionToken)
+    private ListMetaprojectsCriteria criteria;
+
+    public MetaprojectProvider(ICommonServer commonServer, String sessionToken,
+            ListMetaprojectsCriteria criteria)
     {
         super(commonServer, sessionToken);
+        this.criteria = criteria;
     }
 
     @Override
@@ -46,13 +51,19 @@ public class MetaprojectProvider extends AbstractCommonTableModelProvider<Metapr
         builder.addColumn(NAME);
         builder.addColumn(DESCRIPTION);
         builder.addColumn(CREATION_DATE).withDefaultWidth(300);
+
         for (Metaproject metaproject : metaprojects)
         {
-            builder.addRow(metaproject);
-            builder.column(NAME).addString(metaproject.getName());
-            builder.column(DESCRIPTION).addString(metaproject.getDescription());
-            builder.column(CREATION_DATE).addDate(metaproject.getCreationDate());
+            if (criteria.getBlacklist() == null
+                    || criteria.getBlacklist().contains(metaproject.getName()) == false)
+            {
+                builder.addRow(metaproject);
+                builder.column(NAME).addString(metaproject.getName());
+                builder.column(DESCRIPTION).addString(metaproject.getDescription());
+                builder.column(CREATION_DATE).addDate(metaproject.getCreationDate());
+            }
         }
+
         return builder.getModel();
     }
 

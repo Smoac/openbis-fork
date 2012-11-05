@@ -694,7 +694,7 @@ public final class CommonClientService extends AbstractClientService implements
             throws UserFailureException
     {
         MetaprojectProvider metaprojectProvider =
-                new MetaprojectProvider(commonServer, getSessionToken());
+                new MetaprojectProvider(commonServer, getSessionToken(), criteria);
         return listEntities(metaprojectProvider, criteria);
     }
 
