@@ -36,19 +36,35 @@ public class CreateDataSetRmi implements Command<DataSet>
     private String session;
 
     @Inject
-    private IDssServiceRpcGeneric dss;
+    private IDssServiceRpcGeneric dssInternal;
+
+    @Inject("external")
+    private IDssServiceRpcGeneric dssExternal;
 
     private final DataSet dataSet;
 
-    public CreateDataSetRmi(DataSet dataSet)
+    private boolean external;
+
+    public CreateDataSetRmi(DataSet dataSet, boolean external)
     {
         this.dataSet = dataSet;
+        this.external = external;
     }
 
     @Override
     public DataSet execute()
     {
         DataSetCreator creator = new DataSetCreator("data set content");
+
+        IDssServiceRpcGeneric dss;
+        if (external)
+        {
+            dss = dssExternal;
+        } else
+        {
+            dss = dssInternal;
+        }
+
         final String code =
                 dss.putDataSet(session, creator.getMetadata(dataSet), creator.getData());
 

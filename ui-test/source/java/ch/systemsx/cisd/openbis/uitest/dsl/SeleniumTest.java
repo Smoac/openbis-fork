@@ -107,6 +107,7 @@ import ch.systemsx.cisd.openbis.uitest.rmi.ListMaterialsRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListMetaProjectsRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListSamplesOfExperimentOnBehalfOfUserRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListSamplesOfExperimentRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.Report;
 import ch.systemsx.cisd.openbis.uitest.screenshot.FileScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
@@ -203,7 +204,7 @@ public abstract class SeleniumTest
         System.out.println("startPage: " + startPage);
 
         pages = new Pages();
-        openbis = new Application(asUrl, dssUrl, pages);
+        openbis = new Application(asUrl, dssUrl, "http://localhost:10002", pages);
 
     }
 
@@ -838,6 +839,11 @@ public abstract class SeleniumTest
     public Collection<MetaProject> metaProjectsOf(Entity entity)
     {
         return entity.getMetaProjects();
+    }
+
+    public void report(String dataSetCode, String... rest)
+    {
+        openbis.execute(new Report(dataSetCode, rest));
     }
 
 }

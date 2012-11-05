@@ -14,16 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.dsl;
+package ch.systemsx.cisd.openbis.uitest.suite.headless;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.testng.annotations.Test;
 
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Inject
+import ch.systemsx.cisd.openbis.uitest.type.DataSet;
+
+/**
+ * @author anttil
+ */
+public class MultiDssReporting extends HeadlessSuite
 {
-    public abstract String value() default "";
+
+    @Test(enabled = false)
+    public void report() throws Exception
+    {
+        DataSet internal = create(aDataSet());
+        DataSet external = create(aDataSet().inExternalDss());
+
+        report(internal.getCode(), external.getCode());
+    }
 }

@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.dsl;
+package ch.systemsx.cisd.openbis.uitest.suite.headless;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.testng.annotations.BeforeTest;
 
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Inject
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
+
+/**
+ * @author anttil
+ */
+public class HeadlessSuite extends SeleniumTest
 {
-    public abstract String value() default "";
+
+    @BeforeTest
+    public void before()
+    {
+        usePublicApi();
+    }
 }

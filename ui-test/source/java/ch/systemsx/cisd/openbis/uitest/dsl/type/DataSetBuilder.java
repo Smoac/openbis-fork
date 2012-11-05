@@ -42,11 +42,14 @@ public class DataSetBuilder implements Builder<DataSet>
 
     private UidGenerator uid;
 
+    private boolean external;
+
     public DataSetBuilder(UidGenerator uid)
     {
         this.uid = uid;
         this.sample = null;
         this.experiment = null;
+        this.external = false;
     }
 
     public DataSetBuilder ofType(DataSetType type)
@@ -67,6 +70,12 @@ public class DataSetBuilder implements Builder<DataSet>
         return this;
     }
 
+    public DataSetBuilder inExternalDss()
+    {
+        this.external = true;
+        return this;
+    }
+
     @Override
     public DataSet build(Application openbis, Ui ui)
     {
@@ -77,10 +86,11 @@ public class DataSetBuilder implements Builder<DataSet>
 
         if (sample == null && experiment == null)
         {
-            sample = new SampleBuilder(uid).build(openbis, ui);
+            Experiment experiment = new ExperimentBuilder(uid).build(openbis, ui);
+            sample = new SampleBuilder(uid).in(experiment).build(openbis, ui);
         }
 
         return openbis.execute(new CreateDataSetRmi(new DataSetDsl(type, sample, experiment,
-                new HashSet<MetaProject>())));
+                new HashSet<MetaProject>()), external));
     }
 }

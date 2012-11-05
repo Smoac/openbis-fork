@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 import ch.systemsx.cisd.openbis.uitest.type.User;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
@@ -41,6 +42,8 @@ public class Application
 
     private IDssServiceRpcGeneric dss;
 
+    private IDssServiceRpcGeneric dssExternal;
+
     private String session;
 
     private IGenericServer genericServer;
@@ -49,9 +52,11 @@ public class Application
 
     private IGeneralInformationChangingService generalInformationChangingService;
 
+    private IQueryApiServer queryApiServer;
+
     private User user;
 
-    public Application(String asUrl, String dssUrl, Pages pages)
+    public Application(String asUrl, String dssUrl, String externalDssUrl, Pages pages)
     {
         this.pages = pages;
         this.commonServer =
@@ -78,10 +83,19 @@ public class Application
                 HttpInvokerUtils.createStreamSupportingServiceStub(IDssServiceRpcGeneric.class,
                         dssUrl + "/datastore_server/rmi-dss-api-v1", 600000);
 
+        this.dssExternal =
+                HttpInvokerUtils.createStreamSupportingServiceStub(IDssServiceRpcGeneric.class,
+                        externalDssUrl + "/datastore_server/rmi-dss-api-v1", 600000);
+
+        this.queryApiServer =
+                HttpInvokerUtils.createServiceStub(IQueryApiServer.class,
+                        asUrl + "/openbis/rmi-query-v1", 600000);
+
         this.session =
                 commonServer
                         .tryToAuthenticate(SeleniumTest.ADMIN_USER, SeleniumTest.ADMIN_PASSWORD)
                         .getSessionToken();
+
         this.user = new User()
             {
                 @Override
@@ -142,7 +156,16 @@ public class Application
                     field.set(command, etlService);
                 } else if (fieldType.equals(IDssServiceRpcGeneric.class))
                 {
-                    field.set(command, dss);
+                    if (inject.value().equalsIgnoreCase("external"))
+                    {
+                        field.set(command, dssExternal);
+                    } else
+                    {
+                        field.set(command, dss);
+                    }
+                } else if (fieldType.equals(IQueryApiServer.class))
+                {
+                    field.set(command, queryApiServer);
                 } else
                 {
                     throw new UnsupportedOperationException(fieldType.getCanonicalName());
