@@ -194,6 +194,7 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
         properties.put(viewContext.getMessage(Dict.REGISTRATION_DATE),
                 material.getRegistrationDate());
 
+        PropertiesPanelUtils.addMetaprojects(viewContext, properties, material.getMetaprojects());
         PropertiesPanelUtils.addEntityProperties(viewContext, properties, material.getProperties());
 
         return properties;

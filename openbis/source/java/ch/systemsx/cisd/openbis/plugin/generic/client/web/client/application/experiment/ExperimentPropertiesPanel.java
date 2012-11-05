@@ -122,6 +122,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
         }
         properties.put(viewContext.getMessage(Dict.PROJECT), experiment.getProject());
 
+        PropertiesPanelUtils.addMetaprojects(viewContext, properties, experiment.getMetaprojects());
         PropertiesPanelUtils.addEntityProperties(viewContext, properties,
                 experiment.getProperties());
 

@@ -312,6 +312,8 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         {
             properties.put(viewContext.getMessage(Dict.PART_OF), partOf);
         }
+
+        PropertiesPanelUtils.addMetaprojects(viewContext, properties, sample.getMetaprojects());
         PropertiesPanelUtils.addEntityProperties(viewContext, properties, sample.getProperties());
 
         return properties;

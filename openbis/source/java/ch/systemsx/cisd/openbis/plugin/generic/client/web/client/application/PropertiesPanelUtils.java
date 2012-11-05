@@ -16,14 +16,18 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityPropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -48,5 +52,23 @@ public class PropertiesPanelUtils
                 properties.put(label, property);
             }
         }
+    }
+
+    public static void addMetaprojects(final IViewContext<?> viewContext,
+            final Map<String, Object> properties, final Collection<Metaproject> metaprojects)
+    {
+        if (metaprojects != null && metaprojects.size() > 0)
+        {
+            String[] names = new String[metaprojects.size()];
+            int index = 0;
+
+            for (Metaproject metaproject : metaprojects)
+            {
+                names[index++] = metaproject.getName();
+            }
+            properties
+                    .put(viewContext.getMessage(Dict.METAPROJECTS), StringUtils.join(names, ", "));
+        }
+
     }
 }
