@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -66,6 +67,9 @@ public class PropertiesPanelUtils
             {
                 names[index++] = metaproject.getName();
             }
+
+            Arrays.sort(names);
+
             properties
                     .put(viewContext.getMessage(Dict.METAPROJECTS), StringUtils.join(names, ", "));
         }

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -54,12 +55,9 @@ public class MetaprojectArea extends MultilineItemsField
             }
         }
 
-        setMetaprojects(names);
-    }
+        Collections.sort(names);
 
-    public final void setMetaprojects(List<String> namesOrIdentifiers)
-    {
-        setItems(namesOrIdentifiers);
+        setItems(names);
     }
 
     public final String[] tryGetMetaprojects()
