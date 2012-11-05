@@ -20,6 +20,7 @@
 	<target name="create-webapp" depends="prepare-gwt, compile-javascript">
     <delete dir="targets" failonerror="true" />
     <mkdir dir="targets/store" />
+    <mkdir dir="dss-root/targets/store" />
 		<mkdir dir="targets/www" />
 
 		<copy todir="targets/www">
