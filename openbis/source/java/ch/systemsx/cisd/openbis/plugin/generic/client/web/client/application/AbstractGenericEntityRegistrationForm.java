@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -297,16 +298,27 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
         }
 
         @Override
-        protected void process(List<Metaproject> existingMetaprojects)
+        protected void process(List<Metaproject> existingMetaprojectsList)
         {
+            Set<String> existingMetaprojectsSet = new HashSet<String>();
             Set<String> notExistingMetaprojects = new LinkedHashSet<String>();
-            notExistingMetaprojects.addAll(Arrays.asList(requestedMetaprojects));
 
-            if (existingMetaprojects != null)
+            if (existingMetaprojectsList != null)
             {
-                for (Metaproject existingMetaproject : existingMetaprojects)
+                for (Metaproject existingMetaproject : existingMetaprojectsList)
                 {
-                    notExistingMetaprojects.remove(existingMetaproject.getName());
+                    existingMetaprojectsSet.add(existingMetaproject.getName().toLowerCase());
+                }
+            }
+
+            if (requestedMetaprojects != null)
+            {
+                for (String requestedMetaproject : requestedMetaprojects)
+                {
+                    if (existingMetaprojectsSet.contains(requestedMetaproject.toLowerCase()) == false)
+                    {
+                        notExistingMetaprojects.add(requestedMetaproject);
+                    }
                 }
             }
 

@@ -20,7 +20,9 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.Metaproject
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MetaprojectGridColumnIDs.DESCRIPTION;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MetaprojectGridColumnIDs.NAME;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMetaprojectsCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -52,10 +54,19 @@ public class MetaprojectProvider extends AbstractCommonTableModelProvider<Metapr
         builder.addColumn(DESCRIPTION);
         builder.addColumn(CREATION_DATE).withDefaultWidth(300);
 
+        Set<String> blacklistLowerCase = new HashSet<String>();
+
+        if (criteria.getBlacklist() != null)
+        {
+            for (String blacklistItem : criteria.getBlacklist())
+            {
+                blacklistLowerCase.add(blacklistItem.toLowerCase());
+            }
+        }
+
         for (Metaproject metaproject : metaprojects)
         {
-            if (criteria.getBlacklist() == null
-                    || criteria.getBlacklist().contains(metaproject.getName()) == false)
+            if (blacklistLowerCase.contains(metaproject.getName().toLowerCase()) == false)
             {
                 builder.addRow(metaproject);
                 builder.column(NAME).addString(metaproject.getName());
