@@ -65,4 +65,39 @@ public abstract class ObjectTechIdId implements IObjectId
         return getTechId().toString();
     }
 
+    @Override
+    public int hashCode()
+    {
+        return  ((techId == null) ? 0 : techId.hashCode());
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == null)
+        {
+            return false;
+        }
+        if (getClass() != obj.getClass())
+        {
+            return false;
+        }
+        ObjectTechIdId other = (ObjectTechIdId) obj;
+        if (techId == null)
+        {
+            if (other.techId != null)
+            {
+                return false;
+            }
+        } else if (!techId.equals(other.techId))
+        {
+            return false;
+        }
+        return true;
+    }
+
 }
