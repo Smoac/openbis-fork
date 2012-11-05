@@ -36,11 +36,17 @@ public class ImageTransfomationFactories
     // individual transformation for the image
     private IImageTransformerFactory image;
 
+    // default channel transformation
+    private IImageTransformerFactory defaultTransformationOrNull;
+
+    // default channel transformation code
+    private String defaultTransformationCodeOrNull;
+
     public IImageTransformerFactory tryGetForChannel(String transformationCodeOrNull)
     {
         if (transformationCodeOrNull == null)
         {
-            return null;
+            return defaultTransformationOrNull;
         }
         return singleChannelMap.get(transformationCodeOrNull);
     }
@@ -54,6 +60,13 @@ public class ImageTransfomationFactories
             Map<String/* transformation code */, IImageTransformerFactory> singleChannelMap)
     {
         this.singleChannelMap = singleChannelMap;
+    }
+
+    public void setDefaultTransformation(String defaultTransformationCodeOrNull,
+            IImageTransformerFactory defaultTransformationOrNull)
+    {
+        this.defaultTransformationCodeOrNull = defaultTransformationCodeOrNull;
+        this.defaultTransformationOrNull = defaultTransformationOrNull;
     }
 
     public void setForMergedChannels(IImageTransformerFactory transformerFactoryForMergedChannels)
@@ -71,4 +84,8 @@ public class ImageTransfomationFactories
         this.image = transformerFactoryForImage;
     }
 
+    public String tryGetDefaultTransformationCode()
+    {
+        return defaultTransformationCodeOrNull;
+    }
 }

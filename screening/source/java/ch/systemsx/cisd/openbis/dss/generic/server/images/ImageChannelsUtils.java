@@ -32,12 +32,12 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.image.MixColors;
-import ch.systemsx.cisd.openbis.common.io.ByteArrayBasedContentNode;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.hcs.Location;
+import ch.systemsx.cisd.openbis.common.io.ByteArrayBasedContentNode;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
@@ -570,14 +570,23 @@ public class ImageChannelsUtils
         if (transformationInfo.isUseMergedChannelsTransformation())
         {
             channelLevelTransformationOrNull = transfomations.tryGetForMerged();
-        } else if (transformationInfo.tryGetSingleChannelTransformationCode() != null
-                && (false == transformationInfo.tryGetSingleChannelTransformationCode().equals(
-                        imageReference.tryGetSingleChannelTransformationCode())))
+        } else
         {
-            channelLevelTransformationOrNull =
-                    transfomations.tryGetForChannel(transformationInfo
-                            .tryGetSingleChannelTransformationCode());
+            String channelTransformationCode =
+                    transformationInfo.tryGetSingleChannelTransformationCode() == null ? transfomations
+                            .tryGetDefaultTransformationCode() : transformationInfo
+                            .tryGetSingleChannelTransformationCode();
+
+            if (channelTransformationCode != null
+                    && (false == channelTransformationCode.equals(imageReference
+                            .tryGetSingleChannelTransformationCode())))
+            {
+                channelLevelTransformationOrNull =
+                        transfomations.tryGetForChannel(transformationInfo
+                                .tryGetSingleChannelTransformationCode());
+            }
         }
+
         return applyImageTransformation(resultImage, channelLevelTransformationOrNull);
     }
 
