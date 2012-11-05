@@ -169,7 +169,7 @@ public class APMSReportTest extends AbstractFileSystemTestCase
                 fileLines.get(0));
         assertEquals(4, fileLines.size());
         assertEquals("[ERROR: \"Exception occured: "
-                + "ch.systemsx.cisd.common.exception.UserFailureException: File "
+                + UserFailureException.class.getName() + ": File "
                 + APMSReport.PROTEIN_FILE_NAME + " missing.\"]", status.getErrorStatuses()
                 .toString());
 
