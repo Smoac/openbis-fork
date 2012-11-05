@@ -75,7 +75,7 @@ public class TestInitializer
     {
         LogInitializer.init();
 
-        if (firstTry)
+        if (firstTry && System.getProperty("rebuild-index", "true").equals("true"))
         {
             try
             {
