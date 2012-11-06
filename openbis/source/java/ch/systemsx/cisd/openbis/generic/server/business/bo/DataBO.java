@@ -222,7 +222,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
 
         final ExperimentPE experiment = sample.getExperiment();
 
-        data.setSample(sample);
+        RelationshipUtils.setSampleForDataSet(data, sample, session);
         RelationshipUtils.setExperimentForDataSet(data, experiment, session);
 
         setParentDataSets(experiment, newData);
