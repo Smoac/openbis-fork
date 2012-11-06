@@ -82,6 +82,10 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     {
         validatePE(sample);
         sample.setCode(CodeConverter.tryToDatabase(sample.getCode()));
+        if (sample.getModificationDate() == null)
+        {
+            sample.setModificationDate(new Date());
+        }
         hibernateTemplate.saveOrUpdate(sample);
         // Hibernate behaves as follows: If a PE bean property annotated with
         // @OptimisticLock(excluded = true) (as it is the case for modifier and modification date)
