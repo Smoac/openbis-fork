@@ -183,7 +183,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         updateEntityProperty(sampleToUpdate, "COMMENT", newComment);
 
         SampleUpdatesDTO sampleUpdate = convertToSampleUpdateDTO(sampleToUpdate);
-        sampleUpdate.setVersion(0);
+        sampleUpdate.setVersion(42);
         performSampleUpdate(Arrays.asList(sampleUpdate), 1);
     }
 
