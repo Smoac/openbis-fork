@@ -32,12 +32,12 @@ div.inspector {
 
 
 .properties td:nth-child(odd) {
-  background-color:#94B8B8;
+  background-color:#CCFFFF;
   width: 30%;
 }
 
 .properties td:nth-child(even) {
-  background-color:#ECEFEF;
+  background-color:#F7F7F7;
   width: 70%;
 }
 
@@ -99,11 +99,11 @@ background-color: white;
 
 
 #oligo-table tr:nth-child(odd) {
-  background-color:#94B8B8;
+  background-color:#CCFFFF;
 }
 
 #oligo-table tr:nth-child(even) {
-  background-color:#ECEFEF;
+  background-color:#F7F7F7;
 }
 
 
@@ -123,7 +123,7 @@ padding:5px;
   font-size:18px;
   font-weight: bold;
   color:#fff;
-  background-color:#426262;	
+  background-color:#0099CC;	
 }
 
 

@@ -22,6 +22,30 @@ if (!Array.prototype.filter)
   };
 }
 
+if (!Array.prototype.search)
+{
+  Array.prototype.search = function(fun /*, thisp*/)
+  {
+    var len2 = this.length;
+    if (typeof fun != "function")
+      throw new TypeError();
+
+    var res2 = new Array();
+    var thisp = arguments[1];
+    for (var i = 0; i < len2; i++)
+    {
+      if (i in this)
+      {
+        var val2 = this[i]; // in case fun mutates this
+        if (fun.call(thisp, val2, i, this))
+          res2.push(val2);
+      }
+    }
+
+    return res2;
+  };
+}
+
 if (!Function.prototype.curry) 
 { 
 	(function () 
@@ -43,3 +67,4 @@ if (!Function.prototype.curry)
 		}; 
 	}())
 };
+

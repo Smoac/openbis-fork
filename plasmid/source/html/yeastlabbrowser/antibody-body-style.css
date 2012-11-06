@@ -30,7 +30,7 @@ div.inspector {
 }
 
 .properties td:nth-child(odd) {
-  background-color: #ffe5cc;
+  background-color:#E0E0E0;
   width:50%;
 }
 
@@ -38,7 +38,6 @@ div.inspector {
   background-color:#F7F7F7;
   width:70%;
 }
-
 
 .close {
 	float: right;
@@ -91,36 +90,36 @@ background-color: white;
 /* Table */
 
 
-.plasmid-table-data-cell {
+.antibody-table-data-cell {
 	overflow: hidden;
 	
 }
 
 
-#plasmid-table tr:nth-child(odd) td{
-  background-color:#ffe5cc;
+#antibody-table tr:nth-child(odd) td{
+ background-color:#E0E0E0;
 }
 
 
-#plasmid-table tr:nth-child(even) td{
+#antibody-table tr:nth-child(even) td{
   background-color:#F7F7F7;
 }
 
-#plasmid-table tr.plasmid-table-data:hover {
+#antibody-table tr.antibody-table-data:hover {
    font-weight: bold;
   
 }
 
-#plasmid-table td{
+#antibody-table td{
 
 padding:5px;
 }
 
-#plasmid-table tr.plasmid-table-header {
+#antibody-table tr.antibody-table-header {
   font-size:18px;
   font-weight: bold;
   color:#fff;
-  background-color:#ffcb99;	
+  background-color:#A8A8A8;	
   
  
   

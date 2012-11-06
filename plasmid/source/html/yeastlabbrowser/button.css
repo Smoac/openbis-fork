@@ -57,7 +57,7 @@ input {
 display:block;
 font-weight:bold;
 color:#FFFFFF;
-background-color:#B2B2B2;
+background-color:#A8A8A8;
 width:120px;
 text-align:center;
 padding:4px;
@@ -67,19 +67,23 @@ border-radius: 5px;
 border-bottom: 1px solid #222;
 margin: 0;
 }
+#chemical_browser a:visited
+{
+color:#FFFFFF;
+background-color:#A8A8A8;
+}
 #chemical_browser a:hover
 {
-background-color:#767676;
-color:#FFFFFF;
+background-color:#E0E0E0;
+color:#000000;
 }
-
 
 #oligo_browser a:link
 {
 display:block;
 font-weight:bold;
 color:#FFFFFF;
-background-color:#94B8B8;
+background-color:#0099CC;
 width:120px;
 text-align:center;
 padding:4px;
@@ -89,18 +93,24 @@ border-radius: 5px;
 border-bottom: 1px solid #222;
 margin: 0;
 }
+#oligo_browser a:visited
+{
+color:#FFFFFF;
+background-color:#0099CC;
+}
 #oligo_browser a:hover
 {
-background-color:#426262;
-color:#FFFFFF;
+background-color:#CCFFFF;
+color:#000000;
 }
+
 
 #yeast_browser a:link
 {
 display:block;
 font-weight:bold;
 color:#FFFFFF;
-background-color:#A6A64D;
+background-color:	#CCCC99;
 width:120px;
 text-align:center;
 padding:4px;
@@ -110,10 +120,15 @@ border-radius: 5px;
 border-bottom: 1px solid #222;
 margin: 0;
 }
+#yeast_browser a:visited
+{
+color:#FFFFFF;
+background-color:	#CCCC99;
+}
 #yeast_browser a:hover
 {
-background-color:#5C5C1F;
-color:#FFFFFF;
+background-color:	#FFFFCC;
+color:#000000;
 }
 
 #plasmid_browser a:link
@@ -121,7 +136,7 @@ color:#FFFFFF;
 display:block;
 font-weight:bold;
 color:#FFFFFF;
-background-color:#DC7E9E;
+background-color:#ffcb99;
 width:120px;
 text-align:center;
 padding:4px;
@@ -131,10 +146,147 @@ border-radius: 5px;
 border-bottom: 1px solid #222;
 margin: 0;
 }
+#plasmid_browser a:visited
+{
+color:#FFFFFF;
+background-color:#ffcb99;
+}
 #plasmid_browser a:hover
 {
-background-color:#6E3F4F;
+background-color:#ffe5cc;
+color:#000000;
+}
+
+
+#antibody_browser a:link
+{
+display:block;
+font-weight:bold;
 color:#FFFFFF;
+background-color:#A8A8A8;
+width:120px;
+text-align:center;
+padding:4px;
+text-decoration:none;
+border: 40;
+border-radius: 5px;
+border-bottom: 1px solid #222;
+margin: 0;
+}
+#antibody_browser a:visited
+{
+color:#FFFFFF;
+background-color:#A8A8A8;
+}
+#antibody_browser a:hover
+{
+background-color:#E0E0E0;
+color:#000000;
+}
+
+#protocol_browser a:link
+{
+display:block;
+font-weight:bold;
+color:#FFFFFF;
+background-color:#ABBF99;
+width:120px;
+text-align:center;
+padding:4px;
+text-decoration:none;
+border: 40;
+border-radius: 5px;
+border-bottom: 1px solid #222;
+margin: 0;
+}
+#protocol_browser a:visited
+{
+color:#FFFFFF;
+background-color:#ABBF99;
+}
+#protocol_browser a:hover
+{
+background-color:#E5FFCC;
+color:#000000;
+}
+
+#media_browser a:link
+{
+display:block;
+font-weight:bold;
+color:#FFFFFF;
+background-color:#A8A8A8;
+width:120px;
+text-align:center;
+padding:4px;
+text-decoration:none;
+border: 40;
+border-radius: 5px;
+border-bottom: 1px solid #222;
+margin: 0;
+}
+#media_browser a:visited
+{
+color:#FFFFFF;
+background-color:#A8A8A8;
+}
+#media_browser a:hover
+{
+background-color:#E0E0E0;
+color:#000000;
+}
+
+#pcr_browser a:link
+{
+display:block;
+font-weight:bold;
+color:#FFFFFF;
+background-color:#ABBF99;
+width:120px;
+text-align:center;
+padding:4px;
+text-decoration:none;
+border: 40;
+border-radius: 5px;
+border-bottom: 1px solid #222;
+margin: 0;
+}
+#pcr_browser a:visited
+{
+color:#FFFFFF;
+background-color:#ABBF99;
+}
+#pcr_browser a:hover
+{
+background-color:#E5FFCC;
+color:#000000;
+}
+
+
+#buffer_browser a:link
+{
+display:block;
+font-weight:bold;
+color:#FFFFFF;
+background-color:#A8A8A8;
+width:120px;
+text-align:center;
+padding:4px;
+text-decoration:none;
+border: 40;
+border-radius: 5px;
+border-bottom: 1px solid #222;
+margin: 0;
+}
+#buffer_browser a:visited
+{
+color:#FFFFFF;
+background-color:#A8A8A8;
+}
+#buffer_browser a:hover
+{
+background-color:#E0E0E0;
+color:#000000;
 }
 
 
@@ -143,7 +295,6 @@ color:#FFFFFF;
   color: #0000cc;
   font-weight:bold;
   text-align:center;
-  
 }
 
 #filter-button a:link

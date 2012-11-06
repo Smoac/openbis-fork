@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 <head>
-	<title>Plasmid Browser</title>
+	<title>Antibody Browser</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<link type="text/css" rel="stylesheet" href="plasmid-body-style.css" />
+	<link type="text/css" rel="stylesheet" href="antibody-body-style.css" />
 	<link type="text/css" rel="stylesheet" href="button.css" />
 	<script type="text/javascript" src="d3.js"></script>
 	<script type="text/javascript" src="d3.layout.js"></script>
@@ -28,11 +28,11 @@
 	</div>
 
 	<div id="main">
-	  <div id = "title" style="padding-top:20px"> PLASMIDS </div>
+	  <div id = "title" style="padding-top:20px"> ANTIBODIES </div>
 		<div id="button-group">	
 			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
 		</div>
-			<div id="chemical_browser"	style="position: absolute; left:10px; top:100px">
+		<div id="chemical_browser"	style="position: absolute; left:10px; top:100px">
 		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a> 
 		</div>   
 		<div id="antibody_browser" style="position: absolute; left:10px; top:150px">
@@ -59,27 +59,28 @@
 		<div id="pcr_browser" style="position: absolute; left:10px; top:500px">
 		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/pcr-browser.html">PCR</a>  
 		</div>				
-			
-
-		<div id="filter-button"	style="position:absolute; top: 650px; left: 200px; font-weight:bold; padding-bottom:30px;">
+	
+<!-- 		<div id="filter-button"	style="padding-left:200px; padding-top: 570px; font-weight:bold; padding-bottom:30px;">
 		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
 		</div> 		
 	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
 		<table>
-			  <tr style="position:absolute; top: 680px; left: 200px"><td style="font-weight: bold; width: 200px">Owner</td><td><input style="width: 200px" id="owner_filter" type="text"></td></tr> 		
-			  <tr style="position:absolute; top: 720px; left: 200px"><td style="font-weight: bold; width: 200px">Owner Number</td><td><input style="width: 200px" id="ownerNum_filter" type="text"></td></tr>
-				<tr style="position:absolute; top: 760px; left: 200px"><td style="font-weight: bold; width: 200px">Plasmid Name</td><td> <input style="width: 200px" id="plasmidName_filter" type="text"></td></tr> 		
-      	<tr style="position:absolute; top: 800px; left: 200px"><td style="font-weight: bold; width: 200px">Backbone</td><td> <input style="width: 200px" id="backbone_filter" type="text"></td></tr> 		
-   	  	<tr style="position:absolute; top: 840px; left: 200px"><td style="font-weight: bold; width: 200px">Bacterial Antibitioc Resistance</td><td> <input style="width: 200px" id="antibiotic_filter" type="text"></td></tr> 		
-   	  	<tr style="position:absolute; top: 880px; left: 200px"><td style="font-weight: bold; width: 200px">(Yeast) Marker</td><td> <input style="width: 200px" id="marker_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Owner</td><td><input style="width: 200px" id="owner_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Owner Number</td><td><input style="width: 200px" id="ownerNum_filter" type="text"></td></tr>
+				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Antibody Name</td><td> <input style="width: 200px" id="antibodyName_filter" type="text"></td></tr> 		
+      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Backbone</td><td> <input style="width: 200px" id="backbone_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Bacterial Antibitioc Resistance</td><td> <input style="width: 200px" id="antibiotic_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">(Yeast) Marker</td><td> <input style="width: 200px" id="marker_filter" type="text"></td></tr> 		
    	  </table> 		
     </div>	
+-->		
 		
+	
     
 		<div id="vis">
   	 	<div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
-		  <table id="plasmid-table" >
-			  <tr class="plasmid-table-header"><th>Plasmid Code</th><th>Owner</th><th>Owner Number</th><th>Plasmid Name</th><th>Backbone</th><th>Bacterial Antibiotic Resistance</th><th>(Yeast) Marker</th></tr>
+		  <table id="antibody-table" style="float: left">
+			  <tr class="antibody-table-header"><th>Antibody Code</th><th>Name</th><th>Storage</th><th>Host</th><th>For What</th></tr>
 				</table>
 			</div>
 			<span id="inspectorsContainer"></span>
@@ -91,16 +92,15 @@
 /// The openbisServer we use for our data
 openbisServer = new openbis('https://openbis-csb.ethz.ch/openbis/openbis', 'https://openbis-csb.ethz.ch:443/datastore_server');
 
-//openbisServer = new openbis('https://localhost:8443/openbis/openbis', 'https://bs-mbp156.ethz.ch:8443/datastore_server');
 
 
 // Some global variables we refer to
 
-/// All plasmids
-var plasmids = null;
+/// All antibodys
+var antibodys = null;
 
-/// The plasmids that are currently being inspected
-var inspectedPlasmids = [];
+/// The antibodys that are currently being inspected
+var inspectedAntibodys = [];
 
 /// The width of the inspectors section
 var inspectorsWidth = 450;
@@ -138,10 +138,8 @@ function createVis()
 		.style("position", "absolute")
 		.style("overflow", "auto")
 		.style("left", "1250px")
-		//.style("float", "right")
 		.style("top", "100px")
 		.style("display", "none");
-
 	didCreateVis = true;
 }
 
@@ -183,7 +181,7 @@ function props_to_pairs1(data)
 	}
 	
 
-	order1 = ["OWNER", "OWNER_NUMBER", "YEAST_STRAIN_NAME", "COMMENTS", "PROJECT",  "PLASMIDS", "YEAST_PARENTS", "PLASMID_NAME",  "BACKBONE", "BACTERIAL_ANTIBIOTIC_RESISTANCE",  "YEAST_MARKER",  "OTHER_MARKER",  "FLANKING_RESTRICTION_ENZYME",  "COMMENTS"]
+	order1 = ["STOCK_CONCENTRATION" ]
 	new_list1 = []
 	for (var i in order1) {
 	  for (var j in pairs) {
@@ -210,7 +208,7 @@ function props_to_pairs2(data)
 	}
 	
 	
-	order2 = ["GENETIC_BACKGROUND",  "MATING_TYPE",  "BACKGROUND_SPECIFIC_MARKERS", "COMMON_MARKERS", "ENDOGENOUS_PLASMID"]
+	order2 = ["SUPPLIER",  "ARTICLE_NUMBER",  "EPITOPE", "CLONALITY", "ISOTYPE","COMMENTS", "PUBLICATION"   ]
 	new_list2 = []
 	for (var i in order2) {
 		for (var j in pairs) {
@@ -233,8 +231,9 @@ function props_to_pairs3(data)
 		var pair = [prop, d[prop]];
 		pairs.push(pair);
 	}
+	pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
 	
-	order3 = ["SOURCE","ORIGIN","STRAIN_CHECK"]
+	order3 = ["REGISTRATION_DATE"]
 	new_list3 = []
 	for (var i in order3) {
 		for (var j in pairs) {
@@ -247,42 +246,17 @@ function props_to_pairs3(data)
 	return new_list3;
 }
 
-function props_to_pairs4(data)
-{
-
-	d = data.properties;
-	
-	var pairs = [];
-	for (var prop in d) {
-		var pair = [prop, d[prop]];
-		pairs.push(pair);
-	}
-	
-	pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
-
-	order4 = [ "BOX_NUMBER","ROW","COLUMN","REGISTRATION_DATE"]
-	new_list4 = []
-	for (var i in order4) {
-		for (var j in pairs) {
-			if (pairs[j][0] == order4[i]) {
-				new_list4.push(pairs[j]);
-				break;
-			}
-		}
-	}
-	return new_list4;
-}
 
 
 
 function resolveObjectReference(objectOrId) {
   if (isNaN(objectOrId)) {
-    plasmid = objectOrId;
+    antibody = objectOrId;
   } else {
-  	plasmid = plasmidsById[objectOrId];
+  	antibody = antibodysById[objectOrId];
   }
   
-  return plasmid;
+  return antibody;
 }
 
 function get_parents(data)
@@ -328,21 +302,21 @@ function get_children(data)
 }
 
 
-/** Initialize the plasmids variable */
-function initializePlasmids(result)
+/** Initialize the antibodys variable */
+function initializeAntibodys(result)
 {
-      // Construct a map of all plasmids by id
-  plasmidsById = {};
+      // Construct a map of all antibodys by id
+  antibodysById = {};
 
-	// Split the plasmids into two groups, the ones that start with FRP in their sample name and the other ones.
-	var frpPlasmids = [], otherPlasmids = [];
+	// Split the antibodys into two groups, the ones that start with FRP in their sample name and the other ones.
+	var frpAntibodys = [], otherAntibodys = [];
 	var frpRegex = /^FRP[0-9]+/;
 	frpRegex.compile(frpRegex);
 	result.forEach(function(sampleOrId) {
 		var theSample = sampleOrId;
 		function storeSamplesById(referredSample) {
       if (isNaN(referredSample)) {
-        plasmidsById[referredSample["@id"]] = referredSample;
+        antibodysById[referredSample["@id"]] = referredSample;
         if (referredSample.parents) referredSample.parents.forEach(storeSamplesById);
         if (referredSample.children) referredSample.children.forEach(storeSamplesById);
       }
@@ -350,51 +324,45 @@ function initializePlasmids(result)
 	  if (isNaN(theSample)) {
 	  	storeSamplesById(theSample);
     } else {
-	    // This is referring to an object in the plasmidsById map
-	    theSample = plasmidsById[sampleOrId];
+	    // This is referring to an object in the antibodysById map
+	    theSample = antibodysById[sampleOrId];
 		}       
  		if (frpRegex.test(theSample.code)) {
-			frpPlasmids.push(theSample);
+			frpAntibodys.push(theSample);
 		} else {
-			otherPlasmids.push(theSample);
+			otherAntibodys.push(theSample);
 		}
 	});
 	
 	// Sort each of the groups
-	otherPlasmids.sort(function(a, b) { 
+	otherAntibodys.sort(function(a, b) { 
 		return (a.code < b.code) ? -1 : 1; 
 	});
 	
-	frpPlasmids.sort(function(a, b) {
+	frpAntibodys.sort(function(a, b) {
 		// Sort based on the FRP number
 		var frpNumberA = parseInt(a.code.substring(3));
 		var frpNumberB = parseInt(b.code.substring(3));
 		return (frpNumberA < frpNumberB) ? -1 : 1;
 	});
 	
-	// Combine the two groups back together to produce the full collection of plasmids
-	plasmids = frpPlasmids.concat(otherPlasmids);
+	// Combine the two groups back together to produce the full collection of antibodys
+	antibodys = frpAntibodys.concat(otherAntibodys);
 }
 
 
 
-
-/** Set the size of the plasmid-table based on whether or not inspectors are visible */
-function resizePlasmidTable()
+/** Set the size of the antibody-table based on whether or not inspectors are visible */
+function resizeAntibodyTable()
 {
 	var cellWidth;
 	var areInspectorsVisible;
 	var padding = 10;
-	if (inspectedPlasmids.length > 0) {
-		cellWidth = ((getAppWidth() - inspectorsWidth) / 9) - padding + "px";
-		console.log(cellWidth)
-		areInspectorsVisible = true;
-	} else {
-		cellWidth = "100%";
-		areInspectorsVisible = false;
-	}
-	var plasmidTableTransition = d3.selectAll('div.plasmid-table-data-cell');
-	plasmidTableTransition.style('width', cellWidth);
+	cellWidth = "100%";
+	areInspectorsVisible = true;
+	
+	var antibodyTableTransition = d3.selectAll('div.antibody-table-data-cell');
+	antibodyTableTransition.style('width', cellWidth);
 	if (areInspectorsVisible) {
 		$("#inspectorsContainer").show();
 	} else {
@@ -402,45 +370,45 @@ function resizePlasmidTable()
 	}
 }
 
-function inspectPlasmid(plasmid)
+function inspectAntibody(antibody)
 {
-	if (inspectedPlasmids.indexOf(plasmid) < 0) {
-		inspectedPlasmids.push(plasmid);
+	if (inspectedAntibodys.indexOf(antibody) < 0) {
+		inspectedAntibodys.push(antibody);
 		
 		// When requesting information about the sample, we don't need parents
 		// and children, so send a copy of the saple without that information.
-		var plasmidToSend = $.extend({}, plasmid);
-		delete plasmidToSend.parents;
-		delete plasmidToSend.children;
-		openbisServer.listDataSetsForSample(plasmidToSend, true, dataset.curry(plasmid));
+		var antibodyToSend = $.extend({}, antibody);
+		delete antibodyToSend.parents;
+		delete antibodyToSend.children;
+		openbisServer.listDataSetsForSample(antibodyToSend, true, dataset.curry(antibody));
 	}
-	resizePlasmidTable();
+	resizeAntibodyTable();
 	updateInspectors(1000);
 }
 
-function closeInspector(plasmid)
+function closeInspector(antibody)
 {
-	var index = inspectedPlasmids.indexOf(plasmid);
+	var index = inspectedAntibodys.indexOf(antibody);
 	if (index < 0) {
 		return;
 	}
 	
-	inspectedPlasmids.splice(index, 1);
-	resizePlasmidTable();
+	inspectedAntibodys.splice(index, 1);
+	resizeAntibodyTable();
 	updateInspectors(1000);
 }
 
-function dataset(plasmid, data) {
+function dataset(antibody, data) {
 	for (var i in data.result) {
 	  console.log(data.result)
-		openbisServer.listFilesForDataSet(data.result[i].code, "/", true, filelist.curry(plasmid, data.result[i]));
+		openbisServer.listFilesForDataSet(data.result[i].code, "/", true, filelist.curry(antibody, data.result[i]));
 	}
 }
 
-function filelist(plasmid, dataset, files) {
+function filelist(antibody, dataset, files) {
 	for (var i in files.result) {
 		if (!files.result[i].isDirectory) {
-			var inspector = inspectors.select("#"+plasmid.code+"_INSPECTOR");
+			var inspector = inspectors.select("#"+antibody.code+"_INSPECTOR");
 			var pathInDataSet = files.result[i].pathInDataSet;
 			var downloadUrl = 'https://openbis-csb.ethz.ch:443/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
 			
@@ -469,7 +437,7 @@ function filelist(plasmid, dataset, files) {
 function updateInspectors(duration)
 {		
 		// Draw / update the inspectors	
-	var inspector = inspectors.selectAll("div.inspector").data(inspectedPlasmids, function (d) { return d.code });
+	var inspector = inspectors.selectAll("div.inspector").data(inspectedAntibodys, function (d) { return d.code });
 		
 	var box = inspector
 			.enter()
@@ -507,7 +475,7 @@ function updateInspectors(duration)
 	propsTableParents.selectAll("tr").data(function(d) { return get_parents(d) })
 		.enter()
 			.append("tr")
-			.on("click", function(trData) { inspectPlasmid(trData[1]) } )
+			.on("click", function(trData) { inspectAntibody(trData[1]) } )
      	.style("cursor", "pointer")
 			.selectAll("td").data(function(d) { return d }).enter()
 				.append("td")
@@ -529,7 +497,7 @@ function updateInspectors(duration)
 	propsTableChildren.selectAll("tr").data(function(d) { return get_children(d) })
 		.enter()
 			.append("tr")
-			.on("click", function(trData) { inspectPlasmid(trData[1]) } )
+			.on("click", function(trData) { inspectAntibody(trData[1]) } )
      	.style("cursor", "pointer")
 			.selectAll("td").data(function(d) { return d }).enter()
 				.append("td")
@@ -575,18 +543,7 @@ function updateInspectors(duration)
 				.style("opacity", "1");	
 				
 				
-	var propsTable4 = box.append("table").attr("class", "properties");
-	propsTable4.selectAll("tr").data(function(d) { return props_to_pairs4(d) })
-		.enter()
-			.append("tr")
-			.selectAll("td").data(function(d) { return d }).enter()
-				.append("td")
-				.attr("class", "property")
-				.style("opacity", "0")
-				.text(function(d) { return d })
-			.transition()
-				.duration(duration)
-				.style("opacity", "1");			
+	
 			
 				
 	var downloadTable = inspector.selectAll("table.downloads").data(function(d) { return [d] });
@@ -620,34 +577,34 @@ function displayReturnedSamples(data)
 		return;
 	}
 	
-	initializePlasmids(data.result);
+	initializeAntibodys(data.result);
 	
 	// This will show the object in the log -- helpful for debugging
 	// console.log(data.result);
-	if (plasmids.length < 1) {
+	if (antibodys.length < 1) {
 		vis.append("p").text("No data found.");
 		return;
 	}
 
-	var selection = d3.select("#vis").select("#plasmid-table").selectAll("tr.plasmid-table-data").data(plasmids);
+	var selection = d3.select("#vis").select("#antibody-table").selectAll("tr.antibody-table-data").data(antibodys);
 		// Code under enter is run if there is no HTML element for a data element
 	
 	selection
 		.enter()
 		.append("tr")
-		.attr("class", "plasmid-table-data")
+		.attr("class", "antibody-table-data")
 		.style("cursor", "pointer")
-		.on("click", inspectPlasmid)
-		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.OWNER.split('_'), sample.properties.OWNER_NUMBER, sample.properties.PLASMID_NAME, sample.properties.BACKBONE.split('_').join(' '), sample.properties.BACTERIAL_ANTIBIOTIC_RESISTANCE,sample.properties.YEAST_MARKER]; })
+		.on("click", inspectAntibody)
+		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.NAME, sample.properties.STORAGE, sample.properties.HOST, sample.properties.FOR_WHAT]; })
 			.enter()
 			.append("td")
 			.append("div")
-			.attr("class", "plasmid-table-data-cell")
+			.attr("class", "antibody-table-data-cell")
 			.text(String)
 
 }
 
-function plasmidFilter(filter, property, element, index, array) {
+function antibodyFilter(filter, property, element, index, array) {
 
 	
 	filter = filter.toLowerCase();
@@ -671,7 +628,7 @@ function plasmidFilter(filter, property, element, index, array) {
 }
 
 
-function visualize(ownerFilterText, ownerNumFilterText, plasmidNameFilterText, backboneFilterText, antibioticFilterText, markerFilterText )
+function visualize(ownerFilterText, ownerNumFilterText, antibodyNameFilterText, backboneFilterText, antibioticFilterText, markerFilterText )
 {
 	if (ownerFilterText == undefined) 
 	{
@@ -683,9 +640,9 @@ function visualize(ownerFilterText, ownerNumFilterText, plasmidNameFilterText, b
 		ownerNumFilterText = "";
 	}
 	
-	if (plasmidNameFilterText == undefined) 
+	if (antibodyNameFilterText == undefined) 
 	{
-		plasmidNameFilterText = "";
+		antibodyNameFilterText = "";
 	}
 
 	if (backboneFilterText == undefined) 
@@ -703,23 +660,23 @@ function visualize(ownerFilterText, ownerNumFilterText, plasmidNameFilterText, b
 		markerFilterText = "";
 	}
 	
-	var displayedPlasmids = plasmids.filter(plasmidFilter.curry(ownerFilterText, "OWNER"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(ownerNumFilterText, "OWNER_NUMBER"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(plasmidNameFilterText, "PLASMID_NAME"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(backboneFilterText, "BACKBONE"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(antibioticFilterText, "BACTERIAL_ANTIBIOTIC_RESISTANCE"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(markerFilterText, "YEAST_MARKER"));
+	var displayedAntibodys = antibodys.filter(antibodyFilter.curry(ownerFilterText, "OWNER"));
+	displayedAntibodys = displayedAntibodys.filter(antibodyFilter.curry(ownerNumFilterText, "OWNER_NUMBER"));
+	displayedAntibodys = displayedAntibodys.filter(antibodyFilter.curry(antibodyNameFilterText, "ANTIBODY_NAME"));
+	displayedAntibodys = displayedAntibodys.filter(antibodyFilter.curry(backboneFilterText, "BACKBONE"));
+	displayedAntibodys = displayedAntibodys.filter(antibodyFilter.curry(antibioticFilterText, "BACTERIAL_ANTIBIOTIC_RESISTANCE"));
+	displayedAntibodys = displayedAntibodys.filter(antibodyFilter.curry(markerFilterText, "YEAST_MARKER"));
 	
 
 
-	var selection2 = d3.select("#vis").select("#plasmid-table").selectAll("tr.plasmid-table-data").data(plasmids);
+	var selection2 = d3.select("#vis").select("#antibody-table").selectAll("tr.antibody-table-data").data(antibodys);
 		// Code under enter is run if there is no HTML element for a data element
 	
 
 
 		selection2.style("display", 
 			function(data) {
-				if ($.inArray(data, displayedPlasmids) != -1) {
+				if ($.inArray(data, displayedAntibodys) != -1) {
 					return "table-row"
 				} else {
 					return  "none"
@@ -740,7 +697,7 @@ function showMatchingSamples()
 			[ {"@type":"AttributeMatchClause",
 				fieldType : "ATTRIBUTE",			
 				attribute : "TYPE",
-				desiredValue : "PLASMID" 
+				desiredValue : "ANTIBODY" 
 			} ],
 		operator : "MATCH_ALL_CLAUSES"
 	};
@@ -791,27 +748,27 @@ $(document).ready(function() {
 	});
 	
 	$('#owner_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#antibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});	
 		
 	$('#ownerNum_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#antibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 
-  $('#plasmidName_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+  $('#antibodyName_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#antibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 	
 	$('#backbone_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#antibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 	
 	$('#antibiotic_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#antibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 	
 	$('#marker_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#antibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 	
 	

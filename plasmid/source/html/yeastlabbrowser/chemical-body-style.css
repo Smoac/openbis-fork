@@ -14,12 +14,12 @@ div#vis {
 }
 
 #chemical-table tr:nth-child(odd) td{
-  background-color:#B2B2B2;
+  background-color:#E0E0E0;
 }
 
 
 #chemical-table tr:nth-child(even) td{
-  background-color:#ECEFEF;
+  background-color:#F7F7F7;
 }
 
 
@@ -31,7 +31,7 @@ padding:5px;
   font-size:18px;
   font-weight: bold;
   color:#fff;
-  background-color:#767676;	
+  background-color:#A8A8A8;	
 }
 
 

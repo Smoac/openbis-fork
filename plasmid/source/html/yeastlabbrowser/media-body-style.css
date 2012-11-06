@@ -30,7 +30,7 @@ div.inspector {
 }
 
 .properties td:nth-child(odd) {
-  background-color: #ffe5cc;
+  background-color:#E0E0E0;
   width:50%;
 }
 
@@ -52,7 +52,7 @@ div.inspector {
 
 .downloads {
 	color: black;
-	background-color: #E3E3E3;
+	background-color:#B2B2B2;;
 }
 
 table.downloads {
@@ -91,36 +91,36 @@ background-color: white;
 /* Table */
 
 
-.plasmid-table-data-cell {
+.media-table-data-cell {
 	overflow: hidden;
 	
 }
 
 
-#plasmid-table tr:nth-child(odd) td{
-  background-color:#ffe5cc;
+#media-table tr:nth-child(odd) td{
+  background-color:#E0E0E0;
 }
 
 
-#plasmid-table tr:nth-child(even) td{
+#media-table tr:nth-child(even) td{
   background-color:#F7F7F7;
 }
 
-#plasmid-table tr.plasmid-table-data:hover {
+#media-table tr.media-table-data:hover {
    font-weight: bold;
   
 }
 
-#plasmid-table td{
+#media-table td{
 
 padding:5px;
 }
 
-#plasmid-table tr.plasmid-table-header {
+#media-table tr.media-table-header {
   font-size:18px;
   font-weight: bold;
   color:#fff;
-  background-color:#ffcb99;	
+  background-color:#A8A8A8;	
   
  
   
