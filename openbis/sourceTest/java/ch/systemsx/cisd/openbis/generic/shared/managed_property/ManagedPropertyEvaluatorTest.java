@@ -311,7 +311,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         new ManagedPropertyEvaluator("def batchColumnNames():\n return ['A']");
     }
 
-    @Test(expectedExceptionsMessageRegExp = "Function updateFromBatchInput is not defined "
+    @Test(expectedExceptionsMessageRegExp = "Function updateFromRegistrationForm is not defined "
             + "although function inputWidgets is defined.", expectedExceptions = EvaluatorException.class)
     public void testScriptWithInputWidgetsFunctionButMissingUpdateFromBatchFunction()
     {
@@ -320,7 +320,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     }
 
     @Test(expectedExceptionsMessageRegExp = "Function updateFromBatchInput is not defined "
-            + "although functions batchColumnNames and inputWidgets are defined.", expectedExceptions = EvaluatorException.class)
+            + "although function batchColumnNames is defined.", expectedExceptions = EvaluatorException.class)
     public void testScriptWithInputWidgetsFunctionAndBatchColumnNamesFunctionButMissingUpdateFromBatchFunction()
     {
         new ManagedPropertyEvaluator("def inputWidgets():\n"
@@ -334,7 +334,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     {
         new ManagedPropertyEvaluator("def inputWidgets():\n"
                 + " return [inputWidgetFactory().createTextInputField('A'), None]\n"
-                + "def updateFromBatchInput():\n  None");
+                + "def updateFromRegistrationForm():\n  None");
     }
 
     @Test(expectedExceptionsMessageRegExp = "Function inputWidgets has returned a list where "
@@ -345,7 +345,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     {
         new ManagedPropertyEvaluator("def inputWidgets():\n"
                 + " return [inputWidgetFactory().createTextInputField('A'), 'B']\n"
-                + "def updateFromBatchInput():\n  None");
+                + "def updateFromRegistrationForm():\n  None");
     }
 
     @Test(expectedExceptionsMessageRegExp = "Function 'batchColumnNames' doesn't return a List "
@@ -361,7 +361,8 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     {
         new ManagedPropertyEvaluator("def inputWidgets():\n" + " f = inputWidgetFactory()\n"
                 + " w1 = f.createTextInputField('a')\n" + " w2 = f.createTextInputField('Alpha')\n"
-                + " w2.code = 'A'\n" + " return [w1, w2]\n" + "def updateFromBatchInput():\n  None");
+                + " w2.code = 'A'\n" + " return [w1, w2]\n"
+                + "def updateFromRegistrationForm():\n  None");
     }
 
     @Test
@@ -391,7 +392,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
                 new ManagedPropertyEvaluator(
                         "def inputWidgets():\n"
                                 + " return [inputWidgetFactory().createComboBoxInputField('Field', ['A', 'B'])]\n"
-                                + "def updateFromBatchInput():\n  None");
+                                + "def updateFromRegistrationForm():\n  None");
         assertEquals("[FIELD]", evaluator.getBatchColumnNames().toString());
         List<IManagedInputWidgetDescription> inputWidgetDescriptions =
                 evaluator.getInputWidgetDescriptions();
@@ -411,7 +412,8 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
                         "def batchColumnNames():\n return ['A', 'Beta']\n"
                                 + "def inputWidgets():\n"
                                 + " return [inputWidgetFactory().createComboBoxInputField('Field', ['A', 'B'])]\n"
-                                + "def updateFromBatchInput():\n  None");
+                                + "def updateFromBatchInput():\n  None\n"
+                                + "def updateFromRegistrationForm():\n  None");
         assertEquals("[A, BETA]", evaluator.getBatchColumnNames().toString());
         List<IManagedInputWidgetDescription> inputWidgetDescriptions =
                 evaluator.getInputWidgetDescriptions();
@@ -475,7 +477,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
                 new ManagedPropertyEvaluator(
                         "def showRawValueInForms():\n return True\n"
                                 + "def inputWidgets():\n return [inputWidgetFactory().createTextInputField('A')]\n"
-                                + "def updateFromBatchInput():\n  None");
+                                + "def updateFromRegistrationForm():\n  None");
 
         assertEquals("[A]", evaluator.getBatchColumnNames().toString());
         assertEquals("[]", evaluator.getInputWidgetDescriptions().toString());

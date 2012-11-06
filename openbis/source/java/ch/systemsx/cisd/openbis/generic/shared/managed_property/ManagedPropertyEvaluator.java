@@ -100,6 +100,12 @@ public class ManagedPropertyEvaluator
      */
     private static final String UPDATE_FROM_BATCH_INPUT_FUNCTION = "updateFromBatchInput";
 
+    /**
+     * The name of the function that expects a list of maps of bindings.
+     */
+    private static final String UPDATE_FROM_REGISTRATION_FORM_FUNCTION =
+            "updateFromRegistrationForm";
+
     private static final String PROPERTY_VARIABLE_NAME = "property";
 
     private static final String PROPERTY_PE_VARIABLE_NAME = "propertyPE";
@@ -112,6 +118,8 @@ public class ManagedPropertyEvaluator
 
     private final boolean updateFromBatchFunctionDefined;
 
+    private final boolean updateFromRegistrationFormFunctionDefined;
+
     private final boolean showRawValueInForms;
 
     private List<IManagedInputWidgetDescription> inputWidgetDescriptions;
@@ -120,6 +128,8 @@ public class ManagedPropertyEvaluator
     {
         evaluator = new Evaluator("", ManagedPropertyFunctions.class, scriptExpression);
         updateFromBatchFunctionDefined = evaluator.hasFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION);
+        updateFromRegistrationFormFunctionDefined =
+                evaluator.hasFunction(UPDATE_FROM_REGISTRATION_FORM_FUNCTION);
         boolean batchColumnNamesFunctionDefined =
                 evaluator.hasFunction(BATCH_COLUMN_NAMES_FUNCTION);
         boolean inputWidgetsFunctionDefined = evaluator.hasFunction(INPUT_WIDGETS_FUNCTION);
@@ -192,18 +202,23 @@ public class ManagedPropertyEvaluator
     private void checkCombinationsOfDefinedFunctions(boolean batchColumnNamesFunctionDefined,
             boolean inputWidgetsFunctionDefined)
     {
-        if ((batchColumnNamesFunctionDefined || inputWidgetsFunctionDefined)
-                && updateFromBatchFunctionDefined == false)
+        if (batchColumnNamesFunctionDefined && updateFromBatchFunctionDefined == false)
         {
             StringBuilder builder = new StringBuilder("Function ");
             builder.append(UPDATE_FROM_BATCH_INPUT_FUNCTION);
-            builder.append(" is not defined although function");
-            boolean both = batchColumnNamesFunctionDefined && inputWidgetsFunctionDefined;
-            builder.append(both ? "s " : " ");
-            builder.append(batchColumnNamesFunctionDefined ? BATCH_COLUMN_NAMES_FUNCTION : "");
-            builder.append(both ? " and " : "");
-            builder.append(inputWidgetsFunctionDefined ? INPUT_WIDGETS_FUNCTION : "");
-            builder.append(both ? " are defined." : " is defined.");
+            builder.append(" is not defined although function ");
+            builder.append(BATCH_COLUMN_NAMES_FUNCTION);
+            builder.append(" is defined.");
+            throw new EvaluatorException(builder.toString());
+        }
+
+        if (inputWidgetsFunctionDefined && updateFromRegistrationFormFunctionDefined == false)
+        {
+            StringBuilder builder = new StringBuilder("Function ");
+            builder.append(UPDATE_FROM_REGISTRATION_FORM_FUNCTION);
+            builder.append(" is not defined although function ");
+            builder.append(INPUT_WIDGETS_FUNCTION);
+            builder.append(" is defined.");
             throw new EvaluatorException(builder.toString());
         }
     }
@@ -296,4 +311,14 @@ public class ManagedPropertyEvaluator
         }
     }
 
+    public void updateFromRegistrationForm(IManagedProperty managedProperty, IPerson person,
+            List<Map<String, String>> bindings)
+    {
+        if (updateFromRegistrationFormFunctionDefined)
+        {
+            evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
+            evaluator.set(PERSON_VARIABLE_NAME, person);
+            evaluator.evalFunction(UPDATE_FROM_REGISTRATION_FORM_FUNCTION, bindings);
+        }
+    }
 }

@@ -597,6 +597,10 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                                 .substring(BasicConstant.MANAGED_PROPERTY_JSON_PREFIX.length()),
                                 List.class);
                 ManagedProperty managedProperty = new ManagedProperty();
+                IPerson person = PersonTranslator.translateToIPerson(personPE);
+
+                List<Map<String, String>> bindingsList = new ArrayList<Map<String, String>>();
+
                 for (Object row : readValue)
                 {
                     if (row instanceof Map == false)
@@ -604,10 +608,10 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                         continue;
                     }
 
-                    IPerson person = PersonTranslator.translateToIPerson(personPE);
-                    evaluator.updateFromBatchInput(managedProperty, person,
-                            (Map<String, String>) row);
+                    bindingsList.add((Map<String, String>) row);
                 }
+
+                evaluator.updateFromRegistrationForm(managedProperty, person, bindingsList);
                 return managedProperty.getValue();
             } catch (Exception ex)
             {
