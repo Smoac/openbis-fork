@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
@@ -74,7 +76,7 @@ public class ToolBox
 
     public static final String EXPERIMENT_TYPE_CODE = "SIRNA_HCS";
 
-    public static final String SAMPLE_TYPE_CODE = "NORMAL";
+    public static final String SAMPLE_TYPE_CODE = "CELL_PLATE";
 
     public static final String DATA_STORE_CODE = "STANDARD";
 
@@ -267,7 +269,7 @@ public class ToolBox
         return experiment;
     }
 
-    public List<String> extractCodes(List<? extends ICodeHolder> codeHolders)
+    public List<String> extractCodes(Collection<? extends ICodeHolder> codeHolders)
     {
         List<String> result = new ArrayList<String>();
         for (ICodeHolder codeHolder : codeHolders)
@@ -296,19 +298,48 @@ public class ToolBox
                 ExperimentIdentifierFactory.parse(experiment.getIdentifier()));
     }
 
-    public NewSample sample(int number, IIdentifierHolder experiment)
+    public NewSample sample(int number, IIdentifierHolder experimentOrNull,
+            IEntityProperty... properties)
     {
-        NewSample sample = sample(number);
-        sample.setExperimentIdentifier(experiment.getIdentifier());
+        NewSample sample = sample(number, properties);
+        if (experimentOrNull != null)
+        {
+            sample.setExperimentIdentifier(experimentOrNull.getIdentifier());
+        }
         return sample;
     }
 
-    public NewSample sample(int number)
+    public NewSample sampleWithParent(int number, ICodeHolder sampleOrNull,
+            IEntityProperty... properties)
+    {
+        NewSample sample = sample(number, properties);
+        if (sampleOrNull != null)
+        {
+            sample.setParents(sampleOrNull.getCode());
+        }
+        return sample;
+    }
+
+    public NewSample sample(int number, IEntityProperty... properties)
     {
         NewSample sample = new NewSample();
         sample.setIdentifier("/" + ToolBox.SPACE_1 + "/OLT-S" + number);
         sample.setSampleType(new SampleTypeBuilder().code(SAMPLE_TYPE_CODE).getSampleType());
+        sample.setProperties(properties);
         return sample;
+    }
+
+    public Sample createAndLoadSample(int number, IIdentifierHolder experimentOrNull,
+            IEntityProperty... properties)
+    {
+        NewSample sample = sample(number, experimentOrNull, properties);
+        return createAndLoadSample(sample);
+    }
+
+    public Sample createAndLoadSample(NewSample sample)
+    {
+        genericServer.registerSample(systemSessionToken, sample, ToolBox.NO_ATTACHMENTS);
+        return loadSample(sample);
     }
 
     public Sample loadSample(IIdentifierHolder sample)
@@ -325,6 +356,13 @@ public class ToolBox
         return dataSet;
     }
 
+    public NewDataSet dataSet(String code, Sample sample)
+    {
+        NewDataSet dataSet = dataSet(code);
+        dataSet.setSampleIdentifierOrNull(SampleIdentifierFactory.parse(sample.getIdentifier()));
+        return dataSet;
+    }
+
     private NewDataSet dataSet(String code)
     {
         NewDataSet dataSet = new NewDataSet();
@@ -337,6 +375,13 @@ public class ToolBox
         dataSet.setStorageFormat(StorageFormat.PROPRIETARY);
         dataSet.setDataStoreCode(DATA_STORE_CODE);
         return dataSet;
+    }
+
+    public void checkModifierAndModificationDateOfBean(TimeIntervalChecker timeIntervalChecker,
+            CodeWithRegistrationAndModificationDate<?> bean, String userId)
+    {
+        assertEquals(userId, bean.getModifier().getUserId());
+        timeIntervalChecker.assertDateInInterval(bean.getModificationDate());
     }
 
     public void checkModifierAndModificationDateOfProject1(TimeIntervalChecker timeIntervalChecker)
@@ -355,4 +400,14 @@ public class ToolBox
         timeIntervalChecker.assertDateInInterval(p.getModificationDate());
     }
 
+    public void sleep(int milliseconds)
+    {
+        try
+        {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException ex)
+        {
+            // ignored
+        }
+    }
 }
