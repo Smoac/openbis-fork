@@ -29,87 +29,64 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
  */
 public class AuthorizationHelper
 {
-    public static <T> List<T> filterToVisibleDatasets(IEncapsulatedOpenBISService openBisService,
-            String user, List<T> datasets,
-            IMapper<T, String> codeMapper)
+    public static enum EntityKind
+    {
+        EXPERIMENT()
+        {
+            @Override
+            List<String> filterToVisible(IEncapsulatedOpenBISService openBisService, String user,
+                    List<String> codes)
+            {
+                return openBisService.filterToVisibleExperiments(user, codes);
+            }
+        },
+        SAMPLE
+        {
+            @Override
+            List<String> filterToVisible(IEncapsulatedOpenBISService openBisService, String user,
+                    List<String> codes)
+            {
+                return openBisService.filterToVisibleSamples(user, codes);
+            }
+        },
+        DATA_SET
+        {
+            @Override
+            List<String> filterToVisible(IEncapsulatedOpenBISService openBisService, String user,
+                    List<String> codes)
+            {
+                return openBisService.filterToVisibleDataSets(user, codes);
+            }
+        };
+        abstract List<String> filterToVisible(IEncapsulatedOpenBISService openBisService,
+                String user, List<String> codes);
+    }
+
+    public static <T> List<T> filterToVisible(IEncapsulatedOpenBISService openBisService,
+            String user, List<T> entities,
+            IMapper<T, String> codeMapper, EntityKind entityKind)
     {
         // create a list of codes
-        List<String> dataSetCodes = new LinkedList<String>();
-        for (T dataSet : datasets)
+        List<String> codes = new LinkedList<String>();
+        for (T entity : entities)
         {
-            dataSetCodes.add(codeMapper.map(dataSet));
+            codes.add(codeMapper.map(entity));
         }
 
         // call service - to filter the codes
-        List<String> filteredCodes = openBisService.filterToVisibleDataSets(user, dataSetCodes);
+        List<String> filteredCodes = entityKind.filterToVisible(openBisService, user, codes);
         // put filtered codes to the set
         Set<String> filteredSet = new HashSet<String>(filteredCodes);
 
         // filter original values to those returned by the service call
         List<T> resultList = new LinkedList<T>();
-        for (T dataSet : datasets)
+        for (T entity : entities)
         {
-            if (filteredSet.contains(codeMapper.map(dataSet)))
+            if (filteredSet.contains(codeMapper.map(entity)))
             {
-                resultList.add(dataSet);
+                resultList.add(entity);
             }
         }
         return resultList;
     }
-
-    public static <T> List<T> filterToVisibleExperiments(
-            IEncapsulatedOpenBISService openBisService, String user, List<T> experiments,
-            IMapper<T, String> identifierMapper)
-    {
-        // create a list of codes
-        List<String> experimentIds = new LinkedList<String>();
-        for (T exp : experiments)
-        {
-            experimentIds.add(identifierMapper.map(exp));
-        }
-
-        // call service - to filter the codes
-        List<String> filteredCodes = openBisService.filterToVisibleExperiments(user, experimentIds);
-        // put filtered codes to the set
-        Set<String> filteredSet = new HashSet<String>(filteredCodes);
-
-        // filter original values to those returned by the service call
-        List<T> resultList = new LinkedList<T>();
-        for (T exp : experiments)
-        {
-            if (filteredSet.contains(identifierMapper.map(exp)))
-            {
-                resultList.add(exp);
-            }
-        }
-        return resultList;
-    }
-
-    public static <T> List<T> filterToVisibleSamples(IEncapsulatedOpenBISService openBisService,
-            String user, List<T> samples, IMapper<T, String> identifierMapper)
-    {
-        // create a list of codes
-        List<String> sampleIds = new LinkedList<String>();
-        for (T sample : samples)
-        {
-            sampleIds.add(identifierMapper.map(sample));
-        }
-
-        // call service - to filter the codes
-        List<String> filteredCodes = openBisService.filterToVisibleSamples(user, sampleIds);
-        // put filtered codes to the set
-        Set<String> filteredSet = new HashSet<String>(filteredCodes);
-
-        // filter original values to those returned by the service call
-        List<T> resultList = new LinkedList<T>();
-        for (T sample : samples)
-        {
-            if (filteredSet.contains(identifierMapper.map(sample)))
-            {
-                resultList.add(sample);
-            }
-        }
-        return resultList;
-    }
-
 }

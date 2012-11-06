@@ -84,8 +84,8 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
 
         List<Sample> samples = etlService.searchForSamples(systemSessionToken, searchCriteria);
 
-        return AuthorizationHelper.filterToVisibleSamples(encapsulatedService, userName, samples,
-                idMapper);
+        return AuthorizationHelper.filterToVisible(encapsulatedService, userName, samples,
+                idMapper, AuthorizationHelper.EntityKind.SAMPLE);
 
     }
 
@@ -104,8 +104,8 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
         List<ExternalData> datasets =
                 etlService.searchForDataSets(systemSessionToken, searchCriteria);
 
-        return AuthorizationHelper.filterToVisibleDatasets(encapsulatedService, userName, datasets,
-                codeMapper);
+        return AuthorizationHelper.filterToVisible(encapsulatedService, userName, datasets,
+                codeMapper, AuthorizationHelper.EntityKind.DATA_SET);
     }
 
     @Override
@@ -123,8 +123,8 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
         List<Experiment> datasets =
                 etlService.listExperiments(systemSessionToken, projectIdentifier);
 
-        return AuthorizationHelper.filterToVisibleExperiments(encapsulatedService, userName,
-                datasets, codeMapper);
+        return AuthorizationHelper.filterToVisible(encapsulatedService, userName,
+                datasets, codeMapper, AuthorizationHelper.EntityKind.EXPERIMENT);
     }
 
     @Override

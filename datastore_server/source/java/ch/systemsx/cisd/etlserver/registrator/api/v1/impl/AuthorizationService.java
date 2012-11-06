@@ -58,8 +58,8 @@ public class AuthorizationService implements IAuthorizationService
                 }
             };
 
-        return AuthorizationHelper.filterToVisibleDatasets(openBisService, user, datasets,
-                codeMapper);
+        return AuthorizationHelper.filterToVisible(openBisService, user, datasets,
+                codeMapper, AuthorizationHelper.EntityKind.DATA_SET);
     }
 
 
@@ -77,8 +77,8 @@ public class AuthorizationService implements IAuthorizationService
                         }
                     };
 
-        return AuthorizationHelper.filterToVisibleExperiments(openBisService, user, experiments,
-                idMapper);
+        return AuthorizationHelper.filterToVisible(openBisService, user, experiments,
+                idMapper, AuthorizationHelper.EntityKind.EXPERIMENT);
 
     }
 
@@ -95,6 +95,7 @@ public class AuthorizationService implements IAuthorizationService
                 }
             };
 
-        return AuthorizationHelper.filterToVisibleSamples(openBisService, user, samples, idMapper);
+        return AuthorizationHelper.filterToVisible(openBisService, user, samples, idMapper,
+                AuthorizationHelper.EntityKind.SAMPLE);
     }
 }
