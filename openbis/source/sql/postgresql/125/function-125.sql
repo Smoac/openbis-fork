@@ -965,15 +965,13 @@ CREATE OR REPLACE RULE data_set_relationships_insert AS
          data_id_child,
          pers_id_author,
 			   registration_timestamp,
-			   modification_timestamp,
-			   version
+			   modification_timestamp
        ) VALUES (
          NEW.data_id_parent, 
          NEW.data_id_child,
          NEW.pers_id_author,
 			   NEW.registration_timestamp,
-			   NEW.modification_timestamp,
-			   NEW.version
+			   NEW.modification_timestamp
        );
 
 CREATE OR REPLACE RULE data_set_relationships_update AS
@@ -985,8 +983,7 @@ CREATE OR REPLACE RULE data_set_relationships_update AS
 			      del_id = NEW.del_id,
 			      pers_id_author = NEW.pers_id_author,
 			      registration_timestamp = NEW.registration_timestamp,
-			      modification_timestamp = NEW.modification_timestamp,
-			      version = NEW.version
+			      modification_timestamp = NEW.modification_timestamp
           WHERE data_id_parent = NEW.data_id_parent and data_id_child = NEW.data_id_child;
           
 CREATE OR REPLACE RULE data_set_relationships_delete AS
@@ -1003,8 +1000,7 @@ CREATE OR REPLACE RULE sample_relationships_insert AS
          sample_id_child,
          pers_id_author,
 			   registration_timestamp,
-   	     modification_timestamp,
-   	     version
+   	     modification_timestamp
        ) VALUES (
          NEW.id, 
          NEW.sample_id_parent, 
@@ -1012,8 +1008,7 @@ CREATE OR REPLACE RULE sample_relationships_insert AS
          NEW.sample_id_child,
          NEW.pers_id_author,
 			   NEW.registration_timestamp,
-			   NEW.modification_timestamp,
-			   NEW.version
+			   NEW.modification_timestamp
        );
        
 CREATE OR REPLACE RULE sample_relationships_update AS
@@ -1026,8 +1021,7 @@ CREATE OR REPLACE RULE sample_relationships_update AS
 			      del_id = NEW.del_id,
 			      pers_id_author = NEW.pers_id_author,
 			      registration_timestamp = NEW.registration_timestamp,
-			      modification_timestamp = NEW.modification_timestamp,
-			      version = NEW.version
+			      modification_timestamp = NEW.modification_timestamp
           WHERE id = NEW.id;
      
 CREATE OR REPLACE RULE sample_relationships_delete AS

@@ -451,8 +451,7 @@ CREATE TABLE authorization_groups (
     description description_2000,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     pers_id_registerer tech_id NOT NULL,
-    modification_timestamp time_stamp DEFAULT now(),
-    version integer DEFAULT 0
+    modification_timestamp time_stamp DEFAULT now()
 );
 CREATE SEQUENCE code_seq
     START WITH 1
@@ -472,8 +471,7 @@ CREATE TABLE controlled_vocabularies (
     dbin_id tech_id NOT NULL,
     modification_timestamp time_stamp DEFAULT now(),
     is_chosen_from_list boolean_char DEFAULT true NOT NULL,
-    source_uri character varying(250),
-    version integer DEFAULT 0
+    source_uri character varying(250)
 );
 CREATE SEQUENCE controlled_vocabulary_id_seq
     START WITH 1
@@ -584,7 +582,6 @@ CREATE TABLE data_set_properties (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     modification_timestamp time_stamp DEFAULT now(),
     pers_id_author tech_id NOT NULL,
-    version integer DEFAULT 0,
     CONSTRAINT dspr_ck CHECK ((((((value IS NOT NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NULL)) OR (((value IS NULL) AND (cvte_id IS NOT NULL)) AND (mate_prop_id IS NULL))) OR (((value IS NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NOT NULL))))
 );
 CREATE SEQUENCE data_set_property_id_seq
@@ -607,11 +604,10 @@ CREATE TABLE data_set_relationships_all (
     del_id tech_id,
     pers_id_author tech_id,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    modification_timestamp time_stamp DEFAULT now(),
-    version integer DEFAULT 0
+    modification_timestamp time_stamp DEFAULT now()
 );
 CREATE VIEW data_set_relationships AS
-    SELECT data_set_relationships_all.data_id_parent, data_set_relationships_all.data_id_child, data_set_relationships_all.del_id, data_set_relationships_all.pers_id_author, data_set_relationships_all.registration_timestamp, data_set_relationships_all.modification_timestamp, data_set_relationships_all.version FROM data_set_relationships_all WHERE (data_set_relationships_all.del_id IS NULL);
+    SELECT data_set_relationships_all.data_id_parent, data_set_relationships_all.data_id_child, data_set_relationships_all.del_id, data_set_relationships_all.pers_id_author, data_set_relationships_all.registration_timestamp, data_set_relationships_all.modification_timestamp FROM data_set_relationships_all WHERE (data_set_relationships_all.del_id IS NULL);
 CREATE SEQUENCE data_set_relationships_history_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -686,8 +682,7 @@ CREATE TABLE data_stores (
     remote_url character varying(250) NOT NULL,
     session_token character varying(50) NOT NULL,
     modification_timestamp time_stamp DEFAULT now(),
-    is_archiver_configured boolean_char DEFAULT false NOT NULL,
-    version integer DEFAULT 0
+    is_archiver_configured boolean_char DEFAULT false NOT NULL
 );
 CREATE SEQUENCE data_type_id_seq
     START WITH 1
@@ -830,7 +825,6 @@ CREATE TABLE experiment_properties (
     modification_timestamp time_stamp DEFAULT now(),
     mate_prop_id tech_id,
     pers_id_author tech_id NOT NULL,
-    version integer DEFAULT 0,
     CONSTRAINT expr_ck CHECK ((((((value IS NOT NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NULL)) OR (((value IS NULL) AND (cvte_id IS NOT NULL)) AND (mate_prop_id IS NULL))) OR (((value IS NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NOT NULL))))
 );
 CREATE SEQUENCE experiment_property_id_seq
@@ -953,8 +947,7 @@ CREATE TABLE filters (
     modification_timestamp time_stamp DEFAULT now(),
     expression text NOT NULL,
     is_public boolean NOT NULL,
-    grid_id character varying(200) NOT NULL,
-    version integer DEFAULT 0
+    grid_id character varying(200) NOT NULL
 );
 CREATE TABLE grid_custom_columns (
     id tech_id NOT NULL,
@@ -967,8 +960,7 @@ CREATE TABLE grid_custom_columns (
     modification_timestamp time_stamp DEFAULT now(),
     expression grid_expression NOT NULL,
     is_public boolean NOT NULL,
-    grid_id grid_id NOT NULL,
-    version integer DEFAULT 0
+    grid_id grid_id NOT NULL
 );
 CREATE SEQUENCE grid_custom_columns_id_seq
     START WITH 1
@@ -1012,7 +1004,6 @@ CREATE TABLE material_properties (
     modification_timestamp time_stamp DEFAULT now(),
     mate_prop_id tech_id,
     pers_id_author tech_id NOT NULL,
-    version integer DEFAULT 0,
     CONSTRAINT mapr_ck CHECK ((((((value IS NOT NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NULL)) OR (((value IS NULL) AND (cvte_id IS NOT NULL)) AND (mate_prop_id IS NULL))) OR (((value IS NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NOT NULL))))
 );
 CREATE TABLE material_properties_history (
@@ -1069,8 +1060,7 @@ CREATE TABLE materials (
     pers_id_registerer tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     dbin_id tech_id NOT NULL,
-    modification_timestamp time_stamp DEFAULT now(),
-    version integer DEFAULT 0
+    modification_timestamp time_stamp DEFAULT now()
 );
 CREATE SEQUENCE metaproject_assignment_id_seq
     START WITH 1
@@ -1225,8 +1215,7 @@ CREATE TABLE queries (
     is_public boolean NOT NULL,
     query_type query_type NOT NULL,
     db_key code DEFAULT '1'::character varying NOT NULL,
-    entity_type_code code,
-    version integer DEFAULT 0
+    entity_type_code code
 );
 CREATE SEQUENCE query_id_seq
     START WITH 1
@@ -1326,7 +1315,6 @@ CREATE TABLE sample_properties (
     modification_timestamp time_stamp DEFAULT now(),
     mate_prop_id tech_id,
     pers_id_author tech_id NOT NULL,
-    version integer DEFAULT 0,
     CONSTRAINT sapr_ck CHECK ((((((value IS NOT NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NULL)) OR (((value IS NULL) AND (cvte_id IS NOT NULL)) AND (mate_prop_id IS NULL))) OR (((value IS NULL) AND (cvte_id IS NULL)) AND (mate_prop_id IS NOT NULL))))
 );
 CREATE SEQUENCE sample_property_id_seq
@@ -1351,11 +1339,10 @@ CREATE TABLE sample_relationships_all (
     del_id tech_id,
     pers_id_author tech_id,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
-    modification_timestamp time_stamp DEFAULT now(),
-    version integer DEFAULT 0
+    modification_timestamp time_stamp DEFAULT now()
 );
 CREATE VIEW sample_relationships AS
-    SELECT sample_relationships_all.id, sample_relationships_all.sample_id_parent, sample_relationships_all.relationship_id, sample_relationships_all.sample_id_child, sample_relationships_all.del_id, sample_relationships_all.pers_id_author, sample_relationships_all.registration_timestamp, sample_relationships_all.modification_timestamp, sample_relationships_all.version FROM sample_relationships_all WHERE (sample_relationships_all.del_id IS NULL);
+    SELECT sample_relationships_all.id, sample_relationships_all.sample_id_parent, sample_relationships_all.relationship_id, sample_relationships_all.sample_id_child, sample_relationships_all.del_id, sample_relationships_all.pers_id_author, sample_relationships_all.registration_timestamp, sample_relationships_all.modification_timestamp FROM sample_relationships_all WHERE (sample_relationships_all.del_id IS NULL);
 CREATE SEQUENCE sample_relationships_history_id_seq
     START WITH 1
     INCREMENT BY 1

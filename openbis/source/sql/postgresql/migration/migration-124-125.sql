@@ -1,20 +1,7 @@
 
-ALTER TABLE authorization_groups ADD COLUMN version integer DEFAULT 0;
-ALTER TABLE controlled_vocabularies ADD COLUMN version integer DEFAULT 0;
 ALTER TABLE data_all ADD COLUMN version integer DEFAULT 0;
-ALTER TABLE data_set_properties ADD COLUMN version integer DEFAULT 0;
-ALTER TABLE data_set_relationships_all ADD COLUMN version integer DEFAULT 0;
-ALTER TABLE data_stores ADD COLUMN version integer DEFAULT 0;
-ALTER TABLE experiment_properties ADD COLUMN version integer DEFAULT 0;
 ALTER TABLE experiments_all ADD COLUMN version integer DEFAULT 0;
-ALTER TABLE filters ADD COLUMN version integer DEFAULT 0;
-ALTER TABLE grid_custom_columns ADD COLUMN version integer DEFAULT 0;
-ALTER TABLE material_properties ADD COLUMN version integer DEFAULT 0;
-ALTER TABLE materials ADD COLUMN version integer DEFAULT 0;
 ALTER TABLE projects ADD COLUMN version integer DEFAULT 0;
-ALTER TABLE queries ADD COLUMN version integer DEFAULT 0;
-ALTER TABLE sample_properties ADD COLUMN version integer DEFAULT 0;
-ALTER TABLE sample_relationships_all ADD COLUMN version integer DEFAULT 0;
 ALTER TABLE samples_all	ADD COLUMN version integer DEFAULT 0;
 
 -----------
@@ -122,48 +109,6 @@ CREATE OR REPLACE RULE data_deleted_delete AS
        DELETE FROM data_all
               WHERE id = OLD.id;               
               
-DROP VIEW data_set_relationships;
-CREATE VIEW data_set_relationships AS
-   SELECT data_id_parent, data_id_child, del_id, pers_id_author, registration_timestamp, modification_timestamp, version
-   FROM data_set_relationships_all 
-   WHERE del_id IS NULL;
-   
-CREATE OR REPLACE RULE data_set_relationships_insert AS
-    ON INSERT TO data_set_relationships DO INSTEAD 
-       INSERT INTO data_set_relationships_all (
-         data_id_parent, 
-         data_id_child,
-         pers_id_author,
-			   registration_timestamp,
-			   modification_timestamp,
-			   version
-       ) VALUES (
-         NEW.data_id_parent, 
-         NEW.data_id_child,
-         NEW.pers_id_author,
-			   NEW.registration_timestamp,
-			   NEW.modification_timestamp,
-			   NEW.version
-       );
-
-CREATE OR REPLACE RULE data_set_relationships_update AS
-    ON UPDATE TO data_set_relationships DO INSTEAD 
-       UPDATE data_set_relationships_all
-          SET 
-			      data_id_parent = NEW.data_id_parent, 
-			      data_id_child = NEW.data_id_child, 
-			      del_id = NEW.del_id,
-			      pers_id_author = NEW.pers_id_author,
-			      registration_timestamp = NEW.registration_timestamp,
-			      modification_timestamp = NEW.modification_timestamp,
-			      version = NEW.version
-          WHERE data_id_parent = NEW.data_id_parent and data_id_child = NEW.data_id_child;
-          
-CREATE OR REPLACE RULE data_set_relationships_delete AS
-    ON DELETE TO data_set_relationships DO INSTEAD
-       DELETE FROM data_set_relationships_all
-              WHERE data_id_parent = OLD.data_id_parent and data_id_child = OLD.data_id_child;
-
 ---------------------
 -- experiment view --
 ---------------------
@@ -329,54 +274,4 @@ CREATE OR REPLACE RULE sample_deleted_delete AS
     ON DELETE TO samples_deleted DO INSTEAD
        DELETE FROM samples_all
               WHERE id = OLD.id;
-              
-DROP VIEW sample_relationships;
-CREATE VIEW sample_relationships AS
-   SELECT id, sample_id_parent, relationship_id, sample_id_child, del_id, pers_id_author, registration_timestamp, modification_timestamp, version
-   FROM sample_relationships_all
-   WHERE del_id IS NULL;
-      
-CREATE OR REPLACE RULE sample_relationships_insert AS
-    ON INSERT TO sample_relationships DO INSTEAD 
-       INSERT INTO sample_relationships_all (
-         id, 
-         sample_id_parent, 
-         relationship_id, 
-         sample_id_child,
-         pers_id_author,
-			   registration_timestamp,
-   	     modification_timestamp,
-   	     version
-       ) VALUES (
-         NEW.id, 
-         NEW.sample_id_parent, 
-         NEW.relationship_id, 
-         NEW.sample_id_child,
-         NEW.pers_id_author,
-			   NEW.registration_timestamp,
-			   NEW.modification_timestamp,
-			   NEW.version
-       );
-       
-CREATE OR REPLACE RULE sample_relationships_update AS
-    ON UPDATE TO sample_relationships DO INSTEAD 
-       UPDATE sample_relationships_all
-          SET 
-			      sample_id_parent = NEW.sample_id_parent, 
-			      relationship_id = NEW.relationship_id, 
-			      sample_id_child = NEW.sample_id_child,
-			      del_id = NEW.del_id,
-			      pers_id_author = NEW.pers_id_author,
-			      registration_timestamp = NEW.registration_timestamp,
-			      modification_timestamp = NEW.modification_timestamp,
-			      version = NEW.version
-          WHERE id = NEW.id;
-
-CREATE OR REPLACE RULE sample_relationships_delete AS
-    ON DELETE TO sample_relationships DO INSTEAD
-       DELETE FROM sample_relationships_all
-              WHERE id = OLD.id;
-
-     
-
               
