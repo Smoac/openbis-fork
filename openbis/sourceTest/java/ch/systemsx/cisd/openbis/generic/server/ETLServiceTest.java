@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -961,11 +960,10 @@ public class ETLServiceTest extends AbstractServerTestCase
         final SamplePE samplePE = createSampleWithExperiment(experiment);
         final SampleIdentifier sampleIdentifier = samplePE.getSampleIdentifier();
 
-        final Date version = new Date();
         final Collection<NewAttachment> attachments = Collections.<NewAttachment> emptyList();
 
         final SampleUpdatesDTO sample =
-                new SampleUpdatesDTO(CommonTestUtils.TECH_ID, null, null, attachments, version,
+                new SampleUpdatesDTO(CommonTestUtils.TECH_ID, null, null, attachments, 0,
                         sampleIdentifier, null, null);
 
         final NewExternalData externalData = new NewExternalData();
@@ -1018,13 +1016,12 @@ public class ETLServiceTest extends AbstractServerTestCase
         final SamplePE samplePE = createSampleWithExperiment(experiment);
         final SampleIdentifier sampleIdentifier = samplePE.getSampleIdentifier();
 
-        final Date version = new Date();
         final Collection<NewAttachment> attachments = Collections.<NewAttachment> emptyList();
 
         List<ExperimentUpdatesDTO> experimentUpdates = new ArrayList<ExperimentUpdatesDTO>();
 
         final SampleUpdatesDTO sampleUpdate =
-                new SampleUpdatesDTO(CommonTestUtils.TECH_ID, null, null, attachments, version,
+                new SampleUpdatesDTO(CommonTestUtils.TECH_ID, null, null, attachments, 0,
                         sampleIdentifier, null, null);
 
         final MaterialPE material = new MaterialPE();
@@ -1204,11 +1201,10 @@ public class ETLServiceTest extends AbstractServerTestCase
         final SamplePE samplePE = createSampleWithExperiment(experiment);
         final SampleIdentifier sampleIdentifier = samplePE.getSampleIdentifier();
 
-        final Date version = new Date();
         final Collection<NewAttachment> attachments = Collections.<NewAttachment> emptyList();
 
         final SampleUpdatesDTO sampleUpdate =
-                new SampleUpdatesDTO(CommonTestUtils.TECH_ID, null, null, attachments, version,
+                new SampleUpdatesDTO(CommonTestUtils.TECH_ID, null, null, attachments, 0,
                         sampleIdentifier, null, null);
 
         final MaterialPE material = new MaterialPE();

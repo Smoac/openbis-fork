@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.util.Arrays;
-import java.util.Date;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -131,7 +130,7 @@ public class EncapsulatedOpenBISServiceTest
     {
         final SampleUpdatesDTO sample =
                 new SampleUpdatesDTO(new TechId(1), Arrays.<IEntityProperty> asList(), null,
-                        Arrays.<NewAttachment> asList(), new Date(), null, null, null);
+                        Arrays.<NewAttachment> asList(), 0, null, null, null);
         final NewExternalData data = new NewExternalData();
         data.setCode("ds1");
         data.setShareId("42");

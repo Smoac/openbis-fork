@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -79,8 +78,7 @@ public class GeneralInformationChangingServiceTest extends AbstractServerTestCas
                                     .experiment(
                                             new ExperimentBuilder().identifier("/S/P/E")
                                                     .getExperiment())
-                                    .partOf(new SampleBuilder("/P/S1").getSample())
-                                    .modificationDate(new Date(1234567890))
+                                    .partOf(new SampleBuilder("/P/S1").getSample()).version(4711)
                                     .property("name", "Albert").property("age", "42");
                     sample.property("material").type(DataTypeCode.MATERIAL)
                             .value(new MaterialBuilder().code("A").type("Fluid"));
@@ -102,7 +100,7 @@ public class GeneralInformationChangingServiceTest extends AbstractServerTestCas
 
         SampleUpdatesDTO updatesDTO = updateMatcher.recordedObject();
         assertEquals(SAMPLE_ID, updatesDTO.getSampleIdOrNull().getId().longValue());
-        assertEquals(1234567890L, updatesDTO.getVersion().getTime());
+        assertEquals(4711, updatesDTO.getVersion());
         List<IEntityProperty> props = updatesDTO.getProperties();
         Collections.sort(props, new Comparator<IEntityProperty>()
             {

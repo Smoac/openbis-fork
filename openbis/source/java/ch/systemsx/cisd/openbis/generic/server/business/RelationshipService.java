@@ -89,6 +89,7 @@ public class RelationshipService implements IRelationshipService
         }
 
         sample.setExperiment(experiment);
+        RelationshipUtils.updateModificationDateAndModifier(sample, session);
         RelationshipUtils.updateModificationDateAndModifier(experiment, session);
 
         for (DataPE dataset : sample.getDatasets())
@@ -110,6 +111,7 @@ public class RelationshipService implements IRelationshipService
         if (experiment != null)
         {
             experiment.removeSample(sample);
+            RelationshipUtils.updateModificationDateAndModifier(sample, session);
             RelationshipUtils.updateModificationDateAndModifier(experiment, session);
         }
     }
@@ -158,6 +160,8 @@ public class RelationshipService implements IRelationshipService
                 daoFactory.getRelationshipTypeDAO().tryFindRelationshipTypeByCode(
                         BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
 
+        RelationshipUtils.updateModificationDateAndModifier(sample, session);
+        RelationshipUtils.updateModificationDateAndModifier(parent, session);
         sample.addParentRelationship(new SampleRelationshipPE(parent, sample, relationshipType,
                 actor));
     }
@@ -169,6 +173,10 @@ public class RelationshipService implements IRelationshipService
         {
             if (relationship.getParentSample().equals(parent))
             {
+                RelationshipUtils.updateModificationDateAndModifier(relationship.getChildSample(),
+                        session);
+                RelationshipUtils.updateModificationDateAndModifier(relationship.getParentSample(),
+                        session);
                 sample.removeParentRelationship(relationship);
                 return;
             }
@@ -180,13 +188,13 @@ public class RelationshipService implements IRelationshipService
     @Override
     public void assignSampleToContainer(IAuthSession session, SamplePE sample, SamplePE container)
     {
-        sample.setContainer(container);
+        RelationshipUtils.setContainerForSample(sample, container, session);
     }
 
     @Override
     public void removeSampleFromContainer(IAuthSession session, SamplePE sample)
     {
-        sample.setContainer(null);
+        RelationshipUtils.setContainerForSample(sample, null, session);
     }
 
     @Override

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -35,7 +34,7 @@ public class BasicSampleUpdates implements Serializable
 
     private List<IEntityProperty> properties;
 
-    private Date version;
+    private int version;
 
     private String containerIdentifierOrNull;
 
@@ -73,7 +72,7 @@ public class BasicSampleUpdates implements Serializable
     {
     }
 
-    public BasicSampleUpdates(TechId sampleId, List<IEntityProperty> properties, Date version,
+    public BasicSampleUpdates(TechId sampleId, List<IEntityProperty> properties, int version,
             String containerIdentifierOrNull, String[] modifiedParentCodesOrNull)
     {
         this.sampleIdOrNull = sampleId;
@@ -103,12 +102,12 @@ public class BasicSampleUpdates implements Serializable
         this.properties = properties;
     }
 
-    public Date getVersion()
+    public int getVersion()
     {
         return version;
     }
 
-    public void setVersion(Date version)
+    public void setVersion(int version)
     {
         this.version = version;
     }

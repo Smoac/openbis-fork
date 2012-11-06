@@ -161,7 +161,7 @@ public class ConversionUtils
                                 : ExperimentIdentifierFactory.parse(sample.getExperiment()
                                         .getIdentifier()), // ExperimentIdentifier
                         attachments, // Collection<NewAttachment>
-                        sample.getModificationDate(), // Sample version
+                        sample.getVersion(), // Sample version
                         SampleIdentifierFactory.parse(sample.getIdentifier()), // Sample Identifier
                         containerIdentifier, // Container Identifier
                         parentIdentifiers // Parent Identifiers

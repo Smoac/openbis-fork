@@ -73,8 +73,8 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
 
         SampleUpdates sampleUpdates =
                 new SampleUpdates(attachmentsSessionKey, techIdOrNull, properties, attachments,
-                        experimentIdent, originalSample.getModificationDate(),
-                        createSampleIdentifier(), containerOrNull, parents);
+                        experimentIdent, originalSample.getVersion(), createSampleIdentifier(),
+                        containerOrNull, parents);
         sampleUpdates.setMetaprojectsOrNull(metaprojectArea.tryGetModifiedMetaprojects());
 
         viewContext.getService().updateSample(sampleUpdates,

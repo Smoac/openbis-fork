@@ -183,7 +183,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         updateEntityProperty(sampleToUpdate, "COMMENT", newComment);
 
         SampleUpdatesDTO sampleUpdate = convertToSampleUpdateDTO(sampleToUpdate);
-        sampleUpdate.setVersion(new Date());
+        sampleUpdate.setVersion(0);
         performSampleUpdate(Arrays.asList(sampleUpdate), 1);
     }
 
@@ -366,7 +366,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
                                 : ExperimentIdentifierFactory.parse(sample.getExperiment()
                                         .getIdentifier()), // ExperimentIdentifier
                         attachments, // Collection<NewAttachment>
-                        sample.getModificationDate(), // Sample version
+                        sample.getVersion(), // Sample version
                         SampleIdentifierFactory.parse(sample.getIdentifier()), // Sample Identifier
                         containerIdentifier, // Container Identifier
                         parentCodes // Parent Identifiers

@@ -728,7 +728,6 @@ public final class GenericServerTest extends AbstractServerTestCase
         final TechId sampleId = CommonTestUtils.TECH_ID;
         final List<IEntityProperty> properties = new ArrayList<IEntityProperty>();
         prepareGetSession();
-        final Date version = new Date();
         final Collection<NewAttachment> attachments = Collections.<NewAttachment> emptyList();
         final Long id = 1L;
         final SamplePE sample = new SamplePE();
@@ -738,8 +737,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         Date newModificationDate = new Date(2);
         sample.setModificationDate(newModificationDate);
         final SampleUpdatesDTO updates =
-                new SampleUpdatesDTO(sampleId, properties, null, attachments, version, null, null,
-                        null);
+                new SampleUpdatesDTO(sampleId, properties, null, attachments, 0, null, null, null);
         context.checking(new Expectations()
             {
                 {

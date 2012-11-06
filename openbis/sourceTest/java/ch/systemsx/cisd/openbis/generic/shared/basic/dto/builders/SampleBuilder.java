@@ -129,6 +129,12 @@ public class SampleBuilder
         return this;
     }
 
+    public SampleBuilder version(int version)
+    {
+        sample.setVersion(version);
+        return this;
+    }
+
     public SampleBuilder experiment(Experiment experiment)
     {
         sample.setExperiment(experiment);

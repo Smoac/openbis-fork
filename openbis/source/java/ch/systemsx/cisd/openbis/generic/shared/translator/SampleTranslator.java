@@ -109,6 +109,7 @@ public final class SampleTranslator
         result.setSearchlink(SearchlinkUtilities.createSearchlinkURL(baseIndexURL,
                 EntityKind.SAMPLE, samplePE.getCode()));
         result.setModificationDate(samplePE.getModificationDate());
+        result.setVersion(samplePE.getVersion());
         // NOTE: we should always translate Id in this way
         // because getId() on HibernateProxy object always returns null
         result.setId(HibernateUtils.getId(samplePE));

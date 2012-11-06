@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +30,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -327,6 +327,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         {
             checkContainerBusinessRules(sample);
         }
+        RelationshipUtils.updateModificationDateAndModifier(sample, session);
     }
 
     private boolean updateContainer(SamplePE sample, SampleUpdatesDTO updates)
@@ -446,10 +447,10 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             throw new IllegalArgumentException("Sample updates list cannot be null.");
         }
 
-        Map<Long, Date> versionsMap = new HashMap<Long, Date>();
+        Map<Long, Integer> versionsMap = new HashMap<Long, Integer>();
         for (SamplePE sample : loadSamplesByTechId(updates))
         {
-            versionsMap.put(sample.getId(), sample.getModificationDate());
+            versionsMap.put(sample.getId(), sample.getVersion());
         }
 
         for (SampleUpdatesDTO update : updates)
@@ -461,14 +462,14 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                         + " doesn't have a specified id and therefore cannot be updated.");
             }
 
-            Date version = versionsMap.get(update.getSampleIdOrNull().getId());
+            Integer version = versionsMap.get(update.getSampleIdOrNull().getId());
 
             if (version == null)
             {
                 throw new UserFailureException("Sample with identifier "
                         + update.getSampleIdentifier()
                         + " is not in the database and therefore cannot be updated.");
-            } else if (version.equals(update.getVersion()) == false)
+            } else if (version != update.getVersion())
             {
                 StringBuffer sb = new StringBuffer();
                 sb.append("Sample ");

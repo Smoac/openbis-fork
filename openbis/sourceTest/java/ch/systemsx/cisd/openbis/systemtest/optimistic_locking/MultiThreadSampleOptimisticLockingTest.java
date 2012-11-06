@@ -34,8 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
@@ -43,23 +41,21 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperatio
 /**
  * @author Franz-Josef Elmer
  */
-public class MultiThreadExperimentOptimisticLockingTest extends
-        MultiThreadOptimisticLockingTestCase
+public class MultiThreadSampleOptimisticLockingTest extends MultiThreadOptimisticLockingTestCase
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            MultiThreadExperimentOptimisticLockingTest.class);
+            MultiThreadSampleOptimisticLockingTest.class);
 
     @Test
-    public void testRegisterSamplesForSameExperimentInTwoThreads()
+    public void testRegisterSamplesForSameSampleInTwoThreads()
     {
-        final NewExperiment experiment = toolBox.experiment(1);
-        genericServer.registerExperiment(systemSessionToken, experiment, ToolBox.NO_ATTACHMENTS);
+        final Sample sample = toolBox.createAndLoadSample(1, null);
         final MessageChannel messageChannelMain =
-                new MessageChannelBuilder(10000).name("samples main").logger(operationLog)
-                        .getChannel();
+                new MessageChannelBuilder(10000).name("data sets for samples main")
+                        .logger(operationLog).getChannel();
         final MessageChannel messageChannelSecond =
-                new MessageChannelBuilder(10000).name("samples second").logger(operationLog)
-                        .getChannel();
+                new MessageChannelBuilder(10000).name("data sets for samples second")
+                        .logger(operationLog).getChannel();
         final IServiceConversationProgressListener listener =
                 new AbstractServiceConversationProgressListener(operationLog)
                     {
@@ -67,8 +63,6 @@ public class MultiThreadExperimentOptimisticLockingTest extends
                         public void handleProgress(String phaseName, int totalItemsToProcess,
                                 int numItemsProcessed)
                         {
-                            logger.info(phaseName + " " + numItemsProcessed + "/"
-                                    + totalItemsToProcess);
                             if (phaseName.equals("createContainerSamples")
                                     && numItemsProcessed == 1 && totalItemsToProcess == 2)
                             {
@@ -82,43 +76,43 @@ public class MultiThreadExperimentOptimisticLockingTest extends
                 @Override
                 public void run()
                 {
-                    NewSample sample3 = toolBox.sample(3, experiment);
-
-                    String sessionToken =
-                            genericServer.tryToAuthenticate("test", "a").getSessionToken();
                     messageChannelMain.assertNextMessage(ToolBox.FIRST_REGISTERED);
-                    genericServer.registerSample(sessionToken, sample3, ToolBox.NO_ATTACHMENTS);
+                    AtomicEntityOperationDetails details =
+                            new AtomicEntityOperationDetailsBuilder().user("test")
+                                    .sample(toolBox.sampleWithParent(13, sample)).getDetails();
+                    etlService.performEntityOperations(systemSessionToken, details);
                     messageChannelSecond.send(ToolBox.REGISTERED);
                 }
             }).start();
         ServiceConversationsThreadContext.setProgressListener(listener);
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
         builder.user(ToolBox.USER_ID).batchSize(1);
-        NewSample sample1 = toolBox.sample(1, experiment);
-        NewSample sample2 = toolBox.sample(2, experiment);
-        builder.sample(sample1).sample(sample2);
+        builder.sample(toolBox.sampleWithParent(11, sample));
+        builder.sample(toolBox.sampleWithParent(12, sample));
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
         messageChannelSecond.assertNextMessage(ToolBox.REGISTERED);
 
-        Experiment experimentInfo = toolBox.loadExperiment(experiment);
+        Sample loadedSample = toolBox.loadSample(sample);
         List<Sample> samples =
-                commonServer.listSamples(systemSessionToken,
-                        ListSampleCriteria.createForExperiment(new TechId(experimentInfo)));
-        assertEquals("[OLT-S1, OLT-S2, OLT-S3]", toolBox.extractCodes(samples).toString());
-        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, experimentInfo, "test");
+                etlService.listSamples(systemSessionToken,
+                        ListSampleCriteria.createForParent(new TechId(loadedSample)));
+        assertEquals("[OLT-S11, OLT-S12, OLT-S13]", toolBox.extractCodes(samples).toString());
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedSample, "test");
+
     }
 
     @Test
-    public void testRegisterDataSetsForSameExperimentInTwoThreads()
+    public void testRegisterDataSetsForSameSampleInTwoThreads()
     {
         final Experiment experiment = toolBox.createAndLoadExperiment(1);
+        final Sample sample = toolBox.createAndLoadSample(1, experiment);
         final MessageChannel messageChannelMain =
-                new MessageChannelBuilder(10000).name("data sets main").logger(operationLog)
-                        .getChannel();
+                new MessageChannelBuilder(10000).name("data sets for samples main")
+                        .logger(operationLog).getChannel();
         final MessageChannel messageChannelSecond =
-                new MessageChannelBuilder(10000).name("data sets second").logger(operationLog)
-                        .getChannel();
+                new MessageChannelBuilder(10000).name("data sets for samples second")
+                        .logger(operationLog).getChannel();
         final IServiceConversationProgressListener listener =
                 new AbstractServiceConversationProgressListener(operationLog)
                     {
@@ -142,7 +136,7 @@ public class MultiThreadExperimentOptimisticLockingTest extends
                     messageChannelMain.assertNextMessage(ToolBox.FIRST_REGISTERED);
                     AtomicEntityOperationDetails details =
                             new AtomicEntityOperationDetailsBuilder().user("test")
-                                    .dataSet(toolBox.dataSet("DS3", experiment)).getDetails();
+                                    .dataSet(toolBox.dataSet("DS3", sample)).getDetails();
                     etlService.performEntityOperations(systemSessionToken, details);
                     messageChannelSecond.send(ToolBox.REGISTERED);
                 }
@@ -150,18 +144,16 @@ public class MultiThreadExperimentOptimisticLockingTest extends
         ServiceConversationsThreadContext.setProgressListener(listener);
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
         builder.user(ToolBox.USER_ID).batchSize(1);
-        builder.dataSet(toolBox.dataSet("DS1", experiment)).dataSet(
-                toolBox.dataSet("DS2", experiment));
+        builder.dataSet(toolBox.dataSet("DS1", sample)).dataSet(toolBox.dataSet("DS2", sample));
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
         messageChannelSecond.assertNextMessage(ToolBox.REGISTERED);
 
-        Experiment loadedExperiment = toolBox.loadExperiment(experiment);
+        Sample loadedSample = toolBox.loadSample(sample);
         List<ExternalData> dataSets =
-                etlService.listDataSetsByExperimentID(systemSessionToken, new TechId(experiment));
+                etlService.listDataSetsBySampleID(systemSessionToken, new TechId(sample), true);
         assertEquals("[DS1, DS2, DS3]", toolBox.extractCodes(dataSets).toString());
-        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment,
-                "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedSample, "test");
     }
 
 }

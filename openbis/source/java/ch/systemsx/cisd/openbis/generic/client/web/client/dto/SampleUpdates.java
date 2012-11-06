@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -52,7 +51,7 @@ public class SampleUpdates extends BasicSampleUpdates
 
     public SampleUpdates(String sessionKey, TechId sampleId, List<IEntityProperty> properties,
             List<NewAttachment> attachments, ExperimentIdentifier experimentIdentifierOrNull,
-            Date version, String sampleIdentifier, String containerIdentifierOrNull,
+            int version, String sampleIdentifier, String containerIdentifierOrNull,
             String[] modifiedParentCodesOrNull)
     {
         super(sampleId, properties, version, containerIdentifierOrNull, modifiedParentCodesOrNull);

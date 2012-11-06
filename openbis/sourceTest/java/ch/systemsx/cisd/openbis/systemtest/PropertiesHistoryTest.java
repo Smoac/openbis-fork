@@ -159,7 +159,7 @@ public class PropertiesHistoryTest extends SystemTestCase
         SampleUpdates updates = new SampleUpdates();
         updates.setSampleId(id);
         updates.setSessionKey(SESSION_KEY);
-        updates.setVersion(sample.getModificationDate());
+        updates.setVersion(sample.getVersion());
         updates.setSampleIdentifier(sample.getIdentifier());
         updates.setExperimentIdentifierOrNull(new ExperimentIdentifier(sample.getExperiment()
                 .getIdentifier()));
@@ -213,7 +213,7 @@ public class PropertiesHistoryTest extends SystemTestCase
         SampleUpdates updates = new SampleUpdates();
         updates.setSampleId(id);
         updates.setSessionKey(SESSION_KEY);
-        updates.setVersion(sample.getModificationDate());
+        updates.setVersion(sample.getVersion());
         updates.setSampleIdentifier(sample.getIdentifier());
         updates.setExperimentIdentifierOrNull(new ExperimentIdentifier(sample.getExperiment()
                 .getIdentifier()));

@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.systemtest.base.builder;
 import static ch.systemsx.cisd.openbis.systemtest.base.BaseTest.id;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
@@ -44,7 +43,7 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
 
     private ExperimentIdentifier experimentId;
 
-    private Date version;
+    private int version;
 
     private SampleIdentifier sampleIdentifier;
 
@@ -63,7 +62,7 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
         {
             this.experimentId = new ExperimentIdentifier(sample.getExperiment());
         }
-        this.version = sample.getModificationDate();
+        this.version = sample.getVersion();
         this.sampleIdentifier = id(sample);
         this.parents = new ArrayList<Sample>();
         this.container = null;

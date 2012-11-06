@@ -71,6 +71,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 public final class SampleBOTest extends AbstractBOTest
 {
+    private static final int VERSION = 4711;
+
     private static final String SAMPLE_TYPE = "sample-type";
 
     private static final TechId SAMPLE_TECH_ID = CommonTestUtils.TECH_ID;
@@ -350,7 +352,7 @@ public final class SampleBOTest extends AbstractBOTest
 
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                        .<NewAttachment> emptyList(), null, null, null, new String[] {}));
+                        .<NewAttachment> emptyList(), 0, null, null, new String[] {}));
     }
 
     @Test(expectedExceptions = AuthorizationFailureException.class)
@@ -434,8 +436,7 @@ public final class SampleBOTest extends AbstractBOTest
     {
         final SamplePE sample = createSample("sampleCode", EXAMPLE_GROUP);
 
-        Date now = new Date();
-        sample.setModificationDate(now);
+        sample.setVersion(VERSION);
 
         prepareTryToLoadOfSampleWithId(sample);
         prepareNoPropertiesToUpdate(sample);
@@ -460,7 +461,7 @@ public final class SampleBOTest extends AbstractBOTest
         assertNotNull(sample.getSpace());
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                        .<NewAttachment> emptyList(), now, SampleIdentifierFactory
+                        .<NewAttachment> emptyList(), VERSION, SampleIdentifierFactory
                         .parse(newSampleIdentifierWithoutDb), null, null));
         context.assertIsSatisfied();
 
@@ -492,8 +493,8 @@ public final class SampleBOTest extends AbstractBOTest
         sample.setSpace(EXAMPLE_GROUP);
         sample.setSampleType(createSampleTypePE(SAMPLE_TYPE));
 
-        Date now = new Date();
-        sample.setModificationDate(now);
+        int version = VERSION;
+        sample.setVersion(version);
 
         prepareTryToLoadOfSampleWithId(sample);
         prepareNoPropertiesToUpdate(sample);
@@ -516,7 +517,7 @@ public final class SampleBOTest extends AbstractBOTest
             });
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, experimentIdentifier, Collections
-                        .<NewAttachment> emptyList(), now, null, null, null));
+                        .<NewAttachment> emptyList(), version, null, null, null));
 
         context.assertIsSatisfied();
     }
@@ -527,8 +528,7 @@ public final class SampleBOTest extends AbstractBOTest
         final SamplePE parent = createSample("sampleParent", EXAMPLE_GROUP);
         final SamplePE sample = createSample("sampleCode", EXAMPLE_GROUP);
 
-        Date now = new Date();
-        sample.setModificationDate(now);
+        sample.setVersion(VERSION);
 
         prepareTryToLoadOfSampleWithId(sample);
         prepareNoPropertiesToUpdate(sample);
@@ -573,8 +573,8 @@ public final class SampleBOTest extends AbstractBOTest
             { parent.getIdentifier() };
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                        .<NewAttachment> emptyList(), now, IdentifierHelper.sample(sample), null,
-                        modifiedParents));
+                        .<NewAttachment> emptyList(), VERSION, IdentifierHelper.sample(sample),
+                        null, modifiedParents));
         context.assertIsSatisfied();
     }
 
@@ -586,8 +586,7 @@ public final class SampleBOTest extends AbstractBOTest
         final SamplePE parent2Group1 = createSample("sampleParent2", EXAMPLE_GROUP);
         final SamplePE parent3Group2 = createSample("sampleParent3", EXAMPLE_GROUP2);
 
-        Date now = new Date();
-        sample.setModificationDate(now);
+        sample.setVersion(VERSION);
 
         prepareTryToLoadOfSampleWithId(sample);
         prepareNoPropertiesToUpdate(sample);
@@ -650,8 +649,8 @@ public final class SampleBOTest extends AbstractBOTest
                             parent3Group2.getIdentifier() };
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                        .<NewAttachment> emptyList(), now, IdentifierHelper.sample(sample), null,
-                        modifiedParents));
+                        .<NewAttachment> emptyList(), VERSION, IdentifierHelper.sample(sample),
+                        null, modifiedParents));
         context.assertIsSatisfied();
     }
 
@@ -671,8 +670,7 @@ public final class SampleBOTest extends AbstractBOTest
         final SamplePE sample = createSample("sampleCode", EXAMPLE_GROUP);
         final SamplePE container = createSample("sampleContainer", EXAMPLE_GROUP);
 
-        Date now = new Date();
-        sample.setModificationDate(now);
+        sample.setVersion(VERSION);
 
         prepareTryToLoadOfSampleWithId(sample);
         prepareNoPropertiesToUpdate(sample);
@@ -714,7 +712,7 @@ public final class SampleBOTest extends AbstractBOTest
         assertNull(sample.getContainer());
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                        .<NewAttachment> emptyList(), now, IdentifierHelper.sample(sample),
+                        .<NewAttachment> emptyList(), VERSION, IdentifierHelper.sample(sample),
                         container.getSampleIdentifier().toString(), null));
         context.assertIsSatisfied();
     }
@@ -725,8 +723,7 @@ public final class SampleBOTest extends AbstractBOTest
         final SamplePE sample = createSample("sampleCode", EXAMPLE_GROUP);
         final SamplePE container = createSample("sampleContainer", EXAMPLE_GROUP2);
 
-        Date now = new Date();
-        sample.setModificationDate(now);
+        sample.setVersion(VERSION);
 
         prepareTryToLoadOfSampleWithId(sample);
         prepareNoPropertiesToUpdate(sample);
@@ -770,7 +767,7 @@ public final class SampleBOTest extends AbstractBOTest
         assertNull(sample.getContainer());
         SampleBO bo = createSampleBO();
         bo.update(new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                .<NewAttachment> emptyList(), now, IdentifierHelper.sample(sample), container
+                .<NewAttachment> emptyList(), VERSION, IdentifierHelper.sample(sample), container
                 .getSampleIdentifier().toString(), null));
         bo.save();
         context.assertIsSatisfied();
@@ -782,8 +779,7 @@ public final class SampleBOTest extends AbstractBOTest
         final SamplePE sample = createSample("sampleCode", EXAMPLE_GROUP);
         sample.setExperiment(new ExperimentPE());
 
-        Date now = new Date();
-        sample.setModificationDate(now);
+        sample.setVersion(VERSION);
 
         prepareTryToLoadOfSampleWithId(sample);
         prepareNoPropertiesToUpdate(sample);
@@ -800,7 +796,7 @@ public final class SampleBOTest extends AbstractBOTest
         {
             createSampleBO().update(
                     new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                            .<NewAttachment> emptyList(), now, null, null, null));
+                            .<NewAttachment> emptyList(), VERSION, null, null, null));
         } catch (UserFailureException ex)
         {
             exceptionThrown = true;
@@ -816,11 +812,8 @@ public final class SampleBOTest extends AbstractBOTest
     @Test
     public final void testEditStaleSampleFails()
     {
-        Date then = new Date(0);
-        Date now = new Date();
-
         SamplePE sample = new SamplePE();
-        sample.setModificationDate(then);
+        sample.setVersion(VERSION - 1);
         sample.setId(SAMPLE_TECH_ID.getId());
 
         prepareTryToLoadOfSampleWithId(sample);
@@ -828,7 +821,7 @@ public final class SampleBOTest extends AbstractBOTest
         {
             SampleUpdatesDTO updates =
                     new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null,
-                            Collections.<NewAttachment> emptyList(), now, null, null, null);
+                            Collections.<NewAttachment> emptyList(), VERSION, null, null, null);
             createSampleBO().update(updates);
         } catch (UserFailureException e)
         {
@@ -1157,7 +1150,6 @@ public final class SampleBOTest extends AbstractBOTest
     {
         createSampleBO().update(
                 new SampleUpdatesDTO(sampleId, null, experimentIdentifier, Collections
-                        .<NewAttachment> emptyList(), sample.getModificationDate(), null, null,
-                        null));
+                        .<NewAttachment> emptyList(), sample.getVersion(), null, null, null));
     }
 }

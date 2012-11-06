@@ -46,7 +46,7 @@ public class SampleToSampleRelationshipsHistoryTest extends AbstractRelationship
         SampleUpdates updates = new SampleUpdates();
         updates.setSampleIdentifier(contained.getIdentifier());
         updates.setSampleId(containedId);
-        updates.setVersion(contained.getModificationDate());
+        updates.setVersion(contained.getVersion());
         updates.setSessionKey(SESSION_KEY);
         updates.setContainerIdentifierOrNull(null);
         updates.setProperties(contained.getProperties());
@@ -66,7 +66,7 @@ public class SampleToSampleRelationshipsHistoryTest extends AbstractRelationship
         updates = new SampleUpdates();
         updates.setSampleIdentifier(contained.getIdentifier());
         updates.setSampleId(containedId);
-        updates.setVersion(contained.getModificationDate());
+        updates.setVersion(contained.getVersion());
         updates.setSessionKey(SESSION_KEY);
         updates.setContainerIdentifierOrNull(container.getIdentifier());
         updates.setProperties(contained.getProperties());
@@ -91,7 +91,7 @@ public class SampleToSampleRelationshipsHistoryTest extends AbstractRelationship
         updates = new SampleUpdates();
         updates.setSampleIdentifier(contained.getIdentifier());
         updates.setSampleId(containedId);
-        updates.setVersion(contained.getModificationDate());
+        updates.setVersion(contained.getVersion());
         updates.setSessionKey(SESSION_KEY);
         updates.setContainerIdentifierOrNull(null);
         updates.setProperties(contained.getProperties());
@@ -126,7 +126,7 @@ public class SampleToSampleRelationshipsHistoryTest extends AbstractRelationship
         SampleUpdates updates = new SampleUpdates();
         updates.setSampleIdentifier(child.getIdentifier());
         updates.setSampleId(childId);
-        updates.setVersion(child.getModificationDate());
+        updates.setVersion(child.getVersion());
         updates.setSessionKey(SESSION_KEY);
         updates.setContainerIdentifierOrNull(child.getContainer() == null ? null : child
                 .getContainer().getIdentifier());
@@ -148,7 +148,7 @@ public class SampleToSampleRelationshipsHistoryTest extends AbstractRelationship
         updates = new SampleUpdates();
         updates.setSampleIdentifier(child.getIdentifier());
         updates.setSampleId(childId);
-        updates.setVersion(child.getModificationDate());
+        updates.setVersion(child.getVersion());
         updates.setSessionKey(SESSION_KEY);
         updates.setContainerIdentifierOrNull(child.getContainer() == null ? null : child
                 .getContainer().getIdentifier());
@@ -179,7 +179,7 @@ public class SampleToSampleRelationshipsHistoryTest extends AbstractRelationship
         updates = new SampleUpdates();
         updates.setSampleIdentifier(child.getIdentifier());
         updates.setSampleId(childId);
-        updates.setVersion(child.getModificationDate());
+        updates.setVersion(child.getVersion());
         updates.setSessionKey(SESSION_KEY);
         updates.setContainerIdentifierOrNull(child.getContainer() == null ? null : child
                 .getContainer().getIdentifier());

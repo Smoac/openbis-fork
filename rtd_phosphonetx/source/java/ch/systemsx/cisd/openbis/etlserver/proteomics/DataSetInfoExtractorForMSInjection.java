@@ -20,7 +20,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -169,7 +168,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
             List<IEntityProperty> propertiesList =
                     Util.getProperties(properties, sampleType, new ArrayList<String>());
             Set<NewAttachment> emptySet = Collections.<NewAttachment> emptySet();
-            Date version = sample.getModificationDate();
+            int version = sample.getVersion();
             service.updateSample(new SampleUpdatesDTO(sampleID, propertiesList,
                     experimentIdentifier, emptySet, version, sampleIdentifier, null,
                     biologicalSampleIdentifier == null ? null : new String[]

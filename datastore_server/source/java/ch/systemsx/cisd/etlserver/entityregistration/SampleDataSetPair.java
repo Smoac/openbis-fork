@@ -192,7 +192,7 @@ public class SampleDataSetPair
                 Arrays.asList(newSample.getProperties()), // List<IEntityProperty>
                 getExperimentIdentifier(), // ExperimentIdentifier
                 attachments, // Collection<NewAttachment>
-                sample.getModificationDate(), // Sample version
+                sample.getVersion(), // Sample version
                 getSampleIdentifier(), // Sample Identifier
                 newSample.getContainerIdentifier(), // Container Identifier
                 newSample.getParentsOrNull() // Parent Identifiers

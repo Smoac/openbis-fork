@@ -22,7 +22,6 @@ import static org.testng.AssertJUnit.fail;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -258,7 +257,7 @@ public class EntityValidationTest extends GenericSystemTestCase
             { parentCode };
         String containerIdentifierOrNull = null;
         SampleIdentifier sampleIdentifier = SampleIdentifierFactory.parse(sample);
-        Date version = sample.getModificationDate();
+        int version = sample.getVersion();
         Experiment experiment = sample.getExperiment();
         ExperimentIdentifier experimentIdentifierOrNull =
                 (experiment == null) ? null : new ExperimentIdentifier(experiment);

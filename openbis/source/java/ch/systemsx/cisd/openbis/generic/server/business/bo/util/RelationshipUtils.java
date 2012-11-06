@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IModifierAndModificationDateBean;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * Utility function for relation ship.
@@ -32,30 +33,48 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public class RelationshipUtils
 {
 
-    public static void setExperimentForDataSet(DataPE data, ExperimentPE experiment,
+    public static void setSampleForDataSet(DataPE dataSet, SamplePE sample, IAuthSession session)
+    {
+        updateModificationDateAndModifier(dataSet.tryGetSample(), session);
+        dataSet.setSample(sample);
+        updateModificationDateAndModifier(sample, session);
+    }
+
+    public static void setContainerForSample(SamplePE sample, SamplePE container,
             IAuthSession session)
     {
-        ExperimentPE currentExperiment = data.getExperiment();
-        if (currentExperiment != null)
-        {
-            updateModificationDateAndModifier(currentExperiment, session);
-        }
-        data.setExperiment(experiment);
+        updateModificationDateAndModifier(sample.getContainer(), session);
+        sample.setContainer(container);
+        updateModificationDateAndModifier(container, session);
+        updateModificationDateAndModifier(sample, session);
+    }
+
+    public static void setExperimentForDataSet(DataPE dataSet, ExperimentPE experiment,
+            IAuthSession session)
+    {
+        updateModificationDateAndModifier(dataSet.getExperiment(), session);
+        dataSet.setExperiment(experiment);
         updateModificationDateAndModifier(experiment, session);
     }
 
     public static void updateModificationDateAndModifier(
             IModifierAndModificationDateBean beanOrNull, IAuthSession session)
     {
-        log(beanOrNull, session);
         if (beanOrNull == null)
         {
             return;
         }
+        log(beanOrNull, session);
         PersonPE person = session.tryGetPerson();
-        if (person != null)
+        updateModificationDateAndModifier(beanOrNull, person);
+    }
+
+    public static void updateModificationDateAndModifier(
+            IModifierAndModificationDateBean beanOrNull, PersonPE personOrNull)
+    {
+        if (personOrNull != null)
         {
-            beanOrNull.setModifier(person);
+            beanOrNull.setModifier(personOrNull);
         }
         beanOrNull.setModificationDate(new Date());
     }

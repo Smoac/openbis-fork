@@ -192,7 +192,7 @@ public class EntityOperationTest extends SystemTestCase
         EntityOperationBuilder sampleUpdate(Sample sample)
         {
             sampleUpdates.add(new SampleUpdatesDTO(new TechId(sample), sample.getProperties(),
-                    null, null, sample.getModificationDate(), SampleIdentifierFactory.parse(sample
+                    null, null, sample.getVersion(), SampleIdentifierFactory.parse(sample
                             .getIdentifier()), null, null));
             return this;
         }

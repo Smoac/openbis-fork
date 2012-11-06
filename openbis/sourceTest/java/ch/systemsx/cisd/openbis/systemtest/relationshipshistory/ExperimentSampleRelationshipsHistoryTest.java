@@ -47,7 +47,7 @@ public class ExperimentSampleRelationshipsHistoryTest extends AbstractRelationsh
         SampleUpdates sup = new SampleUpdates();
         sup.setSampleIdentifier(samp.getIdentifier());
         sup.setSampleId(sampleId);
-        sup.setVersion(samp.getModificationDate());
+        sup.setVersion(samp.getVersion());
         sup.setSessionKey(SESSION_KEY);
         sup.setContainerIdentifierOrNull(samp.getContainer() == null ? null : samp.getContainer()
                 .getIdentifier());
@@ -77,7 +77,7 @@ public class ExperimentSampleRelationshipsHistoryTest extends AbstractRelationsh
         sup = new SampleUpdates();
         sup.setSampleIdentifier(samp.getIdentifier());
         sup.setSampleId(sampleId);
-        sup.setVersion(samp.getModificationDate());
+        sup.setVersion(samp.getVersion());
         sup.setSessionKey(SESSION_KEY);
         sup.setContainerIdentifierOrNull(samp.getContainer() == null ? null : samp.getContainer()
                 .getIdentifier());

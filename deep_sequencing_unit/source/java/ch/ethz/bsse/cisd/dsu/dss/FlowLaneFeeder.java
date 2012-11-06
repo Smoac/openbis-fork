@@ -380,7 +380,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
                 (sample.getExperiment() != null) ? new ExperimentIdentifier(sample.getExperiment())
                         : null;
         final Collection<NewAttachment> attachments = new ArrayList<NewAttachment>();
-        final Date version = sample.getModificationDate();
+        final int version = sample.getVersion();
         final SampleIdentifier sampleIdentifier =
                 SampleIdentifierFactory.parse(sample.getIdentifier());
         final String containerIdentifierOrNull =

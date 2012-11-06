@@ -212,7 +212,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             } catch (final DataIntegrityViolationException ex)
             {
                 // needed because we throw an exception in DAO instead of relying on DB constraint
-                throw UserFailureException.fromTemplate(ex.getMessage());
+                throw new UserFailureException(ex.getMessage(), ex);
             } catch (final DataAccessException ex)
             {
                 throwException(ex, String.format("Sample '%s'", sample.getSampleIdentifier()));
@@ -312,7 +312,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
         assertInstanceSampleUpdateAllowed(Collections.singletonList(sample));
 
-        if (updates.getVersion().equals(sample.getModificationDate()) == false)
+        if (updates.getVersion() != sample.getVersion())
         {
             throwModifiedEntityException("Sample");
         }

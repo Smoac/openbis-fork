@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -40,12 +39,12 @@ public class SampleUpdatesDTO extends BasicSampleUpdates
     private SampleIdentifier sampleIdentifier;
 
     private Collection<NewAttachment> attachments;
-    
+
     private boolean updateExperimentLink = true;
 
     public SampleUpdatesDTO(TechId sampleId, List<IEntityProperty> properties,
             ExperimentIdentifier experimentIdentifierOrNull, Collection<NewAttachment> attachments,
-            Date version, SampleIdentifier sampleIdentifier, String containerIdentifierOrNull,
+            int version, SampleIdentifier sampleIdentifier, String containerIdentifierOrNull,
             String[] modifiedParentCodesOrNull)
     {
         super(sampleId, properties, version, containerIdentifierOrNull, modifiedParentCodesOrNull);

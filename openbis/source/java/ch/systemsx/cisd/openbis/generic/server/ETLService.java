@@ -2019,11 +2019,11 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         }
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(sampleIdentifier);
-        final SamplePE cellPlate = sampleBO.getSample();
+        final SamplePE sample = sampleBO.getSample();
         final IDataBO dataBO = businessObjectFactory.createDataBO(session);
         SourceType sourceType =
                 externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
-        dataBO.define(externalData, cellPlate, sourceType);
+        dataBO.define(externalData, sample, sourceType);
         dataBO.save();
 
         boolean isContainer = externalData instanceof NewContainerDataSet;

@@ -195,7 +195,7 @@ public class EntityHelper
         String containerIdentifier = container == null ? null : container.getIdentifier();
         SampleUpdatesDTO updates =
                 new SampleUpdatesDTO(new TechId(sample), props, experimentIdentifier,
-                        Collections.<NewAttachment> emptySet(), sample.getModificationDate(),
+                        Collections.<NewAttachment> emptySet(), sample.getVersion(),
                         sampleIdentifier, containerIdentifier, null);
         server.updateSample(sessionToken, updates);
     }

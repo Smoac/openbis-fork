@@ -29,6 +29,7 @@ import java.util.Set;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -148,6 +149,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         samplePE.setSampleType(sampleTypePE);
         samplePE.setSpace(sampleOwner.tryGetSpace());
         samplePE.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
+        RelationshipUtils.updateModificationDateAndModifier(samplePE, registrator);
         defineSampleProperties(samplePE, newSample.getProperties());
         String containerIdentifier = newSample.getContainerIdentifierForNewSample();
         setContainer(sampleIdentifier, samplePE, containerIdentifier,
