@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
@@ -95,6 +94,35 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
     }
 
     @Test
+    public void testChangePropertyOfAnExperimentWithOldVersion()
+    {
+        Experiment experiment = toolBox.createAndLoadExperiment(1);
+        String sessionToken = logIntoCommonClientService().getSessionID();
+        ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
+        updates.setVersion(experiment.getVersion());
+        updates.setExperimentId(new TechId(experiment));
+        updates.setProjectIdentifier(toolBox.createProjectIdentifier(experiment.getProject()
+                .getIdentifier()));
+        updates.setAttachments(ToolBox.NO_ATTACHMENTS);
+        List<IEntityProperty> properties = new ArrayList<IEntityProperty>();
+        properties.addAll(experiment.getProperties());
+        properties.get(0).setValue("testChangePropertyOfAnExistingExperiment");
+        updates.setProperties(properties);
+
+        genericServer.updateExperiment(sessionToken, updates);
+
+        try
+        {
+            genericServer.updateExperiment(sessionToken, updates);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Experiment has been modified in the meantime. Reopen tab to be able "
+                    + "to continue with refreshed data.", ex.getMessage());
+        }
+    }
+
+    @Test
     public void testChangeProjectOfAnExistingExperiment()
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
@@ -120,7 +148,7 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
     }
 
     @Test
-    public void testUpdateExperimentWithOldVersion()
+    public void testChangeProjectOfAnExperimentWithOldVersion()
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
         String sessionToken = logIntoCommonClientService().getSessionID();
@@ -149,13 +177,11 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
     {
         Experiment experiment1 = toolBox.createAndLoadExperiment(1);
         Experiment experiment2 = toolBox.createAndLoadExperiment(2);
-        NewSample sample = toolBox.sample(1, experiment1);
-        genericServer.registerSample(systemSessionToken, sample, ToolBox.NO_ATTACHMENTS);
-        Sample loadedSample = toolBox.loadSample(sample);
+        Sample sample = toolBox.createAndLoadSample(1, experiment1);
         SampleUpdatesDTO sampleUpdate =
-                new SampleUpdatesDTO(new TechId(loadedSample), ToolBox.NO_PROPERTIES,
+                new SampleUpdatesDTO(new TechId(sample), ToolBox.NO_PROPERTIES,
                         ExperimentIdentifierFactory.parse(experiment2.getIdentifier()),
-                        ToolBox.NO_ATTACHMENTS, loadedSample.getModificationDate(),
+                        ToolBox.NO_ATTACHMENTS, sample.getVersion(),
                         SampleIdentifierFactory.parse(sample), null, null);
         sampleUpdate.setUpdateExperimentLink(true);
         AtomicEntityOperationDetails details =
@@ -186,8 +212,7 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
     public void testRemoveSampleFromExperiment()
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
-        NewSample sample = toolBox.sample(1, experiment);
-        genericServer.registerSample(systemSessionToken, sample, ToolBox.NO_ATTACHMENTS);
+        toolBox.createAndLoadSample(1, experiment);
         ExperimentUpdatesDTO update = new ExperimentUpdatesDTO();
         update.setExperimentId(new TechId(experiment));
         update.setSampleCodes(new String[0]);

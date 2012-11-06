@@ -457,8 +457,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         {
             throwModifiedEntityException("Experiment");
         }
-        experiment.setModifier(findPerson());
-        experiment.setModificationDate(new Date());
         updateProperties(updates.getProperties());
 
         ProjectPE project = findProject(updates.getProjectIdentifier());
