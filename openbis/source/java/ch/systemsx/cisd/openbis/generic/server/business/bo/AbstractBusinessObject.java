@@ -236,8 +236,15 @@ abstract class AbstractBusinessObject implements IDAOFactory
             metaprojects.add(metaproject);
         }
 
-        Collection<MetaprojectPE> currentMetaprojects =
-                getMetaprojectDAO().listMetaprojectsForEntity(owner, entity);
+        Collection<MetaprojectPE> currentMetaprojects = null;
+
+        if (entity.getId() != null)
+        {
+            currentMetaprojects = getMetaprojectDAO().listMetaprojectsForEntity(owner, entity);
+        } else
+        {
+            currentMetaprojects = new HashSet<MetaprojectPE>();
+        }
 
         Set<MetaprojectPE> metaprojectsToAdd = new HashSet<MetaprojectPE>();
         Set<MetaprojectPE> metaprojectsToRemove = new HashSet<MetaprojectPE>();
