@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
@@ -148,6 +149,7 @@ public class ETLServiceAuthorizationTest extends BaseTest
         List<? extends NewExternalData> dataSetRegistrations = Collections.emptyList();
         List<DataSetBatchUpdatesDTO> dataSetUpdates = Collections.emptyList();
         List<NewMetaproject> metaprojectRegistrations = Collections.emptyList();
+        List<MetaprojectUpdatesDTO> metaprojectUpdates = Collections.emptyList();
 
         TechId registrationid = new TechId(etlService.drawANewUniqueID(sessionToken));
 
@@ -155,7 +157,7 @@ public class ETLServiceAuthorizationTest extends BaseTest
                 registrationid, userID, spaceRegistrations, projectRegistrations,
                 experimentRegistrations, experimentUpdates, sampleUpdates, sampleRegistrations,
                 materialRegistrations, materialUpdates, dataSetRegistrations, dataSetUpdates,
-                metaprojectRegistrations));
+                metaprojectRegistrations, metaprojectUpdates));
     }
 
     private void assertContainsProject(String expectedProjectIdentifer, List<Project> projects)

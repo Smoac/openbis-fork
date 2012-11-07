@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,6 +51,12 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -93,6 +100,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -1062,9 +1070,22 @@ public class ETLServiceTest extends AbstractServerTestCase
         final NewMetaproject newMetaproject =
                 new NewMetaproject("TEST-NAME", "the test tag", "test");
 
+        final MetaprojectUpdatesDTO mtu = new MetaprojectUpdatesDTO();
+
+        mtu.setMetaprojectId(new TechId(1));
+
+        List<IObjectId> newMetaprojects = new LinkedList<IObjectId>();
+        newMetaprojects.add(new DataSetCodeId("20120628092259000-25"));
+        newMetaprojects.add(new ExperimentIdentifierId("/CISD/NEMO/EXP1"));
+        newMetaprojects.add(new SampleTechIdId(326l));
+        newMetaprojects.add(new MaterialTechIdId(1l));
+        mtu.setAddedEntities(newMetaprojects);
+
+        mtu.setRemovedEntities(Collections.singletonList(new ExperimentTechIdId(4l)));
+
         prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
                 materialRegistrations, newSamplePE, newSampleIdentifier, newSample, externalData,
-                updatedDataSetCode, dataSetUpdate, newMetaproject, metaprojectPE);
+                updatedDataSetCode, dataSetUpdate, newMetaproject, metaprojectPE, mtu);
 
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, USER_FOR_ENTITY_OPERATIONS,
@@ -1074,7 +1095,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                         Collections.singletonList(newSample), materialRegistrations,
                         materialUpdates, Collections.singletonList(externalData),
                         Collections.singletonList(dataSetUpdate),
-                        Collections.singletonList(newMetaproject));
+                        Collections.singletonList(newMetaproject), Collections.singletonList(mtu));
 
         AtomicEntityOperationResult result =
                 createService().performEntityOperations(SESSION_TOKEN, details);
@@ -1092,7 +1113,8 @@ public class ETLServiceTest extends AbstractServerTestCase
             final SamplePE newSamplePE, final SampleIdentifier newSampleIdentifier,
             final NewSample newSample, final NewExternalData externalData,
             final String updatedDataSetCode, final DataSetBatchUpdatesDTO dataSetUpdate,
-            final NewMetaproject newMetaproject, final MetaprojectPE metaprojectPE)
+            final NewMetaproject newMetaproject, final MetaprojectPE metaprojectPE,
+            final MetaprojectUpdatesDTO metaprojectUpdates)
     {
         final Session userSession = createSession(USER_FOR_ENTITY_OPERATIONS);
         context.checking(new Expectations()
@@ -1171,10 +1193,29 @@ public class ETLServiceTest extends AbstractServerTestCase
                     will(returnValue(metaprojectBO));
 
                     one(metaprojectBO).define(newMetaproject);
+                    one(metaprojectBO).addSamples(null);
+                    one(metaprojectBO).addDataSets(null);
+                    one(metaprojectBO).addExperiments(null);
+                    one(metaprojectBO).addMaterials(null);
                     one(metaprojectBO).save();
 
                     one(metaprojectBO).getMetaproject();
                     will(returnValue(metaprojectPE));
+
+                    one(boFactory).createMetaprojectBO(userSession);
+                    will(returnValue(metaprojectBO));
+                    one(metaprojectBO).loadDataByTechId(new TechId(1l));
+                    one(metaprojectBO).addSamples(metaprojectUpdates.getAddedSamples());
+                    one(metaprojectBO).removeSamples(metaprojectUpdates.getRemovedSamples());
+                    one(metaprojectBO).addDataSets(metaprojectUpdates.getAddedDataSets());
+                    one(metaprojectBO).removeDataSets(metaprojectUpdates.getRemovedDataSets());
+                    one(metaprojectBO).addExperiments(metaprojectUpdates.getAddedExperiments());
+                    one(metaprojectBO)
+                            .removeExperiments(metaprojectUpdates.getRemovedExperiments());
+                    one(metaprojectBO).addMaterials(metaprojectUpdates.getAddedMaterials());
+                    one(metaprojectBO).removeMaterials(metaprojectUpdates.getRemovedMaterials());
+                    one(metaprojectBO).save();
+
                 }
             });
 
@@ -1261,9 +1302,21 @@ public class ETLServiceTest extends AbstractServerTestCase
         final NewMetaproject newMetaproject =
                 new NewMetaproject("TEST-NAME", "the test tag", "test");
 
+        final MetaprojectUpdatesDTO mtu = new MetaprojectUpdatesDTO();
+        mtu.setMetaprojectId(new TechId(1));
+
+        List<IObjectId> newMetaprojects = new LinkedList<IObjectId>();
+        newMetaprojects.add(new DataSetCodeId("20120628092259000-25"));
+        newMetaprojects.add(new ExperimentIdentifierId("/CISD/NEMO/EXP1"));
+        newMetaprojects.add(new SampleTechIdId(326l));
+        newMetaprojects.add(new MaterialTechIdId(1l));
+        mtu.setAddedEntities(newMetaprojects);
+
+        mtu.setRemovedEntities(Collections.singletonList(new ExperimentTechIdId(4l)));
+
         prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
                 materialRegistrations, newSamplePE, newSampleIdentifier, newSample, externalData,
-                updatedDataSetCode, dataSetUpdate, newMetaproject, metaprojectPE);
+                updatedDataSetCode, dataSetUpdate, newMetaproject, metaprojectPE, mtu);
         context.checking(new Expectations()
             {
                 {
@@ -1280,7 +1333,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                         Collections.singletonList(newSample), materialRegistrations,
                         materialUpdates, Collections.singletonList(externalData),
                         Collections.singletonList(dataSetUpdate),
-                        Collections.singletonList(newMetaproject));
+                        Collections.singletonList(newMetaproject), Collections.singletonList(mtu));
 
         AtomicEntityOperationResult result =
                 createService().performEntityOperations(SESSION_TOKEN, details);

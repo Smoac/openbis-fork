@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -120,6 +121,9 @@ public class EntityOperationTest extends SystemTestCase
 
         private final List<NewMetaproject> metaprojectRegistrations =
                 new ArrayList<NewMetaproject>();
+
+        private final List<MetaprojectUpdatesDTO> metaprojectUpdates =
+                new ArrayList<MetaprojectUpdatesDTO>();
 
         private TechId registrationID = new TechId(counter++);
 
@@ -281,7 +285,8 @@ public class EntityOperationTest extends SystemTestCase
         {
             return new AtomicEntityOperationDetails(registrationID, userID, spaces, projects,
                     experiments, experimentUpdates, sampleUpdates, samples, materials,
-                    materialUpdates, dataSets, dataSetUpdates, metaprojectRegistrations);
+                    materialUpdates, dataSets, dataSetUpdates, metaprojectRegistrations,
+                    metaprojectUpdates);
         }
 
     }

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
@@ -64,6 +65,9 @@ public class AtomicEntityOperationDetailsBuilder
             new ArrayList<DataSetBatchUpdatesDTO>();
 
     private final List<NewMetaproject> metaprojectRegistrations = new ArrayList<NewMetaproject>();
+
+    private final List<MetaprojectUpdatesDTO> metaprojectUpdates =
+            new ArrayList<MetaprojectUpdatesDTO>();
 
     private TechId registrationIdOrNull;
 
@@ -126,6 +130,6 @@ public class AtomicEntityOperationDetailsBuilder
                 spaceRegistrations, projectRegistrations, experimentRegistrations,
                 experimentUpdates, sampleUpdates, sampleRegistrations, materialRegistrations,
                 materialUpdates, dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
-                batchSizeOrNull);
+                metaprojectUpdates, batchSizeOrNull);
     }
 }

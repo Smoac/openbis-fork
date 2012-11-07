@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -95,11 +96,14 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
                 Collections.singletonList(new NewMetaproject("TEST-AEOD-TAG", "short description",
                         "test"));
 
+        List<MetaprojectUpdatesDTO> metaprojectUpdates = new ArrayList<MetaprojectUpdatesDTO>();
+
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, null, spaceRegistrations,
                         projectRegistrations, experimentRegistrations, experimentUpdates,
                         sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
-                        dataSetRegistrations, dataSetUpdates, metaprojectRegistrations);
+                        dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
+                        metaprojectUpdates);
 
         assertEquals(
                 "AtomicEntityOperationDetails[registrationIdOrNull=<null>"
@@ -113,8 +117,8 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
                         + ",materialRegistrations={material-type-1=[material-one, material-two], material-type-2=[material-three]}"
                         + ",dataSetRegistrations=[NewExternalData[code=DATA-SET-CODE,type=<null>,fileFormat=<null>,properties=[]]]"
                         + ",dataSetUpdates=[1]"
-                        + ",metaprojectRegistrations=[NewMetaproject[name=TEST-AEOD-TAG,description=short description,ownerId=test]]]",
-                details.toString());
+                        + ",metaprojectRegistrations=[NewMetaproject[name=TEST-AEOD-TAG,description=short description,ownerId=test]]]"
+                        + ",metaprojectUpdates=[]", details.toString());
 
     }
 }
