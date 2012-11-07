@@ -28,6 +28,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IMetaproject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
@@ -184,6 +185,18 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
     public IMaterial createNewMaterial(String materialCode, String materialType)
     {
         return transaction.createNewMaterial(materialCode, materialType);
+    }
+
+    @Override
+    public IMetaproject createNewMetaproject(String name, String description)
+    {
+        return transaction.createNewMetaproject(name, description);
+    }
+
+    @Override
+    public IMetaproject createNewMetaproject(String name, String description, String ownerId)
+    {
+        return transaction.createNewMetaproject(name, description, ownerId);
     }
 
     @Override

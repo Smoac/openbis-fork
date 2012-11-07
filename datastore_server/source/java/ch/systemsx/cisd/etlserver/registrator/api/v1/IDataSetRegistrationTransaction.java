@@ -211,6 +211,18 @@ public interface IDataSetRegistrationTransaction
     IExternalDataManagementSystemImmutable getExternalDataManagementSystem(
             String externalDataManagementSystemCode);
 
+    /**
+     * Creates the new metaproject for the current user. Only allowed when there is a user
+     * available.
+     */
+    IMetaproject createNewMetaproject(String name, String description);
+
+    /**
+     * Creates the new metaproject for the specified user. Only allowed when there is no user
+     * available.
+     */
+    IMetaproject createNewMetaproject(String name, String description, String ownerId);
+
     // File operations -- The source and destination paths are local to the incoming data set folder
     // or incoming directory if the data set is just one file
 
@@ -277,7 +289,6 @@ public interface IDataSetRegistrationTransaction
      * @return The search service for this transaction.
      */
     ISearchService getSearchServiceUnfiltered();
-
 
     /**
      * @return A service which can be used to get authorization information about a user.

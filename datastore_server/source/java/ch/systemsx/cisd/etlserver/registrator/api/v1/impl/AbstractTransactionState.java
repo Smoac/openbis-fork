@@ -42,6 +42,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IMetaproject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
@@ -687,6 +688,25 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                 }
             }
             return null;
+        }
+
+        private IMetaproject tryFindMetaprojectToRegister(String name)
+        {
+            for (Metaproject p : metaprojectsToBeRegistered)
+            {
+                if (p.getName().equals(name) && p.getOwnerId() == getUserId())
+                {
+                    return p;
+                }
+            }
+            return null;
+        }
+
+        public IMetaproject createNewMetaproject(String name, String description, String ownerId)
+        {
+            Metaproject metaproject = Metaproject.createMetaproject(name, description, ownerId);
+            metaprojectsToBeRegistered.add(metaproject);
+            return metaproject;
         }
 
         public String moveFile(String src, IDataSet dst)

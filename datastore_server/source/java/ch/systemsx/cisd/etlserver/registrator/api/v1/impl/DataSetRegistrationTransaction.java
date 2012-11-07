@@ -49,6 +49,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IMetaproject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
@@ -415,6 +416,28 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem result =
                 openBisService.tryGetExternalDataManagementSystem(externalDataManagementSystemCode);
         return (null == result) ? null : new ExternalDataManagementSystemImmutable(result);
+    }
+
+    @Override
+    public IMetaproject createNewMetaproject(String name, String description)
+    {
+        if (getUserId() == null)
+        {
+            throw new IllegalArgumentException(
+                    "Cannot create a new metaproject when user is not available nor specified. ");
+        }
+        return getStateAsLiveState().createNewMetaproject(name, description, getUserId());
+    }
+
+    @Override
+    public IMetaproject createNewMetaproject(String name, String description, String ownerId)
+    {
+        if (getUserId() != null && false == getUserId().equals(ownerId))
+        {
+            throw new IllegalArgumentException(
+                    "Cannot create metaproject for different user then the current one.");
+        }
+        return getStateAsLiveState().createNewMetaproject(name, description, ownerId);
     }
 
     @Override

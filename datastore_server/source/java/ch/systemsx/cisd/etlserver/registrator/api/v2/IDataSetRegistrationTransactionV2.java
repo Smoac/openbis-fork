@@ -27,6 +27,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IMetaproject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
@@ -197,6 +198,18 @@ public interface IDataSetRegistrationTransactionV2
      * @param materialType the type of the material
      */
     IMaterial createNewMaterial(String materialCode, String materialType);
+
+    /**
+     * Creates the new metaproject for the current user. Only allowed when there is a user
+     * available.
+     */
+    IMetaproject createNewMetaproject(String name, String description);
+
+    /**
+     * Creates the new metaproject for the specified user. Only allowed when there is no user
+     * available.
+     */
+    IMetaproject createNewMetaproject(String name, String description, String ownerId);
 
     // File operations -- The source and destination paths are local to the incoming data set folder
     // or incoming directory if the data set is just one file
