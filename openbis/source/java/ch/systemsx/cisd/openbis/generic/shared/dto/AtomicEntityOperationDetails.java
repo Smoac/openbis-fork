@@ -64,6 +64,8 @@ public class AtomicEntityOperationDetails implements Serializable
 
     private final List<NewMetaproject> metaprojectRegistrations;
 
+    private final List<MetaprojectUpdatesDTO> metaprojectUpdates;
+
     private final Map<String /* material type */, List<NewMaterial>> materialRegistrations;
 
     private final List<MaterialUpdateDTO> materialUpdates;
@@ -83,7 +85,8 @@ public class AtomicEntityOperationDetails implements Serializable
             List<MaterialUpdateDTO> materialUpdates,
             List<? extends NewExternalData> dataSetRegistrations,
             List<DataSetBatchUpdatesDTO> dataSetUpdates,
-            List<NewMetaproject> metaprojectRegistrations)
+            List<NewMetaproject> metaprojectRegistrations,
+            List<MetaprojectUpdatesDTO> metaprojectUpdates)
     {
         this.registrationIdOrNull = registrationId;
         this.userIdOrNull = userIdOrNull;
@@ -98,6 +101,7 @@ public class AtomicEntityOperationDetails implements Serializable
         this.dataSetRegistrations = new ArrayList<NewExternalData>(dataSetRegistrations);
         this.dataSetUpdates = new ArrayList<DataSetBatchUpdatesDTO>(dataSetUpdates);
         this.metaprojectRegistrations = new ArrayList<NewMetaproject>(metaprojectRegistrations);
+        this.metaprojectUpdates = new ArrayList<MetaprojectUpdatesDTO>(metaprojectUpdates);
     }
 
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
@@ -109,12 +113,13 @@ public class AtomicEntityOperationDetails implements Serializable
             List<MaterialUpdateDTO> materialUpdates,
             List<? extends NewExternalData> dataSetRegistrations,
             List<DataSetBatchUpdatesDTO> dataSetUpdates,
-            List<NewMetaproject> metaprojectRegistrations, Integer batchSizeOrNull)
+            List<NewMetaproject> metaprojectRegistrations,
+            List<MetaprojectUpdatesDTO> metaprojectUpdates, Integer batchSizeOrNull)
     {
         this(registrationId, userIdOrNull, spaceRegistrations, projectRegistrations,
                 experimentRegistrations, experimentUpdates, sampleUpdates, sampleRegistrations,
                 materialRegistrations, materialUpdates, dataSetRegistrations, dataSetUpdates,
-                metaprojectRegistrations);
+                metaprojectRegistrations, metaprojectUpdates);
         this.batchSizeOrNull = batchSizeOrNull;
     }
 
@@ -183,6 +188,11 @@ public class AtomicEntityOperationDetails implements Serializable
         return materialUpdates;
     }
 
+    public List<MetaprojectUpdatesDTO> getMetaprojectUpdates()
+    {
+        return metaprojectUpdates;
+    }
+
     public Integer getBatchSizeOrNull()
     {
         return batchSizeOrNull;
@@ -204,6 +214,7 @@ public class AtomicEntityOperationDetails implements Serializable
         sb.append("dataSetRegistrations", dataSetRegistrations);
         sb.append("dataSetUpdates", dataSetUpdates);
         sb.append("metaprojectRegistrations", metaprojectRegistrations);
+        sb.append("metaprojectUpdates", metaprojectUpdates);
         return sb.toString();
     }
 

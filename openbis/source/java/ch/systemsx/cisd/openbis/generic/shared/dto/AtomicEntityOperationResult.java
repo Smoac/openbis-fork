@@ -45,15 +45,20 @@ public class AtomicEntityOperationResult implements Serializable
 
     private final long dataSetsUpdatedCount;
 
+    private final long metaprojectsCreatedCount;
+
+    private final long metaprojectsUpdatedCount;
+
     public AtomicEntityOperationResult()
     {
-        this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 
     public AtomicEntityOperationResult(long spacesCreated, long projectsCreated,
             long materialsCreated, long materialsUpdated, long experimentsCreated,
             long experimentsUpdated, long samplesCreated, long samplesUpdated,
-            long dataSetsCreated, long dataSetsUpdated)
+            long dataSetsCreated, long dataSetsUpdated, long metaprojectsCreatedCount,
+            long metaprojectsUpdatedCount)
     {
         this.spacesCreatedCount = spacesCreated;
         this.projectsCreatedCount = projectsCreated;
@@ -65,6 +70,8 @@ public class AtomicEntityOperationResult implements Serializable
         this.samplesUpdatedCount = samplesUpdated;
         this.dataSetsCreatedCount = dataSetsCreated;
         this.dataSetsUpdatedCount = dataSetsUpdated;
+        this.metaprojectsCreatedCount = metaprojectsCreatedCount;
+        this.metaprojectsUpdatedCount = metaprojectsUpdatedCount;
     }
 
     public long getExperimentsUpdatedCount()
@@ -116,4 +123,15 @@ public class AtomicEntityOperationResult implements Serializable
     {
         return materialsUpdatedCount;
     }
+
+    public long getMetaprojectsCreatedCount()
+    {
+        return metaprojectsCreatedCount;
+    }
+
+    public long getMetaprojectsUpdatedCount()
+    {
+        return metaprojectsUpdatedCount;
+    }
+
 }
