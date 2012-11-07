@@ -1715,8 +1715,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         int index = 0;
         for (NewMetaproject metaproject : metaprojectRegistrations)
         {
-            MetaprojectPE pe = registerMetaproject(session, metaproject);
-            System.out.println(pe.getIdentifier());
+            registerMetaproject(session, metaproject);
             progress.update("createMetaProjects", metaprojectRegistrations.size(), ++index);
         }
         return index;

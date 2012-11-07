@@ -1298,6 +1298,8 @@ public class ETLServiceTest extends AbstractServerTestCase
             { "c1", "c2" });
 
         final MetaprojectPE metaprojectPE = new MetaprojectPE();
+        metaprojectPE.setOwner(CommonTestUtils.createPersonFromPrincipal(PRINCIPAL));
+        metaprojectPE.setName("test");
 
         final NewMetaproject newMetaproject =
                 new NewMetaproject("TEST-NAME", "the test tag", "test");
