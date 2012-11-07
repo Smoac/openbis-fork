@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -393,7 +394,19 @@ public class ConversionUtils
 
     public static NewMetaproject convertToNewMetaproject(Metaproject metaproject)
     {
-        return new NewMetaproject(metaproject.getName(), metaproject.getDescription(),
+        NewMetaproject newMetaproject =
+                new NewMetaproject(metaproject.getName(), metaproject.getDescription(),
                 metaproject.getOwnerId());
+        newMetaproject.setEntities(metaproject.getAddedEntities());
+        return newMetaproject;
+    }
+
+    public static MetaprojectUpdatesDTO convertToMetaprojectUpdatesDTO(Metaproject metaproject)
+    {
+        MetaprojectUpdatesDTO update = new MetaprojectUpdatesDTO();
+        update.setMetaprojectId(new TechId(metaproject.getId()));
+        update.setAddedEntities(metaproject.getAddedEntities());
+        update.setRemovedEntities(metaproject.getAddedEntities());
+        return update;
     }
 }

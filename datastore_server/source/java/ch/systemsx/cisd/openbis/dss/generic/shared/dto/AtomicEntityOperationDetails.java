@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
 /**
@@ -72,6 +73,8 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
 
     private final List<NewMetaproject> metaprojectRegistrations;
 
+    private final List<MetaprojectUpdatesDTO> metaprojectUpdates;
+
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
             List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
             List<ExperimentUpdatesDTO> experimentUpdates,
@@ -81,7 +84,8 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
             List<MaterialUpdateDTO> materialUpdates,
             List<DataSetRegistrationInformation<T>> dataSetRegistrations,
             List<DataSetBatchUpdatesDTO> dataSetUpdates,
-            List<NewMetaproject> metaprojectRegistrations)
+            List<NewMetaproject> metaprojectRegistrations,
+            List<MetaprojectUpdatesDTO> metaprojectUpdates)
     {
         this.registrationId = registrationId;
         this.userIdOrNull = userIdOrNull;
@@ -97,6 +101,7 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
         this.dataSetUpdates = new ArrayList<DataSetBatchUpdatesDTO>(dataSetUpdates);
         this.materialUpdates = new ArrayList<MaterialUpdateDTO>(materialUpdates);
         this.metaprojectRegistrations = new ArrayList<NewMetaproject>(metaprojectRegistrations);
+        this.metaprojectUpdates = new ArrayList<MetaprojectUpdatesDTO>(metaprojectUpdates);
     }
 
     public TechId getRegistrationId()
@@ -162,6 +167,11 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
     public List<NewMetaproject> getMetaprojectRegistrations()
     {
         return metaprojectRegistrations;
+    }
+
+    public List<MetaprojectUpdatesDTO> getMetaprojectUpdates()
+    {
+        return metaprojectUpdates;
     }
 
 }

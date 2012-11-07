@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectImmutable;
 
 /**
@@ -27,4 +28,8 @@ public interface IMetaproject extends IMetaprojectImmutable
 {
 
     void setDescription(String description);
+
+    void addEntity(IMetaprojectContent entity);
+
+    void removeEntity(IMetaprojectContent entity);
 }

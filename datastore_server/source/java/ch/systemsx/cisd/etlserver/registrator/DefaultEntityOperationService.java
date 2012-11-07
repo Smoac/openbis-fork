@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
@@ -88,6 +89,7 @@ public class DefaultEntityOperationService<T extends DataSetInformation> impleme
         List<MaterialUpdateDTO> materialUpdates = details.getMaterialUpdates();
         List<DataSetBatchUpdatesDTO> dataSetUpdates = details.getDataSetUpdates();
         List<NewMetaproject> metaprojectRegistrations = details.getMetaprojectRegistrations();
+        List<MetaprojectUpdatesDTO> metaprojectUpdates = details.getMetaprojectUpdates();
 
         List<NewExternalData> dataSetRegistrations = new ArrayList<NewExternalData>();
         for (DataSetRegistrationInformation<?> dsRegistration : details.getDataSetRegistrations())
@@ -100,7 +102,7 @@ public class DefaultEntityOperationService<T extends DataSetInformation> impleme
                 details.getRegistrationId(), details.tryUserIdOrNull(), spaceRegistrations,
                 projectRegistrations, experimentRegistrations, experimentUpdates, sampleUpdates,
                 sampleRegistrations, materialRegistrations, materialUpdates, dataSetRegistrations,
-                dataSetUpdates, metaprojectRegistrations);
+                dataSetUpdates, metaprojectRegistrations, metaprojectUpdates);
     }
 
 }

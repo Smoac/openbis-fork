@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -68,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -176,6 +178,8 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         private final List<Material> materialsToBeUpdated = new ArrayList<Material>();
 
         private final List<Metaproject> metaprojectsToBeRegistered = new ArrayList<Metaproject>();
+
+        private final List<Metaproject> metaprojectsToBeUpdated = new ArrayList<Metaproject>();
 
         private final Map<String, DynamicTransactionQuery> queriesToCommit =
                 new HashMap<String, DynamicTransactionQuery>();
@@ -690,23 +694,45 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             return null;
         }
 
-        private IMetaproject tryFindMetaprojectToRegister(String name)
-        {
-            for (Metaproject p : metaprojectsToBeRegistered)
-            {
-                if (p.getName().equals(name) && p.getOwnerId() == getUserId())
-                {
-                    return p;
-                }
-            }
-            return null;
-        }
-
         public IMetaproject createNewMetaproject(String name, String description, String ownerId)
         {
             Metaproject metaproject = Metaproject.createMetaproject(name, description, ownerId);
             metaprojectsToBeRegistered.add(metaproject);
             return metaproject;
+        }
+
+        public IMetaprojectImmutable getMetaproject(String name, String ownerId)
+        {
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject dto =
+                    openBisService.tryGetMetaproject(name, ownerId);
+            return new MetaprojectImmutable(dto);
+        }
+
+        public IMetaproject getMetaprojectForUpdate(String name, String ownerId)
+        {
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject dto =
+                    openBisService.tryGetMetaproject(name, ownerId);
+
+            IMetaproject metaproject = findExistingMetaprojectLocally(dto);
+
+            if (metaproject == null)
+            {
+                metaproject = new Metaproject(dto);
+            }
+
+            return metaproject;
+        }
+
+        public IMetaproject findExistingMetaprojectLocally(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject dto)
+        {
+            for (Metaproject m : metaprojectsToBeUpdated)
+            {
+                if (m.getId() == dto.getId())
+                {
+                    return m;
+                }
+            }
+            return null;
         }
 
         public String moveFile(String src, IDataSet dst)
@@ -962,13 +988,14 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             List<MaterialUpdateDTO> materialUpdates = convertMaterialsToBeUpdated();
             List<DataSetBatchUpdatesDTO> dataSetUpdates = convertDataSetsToBeUpdated();
             List<NewMetaproject> metaprojectRegistrations = convertMetaprojectsToBeRegistered();
+            List<MetaprojectUpdatesDTO> metaprojectUpdates = convertMetaprojectsToBeUpdated();
 
             AtomicEntityOperationDetails<T> registrationDetails =
                     new AtomicEntityOperationDetails<T>(registrationId, getUserId(),
                             spaceRegistrations, projectRegistrations, experimentUpdates,
                             experimentRegistrations, sampleUpdates, sampleRegistrations,
                             materialRegistrations, materialUpdates, dataSetRegistrations,
-                            dataSetUpdates, metaprojectRegistrations);
+                            dataSetUpdates, metaprojectRegistrations, metaprojectUpdates);
             return registrationDetails;
         }
 
@@ -1077,6 +1104,16 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             for (Metaproject apiMetaproject : metaprojectsToBeRegistered)
             {
                 result.add(ConversionUtils.convertToNewMetaproject(apiMetaproject));
+            }
+            return result;
+        }
+
+        private List<MetaprojectUpdatesDTO> convertMetaprojectsToBeUpdated()
+        {
+            List<MetaprojectUpdatesDTO> result = new ArrayList<MetaprojectUpdatesDTO>();
+            for (Metaproject apiMetaproject : metaprojectsToBeUpdated)
+            {
+                result.add(ConversionUtils.convertToMetaprojectUpdatesDTO(apiMetaproject));
             }
             return result;
         }

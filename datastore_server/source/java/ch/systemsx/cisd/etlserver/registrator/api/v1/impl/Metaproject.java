@@ -16,15 +16,22 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IMetaproject;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectContent;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 
 /**
- * 
- *
  * @author Jakub Straszewski
  */
 public class Metaproject extends MetaprojectImmutable implements IMetaproject
 {
+
+    private Set<IObjectId> addedEntities = new HashSet<IObjectId>();
+
+    private Set<IObjectId> removedEntities = new HashSet<IObjectId>();
 
     public static Metaproject createMetaproject(String name, String description, String ownerId)
     {
@@ -51,6 +58,37 @@ public class Metaproject extends MetaprojectImmutable implements IMetaproject
     public void setDescription(String description)
     {
         getMetaproject().setDescription(description);
+    }
+
+    Long getId()
+    {
+        return getMetaproject().getId();
+    }
+
+    @Override
+    public void addEntity(IMetaprojectContent entity)
+    {
+        IObjectId id = entity.getEntityId();
+        removedEntities.remove(id);
+        addedEntities.add(id);
+    }
+
+    @Override
+    public void removeEntity(IMetaprojectContent entity)
+    {
+        IObjectId id = entity.getEntityId();
+        addedEntities.remove(id);
+        removedEntities.add(id);
+    }
+
+    public Set<IObjectId> getAddedEntities()
+    {
+        return addedEntities;
+    }
+
+    public Set<IObjectId> getRemovedEntities()
+    {
+        return removedEntities;
     }
 
 }

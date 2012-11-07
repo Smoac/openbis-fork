@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -180,6 +181,11 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      */
     @ManagedAuthentication
     public Material tryGetMaterial(MaterialIdentifier materialIdentifier);
+
+    /**
+     * For given (@code name} and {@code ownerId} returns the corresponding {@link Metaproject}
+     */
+    public Metaproject tryGetMetaproject(String name, String ownerId);
 
     /**
      * Gets the experiment type with assigned property types for the specified experiment type code.

@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmut
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
@@ -222,6 +223,20 @@ public interface IDataSetRegistrationTransaction
      * available.
      */
     IMetaproject createNewMetaproject(String name, String description, String ownerId);
+
+    /**
+     * Only allowed when the user is available.
+     * 
+     * @return Read-only metaproject with given name for current user.
+     */
+    IMetaprojectImmutable getMetaproject(String name);
+
+    /**
+     * Only allowed when the user is not available.
+     * 
+     * @return Read-only metaproject with given name for specified user.
+     */
+    IMetaprojectImmutable getMetaproject(String name, String ownerId);
 
     // File operations -- The source and destination paths are local to the incoming data set folder
     // or incoming directory if the data set is just one file
