@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -583,6 +584,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     {
         logAccess(sessionToken, "listMaterials", "CRITERIA(%s), WITH_PROPERTIES(%s)", criteria,
                 withProperties);
+        return null;
+    }
+
+    @Override
+    public Metaproject tryGetMetaproject(String sessionToken, String name, String ownerId)
+    {
+        logAccess(sessionToken, "tryGetMetaproject", "NAME(%s), OWNER_ID(%s)", name, ownerId);
         return null;
     }
 

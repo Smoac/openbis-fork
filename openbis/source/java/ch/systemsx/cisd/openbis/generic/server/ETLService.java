@@ -103,6 +103,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.LogMessagePrefixGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
@@ -1450,6 +1451,19 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public Metaproject tryGetMetaproject(String sessionToken, String name, String ownerId)
+    {
+        final Session session = getSession(sessionToken);
+        final IMetaprojectBO bo = businessObjectFactory.createMetaprojectBO(session);
+
+        bo.loadByMetaprojectId(new MetaprojectIdentifierId(ownerId, name));
+
+        MetaprojectPE pe = bo.getMetaproject();
+        return MetaprojectTranslator.translate(pe);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public AtomicEntityOperationResult performEntityOperations(String sessionToken,
             @AuthorizationGuard(guardClass = AtomicOperationsPredicate.class)
             AtomicEntityOperationDetails operationDetails)
@@ -1699,9 +1713,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         final List<NewMetaproject> metaprojectRegistrations =
                 operationDetails.getMetaprojectRegistrations();
         int index = 0;
-        for (NewMetaproject experiment : metaprojectRegistrations)
+        for (NewMetaproject metaproject : metaprojectRegistrations)
         {
-            registerMetaproject(session, experiment);
+            MetaprojectPE pe = registerMetaproject(session, metaproject);
+            System.out.println(pe.getIdentifier());
             progress.update("createMetaProjects", metaprojectRegistrations.size(), ++index);
         }
         return index;

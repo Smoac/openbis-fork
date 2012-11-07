@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -108,6 +109,12 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     public Material tryGetMaterial(String sessionToken, MaterialIdentifier materialIdentifier);
+
+    /**
+     * For given {@code name} and {@code ownerId} returns the corresponding {@link Metaproject}.
+     */
+    @Transactional(readOnly = true)
+    public Metaproject tryGetMetaproject(String sessionToken, String name, String ownerId);
 
     /**
      * Tries to get the identifier of sample with specified permanent ID.
