@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,11 +91,15 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
         dataSetUpdate.setDatasetId(new TechId(1L));
         dataSetUpdates.add(dataSetUpdate);
 
+        List<NewMetaproject> metaprojectRegistrations =
+                Collections.singletonList(new NewMetaproject("TEST-AEOD-TAG", "short description",
+                        "test"));
+
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, null, spaceRegistrations,
                         projectRegistrations, experimentRegistrations, experimentUpdates,
                         sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
-                        dataSetRegistrations, dataSetUpdates);
+                        dataSetRegistrations, dataSetUpdates, metaprojectRegistrations);
 
         assertEquals(
                 "AtomicEntityOperationDetails[registrationIdOrNull=<null>"
@@ -107,7 +112,9 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
                         + ",sampleRegistrations=[/SPACE/SAMPLE-ID1, /SPACE/SAMPLE-ID2]"
                         + ",materialRegistrations={material-type-1=[material-one, material-two], material-type-2=[material-three]}"
                         + ",dataSetRegistrations=[NewExternalData[code=DATA-SET-CODE,type=<null>,fileFormat=<null>,properties=[]]]"
-                        + ",dataSetUpdates=[1]]", details.toString());
+                        + ",dataSetUpdates=[1]"
+                        + ",metaprojectRegistrations=[NewMetaproject[name=TEST-AEOD-TAG,description=short description,ownerId=test]]]",
+                details.toString());
 
     }
 }

@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
@@ -116,6 +117,9 @@ public class EntityOperationTest extends SystemTestCase
                 new HashMap<String, List<NewMaterial>>();
 
         private final List<MaterialUpdateDTO> materialUpdates = new ArrayList<MaterialUpdateDTO>();
+
+        private final List<NewMetaproject> metaprojectRegistrations =
+                new ArrayList<NewMetaproject>();
 
         private TechId registrationID = new TechId(counter++);
 
@@ -277,7 +281,7 @@ public class EntityOperationTest extends SystemTestCase
         {
             return new AtomicEntityOperationDetails(registrationID, userID, spaces, projects,
                     experiments, experimentUpdates, sampleUpdates, samples, materials,
-                    materialUpdates, dataSets, dataSetUpdates);
+                    materialUpdates, dataSets, dataSetUpdates, metaprojectRegistrations);
         }
 
     }

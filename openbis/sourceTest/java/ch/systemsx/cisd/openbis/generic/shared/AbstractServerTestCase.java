@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMetaprojectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
@@ -203,6 +204,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IMetaprojectDAO metaprojectDAO;
 
+    protected IMetaprojectBO metaprojectBO;
+
     private MaterialConfigurationProvider oldProvider;
 
     @BeforeMethod
@@ -251,6 +254,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         entityTypePropertyTypeBO = context.mock(IEntityTypePropertyTypeBO.class);
         dataBO = context.mock(IDataBO.class);
         trashBO = context.mock(ITrashBO.class);
+        metaprojectBO = context.mock(IMetaprojectBO.class);
         deletionTable = context.mock(IDeletionTable.class);
         // Table
         dataSetTable = context.mock(IDataSetTable.class);

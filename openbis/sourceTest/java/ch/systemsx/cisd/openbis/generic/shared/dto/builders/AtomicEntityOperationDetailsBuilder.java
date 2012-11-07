@@ -24,6 +24,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
@@ -61,6 +62,8 @@ public class AtomicEntityOperationDetailsBuilder
 
     private final List<DataSetBatchUpdatesDTO> dataSetUpdates =
             new ArrayList<DataSetBatchUpdatesDTO>();
+
+    private final List<NewMetaproject> metaprojectRegistrations = new ArrayList<NewMetaproject>();
 
     private TechId registrationIdOrNull;
 
@@ -122,6 +125,7 @@ public class AtomicEntityOperationDetailsBuilder
         return new AtomicEntityOperationDetails(registrationIdOrNull, userIdOrNull,
                 spaceRegistrations, projectRegistrations, experimentRegistrations,
                 experimentUpdates, sampleUpdates, sampleRegistrations, materialRegistrations,
-                materialUpdates, dataSetRegistrations, dataSetUpdates, batchSizeOrNull);
+                materialUpdates, dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
+                batchSizeOrNull);
     }
 }
