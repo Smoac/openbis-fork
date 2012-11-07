@@ -463,6 +463,27 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return getStateAsLiveState().getMetaproject(name, ownerId);
     }
 
+    @Override
+    public IMetaproject getMetaprojectForUpdate(String name)
+    {
+        if (getUserId() == null)
+        {
+            throw new IllegalArgumentException(
+                    "Cannot get a metaproject when user is not available nor specified. ");
+        }
+        return getStateAsLiveState().getMetaprojectForUpdate(name, getUserId());
+    }
+
+    @Override
+    public IMetaproject getMetaprojectForUpdate(String name, String ownerId)
+    {
+        if (getUserId() != null && false == getUserId().equals(ownerId))
+        {
+            throw new IllegalArgumentException(
+                    "Cannot get metaproject for different user then the current one.");
+        }
+        return getStateAsLiveState().getMetaprojectForUpdate(name, ownerId);
+    }
 
     @Override
     public String moveFile(String src, IDataSet dst)

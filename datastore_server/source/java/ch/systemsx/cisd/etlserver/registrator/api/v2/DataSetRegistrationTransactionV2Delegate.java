@@ -207,6 +207,18 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
     }
 
     @Override
+    public IMetaproject getMetaprojectForUpdate(String name)
+    {
+        return transaction.getMetaprojectForUpdate(name);
+    }
+
+    @Override
+    public IMetaproject getMetaprojectForUpdate(String name, String ownerId)
+    {
+        return transaction.getMetaprojectForUpdate(name, ownerId);
+    }
+
+    @Override
     public IMetaprojectImmutable getMetaproject(String name, String ownerId)
     {
         return transaction.getMetaproject(name, ownerId);

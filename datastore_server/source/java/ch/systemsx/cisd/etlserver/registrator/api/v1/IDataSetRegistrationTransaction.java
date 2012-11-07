@@ -238,6 +238,20 @@ public interface IDataSetRegistrationTransaction
      */
     IMetaprojectImmutable getMetaproject(String name, String ownerId);
 
+    /**
+     * Only allowed when the user is available.
+     * 
+     * @return metaproject with given name for current user.
+     */
+    IMetaproject getMetaprojectForUpdate(String name);
+
+    /**
+     * Only allowed when the user is not available.
+     * 
+     * @return metaproject with given name for specified user.
+     */
+    IMetaproject getMetaprojectForUpdate(String name, String ownerId);
+
     // File operations -- The source and destination paths are local to the incoming data set folder
     // or incoming directory if the data set is just one file
 
