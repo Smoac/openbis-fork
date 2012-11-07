@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
@@ -46,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -149,7 +151,9 @@ public class ProteinResultDataSetParentLinkingTask implements IMaintenanceTask
                 Collections.<NewSample> emptyList(), Collections
                         .<String, List<NewMaterial>> emptyMap(), Collections
                         .<MaterialUpdateDTO> emptyList(),
-                Collections.<NewExternalData> emptyList(), dataSetUpdates));
+                Collections.<NewExternalData> emptyList(), dataSetUpdates, Collections
+                        .<NewMetaproject> emptyList(), Collections
+                        .<MetaprojectUpdatesDTO> emptyList()));
         operationLog.info("Parent data set links for " + dataSetUpdates.size()
                 + " data sets have been updated.");
     }
