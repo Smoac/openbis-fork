@@ -710,6 +710,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             if (metaproject == null)
             {
                 metaproject = new Metaproject(dto);
+                metaprojectsToBeUpdated.add(metaproject);
             }
 
             return metaproject;
