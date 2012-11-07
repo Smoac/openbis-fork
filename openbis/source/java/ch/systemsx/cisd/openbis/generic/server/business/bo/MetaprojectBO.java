@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -236,54 +237,54 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     }
 
     @Override
-    public void addExperiments(List<IExperimentId> experimentIds)
+    public void addExperiments(List<? extends IExperimentId> experimentIds)
     {
         addEntities(experimentIds);
     }
 
     @Override
-    public void addSamples(List<ISampleId> sampleIds)
+    public void addSamples(List<? extends ISampleId> sampleIds)
     {
         addEntities(sampleIds);
     }
 
     @Override
-    public void addDataSets(List<IDataSetId> dataSetIds)
+    public void addDataSets(List<? extends IDataSetId> dataSetIds)
     {
         addEntities(dataSetIds);
     }
 
     @Override
-    public void addMaterials(List<IMaterialId> materialIds)
+    public void addMaterials(List<? extends IMaterialId> materialIds)
     {
         addEntities(materialIds);
     }
 
     @Override
-    public void removeExperiments(List<IExperimentId> experimentIds)
+    public void removeExperiments(List<? extends IExperimentId> experimentIds)
     {
         removeEntities(experimentIds);
     }
 
     @Override
-    public void removeSamples(List<ISampleId> sampleIds)
+    public void removeSamples(List<? extends ISampleId> sampleIds)
     {
         removeEntities(sampleIds);
     }
 
     @Override
-    public void removeDataSets(List<IDataSetId> dataSetIds)
+    public void removeDataSets(List<? extends IDataSetId> dataSetIds)
     {
         removeEntities(dataSetIds);
     }
 
     @Override
-    public void removeMaterials(List<IMaterialId> materialIds)
+    public void removeMaterials(List<? extends IMaterialId> materialIds)
     {
         removeEntities(materialIds);
     }
 
-    private <T extends IObjectId> void addEntities(List<T> entityIds)
+    private <T extends IObjectId> void addEntities(Collection<T> entityIds)
     {
 
         for (T entityId : entityIds)
@@ -299,7 +300,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
         dataChanged = true;
     }
 
-    private <T extends IObjectId> void removeEntities(List<T> entityIds)
+    private <T extends IObjectId> void removeEntities(Collection<T> entityIds)
     {
         for (T entityId : entityIds)
         {

@@ -38,21 +38,21 @@ public interface IMetaprojectBO extends IEntityBusinessObject
 
     void loadByMetaprojectId(IMetaprojectId metaprojectId);
 
-    void addExperiments(List<IExperimentId> experiments);
+    void addExperiments(List<? extends IExperimentId> experiments);
 
-    void addSamples(List<ISampleId> samples);
+    void addSamples(List<? extends ISampleId> samples);
 
-    void addDataSets(List<IDataSetId> dataSets);
+    void addDataSets(List<? extends IDataSetId> dataSets);
 
-    void addMaterials(List<IMaterialId> materials);
+    void addMaterials(List<? extends IMaterialId> materials);
 
-    void removeExperiments(List<IExperimentId> experiments);
+    void removeExperiments(List<? extends IExperimentId> experiments);
 
-    void removeSamples(List<ISampleId> samples);
+    void removeSamples(List<? extends ISampleId> samples);
 
-    void removeDataSets(List<IDataSetId> dataSets);
+    void removeDataSets(List<? extends IDataSetId> dataSets);
 
-    void removeMaterials(List<IMaterialId> materials);
+    void removeMaterials(List<? extends IMaterialId> materials);
 
     void deleteByMetaprojectId(IMetaprojectId metaprojectId) throws UserFailureException;
 
