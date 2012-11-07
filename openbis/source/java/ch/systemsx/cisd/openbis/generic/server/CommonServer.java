@@ -2019,7 +2019,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         sampleBO.save();
         SampleUpdateResult result = new SampleUpdateResult();
         SamplePE sample = sampleBO.getSample();
-        result.setModificationDate(sample.getModificationDate());
+        result.setVersion(sample.getVersion());
         List<String> parents = IdentifierExtractor.extract(sample.getParents());
         Collections.sort(parents);
         result.setParents(parents);

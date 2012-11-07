@@ -93,7 +93,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         @Override
         protected void process(final SampleUpdateResult result)
         {
-            originalSample.setModificationDate(result.getModificationDate());
+            originalSample.setVersion(result.getVersion());
             updateOriginalValues(result.getParents());
             super.process(result);
         }

@@ -734,8 +734,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         sample.setId(id);
         Set<SampleRelationshipPE> newParents = new HashSet<SampleRelationshipPE>();
         sample.setParentRelationships(newParents);
-        Date newModificationDate = new Date(2);
-        sample.setModificationDate(newModificationDate);
+        sample.setVersion(42);
         final SampleUpdatesDTO updates =
                 new SampleUpdatesDTO(sampleId, properties, null, attachments, 0, null, null, null);
         context.checking(new Expectations()
@@ -751,7 +750,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                 }
             });
         SampleUpdateResult result = createServer().updateSample(SESSION_TOKEN, updates);
-        assertEquals(newModificationDate, result.getModificationDate());
+        assertEquals(sample.getVersion(), result.getVersion());
         assertEquals(newParents.size(), result.getParents().size());
         context.assertIsSatisfied();
     }

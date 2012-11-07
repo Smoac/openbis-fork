@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,7 +28,7 @@ public class SampleUpdateResult implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private Date modificationDate;
+    private int version;
 
     private List<String> parents;
 
@@ -37,14 +36,14 @@ public class SampleUpdateResult implements Serializable
     {
     }
 
-    public Date getModificationDate()
+    public int getVersion()
     {
-        return modificationDate;
+        return version;
     }
 
-    public void setModificationDate(Date modificationDate)
+    public void setVersion(int version)
     {
-        this.modificationDate = modificationDate;
+        this.version = version;
     }
 
     public List<String> getParents()
@@ -60,7 +59,7 @@ public class SampleUpdateResult implements Serializable
     public void copyFrom(SampleUpdateResult result)
     {
         setParents(result.getParents());
-        setModificationDate(result.getModificationDate());
+        setVersion(result.getVersion());
     }
 
 }
