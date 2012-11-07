@@ -505,9 +505,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
         for (SampleUpdatesDTO sampleUpdates : updates)
         {
-            Long id =
-                    (null == sampleUpdates.getSampleIdOrNull()) ? null : sampleUpdates
-                            .getSampleIdOrNull().getId();
+            TechId id = sampleUpdates.getSampleIdOrNull();
             if (null == id)
             {
                 throw new UserFailureException("Sample with identifier "
@@ -515,7 +513,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                         + " is not in the database and therefore cannot be updated.");
             }
 
-            final SamplePE sample = samplesById.get(id);
+            final SamplePE sample = samplesById.get(id.getId());
             if (null == sample)
             {
                 throw new UserFailureException("Sample with identifier "

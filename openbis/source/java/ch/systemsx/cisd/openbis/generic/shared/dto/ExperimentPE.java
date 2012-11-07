@@ -89,7 +89,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
     { AttachmentPE.class, ProjectPE.class })
 public class ExperimentPE extends AttachmentHolderPE implements
         IEntityInformationWithPropertiesHolder, IIdAndCodeHolder, Comparable<ExperimentPE>,
-        IModifierAndModificationDateBean, IMatchingEntity, IDeletablePE, IEntityWithMetaprojects, Serializable
+        IModifierAndModificationDateBean, IMatchingEntity, IDeletablePE, IEntityWithMetaprojects,
+        Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -356,7 +357,6 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return new UnmodifiableListDecorator<SamplePE>(getExperimentSamples());
     }
 
-    @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
     private List<SamplePE> getExperimentSamples()
     {
@@ -402,7 +402,6 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return new UnmodifiableListDecorator<DataPE>(getExperimentDataSets());
     }
 
-    @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
     private List<DataPE> getExperimentDataSets()
     {

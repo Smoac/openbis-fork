@@ -88,8 +88,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
         + " IS NULL AND " + ColumnNames.SPACE_COLUMN + " IS NOT NULL)")
 @Indexed(index = "SamplePE")
 public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Comparable<SamplePE>,
-        IEntityInformationWithPropertiesHolder, IMatchingEntity, IDeletablePE, IEntityWithMetaprojects,
-        IModifierAndModificationDateBean, Serializable
+        IEntityInformationWithPropertiesHolder, IMatchingEntity, IDeletablePE,
+        IEntityWithMetaprojects, IModifierAndModificationDateBean, Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -122,7 +122,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     private Set<MetaprojectAssignmentPE> metaprojectAssignments =
             new HashSet<MetaprojectAssignmentPE>();
 
-    @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentSample")
     @Fetch(FetchMode.SUBSELECT)
     private Set<SampleRelationshipPE> getSampleChildRelationships()
@@ -159,7 +158,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         getSampleChildRelationships().add(relationship);
     }
 
-    @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "childSample", orphanRemoval = true)
     @Fetch(FetchMode.SUBSELECT)
     private Set<SampleRelationshipPE> getSampleParentRelationships()
@@ -276,7 +274,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         getDatasetsInternal().add(dataset);
     }
 
-    @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "sampleInternal")
     private Set<DataPE> getDatasetsInternal()
     {
