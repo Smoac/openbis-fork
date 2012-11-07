@@ -110,6 +110,9 @@ public class SampleIdentifier extends SampleOwnerIdentifier
         return new SampleOwnerIdentifier(getDatabaseInstanceLevel(), getSpaceLevel());
     }
 
+    /**
+     * String representation of this identifier (e.g. "/SPACE/PROJECT/SSID
+     */
     @Override
     public String toString()
     {

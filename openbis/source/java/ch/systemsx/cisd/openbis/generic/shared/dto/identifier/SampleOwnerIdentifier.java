@@ -94,6 +94,9 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
         return databaseInstanceIdentOrNull != null;
     }
 
+    /**
+     * String representation of this identifier.
+     */
     @Override
     public String toString()
     {
