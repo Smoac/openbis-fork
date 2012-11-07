@@ -136,7 +136,7 @@ public class Translator
             initializer.putProperty(prop.getPropertyType().getCode(), prop.tryGetAsString());
         }
         initializer.setRetrievedFetchOptions(EnumSet.of(SampleFetchOption.BASIC,
-                SampleFetchOption.PROPERTIES));
+                SampleFetchOption.PROPERTIES, SampleFetchOption.METAPROJECTS));
 
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experimentOrNull =
                 privateSample.getExperiment();
@@ -151,7 +151,6 @@ public class Translator
 
         if (privateSample.getMetaprojects() != null)
         {
-            initializer.getRetrievedFetchOptions().add(SampleFetchOption.METAPROJECTS);
             for (Metaproject m : privateSample.getMetaprojects())
             {
                 initializer.addMetaproject(m);
