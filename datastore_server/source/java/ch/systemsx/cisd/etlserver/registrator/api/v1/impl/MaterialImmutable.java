@@ -18,6 +18,8 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialCodeAndTypeCodeId;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -61,6 +63,12 @@ public class MaterialImmutable implements IMaterialImmutable
             return material.getMaterialType().getCode();
         }
         return null;
+    }
+
+    @Override
+    public IObjectId getEntityId()
+    {
+        return new MaterialCodeAndTypeCodeId(getCode(), getMaterialType());
     }
 
     @Override

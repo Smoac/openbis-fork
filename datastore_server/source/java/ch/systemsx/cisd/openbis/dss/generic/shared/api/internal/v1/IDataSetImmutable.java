@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface IDataSetImmutable
+public interface IDataSetImmutable extends IMetaprojectContent
 {
     /**
      * Get the data set code of the data set

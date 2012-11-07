@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface IExperimentImmutable
+public interface IExperimentImmutable extends IMetaprojectContent
 {
     /**
      * Return the experiment identifier of this experiment.

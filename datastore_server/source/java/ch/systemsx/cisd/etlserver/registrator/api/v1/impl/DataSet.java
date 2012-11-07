@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalData
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -112,6 +114,12 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
     public String getDataSetCode()
     {
         return registrationDetails.getDataSetInformation().getDataSetCode();
+    }
+
+    @Override
+    public IObjectId getEntityId()
+    {
+        return new DataSetCodeId(getDataSetCode());
     }
 
     @Override

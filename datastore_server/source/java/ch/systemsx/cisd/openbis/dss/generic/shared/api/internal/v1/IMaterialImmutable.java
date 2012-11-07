@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1;
 /**
  * @author Kaloyan Enimanev
  */
-public interface IMaterialImmutable
+public interface IMaterialImmutable extends IMetaprojectContent
 {
 
     /**

@@ -23,7 +23,7 @@ import java.util.List;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface ISampleImmutable
+public interface ISampleImmutable extends IMetaprojectContent
 {
     /**
      * Return the identifier for this sample.

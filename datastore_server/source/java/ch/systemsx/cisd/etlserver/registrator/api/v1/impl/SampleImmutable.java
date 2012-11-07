@@ -25,6 +25,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -95,6 +97,12 @@ public class SampleImmutable implements ISampleImmutable
     {
         String identifier = sample.getIdentifier();
         return identifier == null ? null : identifier.toUpperCase();
+    }
+
+    @Override
+    public IObjectId getEntityId()
+    {
+        return new SampleIdentifierId(getSampleIdentifier());
     }
 
     public ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample getSample()

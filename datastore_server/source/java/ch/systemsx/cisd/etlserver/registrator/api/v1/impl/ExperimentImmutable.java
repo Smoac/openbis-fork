@@ -18,6 +18,8 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -38,6 +40,12 @@ public class ExperimentImmutable implements IExperimentImmutable
     {
         String identifier = experiment.getIdentifier();
         return identifier == null ? null : identifier.toUpperCase();
+    }
+
+    @Override
+    public IObjectId getEntityId()
+    {
+        return new ExperimentIdentifierId(getExperimentIdentifier());
     }
 
     @Override
