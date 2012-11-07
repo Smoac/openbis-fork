@@ -35,5 +35,5 @@ public class MetaProjectWithEntityId
 
     public Long entity_id;
 
-    public Long ownerId;
+    public String owner_name;
 }

@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialCo
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Console;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.Entity;
@@ -51,6 +52,9 @@ public class AddEntitiesToMetaProjectRmi implements Command<Void>
 
     @Inject
     private IGeneralInformationChangingService openbis;
+
+    @Inject
+    private Console console;
 
     private MetaProject metaProject;
 
@@ -98,9 +102,11 @@ public class AddEntitiesToMetaProjectRmi implements Command<Void>
             }
         }
 
+        console.startBuffering();
         openbis.addToMetaproject(session,
                 new MetaprojectIdentifierId("/" + user.getName() + "/" + metaProject.getName()),
                 ids);
+        console.waitFor("REINDEX of", "took");
         return null;
     }
 }

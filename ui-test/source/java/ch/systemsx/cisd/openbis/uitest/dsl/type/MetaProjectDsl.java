@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
+import ch.systemsx.cisd.openbis.uitest.type.User;
 
 /**
  * @author anttil
@@ -28,10 +29,13 @@ class MetaProjectDsl extends MetaProject
 
     private String description;
 
-    public MetaProjectDsl(String name, String description)
+    private User owner;
+
+    public MetaProjectDsl(String name, String description, User owner)
     {
         this.name = name;
         this.description = description;
+        this.owner = owner;
     }
 
     @Override
@@ -52,8 +56,8 @@ class MetaProjectDsl extends MetaProject
     }
 
     @Override
-    public String toString()
+    public User getOwner()
     {
-        return "MetaProject " + name;
+        return this.owner;
     }
 }

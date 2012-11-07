@@ -33,8 +33,10 @@ public class MaterialRmi extends Material
 
     private ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material material;
 
+    @SuppressWarnings("unused")
     private final String session;
 
+    @SuppressWarnings("unused")
     private final ICommonServer commonServer;
 
     public MaterialRmi(ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material material,

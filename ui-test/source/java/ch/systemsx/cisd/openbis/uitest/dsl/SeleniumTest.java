@@ -33,6 +33,7 @@ import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.apache.log4j.WriterAppender;
 import org.hamcrest.Matcher;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.TakesScreenshot;
@@ -160,6 +161,8 @@ public abstract class SeleniumTest
 
     private static String startPage;
 
+    private static Console console = new Console();
+
     @BeforeSuite
     public void initialization() throws Exception
     {
@@ -204,7 +207,7 @@ public abstract class SeleniumTest
         System.out.println("startPage: " + startPage);
 
         pages = new Pages();
-        openbis = new Application(asUrl, dssUrl, "http://localhost:10002", pages);
+        openbis = new Application(asUrl, dssUrl, "http://localhost:10002", pages, console);
 
     }
 
@@ -240,7 +243,13 @@ public abstract class SeleniumTest
         }
         rootLogger.setLevel(Level.INFO);
         rootLogger.addAppender(new ConsoleAppender(
-                new PatternLayout("%-5p [%t]: %m%n")));
+                new PatternLayout("%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%t]: %m%n")));
+
+        WriterAppender appender =
+                new WriterAppender(
+                        new PatternLayout("%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%t]: %m%n"),
+                        console);
+        rootLogger.addAppender(appender);
     }
 
     @AfterSuite
@@ -528,9 +537,10 @@ public abstract class SeleniumTest
         return new CollectionContainsExactlyMatcher<T>(t);
     }
 
-    public <T> T create(Builder<T> builder)
+    public <T> T create(Builder<T> builder) throws Exception
     {
-        return builder.build(openbis, ui);
+        T t = builder.build(openbis, ui);
+        return t;
     }
 
     protected <T> T assume(Builder<T> builder)
@@ -694,9 +704,10 @@ public abstract class SeleniumTest
         builder.update(openbis, ui);
     }
 
-    protected Void tagWith(MetaProject metaProject, Entity... entities)
+    protected Void tagWith(MetaProject metaProject, Entity... entities) throws Exception
     {
-        openbis.execute(new AddEntitiesToMetaProjectRmi(metaProject, Arrays.asList(entities)));
+        openbis.execute(new AddEntitiesToMetaProjectRmi(metaProject, Arrays
+                .asList(entities)));
         return null;
     }
 

@@ -24,22 +24,12 @@ import ch.systemsx.cisd.openbis.uitest.type.Material;
 /**
  * @author anttil
  */
-public class MaterialSearchCommandBuilder implements SearchCommandBuilder<Material>
+public class MaterialSearchCommandBuilder extends SearchCommandBuilder<Material>
 {
-
-    private String code;
-
-    @SuppressWarnings("hiding")
-    public MaterialSearchCommandBuilder withCode(String code)
-    {
-        this.code = code;
-        return this;
-    }
 
     @Override
     public Command<List<Material>> build()
     {
-        return new SearchForMaterialsRmi(code);
+        return new SearchForMaterialsRmi(criteria);
     }
-
 }

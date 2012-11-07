@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Console;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
@@ -38,6 +39,9 @@ public class CreateSampleRmi implements Command<Sample>
     @Inject
     private IGenericServer genericServer;
 
+    @Inject
+    private Console console;
+
     private Sample sample;
 
     public CreateSampleRmi(Sample sample)
@@ -48,7 +52,9 @@ public class CreateSampleRmi implements Command<Sample>
     @Override
     public Sample execute()
     {
+        console.startBuffering();
         genericServer.registerSample(session, convert(sample), new ArrayList<NewAttachment>());
+        console.waitFor("REINDEX of 1 ch.systemsx.cisd.openbis.generic.shared.dto.SamplePEs took");
         return sample;
     }
 

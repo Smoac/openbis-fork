@@ -40,7 +40,7 @@ public class SprintTest extends SprintSuite
 {
 
     @Test
-    public void basic()
+    public void basic() throws Exception
     {
         // 1) Login and authorization
         assumePage(TopBar.class).admin();

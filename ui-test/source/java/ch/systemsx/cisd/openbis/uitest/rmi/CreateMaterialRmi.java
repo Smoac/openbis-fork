@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Console;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.type.Material;
 
@@ -38,6 +39,9 @@ public class CreateMaterialRmi implements Command<Material>
 
     @Inject
     private IGenericServer genericServer;
+
+    @Inject
+    private Console console;
 
     private Material material;
 
@@ -59,16 +63,18 @@ public class CreateMaterialRmi implements Command<Material>
 
         newMaterial.setEntityType(type);
 
-        NewMaterial what = new NewMaterial();
-        what.setCode(material.getCode());
-        what.setProperties(new IEntityProperty[0]);
+        NewMaterial data = new NewMaterial();
+        data.setCode(material.getCode());
+        data.setProperties(new IEntityProperty[0]);
         List<NewMaterial> list = new ArrayList<NewMaterial>();
-        list.add(what);
+        list.add(data);
         newMaterial.setNewEntities(list);
 
         newMaterials.add(newMaterial);
 
+        console.startBuffering();
         genericServer.registerMaterials(session, newMaterials);
+        console.waitFor("REINDEX of 1 ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPEs took");
 
         return material;
     }

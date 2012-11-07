@@ -313,9 +313,9 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
             mp.setId(metaProject.id);
             mp.setCreationDate(metaProject.creation_date);
             mp.setDescription(metaProject.description);
-            mp.setIdentifier("/" + metaProject.ownerId + "/" + metaProject.name);
+            mp.setIdentifier("/" + metaProject.owner_name + "/" + metaProject.name);
             mp.setName(metaProject.name);
-            mp.setOwnerId(metaProject.ownerId + "");
+            mp.setOwnerId(metaProject.owner_name);
             mp.setPrivate(metaProject.is_private);
 
             Material material = resultMap.get(metaProject.entity_id);

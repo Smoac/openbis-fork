@@ -47,7 +47,7 @@ public class MetaProjectBuilder implements Builder<MetaProject>
     @Override
     public MetaProject build(Application openbis, Ui ui)
     {
-        MetaProject metaProject = new MetaProjectDsl(name, description);
+        MetaProject metaProject = new MetaProjectDsl(name, description, openbis.getUser());
 
         if (Ui.WEB.equals(ui))
         {

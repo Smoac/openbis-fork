@@ -16,13 +16,13 @@
 
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
-import ch.systemsx.cisd.openbis.uitest.help.Lambda;
 import ch.systemsx.cisd.openbis.uitest.rmi.eager.MetaProjectRmi;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 
@@ -40,16 +40,11 @@ public class ListMetaProjectsRmi implements Command<List<MetaProject>>
     @Override
     public List<MetaProject> execute()
     {
-        return Lambda.foreach(
-                generalInformationService.listMetaprojects(session),
-                new Lambda<Metaproject, MetaProject>()
-                    {
-                        @Override
-                        public MetaProject apply(Metaproject input)
-                        {
-                            return new MetaProjectRmi(input);
-                        }
-                    }
-                );
+        List<MetaProject> result = new ArrayList<MetaProject>();
+        for (Metaproject m : generalInformationService.listMetaprojects(session))
+        {
+            result.add(new MetaProjectRmi(m));
+        }
+        return result;
     }
 }

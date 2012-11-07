@@ -56,9 +56,13 @@ public class Application
 
     private User user;
 
-    public Application(String asUrl, String dssUrl, String externalDssUrl, Pages pages)
+    private Console console;
+
+    public Application(String asUrl, String dssUrl, String externalDssUrl, Pages pages,
+            Console console)
     {
         this.pages = pages;
+        this.console = console;
         this.commonServer =
                 HttpInvokerUtils.createServiceStub(ICommonServer.class,
                         asUrl + "/openbis/rmi-common", 600000);
@@ -116,6 +120,11 @@ public class Application
         this.user = newUser;
     }
 
+    public User getUser()
+    {
+        return this.user;
+    }
+
     public <T extends Command<U>, U> U execute(T command)
     {
         for (Field field : command.getClass().getDeclaredFields())
@@ -154,6 +163,9 @@ public class Application
                 } else if (fieldType.equals(IETLLIMSService.class))
                 {
                     field.set(command, etlService);
+                } else if (fieldType.equals(Console.class))
+                {
+                    field.set(command, console);
                 } else if (fieldType.equals(IDssServiceRpcGeneric.class))
                 {
                     if (inject.value().equalsIgnoreCase("external"))

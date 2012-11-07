@@ -16,13 +16,13 @@
 
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
-import ch.systemsx.cisd.openbis.uitest.help.Lambda;
 import ch.systemsx.cisd.openbis.uitest.rmi.eager.SampleRmi;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
@@ -55,17 +55,13 @@ public class ListSamplesOfExperimentOnBehalfOfUserRmi implements Command<List<Sa
     @Override
     public List<Sample> execute()
     {
-        return Lambda.foreach(
-                generalInformationService.listSamplesForExperimentOnBehalfOfUser(
-                        session, Identifiers.get(experiment).toString(), user.getName()),
-                new Lambda<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample, Sample>()
-                    {
-                        @Override
-                        public Sample apply(
-                                ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample input)
-                        {
-                            return new SampleRmi(input, session, commonServer);
-                        }
-                    });
+        List<Sample> result = new ArrayList<Sample>();
+        for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample s : generalInformationService
+                .listSamplesForExperimentOnBehalfOfUser(session, Identifiers.get(experiment)
+                        .toString(), user.getName()))
+        {
+            result.add(new SampleRmi(s, session, commonServer));
+        }
+        return result;
     }
 }

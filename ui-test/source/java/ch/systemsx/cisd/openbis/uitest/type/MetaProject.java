@@ -25,12 +25,16 @@ public abstract class MetaProject
 
     public abstract String getDescription();
 
+    public abstract User getOwner();
+
     @Override
     public final boolean equals(Object o)
     {
         if (o instanceof MetaProject)
         {
-            return ((MetaProject) o).getName().equals(getName());
+            MetaProject m = (MetaProject) o;
+            return m.getName().equals(getName())
+                    && m.getOwner().getName().equals(getOwner().getName());
         }
         return false;
     }
@@ -42,8 +46,9 @@ public abstract class MetaProject
     }
 
     @Override
-    public String toString()
+    public final String toString()
     {
-        return this.getClass().getSimpleName() + " " + this.getName();
+        return this.getClass().getSimpleName() + " " + this.getOwner().getName() + "/"
+                + this.getName();
     }
 }

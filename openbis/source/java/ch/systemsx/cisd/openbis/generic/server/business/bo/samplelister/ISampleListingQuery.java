@@ -429,10 +429,10 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet sampleIds);
 
-    @Select(sql = "select m.id as id, m.name as name, m.description as description, "
+    @Select(sql = "select m.id as id, m.name as name, m.description as description, p.user_id as owner_name, "
             + " m.private as is_private, m.creation_date as creation_date, ma.samp_id as entity_id "
-            + " from metaprojects m, metaproject_assignments ma "
-            + " where ma.samp_id = any(?{1}) and m.owner = ?{2} and m.id = ma.mepr_id", parameterBindings =
+            + " from metaprojects m, metaproject_assignments ma, persons p "
+            + " where ma.samp_id = any(?{1}) and m.owner = ?{2} and m.id = ma.mepr_id and m.owner = p.id", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MetaProjectWithEntityId> getMetaprojects(LongSet entityIds, Long userId);
 

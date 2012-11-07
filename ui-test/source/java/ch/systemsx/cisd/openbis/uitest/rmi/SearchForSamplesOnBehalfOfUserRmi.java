@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -25,7 +26,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
-import ch.systemsx.cisd.openbis.uitest.help.Lambda;
 import ch.systemsx.cisd.openbis.uitest.rmi.eager.SampleRmi;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.User;
@@ -57,18 +57,13 @@ public class SearchForSamplesOnBehalfOfUserRmi implements Command<List<Sample>>
     @Override
     public List<Sample> execute()
     {
-        return Lambda.foreach(
-                generalInformationService.searchForSamplesOnBehalfOfUser(
-                        session, criteria, EnumSet.allOf(SampleFetchOption.class), user.getName()),
-                new Lambda<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample, Sample>()
-                    {
-                        @Override
-                        public Sample apply(
-                                ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample input)
-                        {
-                            return new SampleRmi(input, session, commonServer);
-                        }
-                    }
-                );
+        List<Sample> result = new ArrayList<Sample>();
+        for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample s : generalInformationService
+                .searchForSamplesOnBehalfOfUser(session, criteria, EnumSet
+                        .allOf(SampleFetchOption.class), user.getName()))
+        {
+            result.add(new SampleRmi(s, session, commonServer));
+        }
+        return result;
     }
 }

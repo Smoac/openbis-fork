@@ -30,7 +30,7 @@ public class SampleTypeTest extends MainSuite
 {
 
     @Test
-    public void cannotSaveSampleTypeWithInvalidCode()
+    public void cannotSaveSampleTypeWithInvalidCode() throws Exception
     {
         create(aSampleType().withCode("invalid code"));
 
@@ -40,7 +40,7 @@ public class SampleTypeTest extends MainSuite
     }
 
     @Test
-    public void newSampleTypeIsListedInSampleTypeBrowser()
+    public void newSampleTypeIsListedInSampleTypeBrowser() throws Exception
     {
         SampleType sampleType = create(aSampleType());
 
@@ -48,7 +48,7 @@ public class SampleTypeTest extends MainSuite
     }
 
     @Test
-    public void nonListableSampleTypeIsNotVisibleInSampleBrowserDropDownMenu()
+    public void nonListableSampleTypeIsNotVisibleInSampleBrowserDropDownMenu() throws Exception
     {
         SampleType sampleType = create(aSampleType().thatIsNotListable());
 
@@ -57,6 +57,7 @@ public class SampleTypeTest extends MainSuite
 
     @Test
     public void changingSampleTypeToBeListableMakesItVisibleInSampleBrowserDropDownMenu()
+            throws Exception
     {
         SampleType sampleType = create(aSampleType().thatIsNotListable());
 

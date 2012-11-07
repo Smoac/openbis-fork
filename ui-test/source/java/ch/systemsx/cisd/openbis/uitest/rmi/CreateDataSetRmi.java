@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
+import ch.systemsx.cisd.openbis.uitest.dsl.Console;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
@@ -40,6 +41,9 @@ public class CreateDataSetRmi implements Command<DataSet>
 
     @Inject("external")
     private IDssServiceRpcGeneric dssExternal;
+
+    @Inject
+    private Console console;
 
     private final DataSet dataSet;
 
@@ -62,12 +66,16 @@ public class CreateDataSetRmi implements Command<DataSet>
             dss = dssExternal;
         } else
         {
+            console.startBuffering();
             dss = dssInternal;
         }
 
         final String code =
                 dss.putDataSet(session, creator.getMetadata(dataSet), creator.getData());
-
+        if (!external)
+        {
+            console.waitFor("REINDEX of 1 ch.systemsx.cisd.openbis.generic.shared.dto.DataPEs took");
+        }
         return new DataSet()
             {
 

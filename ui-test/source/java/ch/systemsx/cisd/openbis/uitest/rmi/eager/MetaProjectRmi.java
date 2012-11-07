@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.uitest.rmi.eager;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
+import ch.systemsx.cisd.openbis.uitest.type.User;
 
 /**
  * @author anttil
@@ -28,10 +29,13 @@ public class MetaProjectRmi extends MetaProject
 
     private String description;
 
+    private String userName;
+
     public MetaProjectRmi(Metaproject project)
     {
         this.name = project.getName();
         this.description = project.getDescription();
+        this.userName = project.getOwnerId();
     }
 
     @Override
@@ -46,4 +50,17 @@ public class MetaProjectRmi extends MetaProject
         return description;
     }
 
+    @Override
+    public User getOwner()
+    {
+        return new User()
+            {
+                @Override
+                public String getName()
+                {
+                    return userName;
+                }
+
+            };
+    }
 }

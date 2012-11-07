@@ -272,9 +272,9 @@ final class SampleListingWorker extends AbstractLister
             mp.setId(metaProject.id);
             mp.setCreationDate(metaProject.creation_date);
             mp.setDescription(metaProject.description);
-            mp.setIdentifier("/" + metaProject.ownerId + "/" + metaProject.name);
+            mp.setIdentifier("/" + metaProject.owner_name + "/" + metaProject.name);
             mp.setName(metaProject.name);
-            mp.setOwnerId(metaProject.ownerId + "");
+            mp.setOwnerId(metaProject.owner_name);
             mp.setPrivate(metaProject.is_private);
 
             Sample sample = sampleMap.get(metaProject.entity_id);

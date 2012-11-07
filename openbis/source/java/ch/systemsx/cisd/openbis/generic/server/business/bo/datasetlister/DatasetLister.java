@@ -504,9 +504,9 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             mp.setId(metaProject.id);
             mp.setCreationDate(metaProject.creation_date);
             mp.setDescription(metaProject.description);
-            mp.setIdentifier("/" + metaProject.ownerId + "/" + metaProject.name);
+            mp.setIdentifier("/" + metaProject.owner_name + "/" + metaProject.name);
             mp.setName(metaProject.name);
-            mp.setOwnerId(metaProject.ownerId + "");
+            mp.setOwnerId(metaProject.owner_name);
             mp.setPrivate(metaProject.is_private);
 
             ExternalData data = datasetMap.get(metaProject.entity_id);

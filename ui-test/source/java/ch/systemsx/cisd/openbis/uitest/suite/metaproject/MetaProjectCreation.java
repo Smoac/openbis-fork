@@ -72,7 +72,7 @@ public class MetaProjectCreation extends MetaProjectSuite
 
     @Test(expectedExceptions =
         { UserFailureException.class })
-    public void cannotCreateMetaProjectsWithSameNameInDifferentCases()
+    public void cannotCreateMetaProjectsWithSameNameInDifferentCases() throws Exception
     {
         create(aMetaProject().withName("NamE"));
         create(aMetaProject().withName("NAMe"));
@@ -84,13 +84,11 @@ public class MetaProjectCreation extends MetaProjectSuite
         User first = create(aUser());
         User second = create(aUser());
 
-        as(user(first), create(aMetaProject().withName("metaproject")));
-        as(user(second), create(aMetaProject().withName("metaproject")));
+        MetaProject a = as(user(first), create(aMetaProject().withName("metaproject")));
+        MetaProject b = as(user(second), create(aMetaProject().withName("metaproject")));
 
-        MetaProject metaProject = assume(aMetaProject().withName("metaproject"));
-
-        assertThat(as(user(first), listOfAllMetaProjects()), containsExactly(metaProject));
-        assertThat(as(user(second), listOfAllMetaProjects()), containsExactly(metaProject));
+        assertThat(as(user(first), listOfAllMetaProjects()), containsExactly(a));
+        assertThat(as(user(second), listOfAllMetaProjects()), containsExactly(b));
     }
 
     @Test

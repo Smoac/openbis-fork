@@ -22,8 +22,6 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.rmi.eager.DataSetRmi;
@@ -49,12 +47,10 @@ public class SearchForDataSetsOnBehalfOfUserRmi implements Command<List<DataSet>
 
     private User user;
 
-    public SearchForDataSetsOnBehalfOfUserRmi(String code, User user)
+    public SearchForDataSetsOnBehalfOfUserRmi(SearchCriteria criteria, User user)
     {
+        this.criteria = criteria;
         this.user = user;
-        criteria = new SearchCriteria();
-        criteria.addMatchClause(
-                MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, code));
     }
 
     @Override
