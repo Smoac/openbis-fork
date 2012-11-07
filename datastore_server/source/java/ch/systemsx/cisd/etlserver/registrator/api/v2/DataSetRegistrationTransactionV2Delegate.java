@@ -171,9 +171,21 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
     }
 
     @Override
+    public IMaterialImmutable getMaterial(String identifier)
+    {
+        return transaction.getMaterial(identifier);
+    }
+
+    @Override
     public IMaterial getMaterialForUpdate(String materialCode, String materialType)
     {
         return transaction.getMaterialForUpdate(materialCode, materialType);
+    }
+
+    @Override
+    public IMaterial getMaterialForUpdate(String identifier)
+    {
+        return transaction.getMaterialForUpdate(identifier);
     }
 
     @Override

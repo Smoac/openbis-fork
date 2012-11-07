@@ -393,9 +393,33 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
+    public IMaterialImmutable getMaterial(String identifier)
+    {
+        MaterialIdentifier materialId = MaterialIdentifier.tryParseIdentifier(identifier);
+        if (materialId == null)
+        {
+            throw new IllegalArgumentException("Incorrect material identifier format " + identifier
+                    + ". Expected code (type)");
+        }
+        return getMaterial(materialId.getCode(), materialId.getTypeCode());
+    }
+
+    @Override
     public IMaterial getMaterialForUpdate(String materialCode, String materialType)
     {
         return getStateAsLiveState().getMaterialForUpdate(materialCode, materialType);
+    }
+
+    @Override
+    public IMaterial getMaterialForUpdate(String identifier)
+    {
+        MaterialIdentifier materialId = MaterialIdentifier.tryParseIdentifier(identifier);
+        if (materialId == null)
+        {
+            throw new IllegalArgumentException("Incorrect material identifier format " + identifier
+                    + ". Expected code (type)");
+        }
+        return getMaterialForUpdate(materialId.getCode(), materialId.getTypeCode());
     }
 
     @Override

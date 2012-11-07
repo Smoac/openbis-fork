@@ -170,7 +170,6 @@ public interface IDataSetRegistrationTransactionV2
      * @return A space or null
      */
     ISpaceImmutable getSpace(String spaceCode);
-
     /**
      * Get a material from the openBIS AS. Returns null if the material does not exist.
      * 
@@ -183,7 +182,23 @@ public interface IDataSetRegistrationTransactionV2
      * 
      * @return A material or null
      */
+    IMaterialImmutable getMaterial(String identifier);
+
+    /**
+     * Get a material from the openBIS AS for the purpose of modifying it. Returns null if the
+     * material does not exist.
+     * 
+     * @return A material or null
+     */
     IMaterial getMaterialForUpdate(String materialCode, String materialType);
+
+    /**
+     * Get a material from the openBIS AS for the purpose of modifying it. Returns null if the
+     * material does not exist.
+     * 
+     * @return A material or null
+     */
+    IMaterial getMaterialForUpdate(String identifier);
 
     /**
      * Given an immutable material, make it mutable.

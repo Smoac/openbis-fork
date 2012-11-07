@@ -181,12 +181,27 @@ public interface IDataSetRegistrationTransaction
     IMaterialImmutable getMaterial(String materialCode, String materialType);
 
     /**
+     * Get a material from the openBIS AS. Returns null if the material does not exist.
+     * 
+     * @return A material or null
+     */
+    IMaterialImmutable getMaterial(String identifier);
+
+    /**
      * Get a material from the openBIS AS for the purpose of modifying it. Returns null if the
      * material does not exist.
      * 
      * @return A material or null
      */
     IMaterial getMaterialForUpdate(String materialCode, String materialType);
+
+    /**
+     * Get a material from the openBIS AS for the purpose of modifying it. Returns null if the
+     * material does not exist.
+     * 
+     * @return A material or null
+     */
+    IMaterial getMaterialForUpdate(String identifier);
 
     /**
      * Given an immutable material, make it mutable.
@@ -227,14 +242,14 @@ public interface IDataSetRegistrationTransaction
     /**
      * Only allowed when the user is available.
      * 
-     * @return Read-only metaproject with given name for current user.
+     * @return metaproject with given name for current user.
      */
     IMetaprojectImmutable getMetaproject(String name);
 
     /**
      * Only allowed when the user is not available.
      * 
-     * @return Read-only metaproject with given name for specified user.
+     * @return metaproject with given name for specified user.
      */
     IMetaprojectImmutable getMetaproject(String name, String ownerId);
 
