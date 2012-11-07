@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -30,8 +31,10 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
 /**
  * @author Jakub Straszewski
  */
-public class BasicMetaprojectUpdates
+public class BasicMetaprojectUpdates implements Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private String description;
 
     private List<ISampleId> addedSamples;
