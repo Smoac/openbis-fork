@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.IDataSetId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.IMaterialId;
@@ -39,15 +40,12 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IHasMetaprojectsPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -240,136 +238,99 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     @Override
     public void addExperiments(List<IExperimentId> experimentIds)
     {
-        for (IExperimentId experimentId : experimentIds)
-        {
-            ExperimentPE experimentPE = experimentBO.tryFindByExperimentId(experimentId);
-            if (experimentPE == null)
-            {
-                throw new IllegalArgumentException("Experiment for id: " + experimentId
-                        + " doesn't exist.");
-            }
-            experimentPE.addMetaproject(metaproject);
-            addToAddedEntities(ExperimentPE.class, experimentPE.getId());
-        }
-
-        dataChanged = true;
+        addEntities(experimentIds);
     }
 
     @Override
     public void addSamples(List<ISampleId> sampleIds)
     {
-        for (ISampleId sampleId : sampleIds)
-        {
-            SamplePE samplePE = sampleBO.tryFindBySampleId(sampleId);
-            if (samplePE == null)
-            {
-                throw new IllegalArgumentException("Sample for id: " + sampleId + " doesn't exist.");
-            }
-            samplePE.addMetaproject(metaproject);
-            addToAddedEntities(SamplePE.class, samplePE.getId());
-        }
-
-        dataChanged = true;
+        addEntities(sampleIds);
     }
 
     @Override
     public void addDataSets(List<IDataSetId> dataSetIds)
     {
-        for (IDataSetId dataSetId : dataSetIds)
-        {
-            DataPE dataPE = dataBO.tryFindByDataSetId(dataSetId);
-            if (dataPE == null)
-            {
-                throw new IllegalArgumentException("Data set for id: " + dataSetId
-                        + " doesn't exist.");
-            }
-            dataPE.addMetaproject(metaproject);
-            addToAddedEntities(DataPE.class, dataPE.getId());
-        }
-
-        dataChanged = true;
+        addEntities(dataSetIds);
     }
 
     @Override
     public void addMaterials(List<IMaterialId> materialIds)
     {
-        for (IMaterialId materialId : materialIds)
-        {
-            MaterialPE materialPE = materialBO.tryFindByMaterialId(materialId);
-            if (materialPE == null)
-            {
-                throw new IllegalArgumentException("Material for id: " + materialId
-                        + " doesn't exist.");
-            }
-            materialPE.addMetaproject(metaproject);
-            addToAddedEntities(MaterialPE.class, materialPE.getId());
-        }
-
-        dataChanged = true;
+        addEntities(materialIds);
     }
 
     @Override
     public void removeExperiments(List<IExperimentId> experimentIds)
     {
-        for (IExperimentId experimentId : experimentIds)
-        {
-            ExperimentPE experimentPE = experimentBO.tryFindByExperimentId(experimentId);
-            if (experimentPE != null)
-            {
-                experimentPE.removeMetaproject(metaproject);
-                addToRemovedEntities(ExperimentPE.class, experimentPE.getId());
-            }
-        }
-
-        dataChanged = true;
+        removeEntities(experimentIds);
     }
 
     @Override
     public void removeSamples(List<ISampleId> sampleIds)
     {
-        for (ISampleId sampleId : sampleIds)
-        {
-            SamplePE samplePE = sampleBO.tryFindBySampleId(sampleId);
-            if (samplePE != null)
-            {
-                samplePE.removeMetaproject(metaproject);
-                addToRemovedEntities(SamplePE.class, samplePE.getId());
-            }
-        }
-
-        dataChanged = true;
+        removeEntities(sampleIds);
     }
 
     @Override
     public void removeDataSets(List<IDataSetId> dataSetIds)
     {
-        for (IDataSetId dataSetId : dataSetIds)
-        {
-            DataPE dataPE = dataBO.tryFindByDataSetId(dataSetId);
-            if (dataPE != null)
-            {
-                dataPE.removeMetaproject(metaproject);
-                addToRemovedEntities(DataPE.class, dataPE.getId());
-            }
-        }
-
-        dataChanged = true;
+        removeEntities(dataSetIds);
     }
 
     @Override
     public void removeMaterials(List<IMaterialId> materialIds)
     {
-        for (IMaterialId materialId : materialIds)
+        removeEntities(materialIds);
+    }
+
+    private <T extends IObjectId> void addEntities(List<T> entityIds)
+    {
+
+        for (T entityId : entityIds)
         {
-            MaterialPE materialPE = materialBO.tryFindByMaterialId(materialId);
-            if (materialPE != null)
+            IHasMetaprojectsPE entityPE = findById(entityId);
+            if (entityPE == null)
             {
-                materialPE.removeMetaproject(metaproject);
-                addToRemovedEntities(MaterialPE.class, materialPE.getId());
+                throw new IllegalArgumentException("Entity for id: " + entityId + " doesn't exist.");
+            }
+            entityPE.addMetaproject(metaproject);
+            addToAddedEntities(entityPE.getClass(), entityPE.getId());
+        }
+        dataChanged = true;
+    }
+
+    private <T extends IObjectId> void removeEntities(List<T> entityIds)
+    {
+        for (T entityId : entityIds)
+        {
+            IHasMetaprojectsPE entityPE = findById(entityId);
+            if (entityPE != null)
+            {
+                entityPE.removeMetaproject(metaproject);
+                addToRemovedEntities(entityPE.getClass(), entityPE.getId());
             }
         }
-
         dataChanged = true;
+    }
+
+    private IHasMetaprojectsPE findById(IObjectId entityId)
+    {
+        if (entityId instanceof IMaterialId)
+        {
+            return materialBO.tryFindByMaterialId((IMaterialId) entityId);
+        } else if (entityId instanceof ISampleId)
+        {
+            return sampleBO.tryFindBySampleId((ISampleId) entityId);
+        } else if (entityId instanceof IDataSetId)
+        {
+            return dataBO.tryFindByDataSetId((IDataSetId) entityId);
+        } else if (entityId instanceof IExperimentId)
+        {
+            return experimentBO.tryFindByExperimentId((IExperimentId) entityId);
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported entity type " + entityId.getClass());
+        }
     }
 
     private void initEntitiesMaps()

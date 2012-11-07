@@ -143,6 +143,29 @@ public class MetaprojectAssignmentPE implements Serializable, IIdHolder
         this.material = material;
     }
 
+    /**
+     * Checks the type of entity and calls the appropriate setter (e.g. {@code setMaterial} )
+     */
+    public void setEntity(IHasMetaprojectsPE entity)
+    {
+        if (entity instanceof MaterialPE)
+        {
+            setMaterial((MaterialPE) entity);
+        } else if (entity instanceof DataPE)
+        {
+            setDataSet((DataPE) entity);
+        } else if (entity instanceof ExperimentPE)
+        {
+            setExperiment((ExperimentPE) entity);
+        } else if (entity instanceof SamplePE)
+        {
+            setSample((SamplePE) entity);
+        } else
+        {
+            throw new NullPointerException("Must specify entity to set.");
+        }
+    }
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.DELETION_COLUMN)
     public DeletionPE getDeletion()
