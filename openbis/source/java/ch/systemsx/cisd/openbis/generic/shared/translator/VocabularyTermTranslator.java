@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -61,6 +63,15 @@ public class VocabularyTermTranslator
         {
             result.add(translate(term));
         }
+        Collections.sort(result, new Comparator<VocabularyTerm>()
+            {
+                @Override
+                public int compare(VocabularyTerm arg0, VocabularyTerm arg1)
+                {
+                    return arg0.getOrdinal().compareTo(arg1.getOrdinal());
+                }
+            });
+
         return result;
     }
 
