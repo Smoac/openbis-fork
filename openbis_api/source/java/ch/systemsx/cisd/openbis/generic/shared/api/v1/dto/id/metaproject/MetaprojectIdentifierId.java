@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.ObjectIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -37,6 +38,23 @@ public class MetaprojectIdentifierId extends ObjectIdentifierId implements IMeta
     public MetaprojectIdentifierId(String identifier)
     {
         super(identifier);
+    }
+
+    /**
+     * @param identifier Metaproject identifier
+     */
+    public MetaprojectIdentifierId(MetaprojectIdentifier identifier)
+    {
+        super(identifier.format());
+    }
+
+    /**
+     * @param ownerId Metaproject owner
+     * @param name Metaproject name
+     */
+    public MetaprojectIdentifierId(String ownerId, String name)
+    {
+        this(new MetaprojectIdentifier(ownerId, name));
     }
 
     //
