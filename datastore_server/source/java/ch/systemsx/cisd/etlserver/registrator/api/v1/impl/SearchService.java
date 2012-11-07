@@ -212,6 +212,6 @@ public class SearchService implements ISearchService
     public IVocabularyImmutable searchForVocabulary(String code)
     {
         Vocabulary vocabulary = openBisService.tryGetVocabulary(code);
-        return new VocabularyImmutable(vocabulary);
+        return (vocabulary == null) ? null : new VocabularyImmutable(vocabulary);
     }
 }
