@@ -17,9 +17,18 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.IDataSetId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.IMaterialId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
 
 /**
  * A metaproject to register.
@@ -35,6 +44,14 @@ public class NewMetaproject implements Serializable
     private String description;
 
     private String ownerId;
+
+    private List<ISampleId> samples;
+
+    private List<IExperimentId> experiments;
+
+    private List<IDataSetId> datasets;
+
+    private List<IMaterialId> materials;
 
     public NewMetaproject(String name, String descriptionOrNull, String ownerId)
     {
@@ -71,6 +88,35 @@ public class NewMetaproject implements Serializable
     public void setOwnerId(String ownerId)
     {
         this.ownerId = ownerId;
+    }
+
+    public List<ISampleId> getSamples()
+    {
+        return samples;
+    }
+
+    public List<IExperimentId> getExperiments()
+    {
+        return experiments;
+    }
+
+    public List<IDataSetId> getDatasets()
+    {
+        return datasets;
+    }
+
+    public List<IMaterialId> getMaterials()
+    {
+        return materials;
+    }
+
+    public void setEntities(Collection<IObjectId> entities)
+    {
+        samples = Collections.unmodifiableList(BasicMetaprojectUpdates.filterSamples(entities));
+        experiments =
+                Collections.unmodifiableList(BasicMetaprojectUpdates.filterExperiments(entities));
+        datasets = Collections.unmodifiableList(BasicMetaprojectUpdates.filterDataSets(entities));
+        materials = Collections.unmodifiableList(BasicMetaprojectUpdates.filterMaterials(entities));
     }
 
     @Override

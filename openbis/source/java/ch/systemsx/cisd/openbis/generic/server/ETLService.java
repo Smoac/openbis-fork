@@ -173,6 +173,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -1520,9 +1521,9 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                     createMetaprojects(sessionForEntityOperation, operationDetails,
                             progressListener, authorize);
 
-            // long metaprojectsUpdates =
-            // updateMetaProjects(sessionForEntityOperation, operationDetails,
-            // progressListener, authorize);
+            long metaprojectsUpdates =
+                    updateMetaprojects(sessionForEntityOperation, operationDetails,
+                            progressListener, authorize);
 
             // If the id is not null, the caller wants to persist the fact that the operation was
             // invoked and completed;
@@ -1534,7 +1535,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
             return new AtomicEntityOperationResult(spacesCreated, projectsCreated,
                     materialsCreated, materialsUpdates, experimentsCreated, experimentsUpdates,
-                    samplesCreated, samplesUpdated, dataSetsCreated, dataSetsUpdated);
+                    samplesCreated, samplesUpdated, dataSetsCreated, dataSetsUpdated,
+                    metaprojectsCreated, metaprojectsUpdates);
         } finally
         {
             EntityOperationsInProgress.getInstance().removeRegistrationPending(registrationId);
@@ -1661,29 +1663,35 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         }
     }
 
-    // TODO: more metaprojects methods
+    private long updateMetaprojects(Session session, AtomicEntityOperationDetails operationDetails,
+            IServiceConversationProgressListener progress, boolean authorize)
+    {
+        List<MetaprojectUpdatesDTO> updates = operationDetails.getMetaprojectUpdates();
 
-    // private long updateMetaprojects(Session session, AtomicEntityOperationDetails
-    // operationDetails,
-    // IServiceConversationProgressListener progress, boolean authorize)
-    // {
-    // // MaterialHelper materialHelper =
-    // // new MaterialHelper(session, businessObjectFactory, getDAOFactory(),
-    // // getPropertiesBatchManager());
-    //
-    // List<MetaprojectUpdateDTO> allMetaprojectUpdates = operationDetails.getMetaprojectUpdates();
-    //
-    // if (authorize)
-    // {
-    // checkMaterialUpdateAllowed(session, allMaterialUpdates);
-    // }
-    //
-    // materialHelper.updateMaterials(allMaterialUpdates);
-    //
-    // // in material helper call the update of materials - but this has to wait fo change of the
-    // // material updates to a map
-    // return allMaterialUpdates.size();
-    // }
+        for (MetaprojectUpdatesDTO update : updates)
+        {
+            updateMetaprojects(session, update);
+        }
+
+        return updates.size();
+    }
+
+    private void updateMetaprojects(Session session, MetaprojectUpdatesDTO update)
+    {
+        IMetaprojectBO metaprojectBO = businessObjectFactory.createMetaprojectBO(session);
+        metaprojectBO.loadDataByTechId(update.getMetaprojectId());
+
+        metaprojectBO.addSamples(update.getAddedSamples());
+        metaprojectBO.removeSamples(update.getRemovedSamples());
+        metaprojectBO.addDataSets(update.getAddedDataSets());
+        metaprojectBO.removeDataSets(update.getRemovedDataSets());
+        metaprojectBO.addExperiments(update.getAddedExperiments());
+        metaprojectBO.removeExperiments(update.getRemovedExperiments());
+        metaprojectBO.addMaterials(update.getAddedMaterials());
+        metaprojectBO.removeMaterials(update.getRemovedMaterials());
+
+        metaprojectBO.save();
+    }
 
     private long createMetaprojects(Session session, AtomicEntityOperationDetails operationDetails,
             IServiceConversationProgressListener progress, boolean authorize)
@@ -1703,6 +1711,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         IMetaprojectBO metaprojectBO = businessObjectFactory.createMetaprojectBO(session);
         metaprojectBO.define(metaproject);
+        metaprojectBO.addSamples(metaproject.getSamples());
+        metaprojectBO.addExperiments(metaproject.getExperiments());
+        metaprojectBO.addMaterials(metaproject.getMaterials());
+        metaprojectBO.addDataSets(metaproject.getDatasets());
         metaprojectBO.save();
         return metaprojectBO.getMetaproject();
     }
