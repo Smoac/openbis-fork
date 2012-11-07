@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.Metapro
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
@@ -176,6 +177,13 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
 
             dataChanged = false;
         }
+    }
+
+    @Override
+    public void define(NewMetaproject newMetaproject)
+    {
+        define(newMetaproject.getName(), newMetaproject.getDescription(),
+                newMetaproject.getOwnerId());
     }
 
     public void define(final String metaprojectName, final String description, final String ownerId)

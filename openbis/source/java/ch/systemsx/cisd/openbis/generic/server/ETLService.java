@@ -80,6 +80,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMetaprojectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
@@ -129,6 +130,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -1514,6 +1516,14 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                     updateMaterials(sessionForEntityOperation, operationDetails, progressListener,
                             authorize);
 
+            long metaprojectsCreated =
+                    createMetaprojects(sessionForEntityOperation, operationDetails,
+                            progressListener, authorize);
+
+            // long metaprojectsUpdates =
+            // updateMetaProjects(sessionForEntityOperation, operationDetails,
+            // progressListener, authorize);
+
             // If the id is not null, the caller wants to persist the fact that the operation was
             // invoked and completed;
             // if the id is null, the caller does not care.
@@ -1649,6 +1659,52 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         {
             entityOperationChecker.assertMaterialUpdateAllowed(session, materialUpdates);
         }
+    }
+
+    // TODO: more metaprojects methods
+
+    // private long updateMetaprojects(Session session, AtomicEntityOperationDetails
+    // operationDetails,
+    // IServiceConversationProgressListener progress, boolean authorize)
+    // {
+    // // MaterialHelper materialHelper =
+    // // new MaterialHelper(session, businessObjectFactory, getDAOFactory(),
+    // // getPropertiesBatchManager());
+    //
+    // List<MetaprojectUpdateDTO> allMetaprojectUpdates = operationDetails.getMetaprojectUpdates();
+    //
+    // if (authorize)
+    // {
+    // checkMaterialUpdateAllowed(session, allMaterialUpdates);
+    // }
+    //
+    // materialHelper.updateMaterials(allMaterialUpdates);
+    //
+    // // in material helper call the update of materials - but this has to wait fo change of the
+    // // material updates to a map
+    // return allMaterialUpdates.size();
+    // }
+
+    private long createMetaprojects(Session session, AtomicEntityOperationDetails operationDetails,
+            IServiceConversationProgressListener progress, boolean authorize)
+    {
+        final List<NewMetaproject> metaprojectRegistrations =
+                operationDetails.getMetaprojectRegistrations();
+        int index = 0;
+        for (NewMetaproject experiment : metaprojectRegistrations)
+        {
+            registerMetaproject(session, experiment);
+            progress.update("createMetaProjects", metaprojectRegistrations.size(), ++index);
+        }
+        return index;
+    }
+
+    private MetaprojectPE registerMetaproject(final Session session, NewMetaproject metaproject)
+    {
+        IMetaprojectBO metaprojectBO = businessObjectFactory.createMetaprojectBO(session);
+        metaprojectBO.define(metaproject);
+        metaprojectBO.save();
+        return metaprojectBO.getMetaproject();
     }
 
     private SpacePE registerSpaceInternal(Session session, NewSpace newSpace,
