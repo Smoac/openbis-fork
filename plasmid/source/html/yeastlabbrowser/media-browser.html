@@ -343,13 +343,6 @@ function initializeSyntheticProperties(sample)
 
 
 
-
-
-
-
-
-//.NAME, sample.properties.SUPPLIER, sample.properties.ARTICLE_NUMBER, sample.properties.LOCAL_ID, sample.properties.STORAGE
-
 /**
  * Convert properties to pairs
  */
@@ -365,7 +358,7 @@ function props_to_pairs1(data)
 	}
 	
 
-	order1 = ["NAME", "SUPPLIER", "ARTICLE_NUMBER", "LOCAL_ID",  "STORAGE", "STOCK_CONCENTRATION", "STERILIZATION"]
+	order1 = ["NAME", "FOR_WHAT", "SUPPLIER", "ARTICLE_NUMBER", "LOCAL_ID",  "STORAGE", "STOCK_CONCENTRATION", "STERILIZATION"]
 	new_list1 = []
 	for (var i in order1) {
 	  for (var j in pairs) {
