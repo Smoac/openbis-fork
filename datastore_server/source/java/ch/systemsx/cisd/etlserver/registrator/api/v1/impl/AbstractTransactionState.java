@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
@@ -172,6 +173,8 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         private final List<Material> materialsToBeRegistered = new ArrayList<Material>();
 
         private final List<Material> materialsToBeUpdated = new ArrayList<Material>();
+
+        private final List<Metaproject> metaprojectsToBeRegistered = new ArrayList<Metaproject>();
 
         private final Map<String, DynamicTransactionQuery> queriesToCommit =
                 new HashMap<String, DynamicTransactionQuery>();
@@ -938,13 +941,14 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             Map<String, List<NewMaterial>> materialRegistrations = convertMaterialsToBeRegistered();
             List<MaterialUpdateDTO> materialUpdates = convertMaterialsToBeUpdated();
             List<DataSetBatchUpdatesDTO> dataSetUpdates = convertDataSetsToBeUpdated();
+            List<NewMetaproject> metaprojectRegistrations = convertMetaprojectsToBeRegistered();
 
             AtomicEntityOperationDetails<T> registrationDetails =
                     new AtomicEntityOperationDetails<T>(registrationId, getUserId(),
                             spaceRegistrations, projectRegistrations, experimentUpdates,
                             experimentRegistrations, sampleUpdates, sampleRegistrations,
                             materialRegistrations, materialUpdates, dataSetRegistrations,
-                            dataSetUpdates);
+                            dataSetUpdates, metaprojectRegistrations);
             return registrationDetails;
         }
 
@@ -1043,6 +1047,16 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             {
                 MaterialUpdateDTO converted = ConversionUtils.convertToMaterialUpdateDTO(material);
                 result.add(converted);
+            }
+            return result;
+        }
+
+        private List<NewMetaproject> convertMetaprojectsToBeRegistered()
+        {
+            List<NewMetaproject> result = new ArrayList<NewMetaproject>();
+            for (Metaproject apiMetaproject : metaprojectsToBeRegistered)
+            {
+                result.add(ConversionUtils.convertToNewMetaproject(apiMetaproject));
             }
             return result;
         }

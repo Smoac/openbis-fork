@@ -25,6 +25,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
@@ -69,6 +70,8 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
 
     private final List<DataSetBatchUpdatesDTO> dataSetUpdates;
 
+    private final List<NewMetaproject> metaprojectRegistrations;
+
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
             List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
             List<ExperimentUpdatesDTO> experimentUpdates,
@@ -77,7 +80,8 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
             Map<String, List<NewMaterial>> materialRegistrations,
             List<MaterialUpdateDTO> materialUpdates,
             List<DataSetRegistrationInformation<T>> dataSetRegistrations,
-            List<DataSetBatchUpdatesDTO> dataSetUpdates)
+            List<DataSetBatchUpdatesDTO> dataSetUpdates,
+            List<NewMetaproject> metaprojectRegistrations)
     {
         this.registrationId = registrationId;
         this.userIdOrNull = userIdOrNull;
@@ -91,7 +95,8 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
         this.dataSetRegistrations =
                 new ArrayList<DataSetRegistrationInformation<T>>(dataSetRegistrations);
         this.dataSetUpdates = new ArrayList<DataSetBatchUpdatesDTO>(dataSetUpdates);
-        this.materialUpdates = materialUpdates;
+        this.materialUpdates = new ArrayList<MaterialUpdateDTO>(materialUpdates);
+        this.metaprojectRegistrations = new ArrayList<NewMetaproject>(metaprojectRegistrations);
     }
 
     public TechId getRegistrationId()
@@ -153,4 +158,10 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
     {
         return materialUpdates;
     }
+
+    public List<NewMetaproject> getMetaprojectRegistrations()
+    {
+        return metaprojectRegistrations;
+    }
+
 }

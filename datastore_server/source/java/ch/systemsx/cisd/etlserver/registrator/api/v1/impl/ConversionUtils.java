@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
@@ -388,5 +389,11 @@ public class ConversionUtils
     {
         return new MaterialUpdateDTO(new TechId(material.getMaterial().getId()), material
                 .getMaterial().getProperties(), material.getMaterial().getModificationDate());
+    }
+
+    public static NewMetaproject convertToNewMetaproject(Metaproject metaproject)
+    {
+        return new NewMetaproject(metaproject.getName(), metaproject.getDescription(),
+                metaproject.getOwnerId());
     }
 }
