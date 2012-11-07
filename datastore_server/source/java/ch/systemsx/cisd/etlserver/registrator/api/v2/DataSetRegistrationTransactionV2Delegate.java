@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmut
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
@@ -213,25 +212,13 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
     }
 
     @Override
-    public IMetaprojectImmutable getMetaproject(String name)
+    public IMetaproject getMetaproject(String name)
     {
         return transaction.getMetaproject(name);
     }
 
     @Override
-    public IMetaproject getMetaprojectForUpdate(String name)
-    {
-        return transaction.getMetaprojectForUpdate(name);
-    }
-
-    @Override
-    public IMetaproject getMetaprojectForUpdate(String name, String ownerId)
-    {
-        return transaction.getMetaprojectForUpdate(name, ownerId);
-    }
-
-    @Override
-    public IMetaprojectImmutable getMetaproject(String name, String ownerId)
+    public IMetaproject getMetaproject(String name, String ownerId)
     {
         return transaction.getMetaproject(name, ownerId);
     }

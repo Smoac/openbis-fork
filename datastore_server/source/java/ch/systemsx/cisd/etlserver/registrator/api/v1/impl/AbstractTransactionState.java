@@ -52,7 +52,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -701,19 +700,12 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             return metaproject;
         }
 
-        public IMetaprojectImmutable getMetaproject(String name, String ownerId)
-        {
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject dto =
-                    openBisService.tryGetMetaproject(name, ownerId);
-            return new MetaprojectImmutable(dto);
-        }
-
-        public IMetaproject getMetaprojectForUpdate(String name, String ownerId)
+        public Metaproject getMetaproject(String name, String ownerId)
         {
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject dto =
                     openBisService.tryGetMetaproject(name, ownerId);
 
-            IMetaproject metaproject = findExistingMetaprojectLocally(dto);
+            Metaproject metaproject = findExistingMetaprojectLocally(dto);
 
             if (metaproject == null)
             {
@@ -723,7 +715,8 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             return metaproject;
         }
 
-        public IMetaproject findExistingMetaprojectLocally(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject dto)
+        public Metaproject findExistingMetaprojectLocally(
+                ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject dto)
         {
             for (Metaproject m : metaprojectsToBeUpdated)
             {

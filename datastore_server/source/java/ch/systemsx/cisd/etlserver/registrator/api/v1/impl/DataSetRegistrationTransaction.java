@@ -66,7 +66,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmut
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
@@ -466,7 +465,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
-    public IMetaprojectImmutable getMetaproject(String name)
+    public IMetaproject getMetaproject(String name)
     {
         if (getUserId() == null)
         {
@@ -477,7 +476,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
-    public IMetaprojectImmutable getMetaproject(String name, String ownerId)
+    public IMetaproject getMetaproject(String name, String ownerId)
     {
         if (getUserId() != null && false == getUserId().equals(ownerId))
         {
@@ -485,28 +484,6 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                     "Cannot get metaproject for different user then the current one.");
         }
         return getStateAsLiveState().getMetaproject(name, ownerId);
-    }
-
-    @Override
-    public IMetaproject getMetaprojectForUpdate(String name)
-    {
-        if (getUserId() == null)
-        {
-            throw new IllegalArgumentException(
-                    "Cannot get a metaproject when user is not available nor specified. ");
-        }
-        return getStateAsLiveState().getMetaprojectForUpdate(name, getUserId());
-    }
-
-    @Override
-    public IMetaproject getMetaprojectForUpdate(String name, String ownerId)
-    {
-        if (getUserId() != null && false == getUserId().equals(ownerId))
-        {
-            throw new IllegalArgumentException(
-                    "Cannot get metaproject for different user then the current one.");
-        }
-        return getStateAsLiveState().getMetaprojectForUpdate(name, ownerId);
     }
 
     @Override

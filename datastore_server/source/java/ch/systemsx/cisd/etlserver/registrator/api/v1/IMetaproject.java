@@ -27,9 +27,19 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectI
 public interface IMetaproject extends IMetaprojectImmutable
 {
 
+    /**
+     * set this metaproject description
+     */
     void setDescription(String description);
 
+    /**
+     * add assignments to this metaproject
+     */
     void addEntity(IMetaprojectContent entity);
 
+    /**
+     * remove assigned entity from this metaproject
+     */
     void removeEntity(IMetaprojectContent entity);
+
 }

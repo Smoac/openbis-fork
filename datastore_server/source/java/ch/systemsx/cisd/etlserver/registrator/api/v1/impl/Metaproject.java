@@ -81,12 +81,12 @@ public class Metaproject extends MetaprojectImmutable implements IMetaproject
         removedEntities.add(id);
     }
 
-    public Set<IObjectId> getAddedEntities()
+    Set<IObjectId> getAddedEntities()
     {
         return addedEntities;
     }
 
-    public Set<IObjectId> getRemovedEntities()
+    Set<IObjectId> getRemovedEntities()
     {
         return removedEntities;
     }
