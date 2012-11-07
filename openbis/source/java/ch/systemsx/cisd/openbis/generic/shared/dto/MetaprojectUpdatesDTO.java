@@ -16,14 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicMetaprojectUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * @author Jakub Straszewski
  */
-public class MetaprojectUpdatesDTO extends BasicMetaprojectUpdates
+public class MetaprojectUpdatesDTO extends BasicMetaprojectUpdates implements Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private TechId metaprojectId;
 
     public MetaprojectUpdatesDTO()
