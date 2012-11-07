@@ -146,7 +146,7 @@ public class MetaprojectAssignmentPE implements Serializable, IIdHolder
     /**
      * Checks the type of entity and calls the appropriate setter (e.g. {@code setMaterial} )
      */
-    public void setEntity(IHasMetaprojectsPE entity)
+    public void setEntity(IEntityWithMetaprojects entity)
     {
         if (entity instanceof MaterialPE)
         {

@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IHasMetaprojectsPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -289,7 +289,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
 
         for (T entityId : entityIds)
         {
-            IHasMetaprojectsPE entityPE = findById(entityId);
+            IEntityWithMetaprojects entityPE = findById(entityId);
             if (entityPE == null)
             {
                 throw new IllegalArgumentException("Entity for id: " + entityId + " doesn't exist.");
@@ -304,7 +304,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     {
         for (T entityId : entityIds)
         {
-            IHasMetaprojectsPE entityPE = findById(entityId);
+            IEntityWithMetaprojects entityPE = findById(entityId);
             if (entityPE != null)
             {
                 entityPE.removeMetaproject(metaproject);
@@ -314,7 +314,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
         dataChanged = true;
     }
 
-    private IHasMetaprojectsPE findById(IObjectId entityId)
+    private IEntityWithMetaprojects findById(IObjectId entityId)
     {
         if (entityId instanceof IMaterialId)
         {
