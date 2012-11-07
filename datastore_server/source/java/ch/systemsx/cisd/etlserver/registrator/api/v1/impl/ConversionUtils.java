@@ -396,7 +396,7 @@ public class ConversionUtils
     {
         NewMetaproject newMetaproject =
                 new NewMetaproject(metaproject.getName(), metaproject.getDescription(),
-                metaproject.getOwnerId());
+                        metaproject.getOwnerId());
         newMetaproject.setEntities(metaproject.getAddedEntities());
         return newMetaproject;
     }
@@ -406,7 +406,7 @@ public class ConversionUtils
         MetaprojectUpdatesDTO update = new MetaprojectUpdatesDTO();
         update.setMetaprojectId(new TechId(metaproject.getId()));
         update.setAddedEntities(metaproject.getAddedEntities());
-        update.setRemovedEntities(metaproject.getAddedEntities());
+        update.setRemovedEntities(metaproject.getRemovedEntities());
         return update;
     }
 }

@@ -63,11 +63,17 @@ public class BasicMetaprojectUpdates
     public void setAddedEntities(Collection<? extends IObjectId> addedEntities)
     {
         addedSamples = Collections.unmodifiableList(filterSamples(addedEntities));
+        addedDataSets = Collections.unmodifiableList(filterDataSets(addedEntities));
+        addedExperiments = Collections.unmodifiableList(filterExperiments(addedEntities));
+        addedMaterials = Collections.unmodifiableList(filterMaterials(addedEntities));
     }
 
     public void setRemovedEntities(Collection<? extends IObjectId> removedEntities)
     {
         removedSamples = Collections.unmodifiableList(filterSamples(removedEntities));
+        removedDataSets = Collections.unmodifiableList(filterDataSets(removedEntities));
+        removedExperiments = Collections.unmodifiableList(filterExperiments(removedEntities));
+        removedMaterials = Collections.unmodifiableList(filterMaterials(removedEntities));
     }
 
     public List<ISampleId> getAddedSamples()
