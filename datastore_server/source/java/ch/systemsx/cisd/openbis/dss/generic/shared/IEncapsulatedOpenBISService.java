@@ -185,6 +185,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     /**
      * For given (@code name} and {@code ownerId} returns the corresponding {@link Metaproject}
      */
+    @ManagedAuthentication
     public Metaproject tryGetMetaproject(String name, String ownerId);
 
     /**
