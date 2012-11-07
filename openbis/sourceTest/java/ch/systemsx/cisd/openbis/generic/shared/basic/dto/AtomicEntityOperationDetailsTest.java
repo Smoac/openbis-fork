@@ -117,8 +117,8 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
                         + ",materialRegistrations={material-type-1=[material-one, material-two], material-type-2=[material-three]}"
                         + ",dataSetRegistrations=[NewExternalData[code=DATA-SET-CODE,type=<null>,fileFormat=<null>,properties=[]]]"
                         + ",dataSetUpdates=[1]"
-                        + ",metaprojectRegistrations=[NewMetaproject[name=TEST-AEOD-TAG,description=short description,ownerId=test]]]"
-                        + ",metaprojectUpdates=[]", details.toString());
+                        + ",metaprojectRegistrations=[NewMetaproject[name=TEST-AEOD-TAG,description=short description,ownerId=test]]"
+                        + ",metaprojectUpdates=[]]", details.toString());
 
     }
 }
