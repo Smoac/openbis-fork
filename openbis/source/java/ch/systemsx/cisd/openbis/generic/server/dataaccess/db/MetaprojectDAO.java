@@ -100,7 +100,10 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
         validatePE(metaproject);
         MetaprojectName.validate(metaproject.getName());
 
-        metaproject.setOwner(owner);
+        if (metaproject.getOwner() == null)
+        {
+            metaproject.setOwner(owner);
+        }
         metaproject.setPrivate(true);
         final HibernateTemplate template = getHibernateTemplate();
         template.saveOrUpdate(metaproject);
