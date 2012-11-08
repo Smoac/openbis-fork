@@ -56,8 +56,27 @@ def _createSampleLink(chemicals_list, concentration_list):
 """
 Example input:
 
-FRC1, FRC2, FRC3, FRC4
+FRC1:2nM, FRC2, FRC3:3 nM
 """
+
+def showRawValueInForms():
+    return False
+ 
+def batchColumnNames():
+    return [CODE_LABEL, CONC_LABEL]
+ 
+def updateFromRegistrationForm(bindings):
+    elements = []
+    for item in bindings:
+        chemicals_list = item.get('CODE')
+        concentration_list = item.get('CONCENTRATION')
+    if chemicals_list:
+          sampleLink = _createSampleLink(chemicals_list, concentration_list)
+          elements.append(sampleLink)
+          
+        
+            
+    property.value = propertyConverter().convertToString(elements)
 
 def configureUI():
     """Create table builder and add columns."""

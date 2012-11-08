@@ -41,7 +41,7 @@ def _createSampleLink(protocols_list):
     permId =entityInformationProvider().getSamplePermId(SPACE, protocols_list)
     if not permId:
         permId = protocols_list
-    name  = entityInformationProvider().getSamplePropertyValue('NAME')
+    name  = entityInformationProvider().getSamplePropertyValue(permId, 'NAME')
     print "the name is", name
     sampleLink = elementFactory().createSampleLink(permId)
     
@@ -58,14 +58,21 @@ FRC1, FRC2, FRC3, FRC4
 """
 
 
-def updateBufferFromBatchInput(protocols_list):
+def showRawValueInForms():
+    return False
+ 
+def batchColumnNames():
+    return [CODE_LABEL]
+ 
+def updateFromRegistrationForm(bindings):
     elements = []
-    input = protocols_list
-    if input is not None:
-       for i in protocols_list: 
-            sampleLink = _createSampleLink(i.strip())
-            elements.append(sampleLink)
-    return propertyConverter.convertToString(elements)
+    for item in bindings:
+        protocols_list = item.get('CODE')
+    if protocols_list:
+          sampleLink = _createSampleLink(protocols_list)
+          elements.append(sampleLink)
+            
+    property.value = propertyConverter().convertToString(elements)
 
 
 
@@ -182,4 +189,12 @@ def updateFromUI(action):
         raise ValidationException('action not supported')
       
     """Update value of the managed property to XML string created from modified list of elements."""
-    property.value = converter.convertToString(elements)    
+    property.value = converter.convertToString(elements)  
+
+def updateFromBatchInput(bindings):
+    elements = []
+    input = bindings.get('')
+    if input is not None:
+        commentEntry = _createCommentEntry(input)
+        elements.append(commentEntry)
+        property.value = propertyConverter().convertToString(elements)  

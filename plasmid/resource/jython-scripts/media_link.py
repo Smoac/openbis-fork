@@ -55,21 +55,26 @@ def _createSampleLink(medias_list, media_concentration_list):
 """
 Example input:
 
-FRC1, FRC2, FRC3, FRC4
+FRM1:2nM, FRM2, FRM3:3 nM
 """
 
 
-def updateBufferFromBatchInput(medias_list, media_concentration_list):
+def showRawValueInForms():
+    return False
+ 
+def batchColumnNames():
+    return [CODE_LABEL, CONC_LABEL]
+ 
+def updateFromRegistrationForm(bindings):
     elements = []
-    input = medias_list
-    input2 = media_concentration_list
-    if input is not None:
-       for i, j in zip(medias_list,media_concentration_list): #zip is used to iterate over two lists in parallel
-            sampleLink = _createSampleLink(i.strip(), j.strip())
-            elements.append(sampleLink)
-    return propertyConverter.convertToString(elements)
-
-
+    for item in bindings:
+        medias_list = item.get('CODE')
+        media_concentration_list = item.get('CONCENTRATION')
+    if medias_list:
+          sampleLink = _createSampleLink(medias_list, media_concentration_list)
+          elements.append(sampleLink)
+            
+    property.value = propertyConverter().convertToString(elements)
 
 
 def configureUI():

@@ -55,27 +55,26 @@ def _createSampleLink(buffers_list, buffer_concentration_list):
 """
 Example input:
 
-FRC1, FRC2, FRC3, FRC4
+FRSOB1: 3nM, FRSOB2, FRSOB3: 4nM
 """
-def inputWidgets():
-    factory = inputWidgetFactory()
-    link = factory.createTextInputField('link').setMandatory(True)
-    code = factory.createTextInputField('code').setMandatory(True)
-    name = factory.createTextInputField('name').setMandatory(True)
-    concentration = factory.createTextInputField('concentration').setMandatory(True)
-    return [link, code, name, concentration]
 
-def updateBufferFromBatchInput(buffers_list, buffer_concentration_list):
+
+def showRawValueInForms():
+    return False
+ 
+def batchColumnNames():
+    return [CODE_LABEL, CONC_LABEL]
+ 
+def updateFromRegistrationForm(bindings):
     elements = []
-    input = buffers_list
-    input2 = buffer_concentration_list
-    if input is not None:
-       for i, j in zip(buffers_list,buffer_concentration_list): #zip is used to iterate over two lists in parallel
-            sampleLink = _createSampleLink(i.strip(), j.strip())
-            elements.append(sampleLink)
-    return propertyConverter.convertToString(elements)
-
-
+    for item in bindings:
+        buffers_list = item.get('CODE')
+        buffers_concentration_list = item.get('CONCENTRATION')
+     if buffers_list:
+          sampleLink = _createSampleLink(buffers_list, buffers_concentration_list)
+          elements.append(sampleLink)
+            
+    property.value = propertyConverter().convertToString(elements)
 
 
 def configureUI():

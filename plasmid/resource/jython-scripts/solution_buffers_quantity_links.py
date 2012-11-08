@@ -55,19 +55,27 @@ def _createSampleLink(buffers_list, buffer_quantity_list):
 """
 Example input:
 
-FRC1, FRC2, FRC3, FRC4
+FRSOB1: 1nM, FRSOB2, FRSOB3: 3nM
 """
 
 
-def updateBufferFromBatchInput(buffers_list, buffer_quantity_list):
+def showRawValueInForms():
+    return False
+ 
+def batchColumnNames():
+    return [CODE_LABEL, QUANTITY_LABEL]
+ 
+def updateFromRegistrationForm(bindings):
     elements = []
-    input = buffers_list
-    input2 = buffer_quantity_list
-    if input is not None:
-       for i, j in zip(buffers_list,buffer_quantity_list): #zip is used to iterate over two lists in parallel
-            sampleLink = _createSampleLink(i.strip(), j.strip())
-            elements.append(sampleLink)
-    return propertyConverter.convertToString(elements)
+    for item in bindings:
+        buffers_list = item.get('CODE')
+        buffer_quantity_list = item.get('QUANTITY')
+    if buffers_list:
+          sampleLink = _createSampleLink(buffers_list, buffer_quantity_list)
+          elements.append(sampleLink)
+            
+    property.value = propertyConverter().convertToString(elements)
+
 
 
 

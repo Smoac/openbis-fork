@@ -146,6 +146,24 @@ def _createCommentEntry(comment_text_list):
     commentEntry.addAttribute(DATE_ATTRIBUTE,str(Date().getTime()))
     commentEntry.setData(comment_text_list)
     return commentEntry   
+
+def showRawValueInForms():
+    return False
+ 
+def batchColumnNames():
+    return [COMMENT_ENTRY_ELEMENT_LABEL]
+ 
+def updateFromRegistrationForm(bindings):
+    elements = []
+    for item in bindings:
+        comment_text_list = item.get('COMMENTENTRY')
+        sampleLink = _createCommentEntry(comment_text_list)
+        elements.append(sampleLink)
+            
+    property.value = propertyConverter().convertToString(elements)
+
+
+
         
 def updateFromBatchInput(bindings):
     elements = []
