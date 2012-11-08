@@ -104,7 +104,8 @@ public interface ISearchService
     public List<IMaterialImmutable> listMaterials(MaterialIdentifierCollection identifierCollection);
 
     /**
-     * @return a controlled vocabulary with the given code.
+     * @return a controlled vocabulary with the given code. Returns null if the vocabulary with
+     *         given code is not found.
      */
     public IVocabularyImmutable searchForVocabulary(String code);
 }
