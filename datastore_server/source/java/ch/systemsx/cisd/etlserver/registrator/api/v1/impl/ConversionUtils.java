@@ -405,6 +405,7 @@ public class ConversionUtils
     {
         MetaprojectUpdatesDTO update = new MetaprojectUpdatesDTO();
         update.setMetaprojectId(new TechId(metaproject.getId()));
+        update.setDescription(metaproject.getDescription());
         update.setAddedEntities(metaproject.getAddedEntities());
         update.setRemovedEntities(metaproject.getRemovedEntities());
         return update;
