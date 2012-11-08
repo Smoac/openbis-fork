@@ -237,6 +237,12 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     }
 
     @Override
+    public void setDescription(String description)
+    {
+        getMetaproject().setDescription(description);
+    }
+
+    @Override
     public void addExperiments(List<? extends IExperimentId> experimentIds)
     {
         addEntities(experimentIds);

@@ -36,6 +36,8 @@ public interface IMetaprojectBO extends IEntityBusinessObject
 
     void define(NewMetaproject newMetaproject);
 
+    void setDescription(String description);
+
     void loadByMetaprojectId(IMetaprojectId metaprojectId);
 
     void addExperiments(List<? extends IExperimentId> experiments);

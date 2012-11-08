@@ -1694,6 +1694,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         IMetaprojectBO metaprojectBO = businessObjectFactory.createMetaprojectBO(session);
         metaprojectBO.loadDataByTechId(update.getMetaprojectId());
+        metaprojectBO.setDescription(update.getDescription());
 
         metaprojectBO.addSamples(update.getAddedSamples());
         metaprojectBO.removeSamples(update.getRemovedSamples());
