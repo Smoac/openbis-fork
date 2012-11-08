@@ -114,6 +114,11 @@ def parseOptions(logger):
                   default=False,
                   action='store_true',
                   help='Verbose debug logging. Default: False')
+  parser.add_option('-v', '--verbose',
+                  dest='verbose',
+                  default=False,
+                  action='store_true',
+                  help='Write Sample Sheet to stout. Default: False')
 
   (options, args) = parser.parse_args()
 
@@ -143,7 +148,6 @@ def readConfig(logger):
 
   configMap = {}
 
-  logger.info('Reading config file')
   configParameters = parseConfigurationFile(logger)
 
   configMap['facilityName'] = configParameters.get(GENERAL, 'facilityName')
@@ -366,10 +370,12 @@ def writeSampleSheet(flowCellName, sampleSheetDict, sortedSampleSheetList, myopt
   try:
     with open(myFile, 'w') as sampleSheetFile:
       for listElement in sortedSampleSheetList:
+        if myoptions.verbose:
+          print sampleSheetDict[listElement][0]
         sampleSheetFile.write(sampleSheetDict[listElement][0] + newline)
 
       logger.info('Writing file ' + myFile)
-      print ('Written ' + myFile)
+
   except IOError:
     logger.error('File error: ' + str(err))
     print ('File error: ' + str(err))
@@ -398,7 +404,6 @@ def main():
   createHiseqSampleSheet(laneParentDict, flowCellDict, configMap, service, logger, myoptions)
 
   logout(service, logger)
-  print('DONE')
 
 if __name__ == "__main__":
     main()
