@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  * 
  * @author Jakub Straszewski
  */
+@Test(groups = "slow")
 public class SampleBatchImportBenchmarkSystemTest extends SystemTestCase
 {
     // for jython script go to
