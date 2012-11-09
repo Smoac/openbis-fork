@@ -15,3 +15,4 @@
 25	BACTERIUM	bacterium	bacterium	7	2009-08-18 17:52:05.435021+02	2	\N	f	f	1	6	\N	\N
 26	ANY_MATERIAL	any_material	any_material	7	2009-08-18 17:52:47.771005+02	2	\N	f	f	1	\N	\N	\N
 27	DYNAMIC_DESCRIPTION	A Dynamic	Dynamic_Description	1	2008-11-05 09:18:00.622+01	1	\N	f	f	1	\N	\N	\N
+28	TEST_VOCABULARY	The test controlled vocabulary property	Organism	6	2008-11-05 09:18:31.545+01	2	6	f	f	1	\N	\N	\N
