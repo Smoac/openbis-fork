@@ -178,7 +178,15 @@ abstract class AbstractImageDatasetUploader
                         datasetId, spotId, image.tryGetTimePoint(), image.tryGetDepth(),
                         image.tryGetSeriesNumber(), false);
 
-        List<ImgChannelStackDTO> channelStacks = dao.listChannelStacks(datasetId, spotId);
+        List<ImgChannelStackDTO> channelStacks = null;
+        if (spotId != null)
+        {
+            channelStacks = dao.listChannelStacks(datasetId, spotId);
+        } else
+        {
+            channelStacks = dao.listChannelStacks(datasetId);
+        }
+
         for (ImgChannelStackDTO channelStack : channelStacks)
         {
             if (newChannelStack.equals(channelStack))

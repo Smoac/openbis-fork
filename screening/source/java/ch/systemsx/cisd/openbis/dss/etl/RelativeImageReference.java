@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
@@ -41,6 +42,8 @@ public class RelativeImageReference extends AbstractImageReference
 
     public final void setRelativeImageFolder(String folderPathPrefix)
     {
-        this.imageRelativePath = folderPathPrefix + imageRelativePath;
+        this.imageRelativePath =
+                StringUtils.isBlank(imageRelativePath) ? folderPathPrefix.substring(0,
+                        folderPathPrefix.length() - 1) : folderPathPrefix + imageRelativePath;
     }
 }

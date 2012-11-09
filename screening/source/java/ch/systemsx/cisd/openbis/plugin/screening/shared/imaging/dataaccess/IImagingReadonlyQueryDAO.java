@@ -385,6 +385,12 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
             + "where cs.ds_id = ?{1} and s.id = ?{2}")
     public List<ImgChannelStackDTO> listChannelStacks(long datasetId, long spotId);
 
+    @Select("select cs.* from CHANNEL_STACKS cs               "
+            + "join SPOTS s on s.id = cs.spot_id              "
+            + "join CONTAINERS c on c.id = s.cont_id          "
+            + "where cs.ds_id = ?{1} and s.id IS NULL")
+    public List<ImgChannelStackDTO> listChannelStacks(long datasetId);
+
     @Select("select * from SPOTS where cont_id = ?{1}")
     public List<ImgSpotDTO> listSpots(long contId);
 
