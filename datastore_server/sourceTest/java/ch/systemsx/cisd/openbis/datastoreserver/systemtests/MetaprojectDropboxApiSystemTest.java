@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 public class MetaprojectDropboxApiSystemTest extends SystemTestCase
 {
     // for jython script locate
-    // metaproject-api-data-set-handler.py
+    // metaproject-api.py
 
     @Override
     protected File getIncomingDirectory()
