@@ -17,23 +17,16 @@
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
-import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.FacadeFactory;
-import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
-import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
-import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
@@ -41,34 +34,17 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription
  * @author Chandrasekhar Ramakrishnan
  */
 @Test(groups = "slow")
-public class QueryFacadeTest extends SystemTestCase
+public class QueryFacadeTest extends AbstractQueryFacadeTest
 {
-    private static final String OPENBIS_URL = "http://localhost:8888";
-
-    private IQueryApiFacade queryFacade;
-
-    private Map<String, IQueryApiFacade> facades;
-
-    @BeforeMethod
-    public void beforeMethod()
-    {
-        queryFacade = createServiceFacade("test");
-
-        facades = new HashMap<String, IQueryApiFacade>();
-        facades.put("test", queryFacade);
-        facades.put("observer", createServiceFacade("observer"));
-        facades.put("test_space", createServiceFacade("test_space"));
-    }
 
     @Test
     public void testAggregationServiceReport() throws Exception
     {
-        AggregationServiceDescription service =
-                getAggregationServiceDescription("example-aggregation-service");
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("name", "world");
 
-        QueryTableModel table = queryFacade.createReportFromAggregationService(service, parameters);
+        QueryTableModel table =
+                createReportFromAggregationService("example-aggregation-service", parameters);
 
         assertEquals("[String, Integer]", getHeaders(table).toString());
         assertEquals("[Hello, 20]", Arrays.asList(table.getRows().get(0)).toString());
@@ -79,12 +55,12 @@ public class QueryFacadeTest extends SystemTestCase
     @Test
     public void testJythonAggregationServiceReport() throws Exception
     {
-        AggregationServiceDescription service =
-                getAggregationServiceDescription("example-jython-aggregation-service-report");
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("name", "world");
 
-        QueryTableModel table = queryFacade.createReportFromAggregationService(service, parameters);
+        QueryTableModel table =
+                createReportFromAggregationService("example-jython-aggregation-service-report",
+                        parameters);
 
         assertEquals("[Key, Value]", getHeaders(table).toString());
         assertEquals("[name, world]", Arrays.asList(table.getRows().get(0)).toString());
@@ -116,12 +92,12 @@ public class QueryFacadeTest extends SystemTestCase
     @Test
     public void testDbModifyingAggregationServiceReport() throws Exception
     {
-        AggregationServiceDescription service =
-                getAggregationServiceDescription("example-db-modifying-aggregation-service");
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("name", "world");
 
-        QueryTableModel table = queryFacade.createReportFromAggregationService(service, parameters);
+        QueryTableModel table =
+                createReportFromAggregationService("example-db-modifying-aggregation-service",
+                        parameters);
 
         assertEquals("[String, Integer]", getHeaders(table).toString());
         assertEquals("[Hello, 20]", Arrays.asList(table.getRows().get(0)).toString());
@@ -148,12 +124,12 @@ public class QueryFacadeTest extends SystemTestCase
     @Test
     public void testJythonDbModifyingAggregationServiceReport() throws Exception
     {
-        AggregationServiceDescription service =
-                getAggregationServiceDescription("example-jython-db-modifying-aggregation-service");
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("code", "JYTHON-TEST");
 
-        QueryTableModel table = queryFacade.createReportFromAggregationService(service, parameters);
+        QueryTableModel table =
+                createReportFromAggregationService(
+                        "example-jython-db-modifying-aggregation-service", parameters);
 
         assertEquals("[CODE, IDENTIFIER]", getHeaders(table).toString());
         assertEquals("[JYTHON-TEST, /CISD/JYTHON-TEST]", Arrays.asList(table.getRows().get(0))
@@ -184,15 +160,14 @@ public class QueryFacadeTest extends SystemTestCase
     @Test(expectedExceptions = Exception.class)
     public void testJythonAggregationServiceWithContentProviderAuthentication() throws Exception
     {
-        AggregationServiceDescription service =
-                getAggregationServiceDescription("content-provider-aggregation-service");
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("dataset-code", "20081105092159111-1");
 
         File content = new File(new File(new File(store, "42"), "a"), "1");
         content.mkdirs();
 
-        facades.get("observer").createReportFromAggregationService(service, parameters);
+        createReportFromAggregationService("observer", "content-provider-aggregation-service",
+                parameters);
     }
 
     /**
@@ -202,8 +177,6 @@ public class QueryFacadeTest extends SystemTestCase
     @Test
     public void testJythonAggregationServiceWithoutContentProviderAuthentication() throws Exception
     {
-        AggregationServiceDescription service =
-                getAggregationServiceDescription("content-provider-aggregation-service-no-authorization");
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("dataset-code", "20081105092159111-1");
 
@@ -211,7 +184,8 @@ public class QueryFacadeTest extends SystemTestCase
         content.mkdirs();
 
         QueryTableModel table =
-                facades.get("observer").createReportFromAggregationService(service, parameters);
+                createReportFromAggregationService("observer",
+                        "content-provider-aggregation-service-no-authorization", parameters);
 
         assertEquals("[name]", getHeaders(table).toString());
         assertEquals("[1]", Arrays.asList(table.getRows().get(0)).toString());
@@ -225,24 +199,19 @@ public class QueryFacadeTest extends SystemTestCase
     public void testJythonAggregationServiceWithContentProviderAuthenticationAndAuthorizedUser()
             throws Exception
     {
-        AggregationServiceDescription service =
-                getAggregationServiceDescription("content-provider-aggregation-service");
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("dataset-code", "20081105092159111-1");
 
         File content = new File(new File(new File(store, "42"), "a"), "1");
         content.mkdirs();
 
-        QueryTableModel table = queryFacade.createReportFromAggregationService(service, parameters);
+        QueryTableModel table =
+                createReportFromAggregationService("content-provider-aggregation-service",
+                        parameters);
 
         assertEquals("[name]", getHeaders(table).toString());
         assertEquals("[1]", Arrays.asList(table.getRows().get(0)).toString());
         assertEquals(1, table.getRows().size());
-    }
-
-    private IQueryApiFacade createServiceFacade(String userName)
-    {
-        return FacadeFactory.create(OPENBIS_URL, userName, "a");
     }
 
     private ReportDescription getTableReportDescription(String key)
@@ -256,31 +225,6 @@ public class QueryFacadeTest extends SystemTestCase
             }
         }
         throw new AssertionError("No reporting for key '" + key + "'.");
-    }
-
-    private AggregationServiceDescription getAggregationServiceDescription(String key)
-    {
-        List<AggregationServiceDescription> services = queryFacade.listAggregationServices();
-        for (AggregationServiceDescription aggregationServiceDescription : services)
-        {
-            if (aggregationServiceDescription.getServiceKey().equals(key))
-            {
-                return aggregationServiceDescription;
-            }
-        }
-        throw new AssertionError("No aggregation service for key '" + key + "'.");
-    }
-
-    private List<String> getHeaders(QueryTableModel tableModel)
-    {
-        List<QueryTableColumn> columns = tableModel.getColumns();
-        List<String> headers = new ArrayList<String>();
-        for (QueryTableColumn column : columns)
-        {
-            String header = column.getTitle();
-            headers.add(header);
-        }
-        return headers;
     }
 
     private File getLatestEmail()
@@ -303,15 +247,12 @@ public class QueryFacadeTest extends SystemTestCase
     @Test
     public void testDataSetSearchServiceInAggregationService() throws Exception
     {
-        int allTest = getSearchServiceAggregationServiceResult("datasetsAll", facades.get("test"));
-        int allObserver =
-                getSearchServiceAggregationServiceResult("datasetsAll", facades.get("observer"));
+        int allTest = getSearchServiceAggregationServiceResult("datasetsAll", "test");
+        int allObserver = getSearchServiceAggregationServiceResult("datasetsAll", "observer");
 
-        int filteredTest =
-                getSearchServiceAggregationServiceResult("datasetsFiltered", facades.get("test"));
+        int filteredTest = getSearchServiceAggregationServiceResult("datasetsFiltered", "test");
         int filteredObserver =
-                getSearchServiceAggregationServiceResult("datasetsFiltered",
-                        facades.get("test_space"));
+                getSearchServiceAggregationServiceResult("datasetsFiltered", "test_space");
 
         assertEquals(allTest, allObserver);
         assertEquals(allTest, filteredTest);
@@ -328,17 +269,14 @@ public class QueryFacadeTest extends SystemTestCase
     @Test
     public void testSampleSearchServiceInAggregationService() throws Exception
     {
-        int allTest = getSearchServiceAggregationServiceResult("samplesAll", facades.get("test"));
-        int allObserver =
-                getSearchServiceAggregationServiceResult("samplesAll", facades.get("observer"));
+        int allTest = getSearchServiceAggregationServiceResult("samplesAll", "test");
+        int allObserver = getSearchServiceAggregationServiceResult("samplesAll", "observer");
 
-        int filteredTest =
-                getSearchServiceAggregationServiceResult("samplesFiltered", facades.get("test"));
+        int filteredTest = getSearchServiceAggregationServiceResult("samplesFiltered", "test");
         int filteredObserver =
-                getSearchServiceAggregationServiceResult("samplesFiltered", facades.get("observer"));
+                getSearchServiceAggregationServiceResult("samplesFiltered", "observer");
         int filteredObserver2 =
-                getSearchServiceAggregationServiceResult("samplesFiltered",
-                        facades.get("test_space"));
+                getSearchServiceAggregationServiceResult("samplesFiltered", "test_space");
 
         assertEquals(allTest, allObserver);
         assertEquals(allTest, filteredTest);
@@ -361,38 +299,37 @@ public class QueryFacadeTest extends SystemTestCase
     public void testExperimentSearchServiceInAggregationService() throws Exception
     {
         int allNemoTest =
-                getSearchServiceAggregationServiceResult("experimentsAll", facades.get("test"),
-                        "projectId", "/CISD/NEMO");
+                getSearchServiceAggregationServiceResult("experimentsAll", "test", "projectId",
+                        "/CISD/NEMO");
         int allNemoObserver =
-                getSearchServiceAggregationServiceResult("experimentsAll", facades.get("observer"),
-                        "projectId", "/CISD/NEMO");
+                getSearchServiceAggregationServiceResult("experimentsAll", "observer", "projectId",
+                        "/CISD/NEMO");
 
         assertTrue(allNemoTest > 0);
         assertEquals(allNemoTest, allNemoObserver);
 
         int filteredNemoTest =
-                getSearchServiceAggregationServiceResult("experimentsFiltered",
-                        facades.get("test"), "projectId", "/CISD/NEMO");
+                getSearchServiceAggregationServiceResult("experimentsFiltered", "test",
+                        "projectId", "/CISD/NEMO");
         int filteredNemoObserver =
-                getSearchServiceAggregationServiceResult("experimentsFiltered",
-                        facades.get("observer"), "projectId", "/CISD/NEMO");
+                getSearchServiceAggregationServiceResult("experimentsFiltered", "observer",
+                        "projectId", "/CISD/NEMO");
         int filteredNemoTestSpace =
-                getSearchServiceAggregationServiceResult("experimentsFiltered",
-                        facades.get("test_space"), "projectId", "/CISD/NEMO");
+                getSearchServiceAggregationServiceResult("experimentsFiltered", "test_space",
+                        "projectId", "/CISD/NEMO");
 
         assertEquals(allNemoTest, filteredNemoTest);
         assertEquals(0, filteredNemoObserver);
         assertEquals(0, filteredNemoTestSpace);
 
         int filteredTestSpace =
-                getSearchServiceAggregationServiceResult("experimentsFiltered",
-                        facades.get("test_space"), "projectId", "/TEST-SPACE/TEST-PROJECT");
+                getSearchServiceAggregationServiceResult("experimentsFiltered", "test_space",
+                        "projectId", "/TEST-SPACE/TEST-PROJECT");
 
         assertTrue(filteredTestSpace > 0);
     }
 
-    private int getSearchServiceAggregationServiceResult(String mode, IQueryApiFacade facade,
-            String... params)
+    private int getSearchServiceAggregationServiceResult(String mode, String user, String... params)
     {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("mode", mode);
@@ -402,10 +339,9 @@ public class QueryFacadeTest extends SystemTestCase
             parameters.put(params[2 * i], params[2 * i + 1]);
         }
 
-        AggregationServiceDescription service =
-                getAggregationServiceDescription("search-service-aggregation-service");
-
-        QueryTableModel table = facade.createReportFromAggregationService(service, parameters);
+        QueryTableModel table =
+                createReportFromAggregationService(user, "search-service-aggregation-service",
+                        parameters);
 
         assertEquals("[result]", getHeaders(table).toString());
         assertEquals(1, table.getRows().size());
