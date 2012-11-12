@@ -38,14 +38,33 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
  */
 public class EntityCodeGenerator
 {
+    private final IDAOFactory daoFactory;
 
-    private IDAOFactory daoFactory;
+    private final CountQuery countQuery;
 
-    private Query query;
+    private interface CountQuery extends BaseQuery
+    {
+        public final static String PREFIX = "SELECT count(*) FROM ";
+
+        public final static String SUFFIX = " WHERE code = ?{1}";
+
+        @Select(sql = PREFIX + TableNames.EXPERIMENTS_ALL_TABLE + SUFFIX)
+        public int getExperimentCount(String code);
+
+        @Select(sql = PREFIX + TableNames.SAMPLES_ALL_TABLE + SUFFIX)
+        public int getSampleCount(String code);
+
+        @Select(sql = PREFIX + TableNames.DATA_ALL_TABLE + SUFFIX)
+        public int getDataSetCount(String code);
+
+        @Select(sql = PREFIX + TableNames.MATERIALS_TABLE + SUFFIX)
+        public int getMaterialsCount(String code);
+    }
 
     public EntityCodeGenerator(IDAOFactory daoFactory)
     {
         this.daoFactory = daoFactory;
+        this.countQuery = QueryTool.getManagedQuery(CountQuery.class);
     }
 
     public String generateCode(String codePrefix, EntityKind entityKind)
@@ -64,10 +83,7 @@ public class EntityCodeGenerator
      */
     public List<String> generateCodes(String codePrefix, EntityKind entityKind, int numberOfCodes)
     {
-        String[] codes = new String[numberOfCodes];
-
-        query = QueryTool.getManagedQuery(Query.class);
-
+        final String[] codes = new String[numberOfCodes];
         for (int i = 0; i < numberOfCodes; i++)
         {
             long sequenceValue;
@@ -92,43 +108,22 @@ public class EntityCodeGenerator
 
         if (EntityKind.EXPERIMENT.equals(entityKind))
         {
-            count = query.getExperimentCount(code);
+            count = countQuery.getExperimentCount(code);
         } else if (EntityKind.SAMPLE.equals(entityKind))
         {
-            count = query.getSampleCount(code);
+            count = countQuery.getSampleCount(code);
         } else if (EntityKind.DATA_SET.equals(entityKind))
         {
-            count = query.getDataSetCount(code);
+            count = countQuery.getDataSetCount(code);
         } else if (EntityKind.MATERIAL.equals(entityKind))
         {
-            count = query.getMaterialsCount(code);
+            count = countQuery.getMaterialsCount(code);
         } else
         {
             throw new IllegalArgumentException("Unsupported entity kind: " + entityKind);
         }
 
         return count > 0;
-    }
-
-    private interface Query extends BaseQuery
-    {
-
-        public final static String PREFIX = "SELECT count(*) FROM ";
-
-        public final static String SUFFIX = " WHERE code = ?{1}";
-
-        @Select(sql = PREFIX + TableNames.EXPERIMENTS_ALL_TABLE + SUFFIX)
-        public int getExperimentCount(String code);
-
-        @Select(sql = PREFIX + TableNames.SAMPLES_ALL_TABLE + SUFFIX)
-        public int getSampleCount(String code);
-
-        @Select(sql = PREFIX + TableNames.DATA_ALL_TABLE + SUFFIX)
-        public int getDataSetCount(String code);
-
-        @Select(sql = PREFIX + TableNames.MATERIALS_TABLE + SUFFIX)
-        public int getMaterialsCount(String code);
-
     }
 
 }
