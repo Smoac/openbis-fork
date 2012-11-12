@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IMetaproject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabularyTerm;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack.IRollbackStackDelegate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -69,7 +71,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -744,7 +748,9 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                     openBisService.tryGetVocabulary(code);
             if (vocabulary != null)
             {
-                return new Vocabulary(vocabulary);
+                Vocabulary apiVocabulary = new Vocabulary(vocabulary);
+                vocabulariesToBeUpdated.add(apiVocabulary);
+                return apiVocabulary;
             }
             return null;
         }
@@ -1003,13 +1009,15 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             List<DataSetBatchUpdatesDTO> dataSetUpdates = convertDataSetsToBeUpdated();
             List<NewMetaproject> metaprojectRegistrations = convertMetaprojectsToBeRegistered();
             List<MetaprojectUpdatesDTO> metaprojectUpdates = convertMetaprojectsToBeUpdated();
+            List<VocabularyUpdatesDTO> vocabularyUpdates = covertVocabulariesToBeUpdated();
 
             AtomicEntityOperationDetails<T> registrationDetails =
                     new AtomicEntityOperationDetails<T>(registrationId, getUserId(),
                             spaceRegistrations, projectRegistrations, experimentUpdates,
                             experimentRegistrations, sampleUpdates, sampleRegistrations,
                             materialRegistrations, materialUpdates, dataSetRegistrations,
-                            dataSetUpdates, metaprojectRegistrations, metaprojectUpdates);
+                            dataSetUpdates, metaprojectRegistrations, metaprojectUpdates,
+                            vocabularyUpdates);
             return registrationDetails;
         }
 
@@ -1128,6 +1136,32 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             for (Metaproject apiMetaproject : metaprojectsToBeUpdated)
             {
                 result.add(ConversionUtils.convertToMetaprojectUpdatesDTO(apiMetaproject));
+            }
+            return result;
+        }
+
+        private List<VocabularyUpdatesDTO> covertVocabulariesToBeUpdated()
+        {
+            List<VocabularyUpdatesDTO> result = new ArrayList<VocabularyUpdatesDTO>();
+            for (Vocabulary v : vocabulariesToBeUpdated)
+            {
+                List<NewVocabularyTerm> newTerms = new LinkedList<NewVocabularyTerm>();
+
+                for (IVocabularyTerm t : v.getNewTerms())
+                {
+                    NewVocabularyTerm newTerm =
+                            new NewVocabularyTerm(t.getCode(), t.getDescription(), t.getLabel(),
+                                    t.getOrdinal());
+                    newTerms.add(newTerm);
+                }
+
+                VocabularyUpdatesDTO updates =
+                        new VocabularyUpdatesDTO(v.getVocabulary().getId(), v.getCode(),
+                                v.getDescription(), v.isManagedInternally(),
+                                v.isInternalNamespace(), v.isChosenFromList(), v.getUrlTemplate(),
+                                newTerms);
+
+                result.add(updates);
             }
             return result;
         }

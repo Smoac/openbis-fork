@@ -54,14 +54,12 @@ public class Vocabulary extends VocabularyImmutable implements IVocabulary
     public void setInternalNamespace(boolean isInternalNamespace)
     {
         getVocabulary().setInternalNamespace(isInternalNamespace);
-
     }
 
     @Override
     public void setChosenFromList(boolean isChosenFromList)
     {
         getVocabulary().setChosenFromList(isChosenFromList);
-
     }
 
     @Override
@@ -74,6 +72,11 @@ public class Vocabulary extends VocabularyImmutable implements IVocabulary
     public void addTerm(IVocabularyTerm term)
     {
         newTerms.add(term);
+    }
+
+    List<IVocabularyTerm> getNewTerms()
+    {
+        return newTerms;
     }
 
 }

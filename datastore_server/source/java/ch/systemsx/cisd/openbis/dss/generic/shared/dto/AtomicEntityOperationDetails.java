@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 
 /**
  * An object that captures the state for performing the registration of one or many openBIS entities
@@ -75,6 +76,8 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
 
     private final List<MetaprojectUpdatesDTO> metaprojectUpdates;
 
+    private final List<VocabularyUpdatesDTO> vocabularyUpdates;
+
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
             List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
             List<ExperimentUpdatesDTO> experimentUpdates,
@@ -85,7 +88,8 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
             List<DataSetRegistrationInformation<T>> dataSetRegistrations,
             List<DataSetBatchUpdatesDTO> dataSetUpdates,
             List<NewMetaproject> metaprojectRegistrations,
-            List<MetaprojectUpdatesDTO> metaprojectUpdates)
+            List<MetaprojectUpdatesDTO> metaprojectUpdates,
+            List<VocabularyUpdatesDTO> vocabularyUpdates)
     {
         this.registrationId = registrationId;
         this.userIdOrNull = userIdOrNull;
@@ -102,6 +106,7 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
         this.materialUpdates = new ArrayList<MaterialUpdateDTO>(materialUpdates);
         this.metaprojectRegistrations = new ArrayList<NewMetaproject>(metaprojectRegistrations);
         this.metaprojectUpdates = new ArrayList<MetaprojectUpdatesDTO>(metaprojectUpdates);
+        this.vocabularyUpdates = new ArrayList<VocabularyUpdatesDTO>(vocabularyUpdates);
     }
 
     public TechId getRegistrationId()
@@ -172,6 +177,11 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
     public List<MetaprojectUpdatesDTO> getMetaprojectUpdates()
     {
         return metaprojectUpdates;
+    }
+
+    public List<VocabularyUpdatesDTO> getVocabularyUpdates()
+    {
+        return vocabularyUpdates;
     }
 
 }

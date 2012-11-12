@@ -33,7 +33,7 @@ public class VocabularyTerm extends VocabularyTermImmutable implements IVocabula
     @Override
     public void setCode(String code)
     {
-        getVocabularyTerm().setCode(getCode());
+        getVocabularyTerm().setCode(code);
     }
 
     @Override
