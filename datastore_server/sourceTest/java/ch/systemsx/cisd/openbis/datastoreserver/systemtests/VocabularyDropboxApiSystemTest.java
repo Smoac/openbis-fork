@@ -61,27 +61,29 @@ public class VocabularyDropboxApiSystemTest extends SystemTestCase
 
         assertEquals("RAT", property.getVocabularyTerm().getCode());
 
+        Vocabulary vocabulary = openBISService.tryGetVocabulary("TEST_VOCABULARY");
+
+        assertNotNull(vocabulary);
+        assertEquals("modified description", vocabulary.getDescription());
+        assertEquals(true, vocabulary.isManagedInternally());
+        assertEquals(false, vocabulary.isChosenFromList());
+        assertEquals("localuri", vocabulary.getURLTemplate());
+
         assertSampleForVocabularyTermExists(openBISService, "TEST_TERM_A");
         assertSampleForVocabularyTermExists(openBISService, "TEST_TERM_B");
+
         VocabularyTerm term = assertSampleForVocabularyTermExists(openBISService, "NEW_TERM");
 
         assertEquals(new Long(3), term.getOrdinal());
         assertEquals("new description", term.getDescription());
         assertEquals("new label", term.getLabel());
 
-        Vocabulary vocabulary = openBISService.tryGetVocabulary("TEST_VOCABULARY");
-        assertEquals("modified description", vocabulary.getDescription());
-        assertEquals(true, vocabulary.isManagedInternally());
-        assertEquals(true, vocabulary.isInternalNamespace());
-        assertEquals(false, vocabulary.isChosenFromList());
-        assertEquals("localuri", vocabulary.getURLTemplate());
-
         assertEquals(3, vocabulary.getTerms().size());
+
     }
 
     private VocabularyTerm assertSampleForVocabularyTermExists(
-            IEncapsulatedOpenBISService openBISService,
-            String term)
+            IEncapsulatedOpenBISService openBISService, String term)
     {
         Sample sample =
                 openBISService.tryGetSampleWithExperiment(SampleIdentifier.create("VOC", "NORMAL_"

@@ -29,7 +29,7 @@ def process(transaction):
     vocabulary = transaction.getVocabularyForUpdate("TEST_VOCABULARY")
     vocabulary.setDescription("modified description")
     vocabulary.setManagedInternally(True)
-    vocabulary.setInternalNamespace(True)
+    # vocabulary.setInternalNamespace(True) # setting this would make the vocabulary invisible for search
     vocabulary.setChosenFromList(False)
     vocabulary.setUrlTemplate("localuri")
     
