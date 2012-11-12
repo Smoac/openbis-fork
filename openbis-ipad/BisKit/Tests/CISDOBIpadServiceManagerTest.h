@@ -28,4 +28,21 @@
 
 @property(strong) CISDOBIpadServiceManager *serviceManager;
 
+// Tracking Notifications
+@property(nonatomic) BOOL willLogin;
+@property(nonatomic) BOOL didLogin;
+
+
+@property(nonatomic) BOOL willRetrieveRootLevel;
+@property(nonatomic) BOOL didRetrieveRootLevel;
+
+@property(nonatomic) BOOL willSynchEntities;
+@property(nonatomic) BOOL didSynchEntities;
+
+@property(nonatomic) BOOL willDrill;
+@property(nonatomic) BOOL didDrill;
+
+@property(nonatomic) BOOL willRetrieveDetails;
+@property(nonatomic) BOOL didRetrieveDetails;
+
 @end

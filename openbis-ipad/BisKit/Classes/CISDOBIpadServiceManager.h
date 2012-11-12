@@ -24,6 +24,26 @@
 #import <Foundation/Foundation.h>
 #import "CISDOBShared.h"
 
+//
+// The names of the notifications posted by the service manager
+//
+FOUNDATION_EXPORT NSString *const CISDOBIpadServiceWillLoginNotification;
+FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidLoginNotification;
+
+FOUNDATION_EXPORT NSString *const CISDOBIpadServiceWillRetrieveRootLevelEntitiesNotification;
+FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidRetrieveRootLevelEntitiesNotification;
+
+FOUNDATION_EXPORT NSString *const CISDOBIpadServiceWillDrillOnEntityNotification;
+FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidDrillOnEntityNotification;
+
+FOUNDATION_EXPORT NSString *const CISDOBIpadServiceWillRetrieveDetailsForEntityNotification;
+FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidRetrieveDetailsForEntityNotification;
+
+FOUNDATION_EXPORT NSString *const CISDOBIpadServiceWillSynchEntitiesNotification;
+FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidSynchEntitiesNotification;
+
+
+
 @class CISDOBIpadService, CISDOBAsyncCall, CISDOBIpadEntity;
 /**
  * \brief A class that manages a connection to the openBIS iPad service, caching data locally as CISDOBIpadEntity objects.

@@ -21,20 +21,39 @@
 //
 //
 
+
 #import "CISDOBIpadServiceManager.h"
 #import "CISDOBIpadService.h"
 #import "CISDOBIpadEntity.h"
 #import "CISDOBConnection.h"
 #import "CISDOBAsyncCall.h"
 
+NSString *const CISDOBIpadServiceWillLoginNotification = @"CISDOBIpadServiceWillLoginNotification";
+NSString *const CISDOBIpadServiceDidLoginNotification = @"CISDOBIpadServiceDidLoginNotification";
+NSString *const CISDOBIpadServiceWillRetrieveRootLevelEntitiesNotification = @"CISDOBIpadServiceWillRetrieveRootLevelEntitiesNotification";
+NSString *const CISDOBIpadServiceDidRetrieveRootLevelEntitiesNotification = @"CISDOBIpadServiceDidRetrieveRootLevelEntitiesNotification";
+NSString *const CISDOBIpadServiceWillDrillOnEntityNotification = @"CISDOBIpadServiceWillDrillOnEntityNotification";
+NSString *const CISDOBIpadServiceDidDrillOnEntityNotification = @"CISDOBIpadServiceDidDrillOnEntityNotification";
+NSString *const CISDOBIpadServiceWillRetrieveDetailsForEntityNotification = @"CISDOBIpadServiceWillRetrieveDetailsForEntityNotification";
+NSString *const CISDOBIpadServiceDidRetrieveDetailsForEntityNotification = @"CISDOBIpadServiceDidRetrieveDetailsForEntityNotification";
+NSString *const CISDOBIpadServiceWillSynchEntitiesNotification = @"CISDOBIpadServiceWillSynchEntitiesNotification";
+NSString *const CISDOBIpadServiceDidSynchEntitiesNotification = @"CISDOBIpadServiceDidSynchEntitiesNotification";
+
 // Internal service call that includes the private state
 @interface CISDOBIpadServiceManagerCall : CISDOBAsyncCall
 
 @property(weak) CISDOBIpadServiceManager *serviceManager;
 @property(nonatomic) CISDOBAsyncCall *serviceCall;
+@property(copy) NSString *willCallNotificationName;
+@property(copy) NSString *didCallNotificationName;
+
+@property(nonatomic) BOOL sendSynchNotifications;
 
 // Initialization
 - (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager serviceCall:(CISDOBAsyncCall *)call;
+
+- (void)notifySuccess:(id)result;
+- (void)notifyFailure:(NSError *)error;
 
 @end
 
@@ -112,10 +131,18 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 - (void)syncEntities:(NSArray *)rawEntities pruning:(BOOL)prune notifying:(CISDOBIpadServiceManagerCall *)managerCall
 {
     void (^syncBlock)(void) = ^{
+        if (managerCall.didCallNotificationName) {
+            [[NSNotificationCenter defaultCenter] postNotificationName: managerCall.didCallNotificationName object: self];
+        }
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceWillSynchEntitiesNotification object: self];
+        
         // Run the synchronizer in the background thread
         CISDOBBackgroundDataSynchronizer *synchronizer = [[CISDOBBackgroundDataSynchronizer alloc] initWithServiceManager: self managerCall: managerCall rawEntities: rawEntities];
         synchronizer.prune = prune;
         [synchronizer run];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceDidSynchEntitiesNotification object: self];         
         
         void (^notifyBlock)(void) = ^ {
             // Save the MOC and notifiy the client on the main thread
@@ -154,26 +181,50 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 
 - (CISDOBAsyncCall *)loginUser:(NSString *)user password:(NSString *)password
 {
-    return [self.service loginUser: user password: password];
+    CISDOBAsyncCall *call = [self.service loginUser: user password: password];
+    CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call pruning: NO];
+    call.success = ^(id result) { [managerCall notifySuccess: result]; };
+    managerCall.willCallNotificationName = CISDOBIpadServiceWillLoginNotification;
+    managerCall.didCallNotificationName = CISDOBIpadServiceDidLoginNotification;
+    managerCall.sendSynchNotifications = NO;
+    return managerCall;
 }
 
 - (CISDOBAsyncCall *)retrieveRootLevelEntities
 {
     CISDOBAsyncCall *call = [self.service listRootLevelEntities];
         // get rid of entities not mentioned in the original call
-    return [self managerCallWrappingServiceCall: call pruning: YES];
+    CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call pruning: YES];
+    
+    managerCall.willCallNotificationName = CISDOBIpadServiceWillRetrieveRootLevelEntitiesNotification;
+    managerCall.didCallNotificationName = CISDOBIpadServiceDidRetrieveRootLevelEntitiesNotification;
+    managerCall.sendSynchNotifications = YES;
+    
+    return managerCall;
 }
 
 - (CISDOBAsyncCall *)drillOnEntity:(CISDOBIpadEntity *)entity
 {
     CISDOBAsyncCall *call = [self.service drillOnEntityWithPermId: entity.permId refcon: entity.refcon];
-    return [self managerCallWrappingServiceCall: call];
+    CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call];
+    
+    managerCall.willCallNotificationName = CISDOBIpadServiceWillDrillOnEntityNotification;
+    managerCall.didCallNotificationName = CISDOBIpadServiceDidDrillOnEntityNotification;
+    managerCall.sendSynchNotifications = YES;
+    
+    return managerCall;
 }
 
 - (CISDOBAsyncCall *)detailsForEntity:(CISDOBIpadEntity *)entity
 {
     CISDOBAsyncCall *call = [self.service detailsForEntityWithPermId: entity.permId refcon: entity.refcon];
-    return [self managerCallWrappingServiceCall: call];
+    CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call];
+    
+    managerCall.willCallNotificationName = CISDOBIpadServiceWillRetrieveDetailsForEntityNotification;
+    managerCall.didCallNotificationName = CISDOBIpadServiceDidRetrieveDetailsForEntityNotification;
+    managerCall.sendSynchNotifications = YES;
+    
+    return managerCall;
 }
 
 - (NSArray *)allIpadEntitiesOrError:(NSError **)error;
@@ -234,8 +285,32 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     return self;
 }
 
+- (void)sendCompletionNotification
+{
+    if (self.sendSynchNotifications) {
+        // This is handled elsewhere
+    } else if (self.didCallNotificationName) {
+        [[NSNotificationCenter defaultCenter] postNotificationName: self.didCallNotificationName object: self.serviceManager];
+    }
+}
+
+- (void)notifySuccess:(id)result
+{
+    if (self.success) self.success(result);
+    [self sendCompletionNotification];
+}
+
+- (void)notifyFailure:(NSError *)error
+{
+    if (self.fail) self.fail(error);
+    [self sendCompletionNotification];
+}
+
 - (void)start
 {
+    if (self.willCallNotificationName) {
+        [[NSNotificationCenter defaultCenter] postNotificationName: self.willCallNotificationName object: self.serviceManager];
+    }
     [_serviceCall start];
 }
 
@@ -316,9 +391,9 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 - (void)notifyCallOfResult:(id)args
 {
     if (self.error) {
-        self.managerCall.serviceCall.fail(self.error);
+        [self.managerCall notifyFailure: self.error];
     } else if (self.managerCall.success) {
-        self.managerCall.success(self.rawEntities);
+        [self.managerCall notifySuccess: self.rawEntities];
     }
     
 }
