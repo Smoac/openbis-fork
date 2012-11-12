@@ -34,7 +34,6 @@ import net.lemnik.eodsql.QueryTool;
 
 import ch.systemsx.cisd.common.collection.IKeyExtractor;
 import ch.systemsx.cisd.common.collection.TableMap;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.EntityMetaprojectRelationRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaprojectCreator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaprojectRecord;
@@ -98,8 +97,7 @@ public class SampleLister implements ISampleLister
 
     public SampleLister(IDAOFactory daoFactory, PersonPE person)
     {
-        this(QueryTool.getQuery(DatabaseContextUtils.getConnection(daoFactory),
-                ISampleListingQuery.class), person);
+        this(QueryTool.getManagedQuery(ISampleListingQuery.class), person);
     }
 
     SampleLister(ISampleListingQuery query, PersonPE person)

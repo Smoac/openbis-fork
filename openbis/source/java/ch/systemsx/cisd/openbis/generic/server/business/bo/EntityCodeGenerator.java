@@ -23,7 +23,6 @@ import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.QueryTool;
 import net.lemnik.eodsql.Select;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
@@ -67,7 +66,7 @@ public class EntityCodeGenerator
     {
         String[] codes = new String[numberOfCodes];
 
-        query = QueryTool.getQuery(DatabaseContextUtils.getConnection(daoFactory), Query.class);
+        query = QueryTool.getManagedQuery(Query.class);
 
         for (int i = 0; i < numberOfCodes; i++)
         {

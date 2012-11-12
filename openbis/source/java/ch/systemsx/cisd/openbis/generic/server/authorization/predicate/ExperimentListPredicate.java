@@ -50,6 +50,21 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 @ShouldFlattenCollections(value = false)
 public class ExperimentListPredicate extends AbstractSpacePredicate<List<Experiment>>
 {
+    public static interface IExperimentToSpaceQuery extends BaseQuery
+    {
+        @Select(sql = "select distinct space_id from projects p left join experiments e on e.proj_id = p.id "
+                + "where e.id = any(?{1}) union "
+                + "select distinct space_id from projects p left join experiments e on e.proj_id = p.id "
+                + "where e.perm_id = any(?{2})", parameterBindings =
+            { LongArrayMapper.class, StringArrayMapper.class })
+        public List<Long> getExperimentSpaceIds(long[] experimentIds, String[] experimentPermIds);
+    }
+
+    private final static int ARRAY_SIZE_LIMIT = 999;
+
+    private final IExperimentToSpaceQuery experimentToSpaceQuery =
+            QueryTool.getManagedQuery(IExperimentToSpaceQuery.class);
+
     //
     // AbstractPredicate
     //
@@ -105,18 +120,6 @@ public class ExperimentListPredicate extends AbstractSpacePredicate<List<Experim
         return Status.OK;
     }
 
-    private final static int ARRAY_SIZE_LIMIT = 999;
-
-    public static interface IExperimentToSpaceQuery extends BaseQuery
-    {
-        @Select(sql = "select distinct space_id from projects p left join experiments e on e.proj_id = p.id "
-                + "where e.id = any(?{1}) union "
-                + "select distinct space_id from projects p left join experiments e on e.proj_id = p.id "
-                + "where e.perm_id = any(?{2})", parameterBindings =
-            { LongArrayMapper.class, StringArrayMapper.class })
-        public List<Long> getExperimentSpaceIds(long[] experimentIds, String[] experimentPermIds);
-    }
-
     private Collection<Long> getExperimentSpaceIds(final List<Long> ids, final List<String> permIds)
     {
         if (ids.size() != permIds.size())
@@ -128,9 +131,6 @@ public class ExperimentListPredicate extends AbstractSpacePredicate<List<Experim
         {
             return Collections.emptyList();
         }
-        final IExperimentToSpaceQuery query =
-                QueryTool.getQuery(authorizationDataProvider.getConnection(),
-                        IExperimentToSpaceQuery.class);
         if (size > ARRAY_SIZE_LIMIT)
         {
             final Set<Long> spaceIds = new HashSet<Long>(size);
@@ -140,13 +140,14 @@ public class ExperimentListPredicate extends AbstractSpacePredicate<List<Experim
                         Math.min(size, startIdx + ARRAY_SIZE_LIMIT));
                 final List<String> permIdSubList = permIds.subList(startIdx,
                         Math.min(size, startIdx + ARRAY_SIZE_LIMIT));
-                spaceIds.addAll(query.getExperimentSpaceIds(toArray(idSubList),
+                spaceIds.addAll(experimentToSpaceQuery.getExperimentSpaceIds(toArray(idSubList),
                         permIdSubList.toArray(new String[permIdSubList.size()])));
             }
             return spaceIds;
         } else
         {
-            return query.getExperimentSpaceIds(toArray(ids), permIds.toArray(new String[size]));
+            return experimentToSpaceQuery.getExperimentSpaceIds(toArray(ids),
+                    permIds.toArray(new String[size]));
         }
     }
 

@@ -20,9 +20,6 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-
-import java.sql.Connection;
-
 import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -30,7 +27,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -62,9 +58,8 @@ public class SecondaryEntityDAO
      */
     public static SecondaryEntityDAO create(IDAOFactory daoFactory)
     {
-        Connection connection = DatabaseContextUtils.getConnection(daoFactory);
         ISecondaryEntityListingQuery query =
-                QueryTool.getQuery(connection, ISecondaryEntityListingQuery.class);
+                QueryTool.getManagedQuery(ISecondaryEntityListingQuery.class);
         return create(daoFactory, query);
     }
 

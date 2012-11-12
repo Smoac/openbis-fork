@@ -29,7 +29,6 @@ import net.lemnik.eodsql.QueryTool;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -60,8 +59,7 @@ public class ExperimentLister implements IExperimentLister
 
     public ExperimentLister(IDAOFactory daoFactory, String baseIndexURL)
     {
-        this(daoFactory, baseIndexURL, QueryTool.getQuery(
-                DatabaseContextUtils.getConnection(daoFactory), IExperimentListingQuery.class));
+        this(daoFactory, baseIndexURL, QueryTool.getManagedQuery(IExperimentListingQuery.class));
     }
 
     public ExperimentLister(IDAOFactory daoFactory, String baseIndexURL,

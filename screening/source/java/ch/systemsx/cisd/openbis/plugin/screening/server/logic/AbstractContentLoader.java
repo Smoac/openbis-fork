@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
-import java.sql.Connection;
 import java.util.Set;
 
 import net.lemnik.eodsql.QueryTool;
@@ -27,7 +26,6 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -71,8 +69,7 @@ abstract class AbstractContentLoader
     {
         if (screeningDao == null)
         {
-            Connection connection = DatabaseContextUtils.getConnection(daoFactory);
-            screeningDao = QueryTool.getQuery(connection, IScreeningQuery.class);
+            screeningDao = QueryTool.getManagedQuery(IScreeningQuery.class);
         }
         return screeningDao;
     }

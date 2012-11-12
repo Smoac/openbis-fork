@@ -17,9 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
+import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
-import net.lemnik.eodsql.TransactionQuery;
 
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 @Private
 @Friend(toClasses =
     { SampleReferenceRecord.class })
-public interface ISecondaryEntityListingQuery extends TransactionQuery
+public interface ISecondaryEntityListingQuery extends BaseQuery
 {
     public static final int FETCH_SIZE = 1000;
 

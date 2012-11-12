@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
-import java.sql.Connection;
-
 import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -78,9 +76,4 @@ public interface IAuthorizationDAOFactory
     public IDeletionDAO getDeletionDAO();
 
     public IMetaprojectDAO getMetaprojectDAO();
-
-    /**
-     * Returns the JDBC connection.
-     */
-    public Connection getConnection();
 }

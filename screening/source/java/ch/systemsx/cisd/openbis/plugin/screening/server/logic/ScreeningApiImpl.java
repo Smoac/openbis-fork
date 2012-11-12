@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,7 +35,6 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
@@ -662,8 +660,7 @@ public class ScreeningApiImpl
 
     private IScreeningQuery createScreeningQuery()
     {
-        final Connection connection = DatabaseContextUtils.getConnection(daoFactory);
-        return QueryTool.getQuery(connection, IScreeningQuery.class);
+        return QueryTool.getManagedQuery(IScreeningQuery.class);
     }
 
     private ExperimentPE getExperimentFromDB(ExperimentIdentifier experimentIdentifierFromUser)

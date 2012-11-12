@@ -49,6 +49,17 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 public class ScreeningPlateListReadOnlyPredicate extends
         AbstractSpacePredicate<List<? extends PlateIdentifier>>
 {
+    private final static int ARRAY_SIZE_LIMIT = 999;
+
+    private final ISampleToSpaceQuery sampleToSpaceQuery = QueryTool
+            .getManagedQuery(ISampleToSpaceQuery.class);
+
+    interface ISampleToSpaceQuery extends BaseQuery
+    {
+        @Select(sql = "select distinct space_id from samples where perm_id = any(?{1})", parameterBindings =
+            { StringArrayMapper.class })
+        public List<Long> getSampleSpaceIds(String[] samplePermIds);
+    }
 
     @Override
     public String getCandidateDescription()
@@ -106,20 +117,8 @@ public class ScreeningPlateListReadOnlyPredicate extends
         return Status.OK;
     }
 
-    private final static int ARRAY_SIZE_LIMIT = 999;
-
-    interface ISampleToSpaceQuery extends BaseQuery
-    {
-        @Select(sql = "select distinct space_id from samples where perm_id = any(?{1})", parameterBindings =
-            { StringArrayMapper.class })
-        public List<Long> getSampleSpaceIds(String[] samplePermIds);
-    }
-
     private Collection<Long> getSampleSpaceIds(final List<String> permIds)
     {
-        final ISampleToSpaceQuery query =
-                QueryTool.getQuery(authorizationDataProvider.getConnection(),
-                        ISampleToSpaceQuery.class);
         if (permIds.size() > ARRAY_SIZE_LIMIT)
         {
             final Set<Long> spaceIds = new HashSet<Long>(permIds.size());
@@ -127,13 +126,13 @@ public class ScreeningPlateListReadOnlyPredicate extends
             {
                 final List<String> permIdSubList = permIds.subList(startIdx,
                         Math.min(permIds.size(), startIdx + ARRAY_SIZE_LIMIT));
-                spaceIds.addAll(query.getSampleSpaceIds(permIdSubList.toArray(
+                spaceIds.addAll(sampleToSpaceQuery.getSampleSpaceIds(permIdSubList.toArray(
                         new String[permIdSubList.size()])));
             }
             return spaceIds;
         } else
         {
-            return query
+            return sampleToSpaceQuery
                     .getSampleSpaceIds(permIds.toArray(new String[permIds.size()]));
         }
     }

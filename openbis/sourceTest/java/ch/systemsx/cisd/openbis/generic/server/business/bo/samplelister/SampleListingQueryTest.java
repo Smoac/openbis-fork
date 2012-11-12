@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -122,15 +121,6 @@ public class SampleListingQueryTest extends AbstractDAOTest
         assertEquals(SHARED_MASTER_PLATE_ID, sharedMasterPlate.getId().longValue());
         query = sampleListerDAO.getQuery();
         parentChildRelationshipTypeId = query.getRelationshipTypeId("PARENT_CHILD", true);
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void cleanUp() throws SQLException
-    {
-        if (query != null)
-        {
-            query.commit();
-        }
     }
 
     public static SampleListerDAO createSampleListerDAO(IDAOFactory daoFactory)

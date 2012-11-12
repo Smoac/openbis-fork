@@ -16,11 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 
-import java.sql.Connection;
-
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 
@@ -31,13 +28,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
  */
 public class DatabaseContextUtils
 {
-
-    @SuppressWarnings("deprecation")
-    public static Connection getConnection(IAuthorizationDAOFactory daoFactory)
-    {
-        return daoFactory.getSessionFactory().getCurrentSession().connection();
-    }
-
     /**
      * @return associated database configuration context
      * @throws ConfigurationFailureException if it was impossible to get the context

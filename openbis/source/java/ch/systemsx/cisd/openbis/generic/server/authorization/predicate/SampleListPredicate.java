@@ -50,11 +50,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
 @ShouldFlattenCollections(value = false)
 public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
 {
+    private final static int ARRAY_SIZE_LIMIT = 999;
+
+    public static interface ISampleToSpaceQuery extends BaseQuery
+    {
+        @Select(sql = "select distinct space_id from samples where id = any(?{1}) "
+                + "union select distinct space_id from samples where perm_id = any(?{2})", parameterBindings =
+            { LongArrayMapper.class, StringArrayMapper.class })
+        public List<Long> getSampleSpaceIds(long[] sampleIds, String[] samplePermIds);
+    }
+
     private final SampleOwnerIdentifierPredicate idOwnerPredicate;
+
+    private final ISampleToSpaceQuery sampleToSpaceQuery;
 
     public SampleListPredicate()
     {
         idOwnerPredicate = new SampleOwnerIdentifierPredicate();
+        sampleToSpaceQuery = QueryTool.getManagedQuery(ISampleToSpaceQuery.class);
     }
 
     //
@@ -133,16 +146,6 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
         return Status.OK;
     }
 
-    private final static int ARRAY_SIZE_LIMIT = 999;
-
-    public static interface ISampleToSpaceQuery extends BaseQuery
-    {
-        @Select(sql = "select distinct space_id from samples where id = any(?{1}) "
-                + "union select distinct space_id from samples where perm_id = any(?{2})", parameterBindings =
-            { LongArrayMapper.class, StringArrayMapper.class })
-        public List<Long> getSampleSpaceIds(long[] sampleIds, String[] samplePermIds);
-    }
-
     private Collection<Long> getSampleSpaceIds(final List<Long> ids, final List<String> permIds)
     {
         if (ids.size() != permIds.size())
@@ -154,9 +157,6 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
         {
             return Collections.emptyList();
         }
-        final ISampleToSpaceQuery query =
-                QueryTool.getQuery(authorizationDataProvider.getConnection(),
-                        ISampleToSpaceQuery.class);
         if (size > ARRAY_SIZE_LIMIT)
         {
             final Set<Long> spaceIds = new HashSet<Long>(size);
@@ -166,13 +166,14 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
                         Math.min(size, startIdx + ARRAY_SIZE_LIMIT));
                 final List<String> permIdSubList = permIds.subList(startIdx,
                         Math.min(size, startIdx + ARRAY_SIZE_LIMIT));
-                spaceIds.addAll(query.getSampleSpaceIds(toArray(idSubList),
+                spaceIds.addAll(sampleToSpaceQuery.getSampleSpaceIds(toArray(idSubList),
                         permIdSubList.toArray(new String[permIdSubList.size()])));
             }
             return spaceIds;
         } else
         {
-            return query.getSampleSpaceIds(toArray(ids), permIds.toArray(new String[size]));
+            return sampleToSpaceQuery.getSampleSpaceIds(toArray(ids),
+                    permIds.toArray(new String[size]));
         }
     }
 

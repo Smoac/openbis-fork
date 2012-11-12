@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
-import java.sql.Connection;
 import java.util.List;
 import java.util.Set;
 
@@ -155,9 +154,4 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
      * Fetches metaproject with given tech id.
      */
     public MetaprojectPE getMetaproject(TechId id);
-
-    /**
-     * Returns the JDBC connection.
-     */
-    public Connection getConnection();
 }

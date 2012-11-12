@@ -21,6 +21,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import java.util.Date;
 import java.util.List;
 
+import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
@@ -49,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 @Private
 @Friend(toClasses =
     { DataStoreRecord.class })
-public interface IDatasetListingQuery extends TransactionQuery, IPropertyListingQuery
+public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
 {
     public static final int FETCH_SIZE = 1000;
 

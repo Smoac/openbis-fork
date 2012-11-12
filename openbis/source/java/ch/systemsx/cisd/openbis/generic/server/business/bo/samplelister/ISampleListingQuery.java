@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.EoDException;
 import net.lemnik.eodsql.Select;
@@ -53,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 @Friend(toClasses =
     { ExperimentProjectSpaceCodeRecord.class })
 @Private
-public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQuery
+public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
 {
 
     public static final int FETCH_SIZE = 1000;

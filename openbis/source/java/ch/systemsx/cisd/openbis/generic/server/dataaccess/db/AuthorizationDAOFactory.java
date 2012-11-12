@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.sql.Connection;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
@@ -290,13 +288,5 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         SessionFactory sessionFactory = persistencyResources.getSessionFactory();
         Session currentSession = sessionFactory.getCurrentSession();
         HibernateUtils.setBatchUpdateMode(currentSession, batchMode);
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public Connection getConnection()
-    {
-        final SessionFactory sessionFactory = persistencyResources.getSessionFactory();
-        return sessionFactory.getCurrentSession().connection();
     }
 }

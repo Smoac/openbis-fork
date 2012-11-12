@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.sql.Connection;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -510,12 +509,6 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public IExternalDataManagementSystemDAO getExternalDataManagementSystemDAO()
     {
         return daoFactory.getExternalDataManagementSystemDAO();
-    }
-
-    @Override
-    public Connection getConnection()
-    {
-        return daoFactory.getConnection();
     }
 
     @Override

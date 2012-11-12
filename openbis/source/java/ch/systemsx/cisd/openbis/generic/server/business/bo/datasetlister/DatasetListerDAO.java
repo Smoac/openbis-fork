@@ -17,15 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
-
-import java.sql.Connection;
-
 import net.lemnik.eodsql.QueryTool;
 
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.AbstractDAO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertySetListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
@@ -50,8 +46,7 @@ public final class DatasetListerDAO extends AbstractDAO
      */
     public static DatasetListerDAO create(IDAOFactory daoFactory)
     {
-        Connection connection = DatabaseContextUtils.getConnection(daoFactory);
-        IDatasetListingQuery query = QueryTool.getQuery(connection, IDatasetListingQuery.class);
+        IDatasetListingQuery query = QueryTool.getManagedQuery(IDatasetListingQuery.class);
         return create(daoFactory, query);
     }
 

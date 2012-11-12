@@ -28,7 +28,6 @@ import net.lemnik.eodsql.QueryTool;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
@@ -58,8 +57,7 @@ public class DataSetLister implements IDataSetLister
 
     public DataSetLister(IAuthorizationDAOFactory daoFactory, PersonPE person)
     {
-        this(QueryTool.getQuery(DatabaseContextUtils.getConnection(daoFactory),
-                IDataSetListingQuery.class), person);
+        this(QueryTool.getManagedQuery(IDataSetListingQuery.class), person);
     }
 
     public DataSetLister(IDataSetListingQuery query, PersonPE person)

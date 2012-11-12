@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -77,16 +76,6 @@ public class DatasetListingQueryTest extends AbstractDAOTest
         dbInstance = dao.getDatabaseInstance();
 
         query = dao.getQuery();
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void cleanUp() throws SQLException
-    {
-        if (query != null)
-        {
-            query.commit();
-        }
-
     }
 
     public static DatasetListerDAO createDatasetListerDAO(IDAOFactory daoFactory)
