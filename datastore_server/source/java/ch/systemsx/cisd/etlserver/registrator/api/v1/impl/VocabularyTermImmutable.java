@@ -31,6 +31,11 @@ public class VocabularyTermImmutable implements IVocabularyTermImmutable
         this.vocabularyTerm = vocabularyTerm;
     }
 
+    protected VocabularyTerm getVocabularyTerm()
+    {
+        return vocabularyTerm;
+    }
+
     @Override
     public String getCode()
     {

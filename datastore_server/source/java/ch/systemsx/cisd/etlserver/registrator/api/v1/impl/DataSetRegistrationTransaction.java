@@ -53,6 +53,8 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IMetaproject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabulary;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabularyTerm;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.CommitedTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.LiveTransactionState;
@@ -70,12 +72,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmut
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISpaceImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -484,6 +488,25 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                     "Cannot get metaproject for different user then the current one.");
         }
         return getStateAsLiveState().getMetaproject(name, ownerId);
+    }
+
+    @Override
+    public IVocabularyImmutable getVocabulary(String code)
+    {
+        Vocabulary vocabulary = openBisService.tryGetVocabulary(code);
+        return (vocabulary == null) ? null : new VocabularyImmutable(vocabulary);
+    }
+
+    @Override
+    public IVocabulary getVocabularyForUpdate(String code)
+    {
+        return getStateAsLiveState().getVocabularyForUpdate(code);
+    }
+
+    @Override
+    public IVocabularyTerm createNewVocabularyTerm()
+    {
+        return new VocabularyTerm();
     }
 
     @Override

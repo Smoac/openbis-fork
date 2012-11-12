@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmut
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISpaceImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IVocabularyImmutable;
 
 /**
  * Interface for a data set registration transaction. All actions that go through the transaction
@@ -251,6 +252,25 @@ public interface IDataSetRegistrationTransaction
      * @return metaproject with given name for specified user.
      */
     IMetaproject getMetaproject(String name, String ownerId);
+
+    /**
+     * Get the read-only vocabulary with given code
+     * 
+     * @returns null if the vocabulary is not found
+     */
+    IVocabularyImmutable getVocabulary(String code);
+
+    /**
+     * Get the vocabulary with given code
+     * 
+     * @returns null if the vocabulary is not found
+     */
+    IVocabulary getVocabularyForUpdate(String code);
+
+    /**
+     * Creates a new vocabulary term, which has to be assigned to a {@link IVocabulary}.
+     */
+    IVocabularyTerm createNewVocabularyTerm();
 
     // File operations -- The source and destination paths are local to the incoming data set folder
     // or incoming directory if the data set is just one file

@@ -180,6 +180,8 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
 
         private final List<Metaproject> metaprojectsToBeUpdated = new ArrayList<Metaproject>();
 
+        private final List<Vocabulary> vocabulariesToBeUpdated = new ArrayList<Vocabulary>();
+
         private final Map<String, DynamicTransactionQuery> queriesToCommit =
                 new HashMap<String, DynamicTransactionQuery>();
 
@@ -725,6 +727,24 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                 {
                     return m;
                 }
+            }
+            return null;
+        }
+
+        public Vocabulary getVocabularyForUpdate(String code)
+        {
+            for (Vocabulary v : vocabulariesToBeUpdated)
+            {
+                if (v.getCode().equals(code))
+                {
+                    return v;
+                }
+            }
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary vocabulary =
+                    openBisService.tryGetVocabulary(code);
+            if (vocabulary != null)
+            {
+                return new Vocabulary(vocabulary);
             }
             return null;
         }

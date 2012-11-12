@@ -38,6 +38,11 @@ public class VocabularyImmutable implements IVocabularyImmutable
         this.vocabulary = vocabulary;
     }
 
+    protected Vocabulary getVocabulary()
+    {
+        return vocabulary;
+    }
+
     @Override
     public String getCode()
     {

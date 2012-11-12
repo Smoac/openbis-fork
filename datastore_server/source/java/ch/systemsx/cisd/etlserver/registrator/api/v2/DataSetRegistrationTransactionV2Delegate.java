@@ -32,6 +32,8 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.IMetaproject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabulary;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabularyTerm;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
@@ -41,6 +43,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmut
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISpaceImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IVocabularyImmutable;
 
 /**
  * @author Jakub Straszewski
@@ -221,6 +224,24 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
     public IMetaproject getMetaproject(String name, String ownerId)
     {
         return transaction.getMetaproject(name, ownerId);
+    }
+
+    @Override
+    public IVocabularyImmutable getVocabulary(String code)
+    {
+        return transaction.getVocabulary(code);
+    }
+
+    @Override
+    public IVocabulary getVocabularyForUpdate(String code)
+    {
+        return transaction.getVocabularyForUpdate(code);
+    }
+
+    @Override
+    public IVocabularyTerm createNewVocabularyTerm()
+    {
+        return transaction.createNewVocabularyTerm();
     }
 
     @Override

@@ -26,15 +26,16 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
- * 
- *
  * @author Jakub Straszewski
  */
-public class VocabularyDropboxApiSystemTest  extends SystemTestCase
+@Test(groups = "slow")
+public class VocabularyDropboxApiSystemTest extends SystemTestCase
 {
     // for jython script locate
     // vocabularies-api.py
@@ -53,14 +54,50 @@ public class VocabularyDropboxApiSystemTest  extends SystemTestCase
         runDropbox();
 
         Sample sample =
-                openBISService
-.tryGetSampleWithExperiment(SampleIdentifier.create("VOC",
+                openBISService.tryGetSampleWithExperiment(SampleIdentifier.create("VOC",
                         "CELL_PLATE"));
 
         IEntityProperty property = EntityHelper.tryFindProperty(sample.getProperties(), "ORGANISM");
 
         assertEquals("RAT", property.getVocabularyTerm().getCode());
 
+        assertSampleForVocabularyTermExists(openBISService, "TEST_TERM_A");
+        assertSampleForVocabularyTermExists(openBISService, "TEST_TERM_B");
+        VocabularyTerm term = assertSampleForVocabularyTermExists(openBISService, "NEW_TERM");
+
+        assertEquals(new Long(3), term.getOrdinal());
+        assertEquals("new description", term.getDescription());
+        assertEquals("new label", term.getLabel());
+
+        Vocabulary vocabulary = openBISService.tryGetVocabulary("TEST_VOCABULARY");
+        assertEquals("modified description", vocabulary.getDescription());
+        assertEquals(true, vocabulary.isManagedInternally());
+        assertEquals(true, vocabulary.isInternalNamespace());
+        assertEquals(false, vocabulary.isChosenFromList());
+        assertEquals("localuri", vocabulary.getURLTemplate());
+
+        assertEquals(3, vocabulary.getTerms().size());
+    }
+
+    private VocabularyTerm assertSampleForVocabularyTermExists(
+            IEncapsulatedOpenBISService openBISService,
+            String term)
+    {
+        Sample sample =
+                openBISService.tryGetSampleWithExperiment(SampleIdentifier.create("VOC", "NORMAL_"
+                        + term));
+
+        IEntityProperty property =
+                EntityHelper.tryFindProperty(sample.getProperties(), "TEST_VOCABULARY");
+
+        assertNotNull("The property of type TEST_VOCABULARY (" + term
+                + ") is null. All properties : " + sample.getProperties(), property);
+
+        assertNotNull("The property term (" + term + ")should not be null. Property: " + property,
+                property.getVocabularyTerm());
+
+        assertEquals(term, property.getVocabularyTerm().getCode());
+        return property.getVocabularyTerm();
     }
 
     private void runDropbox() throws IOException, Exception
