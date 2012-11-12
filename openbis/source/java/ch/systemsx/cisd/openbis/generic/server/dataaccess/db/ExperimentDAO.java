@@ -87,8 +87,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
             final DatabaseInstancePE databaseInstance)
     {
         super(persistencyResources, databaseInstance, ExperimentPE.class);
-        this.experimentSampleQuery =
-                QueryTool.getQuery(getDataSource(), IExperimentSampleQuery.class);
+        this.experimentSampleQuery = QueryTool.getManagedQuery(IExperimentSampleQuery.class);
     }
 
     @Override
@@ -376,29 +375,13 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
 
     private List<Long> getSampleIds(ExperimentPE experiment)
     {
-        try
-        {
-            return experimentSampleQuery.getExperimentSampleIds(experiment.getId());
-        } finally
-        {
-            // Force explicitly returning the database connection as otherwise we have a database
-            // connection leak here.
-            experimentSampleQuery.close();
-        }
+        return experimentSampleQuery.getExperimentSampleIds(experiment.getId());
     }
 
     @Override
     public List<String> getSampleCodes(ExperimentPE experiment)
     {
-        try
-        {
-            return experimentSampleQuery.getExperimentSampleCodes(experiment.getId());
-        } finally
-        {
-            // Force explicitly returning the database connection as otherwise we have a database
-            // connection leak here.
-            experimentSampleQuery.close();
-        }
+        return experimentSampleQuery.getExperimentSampleCodes(experiment.getId());
     }
 
     @Override
