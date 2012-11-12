@@ -23,9 +23,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.QueryTool;
 import net.lemnik.eodsql.Select;
-import net.lemnik.eodsql.TransactionQuery;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -72,7 +72,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
     /**
      * A query for fast access to ids and codes of samples of an experiment.
      */
-    public static interface IExperimentSampleQuery extends TransactionQuery
+    public static interface IExperimentSampleQuery extends BaseQuery
     {
         @Select(sql = "select id from samples s where expe_id = ?{1}")
         List<Long> getExperimentSampleIds(long experimentId);
