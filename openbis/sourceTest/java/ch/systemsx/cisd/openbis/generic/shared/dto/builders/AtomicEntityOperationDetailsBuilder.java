@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 
 /**
  * @author Franz-Josef Elmer
@@ -68,6 +69,9 @@ public class AtomicEntityOperationDetailsBuilder
 
     private final List<MetaprojectUpdatesDTO> metaprojectUpdates =
             new ArrayList<MetaprojectUpdatesDTO>();
+
+    private final List<VocabularyUpdatesDTO> vocabularyUpdates =
+            new ArrayList<VocabularyUpdatesDTO>();
 
     private TechId registrationIdOrNull;
 
@@ -130,6 +134,6 @@ public class AtomicEntityOperationDetailsBuilder
                 spaceRegistrations, projectRegistrations, experimentRegistrations,
                 experimentUpdates, sampleUpdates, sampleRegistrations, materialRegistrations,
                 materialUpdates, dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
-                metaprojectUpdates, batchSizeOrNull);
+                metaprojectUpdates, vocabularyUpdates, batchSizeOrNull);
     }
 }

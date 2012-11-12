@@ -86,6 +86,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISpaceBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.experimentlister.ExperimentLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
@@ -192,6 +193,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
@@ -1503,6 +1505,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                     createProjects(sessionForEntityOperation, operationDetails, progressListener,
                             authorize);
 
+            long vocabulariesUpdated =
+                    updateVocabularies(sessionForEntityOperation, operationDetails,
+                            progressListener, authorize);
+
             long experimentsCreated =
                     createExperiments(sessionForEntityOperation, operationDetails,
                             progressListener, authorize);
@@ -1550,7 +1556,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             return new AtomicEntityOperationResult(spacesCreated, projectsCreated,
                     materialsCreated, materialsUpdates, experimentsCreated, experimentsUpdates,
                     samplesCreated, samplesUpdated, dataSetsCreated, dataSetsUpdated,
-                    metaprojectsCreated, metaprojectsUpdates);
+                    metaprojectsCreated, metaprojectsUpdates, vocabulariesUpdated);
         } finally
         {
             EntityOperationsInProgress.getInstance().removeRegistrationPending(registrationId);
@@ -1614,6 +1620,26 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         {
             entityOperationChecker.assertSpaceCreationAllowed(session, newSpaces);
         }
+    }
+
+    private long updateVocabularies(Session session, AtomicEntityOperationDetails operationDetails,
+            IServiceConversationProgressListener progress, boolean authorize)
+    {
+
+        List<VocabularyUpdatesDTO> updates = operationDetails.getVocabularyUpdates();
+
+        for (VocabularyUpdatesDTO update : updates)
+        {
+            updateVocabulary(session, update);
+        }
+
+        return updates.size();
+    }
+
+    private void updateVocabulary(Session session, VocabularyUpdatesDTO updates)
+    {
+        final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
+        vocabularyBO.update(updates);
     }
 
     private long createMaterials(Session session, AtomicEntityOperationDetails operationDetails,

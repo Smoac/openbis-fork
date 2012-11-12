@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplaceme
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 
 /**
  * Business object of a vocabulary. Holds an instance of {@link VocabularyPE}.
@@ -96,6 +97,11 @@ public interface IVocabularyBO extends IEntityBusinessObject
      * Updates the vocabulary.
      */
     public void update(IVocabularyUpdates updates);
+
+    /**
+     * Updates the vocabulary.
+     */
+    public void update(VocabularyUpdatesDTO updates);
 
     /**
      * Deletes vocabulary for specified reason.

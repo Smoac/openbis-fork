@@ -74,6 +74,8 @@ public class AtomicEntityOperationDetails implements Serializable
 
     private final List<DataSetBatchUpdatesDTO> dataSetUpdates;
 
+    private final List<VocabularyUpdatesDTO> vocabularyUpdates;
+
     private Integer batchSizeOrNull;
 
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
@@ -86,7 +88,8 @@ public class AtomicEntityOperationDetails implements Serializable
             List<? extends NewExternalData> dataSetRegistrations,
             List<DataSetBatchUpdatesDTO> dataSetUpdates,
             List<NewMetaproject> metaprojectRegistrations,
-            List<MetaprojectUpdatesDTO> metaprojectUpdates)
+            List<MetaprojectUpdatesDTO> metaprojectUpdates,
+            List<VocabularyUpdatesDTO> vocabularyUpdates)
     {
         this.registrationIdOrNull = registrationId;
         this.userIdOrNull = userIdOrNull;
@@ -102,6 +105,7 @@ public class AtomicEntityOperationDetails implements Serializable
         this.dataSetUpdates = new ArrayList<DataSetBatchUpdatesDTO>(dataSetUpdates);
         this.metaprojectRegistrations = new ArrayList<NewMetaproject>(metaprojectRegistrations);
         this.metaprojectUpdates = new ArrayList<MetaprojectUpdatesDTO>(metaprojectUpdates);
+        this.vocabularyUpdates = new ArrayList<VocabularyUpdatesDTO>(vocabularyUpdates);
     }
 
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
@@ -114,12 +118,13 @@ public class AtomicEntityOperationDetails implements Serializable
             List<? extends NewExternalData> dataSetRegistrations,
             List<DataSetBatchUpdatesDTO> dataSetUpdates,
             List<NewMetaproject> metaprojectRegistrations,
-            List<MetaprojectUpdatesDTO> metaprojectUpdates, Integer batchSizeOrNull)
+            List<MetaprojectUpdatesDTO> metaprojectUpdates,
+            List<VocabularyUpdatesDTO> vocabularyUpdates, Integer batchSizeOrNull)
     {
         this(registrationId, userIdOrNull, spaceRegistrations, projectRegistrations,
                 experimentRegistrations, experimentUpdates, sampleUpdates, sampleRegistrations,
                 materialRegistrations, materialUpdates, dataSetRegistrations, dataSetUpdates,
-                metaprojectRegistrations, metaprojectUpdates);
+                metaprojectRegistrations, metaprojectUpdates, vocabularyUpdates);
         this.batchSizeOrNull = batchSizeOrNull;
     }
 
@@ -193,6 +198,11 @@ public class AtomicEntityOperationDetails implements Serializable
         return metaprojectUpdates;
     }
 
+    public List<VocabularyUpdatesDTO> getVocabularyUpdates()
+    {
+        return vocabularyUpdates;
+    }
+
     public Integer getBatchSizeOrNull()
     {
         return batchSizeOrNull;
@@ -215,6 +225,7 @@ public class AtomicEntityOperationDetails implements Serializable
         sb.append("dataSetUpdates", dataSetUpdates);
         sb.append("metaprojectRegistrations", metaprojectRegistrations);
         sb.append("metaprojectUpdates", metaprojectUpdates);
+        sb.append("vocabularyUpdates", vocabularyUpdates);
         return sb.toString();
     }
 

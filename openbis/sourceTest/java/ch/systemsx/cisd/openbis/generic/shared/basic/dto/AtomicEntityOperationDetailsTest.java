@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
@@ -98,12 +99,14 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
 
         List<MetaprojectUpdatesDTO> metaprojectUpdates = new ArrayList<MetaprojectUpdatesDTO>();
 
+        List<VocabularyUpdatesDTO> vocabularyUpdates = Collections.emptyList();
+
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, null, spaceRegistrations,
                         projectRegistrations, experimentRegistrations, experimentUpdates,
                         sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
                         dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
-                        metaprojectUpdates);
+                        metaprojectUpdates, vocabularyUpdates);
 
         assertEquals(
                 "AtomicEntityOperationDetails[registrationIdOrNull=<null>"
@@ -118,7 +121,7 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
                         + ",dataSetRegistrations=[NewExternalData[code=DATA-SET-CODE,type=<null>,fileFormat=<null>,properties=[]]]"
                         + ",dataSetUpdates=[1]"
                         + ",metaprojectRegistrations=[NewMetaproject[name=TEST-AEOD-TAG,description=short description,ownerId=test]]"
-                        + ",metaprojectUpdates=[]]", details.toString());
+                        + ",metaprojectUpdates=[]" + ",vocabularyUpdates=[]]", details.toString());
 
     }
 }

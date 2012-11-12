@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -209,13 +210,14 @@ public class EntityValidationTest extends GenericSystemTestCase
         List<DataSetBatchUpdatesDTO> dataSetUpdates = Collections.emptyList();
         List<NewMetaproject> metaprojectsRegistrations = Collections.emptyList();
         List<MetaprojectUpdatesDTO> metaprojectUpdates = Collections.emptyList();
+        List<VocabularyUpdatesDTO> vocabularyUpdates = Collections.emptyList();
 
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, null, spaceRegistrations,
                         projectRegistrations, experimentRegistrations, experimentUpdates,
                         sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
                         dataSetRegistrations, dataSetUpdates, metaprojectsRegistrations,
-                        metaprojectUpdates);
+                        metaprojectUpdates, vocabularyUpdates);
         return details;
     }
 

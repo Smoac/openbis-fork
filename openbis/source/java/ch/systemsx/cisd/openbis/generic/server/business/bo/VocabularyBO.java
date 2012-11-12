@@ -50,11 +50,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -309,6 +311,26 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         vocabularyPE.setDescription(updates.getDescription());
         vocabularyPE.setURLTemplate(updates.getURLTemplate());
         vocabularyPE.setChosenFromList(updates.isChosenFromList());
+
+        validateAndSave();
+    }
+
+    @Override
+    public void update(VocabularyUpdatesDTO updates)
+    {
+        loadDataByTechId(TechId.create(updates));
+
+        vocabularyPE.setCode(updates.getCode());
+        vocabularyPE.setDescription(updates.getDescription());
+        vocabularyPE.setURLTemplate(updates.getUrlTemplate());
+        vocabularyPE.setChosenFromList(updates.isChosenFromList());
+        vocabularyPE.setInternalNamespace(updates.isInternalNamespace());
+        vocabularyPE.setManagedInternally(updates.isManagedInternally());
+
+        for (NewVocabularyTerm t : updates.getNewTerms())
+        {
+            addTerm(t.getCode(), t.getDescription(), t.getLabel(), t.getOrdinal(), true);
+        }
 
         validateAndSave();
     }

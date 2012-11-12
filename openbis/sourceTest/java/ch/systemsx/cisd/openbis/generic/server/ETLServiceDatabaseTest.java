@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -321,13 +322,14 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         List<? extends NewExternalData> dataSetRegistrations = Collections.emptyList();
         List<NewMetaproject> metaprojectRegistrations = Collections.emptyList();
         List<MetaprojectUpdatesDTO> metaprojectUpdates = Collections.emptyList();
+        List<VocabularyUpdatesDTO> vocabularyUpdates = Collections.emptyList();
 
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
                         projectRegistrations, experimentRegistrations, experimentUpdates,
                         sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
                         dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
-                        metaprojectUpdates, batchSizeOrNull);
+                        metaprojectUpdates, vocabularyUpdates, batchSizeOrNull);
         service.performEntityOperations(sessionToken, details);
     }
 
@@ -347,13 +349,14 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         List<DataSetBatchUpdatesDTO> dataSetUpdates = Collections.emptyList();
         List<NewMetaproject> metaprojectRegistrations = Collections.emptyList();
         List<MetaprojectUpdatesDTO> metaprojectUpdates = Collections.emptyList();
+        List<VocabularyUpdatesDTO> vocabularyUpdates = Collections.emptyList();
 
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
                         projectRegistrations, experimentRegistrations, experimentUpdates,
                         sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
                         dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
-                        metaprojectUpdates, batchSizeOrNull);
+                        metaprojectUpdates, vocabularyUpdates, batchSizeOrNull);
         service.performEntityOperations(sessionToken, details);
     }
 
@@ -425,13 +428,14 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         List<DataSetBatchUpdatesDTO> dataSetUpdates = Collections.emptyList();
         List<NewMetaproject> metaprojectRegistrations = Collections.emptyList();
         List<MetaprojectUpdatesDTO> metaprojectUpdates = Collections.emptyList();
+        List<VocabularyUpdatesDTO> vocabularyUpdates = Collections.emptyList();
 
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
                         projectRegistrations, experimentRegistrations, experimentUpdates,
                         sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
                         dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
-                        metaprojectUpdates);
+                        metaprojectUpdates, vocabularyUpdates);
         service.performEntityOperations(sessionToken, details);
     }
 

@@ -114,6 +114,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatabaseInstancePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -1083,6 +1084,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
         mtu.setRemovedEntities(Collections.singletonList(new ExperimentTechIdId(4l)));
 
+        List<VocabularyUpdatesDTO> vocabularyUpdates = Collections.emptyList();
+
         prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
                 materialRegistrations, newSamplePE, newSampleIdentifier, newSample, externalData,
                 updatedDataSetCode, dataSetUpdate, newMetaproject, metaprojectPE, mtu);
@@ -1095,7 +1098,8 @@ public class ETLServiceTest extends AbstractServerTestCase
                         Collections.singletonList(newSample), materialRegistrations,
                         materialUpdates, Collections.singletonList(externalData),
                         Collections.singletonList(dataSetUpdate),
-                        Collections.singletonList(newMetaproject), Collections.singletonList(mtu));
+                        Collections.singletonList(newMetaproject), Collections.singletonList(mtu),
+                        vocabularyUpdates);
 
         AtomicEntityOperationResult result =
                 createService().performEntityOperations(SESSION_TOKEN, details);
@@ -1316,6 +1320,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
         mtu.setRemovedEntities(Collections.singletonList(new ExperimentTechIdId(4l)));
 
+        List<VocabularyUpdatesDTO> vocabularyUpdates = Collections.emptyList();
+
         prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
                 materialRegistrations, newSamplePE, newSampleIdentifier, newSample, externalData,
                 updatedDataSetCode, dataSetUpdate, newMetaproject, metaprojectPE, mtu);
@@ -1335,7 +1341,8 @@ public class ETLServiceTest extends AbstractServerTestCase
                         Collections.singletonList(newSample), materialRegistrations,
                         materialUpdates, Collections.singletonList(externalData),
                         Collections.singletonList(dataSetUpdate),
-                        Collections.singletonList(newMetaproject), Collections.singletonList(mtu));
+                        Collections.singletonList(newMetaproject), Collections.singletonList(mtu),
+                        vocabularyUpdates);
 
         AtomicEntityOperationResult result =
                 createService().performEntityOperations(SESSION_TOKEN, details);
