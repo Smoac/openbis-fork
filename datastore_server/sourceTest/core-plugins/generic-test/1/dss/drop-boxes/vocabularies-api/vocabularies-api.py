@@ -39,7 +39,13 @@ def process(transaction):
     vocabularyTerm.setDescription("new description")
     vocabularyTerm.setLabel("new label")
     
+    if vocabulary.containsTerm("NEW_TERM"):
+        raise Exception("Assertion failure: the NEW_TERM has not been yet added to the vocabulary")
+    
     vocabulary.addTerm(vocabularyTerm)
+    
+    if not vocabulary.containsTerm("NEW_TERM"):
+        raise Exception("Assertion failure: the NEW_TERM has already been added to the vocabulary and should be seen")
     
     sample = transaction.createNewSample("/VOC/NORMAL_NEW_TERM", "NORMAL")
     sample.setPropertyValue("TEST_VOCABULARY", vocabularyTerm.getCode())

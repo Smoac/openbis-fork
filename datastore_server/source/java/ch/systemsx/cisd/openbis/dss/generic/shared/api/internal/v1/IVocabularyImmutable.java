@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * Read-only interface to a vocabulary.
- *
+ * 
  * @author Jakub Straszewski
  */
 public interface IVocabularyImmutable
@@ -59,4 +59,8 @@ public interface IVocabularyImmutable
      */
     List<IVocabularyTermImmutable> getTerms();
 
+    /**
+     * Check if there is a term with given code in this vocabulary.
+     */
+    boolean containsTerm(String code);
 }

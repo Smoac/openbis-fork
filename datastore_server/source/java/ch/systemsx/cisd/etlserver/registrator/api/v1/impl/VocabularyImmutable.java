@@ -25,8 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
- * 
- *
  * @author Jakub Straszewski
  */
 public class VocabularyImmutable implements IVocabularyImmutable
@@ -92,4 +90,16 @@ public class VocabularyImmutable implements IVocabularyImmutable
         return results;
     }
 
+    @Override
+    public boolean containsTerm(String code)
+    {
+        for (IVocabularyTermImmutable term : getTerms())
+        {
+            if (term.getCode().equals(code))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }

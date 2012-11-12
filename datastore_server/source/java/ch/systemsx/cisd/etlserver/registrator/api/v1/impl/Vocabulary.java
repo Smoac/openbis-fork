@@ -16,15 +16,15 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabulary;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabularyTerm;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IVocabularyTermImmutable;
 
 /**
- * 
- *
  * @author Jakub Straszewski
  */
 public class Vocabulary extends VocabularyImmutable implements IVocabulary
@@ -77,6 +77,17 @@ public class Vocabulary extends VocabularyImmutable implements IVocabulary
     List<IVocabularyTerm> getNewTerms()
     {
         return newTerms;
+    }
+
+    @Override
+    public List<IVocabularyTermImmutable> getTerms()
+    {
+        List<IVocabularyTermImmutable> results = super.getTerms();
+        for (IVocabularyTerm term : newTerms)
+        {
+            results.add(term);
+        }
+        return Collections.unmodifiableList(results);
     }
 
 }
