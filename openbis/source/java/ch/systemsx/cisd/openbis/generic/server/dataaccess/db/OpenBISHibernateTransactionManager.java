@@ -28,6 +28,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.jdbc.datasource.JdbcTransactionObjectSupport;
 import org.springframework.orm.hibernate3.HibernateTransactionManager;
 import org.springframework.orm.hibernate3.SessionHolder;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.HibernateInterceptorsWrapper;
@@ -68,23 +69,32 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
     WeakHashMap<Transaction, String> rolledBackTransactions =
             new WeakHashMap<Transaction, String>();
 
+    //
+    // EoDSQL managed connection handling
+    //
+
     @Override
-    protected Object doGetTransaction()
+    protected void doBegin(Object transaction, TransactionDefinition definition)
     {
-        final JdbcTransactionObjectSupport transaction =
-                (JdbcTransactionObjectSupport) super.doGetTransaction();
-        if (isExistingTransaction(transaction) == false && transaction.hasConnectionHolder())
-        {
-            QueryTool.setManagedDatabaseConnection(transaction.getConnectionHolder()
-                    .getConnection());
-        }
-        return transaction;
+        super.doBegin(transaction, definition);
+        QueryTool.setManagedDatabaseConnection(((JdbcTransactionObjectSupport) transaction)
+                .getConnectionHolder().getConnection());
     }
+
+    @Override
+    protected void doCleanupAfterCompletion(Object transaction)
+    {
+        super.doCleanupAfterCompletion(transaction);
+        QueryTool.clearManagedDatabaseConnection();
+    }
+
+    //
+    // Exception handling for Hibernate session
+    //
 
     @Override
     public void rollbackTransaction(Transaction tx, String reason)
     {
-        QueryTool.clearManagedDatabaseConnection();
         tx.rollback();
         rolledBackTransactions.put(tx, reason);
     }
@@ -102,7 +112,6 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
     @Override
     protected void doCommit(DefaultTransactionStatus status)
     {
-        QueryTool.clearManagedDatabaseConnection();
         Transaction tx = null;
         try
         {
@@ -155,6 +164,7 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
         SessionHolder sessionHolder = (SessionHolder) method.invoke(status.getTransaction());
         return sessionHolder.getTransaction();
     }
+
 }
 
 interface IHibernateTransactionManagerCallback
