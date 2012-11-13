@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -422,22 +421,8 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
     {
         assert experiment != null : "Missing experiment.";
         experiment.setCode(CodeConverter.tryToDatabase(experiment.getCode()));
-        if (experiment.getModificationDate() == null)
-        {
-            experiment.setModificationDate(new Date());
-        }
         validatePE(experiment);
         final HibernateTemplate template = getHibernateTemplate();
-        template.saveOrUpdate(experiment);
-        // Hibernate behaves as follows: If a PE bean property annotated with
-        // @OptimisticLock(excluded = true) (as it is the case for modifier and modification date)
-        // has changed the version will only be increased if a direct
-        // bean property (like project, but not properties or meta-projects) has also changed. This
-        // sounds like a bug. Thus, modifier and modification date is changed after the following
-        // flush in order to increase the version in case of changed properties or meta-projects.
-        template.flush();
-        experiment.setModifier(modifier);
-        experiment.setModificationDate(new Date());
         template.saveOrUpdate(experiment);
         if (operationLog.isDebugEnabled())
         {

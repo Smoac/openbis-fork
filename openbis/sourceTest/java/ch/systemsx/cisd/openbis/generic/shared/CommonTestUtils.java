@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -68,9 +70,9 @@ public class CommonTestUtils
 {
     public static final VocabularyTermPE BRAIN = createVocabularyTerm("BRAIN");
 
-    private static final VocabularyTermPE LEG = createVocabularyTerm("LEG");
+    public static final VocabularyTermPE LEG = createVocabularyTerm("LEG");
 
-    private static final VocabularyTermPE HEAD = createVocabularyTerm("HEAD");
+    public static final VocabularyTermPE HEAD = createVocabularyTerm("HEAD");
 
     public static final TechId TECH_ID = new TechId(1L);
 
@@ -138,23 +140,49 @@ public class CommonTestUtils
 
     public static ExperimentPropertyPE createNotesProperty(ExperimentTypePE experimentType)
     {
+        return createStringProperty(experimentType, "Check the impact on the hand on 03/04/2008.");
+    }
+
+    public static ExperimentPropertyPE createStringProperty(ExperimentTypePE experimentType,
+            String value)
+    {
         ExperimentTypePropertyTypePE notesAssignment =
                 createAssignment(ExamplePropertyTypes.NOTES, experimentType);
         ExperimentPropertyPE deleted = new ExperimentPropertyPE();
         deleted.setEntityTypePropertyType(notesAssignment);
-        deleted.setValue("Check the impact on the hand on 03/04/2008.");
+        deleted.setValue(value);
         return deleted;
     }
 
     public static ExperimentPropertyPE createOrganProperty(ExperimentTypePE experimentType)
     {
+        return createTermProperty(experimentType, BRAIN);
+    }
 
+    public static ExperimentPropertyPE createTermProperty(ExperimentTypePE experimentType,
+            VocabularyTermPE term)
+    {
         ExperimentTypePropertyTypePE organAssignment =
                 createAssignment(ExamplePropertyTypes.INFECTED_ORGAN, experimentType);
         ExperimentPropertyPE changed = new ExperimentPropertyPE();
         changed.setEntityTypePropertyType(organAssignment);
-        changed.setVocabularyTerm(CommonTestUtils.BRAIN);
+        changed.setVocabularyTerm(term);
         return changed;
+    }
+
+    public static ExperimentPropertyPE createMaterialProperty(ExperimentTypePE experimentType)
+    {
+        return createMaterialProperty(experimentType, "ABCD");
+    }
+
+    public static ExperimentPropertyPE createMaterialProperty(ExperimentTypePE experimentType,
+            String materialCode)
+    {
+        ExperimentPropertyPE property = new ExperimentPropertyPE();
+        property.setEntityTypePropertyType(createAssignment(ExamplePropertyTypes.INFECTING_VIRUS,
+                experimentType));
+        property.setMaterialValue(createMaterial(VIRUS, materialCode));
+        return property;
     }
 
     public static ExperimentTypePropertyTypePE createAssignment(PropertyTypePE propertyType,
@@ -369,6 +397,16 @@ public class CommonTestUtils
         final AttachmentContentPE attachmentContentPE = new AttachmentContentPE();
         attachmentContentPE.setValue(content.getBytes());
         return attachmentContentPE;
+    }
+
+    public static MaterialPE createMaterial(MaterialTypePE materialType, String code)
+    {
+        final MaterialPE material = new MaterialPE();
+        material.setCode(code);
+        material.setMaterialType(materialType);
+        material.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
+        material.setRegistrator(EXAMPLE_SESSION.tryGetPerson());
+        return material;
     }
 
     public static MaterialTypePE createMaterialType()

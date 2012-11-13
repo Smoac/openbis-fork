@@ -65,6 +65,7 @@ public class RelationshipService implements IRelationshipService
         RelationshipUtils.updateModificationDateAndModifier(previousProject, session);
         experiment.setProject(project);
         RelationshipUtils.updateModificationDateAndModifier(project, session);
+        RelationshipUtils.updateModificationDateAndModifier(experiment, session);
     }
 
     @Override

@@ -22,6 +22,7 @@ import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.E
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,12 +30,14 @@ import java.util.Set;
 import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -50,6 +53,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IModifierAndModificationDateBean;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -82,9 +87,20 @@ public final class ExperimentBOTest extends AbstractBOTest
 
     private static final String EXP_CODE = "EXP-CODE";
 
+    private IEntityPropertiesHolder entityAsPropertiesHolder;
+
+    private IModifierAndModificationDateBean entityAsModifiableBean;
+
     private final ExperimentBO createExperimentBO()
     {
         return new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, relationshipService);
+    }
+
+    @BeforeMethod
+    public void setUp()
+    {
+        entityAsPropertiesHolder = context.mock(IEntityPropertiesHolder.class);
+        entityAsModifiableBean = context.mock(IModifierAndModificationDateBean.class);
     }
 
     @Test
@@ -101,12 +117,20 @@ public final class ExperimentBOTest extends AbstractBOTest
             final List<IEntityProperty> newProperties, final EntityTypePE entityType,
             final PersonPE registrator, final List<ExperimentPropertyPE> updated)
     {
+        final Set<ExperimentPropertyPE> newProps = new HashSet<ExperimentPropertyPE>(updated);
+        prepareUpdateProperties(oldProperties, newProperties, entityType, registrator, newProps);
+    }
+
+    private void prepareUpdateProperties(final Set<ExperimentPropertyPE> oldProperties,
+            final List<IEntityProperty> newProperties, final EntityTypePE entityType,
+            final PersonPE registrator, final Set<ExperimentPropertyPE> newProps)
+    {
         context.checking(new Expectations()
             {
                 {
                     one(propertiesConverter).updateProperties(oldProperties, entityType,
                             newProperties, registrator, Collections.<String> emptySet());
-                    will(returnValue(new HashSet<ExperimentPropertyPE>(updated)));
+                    will(returnValue(newProps));
 
                 }
             });
@@ -205,6 +229,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         final ProjectPE project = createProject(dbCode, groupCode, projectCode);
         final ExperimentTypePE type = createExperimentType(expTypeCode);
         final ExperimentPE experiment = createExperiment(project, expCode, type);
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
 
         prepareAnyDaoCreation();
         context.checking(new Expectations()
@@ -233,6 +258,12 @@ public final class ExperimentBOTest extends AbstractBOTest
         experimentBO.define(newExperiment);
         experimentBO.save();
 
+        assertEquals(EXAMPLE_PERSON, experimentBO.getExperiment().getModifier());
+        assertEquals(EXAMPLE_PERSON, experimentBO.getExperiment().getProject().getModifier());
+        timeIntervalChecker
+                .assertDateInInterval(experimentBO.getExperiment().getModificationDate());
+        timeIntervalChecker.assertDateInInterval(experimentBO.getExperiment().getProject()
+                .getModificationDate());
         context.assertIsSatisfied();
     }
 
@@ -423,21 +454,221 @@ public final class ExperimentBOTest extends AbstractBOTest
                 new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter);
         bo.loadByExperimentIdentifier(identifier);
 
-        assertTrue(bo.getExperiment().getProperties().contains(changedProperty));
-        assertTrue(bo.getExperiment().getProperties().contains(deletedProperty));
-        assertFalse(bo.getExperiment().getProperties().contains(addedProperty));
+        ExperimentPE experiment = bo.getExperiment();
+        assertTrue(experiment.getProperties().contains(changedProperty));
+        assertTrue(experiment.getProperties().contains(deletedProperty));
+        assertFalse(experiment.getProperties().contains(addedProperty));
 
         final List<IEntityProperty> newProperties = createDummyProperties();
         prepareUpdateProperties(exp.getProperties(), newProperties, experimentType,
                 ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(),
                 Arrays.asList(changedProperty, addedProperty));
-        bo.updateProperties(newProperties);
+        bo.updateProperties(experiment.getEntityType(), newProperties, experiment, experiment);
 
-        assertTrue(bo.getExperiment().getProperties().contains(changedProperty));
-        assertFalse(bo.getExperiment().getProperties().contains(deletedProperty));
-        assertTrue(bo.getExperiment().getProperties().contains(addedProperty));
+        assertTrue(experiment.getProperties().contains(changedProperty));
+        assertFalse(experiment.getProperties().contains(deletedProperty));
+        assertTrue(experiment.getProperties().contains(addedProperty));
 
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdatePropertiesWithSameProperties()
+    {
+        ExperimentTypePE entityType = CommonTestUtils.createExperimentType();
+        ExperimentPropertyPE materialProp = CommonTestUtils.createMaterialProperty(entityType);
+        ExperimentPropertyPE stringProp = CommonTestUtils.createNotesProperty(entityType);
+        ExperimentPropertyPE termProp = CommonTestUtils.createOrganProperty(entityType);
+        final Set<ExperimentPropertyPE> existingProperties =
+                new HashSet<ExperimentPropertyPE>(Arrays.asList(materialProp, stringProp, termProp));
+        List<IEntityProperty> newProperties = createDummyProperties();
+        prepareUpdateProperties(existingProperties, newProperties, entityType,
+                ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(),
+                Arrays.asList(materialProp, stringProp, termProp));
+        prepareEntity(existingProperties, null);
+        ExperimentBO bo =
+                new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter);
+
+        bo.updateProperties(entityType, newProperties, entityAsPropertiesHolder,
+                entityAsModifiableBean);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdatePropertiesOfUnchangedProperties()
+    {
+        ExperimentTypePE entityType = CommonTestUtils.createExperimentType();
+        ExperimentPropertyPE materialProp = CommonTestUtils.createMaterialProperty(entityType);
+        ExperimentPropertyPE materialProp2 = CommonTestUtils.createMaterialProperty(entityType);
+        ExperimentPropertyPE stringProp = CommonTestUtils.createNotesProperty(entityType);
+        ExperimentPropertyPE stringProp2 = CommonTestUtils.createNotesProperty(entityType);
+        ExperimentPropertyPE termProp = CommonTestUtils.createOrganProperty(entityType);
+        ExperimentPropertyPE termProp2 = CommonTestUtils.createOrganProperty(entityType);
+        final Set<ExperimentPropertyPE> existingProperties =
+                new HashSet<ExperimentPropertyPE>(Arrays.asList(materialProp, stringProp, termProp));
+        List<IEntityProperty> newProperties = createDummyProperties();
+        prepareUpdateProperties(existingProperties, newProperties, entityType,
+                ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(),
+                Arrays.asList(stringProp2, materialProp2, termProp2));
+        prepareEntity(existingProperties, null);
+        ExperimentBO bo =
+                new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter);
+
+        bo.updateProperties(entityType, newProperties, entityAsPropertiesHolder,
+                entityAsModifiableBean);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdatePropertiesOfChangedStringProperty()
+    {
+        ExperimentTypePE entityType = CommonTestUtils.createExperimentType();
+        ExperimentPropertyPE materialProp = CommonTestUtils.createMaterialProperty(entityType);
+        ExperimentPropertyPE stringProp = CommonTestUtils.createStringProperty(entityType, "alpha");
+        ExperimentPropertyPE changedStringProp =
+                CommonTestUtils.createStringProperty(entityType, "beta");
+        ExperimentPropertyPE termProp = CommonTestUtils.createOrganProperty(entityType);
+        final Set<ExperimentPropertyPE> existingProperties =
+                new HashSet<ExperimentPropertyPE>(Arrays.asList(materialProp, stringProp, termProp));
+        List<IEntityProperty> newProperties = createDummyProperties();
+        final Set<ExperimentPropertyPE> newConvertedProperties =
+                new HashSet<ExperimentPropertyPE>(Arrays.asList(materialProp, changedStringProp,
+                        termProp));
+        prepareUpdateProperties(existingProperties, newProperties, entityType,
+                ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(), newConvertedProperties);
+        prepareEntity(existingProperties, newConvertedProperties);
+        ExperimentBO bo =
+                new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter);
+
+        bo.updateProperties(entityType, newProperties, entityAsPropertiesHolder,
+                entityAsModifiableBean);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdatePropertiesOfChangedMaterialProperty()
+    {
+        ExperimentTypePE entityType = CommonTestUtils.createExperimentType();
+        ExperimentPropertyPE materialProp = CommonTestUtils.createMaterialProperty(entityType);
+        ExperimentPropertyPE changedMaterialProp =
+                CommonTestUtils.createMaterialProperty(entityType, "BETA");
+        ExperimentPropertyPE stringProp = CommonTestUtils.createStringProperty(entityType, "alpha");
+        ExperimentPropertyPE termProp = CommonTestUtils.createOrganProperty(entityType);
+        final Set<ExperimentPropertyPE> existingProperties =
+                new HashSet<ExperimentPropertyPE>(Arrays.asList(materialProp, stringProp, termProp));
+        List<IEntityProperty> newProperties = createDummyProperties();
+        final Set<ExperimentPropertyPE> newConvertedProperties =
+                new HashSet<ExperimentPropertyPE>(Arrays.asList(changedMaterialProp, stringProp,
+                        termProp));
+        prepareUpdateProperties(existingProperties, newProperties, entityType,
+                ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(), newConvertedProperties);
+        prepareEntity(existingProperties, newConvertedProperties);
+        ExperimentBO bo =
+                new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter);
+
+        bo.updateProperties(entityType, newProperties, entityAsPropertiesHolder,
+                entityAsModifiableBean);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdatePropertiesOfChangedTermProperty()
+    {
+        ExperimentTypePE entityType = CommonTestUtils.createExperimentType();
+        ExperimentPropertyPE materialProp = CommonTestUtils.createMaterialProperty(entityType);
+        ExperimentPropertyPE stringProp = CommonTestUtils.createStringProperty(entityType, "alpha");
+        ExperimentPropertyPE termProp =
+                CommonTestUtils.createTermProperty(entityType, CommonTestUtils.BRAIN);
+        ExperimentPropertyPE changedTermProp =
+                CommonTestUtils.createTermProperty(entityType, CommonTestUtils.LEG);
+        final Set<ExperimentPropertyPE> existingProperties =
+                new HashSet<ExperimentPropertyPE>(Arrays.asList(materialProp, stringProp, termProp));
+        List<IEntityProperty> newProperties = createDummyProperties();
+        final Set<ExperimentPropertyPE> newConvertedProperties =
+                new HashSet<ExperimentPropertyPE>(Arrays.asList(materialProp, stringProp,
+                        changedTermProp));
+        prepareUpdateProperties(existingProperties, newProperties, entityType,
+                ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(), newConvertedProperties);
+        prepareEntity(existingProperties, newConvertedProperties);
+        ExperimentBO bo =
+                new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter);
+
+        bo.updateProperties(entityType, newProperties, entityAsPropertiesHolder,
+                entityAsModifiableBean);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdatePropertiesOfWithAddedTermProperty()
+    {
+        ExperimentTypePE entityType = CommonTestUtils.createExperimentType();
+        ExperimentPropertyPE materialProp = CommonTestUtils.createMaterialProperty(entityType);
+        ExperimentPropertyPE stringProp = CommonTestUtils.createStringProperty(entityType, "alpha");
+        ExperimentPropertyPE termProp = CommonTestUtils.createOrganProperty(entityType);
+        final Set<ExperimentPropertyPE> existingProperties =
+                new HashSet<ExperimentPropertyPE>(Arrays.asList(materialProp, stringProp));
+        List<IEntityProperty> newProperties = createDummyProperties();
+        final Set<ExperimentPropertyPE> newConvertedProperties =
+                new HashSet<ExperimentPropertyPE>(Arrays.asList(materialProp, stringProp, termProp));
+        prepareUpdateProperties(existingProperties, newProperties, entityType,
+                ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(), newConvertedProperties);
+        prepareEntity(existingProperties, newConvertedProperties);
+        ExperimentBO bo =
+                new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter);
+
+        bo.updateProperties(entityType, newProperties, entityAsPropertiesHolder,
+                entityAsModifiableBean);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdatePropertiesOfWithRemovedMaterialProperty()
+    {
+        ExperimentTypePE entityType = CommonTestUtils.createExperimentType();
+        ExperimentPropertyPE materialProp = CommonTestUtils.createMaterialProperty(entityType);
+        ExperimentPropertyPE stringProp = CommonTestUtils.createStringProperty(entityType, "alpha");
+        ExperimentPropertyPE termProp = CommonTestUtils.createOrganProperty(entityType);
+        final Set<ExperimentPropertyPE> existingProperties =
+                new HashSet<ExperimentPropertyPE>(Arrays.asList(materialProp, stringProp, termProp));
+        List<IEntityProperty> newProperties = createDummyProperties();
+        final Set<ExperimentPropertyPE> newConvertedProperties =
+                new HashSet<ExperimentPropertyPE>(Arrays.asList(stringProp, termProp));
+        prepareUpdateProperties(existingProperties, newProperties, entityType,
+                ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(), newConvertedProperties);
+        prepareEntity(existingProperties, newConvertedProperties);
+        ExperimentBO bo =
+                new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter);
+
+        bo.updateProperties(entityType, newProperties, entityAsPropertiesHolder,
+                entityAsModifiableBean);
+
+        context.assertIsSatisfied();
+    }
+
+    private void prepareEntity(final Set<ExperimentPropertyPE> existingProperties,
+            final Set<ExperimentPropertyPE> newConvertedPropertiesOrNull)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(entityAsPropertiesHolder).getProperties();
+                    will(returnValue(existingProperties));
+
+                    if (newConvertedPropertiesOrNull != null)
+                    {
+                        one(entityAsPropertiesHolder).setProperties(newConvertedPropertiesOrNull);
+                        one(entityAsModifiableBean).setModifier(
+                                ManagerTestTool.EXAMPLE_SESSION.tryGetPerson());
+                        one(entityAsModifiableBean).setModificationDate(with(any(Date.class)));
+                    }
+                }
+            });
     }
 
     private List<IEntityProperty> createDummyProperties()

@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +29,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -203,6 +203,10 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                     + identifier);
         }
         final ExperimentPE exp = tryGetExperiment(identifier, project);
+        if (exp == null)
+        {
+            throw new UserFailureException("Unkown experiment: " + identifier);
+        }
         return exp;
     }
 
@@ -341,6 +345,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                 newExperiment.getProperties(), registrator);
         defineExperimentProject(newExperiment, experimentIdentifier);
         experiment.setPermId(getOrCreatePermID(newExperiment));
+        RelationshipUtils.updateModificationDateAndModifier(experiment, session);
         setMetaprojects(experiment, newExperiment.getMetaprojectsOrNull());
         dataChanged = true;
     }
@@ -370,9 +375,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         {
             throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND, newExperiment);
         }
-        project.setModificationDate(new Date());
-        project.setModifier(findPerson());
         experiment.setProject(project);
+        RelationshipUtils.updateModificationDateAndModifier(project, session);
     }
 
     private void defineExperimentType(NewExperiment newExperiment)
@@ -457,7 +461,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         {
             throwModifiedEntityException("Experiment");
         }
-        updateProperties(updates.getProperties());
+        updateProperties(experiment.getEntityType(), updates.getProperties(), experiment,
+                experiment);
 
         ProjectPE project = findProject(updates.getProjectIdentifier());
         ProjectPE previousProject = experiment.getProject();
@@ -610,14 +615,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND, newProjectIdentifier);
         }
         return project;
-    }
-
-    @Private
-    void updateProperties(List<IEntityProperty> properties)
-    {
-        final Set<ExperimentPropertyPE> existingProperties = experiment.getProperties();
-        final ExperimentTypePE type = experiment.getExperimentType();
-        experiment.setProperties(convertProperties(type, existingProperties, properties));
     }
 
     @Override

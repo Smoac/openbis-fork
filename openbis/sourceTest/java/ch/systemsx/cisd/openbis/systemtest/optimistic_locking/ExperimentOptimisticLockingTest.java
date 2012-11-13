@@ -214,6 +214,7 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
         Experiment experiment = toolBox.createAndLoadExperiment(1);
         toolBox.createAndLoadSample(1, experiment);
         ExperimentUpdatesDTO update = new ExperimentUpdatesDTO();
+        update.setVersion(toolBox.loadExperiment(experiment).getVersion());
         update.setExperimentId(new TechId(experiment));
         update.setSampleCodes(new String[0]);
         update.setProperties(ToolBox.NO_PROPERTIES);

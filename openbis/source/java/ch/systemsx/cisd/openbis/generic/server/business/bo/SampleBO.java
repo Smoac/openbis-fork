@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdenti
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SamplePermIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
@@ -316,7 +315,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         {
             throwModifiedEntityException("Sample");
         }
-        updateProperties(updates.getProperties());
+        updateProperties(sample.getSampleType(), updates.getProperties(), sample, sample);
         spaceUpdated = updateSpace(sample, updates.getSampleIdentifier(), null);
         if (updates.isUpdateExperimentLink())
         {
@@ -332,13 +331,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         setMetaprojects(sample, updates.getMetaprojectsOrNull());
 
         dataChanged = true;
-    }
-
-    private void updateProperties(List<IEntityProperty> properties)
-    {
-        final Set<SamplePropertyPE> existingProperties = sample.getProperties();
-        final SampleTypePE type = sample.getSampleType();
-        sample.setProperties(convertProperties(type, existingProperties, properties));
     }
 
     private void updateParents(SampleUpdatesDTO updates)

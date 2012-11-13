@@ -86,16 +86,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         {
             sample.setModificationDate(new Date());
         }
-        hibernateTemplate.saveOrUpdate(sample);
-        // Hibernate behaves as follows: If a PE bean property annotated with
-        // @OptimisticLock(excluded = true) (as it is the case for modifier and modification date)
-        // has changed the version will only be increased if a direct
-        // bean property (like space, but not properties or meta-projects) has also changed. This
-        // sounds like a bug. Thus, modifier and modification date is changed after the following
-        // flush in order to increase the version in case of changed properties or meta-projects.
-        hibernateTemplate.flush();
-        sample.setModifier(modifier);
-        sample.setModificationDate(new Date());
+        // sample.setModifier(modifier);
+        // sample.setModificationDate(new Date());
         hibernateTemplate.saveOrUpdate(sample);
         if (doLog && operationLog.isInfoEnabled())
         {

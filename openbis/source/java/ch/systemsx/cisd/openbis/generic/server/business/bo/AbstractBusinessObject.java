@@ -17,8 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.SessionFactory;
@@ -72,7 +75,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IModifierAndModificationDateBean;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -515,5 +521,59 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public IMetaprojectDAO getMetaprojectDAO()
     {
         return daoFactory.getMetaprojectDAO();
+    }
+
+    protected void updateProperties(EntityTypePE entityType, List<IEntityProperty> properties,
+            IEntityPropertiesHolder entityAsPropertiesHolder,
+            IModifierAndModificationDateBean entityAsModifiableBean)
+    {
+        Set<? extends EntityPropertyPE> existingProperties =
+                entityAsPropertiesHolder.getProperties();
+        Map<String, Object> existingPropertyValuesByCode = new HashMap<String, Object>();
+        for (EntityPropertyPE existingProperty : existingProperties)
+        {
+            String propertyCode =
+                    existingProperty.getEntityTypePropertyType().getPropertyType().getCode();
+            existingPropertyValuesByCode.put(propertyCode, getValue(existingProperty));
+        }
+        Set<? extends EntityPropertyPE> convertedProperties =
+                convertProperties(entityType, existingProperties, properties);
+        if (isEquals(existingPropertyValuesByCode, convertedProperties) == false)
+        {
+            entityAsPropertiesHolder.setProperties(convertedProperties);
+            entityAsModifiableBean.setModifier(findPerson());
+            entityAsModifiableBean.setModificationDate(new Date());
+        }
+    }
+
+    private boolean isEquals(Map<String, Object> existingPropertyValuesByCode,
+            Set<? extends EntityPropertyPE> properties)
+    {
+        for (EntityPropertyPE property : properties)
+        {
+            Object existingValue =
+                    existingPropertyValuesByCode.remove(property.getEntityTypePropertyType()
+                            .getPropertyType().getCode());
+            if (existingValue == null || existingValue.equals(getValue(property)) == false)
+            {
+                return false;
+            }
+        }
+        return existingPropertyValuesByCode.isEmpty();
+    }
+
+    private Object getValue(EntityPropertyPE property)
+    {
+        String value = property.getValue();
+        if (value != null)
+        {
+            return value;
+        }
+        MaterialPE materialValue = property.getMaterialValue();
+        if (materialValue != null)
+        {
+            return materialValue;
+        }
+        return property.getVocabularyTerm();
     }
 }
