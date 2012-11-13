@@ -60,9 +60,7 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
 
     private static final int MAX_ROWS = 100 * FETCH_SIZE; // 100.000
 
-    private static final long MINUTE_MILIS = 60 * 1000;
-
-    private static final long QUERY_TIMEOUT_MILIS = 10 * MINUTE_MILIS;
+    private static final int QUERY_TIMEOUT_SECS = 5 * 60; // 5 minutes
 
     private static final String ENTITY_COLUMN_NAME_SUFFIX = "_KEY";
 
@@ -194,10 +192,7 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
         final JdbcTemplate template = getJdbcTemplate();
         template.setFetchSize(FETCH_SIZE);
         template.setMaxRows(MAX_ROWS + 1); // fetch one more row than allowed to detect excess
-        // WORKAROUND setQueryTimeout(int) is not implemented in the JDBC driver for PostgreSQL
-        // NOTE: This fallback solution is PostgreSQL specific!
-        // Setting timeout only once to all statements executed by this DAO doesn't seem to work.
-        template.execute("SET statement_timeout TO " + QUERY_TIMEOUT_MILIS);
+        template.setQueryTimeout(QUERY_TIMEOUT_SECS);
         final String resolvedQuery = createSQLQueryWithBindingsResolved(sqlQuery, bindingsOrNull);
         return (TableModel) template.execute(resolvedQuery, callback);
     }
