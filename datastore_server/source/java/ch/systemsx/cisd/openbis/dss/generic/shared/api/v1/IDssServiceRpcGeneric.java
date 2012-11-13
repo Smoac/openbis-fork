@@ -232,12 +232,16 @@ public interface IDssServiceRpcGeneric extends IRpcService
     /**
      * Returns metadata for all aggregation services. See
      * {@link IQueryApiServer#listAggregationServices(String)}
+     * 
+     * @since 1.6
      */
     public List<AggregationServiceDescription> listAggregationServices(String sessionToken);
 
     /**
      * Create the report from the specified aggregation service. See
      * {@link IQueryApiServer#createReportFromAggregationService(String, String, String, Map)}
+     * 
+     * @since 1.6
      */
     public QueryTableModel createReportFromAggregationService(String sessionToken,
             String aggregationServiceName, Map<String, Object> parameters);
@@ -245,12 +249,16 @@ public interface IDssServiceRpcGeneric extends IRpcService
     /**
      * Returns meta data for all reporting plugins which deliver a table. See
      * {@link IQueryApiServer#listTableReportDescriptions(String)}
+     * 
+     * @since 1.6
      */
     public List<ReportDescription> listTableReportDescriptions(String sessionToken);
 
     /**
      * Creates for the specified data sets a report. See
      * {@link IQueryApiServer#createReportFromDataSets(String, String, String, List)}
+     * 
+     * @since 1.6
      */
     public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
             String serviceKey, List<String> dataSetCodes);

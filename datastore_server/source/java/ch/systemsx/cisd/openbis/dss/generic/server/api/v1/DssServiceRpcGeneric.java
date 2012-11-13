@@ -303,7 +303,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     @Override
     public int getMinorVersion()
     {
-        return 5;
+        return 6;
     }
 
     /**
