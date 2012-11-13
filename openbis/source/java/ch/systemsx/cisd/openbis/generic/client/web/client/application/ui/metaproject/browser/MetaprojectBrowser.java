@@ -57,7 +57,7 @@ public class MetaprojectBrowser extends ContentPanel implements IDisposableCompo
         grids = new MetaprojectBrowserGrids(viewContext);
         composite = new DisposableComposite(this, tree, grids);
 
-        BorderLayoutData treeLayout = new BorderLayoutData(LayoutRegion.WEST, 200, 20, 2000);
+        BorderLayoutData treeLayout = new BorderLayoutData(LayoutRegion.WEST, 400, 20, 2000);
         treeLayout.setSplit(true);
         treeLayout.setMargins(new Margins(2));
         treeLayout.setCollapsible(true);

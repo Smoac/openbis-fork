@@ -24,7 +24,10 @@ import java.util.Map;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
+import com.extjs.gxt.ui.client.data.Loader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.data.TreeLoadEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -117,6 +120,24 @@ public class MetaprojectTree extends TreeGrid<MetaprojectTreeItemData>
                             }
                         }
                     });
+
+        loader.addListener(Loader.Load, new Listener<TreeLoadEvent>()
+            {
+                @Override
+                public void handleEvent(TreeLoadEvent event)
+                {
+                    List<MetaprojectTreeItemData> items = event.getData();
+
+                    if (items != null && items.size() > 0
+                            && items.get(0) instanceof MetaprojectTreeMetaprojectItemData)
+                    {
+                        for (MetaprojectTreeItemData item : items)
+                        {
+                            MetaprojectTree.this.setExpanded(item, true);
+                        }
+                    }
+                }
+            });
 
         loader.load();
     }
