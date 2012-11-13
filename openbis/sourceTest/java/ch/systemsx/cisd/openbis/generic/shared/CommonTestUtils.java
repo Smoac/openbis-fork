@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
-import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -373,7 +371,7 @@ public class CommonTestUtils
     {
         final ExperimentPE exp = new ExperimentPE();
         final ExperimentTypePE expType = new ExperimentTypePE();
-        expType.setCode("expType");
+        expType.setCode("TEST-EXP-TYPE");
         exp.setId(42L);
         exp.setExperimentType(expType);
         exp.setCode(ei.getExperimentCode());
@@ -405,7 +403,6 @@ public class CommonTestUtils
         material.setCode(code);
         material.setMaterialType(materialType);
         material.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
-        material.setRegistrator(EXAMPLE_SESSION.tryGetPerson());
         return material;
     }
 
