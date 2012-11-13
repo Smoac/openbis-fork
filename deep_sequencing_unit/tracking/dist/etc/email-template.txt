@@ -1,5 +1,4 @@
-Dear Mr./Mrs.
-
+Dear Mrs./Mr.
 This email has been sent to you automatically by the openBIS system because
 you have been registered as a contact person or principal investigator.
 
@@ -7,5 +6,5 @@ There is progress considering your sequencing order. Below you will find all the
 
 {generated-content}
 
-Kind regards, 
-	Deep Sequencing Unit Team
+Kind regards,
+Quantitative Genomics Facility Team
