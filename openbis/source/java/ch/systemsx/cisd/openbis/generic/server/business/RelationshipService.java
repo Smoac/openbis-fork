@@ -122,6 +122,7 @@ public class RelationshipService implements IRelationshipService
     {
         sample.setDatabaseInstance(null);
         sample.setSpace(space);
+        RelationshipUtils.updateModificationDateAndModifier(sample, session);
     }
 
     @Override
@@ -136,6 +137,7 @@ public class RelationshipService implements IRelationshipService
         SpacePE space = sample.getSpace();
         sample.setSpace(null);
         sample.setDatabaseInstance(space.getDatabaseInstance());
+        RelationshipUtils.updateModificationDateAndModifier(sample, session);
     }
 
     @Override

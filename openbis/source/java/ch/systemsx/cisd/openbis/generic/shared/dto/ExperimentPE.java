@@ -357,6 +357,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return new UnmodifiableListDecorator<SamplePE>(getExperimentSamples());
     }
 
+    @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
     private List<SamplePE> getExperimentSamples()
     {
@@ -402,6 +403,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
         return new UnmodifiableListDecorator<DataPE>(getExperimentDataSets());
     }
 
+    @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentInternal")
     private List<DataPE> getExperimentDataSets()
     {
