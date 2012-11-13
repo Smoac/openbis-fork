@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -27,7 +28,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.Da
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DataSetFileDTOPredicate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.NewDataSetPredicate;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
 /**
  * Generic functionality for interacting with the DSS.
@@ -227,10 +230,29 @@ public interface IDssServiceRpcGeneric extends IRpcService
             throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
+     * Returns metadata for all aggregation services. See
+     * {@link IQueryApiServer#listAggregationServices(String)}
+     */
+    public List<AggregationServiceDescription> listAggregationServices(String sessionToken);
+
+    /**
      * Create the report from the specified aggregation service. See
      * {@link IQueryApiServer#createReportFromAggregationService(String, String, String, Map)}
      */
     public QueryTableModel createReportFromAggregationService(String sessionToken,
             String aggregationServiceName, Map<String, Object> parameters);
+
+    /**
+     * Returns meta data for all reporting plugins which deliver a table. See
+     * {@link IQueryApiServer#listTableReportDescriptions(String)}
+     */
+    public List<ReportDescription> listTableReportDescriptions(String sessionToken);
+
+    /**
+     * Creates for the specified data sets a report. See
+     * {@link IQueryApiServer#createReportFromDataSets(String, String, String, List)}
+     */
+    public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
+            String serviceKey, List<String> dataSetCodes);
 
 }

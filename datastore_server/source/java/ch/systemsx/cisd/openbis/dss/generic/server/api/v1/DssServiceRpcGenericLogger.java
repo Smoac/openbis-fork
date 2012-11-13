@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -28,7 +29,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
 /**
  * @author Franz-Josef Elmer
@@ -182,4 +185,25 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
+    public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
+            String serviceKey, List<String> dataSetCodes)
+    {
+        logAccess(sessionToken, "create_report_from_data_sets", "SERVICE_KEY(%s)", serviceKey);
+        return null;
+    }
+
+    @Override
+    public List<AggregationServiceDescription> listAggregationServices(String sessionToken)
+    {
+        logAccess(sessionToken, "list-aggregation-services");
+        return null;
+    }
+
+    @Override
+    public List<ReportDescription> listTableReportDescriptions(String sessionToken)
+    {
+        logAccess(sessionToken, "list-table-report-descriptions");
+        return null;
+    }
 }

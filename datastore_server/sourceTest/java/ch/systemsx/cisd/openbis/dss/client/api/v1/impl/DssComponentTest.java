@@ -75,7 +75,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationS
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
 /**
  * A test of the DSS component and {@link IDssServiceRpcGeneric}.
@@ -693,6 +695,24 @@ public class DssComponentTest extends AbstractFileSystemTestCase
             return null;
         }
 
+        @Override
+        public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
+                String serviceKey, List<String> dataSetCodes)
+        {
+            return null;
+        }
+
+        @Override
+        public List<AggregationServiceDescription> listAggregationServices(String sessionToken)
+        {
+            return null;
+        }
+
+        @Override
+        public List<ReportDescription> listTableReportDescriptions(String sessionToken)
+        {
+            return null;
+        }
     }
 
     private class MockDssServiceRpcV1_1 extends MockDssServiceRpcV1_0

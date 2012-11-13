@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
@@ -54,7 +55,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.HierarchicalFileInfoDs
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
 /**
  * Implementation of the generic RPC interface.
@@ -407,5 +410,27 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
                 queryApiServer.createReportFromAggregationService(sessionToken, "STANDARD",
                         aggregationServiceName, parameters);
         return result;
+    }
+
+    @Override
+    public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
+            String serviceKey, List<String> dataSetCodes)
+    {
+        QueryTableModel result =
+                queryApiServer.createReportFromDataSets(sessionToken, dataStoreCode, serviceKey,
+                        dataSetCodes);
+        return result;
+    }
+
+    @Override
+    public List<AggregationServiceDescription> listAggregationServices(String sessionToken)
+    {
+        return queryApiServer.listAggregationServices(sessionToken);
+    }
+
+    @Override
+    public List<ReportDescription> listTableReportDescriptions(String sessionToken)
+    {
+        return queryApiServer.listTableReportDescriptions(sessionToken);
     }
 }
