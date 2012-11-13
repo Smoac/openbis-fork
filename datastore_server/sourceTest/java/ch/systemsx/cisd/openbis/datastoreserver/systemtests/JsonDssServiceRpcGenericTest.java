@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import org.apache.commons.io.FileUtils;
@@ -35,7 +34,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.api.json.GenericObjectMapper;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
-import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 /**
  * Verifies that the functionality of {@link IDssServiceRpcGeneric} is accessible over JSON-RPC.
@@ -59,8 +57,6 @@ public class JsonDssServiceRpcGenericTest extends SystemTestCase
 
     private String sessionToken;
 
-    private String observerSessionToken;
-
     @BeforeClass
     public void beforeClass() throws IOException
     {
@@ -68,7 +64,6 @@ public class JsonDssServiceRpcGenericTest extends SystemTestCase
         dssRpcService = createDssRpcService();
 
         sessionToken = openbisService.tryToAuthenticateForAllServices("test", "1");
-        observerSessionToken = openbisService.tryToAuthenticateForAllServices("observer", "1");
 
         File resourceDir =
                 new File("../datastore_server/resource/test-data/" + getClass().getSimpleName());
@@ -98,51 +93,13 @@ public class JsonDssServiceRpcGenericTest extends SystemTestCase
 
     }
 
-    // TODO: the two tests below are just a pure copy of the test from query facade test. We could
-    // somehow avoid the code duplication here
-    /**
-     * The observer trying to access the forbidden dataset via the authorized content provider.
-     */
-    @Test(expectedExceptions = Exception.class)
-    public void testJythonAggregationServiceWithContentProviderAuthentication() throws Exception
-    {
-        HashMap<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("dataset-code", "20081105092159111-1");
-
-        File content = new File(new File(new File(store, "42"), "a"), "1");
-        content.mkdirs();
-
-        dssRpcService.createReportFromAggregationService(observerSessionToken,
-                "content-provider-aggregation-service", parameters);
-    }
-
-    /**
-     * The testcase, where the observer tries to acces the dataset that he cannot see, but through
-     * the non-authorized content provider.
-     */
-    @Test
-    public void testJythonAggregationServiceWithoutContentProviderAuthentication() throws Exception
-    {
-        HashMap<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("dataset-code", "20081105092159111-1");
-
-        File content = new File(new File(new File(store, "42"), "a"), "1");
-        content.mkdirs();
-
-        QueryTableModel table =
-                dssRpcService.createReportFromAggregationService(observerSessionToken,
-                        "content-provider-aggregation-service-no-authorization", parameters);
-
-        assertEquals("[name]", AbstractQueryFacadeTest.getHeaders(table).toString());
-        assertEquals("[1]", Arrays.asList(table.getRows().get(0)).toString());
-        assertEquals(1, table.getRows().size());
-    }
-
-    private static IGeneralInformationService createOpenbisService()
+    public static IGeneralInformationService createOpenbisService()
     {
         try
         {
-            JsonRpcHttpClient client = new JsonRpcHttpClient(new URL(OPENBIS_URL));
+            JsonRpcHttpClient client =
+                    new JsonRpcHttpClient(new GenericObjectMapper(), new URL(OPENBIS_URL),
+                            new HashMap<String, String>());
             return ProxyUtil.createProxy(JsonDssServiceRpcGenericTest.class.getClassLoader(),
                     IGeneralInformationService.class, client);
         } catch (MalformedURLException ex)
@@ -152,7 +109,7 @@ public class JsonDssServiceRpcGenericTest extends SystemTestCase
         }
     }
 
-    private static IDssServiceRpcGeneric createDssRpcService()
+    public static IDssServiceRpcGeneric createDssRpcService()
     {
         try
         {

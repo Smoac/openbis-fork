@@ -16,15 +16,15 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
-import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.FacadeFactory;
-import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
@@ -33,67 +33,71 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription
  * @author Jakub Straszewski
  */
 @Test(groups = "slow")
-public class QueryFacadeTest extends AbstractQueryFacadeTest
+public class QueryApiJsonDssServiceRpcGenericTest extends AbstractQueryFacadeTest
 {
+    private IGeneralInformationService openbisService;
 
-    private static final String OPENBIS_URL = "http://localhost:8888";
+    private IDssServiceRpcGeneric dssRpcService;
 
-    IQueryApiFacade queryFacade;
+    private String sessionToken;
 
-    @BeforeMethod
-    public void beforeMethod()
+    @BeforeClass
+    public void beforeClass() throws IOException
     {
-        queryFacade = createServiceFacade("test");
-    }
+        openbisService = JsonDssServiceRpcGenericTest.createOpenbisService();
+        dssRpcService = JsonDssServiceRpcGenericTest.createDssRpcService();
 
-    private IQueryApiFacade createServiceFacade(String userName)
-    {
-        return FacadeFactory.create(OPENBIS_URL, userName, "a");
-    }
+        sessionToken = openbisService.tryToAuthenticateForAllServices("test", "1");
 
-    @Override
-    public List<AggregationServiceDescription> listAggregationServices()
-    {
-        return queryFacade.listAggregationServices();
     }
 
     @Override
-    public List<ReportDescription> listTableReportDescriptions()
-    {
-        return queryFacade.listTableReportDescriptions();
-    }
-
-    @Override
-    public QueryTableModel createReportFromAggregationService(String serviceCode,
+    public QueryTableModel createReportFromAggregationService(String serviceKey,
             Map<String, Object> parameters)
     {
-        return createReportFromAggregationService("test", serviceCode, parameters);
+        return dssRpcService.createReportFromAggregationService(sessionToken, serviceKey,
+                parameters);
     }
 
     @Override
     public QueryTableModel createReportFromAggregationService(String user, String serviceCode,
             Map<String, Object> parameters)
     {
-        AggregationServiceDescription service = getAggregationServiceDescription(serviceCode);
-        return createServiceFacade(user).createReportFromAggregationService(service, parameters);
+        String userSessionToken = openbisService.tryToAuthenticateForAllServices(user, "1");
+        return dssRpcService.createReportFromAggregationService(userSessionToken, serviceCode,
+                parameters);
     }
 
     @Override
     public QueryTableModel createReportFromDataSets(ReportDescription description,
             List<String> dataSetCodes)
     {
-        return queryFacade.createReportFromDataSets(description, dataSetCodes);
+        return dssRpcService.createReportFromDataSets(sessionToken, description.getDataStoreCode(),
+                description.getKey(), dataSetCodes);
     }
 
     @Override
     public IGeneralInformationService getGeneralInformationService()
     {
-        return queryFacade.getGeneralInformationService();
+        return openbisService;
     }
 
     @Override
     public String getSessionToken()
     {
-        return queryFacade.getSessionToken();
+        return sessionToken;
     }
+
+    @Override
+    public List<AggregationServiceDescription> listAggregationServices()
+    {
+        return dssRpcService.listAggregationServices(sessionToken);
+    }
+
+    @Override
+    public List<ReportDescription> listTableReportDescriptions()
+    {
+        return dssRpcService.listTableReportDescriptions(sessionToken);
+    }
+
 }
