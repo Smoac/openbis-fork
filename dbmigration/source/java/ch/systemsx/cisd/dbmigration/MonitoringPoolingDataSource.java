@@ -116,12 +116,15 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                 }
             } else
             {
-                logConnection = false;
-                if (machineLog.isInfoEnabled())
+                if (logConnection)
                 {
-                    machineLog.info(String.format(
-                            "Switch off database connection logging: %d <= %d",
-                            numActive, activeConnectionsLogThreshold));
+                    logConnection = false;
+                    if (machineLog.isInfoEnabled())
+                    {
+                        machineLog.info(String.format(
+                                "Switch off database connection logging: %d <= %d",
+                                numActive, activeConnectionsLogThreshold));
+                    }
                 }
             }
             if ((activeConnectionsLogInterval > 0)
