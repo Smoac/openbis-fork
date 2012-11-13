@@ -51,6 +51,8 @@ public class HelpPageIdentifier
 
         PROJECT(ADMINISTRATION),
 
+        METAPROJECT(ADMINISTRATION),
+
         VOCABULARY(ADMINISTRATION),
         // vocabulary subdomains
         TERM(VOCABULARY),

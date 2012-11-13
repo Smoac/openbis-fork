@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -80,6 +81,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsCount;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -1375,11 +1378,24 @@ public interface ICommonServer extends IServer
     public List<Metaproject> listMetaprojects(String sessionToken);
 
     /**
+     * Lists all metaproject assignments counts for given user.
+     */
+    @Transactional(readOnly = true)
+    public List<MetaprojectAssignmentsCount> listMetaprojectAssignmentsCounts(String sessionToken);
+
+    /**
      * Returns object containing all entities assigned to given metaproject.
      */
     @Transactional(readOnly = true)
     public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
-            IMetaprojectId metaproject);
+            IMetaprojectId metaprojectId);
+
+    /**
+     * Returns object containing chosen entities assigned to given metaproject.
+     */
+    @Transactional(readOnly = true)
+    public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
+            IMetaprojectId metaprojectId, EnumSet<MetaprojectAssignmentsFetchOption> fetchOptions);
 
     /**
      * Adds specified entities to given metaproject.

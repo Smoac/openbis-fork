@@ -951,6 +951,24 @@ public abstract class Dict
     public static final String PROJECT_REGISTRATION = "project_registration";
 
     //
+    // Metaproject Tree
+    //
+
+    public static final String METAPROJECT_TREE_COLUMN_HEADER = "metaproject_tree_column_header";
+
+    public static final String METAPROJECT_TREE_INFO_LINK = "metaproject_tree_info_link";
+
+    //
+    // Metaproject Browser
+    //
+    public static final String METAPROJECT_BROWSER = "metaproject_browser";
+
+    public static final String METAPROJECT_BROWSER_TREE_TITLE = "metaproject_browser_tree_title";
+
+    public static final String METAPROJECT_BROWSER_TREE_TOOLTIP =
+            "metaproject_browser_tree_tooltip";
+
+    //
     // Detailed Search
     //
     public static final String DATA_SET_SEARCH = "data_set_search";

@@ -59,4 +59,17 @@ public interface IMetaprojectDAO extends IGenericDAO<MetaprojectPE>
     public Collection<MetaprojectAssignmentPE> listMetaprojectAssignmentsForEntities(
             PersonPE owner, Collection<? extends IEntityInformationWithPropertiesHolder> entities,
             EntityKind entityKind);
+
+    /**
+     * Lists assignments for the given entity kind and metaproject.
+     */
+    Collection<MetaprojectAssignmentPE> listMetaprojectAssignments(Long metaprojectId,
+            EntityKind entityKind);
+
+    /**
+     * Returns a map with counts of assignments for different entity kinds for the given
+     * metaproject.
+     */
+    public int getMetaprojectAssignmentsCount(Long metaprojectId, EntityKind entityKind);
+
 }

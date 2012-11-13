@@ -474,6 +474,8 @@ var common = {
   PROJECT_MENU_BROWSE: "Projects",
   PROJECT_MENU_NEW: "Project",
   
+  METAPROJECT_MENU_BROWSE: "Metaprojects",
+  
   menu_property_types: "Metadata",
   PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES: "Browse Property Types",
   PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS: "Browse Assignments",
@@ -605,6 +607,7 @@ var common = {
   HELP__TABLE_SETTINGS__CUSTOM_FILTER__EDIT: "Add or Edit Custom Filter",
   HELP__EXPORT_DATA__ACTION: "Data Exporting",
   HELP__PERFORM_COMPUTATION__ACTION: "Performing Computations on Data Sets",
+  HELP__METAPROJECT__BROWSE: "Metaproject Browser",
     
   //
   // User Settings Dialog
@@ -722,6 +725,20 @@ var common = {
  // Project Browser
  //
  project_browser: "Project Browser",
+
+ //
+ // Metaproject Tree
+ //
+ 
+ metaproject_tree_column_header: "Metaproject / Entity Kind / Entity",
+ metaproject_tree_info_link: "(info)",
+ 
+ //
+ // Metaproject Browser
+ //
+ metaproject_browser: "Metaproject Browser",
+ metaproject_browser_tree_title: "Metaprojects",
+ metaproject_browser_tree_tooltip: "Click on a row with an entity type (i.e. Experiments, Samples, Data Sets, Materials) to see entities of that type that belong to the given metaproject.",
 
  //
  // Project Registration

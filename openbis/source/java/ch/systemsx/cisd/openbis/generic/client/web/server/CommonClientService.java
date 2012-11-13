@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -111,6 +112,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -161,6 +163,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsCount;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -696,6 +701,30 @@ public final class CommonClientService extends AbstractClientService implements
         MetaprojectProvider metaprojectProvider =
                 new MetaprojectProvider(commonServer, getSessionToken(), criteria);
         return listEntities(metaprojectProvider, criteria);
+    }
+
+    @Override
+    public List<MetaprojectAssignmentsCount> listMetaprojectAssignmentsCounts()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return commonServer.listMetaprojectAssignmentsCounts(getSessionToken());
+    }
+
+    @Override
+    public MetaprojectAssignments getMetaprojectAssignments(Long metaprojectId,
+            MetaprojectAssignmentsFetchOption[] fetchOptions)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        EnumSet<MetaprojectAssignmentsFetchOption> fetchOptionsSet =
+                EnumSet.noneOf(MetaprojectAssignmentsFetchOption.class);
+
+        for (MetaprojectAssignmentsFetchOption fetchOption : fetchOptions)
+        {
+            fetchOptionsSet.add(fetchOption);
+        }
+
+        return commonServer.getMetaprojectAssignments(getSessionToken(), new MetaprojectTechIdId(
+                metaprojectId), fetchOptionsSet);
     }
 
     @Override

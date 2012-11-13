@@ -28,7 +28,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.MetaprojectGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.grid.MetaprojectGrid;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 

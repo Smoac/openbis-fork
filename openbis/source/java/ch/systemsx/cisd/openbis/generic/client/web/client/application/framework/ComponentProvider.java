@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBatchRegistrationUpdatePanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.browser.MetaprojectBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentForm;
@@ -964,6 +965,44 @@ public final class ComponentProvider
                 public String getTabTitle()
                 {
                     return getMessage(Dict.PROJECT_BROWSER);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
+            };
+    }
+
+    public final AbstractTabItemFactory getMetaprojectBrowser()
+    {
+        return new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    IDisposableComponent browser = new MetaprojectBrowser(viewContext);
+                    return createTab(getTabTitle(), browser);
+                }
+
+                @Override
+                public String getId()
+                {
+                    return MetaprojectBrowser.ID;
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.METAPROJECT, HelpPageAction.BROWSE);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return getMessage(Dict.METAPROJECT_BROWSER);
                 }
 
                 @Override

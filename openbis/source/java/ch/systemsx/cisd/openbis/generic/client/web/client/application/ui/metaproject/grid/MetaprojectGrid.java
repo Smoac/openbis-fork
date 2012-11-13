@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.grid;
 
 import java.util.Arrays;
 import java.util.HashSet;

@@ -90,6 +90,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsCount;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -158,6 +161,18 @@ public interface ICommonClientService extends IClientService
      */
     public TypedTableResultSet<Metaproject> listMetaprojects(ListMetaprojectsCriteria criteria)
             throws UserFailureException;
+
+    /**
+     * Returns a list of all metaproject assignment counts.
+     */
+    public List<MetaprojectAssignmentsCount> listMetaprojectAssignmentsCounts()
+            throws UserFailureException;
+
+    /**
+     * Returns metaproject assignments.
+     */
+    public MetaprojectAssignments getMetaprojectAssignments(Long metaprojectId,
+            MetaprojectAssignmentsFetchOption[] fetchOptions) throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for scripts.

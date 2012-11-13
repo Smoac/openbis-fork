@@ -50,6 +50,9 @@ public class BrowseMenu extends TopMenuItem
                 componentProvider.getDataSetSearch()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_BROWSE, messageProvider,
                 componentProvider.getMaterialBrowser()));
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.METAPROJECT_MENU_BROWSE, messageProvider,
+                componentProvider.getMetaprojectBrowser()));
+
         setMenu(submenu);
     }
 }

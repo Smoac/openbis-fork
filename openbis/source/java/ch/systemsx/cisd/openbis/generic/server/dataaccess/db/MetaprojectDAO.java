@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -162,5 +163,47 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
         }
 
         return assignments;
+    }
+
+    @Override
+    public Collection<MetaprojectAssignmentPE> listMetaprojectAssignments(Long metaprojectId,
+            EntityKind entityKind)
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(MetaprojectAssignmentPE.class);
+        criteria.createAlias("metaproject", "m");
+        criteria.add(Restrictions.eq("m.id", metaprojectId));
+        criteria.add(Restrictions.isNotNull(entityKind.getLabel()));
+        final List<MetaprojectAssignmentPE> assignments =
+                cast(getHibernateTemplate().findByCriteria(criteria));
+
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(%s, %s): %d metaproject(s) have been found.",
+                    MethodUtils.getCurrentMethod().getName(), metaprojectId, entityKind,
+                    assignments.size()));
+        }
+
+        return assignments;
+    }
+
+    @Override
+    public int getMetaprojectAssignmentsCount(Long metaprojectId, EntityKind entityKind)
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(MetaprojectAssignmentPE.class);
+        criteria.createAlias("metaproject", "m");
+        criteria.add(Restrictions.eq("m.id", metaprojectId));
+        criteria.add(Restrictions.isNotNull(entityKind.getLabel()));
+        criteria.setProjection(Projections.rowCount());
+
+        Number count = (Number) getHibernateTemplate().findByCriteria(criteria).get(0);
+        
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(%s, %s): %d metaproject assignments have been found.",
+                    MethodUtils.getCurrentMethod().getName(), metaprojectId, entityKind,
+                    count));
+        }
+        
+        return count.intValue();
     }
 }

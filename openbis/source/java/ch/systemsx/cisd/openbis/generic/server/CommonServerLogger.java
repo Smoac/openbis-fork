@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,6 +83,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsCount;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -649,8 +652,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             DataSetRelatedEntities entities, boolean withDetails, String userId)
     {
         logAccess(sessionToken, "list_related_datasets_on_behalf_of_user", "WITH_DETAILS(%s)",
-                "WITH_USER(%s)",
-                withDetails, userId);
+                "WITH_USER(%s)", withDetails, userId);
         return null;
     }
 
@@ -1509,6 +1511,22 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public List<Metaproject> listMetaprojects(String sessionToken)
     {
         logAccess(sessionToken, "listMetaprojects");
+        return null;
+    }
+
+    @Override
+    public List<MetaprojectAssignmentsCount> listMetaprojectAssignmentsCounts(String sessionToken)
+    {
+        logAccess(sessionToken, "listMetaprojectAssignmentsCounts");
+        return null;
+    }
+
+    @Override
+    public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
+            IMetaprojectId metaprojectId, EnumSet<MetaprojectAssignmentsFetchOption> fetchOptions)
+    {
+        logAccess(sessionToken, "getMetaprojectAssignments",
+                "METAPROJECT_ID(%s) FETCH_OPTIONS(%s)", metaprojectId, fetchOptions);
         return null;
     }
 
