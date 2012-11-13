@@ -3596,6 +3596,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public List<MetaprojectAssignmentsCount> listMetaprojectAssignmentsCounts(String sessionToken)
     {
         IMetaprojectDAO metaprojectDAO = getDAOFactory().getMetaprojectDAO();
