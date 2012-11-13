@@ -197,8 +197,10 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
         return (TableModel) template.execute(resolvedQuery, callback);
     }
 
-    // WORKAROUND this solution is not safe
-    // prepared statement parameters would be better but then we need to know the type of parameters
+    // FIXME this solution is not safe.
+    // We should use a prepared statement and set the parameters according to the information
+    // that PreparedStatement.getParameterMetaData() provides or check whether setObject() does the
+    // trick for us here.
     private static String createSQLQueryWithBindingsResolved(String sqlQuery,
             QueryParameterBindings bindingsOrNull)
     {
@@ -207,10 +209,19 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
         {
             for (Entry<String, String> entry : bindingsOrNull.getBindings().entrySet())
             {
+                validateParameterValue(entry.getValue());
                 template.bind(entry.getKey(), entry.getValue());
             }
         }
         return template.createText();
     }
 
+    private static void validateParameterValue(String value) throws UserFailureException
+    {
+        if (value.contains("'"))
+        {
+            throw new UserFailureException("Parameter value \"" + value
+                    + "\" contains invalid character.");
+        }
+    }
 }
