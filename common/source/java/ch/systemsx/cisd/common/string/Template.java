@@ -94,12 +94,15 @@ public class Template
     {
         private final String variableName;
 
+        private final int variableIndex;
+
         private String value;
 
-        VariableToken(String variablePlaceHolder)
+        VariableToken(String variablePlaceHolder, int variableIndex)
         {
             assert variablePlaceHolder != null : "Unspecified variable place holder.";
             this.variableName = variablePlaceHolder;
+            this.variableIndex = variableIndex;
         }
 
         @Override
@@ -121,6 +124,11 @@ public class Template
         void bind(String v)
         {
             this.value = v;
+        }
+
+        int getVariableIndex()
+        {
+            return variableIndex;
         }
     }
 
@@ -221,6 +229,8 @@ public class Template
 
         private final StringBuilder builder;
 
+        private int index;
+
         TokenBuilder(Map<String, VariableToken> variableTokens, List<IToken> tokens)
         {
             this.variableTokens = variableTokens;
@@ -253,7 +263,7 @@ public class Template
             VariableToken token = variableTokens.get(variableName);
             if (token == null)
             {
-                token = new VariableToken(variableName);
+                token = new VariableToken(variableName, index++);
                 variableTokens.put(variableName, token);
             }
             tokens.add(token);
@@ -303,8 +313,9 @@ public class Template
         LinkedHashMap<String, VariableToken> map = new LinkedHashMap<String, VariableToken>();
         for (VariableToken variableToken : variableTokens.values())
         {
-            String variableName = variableToken.getVariableName();
-            map.put(variableName, new VariableToken(variableName));
+            final String variableName = variableToken.getVariableName();
+            final int variableIndex = variableToken.getVariableIndex();
+            map.put(variableName, new VariableToken(variableName, variableIndex));
         }
         ArrayList<IToken> list = new ArrayList<IToken>();
         for (IToken token : tokens)
@@ -359,6 +370,21 @@ public class Template
         }
         variableToken.bind(value);
         return true;
+    }
+
+    /**
+     * Returns index (position, starting with 0) of the <var>placeholderName</var>, or -1, if the
+     * place holder name cannot be found in the template.
+     */
+    public int tryGetIndex(String placeholderName)
+    {
+        assert placeholderName != null : "Unspecified placeholder name.";
+        VariableToken variableToken = variableTokens.get(placeholderName);
+        if (variableToken == null)
+        {
+            return -1;
+        }
+        return variableToken.getVariableIndex();
     }
 
     /**

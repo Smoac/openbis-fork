@@ -49,6 +49,7 @@ public class TemplateTest
     {
         Template template = new Template("hello ${name}!");
         template.bind("name", "world");
+        assertEquals(0, template.tryGetIndex("name"));
         assertEquals("hello world!", template.createText());
     }
 
@@ -69,6 +70,7 @@ public class TemplateTest
         Template template = new Template("hello ${name}${name}");
         template.bind("name", "world");
         assertEquals(1, template.getPlaceholderNames().size());
+        assertEquals(0, template.tryGetIndex("name"));
         assertEquals("hello worldworld", template.createText());
     }
 
@@ -82,6 +84,8 @@ public class TemplateTest
         assertEquals(true, placeholderNames.contains("name"));
         assertEquals(true, placeholderNames.contains("name2"));
         assertEquals(2, placeholderNames.size());
+        assertEquals(0, template.tryGetIndex("name"));
+        assertEquals(1, template.tryGetIndex("name2"));
         assertEquals("hello world, do you know Albert Einstein?", template.createText());
     }
 
