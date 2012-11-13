@@ -75,6 +75,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationS
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 /**
  * A test of the DSS component and {@link IDssServiceRpcGeneric}.
@@ -681,6 +682,13 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         @Override
         public InputStream getFileFromSessionWorkspace(String sessionToken, String filePath)
                 throws IOExceptionUnchecked
+        {
+            return null;
+        }
+
+        @Override
+        public QueryTableModel createReportFromAggregationService(String sessionToken,
+                String aggregationServiceName, Map<String, Object> parameters)
         {
             return null;
         }

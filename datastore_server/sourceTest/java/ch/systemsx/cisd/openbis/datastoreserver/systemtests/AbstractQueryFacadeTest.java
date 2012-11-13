@@ -76,7 +76,7 @@ public class AbstractQueryFacadeTest extends SystemTestCase
         return createServiceFacade(user).createReportFromAggregationService(service, parameters);
     }
 
-    protected List<String> getHeaders(QueryTableModel tableModel)
+    public static List<String> getHeaders(QueryTableModel tableModel)
     {
         List<QueryTableColumn> columns = tableModel.getColumns();
         List<String> headers = new ArrayList<String>();

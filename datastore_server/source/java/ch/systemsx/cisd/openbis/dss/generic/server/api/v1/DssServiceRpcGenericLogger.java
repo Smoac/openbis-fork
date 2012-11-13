@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Map;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
@@ -27,6 +28,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 /**
  * @author Franz-Josef Elmer
@@ -168,6 +170,15 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
             throws IOExceptionUnchecked, IllegalArgumentException
     {
         logAccess(sessionToken, "get_validation_script", "DATA_SET_TYPE(%s)", dataSetTypeOrNull);
+        return null;
+    }
+
+    @Override
+    public QueryTableModel createReportFromAggregationService(String sessionToken,
+            String aggregationServiceName, Map<String, Object> parameters)
+    {
+        logAccess(sessionToken, "create_report_from_aggregation_service", "SERVICE_KEY(%s)",
+                aggregationServiceName);
         return null;
     }
 

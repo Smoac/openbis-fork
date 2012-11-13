@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -52,6 +53,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.HierarchicalFileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 /**
  * Implementation of the generic RPC interface.
@@ -71,23 +74,25 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
 
     private final PutDataSetService putService;
 
+    private final IQueryApiServer queryApiServer;
+
     private final File sessionWorkspaceRootDirectory;
 
     /**
      * The designated constructor.
      */
     public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
-            IPluginTaskInfoProvider infoProvider)
+            IQueryApiServer apiServer, IPluginTaskInfoProvider infoProvider)
     {
         // NOTE: IShareIdManager and IHierarchicalContentProvider will be lazily created by spring
-        this(openBISService, infoProvider, null, null);
+        this(openBISService, apiServer, infoProvider, null, null);
     }
 
-    DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
+    DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService, IQueryApiServer apiServer,
             IPluginTaskInfoProvider infoProvider, IShareIdManager shareIdManager,
             IHierarchicalContentProvider contentProvider)
     {
-        this(openBISService, infoProvider, null, shareIdManager, contentProvider,
+        this(openBISService, apiServer, infoProvider, null, shareIdManager, contentProvider,
                 new PutDataSetService(openBISService, operationLog));
     }
 
@@ -95,11 +100,12 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
      * A constructor for testing.
      */
     public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
-            IPluginTaskInfoProvider infoProvider, IStreamRepository streamRepository,
-            IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider,
-            PutDataSetService service)
+            IQueryApiServer apiServer, IPluginTaskInfoProvider infoProvider,
+            IStreamRepository streamRepository, IShareIdManager shareIdManager,
+            IHierarchicalContentProvider contentProvider, PutDataSetService service)
     {
         super(openBISService, streamRepository, shareIdManager, contentProvider);
+        queryApiServer = apiServer;
         putService = service;
         this.sessionWorkspaceRootDirectory = infoProvider.getSessionWorkspaceRootDir();
         operationLog.info("[rpc] Started DSS API V1 service.");
@@ -393,4 +399,13 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         return putService.getValidationScript(dataSetTypeOrNull);
     }
 
+    @Override
+    public QueryTableModel createReportFromAggregationService(String sessionToken,
+            String aggregationServiceName, Map<String, Object> parameters)
+    {
+        QueryTableModel result =
+                queryApiServer.createReportFromAggregationService(sessionToken, "STANDARD",
+                        aggregationServiceName, parameters);
+        return result;
+    }
 }

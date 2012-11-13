@@ -83,6 +83,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 
 /**
  * A class that encapsulates the {@link IETLLIMSService}.
@@ -133,6 +134,21 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
         return finder.createService(IGeneralInformationService.class, openBISURL,
                 normalizeTimeout(timeout));
+    }
+
+    /**
+     * Creates a remote version of {@link IQueryApiServer} for specified URL and time out (in
+     * minutes)
+     */
+    public static IQueryApiServer createQueryApiServer(String openBISURL, String timeout)
+    {
+        ServiceFinder finder =
+                new ServiceFinder("openbis", IQueryApiServer.QUERY_PLUGIN_SERVER_URL);
+        if (timeout.startsWith("$"))
+        {
+            return finder.createService(IQueryApiServer.class, openBISURL);
+        }
+        return finder.createService(IQueryApiServer.class, openBISURL, normalizeTimeout(timeout));
     }
 
     private static long normalizeTimeout(String timeout)

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
 import java.io.InputStream;
+import java.util.Map;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.api.IRpcService;
@@ -25,6 +26,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.Da
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DataSetCodeStringPredicate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DataSetFileDTOPredicate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.NewDataSetPredicate;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 /**
  * Generic functionality for interacting with the DSS.
@@ -222,4 +225,12 @@ public interface IDssServiceRpcGeneric extends IRpcService
      */
     public String getValidationScript(String sessionToken, String dataSetTypeOrNull)
             throws IOExceptionUnchecked, IllegalArgumentException;
+
+    /**
+     * Create the report from the specified aggregation service. See
+     * {@link IQueryApiServer#createReportFromAggregationService(String, String, String, Map)}
+     */
+    public QueryTableModel createReportFromAggregationService(String sessionToken,
+            String aggregationServiceName, Map<String, Object> parameters);
+
 }

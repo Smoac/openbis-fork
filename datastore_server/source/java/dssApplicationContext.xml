@@ -45,6 +45,12 @@
 	      <constructor-arg value="${server-url}"/>
 	      <constructor-arg value="${server-timeout-in-minutes}"/>
 	  </bean>
+	
+	  <bean id="query-api-server" class="ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService"
+	      factory-method="createQueryApiServer">
+	      <constructor-arg value="${server-url}"/>
+	      <constructor-arg value="${server-timeout-in-minutes}"/>
+	  </bean>
 	  
 	  <bean id="sessionHolder" class="ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder">
 	      <property name="dataStoreCode" value="${data-store-server-code}"/>
@@ -116,7 +122,8 @@
     
     <bean id="dss-service-rpc-generic" 
           class="ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric">
-        <constructor-arg ref="openBIS-service" /> 
+        <constructor-arg ref="openBIS-service" />
+        <constructor-arg ref="query-api-server" />  
         <constructor-arg ref="plugin-tasks" />
         <property name="downloadUrl" value="${download-url}"/>
     </bean>

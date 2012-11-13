@@ -92,6 +92,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -124,6 +125,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 
     private ITopLevelDataSetRegistrator dataSetRegistrator;
 
+    private IQueryApiServer apiService;
+
     private IMailClient mailClient;
 
     private IDataSetValidator validator;
@@ -153,6 +156,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         context = new Mockery();
         openBisService = context.mock(IEncapsulatedOpenBISService.class);
         streamRepository = context.mock(IStreamRepository.class);
+        apiService = context.mock(IQueryApiServer.class);
         shareIdManager = context.mock(IShareIdManager.class);
         applicationContext.addBean("openBIS-service", openBisService);
         mailClient = context.mock(IMailClient.class);
@@ -192,8 +196,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                         new TestDataSetTypeToTopLevelRegistratorMapper(dataSetRegistrator),
                         mailClient, "TEST", validator);
         rpcService =
-                new DssServiceRpcGeneric(openBisService, infoProvider, streamRepository,
-                        shareIdManager, contentProvider, putService);
+                new DssServiceRpcGeneric(openBisService, apiService, infoProvider,
+                        streamRepository, shareIdManager, contentProvider, putService);
         rpcService.setStoreDirectory(storeDir);
     }
 

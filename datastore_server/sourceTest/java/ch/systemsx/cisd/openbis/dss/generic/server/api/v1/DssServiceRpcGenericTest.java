@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 
 /**
  * @author Franz-Josef Elmer
@@ -58,8 +59,10 @@ public class DssServiceRpcGenericTest extends AssertJUnit
     private IDssServiceRpcGeneric dssService;
 
     private IShareIdManager shareIdManager;
-    
+
     private IPluginTaskInfoProvider infoProvider;
+
+    private IQueryApiServer apiService;
 
     private IHierarchicalContentProvider contentProvider;
 
@@ -73,15 +76,16 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         ServiceProviderTestWrapper.setApplicationContext(applicationContext);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
+        apiService = context.mock(IQueryApiServer.class);
         shareIdManager = context.mock(IShareIdManager.class);
         infoProvider = context.mock(IPluginTaskInfoProvider.class);
         context.checking(new Expectations()
-        {
             {
-                one(infoProvider).getSessionWorkspaceRootDir();
-                will(returnValue(new File("sessionWorkspaceRoot")));
-            }
-        });
+                {
+                    one(infoProvider).getSessionWorkspaceRootDir();
+                    will(returnValue(new File("sessionWorkspaceRoot")));
+                }
+            });
         contentProvider = context.mock(IHierarchicalContentProvider.class);
         content = context.mock(IHierarchicalContent.class);
         applicationContext.addBean("openBIS-service", service);
@@ -89,7 +93,7 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         proxyFactoryBean.setInterfaces(new Class[]
             { IDssServiceRpcGeneric.class });
         DssServiceRpcGeneric nakedDssService =
-                new DssServiceRpcGeneric(service, infoProvider, shareIdManager,
+                new DssServiceRpcGeneric(service, apiService, infoProvider, shareIdManager,
                         contentProvider);
         proxyFactoryBean.setTarget(nakedDssService);
         proxyFactoryBean.addAdvisor(new DssServiceRpcAuthorizationAdvisor(shareIdManager));
