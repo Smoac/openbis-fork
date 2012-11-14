@@ -97,14 +97,14 @@
 #pragma mark - Selection
 - (CISDOBIpadEntity *)selectObjectAtIndexPath:(NSIndexPath *)indexPath
 {
-    _selectedObject = [self objectAtIndexPath: indexPath];
-    return _selectedObject;
+    self.selectedObject = [self objectAtIndexPath: indexPath];
+    return self.selectedObject;
 }
 
 - (BOOL)selectionHasChildren
 {
-    if (!_selectedObject) return NO;
-    return [self entityHasChildren: _selectedObject];
+    if (!self.selectedObject) return NO;
+    return [self entityHasChildren: self.selectedObject];
 }
 
 - (BOOL)entityHasChildren:(CISDOBIpadEntity *)entity

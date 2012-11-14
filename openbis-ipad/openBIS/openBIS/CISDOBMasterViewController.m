@@ -29,7 +29,9 @@
 
 @interface CISDOBMasterViewController ()
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath;
+- (void)configureCell:(UITableViewCell *)cell forEntity:(CISDOBIpadEntity *)entity;
 - (void)initializeDrillDownFromParent:(CISDOBMasterViewController *)parent;
+- (void)selectionDidChangeForModel;
 @end
 
 @implementation CISDOBMasterViewController
@@ -54,6 +56,9 @@
 //    UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(insertNewObject:)];
 //    self.navigationItem.rightBarButtonItem = addButton;
     self.detailViewController = (CISDOBDetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
+    self.browseState = [[CISDOBTableBrowseState alloc] initWithController: self];
+    self.filterState = [[CISDOBTableFilterState alloc] initWithController: self];
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -72,31 +77,32 @@
     }
 }
 
+- (CISDOBTableDisplayState *)displayStateForTable:(UITableView *)tableView
+{
+    return (tableView == self.browseTableView) ? self.browseState : self.filterState;
+}
+
 #pragma mark - Table View
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return [self.openBisModel numberOfSections];
+    return [[self displayStateForTable: tableView] numberOfSectionsInTableView: tableView];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return [self.openBisModel numberOfEntitiesInSection: section];
+    return [[self displayStateForTable: tableView] tableView: tableView numberOfRowsInSection: section];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath]; //  This only works in iOS 6,
-//    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell"]; // iOS5
-    [self configureCell:cell atIndexPath:indexPath];
-    return cell;
+    return [[self displayStateForTable: tableView] tableView: tableView cellForRowAtIndexPath: indexPath];
 }
 
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    return [self.openBisModel titleForHeaderInSection: section];
+    return [[self displayStateForTable: tableView] tableView: tableView titleForHeaderInSection: section];
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
@@ -127,8 +133,11 @@
     // Segue to the detail view unless we are on the ipad
     if ([[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad) return;
     
-    [self.openBisModel selectObjectAtIndexPath: indexPath];
+    [[self displayStateForTable: tableView] tableView: tableView didSelectRowAtIndexPath: indexPath];
+}
 
+- (void)selectionDidChangeForModel
+{
     // Figure out what to do with the detail view and the navigation view
     self.detailViewController.openBisModel = self.openBisModel;
     if ([self.openBisModel selectionHasChildren]) {
@@ -155,10 +164,15 @@
 
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
-    CISDOBIpadEntity *object = [self.openBisModel objectAtIndexPath: indexPath];
-    cell.textLabel.text = object.summaryHeader;
-    cell.detailTextLabel.text = object.summary;
-    if ([self.openBisModel entityHasChildren: object]) {
+    CISDOBIpadEntity *entity = [self.openBisModel objectAtIndexPath: indexPath];
+    [self configureCell: cell forEntity: entity];
+}
+
+- (void)configureCell:(UITableViewCell *)cell forEntity:(CISDOBIpadEntity *)entity
+{
+    cell.textLabel.text = entity.summaryHeader;
+    cell.detailTextLabel.text = entity.summary;
+    if ([self.openBisModel entityHasChildren: entity]) {
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     } else {
         cell.accessoryType = UITableViewCellAccessoryNone;
@@ -227,32 +241,10 @@
 }
  */
 
-#pragma mark - UISearchBarDelegate
-- (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
+#pragma mark - UISearchDisplayDelegate
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
-    // TODO Put the controller in search mode
-    NSLog(@"searchBarTextDidBeginEditing:");
-    searchBar.showsCancelButton = YES;
-}
-
-- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
-{
-    // TODO Figure out what to do here
-    NSLog(@"searchBarTextDidEndEditing:");
-}
-
-- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
-{
-    // TODO Update the results
-    NSLog(@"searchBar:textDidChange:");
-}
-
-- (void)searchBarCancelButtonClicked:(UISearchBar *) searchBar
-{
-    // TODO Take the controller out of search mode
-    searchBar.showsCancelButton = NO;
-    [self.searchBar resignFirstResponder];
-    [self.tableView becomeFirstResponder];
+    return [self.filterState searchDisplayController: controller shouldReloadTableForSearchString: searchString];
 }
 
 #pragma mark - Server Communication
@@ -265,7 +257,6 @@
 
 
 #pragma mark - Properties
-
 - (void)setOpenBisModel:(CISDOBOpenBisModel *)openBisModel
 {
     _openBisModel = openBisModel;
@@ -278,5 +269,114 @@
     // The title of the drill-down is the parent's title
     self.title = parent.openBisModel.selectedObject.summaryHeader;
 }
+
+@end
+
+@implementation CISDOBTableDisplayState
+
+- (id)initWithController:(CISDOBMasterViewController *)controller;
+{
+    if (!(self = [super init])) return nil;
+    
+    self.controller = controller;
+    self.openBisModel = controller.openBisModel;
+    
+    return self;
+}
+
+
+// Everything is a subclass responsibility
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView { return 0; }
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section { return 0; }
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath { return nil; }
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section { return nil; }
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath { }
+
+@end
+
+
+@implementation CISDOBTableBrowseState
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return [self.openBisModel numberOfSections];
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [self.openBisModel numberOfEntitiesInSection: section];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell *cell ;
+    cell = [tableView dequeueReusableCellWithIdentifier: @"Cell" forIndexPath: indexPath]; //  This only works in iOS 6,
+    [self.controller configureCell: cell atIndexPath: indexPath];
+    return cell;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    return [self.openBisModel titleForHeaderInSection: section];
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [self.openBisModel selectObjectAtIndexPath: indexPath];
+    [self.controller selectionDidChangeForModel];
+}
+
+@end
+
+@implementation CISDOBTableFilterState
+
+- (CISDOBIpadEntity *)entityAtIndexPath:(NSIndexPath *)indexPath
+{
+    return [self.filteredResults objectAtIndex: [indexPath indexAtPosition: 1]];
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return (self.filteredResults) ? [self.filteredResults count] : 0;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSString *cellId = @"FilterCell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier: cellId];
+    if (!cell) {
+        cell = [[UITableViewCell alloc] initWithStyle: UITableViewCellStyleSubtitle reuseIdentifier: cellId];
+    }
+    
+    CISDOBIpadEntity *entity = [self entityAtIndexPath: indexPath];
+    [self.controller configureCell: cell forEntity: entity];
+    return cell;
+}
+
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    return @"Results";
+}
+
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
+{
+    NSArray *fullResult = [self.openBisModel.fetchedResultsController fetchedObjects];
+    NSPredicate *filterPredicate = [NSPredicate predicateWithFormat: @"SELF.refconJson contains[cd] %@", searchString];
+    self.filteredResults = [fullResult filteredArrayUsingPredicate: filterPredicate];
+    return YES;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    self.openBisModel.selectedObject = [self entityAtIndexPath: indexPath];
+    [self.controller selectionDidChangeForModel];
+}
+
 
 @end

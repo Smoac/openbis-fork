@@ -49,7 +49,7 @@
 - (CISDOBIpadEntity *)objectAtIndexPath:(NSIndexPath *)indexPath;
 
 // Selection
-@property (readonly) CISDOBIpadEntity *selectedObject;
+@property (strong, nonatomic) CISDOBIpadEntity *selectedObject;
 
 //! Select the object and return it
 - (CISDOBIpadEntity *)selectObjectAtIndexPath:(NSIndexPath *)indexPath;

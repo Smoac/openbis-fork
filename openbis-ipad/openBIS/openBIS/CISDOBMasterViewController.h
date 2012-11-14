@@ -24,16 +24,62 @@
 #import <UIKit/UIKit.h>
 
 @class CISDOBDetailViewController, CISDOBOpenBisModel, CISDOBIpadServiceManager;
+@class CISDOBTableBrowseState, CISDOBTableFilterState, CISDOBTableDisplayState;
 
 #import <CoreData/CoreData.h>
 
-@interface CISDOBMasterViewController : UITableViewController <NSFetchedResultsControllerDelegate, UISearchBarDelegate>
+@interface CISDOBMasterViewController : UITableViewController <NSFetchedResultsControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
 
 @property (strong, nonatomic) CISDOBDetailViewController *detailViewController;
 @property (strong, nonatomic) CISDOBOpenBisModel *openBisModel;
-@property (weak, nonatomic) IBOutlet UISearchBar *searchBar;
+@property (strong, nonatomic) CISDOBTableBrowseState *browseState;
+@property (strong, nonatomic) CISDOBTableFilterState *filterState;
+
+@property (weak, nonatomic) IBOutlet UITableView *browseTableView;
 
 // Server Communication
 - (void)didConnectServiceManager:(CISDOBIpadServiceManager *)serviceManager;
 
+// Table Display
+- (CISDOBTableDisplayState *)displayStateForTable:(UITableView *)tableView;
+
 @end
+
+/**
+ *  \brief An abstract superclass that handles interacting with and displaying the table
+ */
+@interface CISDOBTableDisplayState : NSObject
+
+@property (strong, nonatomic) CISDOBOpenBisModel *openBisModel;
+@property (weak, nonatomic) CISDOBMasterViewController *controller;
+
+- (id)initWithController:(CISDOBMasterViewController *)controller;
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView;
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section;
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section;
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
+
+@end
+
+/**
+ *  \brief The state that handles results for browing.
+ */
+@interface CISDOBTableBrowseState : CISDOBTableDisplayState
+
+
+@end
+
+/**
+ *  \brief The state that handles results for filtering.
+ */
+@interface CISDOBTableFilterState : CISDOBTableDisplayState
+
+@property (strong, nonatomic) NSArray *filteredResults;
+
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString;
+
+@end
+
+
