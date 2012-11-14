@@ -21,9 +21,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.Component;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.SimplePanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
@@ -40,14 +39,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsC
 /**
  * @author pkupczyk
  */
-public class MetaprojectEntities extends Composite implements IDisposableComponent
+public class MetaprojectEntities extends LayoutContainer implements IDisposableComponent
 {
 
     public static final String ID_SUFFIX = "_metaproject-entities";
 
     private IViewContext<?> viewContext;
-
-    private Panel panel;
 
     private SectionsPanel sectionsPanel;
 
@@ -60,11 +57,8 @@ public class MetaprojectEntities extends Composite implements IDisposableCompone
     public MetaprojectEntities(IViewContext<?> viewContext, String idPrefix)
     {
         this.viewContext = viewContext;
-
-        panel = new SimplePanel();
-        panel.getElement().setId(idPrefix + ID_SUFFIX);
-
-        initWidget(panel);
+        setLayout(new FitLayout());
+        setId(idPrefix + ID_SUFFIX);
     }
 
     private void initSections(final Long metaprojectId, final IDelegatedAction callback)
@@ -77,7 +71,10 @@ public class MetaprojectEntities extends Composite implements IDisposableCompone
                         @Override
                         protected void process(MetaprojectAssignmentsCount count)
                         {
-                            panel.clear();
+                            if (sectionsPanel != null)
+                            {
+                                remove(sectionsPanel);
+                            }
 
                             sectionsPanel =
                                     new SectionsPanel(viewContext.getCommonViewContext(),
@@ -108,7 +105,10 @@ public class MetaprojectEntities extends Composite implements IDisposableCompone
                                         viewContext, new TechId(metaprojectId)));
                             }
 
-                            panel.add(sectionsPanel);
+                            add(sectionsPanel);
+                            layout();
+
+                            callback.execute();
                         }
                     });
     }

@@ -18,8 +18,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metapr
 
 import com.google.gwt.user.client.ui.InlineLabel;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeEntityKindItemData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * @author pkupczyk
@@ -32,8 +34,28 @@ public class MetaprojectTreeEntityKindItemWidget extends MetaprojectTreeItemWidg
     {
         super(viewContext);
 
-        initWidget(new InlineLabel(model.getEntityKind().getDescription() + "s ("
-                + model.getEntityCount() + ")"));
-    }
+        EntityKind entityKind = model.getEntityKind();
+        String messageKey;
 
+        if (EntityKind.EXPERIMENT.equals(entityKind))
+        {
+            messageKey = Dict.METAPROJECT_ENTITIES_EXPERIMENTS;
+        } else if (EntityKind.SAMPLE.equals(entityKind))
+        {
+            messageKey = Dict.METAPROJECT_ENTITIES_SAMPLES;
+        } else if (EntityKind.DATA_SET.equals(entityKind))
+        {
+            messageKey = Dict.METAPROJECT_ENTITIES_DATA_SETS;
+        } else if (EntityKind.MATERIAL.equals(entityKind))
+        {
+            messageKey = Dict.METAPROJECT_ENTITIES_MATERIALS;
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported entity kind: " + entityKind);
+        }
+
+        String message = viewContext.getMessage(messageKey) + " (" + model.getEntityCount() + ")";
+
+        initWidget(new InlineLabel(message));
+    }
 }
