@@ -28,6 +28,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeMetaprojectItemData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 
 /**
  * @author pkupczyk
@@ -35,20 +36,20 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metapro
 public class MetaprojectTreeMetaprojectItemWidget extends MetaprojectTreeItemWidget
 {
 
+    private MetaprojectTreeMetaprojectItemData data;
+
     private Widget link;
 
     public MetaprojectTreeMetaprojectItemWidget(IViewContext<?> viewContext,
-            MetaprojectTreeMetaprojectItemData model)
+            MetaprojectTreeMetaprojectItemData data)
     {
         super(viewContext);
 
-        // TODO make a real link that opens a metaproject detail view
-        link = new InlineLabel(viewContext.getMessage(Dict.METAPROJECT_TREE_INFO_LINK));
-        link.setVisible(isSelected());
+        this.data = data;
 
         FlowPanel panel = new FlowPanel();
-        panel.add(new InlineLabel(model.getMetaproject().getName() + " "));
-        panel.add(link);
+        panel.add(getLabel());
+        panel.add(getLink());
 
         FocusPanel focusPanel = new FocusPanel();
         focusPanel.add(panel);
@@ -57,7 +58,7 @@ public class MetaprojectTreeMetaprojectItemWidget extends MetaprojectTreeItemWid
                 @Override
                 public void onMouseOver(MouseOverEvent event)
                 {
-                    link.setVisible(true);
+                    getLink().setVisible(true);
                 }
             });
         focusPanel.addMouseOutHandler(new MouseOutHandler()
@@ -65,17 +66,52 @@ public class MetaprojectTreeMetaprojectItemWidget extends MetaprojectTreeItemWid
                 @Override
                 public void onMouseOut(MouseOutEvent event)
                 {
-                    link.setVisible(isSelected());
+                    getLink().setVisible(isSelected());
                 }
             });
+        focusPanel.setTitle(getTooltip());
 
         initWidget(focusPanel);
+    }
+
+    private Widget getLabel()
+    {
+        return new InlineLabel(data.getMetaproject().getName() + " ");
+    }
+
+    private Widget getLink()
+    {
+        if (link == null)
+        {
+            // TODO make a real link that opens a metaproject detail view
+            link = new InlineLabel(getViewContext().getMessage(Dict.METAPROJECT_TREE_INFO_LINK));
+            link.setVisible(isSelected());
+        }
+        return link;
+    }
+
+    private String getTooltip()
+    {
+        String name = StringEscapeUtils.unescapeHtml(data.getMetaproject().getName());
+        String description = data.getMetaproject().getDescription();
+
+        if (description == null)
+        {
+            description =
+                    getViewContext().getMessage(Dict.METAPROJECT_TREE_DESCRIPTION_NOT_AVAILABLE);
+        } else
+        {
+            description = StringEscapeUtils.unescapeHtml(description);
+        }
+
+        return getViewContext().getMessage(Dict.METAPROJECT_TREE_METAPROJECT_TOOLTIP, name,
+                description);
     }
 
     @Override
     protected void onSelectedChange()
     {
-        link.setVisible(isSelected());
+        getLink().setVisible(isSelected());
     }
 
 }

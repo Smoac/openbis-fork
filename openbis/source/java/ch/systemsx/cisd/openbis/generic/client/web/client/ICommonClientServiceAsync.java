@@ -150,6 +150,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listMetaprojectAssignmentsCounts(
             final AsyncCallback<List<MetaprojectAssignmentsCount>> asyncCallback);
 
+    /** @see ICommonClientService#getMetaprojectAssignmentsCount(Long) */
+    public void getMetaprojectAssignmentsCount(Long metaprojectId,
+            final AsyncCallback<MetaprojectAssignmentsCount> asyncCallback);
+
     /**
      * @see ICommonClientService#getMetaprojectAssignments(Long,
      *      MetaprojectAssignmentsFetchOption[])

@@ -711,6 +711,14 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
+    public MetaprojectAssignmentsCount getMetaprojectAssignmentsCount(Long metaprojectId)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return commonServer.getMetaprojectAssignmentsCount(getSessionToken(),
+                new MetaprojectTechIdId(metaprojectId));
+    }
+
+    @Override
     public MetaprojectAssignments getMetaprojectAssignments(Long metaprojectId,
             MetaprojectAssignmentsFetchOption[] fetchOptions)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException

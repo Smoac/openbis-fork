@@ -1384,6 +1384,13 @@ public interface ICommonServer extends IServer
     public List<MetaprojectAssignmentsCount> listMetaprojectAssignmentsCounts(String sessionToken);
 
     /**
+     * Get metaproject assignments counts for given user and metaproject.
+     */
+    @Transactional(readOnly = true)
+    public MetaprojectAssignmentsCount getMetaprojectAssignmentsCount(String sessionToken,
+            IMetaprojectId metaprojectId);
+
+    /**
      * Returns object containing all entities assigned to given metaproject.
      */
     @Transactional(readOnly = true)

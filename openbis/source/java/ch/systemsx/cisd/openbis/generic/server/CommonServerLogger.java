@@ -1522,6 +1522,15 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
+    public MetaprojectAssignmentsCount getMetaprojectAssignmentsCount(String sessionToken,
+            IMetaprojectId metaprojectId)
+    {
+        logAccess(sessionToken, "getMetaprojectAssignmentsCount", "METAPROJECT_ID(%s)",
+                metaprojectId);
+        return null;
+    }
+
+    @Override
     public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
             IMetaprojectId metaprojectId, EnumSet<MetaprojectAssignmentsFetchOption> fetchOptions)
     {

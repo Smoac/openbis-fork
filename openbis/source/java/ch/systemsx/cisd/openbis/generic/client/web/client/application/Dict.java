@@ -958,6 +958,12 @@ public abstract class Dict
 
     public static final String METAPROJECT_TREE_INFO_LINK = "metaproject_tree_info_link";
 
+    public static final String METAPROJECT_TREE_DESCRIPTION_NOT_AVAILABLE =
+            "metaproject_tree_description_not_available";
+
+    public static final String METAPROJECT_TREE_METAPROJECT_TOOLTIP =
+            "metaproject_tree_metaproject_tooltip";
+
     //
     // Metaproject Browser
     //
@@ -967,6 +973,22 @@ public abstract class Dict
 
     public static final String METAPROJECT_BROWSER_TREE_TOOLTIP =
             "metaproject_browser_tree_tooltip";
+
+    public static final String METAPROJECT_BROWSER_ENTITIES_TITLE =
+            "metaproject_browser_entities_title";
+
+    //
+    // Metaproject Entities
+    //
+
+    public static final String METAPROJECT_ENTITIES_EXPERIMENTS =
+            "metaproject_entities_experiments";
+
+    public static final String METAPROJECT_ENTITIES_SAMPLES = "metaproject_entities_samples";
+
+    public static final String METAPROJECT_ENTITIES_DATA_SETS = "metaproject_entities_data_sets";
+
+    public static final String METAPROJECT_ENTITIES_MATERIALS = "metaproject_entities_materials";
 
     //
     // Detailed Search

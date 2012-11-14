@@ -732,6 +732,8 @@ var common = {
  
  metaproject_tree_column_header: "Metaproject / Entity Kind / Entity",
  metaproject_tree_info_link: "(info)",
+ metaproject_tree_description_not_available: "(not available)",
+ metaproject_tree_metaproject_tooltip: "Name: {0}\nDescription: {1}",
  
  //
  // Metaproject Browser
@@ -739,6 +741,16 @@ var common = {
  metaproject_browser: "Metaproject Browser",
  metaproject_browser_tree_title: "Metaprojects",
  metaproject_browser_tree_tooltip: "Click on a row with an entity type (i.e. Experiments, Samples, Data Sets, Materials) to see entities of that type that belong to the given metaproject.",
+ metaproject_browser_entities_title: "Entities",
+ 
+ //
+ // Metaproject Entities
+ //
+ 
+ metaproject_entities_experiments: "Experiments",
+ metaproject_entities_samples: "Samples",
+ metaproject_entities_data_sets: "Data Sets",
+ metaproject_entities_materials: "Materials",
 
  //
  // Project Registration

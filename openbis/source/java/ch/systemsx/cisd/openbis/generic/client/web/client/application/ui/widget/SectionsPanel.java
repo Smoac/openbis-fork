@@ -102,6 +102,18 @@ public class SectionsPanel extends LayoutContainer
         tabContent.setParentDisplayID(getDisplayID());
     }
 
+    public void selectSection(final TabContent tabContent)
+    {
+        for (SectionElement element : elements)
+        {
+            if (element.getTabContent().equals(tabContent))
+            {
+                tabPanel.setSelection(element);
+                break;
+            }
+        }
+    }
+
     @Override
     protected void onDetach()
     {
@@ -153,7 +165,7 @@ public class SectionsPanel extends LayoutContainer
                     }
                 });
             // WORKAROUND to fix problems when paging toolbar's layout is performed in a hidden tab
-            setHideMode(HideMode.OFFSETS); 
+            setHideMode(HideMode.OFFSETS);
         }
 
         void setTabContent(TabContent tabContent)

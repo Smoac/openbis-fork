@@ -114,6 +114,8 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
 
     public static final String SHOW_DETAILS_BUTTON_ID_SUFFIX = "_show-details-button";
 
+    public static final String METAPROJECT_TYPE = "metaproject";
+
     public static final String createGridId(final String browserId)
     {
         return browserId + GRID_POSTFIX;
@@ -242,6 +244,23 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                 createGridAsComponent(viewContext, browserId, criteria, entityTypeCode,
                         DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID, directlyConnectedController);
         browserGrid.experimentIdOrNull = experimentId;
+        browserGrid.updateCriteriaProviderAndRefresh();
+        browserGrid.extendBottomToolbar();
+        return browserGrid.asDisposableWithoutToolbar();
+    }
+
+    public static IDisposableComponent createGridForMetaprojectSamples(
+            final IViewContext<ICommonClientServiceAsync> viewContext, final TechId metaprojectId,
+            final String browserId, IDirectlyConnectedController directlyConnectedController)
+    {
+        final ListSampleDisplayCriteria criteria =
+                ListSampleDisplayCriteria.createForMetaproject(metaprojectId);
+
+        final SampleBrowserGrid browserGrid =
+                createGridAsComponent(viewContext, browserId, criteria, METAPROJECT_TYPE,
+                        DisplayTypeIDGenerator.METAPROJECT_DETAILS_GRID,
+                        directlyConnectedController);
+
         browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithoutToolbar();

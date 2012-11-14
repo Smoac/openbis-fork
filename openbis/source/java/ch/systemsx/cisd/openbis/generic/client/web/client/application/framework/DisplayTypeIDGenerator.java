@@ -32,6 +32,8 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     EXPERIMENT_DETAILS_GRID("experiment-details-grid"),
 
+    METAPROJECT_DETAILS_GRID("metaproject-details-grid"),
+
     SAMPLE_DETAILS_GRID("sample-details-grid"),
 
     TYPE_BROWSER_GRID("type-browser-grid"),
@@ -94,7 +96,13 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     PARENT_SAMPLES_SECTION("parent-samples-section"),
 
+    EXPERIMENTS_SECTION("experiments-section"),
+
+    SAMPLES_SECTION("samples-section"),
+
     DATA_SETS_SECTION("data-sets-section"),
+
+    MATERIALS_SECTION("materials-section"),
 
     ENTITY_HISTORY_SECTION("entity-history-section"),
 
@@ -119,6 +127,8 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
     GENERIC_SAMPLE_VIEWER("generic_sample_viewer"),
 
     GENERIC_MATERIAL_VIEWER("generic_material_viewer"),
+
+    GENERIC_METAPROJECT_VIEWER("generic_metaproject_viewer"),
 
     ;
 

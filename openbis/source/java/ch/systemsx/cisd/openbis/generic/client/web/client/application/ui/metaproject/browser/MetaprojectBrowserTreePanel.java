@@ -16,61 +16,28 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.browser;
 
-import java.util.Set;
-
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.MetaprojectTree;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
 /**
  * @author pkupczyk
  */
-public final class MetaprojectBrowserTree extends ContentPanel implements IDisposableComponent
+public final class MetaprojectBrowserTreePanel extends ContentPanel
 {
 
     public static final String ID = GenericConstants.ID_PREFIX + "metaproject-browser-tree-panel";
 
-    private final MetaprojectTree tree;
-
-    public MetaprojectBrowserTree(final IViewContext<?> viewContext)
+    public MetaprojectBrowserTreePanel(final IViewContext<?> viewContext, final MetaprojectTree tree)
     {
         setLayout(new FitLayout());
         setBodyBorder(false);
         setHeading(viewContext.getMessage(Dict.METAPROJECT_BROWSER_TREE_TITLE));
-
-        tree = new MetaprojectTree(viewContext);
         add(tree);
-    }
-
-    @Override
-    public void update(Set<DatabaseModificationKind> observedModifications)
-    {
-
-    }
-
-    @Override
-    public DatabaseModificationKind[] getRelevantModifications()
-    {
-        return null;
-    }
-
-    @Override
-    public Component getComponent()
-    {
-        return null;
-    }
-
-    @Override
-    public void dispose()
-    {
-
     }
 
 }

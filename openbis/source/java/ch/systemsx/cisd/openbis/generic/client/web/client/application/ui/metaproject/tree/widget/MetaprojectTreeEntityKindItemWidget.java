@@ -32,8 +32,8 @@ public class MetaprojectTreeEntityKindItemWidget extends MetaprojectTreeItemWidg
     {
         super(viewContext);
 
-        initWidget(new InlineLabel(model.getEntityKind().name() + " (" + model.getEntityCount()
-                + ")"));
+        initWidget(new InlineLabel(model.getEntityKind().getDescription() + "s ("
+                + model.getEntityCount() + ")"));
     }
 
 }

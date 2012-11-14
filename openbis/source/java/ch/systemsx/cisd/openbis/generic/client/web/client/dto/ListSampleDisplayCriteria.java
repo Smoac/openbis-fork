@@ -37,8 +37,8 @@ public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sa
 {
     public static ListSampleDisplayCriteria createForContainer(final TechId containerSampleId)
     {
-        return new ListSampleDisplayCriteria(ListSampleCriteria
-                .createForContainer(containerSampleId));
+        return new ListSampleDisplayCriteria(
+                ListSampleCriteria.createForContainer(containerSampleId));
     }
 
     public static ListSampleDisplayCriteria createForParent(final TechId parentSampleId)
@@ -54,6 +54,11 @@ public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sa
     public static ListSampleDisplayCriteria createForExperiment(final TechId experimentId)
     {
         return new ListSampleDisplayCriteria(ListSampleCriteria.createForExperiment(experimentId));
+    }
+
+    public static ListSampleDisplayCriteria createForMetaproject(final TechId metaprojectId)
+    {
+        return new ListSampleDisplayCriteria(ListSampleCriteria.createForMetaproject(metaprojectId));
     }
 
     public static ListSampleDisplayCriteria createForSearch()
@@ -77,7 +82,7 @@ public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sa
 
     private ListSampleCriteria listCriteriaOrNull;
 
-     ListSampleDisplayCriteria(final DetailedSearchCriteria searchCriteria)
+    ListSampleDisplayCriteria(final DetailedSearchCriteria searchCriteria)
     {
         assert searchCriteria != null : "search criteria not set";
         this.criteriaKind = ListEntityDisplayCriteriaKind.SEARCH;

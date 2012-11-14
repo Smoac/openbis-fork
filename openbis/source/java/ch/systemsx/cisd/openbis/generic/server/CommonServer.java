@@ -3599,33 +3599,25 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public List<MetaprojectAssignmentsCount> listMetaprojectAssignmentsCounts(String sessionToken)
     {
-        IMetaprojectDAO metaprojectDAO = getDAOFactory().getMetaprojectDAO();
-
         List<Metaproject> metaprojects = listMetaprojects(sessionToken);
         List<MetaprojectAssignmentsCount> counts =
                 new ArrayList<MetaprojectAssignmentsCount>(metaprojects.size());
 
         for (Metaproject metaproject : metaprojects)
         {
-            MetaprojectAssignmentsCount count = new MetaprojectAssignmentsCount();
-            count.setMetaproject(metaproject);
-
-            count.setExperimentCount(metaprojectDAO.getMetaprojectAssignmentsCount(
-                    metaproject.getId(),
-                    ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT));
-            count.setSampleCount(metaprojectDAO.getMetaprojectAssignmentsCount(metaproject.getId(),
-                    ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.SAMPLE));
-            count.setDataSetCount(metaprojectDAO.getMetaprojectAssignmentsCount(
-                    metaproject.getId(),
-                    ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.DATA_SET));
-            count.setMaterialCount(metaprojectDAO.getMetaprojectAssignmentsCount(
-                    metaproject.getId(),
-                    ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL));
-
-            counts.add(count);
+            counts.add(getMetaprojectAssignmentsCount(metaproject));
         }
 
         return counts;
+    }
+
+    @Override
+    public MetaprojectAssignmentsCount getMetaprojectAssignmentsCount(String sessionToken,
+            IMetaprojectId metaprojectId)
+    {
+        MetaprojectPE metaprojectPE = getMetaproject(sessionToken, metaprojectId);
+        Metaproject metaproject = MetaprojectTranslator.translate(metaprojectPE);
+        return getMetaprojectAssignmentsCount(metaproject);
     }
 
     @Override
@@ -3646,21 +3638,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             throw new UserFailureException("Metaproject id cannot be null");
         }
+        if (fetchOptions == null)
+        {
+            throw new UserFailureException("Fetch options cannot be null");
+        }
 
         Session session = getSession(sessionToken);
         String baseIndexURL = getBaseIndexURL(sessionToken);
-
-        IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
-        MetaprojectPE metaprojectPE = metaprojectBO.tryFindByMetaprojectId(metaprojectId);
-
-        if (metaprojectPE == null)
-        {
-            throw new UserFailureException("Metaproject with id: " + metaprojectId
-                    + " doesn't exist");
-        }
-
         AuthorizationServiceUtils authorizationUtils = getAuthorizationService(session);
-        authorizationUtils.checkAccessMetaproject(metaprojectPE);
+
+        MetaprojectPE metaprojectPE = getMetaproject(sessionToken, metaprojectId);
 
         MetaprojectAssignments metaprojectAssignments = new MetaprojectAssignments();
         metaprojectAssignments.setMetaproject(MetaprojectTranslator.translate(metaprojectPE));
@@ -3877,11 +3864,52 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return MetaprojectTranslator.translate(metaprojectPE);
     }
 
+    private MetaprojectPE getMetaproject(String sessionToken, IMetaprojectId metaprojectId)
+    {
+        if (metaprojectId == null)
+        {
+            throw new UserFailureException("Metaproject id cannot be null");
+        }
+
+        Session session = getSession(sessionToken);
+
+        IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
+        MetaprojectPE metaprojectPE = metaprojectBO.tryFindByMetaprojectId(metaprojectId);
+
+        if (metaprojectPE == null)
+        {
+            throw new UserFailureException("Metaproject with id: " + metaprojectId
+                    + " doesn't exist");
+        }
+
+        AuthorizationServiceUtils authorizationUtils = getAuthorizationService(session);
+        authorizationUtils.checkAccessMetaproject(metaprojectPE);
+
+        return metaprojectPE;
+    }
+
     private Collection<MetaprojectAssignmentPE> getMetaprojectAssignments(
             MetaprojectPE metaproject, EntityKind entityKind)
     {
         return getDAOFactory().getMetaprojectDAO().listMetaprojectAssignments(metaproject.getId(),
                 DtoConverters.convertEntityKind(entityKind));
+    }
+
+    private MetaprojectAssignmentsCount getMetaprojectAssignmentsCount(Metaproject metaproject)
+    {
+        IMetaprojectDAO metaprojectDAO = getDAOFactory().getMetaprojectDAO();
+
+        MetaprojectAssignmentsCount count = new MetaprojectAssignmentsCount();
+        count.setMetaproject(metaproject);
+        count.setExperimentCount(metaprojectDAO.getMetaprojectAssignmentsCount(metaproject.getId(),
+                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT));
+        count.setSampleCount(metaprojectDAO.getMetaprojectAssignmentsCount(metaproject.getId(),
+                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.SAMPLE));
+        count.setDataSetCount(metaprojectDAO.getMetaprojectAssignmentsCount(metaproject.getId(),
+                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.DATA_SET));
+        count.setMaterialCount(metaprojectDAO.getMetaprojectAssignmentsCount(metaproject.getId(),
+                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL));
+        return count;
     }
 
     private AuthorizationServiceUtils getAuthorizationService(Session session)

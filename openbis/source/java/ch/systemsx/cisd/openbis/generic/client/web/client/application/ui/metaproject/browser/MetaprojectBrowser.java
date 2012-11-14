@@ -19,17 +19,26 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metapr
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.MetaprojectBrowserGrids;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComposite;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.entity.MetaprojectEntities;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.MetaprojectTree;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeEntityItemData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeEntityKindItemData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeItemData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeMetaprojectItemData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
 /**
@@ -38,11 +47,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 public class MetaprojectBrowser extends ContentPanel implements IDisposableComponent
 {
 
+    // TODO add logic to handle new metaprojectId parameter in
+    // ListSampleCriteria
+
+    // TODO add remove assignments button to entity grids
+
     public static final String ID = GenericConstants.ID_PREFIX + "metaproject-browser";
 
-    private MetaprojectBrowserTree tree;
+    private MetaprojectTree tree;
 
-    private MetaprojectBrowserGrids grids;
+    private MetaprojectEntities entities;
 
     private DisposableComposite composite;
 
@@ -51,13 +65,42 @@ public class MetaprojectBrowser extends ContentPanel implements IDisposableCompo
         setId(ID);
         setLayout(new BorderLayout());
 
-        tree = new MetaprojectBrowserTree(viewContext);
-        // GWTUtils.setToolTip(tree, viewContext.getMessage(Dict.METAPROJECT_BROWSER_TREE_TOOLTIP));
+        tree = new MetaprojectTree(viewContext, getId());
+        tree.getSelectionModel().addSelectionChangedListener(
+                new SelectionChangedListener<MetaprojectTreeItemData>()
+                    {
+                        @Override
+                        public void selectionChanged(
+                                SelectionChangedEvent<MetaprojectTreeItemData> se)
+                        {
+                            MetaprojectTreeItemData item = se.getSelectedItem();
 
-        grids = new MetaprojectBrowserGrids(viewContext);
-        composite = new DisposableComposite(this, tree, grids);
+                            if (item instanceof MetaprojectTreeMetaprojectItemData)
+                            {
+                                MetaprojectTreeMetaprojectItemData metaprojectItem =
+                                        (MetaprojectTreeMetaprojectItemData) item;
+                                entities.showEntities(metaprojectItem.getMetaproject().getId());
+                            } else if (item instanceof MetaprojectTreeEntityKindItemData)
+                            {
+                                MetaprojectTreeEntityKindItemData entityKindItem =
+                                        (MetaprojectTreeEntityKindItemData) item;
+                                entities.showEntities(entityKindItem.getMetaprojectId(),
+                                        entityKindItem.getEntityKind());
+                            } else if (item instanceof MetaprojectTreeEntityItemData)
+                            {
+                                MetaprojectTreeEntityItemData entityItem =
+                                        (MetaprojectTreeEntityItemData) item;
+                                entities.showEntities(entityItem.getMetaprojectId(), entityItem
+                                        .getEntity().getEntityKind());
+                            }
+                        }
+                    });
 
-        BorderLayoutData treeLayout = new BorderLayoutData(LayoutRegion.WEST, 400, 20, 2000);
+        GWTUtils.setToolTip(tree, viewContext.getMessage(Dict.METAPROJECT_BROWSER_TREE_TOOLTIP));
+        entities = new MetaprojectEntities(viewContext, getId());
+        composite = new DisposableComposite(this, tree, entities);
+
+        BorderLayoutData treeLayout = new BorderLayoutData(LayoutRegion.WEST, 300, 20, 2000);
         treeLayout.setSplit(true);
         treeLayout.setMargins(new Margins(2));
         treeLayout.setCollapsible(true);
@@ -69,8 +112,8 @@ public class MetaprojectBrowser extends ContentPanel implements IDisposableCompo
         gridsLayout.setCollapsible(true);
         gridsLayout.setFloatable(false);
 
-        add(tree, treeLayout);
-        add(grids, gridsLayout);
+        add(new MetaprojectBrowserTreePanel(viewContext, tree), treeLayout);
+        add(new MetaprojectBrowserEntitiesPanel(viewContext, entities), gridsLayout);
 
         layout();
     }

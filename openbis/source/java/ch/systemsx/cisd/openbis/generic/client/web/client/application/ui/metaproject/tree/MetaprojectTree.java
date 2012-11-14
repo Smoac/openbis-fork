@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
@@ -32,6 +33,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -43,8 +45,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeEntityItemData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeEntityKindItemData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeItemData;
@@ -55,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metapro
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.widget.MetaprojectTreeMetaprojectItemWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsCount;
@@ -63,27 +66,28 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsF
 /**
  * @author pkupczyk
  */
-public class MetaprojectTree extends TreeGrid<MetaprojectTreeItemData>
+public class MetaprojectTree extends TreeGrid<MetaprojectTreeItemData> implements
+        IDisposableComponent
 {
 
-    public static final String ID = GenericConstants.ID_PREFIX + "metaproject-tree";
+    public static final String ID_SUFFIX = "_metaproject-tree";
 
     public static final String COLUMN_ID = "metaproject-tree-column";
 
     private MetaprojectTreeItemData selectedItem;
 
-    public MetaprojectTree(IViewContext<?> viewContext)
+    public MetaprojectTree(IViewContext<?> viewContext, String idPrefix)
     {
-        this(viewContext, new MetaprojectTreeLoader(viewContext), new MetaprojectTreeColumns(
-                viewContext));
+        this(viewContext, idPrefix, new MetaprojectTreeLoader(viewContext),
+                new MetaprojectTreeColumns(viewContext));
     }
 
-    private MetaprojectTree(final IViewContext<?> viewContext, final MetaprojectTreeLoader loader,
-            final MetaprojectTreeColumns columns)
+    private MetaprojectTree(final IViewContext<?> viewContext, String idPrefix,
+            final MetaprojectTreeLoader loader, final MetaprojectTreeColumns columns)
     {
         super(new TreeStore<MetaprojectTreeItemData>(loader), columns.getModel());
 
-        setId(ID);
+        setId(idPrefix + ID_SUFFIX);
         setLazyRowRender(0);
         setBorders(true);
         setAutoExpandColumn(COLUMN_ID);
@@ -419,6 +423,34 @@ public class MetaprojectTree extends TreeGrid<MetaprojectTreeItemData>
         {
             throw new IllegalArgumentException("Unsupported entity kind: " + entityKind);
         }
+    }
+
+    @Override
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Component getComponent()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void dispose()
+    {
+        // TODO Auto-generated method stub
+
     }
 
 }

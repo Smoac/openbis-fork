@@ -163,9 +163,15 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Returns a list of all metaproject assignment counts.
+     * Returns a list of all metaproject assignments counts.
      */
     public List<MetaprojectAssignmentsCount> listMetaprojectAssignmentsCounts()
+            throws UserFailureException;
+
+    /**
+     * Returns metaproject assignments count.
+     */
+    public MetaprojectAssignmentsCount getMetaprojectAssignmentsCount(Long metaprojectId)
             throws UserFailureException;
 
     /**
