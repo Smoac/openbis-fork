@@ -1197,6 +1197,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     will(returnValue(metaprojectBO));
 
                     one(metaprojectBO).define(newMetaproject);
+                    one(metaprojectBO).setDescription(null);
                     one(metaprojectBO).addSamples(null);
                     one(metaprojectBO).addDataSets(null);
                     one(metaprojectBO).addExperiments(null);
