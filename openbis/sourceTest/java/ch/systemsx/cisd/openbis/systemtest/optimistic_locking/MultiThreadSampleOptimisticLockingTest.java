@@ -47,14 +47,14 @@ public class MultiThreadSampleOptimisticLockingTest extends MultiThreadOptimisti
             MultiThreadSampleOptimisticLockingTest.class);
 
     @Test
-    public void testRegisterSamplesForSameSampleInTwoThreads()
+    public void testRegisterChildSamplesForSameSampleInTwoThreads()
     {
         final Sample sample = toolBox.createAndLoadSample(1, null);
         final MessageChannel messageChannelMain =
-                new MessageChannelBuilder(10000).name("data sets for samples main")
+                new MessageChannelBuilder(10000).name("child samples for samples main")
                         .logger(operationLog).getChannel();
         final MessageChannel messageChannelSecond =
-                new MessageChannelBuilder(10000).name("data sets for samples second")
+                new MessageChannelBuilder(10000).name("child samples for samples second")
                         .logger(operationLog).getChannel();
         final IServiceConversationProgressListener listener =
                 new AbstractServiceConversationProgressListener(operationLog)
@@ -98,6 +98,63 @@ public class MultiThreadSampleOptimisticLockingTest extends MultiThreadOptimisti
                 etlService.listSamples(systemSessionToken,
                         ListSampleCriteria.createForParent(new TechId(loadedSample)));
         assertEquals("[OLT-S11, OLT-S12, OLT-S13]", toolBox.extractCodes(samples).toString());
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedSample, "test");
+
+    }
+
+    @Test
+    public void testRegisterContainedSamplesForSameSampleInTwoThreads()
+    {
+        final Sample sample = toolBox.createAndLoadSample(1, null);
+        final MessageChannel messageChannelMain =
+                new MessageChannelBuilder(10000).name("contained samples for samples main")
+                        .logger(operationLog).getChannel();
+        final MessageChannel messageChannelSecond =
+                new MessageChannelBuilder(10000).name("contained samples for samples second")
+                        .logger(operationLog).getChannel();
+        final IServiceConversationProgressListener listener =
+                new AbstractServiceConversationProgressListener(operationLog)
+                    {
+                        @Override
+                        public void handleProgress(String phaseName, int totalItemsToProcess,
+                                int numItemsProcessed)
+                        {
+                            if (phaseName.equals("createContainerSamples")
+                                    && numItemsProcessed == 1 && totalItemsToProcess == 2)
+                            {
+                                messageChannelMain.send(ToolBox.FIRST_REGISTERED);
+                            }
+                        }
+                    };
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    messageChannelMain.assertNextMessage(ToolBox.FIRST_REGISTERED);
+                    AtomicEntityOperationDetails details =
+                            new AtomicEntityOperationDetailsBuilder().user("test")
+                                    .sample(toolBox.sampleComponent(13, sample)).getDetails();
+                    etlService.performEntityOperations(systemSessionToken, details);
+                    messageChannelSecond.send(ToolBox.REGISTERED);
+                }
+            }).start();
+        ServiceConversationsThreadContext.setProgressListener(listener);
+        AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
+        builder.user(ToolBox.USER_ID).batchSize(1);
+        builder.sample(toolBox.sampleComponent(11, sample));
+        builder.sample(toolBox.sampleComponent(12, sample));
+
+        etlService.performEntityOperations(systemSessionToken, builder.getDetails());
+        messageChannelSecond.assertNextMessage(ToolBox.REGISTERED);
+
+        Sample loadedSample = toolBox.loadSample(sample);
+        List<Sample> samples =
+                etlService.listSamples(systemSessionToken,
+                        ListSampleCriteria.createForContainer(new TechId(loadedSample)));
+        assertEquals("[OLT-S1:OLT-S11, OLT-S1:OLT-S12, OLT-S1:OLT-S13]",
+                toolBox.extractCodes(samples).toString());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedSample, "test");
 
     }

@@ -327,6 +327,14 @@ public class ToolBox
         return sample;
     }
 
+    public NewSample sampleComponent(int number, IIdentifierHolder sampleContainer,
+            IEntityProperty... properties)
+    {
+        NewSample sample = sample(number, properties);
+        sample.setContainerIdentifier(sampleContainer.getIdentifier());
+        return sample;
+    }
+
     public NewSample sample(int number, IEntityProperty... properties)
     {
         NewSample sample = new NewSample();
