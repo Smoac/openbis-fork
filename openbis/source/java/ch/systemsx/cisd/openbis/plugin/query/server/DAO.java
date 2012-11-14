@@ -237,7 +237,7 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
                         final Entry<String, String> entry = indexMap.get(i - 1);
                         if (entry == null)
                         {
-                            throw new SQLDataException("No variable found for for parameter " + i);
+                            throw new SQLDataException("No variable found for parameter " + i);
                         }
                         final String strValue = entry.getValue();
                         try
