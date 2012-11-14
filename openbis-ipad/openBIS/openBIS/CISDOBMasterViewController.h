@@ -28,7 +28,7 @@
 
 #import <CoreData/CoreData.h>
 
-@interface CISDOBMasterViewController : UITableViewController <NSFetchedResultsControllerDelegate, UISearchBarDelegate, UISearchDisplayDelegate>
+@interface CISDOBMasterViewController : UITableViewController <NSFetchedResultsControllerDelegate, UISearchDisplayDelegate>
 
 @property (strong, nonatomic) CISDOBDetailViewController *detailViewController;
 @property (strong, nonatomic) CISDOBOpenBisModel *openBisModel;
