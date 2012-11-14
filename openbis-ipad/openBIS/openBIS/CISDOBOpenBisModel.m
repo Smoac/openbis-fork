@@ -176,6 +176,13 @@
 }
 
 #pragma mark - Fetched results controller
+- (void)applyStandardSortDescriptorsToFetchRequest:(NSFetchRequest *)fetchReqeust
+{
+    NSSortDescriptor *categorySortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"category" ascending: NO];
+    NSSortDescriptor *summaryHeaderSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"summaryHeader" ascending: YES selector: @selector(localizedStandardCompare:)];
+    NSArray *sortDescriptors = @[categorySortDescriptor, summaryHeaderSortDescriptor];
+    [fetchReqeust setSortDescriptors: sortDescriptors];
+}
 
 - (void)initializeRootFetchedResultsController
 {
@@ -187,11 +194,7 @@
     NSPredicate *predicate = [NSPredicate predicateWithFormat: @"rootLevel == YES"];
     [fetchRequest setPredicate: predicate];
     
-    NSSortDescriptor *categorySortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"category" ascending: NO];
-    NSSortDescriptor *summaryHeaderSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"summaryHeader" ascending: YES];
-    NSArray *sortDescriptors = @[categorySortDescriptor, summaryHeaderSortDescriptor];
-    [fetchRequest setSortDescriptors:sortDescriptors];
-    
+    [self applyStandardSortDescriptorsToFetchRequest: fetchRequest];
 
     NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"category" cacheName: @"Root"];
     aFetchedResultsController.delegate = self;
@@ -217,10 +220,7 @@
             nil];
     NSFetchRequest *fetchRequest = [model fetchRequestFromTemplateWithName: @"EntityAndChildren" substitutionVariables: fetchVariables];
     
-    NSSortDescriptor *categorySortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"category" ascending: NO];
-    NSSortDescriptor *summaryHeaderSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"summaryHeader" ascending: YES];
-    NSArray *sortDescriptors = @[categorySortDescriptor, summaryHeaderSortDescriptor];
-    [fetchRequest setSortDescriptors:sortDescriptors];
+    [self applyStandardSortDescriptorsToFetchRequest: fetchRequest];
     
     NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"category" cacheName: _parentModel.selectedObject.permId];
     aFetchedResultsController.delegate = self;
