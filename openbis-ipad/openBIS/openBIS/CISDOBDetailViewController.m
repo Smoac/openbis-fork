@@ -242,12 +242,6 @@
 }
 
 #pragma - UIWebViewDelegate
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
-{
-    NSLog(@"webView:shouldStartLoadWithRequest:navigationType:");
-    return YES;
-}
-
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
     NSLog(@"Load failed %@", error);
