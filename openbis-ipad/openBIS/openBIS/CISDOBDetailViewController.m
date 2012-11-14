@@ -24,6 +24,12 @@
 #import "CISDOBDetailViewController.h"
 #import "CISDOBIpadEntity.h"
 #import "CISDOBOpenBisModel.h"
+#import "CISDOBIpadServiceManager.h"
+
+@interface NSURLRequest (NSURLRequestDebug)
++ (BOOL)allowsAnyHTTPSCertificateForHost:(NSString *)host;
++ (void)setAllowsAnyHTTPSCertificate:(BOOL)allow forHost:(NSString *)host;
+@end
 
 @interface CISDOBDetailViewController ()
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
@@ -79,15 +85,23 @@
     self.summaryHeaderLabel.text = self.detailItem.summaryHeader;
     self.summaryLabel.text = self.detailItem.summary;
     self.identifierLabel.text = self.detailItem.identifier;
+    
+    NSURL *url = (self.detailItem.imageUrlString) ?
+        [self.openBisModel urlFromUrlString: self.detailItem.imageUrlString] :
+        [NSURL URLWithString: @"about:blank"];
 
-    if (self.detailItem.imageUrlString) {
-        NSURL *url = [self.openBisModel urlFromUrlString: self.detailItem.imageUrlString];
+    // No need to fiddle with the web view if the URL is the same
+    BOOL updateWebView = ![self.webView.request.URL isEqual: url];
+    if (updateWebView) {
         NSURLRequest *request = [NSURLRequest requestWithURL: url];
         [self.webView loadRequest: request];
-    } else {
-        NSURL *url = [NSURL URLWithString: @"about:blank"];
-        NSURLRequest *request = [NSURLRequest requestWithURL: url];
-        [self.webView loadRequest: request];
+        if (self.detailItem.imageUrlString) {
+            self.webView.hidden = NO;
+            self.webView.scrollView.hidden = NO;
+        } else {
+            self.webView.hidden = NO;
+            self.webView.scrollView.hidden = YES;
+        }
     }
     
     [self.propertiesTableView reloadData];
@@ -98,6 +112,11 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
     [self configureViewProvisionally];
+    [self registerForNotifications];
+    [self.webView setDelegate: self];
+    
+    // DEBUG
+    [NSURLRequest setAllowsAnyHTTPSCertificate: YES forHost: @"localhost"];
 }
 
 - (void)didReceiveMemoryWarning
@@ -173,5 +192,68 @@
     cell.detailTextLabel.text = [object valueForKey:@"value"];
 }
 
+#pragma mark - Status Updates
+- (void)registerForNotifications
+{    
+    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+    [notificationCenter
+        addObserverForName: nil
+        object: self.openBisModel.serviceManager
+        queue: [NSOperationQueue mainQueue]
+        usingBlock: ^(NSNotification *note) {
+            [self processNotification: note];
+        }];
+}
+
+- (void)processNotification:(NSNotification *)note
+{
+    if ([CISDOBIpadServiceWillLoginNotification isEqualToString: [note name]]) {
+        [self setStatusText: @"Logging in..."];
+    } else if ([CISDOBIpadServiceDidLoginNotification isEqualToString: [note name]]) {
+        [self clearStatusText];
+    } else if ([CISDOBIpadServiceWillRetrieveRootLevelEntitiesNotification isEqualToString: [note name]]) {
+        [self setStatusText: @"Retrieving root entities..."];
+    } else if ([CISDOBIpadServiceDidRetrieveRootLevelEntitiesNotification isEqualToString: [note name]]) {
+        [self clearStatusText];
+    } else if ([CISDOBIpadServiceWillSynchEntitiesNotification isEqualToString: [note name]]) {
+        [self setStatusText: @"Synching entities with cache..."];
+    } else if ([CISDOBIpadServiceDidSynchEntitiesNotification isEqualToString: [note name]]) {
+        [self clearStatusText];
+    } else if ([CISDOBIpadServiceWillDrillOnEntityNotification isEqualToString: [note name]]) {
+        [self setStatusText: @"Retrieving drill information..."];
+    } else if ([CISDOBIpadServiceDidDrillOnEntityNotification isEqualToString: [note name]]) {
+        [self clearStatusText];
+    } else if ([CISDOBIpadServiceWillRetrieveDetailsForEntityNotification isEqualToString: [note name]]) {
+        [self setStatusText: @"Retrieving detail information..."];
+    } else if ([CISDOBIpadServiceDidRetrieveDetailsForEntityNotification isEqualToString: [note name]]) {
+        [self clearStatusText];
+    }    
+}
+
+- (void)setStatusText:(NSString *)text
+{
+    // TODO Keep a FIFO of status updates and apply them at a maxiumum rate.
+    self.statusLabel.text = text;
+}
+
+- (void)clearStatusText
+{
+    self.statusLabel.text = @"";
+}
+
+#pragma - UIWebViewDelegate
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+{
+    NSLog(@"webView:shouldStartLoadWithRequest:navigationType:");
+    return YES;
+}
+
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
+{
+    NSLog(@"Load failed %@", error);
+}
+
 
 @end
+
+

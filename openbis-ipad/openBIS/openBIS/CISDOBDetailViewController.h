@@ -24,7 +24,7 @@
 #import <UIKit/UIKit.h>
 
 @class CISDOBIpadEntity, CISDOBOpenBisModel;
-@interface CISDOBDetailViewController : UIViewController <UISplitViewControllerDelegate>
+@interface CISDOBDetailViewController : UIViewController <UISplitViewControllerDelegate, UIWebViewDelegate>
 
 @property (strong, nonatomic) CISDOBOpenBisModel *openBisModel;
 
@@ -33,6 +33,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *summaryLabel;
 @property (weak, nonatomic) IBOutlet UILabel *identifierLabel;
 @property (weak, nonatomic) IBOutlet UIWebView *webView;
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
 
 // Actions
 - (void)selectionDidChange;     //!< Signals that the user has made a final selction

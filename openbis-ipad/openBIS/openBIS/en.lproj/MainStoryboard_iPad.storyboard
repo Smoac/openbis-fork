@@ -31,7 +31,6 @@
                             <label clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" text="" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="27">
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="203" id="1vN-zg-Zq1"/>
                                     <constraint firstAttribute="height" constant="28" type="user" id="j4P-P6-Ayn"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="16"/>
@@ -41,7 +40,6 @@
                             <label clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" text="" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="gor-tF-mFh">
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="200" id="DAm-s6-dcJ"/>
                                     <constraint firstAttribute="height" constant="28" id="NeY-AR-8Ub"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -52,7 +50,7 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="118" id="Txf-bY-brd"/>
-                                    <constraint firstAttribute="width" constant="415" id="mHb-8C-05c"/>
+                                    <constraint firstAttribute="width" constant="410" id="YWT-eM-uXI"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" size="system"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -62,13 +60,14 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="350" type="user" id="7bz-Yw-afd"/>
+                                    <constraint firstAttribute="height" constant="460" id="sE6-JU-7XJ"/>
                                 </constraints>
                                 <prototypes>
                                     <tableViewCell contentMode="scaleToFill" verticalHuggingPriority="1" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" selectionStyle="blue" indentationWidth="10" reuseIdentifier="Property" textLabel="qrE-EN-cse" detailTextLabel="9aq-ke-4ab" style="IBUITableViewCellStyleValue2" id="mfZ-bV-mLK">
-                                        <rect key="frame" x="0.0" y="22" width="663" height="44"/>
+                                        <rect key="frame" x="0.0" y="22" width="703" height="44"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                                            <rect key="frame" x="0.0" y="0.0" width="663" height="43"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="703" height="43"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" horizontalCompressionResistancePriority="1000" text="Title" textAlignment="right" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="91" translatesAutoresizingMaskIntoConstraints="NO" id="qrE-EN-cse">
@@ -98,22 +97,34 @@
                                 </constraints>
                                 <dataDetectorType key="dataDetectorTypes"/>
                             </webView>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="test" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="H01-Gm-nTe">
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="27" id="4O8-pX-DfO"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="T4E-dH-b3j" firstAttribute="leading" secondItem="26" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="1JH-U6-rvC"/>
                             <constraint firstItem="bUx-j7-YCF" firstAttribute="top" secondItem="T4E-dH-b3j" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="34W-Bo-fwe"/>
                             <constraint firstItem="T4E-dH-b3j" firstAttribute="top" secondItem="gor-tF-mFh" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="8xN-U9-aRY"/>
-                            <constraint firstAttribute="bottom" secondItem="bUx-j7-YCF" secondAttribute="bottom" constant="20" symbolic="YES" type="default" id="BOD-5p-64L"/>
+                            <constraint firstItem="T4E-dH-b3j" firstAttribute="leading" secondItem="26" secondAttribute="leading" constant="25" id="AXi-9e-oWq"/>
+                            <constraint firstItem="H01-Gm-nTe" firstAttribute="leading" secondItem="26" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="DY1-65-VaV"/>
                             <constraint firstItem="27" firstAttribute="top" secondItem="26" secondAttribute="top" constant="20" symbolic="YES" type="user" id="FD4-HZ-RnC"/>
+                            <constraint firstItem="gor-tF-mFh" firstAttribute="leading" secondItem="26" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="FvH-Wf-aa1"/>
+                            <constraint firstItem="rUU-Fj-t5t" firstAttribute="leading" secondItem="27" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="GUS-JI-w7u"/>
+                            <constraint firstItem="bUx-j7-YCF" firstAttribute="trailing" secondItem="26" secondAttribute="trailing" type="default" id="J5w-YE-X9r"/>
+                            <constraint firstAttribute="trailing" secondItem="H01-Gm-nTe" secondAttribute="trailing" constant="20" symbolic="YES" type="default" id="Lh3-fu-ip0"/>
                             <constraint firstItem="bUx-j7-YCF" firstAttribute="top" secondItem="rUU-Fj-t5t" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="NfB-38-VMG"/>
                             <constraint firstItem="rUU-Fj-t5t" firstAttribute="top" secondItem="26" secondAttribute="top" constant="20" symbolic="YES" type="default" id="QCg-PZ-dXE"/>
                             <constraint firstAttribute="trailing" secondItem="rUU-Fj-t5t" secondAttribute="trailing" constant="20" symbolic="YES" type="default" id="Qpl-Gy-9XI"/>
                             <constraint firstItem="gor-tF-mFh" firstAttribute="top" secondItem="27" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="T1F-6Z-kbc"/>
-                            <constraint firstItem="gor-tF-mFh" firstAttribute="trailing" secondItem="27" secondAttribute="trailing" type="default" id="Tl9-Ul-Mrh"/>
-                            <constraint firstAttribute="trailing" secondItem="bUx-j7-YCF" secondAttribute="trailing" constant="20" symbolic="YES" type="default" id="jU1-bA-JE1"/>
-                            <constraint firstItem="27" firstAttribute="leading" secondItem="26" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="lGv-yZ-eAZ"/>
-                            <constraint firstItem="bUx-j7-YCF" firstAttribute="leading" secondItem="26" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="qCU-93-jXk"/>
+                            <constraint firstItem="H01-Gm-nTe" firstAttribute="bottom" secondItem="26" secondAttribute="bottom" type="default" id="ctA-jO-Kum"/>
+                            <constraint firstItem="rUU-Fj-t5t" firstAttribute="leading" secondItem="gor-tF-mFh" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="lbL-ti-Ku6"/>
+                            <constraint firstItem="bUx-j7-YCF" firstAttribute="leading" secondItem="26" secondAttribute="leading" type="default" id="tBx-gM-VfN"/>
+                            <constraint firstItem="27" firstAttribute="leading" secondItem="26" secondAttribute="leading" constant="20" symbolic="YES" type="default" id="vrS-8t-WFg"/>
                         </constraints>
                         <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
                     </view>
@@ -122,6 +133,7 @@
                     <connections>
                         <outlet property="identifierLabel" destination="gor-tF-mFh" id="NCy-K7-tLT"/>
                         <outlet property="propertiesTableView" destination="bUx-j7-YCF" id="QW1-J0-g9j"/>
+                        <outlet property="statusLabel" destination="H01-Gm-nTe" id="VBB-z9-EV9"/>
                         <outlet property="summaryHeaderLabel" destination="27" id="f5M-Ao-eBL"/>
                         <outlet property="summaryLabel" destination="T4E-dH-b3j" id="qVC-t4-llZ"/>
                         <outlet property="webView" destination="rUU-Fj-t5t" id="N50-LI-vy0"/>
@@ -156,9 +168,17 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
+                        <searchBar key="tableHeaderView" contentMode="redraw" text="" id="jxa-Rk-K1d">
+                            <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            <textInputTraits key="textInputTraits"/>
+                            <connections>
+                                <outlet property="delegate" destination="19" id="O5O-hD-bld"/>
+                            </connections>
+                        </searchBar>
                         <prototypes>
                             <tableViewCell contentMode="scaleToFill" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" textLabel="tIi-5l-S0i" detailTextLabel="4MS-NV-KvX" style="IBUITableViewCellStyleSubtitle" id="ZSw-0O-9Pw">
-                                <rect key="frame" x="0.0" y="22" width="320" height="44"/>
+                                <rect key="frame" x="0.0" y="66" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
                                     <rect key="frame" x="0.0" y="0.0" width="300" height="43"/>
@@ -191,6 +211,9 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="All" id="40"/>
+                    <connections>
+                        <outlet property="searchBar" destination="jxa-Rk-K1d" id="0Dg-en-V0L"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="23" sceneMemberID="firstResponder"/>
             </objects>
@@ -218,6 +241,7 @@
             <relationships>
                 <relationship kind="outlet" name="identifierLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="propertiesTableView" candidateClass="UITableView"/>
+                <relationship kind="outlet" name="statusLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="summaryHeaderLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="summaryLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="webView" candidateClass="UIWebView"/>
