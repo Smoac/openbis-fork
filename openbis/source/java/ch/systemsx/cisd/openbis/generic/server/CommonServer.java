@@ -3612,6 +3612,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public MetaprojectAssignmentsCount getMetaprojectAssignmentsCount(String sessionToken,
             IMetaprojectId metaprojectId)
     {
