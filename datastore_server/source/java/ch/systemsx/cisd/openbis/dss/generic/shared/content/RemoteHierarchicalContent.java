@@ -127,7 +127,6 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
     @Override
     public void close()
     {
-        // TODO Auto-generated method stub
     }
 
 }
