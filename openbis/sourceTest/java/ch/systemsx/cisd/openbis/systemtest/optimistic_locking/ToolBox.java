@@ -351,7 +351,12 @@ public class ToolBox
 
     public Sample loadSample(IIdentifierHolder sample)
     {
-        return etlService.tryGetSampleWithExperiment(systemSessionToken,
+        return loadSample(systemSessionToken, sample);
+    }
+
+    public Sample loadSample(String sessionToken, IIdentifierHolder sample)
+    {
+        return etlService.tryGetSampleWithExperiment(sessionToken,
                 SampleIdentifierFactory.parse(sample.getIdentifier()));
     }
 

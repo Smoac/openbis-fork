@@ -353,9 +353,11 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     public final void addAttachment(final AttachmentPE experimentAttachment)
     {
         assert experiment != null : "no experiment has been loaded";
-        experimentAttachment.setRegistrator(findPerson());
+        PersonPE user = findPerson();
+        experimentAttachment.setRegistrator(user);
         escapeFileName(experimentAttachment);
         attachments.add(experimentAttachment);
+        RelationshipUtils.updateModificationDateAndModifier(experiment, user);
     }
 
     private void escapeFileName(final AttachmentPE attachment)

@@ -19,12 +19,16 @@ package ch.systemsx.cisd.openbis.systemtest.optimistic_locking;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.List;
+
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
@@ -254,5 +258,47 @@ public class SampleOptimisticLockingTest extends OptimisticLockingTestCase
         assertEquals(null, loadedSample.getContainer());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedSample, "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedContainer, "test");
+    }
+
+    @Test
+    public void testAddMetaProject()
+    {
+        Sample sample = toolBox.createAndLoadSample(1, null);
+        SampleUpdatesDTOBuilder builder = new SampleUpdatesDTOBuilder(sample);
+        builder.metaProject("TEST_METAPROJECTS");
+        String sessionToken = logIntoCommonClientService().getSessionID();
+        assertEquals("", toolBox.renderMetaProjects(toolBox.loadSample(sessionToken, sample)
+                .getMetaprojects()));
+
+        genericServer.updateSample(sessionToken, builder.get());
+
+        Sample loadedSample = toolBox.loadSample(sessionToken, sample);
+        assertEquals(sample.getModifier(), loadedSample.getModifier());
+        assertEquals(sample.getModificationDate(), loadedSample.getModificationDate());
+        assertEquals("/test/TEST_METAPROJECTS",
+                toolBox.renderMetaProjects(loadedSample.getMetaprojects()));
+        assertEquals("", toolBox.renderMetaProjects(toolBox.loadSample(sample).getMetaprojects()));
+    }
+
+    @Test
+    public void testAddAttachment()
+    {
+        Sample sample = toolBox.createAndLoadSample(1, null);
+        SampleUpdatesDTOBuilder builder = new SampleUpdatesDTOBuilder(sample);
+        NewAttachment attachment = new NewAttachment();
+        attachment.setFilePath("greetings.txt");
+        attachment.setTitle("greetings");
+        attachment.setContent("hello world".getBytes());
+        builder.attachment(attachment);
+        String sessionToken = logIntoCommonClientService().getSessionID();
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+
+        genericServer.updateSample(sessionToken, builder.get());
+
+        Sample loadedSample = toolBox.loadSample(sample);
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedSample, "test");
+        List<Attachment> attachments = loadedSample.getAttachments();
+        assertEquals("greetings.txt", attachments.get(0).getFileName());
+        assertEquals(1, attachments.size());
     }
 }

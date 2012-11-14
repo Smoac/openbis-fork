@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -27,10 +28,12 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
@@ -196,6 +199,34 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
         assertEquals(experiment.getModificationDate(), loadedExperiment.getModificationDate());
         assertEquals("/test/TEST_METAPROJECTS",
                 toolBox.renderMetaProjects(loadedExperiment.getMetaprojects()));
+    }
+
+    @Test
+    public void testAddAttachment()
+    {
+        Experiment experiment = toolBox.createAndLoadExperiment(1);
+        ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
+        updates.setVersion(experiment.getVersion());
+        updates.setExperimentId(new TechId(experiment));
+        updates.setProjectIdentifier(toolBox.createProjectIdentifier(experiment.getProject()
+                .getIdentifier()));
+        NewAttachment attachment = new NewAttachment();
+        attachment.setFilePath("greetings.txt");
+        attachment.setTitle("greetings");
+        attachment.setContent("hello world".getBytes());
+        updates.setAttachments(Arrays.asList(attachment));
+        updates.setProperties(experiment.getProperties());
+        String sessionToken = logIntoCommonClientService().getSessionID();
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+
+        genericServer.updateExperiment(sessionToken, updates);
+
+        Experiment loadedExperiment = toolBox.loadExperiment(experiment);
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment,
+                "test");
+        List<Attachment> attachments = loadedExperiment.getAttachments();
+        assertEquals("greetings.txt", attachments.get(0).getFileName());
+        assertEquals(1, attachments.size());
     }
 
     @Test

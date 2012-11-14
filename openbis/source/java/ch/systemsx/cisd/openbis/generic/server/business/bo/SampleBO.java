@@ -27,6 +27,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -353,9 +354,11 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     {
         assert sample != null : "no sample has been loaded";
         assertInstanceSampleUpdateAllowed(Collections.singletonList(sample));
-        sampleAttachment.setRegistrator(findPerson());
+        PersonPE user = findPerson();
+        sampleAttachment.setRegistrator(user);
         escapeFileName(sampleAttachment);
         attachments.add(sampleAttachment);
+        RelationshipUtils.updateModificationDateAndModifier(sample, user);
     }
 
     private void escapeFileName(final AttachmentPE attachment)

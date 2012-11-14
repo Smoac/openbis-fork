@@ -52,6 +52,8 @@ public class SampleUpdatesDTOBuilder
 
     private List<String> parentCodes = new ArrayList<String>();
 
+    private List<String> metaprojects = new ArrayList<String>();
+
     public SampleUpdatesDTOBuilder(Sample sample)
     {
         this(sample.getId());
@@ -94,12 +96,25 @@ public class SampleUpdatesDTOBuilder
         return this;
     }
 
+    public SampleUpdatesDTOBuilder metaProject(String metaProjectCode)
+    {
+        metaprojects.add(metaProjectCode);
+        return this;
+    }
+
+    public SampleUpdatesDTOBuilder attachment(NewAttachment attachment)
+    {
+        attachments.add(attachment);
+        return this;
+    }
+
     public SampleUpdatesDTO get()
     {
         SampleUpdatesDTO sampleUpdate =
                 new SampleUpdatesDTO(sampleId, properties, experimentIdentifierOrNull, attachments,
                         version, sampleIdentifier, containerIdentifierOrNull,
                         parentCodes.toArray(new String[0]));
+        sampleUpdate.setMetaprojectsOrNull(metaprojects.toArray(new String[0]));
         return sampleUpdate;
     }
 }
