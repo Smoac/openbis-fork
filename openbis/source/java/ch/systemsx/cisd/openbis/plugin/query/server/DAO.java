@@ -223,7 +223,11 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
                         for (Entry<String, String> entry : bindingsOrNull.getBindings().entrySet())
                         {
                             template.bind(entry.getKey(), "?");
-                            indexMap.put(template.tryGetIndex(entry.getKey()), entry);
+                            final int index = template.tryGetIndex(entry.getKey());
+                            if (index >= 0)
+                            {
+                                indexMap.put(index, entry);
+                            }
                         }
                     }
                     final PreparedStatement psm = con.prepareStatement(template.createText());
@@ -231,6 +235,10 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
                     for (int i = 1; i <= pmd.getParameterCount(); ++i)
                     {
                         final Entry<String, String> entry = indexMap.get(i - 1);
+                        if (entry == null)
+                        {
+                            throw new SQLDataException("No variable found for for parameter " + i);
+                        }
                         final String strValue = entry.getValue();
                         try
                         {
