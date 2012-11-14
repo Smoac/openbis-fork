@@ -31,8 +31,6 @@ import java.util.List;
 
 import javax.validation.ValidationException;
 
-import junit.framework.Assert;
-
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.AssertJUnit;
 import org.testng.annotations.DataProvider;
@@ -432,7 +430,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         Collections.sort(experimentsAfter);
         final ExperimentPE experimentFound = experimentsAfter.get(0);
         assertEquals(codeModified, experimentFound.getCode());
-        Assert.assertFalse(modificationTimestamp.equals(experimentFound.getModificationDate()));
+        assertEquals(modificationTimestamp, experimentFound.getModificationDate());
     }
 
     public final void testChangeContainerExperimentUpdatesContainedElements()
@@ -625,10 +623,10 @@ public class ExperimentDAOTest extends AbstractDAOTest
     {
         return new Object[][]
             {
-                    { EXCEED_CODE_LENGTH_CHARACTERS },
-                    { "" },
-                    { null },
-                    { "@XPERIMENT" }, };
+                { EXCEED_CODE_LENGTH_CHARACTERS },
+                { "" },
+                { null },
+                { "@XPERIMENT" }, };
     }
 
     @Test
