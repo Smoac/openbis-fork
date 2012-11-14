@@ -37,10 +37,13 @@ public class Report implements Command<Void>
     @Inject
     private IQueryApiServer query;
 
+    private String dataStoreName;
+
     private List<String> dataSetCodes;
 
-    public Report(String dataSetCode, String... restCodes)
+    public Report(String dataStoreName, String dataSetCode, String... restCodes)
     {
+        this.dataStoreName = dataStoreName;
         this.dataSetCodes = new ArrayList<String>();
         this.dataSetCodes.add(dataSetCode);
         this.dataSetCodes.addAll(Arrays.asList(restCodes));
@@ -50,7 +53,8 @@ public class Report implements Command<Void>
     public Void execute()
     {
         QueryTableModel report =
-                query.createReportFromDataSets(session, "INTERNAL", "read-all-files", dataSetCodes);
+                query.createReportFromDataSets(session, dataStoreName, "read-all-files",
+                        dataSetCodes);
 
         System.out.println("REPORT: " + report);
         // TODO Auto-generated method stub

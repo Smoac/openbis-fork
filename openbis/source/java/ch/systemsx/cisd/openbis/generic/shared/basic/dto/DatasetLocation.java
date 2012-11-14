@@ -33,14 +33,21 @@ public class DatasetLocation implements IDatasetLocation, Serializable, ICodeHol
 
     private String dataSetLocation;
 
+    private String dataStoreCode;
+
+    private String dataStoreUrl;
+
     public DatasetLocation()
     {
     }
 
-    public DatasetLocation(String datasetCode, String dataSetLocation)
+    public DatasetLocation(String datasetCode, String dataSetLocation, String dataStoreCode,
+            String dataStoreUrl)
     {
         this.datasetCode = datasetCode;
         this.dataSetLocation = dataSetLocation;
+        this.dataStoreCode = dataStoreCode;
+        this.dataStoreUrl = dataStoreUrl;
     }
 
     @Override
@@ -75,6 +82,28 @@ public class DatasetLocation implements IDatasetLocation, Serializable, ICodeHol
     public String getCode()
     {
         return getDataSetCode();
+    }
+
+    @Override
+    public String getDataStoreUrl()
+    {
+        return this.dataStoreUrl;
+    }
+
+    @Override
+    public String getDataStoreCode()
+    {
+        return this.dataStoreCode;
+    }
+
+    public void setDataStoreCode(String dataStoreCode)
+    {
+        this.dataStoreCode = dataStoreCode;
+    }
+
+    public void setDataStoreUrl(String dataStoreUrl)
+    {
+        this.dataStoreUrl = dataStoreUrl;
     }
 
 }

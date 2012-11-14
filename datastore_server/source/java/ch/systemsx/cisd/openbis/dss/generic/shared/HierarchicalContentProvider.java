@@ -26,13 +26,17 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoDBAwareHierarchicalContentFactory;
+import ch.systemsx.cisd.openbis.dss.generic.shared.content.RemoteHierarchicalContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
 /**
  * The default implementation of {@link IHierarchicalContentProvider}.
@@ -50,29 +54,56 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
 
     private IHierarchicalContentFactory hierarchicalContentFactory;
 
+    private OpenBISSessionHolder session;
+
+    private IDssServiceRpcGeneric dssService;
+
+    private String dataStoreCode;
+
+    private String sessionWorkspaceRoot;
+
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
-            IShareIdManager shareIdManager, IConfigProvider configProvider)
+            IShareIdManager shareIdManager, IConfigProvider configProvider,
+            OpenBISSessionHolder session,
+            IDssServiceRpcGeneric dssService, ExposablePropertyPlaceholderConfigurer infoProvider)
     {
         this(openbisService, new DataSetDirectoryProvider(configProvider.getStoreRoot(),
-                shareIdManager), null);
+                shareIdManager), null, session, dssService, configProvider.getDataStoreCode(),
+                infoProvider);
     }
 
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
             IShareIdManager shareIdManager, IConfigProvider configProvider,
-            IHierarchicalContentFactory hierarchicalContentFactory)
+            IHierarchicalContentFactory hierarchicalContentFactory, OpenBISSessionHolder session,
+            IDssServiceRpcGeneric dssService, ExposablePropertyPlaceholderConfigurer infoProvider)
     {
         this(openbisService, new DataSetDirectoryProvider(configProvider.getStoreRoot(),
-                shareIdManager), hierarchicalContentFactory);
+                shareIdManager), hierarchicalContentFactory, session, dssService, configProvider
+                .getDataStoreCode(), infoProvider);
     }
 
     @Private
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
             IDataSetDirectoryProvider directoryProvider,
-            IHierarchicalContentFactory hierarchicalContentFactory)
+            IHierarchicalContentFactory hierarchicalContentFactory,
+            OpenBISSessionHolder session,
+            IDssServiceRpcGeneric dssService,
+            String dataStoreCode,
+            ExposablePropertyPlaceholderConfigurer infoProvider)
     {
         this.openbisService = openbisService;
         this.directoryProvider = directoryProvider;
         this.hierarchicalContentFactory = hierarchicalContentFactory;
+        this.session = session;
+        this.dssService = dssService;
+        this.dataStoreCode = dataStoreCode;
+        if (infoProvider != null)
+        {
+            this.sessionWorkspaceRoot =
+                    infoProvider.getResolvedProps().getProperty("session-workspace-root-dir",
+                            "data/sessionWorkspace");
+        }
+
     }
 
     @Override
@@ -85,6 +116,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                     dataSetCode));
             throw new IllegalArgumentException("Unknown data set: " + dataSetCode);
         }
+
         return asContent(locationNode);
     }
 
@@ -96,22 +128,36 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
 
     private IHierarchicalContent asContent(IDatasetLocationNode locationNode)
     {
-        if (locationNode.isContainer())
+        if (isLocal(locationNode))
         {
-            List<IHierarchicalContent> componentContents = new ArrayList<IHierarchicalContent>();
-            for (IDatasetLocationNode component : locationNode.getComponents())
+            if (locationNode.isContainer())
             {
-                IHierarchicalContent componentContent = tryCreateComponentContent(component);
-                if (componentContent != null)
+                List<IHierarchicalContent> componentContents =
+                        new ArrayList<IHierarchicalContent>();
+                for (IDatasetLocationNode component : locationNode.getComponents())
                 {
-                    componentContents.add(componentContent);
+                    IHierarchicalContent componentContent = tryCreateComponentContent(component);
+                    if (componentContent != null)
+                    {
+                        componentContents.add(componentContent);
+                    }
                 }
+                return getHierarchicalContentFactory().asVirtualHierarchicalContent(
+                        componentContents);
+            } else
+            {
+                return asContent(locationNode.getLocation());
             }
-            return getHierarchicalContentFactory().asVirtualHierarchicalContent(componentContents);
         } else
         {
-            return asContent(locationNode.getLocation());
+            return new RemoteHierarchicalContent(locationNode, ServiceProvider
+                    .getDataSetPathInfoProvider(), session, dssService, sessionWorkspaceRoot);
         }
+    }
+
+    private boolean isLocal(IDatasetLocationNode node)
+    {
+        return this.dataStoreCode.equals(node.getLocation().getDataStoreCode());
     }
 
     private IHierarchicalContent tryCreateComponentContent(

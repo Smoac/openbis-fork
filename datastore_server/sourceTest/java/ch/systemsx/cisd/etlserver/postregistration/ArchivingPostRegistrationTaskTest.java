@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 
@@ -95,13 +96,13 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
 
         ArchivingPostRegistrationTask task =
                 new ArchivingPostRegistrationTask(new Properties(), service);
-        
+
         LogMonitoringAppender appender =
                 LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
                         createEmailMessage(DATASET_CODE));
-        
+
         task.createExecutor(DATASET_CODE, false).execute();
-        
+
         appender.verifyLogHasHappened();
         context.assertIsSatisfied();
     }
@@ -114,10 +115,10 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
                 {
                     allowing(applicationContext).getBean("data-store-service");
                     will(returnValue(dataStoreService));
-                    
+
                     allowing(applicationContext).getBean("hierarchical-content-provider");
                     will(returnValue(contentProvider));
-                    
+
                     allowing(dataStoreService).getArchiverPlugin();
                     will(returnValue(archiver));
 
@@ -159,12 +160,15 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
                 + "you can configure an \'AutoArchiverTask\'.";
     }
 
-    
     private ExternalData createDataSet()
     {
+        DataStore dataStore = new DataStore();
+        dataStore.setCode("STANDARD");
+
         DataSet dataSet = new DataSet();
         dataSet.setCode(DATASET_CODE);
         dataSet.setFileFormatType(new FileFormatType("DATA"));
+        dataSet.setDataStore(dataStore);
         return dataSet;
     }
 }

@@ -69,10 +69,10 @@ public class SimpleDataSetHelper
         result.setGroupCode(data.getExperiment().getProject().getSpace().getCode());
         result.setSampleCode(data.getSampleCode());
         result.setDataSetType(data.getDataSetType().getCode());
-
+        result.setDataStoreUrl(data.getDataStore().getHostUrl());
         return result;
     }
-    
+
     public static SimpleDataSetInformationDTO translate(DatasetDescription datasetDescription)
     {
         SimpleDataSetInformationDTO result = new SimpleDataSetInformationDTO();

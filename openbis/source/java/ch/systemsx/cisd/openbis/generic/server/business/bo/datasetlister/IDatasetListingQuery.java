@@ -302,12 +302,13 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet entityIds);
 
-    @Select(sql = "WITH RECURSIVE connected_data(id, code, ctnr_id) AS ("
-            + "    SELECT d.id, d.code, d.ctnr_id, ed.location FROM data AS d LEFT OUTER JOIN external_data AS ed ON d.id = ed.data_id WHERE d.code = ?{1}"
+    @Select(sql = "WITH RECURSIVE connected_data(id, code, ctnr_id, dast_id, location) AS ("
+            + "    SELECT d.id, d.code, d.ctnr_id, d.dast_id, ed.location FROM data AS d LEFT OUTER JOIN external_data AS ed ON d.id = ed.data_id WHERE d.code = ?{1}"
             + "  UNION ALL"
-            + "    SELECT d.id, d.code, d.ctnr_id, ed.location"
+            + "    SELECT d.id, d.code, d.ctnr_id, d.dast_id, ed.location"
             + "    FROM connected_data AS cd INNER JOIN data AS d ON cd.id = d.ctnr_id LEFT OUTER JOIN external_data AS ed ON d.id = ed.data_id"
-            + ")" + "SELECT * FROM connected_data")
+            + ")"
+            + "SELECT c.id, c.code, c.ctnr_id, c.location, d.code as data_store_code, d.remote_url as data_store_url FROM connected_data c JOIN data_stores d ON c.dast_id = d.id")
     public DataIterator<DatasetLocationNodeRecord> listLocationsByDatasetCode(String datasetCode);
 
     @Select(sql = "select m.id as id, m.name as name, m.description as description, p.user_id as owner_name, "

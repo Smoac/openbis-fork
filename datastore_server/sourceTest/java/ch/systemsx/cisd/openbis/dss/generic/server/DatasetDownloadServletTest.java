@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataLocationNode;
@@ -171,7 +172,7 @@ public class DatasetDownloadServletTest
                 new MockDataSetDirectoryProvider(TEST_FOLDER, DEFAULT_SHARE_ID, shareIdManager);
         hierarchicalContentProvider =
                 new HierarchicalContentProvider(openbisService, dummyDirectoryProvider,
-                        fileBasedContentFactory);
+                        fileBasedContentFactory, null, null, "STANDARD", null);
         httpSession = context.mock(HttpSession.class);
         TEST_FOLDER.mkdirs();
         EXAMPLE_DATA_SET_FOLDER.mkdirs();
@@ -797,6 +798,9 @@ public class DatasetDownloadServletTest
         dataSet.setShareId(DEFAULT_SHARE_ID);
         dataSet.setLocation(DatasetLocationUtil.getDatasetLocationPath(EXAMPLE_DATA_SET_CODE,
                 DATABASE_INSTANCE_UUID));
+        DataStore dataStore = new DataStore();
+        dataStore.setCode("STANDARD");
+        dataSet.setDataStore(dataStore);
         return dataSet;
     }
 

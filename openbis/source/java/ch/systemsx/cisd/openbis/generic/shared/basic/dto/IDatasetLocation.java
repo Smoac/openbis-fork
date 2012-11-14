@@ -26,4 +26,8 @@ public interface IDatasetLocation
     String getDataSetLocation();
 
     String getDataSetCode();
+
+    String getDataStoreUrl();
+
+    String getDataStoreCode();
 }

@@ -103,7 +103,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
                 pathInfoContent = tryGetContent(getPathInfoProvider(), dataset.getDataSetCode());
 
                 List<Difference> datasetDifferences = new ArrayList<Difference>();
-                
+
                 compare(fileContent, pathInfoContent, datasetDifferences);
 
                 if (datasetDifferences.isEmpty() == false)
@@ -604,7 +604,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
                     new HierarchicalContentProvider(ServiceProvider.getOpenBISService(),
                             ServiceProvider.getShareIdManager(),
                             ServiceProvider.getConfigProvider(),
-                            new DefaultFileBasedHierarchicalContentFactory());
+                            new DefaultFileBasedHierarchicalContentFactory(), null, null, null);
         }
         return fileProvider;
     }
@@ -624,10 +624,10 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
                 pathInfoProvider =
                         new HierarchicalContentProvider(ServiceProvider.getOpenBISService(),
                                 ServiceProvider.getShareIdManager(),
-                                ServiceProvider.getConfigProvider(), pathInfoDBFactory);
+                                ServiceProvider.getConfigProvider(), pathInfoDBFactory, null, null,
+                                null);
             }
         }
         return pathInfoProvider;
     }
-
 }

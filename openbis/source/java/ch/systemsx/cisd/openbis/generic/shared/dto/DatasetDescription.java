@@ -65,6 +65,10 @@ public class DatasetDescription implements Serializable, IDatasetLocation
 
     private String mainDataSetPath;
 
+    private String dataStoreCode;
+
+    private String dataStoreUrl;
+
     public static List<String> extractCodes(List<DatasetDescription> dataSets)
     {
         List<String> result = new ArrayList<String>();
@@ -268,6 +272,28 @@ public class DatasetDescription implements Serializable, IDatasetLocation
     public String toString()
     {
         return String.format("Dataset '%s'", datasetCode);
+    }
+
+    @Override
+    public String getDataStoreCode()
+    {
+        return dataStoreCode;
+    }
+
+    public void setDataStoreCode(String dss)
+    {
+        this.dataStoreCode = dss;
+    }
+
+    @Override
+    public String getDataStoreUrl()
+    {
+        return this.dataStoreUrl;
+    }
+
+    public void setDataStoreUrl(String dataStoreUrl)
+    {
+        this.dataStoreUrl = dataStoreUrl;
     }
 
 }

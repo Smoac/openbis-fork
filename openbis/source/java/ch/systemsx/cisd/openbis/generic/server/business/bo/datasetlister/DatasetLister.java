@@ -1005,6 +1005,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             DatasetLocation location = new DatasetLocation();
             location.setDatasetCode(record.code);
             location.setDataSetLocation(record.location);
+            location.setDataStoreCode(record.data_store_code);
+            location.setDataStoreUrl(record.data_store_url);
 
             DatasetLocationNode node = new DatasetLocationNode(location);
 

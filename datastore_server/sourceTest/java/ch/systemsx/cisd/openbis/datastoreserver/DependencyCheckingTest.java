@@ -16,11 +16,12 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver;
 
+import org.testng.annotations.Test;
+
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
+@Test
 public class DependencyCheckingTest extends ch.systemsx.cisd.common.test.DependencyCheckingTest
 {
 

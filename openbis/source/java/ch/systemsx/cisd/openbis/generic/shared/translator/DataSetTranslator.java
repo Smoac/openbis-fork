@@ -71,6 +71,8 @@ public class DataSetTranslator
         DatasetDescription description = new DatasetDescription();
         description.setDataSetCode(data.getCode());
 
+        description.setDataStoreCode(data.getDataStore().getCode());
+
         DataSet dataSet = data.tryGetAsDataSet();
         if (dataSet != null)
         {
@@ -403,8 +405,8 @@ public class DataSetTranslator
         description.setMainDataSetPath(dataSetType.getMainDataSetPath());
         description.setMainDataSetPattern(dataSetType.getMainDataSetPattern());
         description.setDatasetTypeCode(dataSetType.getCode());
+        description.setDataStoreCode(dataSet.getDataStore().getCode());
 
         return description;
     }
-
 }

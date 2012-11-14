@@ -26,12 +26,13 @@ import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 public class MultiDssReporting extends HeadlessSuite
 {
 
-    @Test(enabled = false)
+    @Test
     public void report() throws Exception
     {
         DataSet internal = create(aDataSet());
         DataSet external = create(aDataSet().inExternalDss());
 
-        report(internal.getCode(), external.getCode());
+
+        reportInInternal(internal.getCode(), external.getCode());
     }
 }

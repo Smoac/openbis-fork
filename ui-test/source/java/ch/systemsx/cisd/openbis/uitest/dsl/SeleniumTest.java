@@ -852,9 +852,14 @@ public abstract class SeleniumTest
         return entity.getMetaProjects();
     }
 
-    public void report(String dataSetCode, String... rest)
+    public void reportInExternal(String dataSetCode, String... rest)
     {
-        openbis.execute(new Report(dataSetCode, rest));
+        openbis.execute(new Report("EXTERNAL", dataSetCode, rest));
+    }
+
+    public void reportInInternal(String dataSetCode, String... rest)
+    {
+        openbis.execute(new Report("INTERNAL", dataSetCode, rest));
     }
 
 }

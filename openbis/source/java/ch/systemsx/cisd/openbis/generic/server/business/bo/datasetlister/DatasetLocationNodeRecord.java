@@ -30,4 +30,8 @@ public class DatasetLocationNodeRecord
 
     public String location;
 
+    public String data_store_code;
+
+    public String data_store_url;
+
 }

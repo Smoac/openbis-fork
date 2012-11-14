@@ -165,4 +165,15 @@ public class DataSet extends ExternalData implements IDatasetLocation
         return getCode();
     }
 
+    @Override
+    public String getDataStoreUrl()
+    {
+        return this.getDataStore().getHostUrl();
+    }
+
+    @Override
+    public String getDataStoreCode()
+    {
+        return getDataStore().getCode();
+    }
 }

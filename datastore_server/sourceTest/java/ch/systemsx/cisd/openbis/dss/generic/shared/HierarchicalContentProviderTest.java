@@ -73,7 +73,7 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         openbisService = context.mock(IEncapsulatedOpenBISService.class);
         hierarchicalContentProvider =
                 new HierarchicalContentProvider(openbisService, directoryProvider,
-                        hierarchicalContentFactory);
+                        hierarchicalContentFactory, null, null, "STANDARD", null);
     }
 
     @AfterMethod
@@ -89,7 +89,8 @@ public class HierarchicalContentProviderTest extends AssertJUnit
     {
         final String dataSetCode = "DS_CODE";
 
-        final DatasetLocation dataLocation = new DatasetLocation(dataSetCode, "LOCATION");
+        final DatasetLocation dataLocation =
+                new DatasetLocation(dataSetCode, "LOCATION", "STANDARD", null);
         final DatasetLocationNode data = new DatasetLocationNode(dataLocation);
         final File dataRootFile = new File("DS_FILE");
         final RecordingMatcher<IDelegatedAction> actionMatcher = RecordingMatcher.create();
@@ -135,16 +136,21 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         final File dataSetRootFile2 = new File("DS_FILE_2");
         final File dataSetRootFile3 = new File("DS_FILE_3");
 
-        final DatasetLocation dataSet1Location = new DatasetLocation(dataSet1Code, "LOCATION_1");
-        final DatasetLocation dataSet2Location = new DatasetLocation(dataSet2Code, "LOCATION_2");
-        final DatasetLocation dataSet3Location = new DatasetLocation(dataSet3Code, "LOCATION_3");
+        final DatasetLocation dataSet1Location =
+                new DatasetLocation(dataSet1Code, "LOCATION_1", "STANDARD", null);
+        final DatasetLocation dataSet2Location =
+                new DatasetLocation(dataSet2Code, "LOCATION_2", "STANDARD", null);
+        final DatasetLocation dataSet3Location =
+                new DatasetLocation(dataSet3Code, "LOCATION_3", "STANDARD", null);
 
         final DatasetLocationNode dataSet1 = new DatasetLocationNode(dataSet1Location);
         final DatasetLocationNode dataSet2 = new DatasetLocationNode(dataSet2Location);
         final DatasetLocationNode dataSet3 = new DatasetLocationNode(dataSet3Location);
 
         final String containerCode = "CONTAINER_CODE";
-        final DatasetLocation containerLocation = new DatasetLocation(containerCode, null);
+        final DatasetLocation containerLocation =
+                new DatasetLocation(containerCode, null, "STANDARD", null);
+        containerLocation.setDataStoreCode("STANDARD");
         final DatasetLocationNode container = new DatasetLocationNode(containerLocation);
         container.addContained(dataSet1);
         container.addContained(dataSet2);
@@ -265,6 +271,20 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                 public String getDataSetLocation()
                 {
                     return location;
+                }
+
+                @Override
+                public String getDataStoreUrl()
+                {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+
+                @Override
+                public String getDataStoreCode()
+                {
+                    // TODO Auto-generated method stub
+                    return null;
                 }
             };
 

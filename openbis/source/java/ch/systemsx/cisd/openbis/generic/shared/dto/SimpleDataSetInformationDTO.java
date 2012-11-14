@@ -29,21 +29,21 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocation
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private String dataStoreCode;
 
     private String dataSetCode;
 
     private String dataSetShareId;
-    
+
     private String dataSetLocation;
 
     private Long dataSetSize;
-    
+
     private String dataSetType;
 
     private int speedHint;
-    
+
     private String sampleCode;
 
     private String groupCode;
@@ -53,12 +53,15 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     private String projectCode;
 
     private String databaseInstanceCode;
-    
+
+    private String dataStoreUrl;
+
     public void setDataStoreCode(String dataStoreCode)
     {
         this.dataStoreCode = dataStoreCode;
     }
 
+    @Override
     public String getDataStoreCode()
     {
         return dataStoreCode;
@@ -175,6 +178,17 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     public void setDatabaseInstanceCode(String dbInstanceCode)
     {
         this.databaseInstanceCode = dbInstanceCode;
+    }
+
+    @Override
+    public String getDataStoreUrl()
+    {
+        return dataStoreUrl;
+    }
+
+    public void setDataStoreUrl(String dataStoreUrl)
+    {
+        this.dataStoreUrl = dataStoreUrl;
     }
 
 }

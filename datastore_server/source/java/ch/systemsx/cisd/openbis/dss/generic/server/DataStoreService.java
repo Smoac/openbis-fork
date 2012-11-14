@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
+import ch.systemsx.cisd.etlserver.ConfigProvider;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
 import ch.systemsx.cisd.openbis.common.conversation.context.ServiceConversationsThreadContext;
 import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener;
@@ -102,6 +103,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private IDataSetCommandExecutor commandExecutor;
 
     private PutDataSetService putService;
+
+    private ConfigProvider config;
 
     public DataStoreService(SessionTokenManager sessionTokenManager,
             MailClientParameters mailClientParameters, IPluginTaskInfoProvider pluginTaskParameters)
@@ -328,9 +331,14 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         IShareIdManager manager = getShareIdManager();
         try
         {
+            String dssCode = config.getDataStoreCode();
+
             for (DatasetDescription dataSet : datasets)
             {
-                manager.lock(dataSet.getDataSetCode());
+                if (dssCode.equals(dataSet.getDataStoreCode()))
+                {
+                    manager.lock(dataSet.getDataSetCode());
+                }
             }
             IMailClient mailClient = createEMailClient();
             return task.createReport(
@@ -365,24 +373,28 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
 
     @Override
-    public void unarchiveDatasets(String sessionToken, String userSessionToken, List<DatasetDescription> datasets,
+    public void unarchiveDatasets(String sessionToken, String userSessionToken,
+            List<DatasetDescription> datasets,
             String userId, String userEmailOrNull)
     {
         String description = "Unarchiving";
         IProcessingPluginTask task = new UnarchiveProcessingPluginTask(getArchiverPlugin());
 
-        scheduleTask(sessionToken, userSessionToken, description, task, datasets, userId, userEmailOrNull);
+        scheduleTask(sessionToken, userSessionToken, description, task, datasets, userId,
+                userEmailOrNull);
     }
 
     @Override
-    public void archiveDatasets(String sessionToken, String userSessionToken, List<DatasetDescription> datasets,
+    public void archiveDatasets(String sessionToken, String userSessionToken,
+            List<DatasetDescription> datasets,
             String userId, String userEmailOrNull, boolean removeFromDataStore)
     {
         String description = removeFromDataStore ? "Archiving" : "Copying data sets to archive";
         IProcessingPluginTask task =
                 new ArchiveProcessingPluginTask(getArchiverPlugin(), removeFromDataStore);
 
-        scheduleTask(sessionToken, userSessionToken, description, task, datasets, userId, userEmailOrNull);
+        scheduleTask(sessionToken, userSessionToken, description, task, datasets, userId,
+                userEmailOrNull);
     }
 
     @Override
@@ -560,5 +572,10 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             hierarchicalContentProvider = ServiceProvider.getHierarchicalContentProvider();
         }
         return hierarchicalContentProvider;
+    }
+
+    public void setConfig(ConfigProvider config)
+    {
+        this.config = config;
     }
 }

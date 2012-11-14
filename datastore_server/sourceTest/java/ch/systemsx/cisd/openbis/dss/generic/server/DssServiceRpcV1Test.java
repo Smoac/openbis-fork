@@ -186,7 +186,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 new MockDataSetDirectoryProvider(storeDir, SHARE_ID, shareIdManager);
         contentProvider =
                 new HierarchicalContentProvider(openBisService, dummyDirectoryProvider,
-                        fileBasedContentFactory);
+                        fileBasedContentFactory, null, null, "STANDARD", null);
 
         setupGetExpectations();
 
@@ -705,7 +705,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     {
         final DatasetLocation dataSetLocation =
                 new DatasetLocation(DATA_SET_CODE, DatasetLocationUtil.getDatasetLocationPath(
-                        DATA_SET_CODE, DB_INSTANCE_UUID));
+                        DATA_SET_CODE, DB_INSTANCE_UUID), "STANDARD", null);
         final DatasetLocationNode dataSet = new DatasetLocationNode(dataSetLocation);
         context.checking(new Expectations()
             {

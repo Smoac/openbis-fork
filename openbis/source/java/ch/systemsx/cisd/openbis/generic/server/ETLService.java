@@ -1059,7 +1059,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public void checkDataSetCollectionAccess(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
             List<String> dataSetCodes)
