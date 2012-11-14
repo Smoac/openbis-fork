@@ -87,5 +87,6 @@
 	<classpathentry kind="lib" path="/libraries/poi/poi-ooxml.jar"/>
 	<classpathentry kind="lib" path="/libraries/poi/poi.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-fileupload/commons-fileupload.jar"/>
+	<classpathentry kind="lib" path="/libraries/commons-collections/commons-collections.jar" sourcepath="/libraries/commons-collections/src.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
