@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.systemtest.optimistic_locking;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -35,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentTypeBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
@@ -89,7 +92,6 @@ public class ProjectOptimisticLockingTest extends OptimisticLockingTestCase
         assertEquals("system", p.getRegistrator().getUserId());
         assertEquals("test", p.getModifier().getUserId());
         timeIntervalChecker.assertDateInInterval(p.getModificationDate());
-
     }
 
     @Test
@@ -155,5 +157,34 @@ public class ProjectOptimisticLockingTest extends OptimisticLockingTestCase
                                 .createProjectIdentifier(toolBox.project1.getIdentifier()));
         assertEquals("[OLT-E1, OLT-E2]", toolBox.extractCodes(experiments).toString());
         toolBox.checkModifierAndModificationDateOfProject1(timeIntervalChecker, ToolBox.USER_ID);
+    }
+
+    @Test
+    public void testAddAttachment()
+    {
+        ProjectIdentifier projectIdentifier =
+                toolBox.createProjectIdentifier(toolBox.project1.getIdentifier());
+        Project p = commonServer.getProjectInfo(systemSessionToken, projectIdentifier);
+        ProjectUpdatesDTO updates = new ProjectUpdatesDTO();
+        updates.setVersion(p.getVersion());
+        updates.setTechId(new TechId(p));
+        updates.setDescription(p.getDescription());
+        NewAttachment attachment = new NewAttachment();
+        attachment.setFilePath("greetings.txt");
+        attachment.setTitle("greetings");
+        attachment.setContent("hello world".getBytes());
+        updates.setAttachments(Arrays.asList(attachment));
+        String sessionToken = logIntoCommonClientService().getSessionID();
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+
+        commonServer.updateProject(sessionToken, updates);
+
+        p = commonServer.getProjectInfo(systemSessionToken, projectIdentifier);
+        assertEquals("system", p.getRegistrator().getUserId());
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, p, "test");
+        List<Attachment> attachments =
+                commonServer.listProjectAttachments(systemSessionToken, new TechId(p));
+        assertEquals("greetings.txt", attachments.get(0).getFileName());
+        assertEquals(1, attachments.size());
     }
 }

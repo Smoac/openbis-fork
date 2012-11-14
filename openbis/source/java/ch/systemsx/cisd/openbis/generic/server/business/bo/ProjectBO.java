@@ -27,6 +27,7 @@ import org.springframework.orm.ObjectRetrievalFailureException;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
@@ -199,9 +200,11 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     public final void addAttachment(final AttachmentPE attachment)
     {
         assert project != null : "no project has been loaded";
-        attachment.setRegistrator(findPerson());
+        PersonPE user = findPerson();
+        attachment.setRegistrator(user);
         escapeFileName(attachment);
         attachments.add(attachment);
+        RelationshipUtils.updateModificationDateAndModifier(project, user);
     }
 
     private void escapeFileName(final AttachmentPE attachment)
