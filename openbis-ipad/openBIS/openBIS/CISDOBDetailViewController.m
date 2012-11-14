@@ -142,6 +142,11 @@
 }
 
 #pragma mark - Table View (Properties)
+- (NSDictionary *)propertiesAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSDictionary *properties = [self.detailItem.properties objectAtIndex: [indexPath indexAtPosition: 1]];
+    return properties;
+}
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -158,10 +163,35 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Property" forIndexPath:indexPath]; //  This only works in iOS 6,
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Property" forIndexPath: indexPath]; //  This only works in iOS 6,
 //    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell"]; // iOS5
     [self configureCell:cell atIndexPath:indexPath];
     return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSDictionary *properties = [self propertiesAtIndexPath: indexPath];
+    NSString *label = [properties valueForKey: @"key"];
+    NSString *value = [properties valueForKey: @"value"];
+
+    // Font and size obtained from the storyboard
+    CGFloat labelFontSize = 12.f;
+    CGFloat valueFontSize = 15.f;
+    CGFloat veryLargeHeight = 2000.f;
+    CGFloat labelWidth = 100.f;
+    CGSize labelSize =
+        [label
+            sizeWithFont: [UIFont systemFontOfSize: labelFontSize]
+            constrainedToSize: CGSizeMake(labelWidth, veryLargeHeight)
+            lineBreakMode: NSLineBreakByWordWrapping];
+    CGSize valueSize =
+        [value
+            sizeWithFont: [UIFont systemFontOfSize: valueFontSize]
+            constrainedToSize: CGSizeMake(tableView.frame.size.width - labelWidth, veryLargeHeight)
+            lineBreakMode: NSLineBreakByWordWrapping];    
+    CGFloat height = MAX(labelSize.height, MAX(valueSize.height, 44.0f));
+    return height;
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
@@ -187,9 +217,10 @@
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
     if (!self.detailItem) return;
-    NSDictionary *object = [self.detailItem.properties objectAtIndex: [indexPath indexAtPosition: 1]];
-    cell.textLabel.text = [object valueForKey:@"key"];
-    cell.detailTextLabel.text = [object valueForKey:@"value"];
+    NSDictionary *properties;
+    properties = [self propertiesAtIndexPath: indexPath];
+    cell.textLabel.text = [properties valueForKey: @"key"];
+    cell.detailTextLabel.text = [properties valueForKey: @"value"];
 }
 
 #pragma mark - Status Updates
