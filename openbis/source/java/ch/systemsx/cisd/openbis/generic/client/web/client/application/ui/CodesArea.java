@@ -31,6 +31,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
  */
 abstract public class CodesArea<T extends ICodeHolder> extends MultilineItemsField
 {
+    private List<String> originalCodes;
+
     public CodesArea(String emptyTextMsg)
     {
         super("", false);
@@ -39,8 +41,13 @@ abstract public class CodesArea<T extends ICodeHolder> extends MultilineItemsFie
 
     public final void setCodeProviders(Collection<T> codeProviders)
     {
-        List<String> codes = Code.extractCodes(codeProviders);
-        setItems(codes);
+        originalCodes = Code.extractCodes(codeProviders);
+        setItems(originalCodes);
+    }
+
+    public String[] getOriginalCodes()
+    {
+        return originalCodes.toArray(new String[0]);
     }
 
 }

@@ -372,6 +372,7 @@ public class CommonTestUtils
         final ExperimentPE exp = new ExperimentPE();
         final ExperimentTypePE expType = new ExperimentTypePE();
         expType.setCode("TEST-EXP-TYPE");
+        expType.setDatabaseInstance(new DatabaseInstancePE());
         exp.setId(42L);
         exp.setExperimentType(expType);
         exp.setCode(ei.getExperimentCode());

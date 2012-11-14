@@ -35,7 +35,6 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
@@ -45,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -52,7 +52,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IModifierAndModificationDateBean;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -60,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -700,18 +700,10 @@ public final class ExperimentBOTest extends AbstractBOTest
         updates.setProperties(Collections.<IEntityProperty> emptyList());
         updates.setAttachments(Collections.<NewAttachment> emptyList());
         prepareAnyDaoCreation();
+        prepareLoadingExperiment(exp);
         context.checking(new Expectations()
             {
                 {
-                    one(experimentDAO).tryGetByTechId(new TechId(exp.getId()),
-                            ExperimentBO.PROPERTY_TYPES);
-                    will(returnValue(exp));
-
-                    one(entityTypeDAO).listEntityTypes();
-                    will(returnValue(Arrays.asList(exp.getExperimentType())));
-
-                    allowing(entityPropertyTypeDAO)
-                            .listEntityPropertyTypes(exp.getExperimentType());
                     one(relationshipService).assignExperimentToProject(
                             ManagerTestTool.EXAMPLE_SESSION, exp, newProject);
                 }
@@ -727,137 +719,210 @@ public final class ExperimentBOTest extends AbstractBOTest
     }
 
     @Test
-    public final void testEditSamples()
+    public void testUpdateByAddingASample()
     {
-        // we test if this sample will stay assigned to the experiment if it was assigned before
-        SamplePE untouchedSample = createSampleWithCode("untouchedSample");
-        // we test unasignment of this sample from the experiment
-        SamplePE unassignedSample = createSampleWithCode("unassignedSample");
-        // we test if this sample will be assigned to the experiment
-        SamplePE assignedSample = createSampleWithCode("assignedSample");
+        ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
+        ExperimentPE experiment = CommonTestUtils.createExperiment(identifier);
+        experiment.setProperties(Collections.<EntityPropertyPE> emptySet());
+        prepareLoadingExperiment(identifier, experiment);
+        ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
+        update.setOriginalSampleCodes(new String[]
+            { "S1" });
+        update.setSampleCodes(new String[]
+            { "S1", "S2" });
+        prepareAddSamplesToExperiment(experiment, false, "S2");
+        ExperimentBO experimentBO = loadExperiment(identifier, experiment);
 
-        final ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
-        final ExperimentPE exp = CommonTestUtils.createExperiment(identifier);
-        exp.setSamples(Arrays.asList(untouchedSample, unassignedSample));
+        experimentBO.update(update);
 
-        prepareLoadExperimentByIdentifier(identifier, exp);
-        prepareTryFindSample(exp.getProject().getSpace(), assignedSample.getCode(), assignedSample);
-        prepareNoDatasetsFound();
-        final ExperimentBO expBO = loadExperiment(identifier, exp);
-
-        String[] editedSamples = new String[]
-            { untouchedSample.getCode(), assignedSample.getCode() };
-        expBO.setExperimentSamples(editedSamples);
-        assertEquals(exp, untouchedSample.getExperiment());
+        context.assertIsSatisfied();
     }
 
-    private void prepareNoDatasetsFound()
+    @Test(expectedExceptionsMessageRegExp = "Sample 'S2' is already assigned.*", expectedExceptions = UserFailureException.class)
+    public void testUpdateByAddingAnAlreadyAssignedSample()
     {
+        ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
+        ExperimentPE experiment = CommonTestUtils.createExperiment(identifier);
+        experiment.setProperties(Collections.<EntityPropertyPE> emptySet());
+        prepareLoadingExperiment(identifier, experiment);
+        ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
+        update.setOriginalSampleCodes(new String[]
+            { "S1" });
+        update.setSampleCodes(new String[]
+            { "S1", "S2" });
+        prepareAddSamplesToExperiment(experiment, true, "S2");
+        ExperimentBO experimentBO = loadExperiment(identifier, experiment);
+
+        experimentBO.update(update);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test(expectedExceptionsMessageRegExp = "Samples with following codes do not exist "
+            + "in the space 'HOME_GROUP': '\\[S2\\]'\\.", expectedExceptions = UserFailureException.class)
+    public void testUpdateByAddingAnUnknownSample()
+    {
+        ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
+        final ExperimentPE experiment = CommonTestUtils.createExperiment(identifier);
+        experiment.setProperties(Collections.<EntityPropertyPE> emptySet());
+        prepareLoadingExperiment(identifier, experiment);
+        ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
+        update.setOriginalSampleCodes(new String[]
+            { "S1" });
+        update.setSampleCodes(new String[]
+            { "S1", "S2" });
         context.checking(new Expectations()
             {
                 {
-                    allowing(dataDAO).hasDataSet((with(any(SamplePE.class))));
-                    will(returnValue(false));
+                    SpacePE space = experiment.getProject().getSpace();
+                    one(sampleDAO).tryFindByCodeAndSpace("S2", space);
+                }
+            });
+        ExperimentBO experimentBO = loadExperiment(identifier, experiment);
 
-                    one(relationshipService).assignSampleToExperiment(
-                            with(any(IAuthSession.class)), with(any(SamplePE.class)),
-                            with(any(ExperimentPE.class)));
+        experimentBO.update(update);
 
-                    one(relationshipService).unassignSampleFromExperiment(
-                            with(any(IAuthSession.class)), with(any(SamplePE.class)));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdateByAddingAndRemovingSamples()
+    {
+        ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
+        ExperimentPE experiment = CommonTestUtils.createExperiment(identifier);
+        experiment.setProperties(Collections.<EntityPropertyPE> emptySet());
+        prepareLoadingExperiment(identifier, experiment);
+        ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
+        update.setOriginalSampleCodes(new String[]
+            { "S1", "S2" });
+        update.setSampleCodes(new String[]
+            { "S3", "S2" });
+        prepareRemoveSamplesFromExperiment(experiment, false, "S1");
+        prepareAddSamplesToExperiment(experiment, false, "S3");
+        ExperimentBO experimentBO = loadExperiment(identifier, experiment);
+
+        experimentBO.update(update);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test(expectedExceptionsMessageRegExp = ".*datasets.*", expectedExceptions = UserFailureException.class)
+    public void testUpdateByRemovingASampleWithDataSets()
+    {
+        ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
+        ExperimentPE experiment = CommonTestUtils.createExperiment(identifier);
+        experiment.setProperties(Collections.<EntityPropertyPE> emptySet());
+        prepareLoadingExperiment(identifier, experiment);
+        ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
+        update.setOriginalSampleCodes(new String[]
+            { "S1", "S2" });
+        update.setSampleCodes(new String[]
+            { "S2" });
+        prepareRemoveSamplesFromExperiment(experiment, true, "S1");
+        ExperimentBO experimentBO = loadExperiment(identifier, experiment);
+
+        experimentBO.update(update);
+
+        context.assertIsSatisfied();
+    }
+
+    private ExperimentUpdatesDTO createDefaultUpdateObject(ExperimentPE experiment)
+    {
+        ExperimentUpdatesDTO update = new ExperimentUpdatesDTO();
+        update.setExperimentId(new TechId(experiment));
+        update.setProjectIdentifier(new ExperimentIdentifierFactory(experiment.getIdentifier())
+                .createIdentifier());
+        update.setAttachments(Collections.<NewAttachment> emptyList());
+        update.setProperties(Collections.<IEntityProperty> emptyList());
+        return update;
+    }
+
+    private void prepareLoadingExperiment(ExperimentIdentifier identifier,
+            final ExperimentPE experiment)
+    {
+        prepareLoadingExperiment(experiment);
+        prepareLoadExperimentByIdentifier(identifier, experiment);
+        context.checking(new Expectations()
+            {
+                {
+                    ProjectPE projectPE = experiment.getProject();
+                    SpacePE space = projectPE.getSpace();
+                    one(projectDAO).tryFindProject(space.getDatabaseInstance().getCode(),
+                            space.getCode(), projectPE.getCode());
+                    will(returnValue(projectPE));
                 }
             });
     }
 
-    @Test
-    public final void testEditSamplesAddingAssignedSampleFails()
+    private void prepareAddSamplesToExperiment(final ExperimentPE experiment,
+            final boolean alreadyAssignedToAnExperiment, final String... sampleCodes)
     {
-        SamplePE assignedSample = createSampleWithCode("assignedSample");
-        assignedSample.setExperiment(createExperiment("anotherExp"));
-
-        final ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
-        final ExperimentPE exp = CommonTestUtils.createExperiment(identifier);
-        assert exp.getSamples().size() == 0 : "no samples expected";
-
-        prepareLoadExperimentByIdentifier(identifier, exp);
-        prepareTryFindSample(exp.getProject().getSpace(), assignedSample.getCode(), assignedSample);
-
-        final ExperimentBO expBO = loadExperiment(identifier, exp);
-
-        String[] editedSamples = new String[]
-            { assignedSample.getCode() };
-
-        String errorMsg = "Sample 'assignedSample' is already assigned to the experiment";
-        try
-        {
-            expBO.setExperimentSamples(editedSamples);
-        } catch (UserFailureException e)
-        {
-
-            AssertionUtil.assertContains(errorMsg, e.getMessage());
-            return;
-        }
-        fail("exception expected with the error msg: " + errorMsg);
-    }
-
-    @Test
-    public final void testEditSamplesAssigningUnexistingSampleFails()
-    {
-        String unknownSampleCode = "unknownSampleCode";
-
-        final ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
-        final ExperimentPE exp = CommonTestUtils.createExperiment(identifier);
-
-        prepareLoadExperimentByIdentifier(identifier, exp);
-        final ExperimentBO expBO = loadExperiment(identifier, exp);
-
-        prepareTryFindSample(exp.getProject().getSpace(), unknownSampleCode, null);
-        String errorMsg =
-                "Samples with following codes do not exist in the space 'HOME_GROUP': '[unknownSampleCode]'.";
-        try
-        {
-            expBO.setExperimentSamples(new String[]
-                { unknownSampleCode });
-        } catch (UserFailureException e)
-        {
-
-            assertEquals(errorMsg, e.getMessage());
-            return;
-        }
-        fail("exception expected with the error msg: " + errorMsg);
-    }
-
-    @Test
-    public final void testEditSamplesUnassigningSampleWithDatasetsFails()
-    {
-        final SamplePE assignedSample = createSampleWithCode("assignedSample");
-
-        final ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
-        final ExperimentPE exp = CommonTestUtils.createExperiment(identifier);
-        exp.setSamples(Arrays.asList(assignedSample));
-
-        prepareLoadExperimentByIdentifier(identifier, exp);
-        final ExperimentBO expBO = loadExperiment(identifier, exp);
         context.checking(new Expectations()
             {
                 {
-                    allowing(dataDAO).hasDataSet(with(assignedSample));
-                    will(returnValue(true));
+                    SpacePE space = experiment.getProject().getSpace();
+                    for (String sampleCode : sampleCodes)
+                    {
+                        one(sampleDAO).tryFindByCodeAndSpace(sampleCode, space);
+                        SamplePE sample = createSampleWithCode(sampleCode);
+                        if (alreadyAssignedToAnExperiment)
+                        {
+                            sample.setExperiment(experiment);
+                        }
+                        will(returnValue(sample));
+                        if (alreadyAssignedToAnExperiment)
+                        {
+                            break;
+                        }
+                        one(relationshipService).assignSampleToExperiment(EXAMPLE_SESSION, sample,
+                                experiment);
+                    }
                 }
             });
+    }
 
-        String errorMsg =
-                "Operation cannot be performed, because some datasets have been already produced for the sample 'assignedSample'.";
-        try
-        {
-            expBO.setExperimentSamples(new String[] {}); // remove all samples
-        } catch (UserFailureException e)
-        {
+    private void prepareRemoveSamplesFromExperiment(final ExperimentPE experiment,
+            final boolean samplesHaveDataSets, final String... sampleCodes)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    SpacePE space = experiment.getProject().getSpace();
+                    for (String sampleCode : sampleCodes)
+                    {
+                        one(sampleDAO).tryFindByCodeAndSpace(sampleCode, space);
+                        SamplePE sample = createSampleWithCode(sampleCode);
+                        will(returnValue(sample));
 
-            assertEquals(errorMsg, e.getMessage());
-            return;
-        }
-        fail("exception expected with the error msg: " + errorMsg);
+                        one(dataDAO).hasDataSet(sample);
+                        will(returnValue(samplesHaveDataSets));
+                        if (samplesHaveDataSets)
+                        {
+                            break;
+                        }
+                        one(relationshipService).unassignSampleFromExperiment(EXAMPLE_SESSION,
+                                sample);
+                    }
+                }
+            });
+    }
+
+    private void prepareLoadingExperiment(final ExperimentPE experiment)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(experimentDAO).tryGetByTechId(new TechId(experiment),
+                            ExperimentBO.PROPERTY_TYPES);
+                    will(returnValue(experiment));
+
+                    one(entityTypeDAO).listEntityTypes();
+                    will(returnValue(Arrays.asList(experiment.getExperimentType())));
+
+                    allowing(entityPropertyTypeDAO).listEntityPropertyTypes(
+                            experiment.getExperimentType());
+                }
+            });
     }
 
     @Test
@@ -881,13 +946,6 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    private static ExperimentPE createExperiment(String code)
-    {
-        ExperimentIdentifier ident =
-                new ExperimentIdentifier(CommonTestUtils.createProjectIdentifier(), code);
-        return CommonTestUtils.createExperiment(ident);
-    }
-
     private ExperimentBO loadExperiment(final ExperimentIdentifier identifier,
             final ExperimentPE exp)
     {
@@ -895,18 +953,6 @@ public final class ExperimentBOTest extends AbstractBOTest
         expBO.loadByExperimentIdentifier(identifier);
         AssertJUnit.assertEquals(exp, expBO.getExperiment());
         return expBO;
-    }
-
-    private void prepareTryFindSample(final SpacePE group, final String sampleCode,
-            final SamplePE foundSample)
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(sampleDAO).tryFindByCodeAndSpace(sampleCode, group);
-                    will(returnValue(foundSample));
-                }
-            });
     }
 
     private static SamplePE createSampleWithCode(String code)

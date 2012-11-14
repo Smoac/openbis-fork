@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.Experime
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -492,54 +491,35 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                 attachSamples(sampleCodes);
             } else
             {
-                setExperimentSamples(sampleCodes);
+                String[] originalSampleCodes = updates.getOriginalSampleCodes();
+                updateSamples(originalSampleCodes, sampleCodes);
             }
         }
+    }
+
+    private void updateSamples(String[] originalSampleCodes, String[] sampleCodes)
+    {
+        Set<String> samplesToAdd = asSet(sampleCodes);
+        samplesToAdd.removeAll(Arrays.asList(originalSampleCodes));
+        addToExperiment(findSamplesByCodes(samplesToAdd, true));
+
+        Set<String> samplesToRemove = asSet(originalSampleCodes);
+        samplesToRemove.removeAll(Arrays.asList(sampleCodes));
+        removeFromExperiment(findSamplesByCodes(samplesToRemove, false));
     }
 
     @Private
     // attaches specified existing samples to the experiment
     void attachSamples(String[] sampleCodes)
     {
-        List<SamplePE> samplesToAdd = findUnassignedSamplesByCodes(asSet(sampleCodes));
+        List<SamplePE> samplesToAdd = findSamplesByCodes(asSet(sampleCodes), true);
         addToExperiment(samplesToAdd);
     }
 
-    @Private
-    // changes the list of samples assigned to this experiment to the specified one
-    void setExperimentSamples(String[] sampleCodes)
+    private List<SamplePE> findSamplesByCodes(Set<String> codesToAdd, boolean unassigned)
     {
-        List<SamplePE> samples = experiment.getSamples();
-        String[] currentSampleCodes = Code.extractCodesToArray(samples);
-        Set<String> currentSampleCodesSet = asSet(currentSampleCodes);
-        Set<String> codesToAdd = asSet(sampleCodes);
-        codesToAdd.removeAll(currentSampleCodesSet);
-
-        List<SamplePE> samplesToAdd = findUnassignedSamplesByCodes(codesToAdd);
-        addToExperiment(samplesToAdd);
-
-        Set<String> codesToRemove = asSet(currentSampleCodes);
-        codesToRemove.removeAll(asSet(sampleCodes));
-        removeFromExperiment(filterSamples(samples, codesToRemove));
-    }
-
-    private List<SamplePE> findUnassignedSamplesByCodes(Set<String> codesToAdd)
-    {
-        SpacePE group = experiment.getProject().getSpace();
-        return findUnassignedSamples(getSampleDAO(), codesToAdd, group);
-    }
-
-    private static List<SamplePE> filterSamples(List<SamplePE> samples, Set<String> extractedCodes)
-    {
-        List<SamplePE> result = new ArrayList<SamplePE>();
-        for (SamplePE sample : samples)
-        {
-            if (extractedCodes.contains(sample.getCode()))
-            {
-                result.add(sample);
-            }
-        }
-        return result;
+        SpacePE space = experiment.getProject().getSpace();
+        return findSamples(getSampleDAO(), codesToAdd, space, unassigned);
     }
 
     private void removeFromExperiment(List<SamplePE> samples)
@@ -560,22 +540,25 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         }
     }
 
-    // Finds samples in the specified group. Throws exception if some samples do not exist.
+    // Finds samples in the specified space. Throws exception if some samples do not exist.
     // Throws exception if any sample code specified is already assigned to an experiment.
-    private static List<SamplePE> findUnassignedSamples(ISampleDAO sampleDAO,
-            Set<String> sampleCodes, SpacePE group) throws UserFailureException
+    private static List<SamplePE> findSamples(ISampleDAO sampleDAO, Set<String> sampleCodes,
+            SpacePE space, boolean unassigned) throws UserFailureException
     {
         List<SamplePE> samples = new ArrayList<SamplePE>();
         List<String> missingSamples = new ArrayList<String>();
         for (String code : sampleCodes)
         {
-            SamplePE sample = sampleDAO.tryFindByCodeAndSpace(code, group);
+            SamplePE sample = sampleDAO.tryFindByCodeAndSpace(code, space);
             if (sample == null)
             {
                 missingSamples.add(code);
             } else
             {
-                checkSampleUnassigned(code, sample);
+                if (unassigned)
+                {
+                    checkSampleUnassigned(code, sample);
+                }
                 samples.add(sample);
             }
         }
@@ -583,7 +566,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         {
             throw UserFailureException.fromTemplate(
                     "Samples with following codes do not exist in the space '%s': '%s'.",
-                    group.getCode(), CollectionUtils.abbreviate(missingSamples, 10));
+                    space.getCode(), CollectionUtils.abbreviate(missingSamples, 10));
         } else
         {
             return samples;

@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -294,7 +296,12 @@ public class ToolBox
 
     public Experiment loadExperiment(final IIdentifierHolder experiment)
     {
-        return commonServer.getExperimentInfo(systemSessionToken,
+        return loadExperiment(systemSessionToken, experiment);
+    }
+
+    public Experiment loadExperiment(String sessionToken, final IIdentifierHolder experiment)
+    {
+        return commonServer.getExperimentInfo(sessionToken,
                 ExperimentIdentifierFactory.parse(experiment.getIdentifier()));
     }
 
@@ -409,5 +416,15 @@ public class ToolBox
         {
             // ignored
         }
+    }
+
+    public String renderMetaProjects(Collection<Metaproject> metaprojects)
+    {
+        CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
+        for (Metaproject metaproject : metaprojects)
+        {
+            builder.append(metaproject.getIdentifier());
+        }
+        return builder.toString();
     }
 }

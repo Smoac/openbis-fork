@@ -87,7 +87,7 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
         genericServer.updateExperiment(sessionToken, updates);
 
         Experiment retrievedExperiment = toolBox.loadExperiment(experiment);
-        checkModifierAndModificationDateOfExperiment(timeIntervalChecker, retrievedExperiment,
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, retrievedExperiment,
                 "test");
         assertEquals("DESCRIPTION: testChangePropertyOfAnExistingExperiment", retrievedExperiment
                 .getProperties().get(0).toString());
@@ -141,7 +141,7 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
 
         Experiment retrievedExperiment =
                 commonServer.getExperimentInfo(systemSessionToken, new TechId(experiment));
-        checkModifierAndModificationDateOfExperiment(timeIntervalChecker, retrievedExperiment,
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, retrievedExperiment,
                 "test");
         assertEquals(toolBox.project2.getIdentifier(), retrievedExperiment.getProject()
                 .getIdentifier());
@@ -173,6 +173,32 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
     }
 
     @Test
+    public void testAddMetaProject()
+    {
+        Experiment experiment = toolBox.createAndLoadExperiment(1);
+        ExperimentUpdatesDTO updates = new ExperimentUpdatesDTO();
+        updates.setVersion(experiment.getVersion());
+        updates.setExperimentId(new TechId(experiment));
+        updates.setProjectIdentifier(toolBox.createProjectIdentifier(experiment.getProject()
+                .getIdentifier()));
+        updates.setAttachments(ToolBox.NO_ATTACHMENTS);
+        updates.setProperties(experiment.getProperties());
+        updates.setMetaprojectsOrNull(new String[]
+            { "TEST_METAPROJECTS" });
+        String sessionToken = logIntoCommonClientService().getSessionID();
+        assertEquals("", toolBox.renderMetaProjects(toolBox
+                .loadExperiment(sessionToken, experiment).getMetaprojects()));
+
+        genericServer.updateExperiment(sessionToken, updates);
+
+        Experiment loadedExperiment = toolBox.loadExperiment(sessionToken, experiment);
+        assertEquals(experiment.getModifier(), loadedExperiment.getModifier());
+        assertEquals(experiment.getModificationDate(), loadedExperiment.getModificationDate());
+        assertEquals("/test/TEST_METAPROJECTS",
+                toolBox.renderMetaProjects(loadedExperiment.getMetaprojects()));
+    }
+
+    @Test
     public void testMoveSampleBetweenExperiments()
     {
         Experiment experiment1 = toolBox.createAndLoadExperiment(1);
@@ -193,14 +219,14 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
         etlService.performEntityOperations(sessionToken, details);
 
         Experiment loadedExperiment1 = toolBox.loadExperiment(experiment1);
-        checkModifierAndModificationDateOfExperiment(timeIntervalChecker, loadedExperiment1,
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment1,
                 ToolBox.USER_ID);
         List<Sample> samples1 =
                 commonServer.listSamples(systemSessionToken,
                         ListSampleCriteria.createForExperiment(new TechId(loadedExperiment1)));
         assertEquals("[]", samples1.toString());
         Experiment loadedExperiment2 = toolBox.loadExperiment(experiment2);
-        checkModifierAndModificationDateOfExperiment(timeIntervalChecker, loadedExperiment2,
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment2,
                 ToolBox.USER_ID);
         List<Sample> samples2 =
                 commonServer.listSamples(systemSessionToken,
@@ -209,14 +235,19 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
     }
 
     @Test
-    public void testRemoveSampleFromExperiment()
+    public void testRemoveAndAddSamples()
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
-        toolBox.createAndLoadSample(1, experiment);
+        Sample sample1 = toolBox.createAndLoadSample(1, experiment);
+        Sample sample2 = toolBox.createAndLoadSample(2, experiment);
+        Sample sample3 = toolBox.createAndLoadSample(3, null);
         ExperimentUpdatesDTO update = new ExperimentUpdatesDTO();
         update.setVersion(toolBox.loadExperiment(experiment).getVersion());
         update.setExperimentId(new TechId(experiment));
-        update.setSampleCodes(new String[0]);
+        update.setOriginalSampleCodes(new String[]
+            { sample1.getCode(), sample2.getCode() });
+        update.setSampleCodes(new String[]
+            { sample2.getCode(), sample3.getCode() });
         update.setProperties(ToolBox.NO_PROPERTIES);
         update.setAttachments(ToolBox.NO_ATTACHMENTS);
         update.setProjectIdentifier(toolBox.createProjectIdentifier(experiment.getProject()
@@ -227,11 +258,24 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
         genericServer.updateExperiment(sessionToken, update);
 
         Experiment loadedExperiment = toolBox.loadExperiment(experiment);
-        checkModifierAndModificationDateOfExperiment(timeIntervalChecker, loadedExperiment, "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment,
+                "test");
         List<Sample> samples =
                 commonServer.listSamples(systemSessionToken,
                         ListSampleCriteria.createForExperiment(new TechId(loadedExperiment)));
-        assertEquals("[]", samples.toString());
+        assertEquals("[" + sample2.getCode() + ", " + sample3.getCode() + "]", toolBox
+                .extractCodes(samples).toString());
+        Sample reloadedSample1 = toolBox.loadSample(sample1);
+        assertEquals(null, reloadedSample1.getExperiment());
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, reloadedSample1, "test");
+        Sample reloadedSample2 = toolBox.loadSample(sample2);
+        assertEquals(experiment.getIdentifier(), reloadedSample2.getExperiment().getIdentifier());
+        assertEquals(sample2.getModifier(), reloadedSample2.getModifier());
+        assertEquals(sample2.getModificationDate(), reloadedSample2.getModificationDate());
+        Sample reloadedSample3 = toolBox.loadSample(sample3);
+        assertEquals(experiment.getIdentifier(), reloadedSample3.getExperiment().getIdentifier());
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, reloadedSample3, "test");
+
     }
 
     @Test
@@ -259,22 +303,17 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
         genericServer.updateDataSet(sessionToken, update);
 
         Experiment loadedExperiment1 = toolBox.loadExperiment(exp1);
-        checkModifierAndModificationDateOfExperiment(timeIntervalChecker, loadedExperiment1, "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment1,
+                "test");
         List<ExternalData> dataSets1 =
                 etlService.listDataSetsByExperimentID(systemSessionToken, new TechId(exp1));
         assertEquals("[]", dataSets1.toString());
         Experiment loadedExperiment2 = toolBox.loadExperiment(exp2);
-        checkModifierAndModificationDateOfExperiment(timeIntervalChecker, loadedExperiment2, "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment2,
+                "test");
         List<ExternalData> dataSets2 =
                 etlService.listDataSetsByExperimentID(systemSessionToken, new TechId(exp2));
         assertEquals(dataSet.getCode(), dataSets2.get(0).getCode());
-    }
-
-    private void checkModifierAndModificationDateOfExperiment(
-            TimeIntervalChecker timeIntervalChecker, Experiment experiment, String userId)
-    {
-        assertEquals(userId, experiment.getModifier().getUserId());
-        timeIntervalChecker.assertDateInInterval(experiment.getModificationDate());
     }
 
 }

@@ -275,6 +275,11 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
             return null;
     }
 
+    protected String[] getOriginalSamples()
+    {
+        return samplesArea != null ? samplesArea.getOriginalCodes() : new String[0];
+    }
+
     protected SampleType getSampleType()
     {
         if (existingSamplesRadio.getValue() == false)

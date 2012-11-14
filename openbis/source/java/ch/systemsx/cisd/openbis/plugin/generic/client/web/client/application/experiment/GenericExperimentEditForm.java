@@ -96,6 +96,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
         updates.setProjectIdentifier(extractProjectIdentifier());
         updates.setAttachmentSessionKey(attachmentsSessionKey);
         updates.setAttachments(attachmentsManager.extractAttachments());
+        updates.setOriginalSampleCodes(getOriginalSamples());
         updates.setSampleCodes(getSamples());
         updates.setSampleType(getSampleType());
         updates.setGenerateCodes(autoGenerateCodes.getValue().booleanValue());
