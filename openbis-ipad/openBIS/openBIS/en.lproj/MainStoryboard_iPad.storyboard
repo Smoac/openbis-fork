@@ -168,12 +168,12 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
-                        <searchBar key="tableHeaderView" contentMode="redraw" text="" id="jxa-Rk-K1d">
+                        <searchBar key="tableHeaderView" contentMode="redraw" placeholder="Filter" id="SNF-vi-vRB">
                             <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                             <textInputTraits key="textInputTraits"/>
                             <connections>
-                                <outlet property="delegate" destination="19" id="O5O-hD-bld"/>
+                                <outlet property="delegate" destination="19" id="Cww-oV-dCS"/>
                             </connections>
                         </searchBar>
                         <prototypes>
@@ -212,10 +212,20 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="All" id="40"/>
                     <connections>
-                        <outlet property="searchBar" destination="jxa-Rk-K1d" id="0Dg-en-V0L"/>
+                        <outlet property="browseTableView" destination="20" id="lPH-EN-X8X"/>
+                        <outlet property="searchDisplayController" destination="DJu-Ev-v3F" id="4kh-TV-kFh"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="23" sceneMemberID="firstResponder"/>
+                <searchDisplayController searchResultsTitle="Filter Results" id="DJu-Ev-v3F">
+                    <connections>
+                        <outlet property="delegate" destination="19" id="cs4-GT-BbY"/>
+                        <outlet property="searchBar" destination="SNF-vi-vRB" id="6lT-N9-2Uw"/>
+                        <outlet property="searchContentsController" destination="19" id="Igh-FW-ibP"/>
+                        <outlet property="searchResultsDataSource" destination="19" id="RVu-0Q-LWZ"/>
+                        <outlet property="searchResultsDelegate" destination="19" id="IKn-pH-yhb"/>
+                    </connections>
+                </searchDisplayController>
             </objects>
             <point key="canvasLocation" x="859" y="-631"/>
         </scene>
@@ -250,7 +260,7 @@
         <class className="CISDOBMasterViewController" superclassName="UITableViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/CISDOBMasterViewController.h"/>
             <relationships>
-                <relationship kind="outlet" name="searchBar" candidateClass="UISearchBar"/>
+                <relationship kind="outlet" name="browseTableView" candidateClass="UITableView"/>
             </relationships>
         </class>
         <class className="NSLayoutConstraint" superclassName="NSObject">
