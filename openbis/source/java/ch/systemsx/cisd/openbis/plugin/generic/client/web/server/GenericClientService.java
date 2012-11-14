@@ -607,7 +607,6 @@ public class GenericClientService extends AbstractClientService implements IGene
         updatesDTO.setProjectIdentifier(project);
         updatesDTO.setAttachments(attachments);
         updatesDTO.setProperties(updates.getProperties());
-        updatesDTO.setOriginalSampleCodes(updates.getOriginalSampleCodes());
         updatesDTO.setSampleCodes(updates.getSampleCodes());
         updatesDTO.setVersion(updates.getVersion());
         updatesDTO.setRegisterSamples(updates.isRegisterSamples());

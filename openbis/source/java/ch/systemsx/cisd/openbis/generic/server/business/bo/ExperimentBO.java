@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.Experime
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -493,7 +494,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                 attachSamples(sampleCodes);
             } else
             {
-                String[] originalSampleCodes = updates.getOriginalSampleCodes();
+                String[] originalSampleCodes = Code.extractCodesToArray(experiment.getSamples());
                 updateSamples(originalSampleCodes, sampleCodes);
             }
         }

@@ -723,11 +723,10 @@ public final class ExperimentBOTest extends AbstractBOTest
     {
         ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
         ExperimentPE experiment = CommonTestUtils.createExperiment(identifier);
+        experiment.addSample(createSampleWithCode("S1"));
         experiment.setProperties(Collections.<EntityPropertyPE> emptySet());
         prepareLoadingExperiment(identifier, experiment);
         ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
-        update.setOriginalSampleCodes(new String[]
-            { "S1" });
         update.setSampleCodes(new String[]
             { "S1", "S2" });
         prepareAddSamplesToExperiment(experiment, false, "S2");
@@ -743,11 +742,10 @@ public final class ExperimentBOTest extends AbstractBOTest
     {
         ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
         ExperimentPE experiment = CommonTestUtils.createExperiment(identifier);
+        experiment.addSample(createSampleWithCode("S1"));
         experiment.setProperties(Collections.<EntityPropertyPE> emptySet());
         prepareLoadingExperiment(identifier, experiment);
         ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
-        update.setOriginalSampleCodes(new String[]
-            { "S1" });
         update.setSampleCodes(new String[]
             { "S1", "S2" });
         prepareAddSamplesToExperiment(experiment, true, "S2");
@@ -764,11 +762,10 @@ public final class ExperimentBOTest extends AbstractBOTest
     {
         ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
         final ExperimentPE experiment = CommonTestUtils.createExperiment(identifier);
+        experiment.addSample(createSampleWithCode("S1"));
         experiment.setProperties(Collections.<EntityPropertyPE> emptySet());
         prepareLoadingExperiment(identifier, experiment);
         ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
-        update.setOriginalSampleCodes(new String[]
-            { "S1" });
         update.setSampleCodes(new String[]
             { "S1", "S2" });
         context.checking(new Expectations()
@@ -790,11 +787,11 @@ public final class ExperimentBOTest extends AbstractBOTest
     {
         ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
         ExperimentPE experiment = CommonTestUtils.createExperiment(identifier);
+        experiment.addSample(createSampleWithCode("S1"));
+        experiment.addSample(createSampleWithCode("S2"));
         experiment.setProperties(Collections.<EntityPropertyPE> emptySet());
         prepareLoadingExperiment(identifier, experiment);
         ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
-        update.setOriginalSampleCodes(new String[]
-            { "S1", "S2" });
         update.setSampleCodes(new String[]
             { "S3", "S2" });
         prepareRemoveSamplesFromExperiment(experiment, false, "S1");
@@ -811,11 +808,11 @@ public final class ExperimentBOTest extends AbstractBOTest
     {
         ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
         ExperimentPE experiment = CommonTestUtils.createExperiment(identifier);
+        experiment.addSample(createSampleWithCode("S1"));
+        experiment.addSample(createSampleWithCode("S2"));
         experiment.setProperties(Collections.<EntityPropertyPE> emptySet());
         prepareLoadingExperiment(identifier, experiment);
         ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
-        update.setOriginalSampleCodes(new String[]
-            { "S1", "S2" });
         update.setSampleCodes(new String[]
             { "S2" });
         prepareRemoveSamplesFromExperiment(experiment, true, "S1");
@@ -867,7 +864,10 @@ public final class ExperimentBOTest extends AbstractBOTest
                         SamplePE sample = createSampleWithCode(sampleCode);
                         if (alreadyAssignedToAnExperiment)
                         {
-                            sample.setExperiment(experiment);
+                            ExperimentPE anotherExperiment = new ExperimentPE();
+                            anotherExperiment.setCode(EXP_CODE + "1");
+                            anotherExperiment.setProject(experiment.getProject());
+                            sample.setExperiment(anotherExperiment);
                         }
                         will(returnValue(sample));
                         if (alreadyAssignedToAnExperiment)

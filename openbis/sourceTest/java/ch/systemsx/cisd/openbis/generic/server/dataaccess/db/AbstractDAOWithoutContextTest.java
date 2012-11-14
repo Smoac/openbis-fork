@@ -324,6 +324,7 @@ public abstract class AbstractDAOWithoutContextTest extends
         result.setProject(findProject(db, group, project));
         result.setRegistrator(getTestPerson());
         result.setRegistrationDate(new Date());
+        result.setModificationDate(new Date());
         return result;
     }
 

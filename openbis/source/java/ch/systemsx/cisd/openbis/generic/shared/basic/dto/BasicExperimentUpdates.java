@@ -43,8 +43,6 @@ public class BasicExperimentUpdates implements Serializable
     // if it does not have data sets attached yet. Otherwise an exception will be thrown.
     private String[] sampleCodesOrNull;
 
-    private String[] originalSampleCodes;
-
     // if true sampleCodesOrNull changes semantic - sample codes are the same as in newSamples and
     // all of them will be attached to the experiment.
     private boolean registerSamples;
@@ -82,16 +80,6 @@ public class BasicExperimentUpdates implements Serializable
     public void setSampleCodes(String[] sampleCodes)
     {
         this.sampleCodesOrNull = sampleCodes;
-    }
-
-    public String[] getOriginalSampleCodes()
-    {
-        return originalSampleCodes;
-    }
-
-    public void setOriginalSampleCodes(String[] originalSampleCodes)
-    {
-        this.originalSampleCodes = originalSampleCodes;
     }
 
     public void setNewSamples(List<NewSamplesWithTypes> list)
