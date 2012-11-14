@@ -1,7 +1,7 @@
 from ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1 import MaterialIdentifierCollection
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto import MaterialIdentifier
 from com.fasterxml.jackson.databind import ObjectMapper 
-from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria, SearchSubCriteria
 
 #
 # BEGIN Infrastructure
@@ -130,6 +130,8 @@ class DetailRequestHandler(RequestHandler):
 # END Infrastructure
 #
 
+DSS_DOWNLOAD_URL = 'https://localhost:8444/datastore_server/'
+
 #
 # Helper Methods
 # 
@@ -184,10 +186,11 @@ def material_to_dict(material):
 
 	prop_names = ["NAME", "PROT_NAME", "GENE_NAME", "LENGTH", "CHEMBL", "DESC", "FORMULA", "WEIGHT", "SMILES"]
 	properties = dict((name, material.getPropertyValue(name)) for name in prop_names if material.getPropertyValue(name) is not None)
+	properties['VERY_LONG_PROPERTY_NAME'] = "This is a very long text that should span multiple lines to see if this thing works, you know, the thing that causes the other thing to place text on multiple lines and stuff like that, etc., etc., so on and so forth."
 	material_dict['PROPERTIES'] = json_encoded_value(properties)
 	return material_dict
 
-def sample_to_dict(five_ht_sample, material_by_perm_id):
+def sample_to_dict(five_ht_sample, material_by_perm_id, data_sets):
 	sample_dict = {}
 	sample_dict['SUMMARY_HEADER'] = five_ht_sample.getCode()
 	sample_dict['SUMMARY'] = five_ht_sample.getPropertyValue("DESC")
@@ -200,7 +203,7 @@ def sample_to_dict(five_ht_sample, material_by_perm_id):
 	sample_dict['REFCON'] = json_encoded_value(refcon)
 	sample_dict['CATEGORY'] = five_ht_sample.getSampleType()
 	compound = material_by_perm_id[five_ht_sample.getPropertyValue("COMPOUND")]
-	sample_dict['IMAGE_URL'] = image_url_for_compound(compound)
+	sample_dict['IMAGE_URL'] = image_url_for_sample(five_ht_sample, data_sets, compound)
 
 	children = [five_ht_sample.getPropertyValue("TARGET"), five_ht_sample.getPropertyValue("COMPOUND")]
 	sample_dict['CHILDREN'] = json_encoded_value(children)
@@ -211,6 +214,18 @@ def sample_to_dict(five_ht_sample, material_by_perm_id):
 	sample_dict['ROOT_LEVEL'] = None
 	# Need to handle the material links as entity links: "TARGET", "COMPOUND"
 	return sample_dict
+
+def image_url_for_sample(five_ht_sample, data_sets, compound):
+	image_data_set = None
+	for data_set in data_sets:
+	    if data_set.getExperiment().getExperimentIdentifier() == five_ht_sample.getExperiment().getExperimentIdentifier():
+	        image_data_set = data_set
+	        break
+	if image_data_set is None:
+		return image_url_for_compound(compound)
+	image_url = DSS_DOWNLOAD_URL + image_data_set.getDataSetCode() + '/original/images/'
+	image_url = image_url + five_ht_sample.getCode() + '.jpg'
+	return image_url
 
 
 def add_material_to_collection(code, collection):
@@ -229,7 +244,8 @@ def materials_to_dict(materials):
 	return result
 
 def samples_to_dict(samples, material_by_perm_id):
-	result = [sample_to_dict(sample, material_by_perm_id) for sample in samples]
+	data_sets = retrieve_data_sets_for_samples(samples)
+	result = [sample_to_dict(sample, material_by_perm_id, data_sets) for sample in samples]
 	return result
 
 def retrieve_samples(sample_perm_ids_and_ref_cons):
@@ -241,6 +257,23 @@ def retrieve_samples(sample_perm_ids_and_ref_cons):
 		code = sample['REFCON']['code']	
 		sc.addMatchClause(sc.MatchClause.createAttributeMatch(sc.MatchClauseAttribute.CODE, code))
 	return searchService.searchForSamples(sc)
+
+def retrieve_data_sets_for_samples(samples):
+	experiment_codes = set()
+	for sample in samples:
+		if sample.getExperiment() is None:
+			continue
+		tokens = sample.getExperiment().getExperimentIdentifier().split('/')
+		experiment_code = tokens[len(tokens) - 1]
+		experiment_codes.add(experiment_code)
+	sc = SearchCriteria()
+	sc.setOperator(sc.SearchOperator.MATCH_ANY_CLAUSES)
+	for code in experiment_codes:
+		sc.addMatchClause(sc.MatchClause.createAttributeMatch(sc.MatchClauseAttribute.CODE, code))
+	data_set_sc = SearchCriteria()
+	data_set_sc.addMatchClause(data_set_sc.MatchClause.createAttributeMatch(data_set_sc.MatchClauseAttribute.TYPE, "5HT_IMAGE"))
+	data_set_sc.addSubCriteria(SearchSubCriteria.createExperimentCriteria(sc))
+	return searchService.searchForDataSets(data_set_sc)
 
 class ExampleAllDataRequestHandler(AllDataRequestHandler):
 	"""Handler for the ALLDATA request."""
