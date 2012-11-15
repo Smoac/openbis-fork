@@ -42,6 +42,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementS
  */
 public class DataSet
 {
+    private static final int MINIMAL_MINOR_VERSION_DELIVERING_CONTAINER = 20;
+
     private final IOpenbisServiceFacade facade;
 
     private final IDssComponent dssComponent;
@@ -203,6 +205,27 @@ public class DataSet
     public ExternalDataManagementSystem getExternalDataManagementSystem()
     {
         return getMetadata().getExternalDataManagementSystem();
+    }
+
+    /**
+     * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#getContainerOrNull()
+     */
+    @Retry
+    public DataSet getContainerOrNull()
+    {
+        final DataSet containerOrNull = (getMetadata().getContainerOrNull() != null) ?
+                new DataSet(facade, dssComponent, getMetadata().getContainerOrNull(), null) : null;
+        return containerOrNull;
+    }
+
+    /**
+     * Returns <code>true</code>, if result of {@link #getContainerOrNull()} can be trusted and
+     * <code>false</code>, if it cannot be trusted because the server is too old to deliver this
+     * information.
+     */
+    public boolean knowsContainer()
+    {
+        return facade.getMinorVersionInformationService() >= MINIMAL_MINOR_VERSION_DELIVERING_CONTAINER;
     }
 
     /**

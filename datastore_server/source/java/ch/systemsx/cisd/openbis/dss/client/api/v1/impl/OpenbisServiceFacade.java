@@ -174,6 +174,8 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
 
     private final IDssComponent dssComponent;
     
+    private final int minorVersionInformationService;
+    
     private final int minorVersionChangingService;
 
     public OpenbisServiceFacade(String sessionToken, IGeneralInformationService service,
@@ -181,6 +183,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     {
         this.sessionToken = sessionToken;
         this.service = service;
+        this.minorVersionInformationService = service.getMinorVersion();
         this.changingService = changingService;
         this.minorVersionChangingService = changingService.getMinorVersion();
         this.dssComponent = dssComponent;
@@ -517,6 +520,12 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
             throw new IllegalArgumentException(parameterName
                     + " must contain at least one element.");
         }
+    }
+
+    @Override
+    public int getMinorVersionInformationService()
+    {
+        return minorVersionInformationService;
     }
 
     //

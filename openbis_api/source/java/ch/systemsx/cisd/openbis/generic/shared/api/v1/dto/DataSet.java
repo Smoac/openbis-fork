@@ -74,7 +74,7 @@ public final class DataSet implements Serializable, IIdHolder
         private String dataSetTypeCode;
 
         private boolean containerDataSet;
-
+        
         private boolean linkDataSet;
 
         private String externalDataSetCode;
@@ -90,6 +90,8 @@ public final class DataSet implements Serializable, IIdHolder
         private List<String> childrenCodes = Collections.emptyList();
 
         private List<DataSet> containedDataSets = Collections.emptyList();
+
+        private DataSet containerOrNull;
 
         private HashMap<String, String> properties = new HashMap<String, String>();
 
@@ -234,6 +236,16 @@ public final class DataSet implements Serializable, IIdHolder
                     (null == containedDataSets) ? new ArrayList<DataSet>() : containedDataSets;
         }
 
+        public DataSet getContainerOrNull()
+        {
+            return containerOrNull;
+        }
+
+        public void setContainerOrNull(DataSet containerOrNull)
+        {
+            this.containerOrNull = containerOrNull;
+        }
+
         public boolean isLinkDataSet()
         {
             return linkDataSet;
@@ -325,6 +337,8 @@ public final class DataSet implements Serializable, IIdHolder
     private List<String> childrenCodes = Collections.emptyList();
 
     private List<DataSet> containedDataSets = Collections.emptyList();
+    
+    private DataSet containerOrNull;
 
     private EntityRegistrationDetails registrationDetails;
 
@@ -369,6 +383,7 @@ public final class DataSet implements Serializable, IIdHolder
                     "Unspecified entity registration details.");
             this.registrationDetails = initializer.getRegistrationDetails();
             this.containerDataSet = initializer.isContainerDataSet();
+            this.containerOrNull = initializer.getContainerOrNull();
             this.containedDataSets = initializer.getContainedDataSets();
             this.linkDataSet = initializer.isLinkDataSet();
             this.externalDataSetCode = initializer.getExternalDataSetCode();
@@ -499,6 +514,14 @@ public final class DataSet implements Serializable, IIdHolder
     public boolean isContainerDataSet()
     {
         return containerDataSet;
+    }
+
+    /**
+     * @since 1.20
+     */
+    public DataSet getContainerOrNull()
+    {
+        return containerOrNull;
     }
 
     public boolean isLinkDataSet()
@@ -635,6 +658,11 @@ public final class DataSet implements Serializable, IIdHolder
     private void setContainerDataSet(boolean containerDataSet)
     {
         this.containerDataSet = containerDataSet;
+    }
+
+    private void setContainerOrNull(DataSet containerOrNull)
+    {
+        this.containerOrNull = containerOrNull;
     }
 
     private void setLinkDataSet(boolean linkDataSet)

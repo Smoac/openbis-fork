@@ -121,6 +121,29 @@ public class DataSetListerTest extends AbstractDAOTest
     }
 
     @Test
+    public void testGetDataSetMetaDataForContainedDataSets()
+    {
+        List<String> codes = new ArrayList<String>();
+        codes.add("20110509092359990-11");
+        codes.add("20110509092359990-12");
+        codes.add("VALIDATIONS_IMPOS-27");
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+
+        List<DataSet> result = lister.getDataSetMetaData(codes, fetchOptions);
+
+        assertNotNull(result.get(0).getContainerOrNull());
+        assertNotNull(result.get(1).getContainerOrNull());
+        assertNotNull(result.get(2).getContainerOrNull());
+
+        assertEquals(13, result.get(0).getContainerOrNull().getId().longValue());
+        assertEquals("20110509092359990-10", result.get(0).getContainerOrNull().getCode());
+        assertEquals(13, result.get(1).getContainerOrNull().getId().longValue());
+        assertEquals("20110509092359990-10", result.get(1).getContainerOrNull().getCode());
+        assertEquals(26, result.get(2).getContainerOrNull().getId().longValue());
+        assertEquals("VALIDATIONS_CNTNR-26", result.get(2).getContainerOrNull().getCode());
+    }
+
+    @Test
     public void testGetDataStoreURLs()
     {
         try

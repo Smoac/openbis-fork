@@ -380,6 +380,11 @@ public class Translator
         {
             initializer.putProperty(prop.getPropertyType().getCode(), prop.tryGetAsString());
         }
+        if (externalDatum.tryGetContainer() != null)
+        {
+            initializer.setContainerOrNull(translate(externalDatum.tryGetContainer(),
+                    connectionsToGet));
+        }
 
         initializer.setContainerDataSet(externalDatum.isContainer());
         if (externalDatum.isContainer())

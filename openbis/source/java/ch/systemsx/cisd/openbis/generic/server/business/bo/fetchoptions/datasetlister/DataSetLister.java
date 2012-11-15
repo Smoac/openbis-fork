@@ -210,6 +210,14 @@ public class DataSetLister implements IDataSetLister
             edms.setOpenBIS(dataSet.edms_is_openbis);
             initializer.setExternalDataManagementSystem(edms);
         }
+        if (dataSet.ctnr_id != null)
+        {
+            final DataSetInitializer containerInitializer = new DataSetInitializer();
+            containerInitializer.setStub(true);
+            containerInitializer.setId(dataSet.ctnr_id);
+            containerInitializer.setCode(dataSet.ctnr_code);
+            initializer.setContainerOrNull(new DataSet(containerInitializer));
+        }
         initializer.setRegistrationDetails(createDataSetRegistrationDetails(dataSet));
         initializer.setExperimentIdentifier(experimentIdentifier.toString());
 

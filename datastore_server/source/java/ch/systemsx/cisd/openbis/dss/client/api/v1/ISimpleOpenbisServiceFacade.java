@@ -49,6 +49,11 @@ public interface ISimpleOpenbisServiceFacade
 {
 
     /**
+     * Returns the minor version of the general information service.
+     */
+    public int getMinorVersionInformationService();
+    
+    /**
      * Returns all available projects.
      */
     @Retry
