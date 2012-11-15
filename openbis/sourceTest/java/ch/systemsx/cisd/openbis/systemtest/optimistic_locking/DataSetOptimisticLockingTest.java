@@ -417,4 +417,109 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
                 etlService.listDataSetsBySampleID(systemSessionToken, new TechId(sample2), true)
                         .size());
     }
+
+    @Test
+    public void testCreateChildDataSets()
+    {
+        Experiment experiment1 = toolBox.createAndLoadExperiment(1);
+        ExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment1));
+        Experiment experiment2 = toolBox.createAndLoadExperiment(2);
+        NewDataSet child = toolBox.dataSet("DS-1-C", experiment2);
+        child.setParentDataSetCodes(Arrays.asList(dataSet.getCode()));
+        NewDataSet grandChild = toolBox.dataSet("DS-1-GC", experiment2);
+        grandChild.setParentDataSetCodes(Arrays.asList(child.getCode()));
+        AtomicEntityOperationDetailsBuilder builder =
+                new AtomicEntityOperationDetailsBuilder().user("test").dataSet(child)
+                        .dataSet(grandChild);
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+
+        etlService.performEntityOperations(systemSessionToken, builder.getDetails());
+
+        ExternalData loadedDataSet = toolBox.loadDataSet(dataSet.getCode());
+        ExternalData loadedChild = toolBox.loadDataSet(child.getCode());
+        ExternalData loadedGrandChild = toolBox.loadDataSet(grandChild.getCode());
+        assertEquals(experiment1.getIdentifier(), loadedDataSet.getExperiment().getIdentifier());
+        assertEquals("[DS-1-C]", toolBox.extractCodes(loadedDataSet.getChildren()).toString());
+        assertEquals(experiment2.getIdentifier(), loadedChild.getExperiment().getIdentifier());
+        assertEquals("[DS-1]", toolBox.extractCodes(loadedChild.getParents()).toString());
+        assertEquals("[DS-1-GC]", toolBox.extractCodes(loadedChild.getChildren()).toString());
+        assertEquals(experiment2.getIdentifier(), loadedGrandChild.getExperiment().getIdentifier());
+        assertEquals("[DS-1-C]", toolBox.extractCodes(loadedGrandChild.getParents()).toString());
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet, "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedChild, "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedGrandChild,
+                "test");
+    }
+
+    @Test
+    public void testChangeParentViaPerformEntityOperation()
+    {
+        Experiment experiment1 = toolBox.createAndLoadExperiment(1);
+        ExternalData dataSet1 = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment1));
+        ExternalData dataSet2 = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-2", experiment1));
+        Experiment experiment2 = toolBox.createAndLoadExperiment(2);
+        NewDataSet newDataSet = toolBox.dataSet("DS-3", experiment2);
+        newDataSet.setParentDataSetCodes(Arrays.asList(dataSet1.getCode()));
+        ExternalData child = toolBox.createAndLoadDataSet(newDataSet);
+        DataSetBatchUpdatesDTO dataSetBatchUpdates = new DataSetBatchUpdatesDTO();
+        dataSetBatchUpdates.setVersion(child.getVersion());
+        dataSetBatchUpdates.setDatasetCode(child.getCode());
+        dataSetBatchUpdates.setDatasetId(new TechId(child));
+        dataSetBatchUpdates.setProperties(Arrays.<IEntityProperty> asList());
+        dataSetBatchUpdates.setModifiedParentDatasetCodesOrNull(new String[]
+            { dataSet2.getCode() });
+        DataSetBatchUpdateDetails updateDetails = new DataSetBatchUpdateDetails();
+        updateDetails.setParentsUpdateRequested(true);
+        dataSetBatchUpdates.setDetails(updateDetails);
+        AtomicEntityOperationDetailsBuilder builder =
+                new AtomicEntityOperationDetailsBuilder().dataSetUpdate(dataSetBatchUpdates).user(
+                        "test");
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+
+        etlService.performEntityOperations(systemSessionToken, builder.getDetails());
+
+        ExternalData loadedDataSet1 = toolBox.loadDataSet(dataSet1.getCode());
+        ExternalData loadedDataSet2 = toolBox.loadDataSet(dataSet2.getCode());
+        ExternalData loadedChild = toolBox.loadDataSet(child.getCode());
+        assertEquals(experiment1.getIdentifier(), loadedDataSet1.getExperiment().getIdentifier());
+        assertEquals("[]", toolBox.extractCodes(loadedDataSet1.getChildren()).toString());
+        assertEquals("[DS-3]", toolBox.extractCodes(loadedDataSet2.getChildren()).toString());
+        assertEquals("[DS-2]", toolBox.extractCodes(loadedChild.getParents()).toString());
+        assertEquals(experiment1.getIdentifier(), loadedDataSet2.getExperiment().getIdentifier());
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet1, "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet2, "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedChild, "test");
+    }
+
+    @Test
+    public void testChangeParentViaUpdateDataSet()
+    {
+        Experiment experiment1 = toolBox.createAndLoadExperiment(1);
+        ExternalData dataSet1 = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment1));
+        ExternalData dataSet2 = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-2", experiment1));
+        Experiment experiment2 = toolBox.createAndLoadExperiment(2);
+        NewDataSet newDataSet = toolBox.dataSet("DS-3", experiment2);
+        newDataSet.setParentDataSetCodes(Arrays.asList(dataSet1.getCode()));
+        ExternalData child = toolBox.createAndLoadDataSet(newDataSet);
+        DataSetUpdatesDTO dataSetUpdates =
+                new DataSetUpdateBuilder(commonServer, genericServer, child).create();
+        dataSetUpdates.setModifiedParentDatasetCodesOrNull(new String[]
+            { dataSet2.getCode() });
+        String sessionToken = logIntoCommonClientService().getSessionID();
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+
+        etlService.updateDataSet(sessionToken, dataSetUpdates);
+
+        ExternalData loadedDataSet1 = toolBox.loadDataSet(dataSet1.getCode());
+        ExternalData loadedDataSet2 = toolBox.loadDataSet(dataSet2.getCode());
+        ExternalData loadedChild = toolBox.loadDataSet(child.getCode());
+        assertEquals(experiment1.getIdentifier(), loadedDataSet1.getExperiment().getIdentifier());
+        assertEquals("[]", toolBox.extractCodes(loadedDataSet1.getChildren()).toString());
+        assertEquals("[DS-3]", toolBox.extractCodes(loadedDataSet2.getChildren()).toString());
+        assertEquals("[DS-2]", toolBox.extractCodes(loadedChild.getParents()).toString());
+        assertEquals(experiment1.getIdentifier(), loadedDataSet2.getExperiment().getIdentifier());
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet1, "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet2, "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedChild, "test");
+    }
 }

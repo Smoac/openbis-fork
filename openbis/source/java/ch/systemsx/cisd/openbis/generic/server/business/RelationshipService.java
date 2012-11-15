@@ -207,6 +207,8 @@ public class RelationshipService implements IRelationshipService
         DataSetRelationshipPE relationship = new DataSetRelationshipPE(parent, data, actor);
         data.addParentRelationship(relationship);
         parent.addChildRelationship(relationship);
+        RelationshipUtils.updateModificationDateAndModifier(data, session);
+        RelationshipUtils.updateModificationDateAndModifier(parent, session);
     }
 
     @Override
@@ -230,6 +232,8 @@ public class RelationshipService implements IRelationshipService
             throw UserFailureException.fromTemplate(ERR_DATASET_PARENT_RELATIONSHIP_NOT_FOUND,
                     data.getCode(), parent.getCode());
         }
+        RelationshipUtils.updateModificationDateAndModifier(data, session);
+        RelationshipUtils.updateModificationDateAndModifier(parent, session);
     }
 
     @Override
