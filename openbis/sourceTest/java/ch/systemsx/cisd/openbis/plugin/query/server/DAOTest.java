@@ -94,12 +94,62 @@ public class DAOTest extends AbstractTransactionalTestNGSpringContextTests
     }
 
     @Test
-    public void testQueryWithArrayBinding()
+    public void testQueryWithStringBinding()
+    {
+        String query =
+                "select id, code as DATA_SET_KEY, registration_timestamp, is_valid from data where code like ${code} order by id";
+        QueryParameterBindings bindings = new QueryParameterBindings();
+        bindings.addBinding("code", "200811050921591%");
+        testQueryWithBindings(query, bindings);
+    }
+
+    @Test
+    public void testQueryWithStringBindingExplicitType()
+    {
+        String query =
+                "select id, code as DATA_SET_KEY, registration_timestamp, is_valid from data where code like ${code::string} order by id";
+        QueryParameterBindings bindings = new QueryParameterBindings();
+        bindings.addBinding("code", "200811050921591%");
+        testQueryWithBindings(query, bindings);
+    }
+
+    @Test
+    public void testQueryWithStringBindingOldStyle()
+    {
+        String query =
+                "select id, code as DATA_SET_KEY, registration_timestamp, is_valid from data where code like '${code}' order by id";
+        QueryParameterBindings bindings = new QueryParameterBindings();
+        bindings.addBinding("code", "200811050921591%");
+        testQueryWithBindings(query, bindings);
+    }
+
+    @Test
+    public void testQueryWithPostgreSQLArrayBinding()
     {
         String query =
                 "select id, code as DATA_SET_KEY, registration_timestamp, is_valid from data where code = any(${codes}::text[]) order by id";
         QueryParameterBindings bindings = new QueryParameterBindings();
         bindings.addBinding("codes", "{20081105092159188-3, 20081105092159111-1}");
+        testQueryWithBindings(query, bindings);
+    }
+
+    @Test
+    public void testQueryWithPostgreSQLArrayBindingOldStyle()
+    {
+        String query =
+                "select id, code as DATA_SET_KEY, registration_timestamp, is_valid from data where code = any('{${codes}}'::text[]) order by id";
+        QueryParameterBindings bindings = new QueryParameterBindings();
+        bindings.addBinding("codes", "20081105092159188-3, 20081105092159111-1");
+        testQueryWithBindings(query, bindings);
+    }
+
+    @Test
+    public void testQueryWithPostgreSQLArrayBindingSimplified()
+    {
+        String query =
+                "select id, code as DATA_SET_KEY, registration_timestamp, is_valid from data where code = any({${codes}}) order by id";
+        QueryParameterBindings bindings = new QueryParameterBindings();
+        bindings.addBinding("codes", "20081105092159188-3, 20081105092159111-1");
         testQueryWithBindings(query, bindings);
     }
 
