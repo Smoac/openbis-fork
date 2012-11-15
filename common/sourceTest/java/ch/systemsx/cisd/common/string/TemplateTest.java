@@ -17,13 +17,16 @@
 package ch.systemsx.cisd.common.string;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.string.Template;
+import ch.systemsx.cisd.common.string.Template.IToken;
 
 /**
  * Test cases for the {@link Template}.
@@ -54,10 +57,54 @@ public class TemplateTest
     }
 
     @Test
+    public void testWithOnePlaceholderManipulateTokens()
+    {
+        Template template = new Template("hello ${name}!");
+        assertEquals(0, template.tryGetIndex("name"));
+        for (IToken token : template.getTokens())
+        {
+            if (token.isVariable())
+            {
+                token.setSubString(0, 0, "'", "'");
+            } else
+            {
+                if (StringUtils.endsWith(token.tryGetValue(), " "))
+                {
+                    token.setValue(token.tryGetValue().substring(0, token.tryGetValue().length() - 1));
+                }
+            }
+        }
+        template.bind("name", "world");
+        assertEquals("hello'world'!", template.createText());
+    }
+
+    @Test
+    public void testWithTwoPlaceholdersReplaceBrackets()
+    {
+        Template template = new Template("hello (${name}) (${name2}) {${name3}}");
+        assertEquals(0, template.tryGetIndex("name"));
+        assertEquals(1, template.tryGetIndex("name2"));
+        final List<IToken> replaced1 = template.replaceBrackets("(",  ")",  "[", "]");
+        assertEquals(2, replaced1.size());
+        assertEquals("name", replaced1.get(0).tryGetName());
+        assertEquals("name2", replaced1.get(1).tryGetName());
+        final List<IToken> replaced2 = template.replaceBrackets("{",  "}",  "", "");
+        assertEquals(1, replaced2.size());
+        assertEquals("name3", replaced2.get(0).tryGetName());
+        template.bind("name", "world");
+        template.bind("name2", "universe");
+        template.bind("name3", "???");
+        assertEquals("hello [world] [universe] ???", template.createText());
+    }
+
+    @Test
     public void testWithPlaceholderMetadata()
     {
         Template template =
                 new Template("hello ${name::some metadata} - welcome to ${CISD:shortcut}!");
+        assertEquals("some metadata", template.tryGetMetadata("name"));
+        assertNull(template.tryGetMetadata("CISD"));
+        assertNull(template.tryGetMetadata("CISD:shortcut"));
         template.bind("name", "world");
         template.bind("CISD:shortcut", "Center for Sciences and Databases");
         assertEquals("hello world - welcome to Center for Sciences and Databases!",
