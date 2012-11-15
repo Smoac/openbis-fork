@@ -211,6 +211,12 @@ public class SearchService implements ISearchService
     @Override
     public IVocabularyImmutable searchForVocabulary(String code)
     {
+        return getVocabulary(code);
+    }
+
+    @Override
+    public IVocabularyImmutable getVocabulary(String code)
+    {
         Vocabulary vocabulary = openBisService.tryGetVocabulary(code);
         return (vocabulary == null) ? null : new VocabularyImmutable(vocabulary);
     }

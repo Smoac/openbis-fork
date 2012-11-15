@@ -79,7 +79,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInform
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -493,8 +492,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     @Override
     public IVocabularyImmutable getVocabulary(String code)
     {
-        Vocabulary vocabulary = openBisService.tryGetVocabulary(code);
-        return (vocabulary == null) ? null : new VocabularyImmutable(vocabulary);
+        return getSearchService().getVocabulary(code);
     }
 
     @Override
@@ -757,8 +755,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         else
             return new SearchService(
                     openBisService
-                            .getBasicFilteredOpenBISService(getStateAsLiveState()
-                            .getUserId()));
+                            .getBasicFilteredOpenBISService(getStateAsLiveState().getUserId()));
     }
 
     @Override

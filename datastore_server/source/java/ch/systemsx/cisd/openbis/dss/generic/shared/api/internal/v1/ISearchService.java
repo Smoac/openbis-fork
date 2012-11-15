@@ -106,6 +106,14 @@ public interface ISearchService
     /**
      * @return a controlled vocabulary with the given code. Returns null if the vocabulary with
      *         given code is not found.
+     * @deprecated use {@link #getVocabulary(String)} instead
      */
+    @Deprecated
     public IVocabularyImmutable searchForVocabulary(String code);
+
+    /**
+     * @return a controlled vocabulary with the given code. Returns null if the vocabulary with
+     *         given code is not found.
+     */
+    public IVocabularyImmutable getVocabulary(String code);
 }
