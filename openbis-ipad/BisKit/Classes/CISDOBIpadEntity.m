@@ -102,6 +102,9 @@ id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
         if (error) {
             NSLog(@"Could not deserialize properties %@", error);
         }
+        [properties sortUsingComparator: ^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
+            return [[obj1 valueForKey: @"key"] compare: [obj2 valueForKey: @"key"] options: NSNumericSearch];
+        }];
         [self setPrimitiveValue: properties forKey: @"properties"];
     }
     
