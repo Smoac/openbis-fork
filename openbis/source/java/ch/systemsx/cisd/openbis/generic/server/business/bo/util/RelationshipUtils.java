@@ -38,6 +38,7 @@ public class RelationshipUtils
         updateModificationDateAndModifier(dataSet.tryGetSample(), session);
         dataSet.setSample(sample);
         updateModificationDateAndModifier(sample, session);
+        updateModificationDateAndModifier(dataSet, session);
     }
 
     public static void setContainerForSample(SamplePE sample, SamplePE container,
@@ -55,6 +56,7 @@ public class RelationshipUtils
         updateModificationDateAndModifier(dataSet.getExperiment(), session);
         dataSet.setExperiment(experiment);
         updateModificationDateAndModifier(experiment, session);
+        updateModificationDateAndModifier(dataSet, session);
     }
 
     public static void updateModificationDateAndModifier(
