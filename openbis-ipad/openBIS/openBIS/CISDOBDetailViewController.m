@@ -86,21 +86,22 @@
     self.summaryLabel.text = self.detailItem.summary;
     self.identifierLabel.text = self.detailItem.identifier;
     
-    NSURL *url = (self.detailItem.imageUrlString) ?
-        [self.openBisModel urlFromUrlString: self.detailItem.imageUrlString] :
-        [NSURL URLWithString: @"about:blank"];
-
-    // No need to fiddle with the web view if the URL is the same
-    BOOL updateWebView = ![self.webView.request.URL isEqual: url];
-    if (updateWebView) {
-        NSURLRequest *request = [NSURLRequest requestWithURL: url];
-        [self.webView loadRequest: request];
-        if (self.detailItem.imageUrlString) {
-            self.webView.hidden = NO;
-            self.webView.scrollView.hidden = NO;
-        } else {
-            self.webView.hidden = NO;
-            self.webView.scrollView.hidden = YES;
+    if (!self.detailItem.imageUrlString) {
+        [self.webView loadHTMLString: @"<html><head></head><body></body></html>" baseURL: nil];
+        self.webView.hidden = YES;
+        self.webView.scrollView.hidden = YES;
+    } else {
+        NSURL *url = [self.openBisModel urlFromUrlString: self.detailItem.imageUrlString];
+        // No need to fiddle with the web view if the URL is the same
+        BOOL updateWebView = ![self.webView.request.URL isEqual: url];
+        if (updateWebView) {
+            // DEBUG -- We will need to switch to getting the data using a NSURLConnection, but for development, it is more convenient to use the request
+            NSURLRequest *request = [NSURLRequest requestWithURL: url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval: 10.f];
+            [self.webView loadRequest: request];
+            if (self.detailItem.imageUrlString) {
+                self.webView.hidden = NO;
+                self.webView.scrollView.hidden = NO;
+            }
         }
     }
     
@@ -241,7 +242,14 @@
     if ([CISDOBIpadServiceWillLoginNotification isEqualToString: [note name]]) {
         [self setStatusText: @"Logging in..."];
     } else if ([CISDOBIpadServiceDidLoginNotification isEqualToString: [note name]]) {
-        [self clearStatusText];
+        NSError* errorOrNil =
+            [[note userInfo] valueForKey: NSUnderlyingErrorKey];
+        if (errorOrNil) {
+            NSString *description = [[errorOrNil userInfo] valueForKey: NSLocalizedDescriptionKey];
+            [self setStatusText: description];
+        } else {
+            [self clearStatusText];
+        }
     } else if ([CISDOBIpadServiceWillRetrieveRootLevelEntitiesNotification isEqualToString: [note name]]) {
         [self setStatusText: @"Retrieving root entities..."];
     } else if ([CISDOBIpadServiceDidRetrieveRootLevelEntitiesNotification isEqualToString: [note name]]) {
@@ -272,7 +280,7 @@
     self.statusLabel.text = @"";
 }
 
-#pragma - UIWebViewDelegate
+#pragma mark - UIWebViewDelegate
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
     NSLog(@"Load failed %@", error);
