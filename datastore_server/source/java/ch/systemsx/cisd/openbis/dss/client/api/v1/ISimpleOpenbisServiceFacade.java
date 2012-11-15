@@ -149,7 +149,7 @@ public interface ISimpleOpenbisServiceFacade
      * @return The requested data set, or null if it does not exist.
      */
     @Retry
-    DataSet getDataSet(String dataSetCodes);
+    DataSet getDataSet(String dataSetCode);
 
     /**
      * Return {@link DataSet} objects for given a set of codes. If some of the specified data set
