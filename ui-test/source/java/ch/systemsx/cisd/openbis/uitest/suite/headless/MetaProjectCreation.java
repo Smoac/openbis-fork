@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.suite.metaproject;
+package ch.systemsx.cisd.openbis.uitest.suite.headless;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.uitest.type.User;
 /**
  * @author anttil
  */
-public class MetaProjectCreation extends MetaProjectSuite
+public class MetaProjectCreation extends HeadlessSuite
 {
     @Test
     public void createdMetaProjectAppearsInMetaProjectListing() throws Exception

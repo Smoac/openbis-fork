@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.openbis.uitest.suite.headless;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.uitest.type.DataSet;
 
 /**
@@ -27,12 +31,17 @@ public class MultiDssReporting extends HeadlessSuite
 {
 
     @Test
-    public void report() throws Exception
+    public void dataSetsFromAllDataStoreServersAreVisibleInReports() throws Exception
     {
         DataSet internal = create(aDataSet());
         DataSet external = create(aDataSet().inExternalDss());
 
+        QueryTableModel reportFromInternal =
+                reportInInternal(internal.getCode(), external.getCode());
+        QueryTableModel reportFromExternal =
+                reportInExternal(internal.getCode(), external.getCode());
 
-        reportInInternal(internal.getCode(), external.getCode());
+        assertThat(reportFromInternal.getRows().size(), is(2));
+        assertThat(reportFromExternal.getRows().size(), is(2));
     }
 }

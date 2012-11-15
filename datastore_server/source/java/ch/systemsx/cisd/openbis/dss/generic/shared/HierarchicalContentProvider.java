@@ -150,8 +150,14 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
             }
         } else
         {
-            return new RemoteHierarchicalContent(locationNode, ServiceProvider
-                    .getDataSetPathInfoProvider(), session, dssService, sessionWorkspaceRoot);
+            IDataSetPathInfoProvider dataSetPathInfoProvider =
+                    ServiceProvider.getDataSetPathInfoProvider();
+            ISingleDataSetPathInfoProvider provider =
+                    dataSetPathInfoProvider.tryGetSingleDataSetPathInfoProvider(locationNode
+                            .getLocation()
+                            .getDataSetCode());
+            return new RemoteHierarchicalContent(locationNode, provider, session, dssService,
+                    sessionWorkspaceRoot);
         }
     }
 

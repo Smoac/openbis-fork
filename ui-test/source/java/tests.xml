@@ -14,9 +14,9 @@
       <package name="ch.systemsx.cisd.openbis.uitest.suite.authentication.*" />
     </packages>
   </test>
-  <test name="MetaProjects" annotations="JDK">
+  <test name="Headless" annotations="JDK">
     <packages>
-      <package name="ch.systemsx.cisd.openbis.uitest.suite.metaproject.*" />
+      <package name="ch.systemsx.cisd.openbis.uitest.suite.headless.*" />
     </packages>
   </test>
 </suite>

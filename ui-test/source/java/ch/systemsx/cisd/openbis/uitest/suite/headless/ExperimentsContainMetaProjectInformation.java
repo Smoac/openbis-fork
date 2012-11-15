@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.suite.metaproject;
+package ch.systemsx.cisd.openbis.uitest.suite.headless;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Project;
 /**
  * @author anttil
  */
-public class ExperimentsContainMetaProjectInformation extends MetaProjectSuite
+public class ExperimentsContainMetaProjectInformation extends HeadlessSuite
 {
 
     @Test

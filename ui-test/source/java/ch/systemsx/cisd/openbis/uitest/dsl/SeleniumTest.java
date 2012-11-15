@@ -48,6 +48,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.uitest.dsl.matcher.CellContentMatcher;
 import ch.systemsx.cisd.openbis.uitest.dsl.matcher.CollectionContainsExactlyMatcher;
 import ch.systemsx.cisd.openbis.uitest.dsl.matcher.CollectionContainsMatcher;
@@ -108,7 +109,7 @@ import ch.systemsx.cisd.openbis.uitest.rmi.ListMaterialsRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListMetaProjectsRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListSamplesOfExperimentOnBehalfOfUserRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListSamplesOfExperimentRmi;
-import ch.systemsx.cisd.openbis.uitest.rmi.Report;
+import ch.systemsx.cisd.openbis.uitest.rmi.ReportFromDataSetsRmi;
 import ch.systemsx.cisd.openbis.uitest.screenshot.FileScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.screenshot.ScreenShotter;
 import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
@@ -852,14 +853,13 @@ public abstract class SeleniumTest
         return entity.getMetaProjects();
     }
 
-    public void reportInExternal(String dataSetCode, String... rest)
+    public QueryTableModel reportInExternal(String dataSetCode, String... rest)
     {
-        openbis.execute(new Report("EXTERNAL", dataSetCode, rest));
+        return openbis.execute(new ReportFromDataSetsRmi("EXTERNAL", dataSetCode, rest));
     }
 
-    public void reportInInternal(String dataSetCode, String... rest)
+    public QueryTableModel reportInInternal(String dataSetCode, String... rest)
     {
-        openbis.execute(new Report("INTERNAL", dataSetCode, rest));
+        return openbis.execute(new ReportFromDataSetsRmi("INTERNAL", dataSetCode, rest));
     }
-
 }

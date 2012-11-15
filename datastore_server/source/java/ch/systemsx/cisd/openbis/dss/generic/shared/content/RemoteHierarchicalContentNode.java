@@ -60,6 +60,8 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
 
     private String sessionWorkspaceRoot;
 
+    private String parentRelativePath;
+
     public RemoteHierarchicalContentNode(String dataSetCode,
             DataSetPathInfo path,
             ISingleDataSetPathInfoProvider provider,
@@ -75,6 +77,26 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
         this.remoteDss = remote;
         this.sessionHolder = sessionHolder;
         this.sessionWorkspaceRoot = sessionWorkspaceRoot;
+        this.parentRelativePath = null;
+    }
+
+    private RemoteHierarchicalContentNode(String dataSetCode,
+            DataSetPathInfo path,
+            ISingleDataSetPathInfoProvider provider,
+            IDssServiceRpcGeneric local,
+            IDssServiceRpcGeneric remote,
+            OpenBISSessionHolder sessionHolder,
+            String sessionWorkspaceRoot,
+            String parentRelativePath)
+    {
+        this.dataSetCode = dataSetCode;
+        this.path = path;
+        this.provider = provider;
+        this.localDss = local;
+        this.remoteDss = remote;
+        this.sessionHolder = sessionHolder;
+        this.sessionWorkspaceRoot = sessionWorkspaceRoot;
+        this.parentRelativePath = parentRelativePath;
     }
 
     @Override
@@ -92,7 +114,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
     @Override
     public String getParentRelativePath()
     {
-        throw new UnsupportedOperationException();
+        return parentRelativePath;
     }
 
     @Override
@@ -143,7 +165,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
             {
                 children.add(new RemoteHierarchicalContentNode(dataSetCode, childPath, provider,
                         localDss,
-                        remoteDss, sessionHolder, sessionWorkspaceRoot));
+                        remoteDss, sessionHolder, sessionWorkspaceRoot, path.getRelativePath()));
             }
         } else
         {
@@ -159,7 +181,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
                 info.setSizeInBytes(file.getFileSize());
                 children.add(new RemoteHierarchicalContentNode(dataSetCode, info, provider,
                         localDss,
-                        remoteDss, sessionHolder, sessionWorkspaceRoot));
+                        remoteDss, sessionHolder, sessionWorkspaceRoot, path.getRelativePath()));
             }
         }
         return children;

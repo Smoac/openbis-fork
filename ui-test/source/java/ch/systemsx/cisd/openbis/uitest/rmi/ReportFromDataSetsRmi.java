@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 /**
  * @author anttil
  */
-public class Report implements Command<Void>
+public class ReportFromDataSetsRmi implements Command<QueryTableModel>
 {
 
     @Inject
@@ -41,7 +41,7 @@ public class Report implements Command<Void>
 
     private List<String> dataSetCodes;
 
-    public Report(String dataStoreName, String dataSetCode, String... restCodes)
+    public ReportFromDataSetsRmi(String dataStoreName, String dataSetCode, String... restCodes)
     {
         this.dataStoreName = dataStoreName;
         this.dataSetCodes = new ArrayList<String>();
@@ -50,14 +50,9 @@ public class Report implements Command<Void>
     }
 
     @Override
-    public Void execute()
+    public QueryTableModel execute()
     {
-        QueryTableModel report =
-                query.createReportFromDataSets(session, dataStoreName, "read-all-files",
-                        dataSetCodes);
-
-        System.out.println("REPORT: " + report);
-        // TODO Auto-generated method stub
-        return null;
+        return query.createReportFromDataSets(session, dataStoreName, "read-all-files",
+                dataSetCodes);
     }
 }

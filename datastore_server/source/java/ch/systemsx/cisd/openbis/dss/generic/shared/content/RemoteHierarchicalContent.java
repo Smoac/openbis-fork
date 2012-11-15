@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
@@ -39,7 +39,7 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
 
     private final IDatasetLocationNode location;
 
-    private final IDataSetPathInfoProvider pathInfoProvider;
+    private final ISingleDataSetPathInfoProvider provider;
 
     private final OpenBISSessionHolder sessionHolder;
 
@@ -48,13 +48,13 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
     private final String sessionWorkspaceRoot;
 
     public RemoteHierarchicalContent(IDatasetLocationNode location,
-            IDataSetPathInfoProvider pathInfoProvider,
+            ISingleDataSetPathInfoProvider pathInfoProvider,
             OpenBISSessionHolder sessionHolder,
             IDssServiceRpcGeneric local,
             String sessionWorkspaceRoot)
     {
         this.location = location;
-        this.pathInfoProvider = pathInfoProvider;
+        this.provider = pathInfoProvider;
         this.sessionHolder = sessionHolder;
         this.local = local;
         this.sessionWorkspaceRoot = sessionWorkspaceRoot;
@@ -63,15 +63,6 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
     @Override
     public IHierarchicalContentNode getRootNode()
     {
-
-        ISingleDataSetPathInfoProvider provider =
-                pathInfoProvider.tryGetSingleDataSetPathInfoProvider(location.getLocation()
-                        .getDataSetCode());
-
-        IDssServiceRpcGeneric remoteDss =
-                HttpInvokerUtils.createServiceStub(IDssServiceRpcGeneric.class, location
-                        .getLocation()
-                        .getDataStoreUrl() + "/datastore_server/rmi-dss-api-v1", 300000);
 
         DataSetPathInfo info = null;
         if (provider != null)
@@ -82,46 +73,74 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
         if (info == null)
         {
             FileInfoDssDTO[] files =
-                    remoteDss.listFilesForDataSet(sessionHolder.getSessionToken(),
+                    getRemoteDss().listFilesForDataSet(sessionHolder.getSessionToken(),
                             location.getLocation().getDataSetCode(), "", false);
 
-            FileInfoDssDTO fileInfo = files[0];
-            info = new DataSetPathInfo();
-            info.setChecksumCRC32(fileInfo.tryGetCrc32Checksum());
-            info.setDirectory(fileInfo.isDirectory());
-            info.setFileName(fileInfo.getPathInDataSet());
-            info.setLastModified(null);
-            info.setRelativePath(fileInfo.getPathInDataSet());
-            info.setSizeInBytes(fileInfo.getFileSize());
+            info = convert(files[0]);
         }
 
-        return new RemoteHierarchicalContentNode(
-                location.getLocation().getDataSetCode(),
-                info,
-                provider,
-                local,
-                remoteDss,
-                sessionHolder,
-                sessionWorkspaceRoot);
+        return createNode(info);
     }
 
     @Override
     public IHierarchicalContentNode getNode(String relativePath) throws IllegalArgumentException
     {
-        throw new UnsupportedOperationException();
+
+        DataSetPathInfo info = null;
+
+        if (provider != null)
+        {
+            info = provider.tryGetPathInfoByRelativePath(relativePath);
+        }
+
+        if (info == null)
+        {
+            FileInfoDssDTO[] files =
+                    getRemoteDss().listFilesForDataSet(sessionHolder.getSessionToken(),
+                            location.getLocation().getDataSetCode(), relativePath, false);
+            info = convert(files[0]);
+        }
+
+        return createNode(info);
     }
 
     @Override
     public List<IHierarchicalContentNode> listMatchingNodes(String relativePathPattern)
     {
-        throw new UnsupportedOperationException();
+        List<DataSetPathInfo> paths = null;
+
+        if (provider == null)
+        {
+            paths = provider.listMatchingPathInfos(relativePathPattern);
+        }
+
+        if (paths == null)
+        {
+            throw new UnsupportedOperationException(
+                    "pattern matching not available without pathinfo db");
+        }
+
+        return createNodes(paths);
     }
 
     @Override
     public List<IHierarchicalContentNode> listMatchingNodes(String startingPath,
             String fileNamePattern)
     {
-        throw new UnsupportedOperationException();
+        List<DataSetPathInfo> paths = null;
+
+        if (provider == null)
+        {
+            paths = provider.listMatchingPathInfos(startingPath, fileNamePattern);
+        }
+
+        if (paths == null)
+        {
+            throw new UnsupportedOperationException(
+                    "pattern matching not available without pathinfo db");
+        }
+
+        return createNodes(paths);
     }
 
     @Override
@@ -129,4 +148,44 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
     {
     }
 
+    private DataSetPathInfo convert(FileInfoDssDTO dto)
+    {
+        DataSetPathInfo info = new DataSetPathInfo();
+        info.setChecksumCRC32(dto.tryGetCrc32Checksum());
+        info.setDirectory(dto.isDirectory());
+        info.setFileName(dto.getPathInDataSet());
+        info.setLastModified(null);
+        info.setRelativePath(dto.getPathInDataSet());
+        info.setSizeInBytes(dto.getFileSize());
+        return info;
+    }
+
+    private IHierarchicalContentNode createNode(DataSetPathInfo info)
+    {
+
+        return new RemoteHierarchicalContentNode(
+                location.getLocation().getDataSetCode(),
+                info,
+                provider,
+                local,
+                getRemoteDss(),
+                sessionHolder,
+                sessionWorkspaceRoot);
+    }
+
+    private List<IHierarchicalContentNode> createNodes(List<DataSetPathInfo> paths)
+    {
+        List<IHierarchicalContentNode> nodes = new ArrayList<IHierarchicalContentNode>();
+        for (DataSetPathInfo info : paths)
+        {
+            nodes.add(createNode(info));
+        }
+        return nodes;
+    }
+
+    private IDssServiceRpcGeneric getRemoteDss()
+    {
+        return HttpInvokerUtils.createServiceStub(IDssServiceRpcGeneric.class, location
+                .getLocation().getDataStoreUrl() + "/datastore_server/rmi-dss-api-v1", 300000);
+    }
 }
