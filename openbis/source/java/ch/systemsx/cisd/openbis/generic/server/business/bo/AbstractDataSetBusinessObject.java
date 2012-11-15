@@ -32,15 +32,11 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -87,23 +83,6 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
     protected void enrichWithChildren(DataPE dataPE)
     {
         HibernateUtils.initialize(dataPE.getChildRelationships());
-    }
-
-    protected void updateBatchProperties(DataPE data, List<IEntityProperty> newProperties,
-            Set<String> set)
-    {
-        final Set<DataSetPropertyPE> existingProperties = data.getProperties();
-        final DataSetTypePE type = data.getDataSetType();
-        final PersonPE registrator = findPerson();
-        data.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
-                newProperties, registrator, set));
-    }
-
-    protected void updateProperties(DataPE data, List<IEntityProperty> newProperties)
-    {
-        final Set<DataSetPropertyPE> existingProperties = data.getProperties();
-        final DataSetTypePE type = data.getDataSetType();
-        data.setProperties(convertProperties(type, existingProperties, newProperties));
     }
 
     protected void checkPropertiesBusinessRules(DataPE data)

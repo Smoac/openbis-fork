@@ -257,6 +257,7 @@ public final class DataDAOTest extends AbstractDAOTest
         externalData.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
         externalData.setPlaceholder(true);
         externalData.setDataStore(pickADataStore());
+        externalData.setModificationDate(new Date());
         return externalData;
     }
 
@@ -276,6 +277,7 @@ public final class DataDAOTest extends AbstractDAOTest
         }
         data.setPlaceholder(true);
         data.setDataStore(pickADataStore());
+        data.setModificationDate(new Date());
         return data;
     }
 
@@ -292,6 +294,7 @@ public final class DataDAOTest extends AbstractDAOTest
         data.setDataStore(pickADataStore());
         data.setExternalCode(externalDataSetCode);
         data.setExternalDataManagementSystem(pickAnExternalDataManagementSystem());
+        data.setModificationDate(new Date());
         return data;
     }
 
@@ -351,7 +354,8 @@ public final class DataDAOTest extends AbstractDAOTest
         dataDAO.createDataSet(data, getTestPerson());
 
         ExternalDataPE externalData = new ExternalDataPE();
-        externalData.setId(dataDAO.tryToFindDataSetByCode(dataSetCode).getId());
+        DataPE dataSetJustCreated = dataDAO.tryToFindDataSetByCode(dataSetCode);
+        externalData.setId(dataSetJustCreated.getId());
         externalData.setCode(dataSetCode);
         externalData.setDataSetType(getDataSetType(DataSetTypeCode.UNKNOWN));
         externalData.setDataStore(pickADataStore());
@@ -383,7 +387,7 @@ public final class DataDAOTest extends AbstractDAOTest
         assertEquals(externalData.getStorageFormat(), dataSet.getStorageFormat());
         assertEquals(externalData.isPlaceholder(), dataSet.isPlaceholder());
         assertEquals(externalData.isMeasured(), dataSet.isMeasured());
-        assertFalse(externalData.getModificationDate().equals(modificationTimestamp));
+        assertEquals(dataSetJustCreated.getVersion() + 1, dataSet.getVersion());
         assertFalse(externalData.isContainer());
     }
 
