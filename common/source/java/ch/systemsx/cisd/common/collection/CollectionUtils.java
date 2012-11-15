@@ -24,11 +24,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import ch.systemsx.cisd.common.collection.CollectionStyle;
-import ch.systemsx.cisd.common.collection.IKeyExtractor;
-import ch.systemsx.cisd.common.collection.IToStringConverter;
-import ch.systemsx.cisd.common.collection.ToStringDefaultConverter;
-
 /**
  * Some convenience methods/utilities around {@link Collection}.
  * 
@@ -299,23 +294,6 @@ public final class CollectionUtils
         return result;
     }
 
-    public static interface ICollectionMappingFunction<K, V>
-    {
-        K map(V element);
-    }
-
-    /** Transforms one list into another by converting each element with the specified function. */
-    public static final <K, V> List<K> map(Collection<V> list,
-            ICollectionMappingFunction<K, V> mapping)
-    {
-        List<K> mapped = new ArrayList<K>();
-        for (V elem : list)
-        {
-            mapped.add(mapping.map(elem));
-        }
-        return mapped;
-    }
-
     public static interface ICollectionFilter<V>
     {
         boolean isPresent(V element);
@@ -349,7 +327,7 @@ public final class CollectionUtils
     {
         return (list != null) ? list : Collections.<E> emptyList();
     }
-    
+
     /**
      * Sorts a collection of objects with a key extractor providing sort criteria.
      * <p>
