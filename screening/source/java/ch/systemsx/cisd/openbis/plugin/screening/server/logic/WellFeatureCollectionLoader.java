@@ -19,15 +19,14 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.time.StopWatch;
 
-import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.collection.IKeyExtractor;
 import ch.systemsx.cisd.common.collection.TableMap;
-import ch.systemsx.cisd.common.collection.CollectionUtils.ICollectionMappingFunction;
 import ch.systemsx.cisd.common.collection.TableMap.UniqueKeyViolationStrategy;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -200,15 +199,19 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
 
         private static List<String> extractCodes(List<DatasetReference> datasets)
         {
-            return CollectionUtils.map(datasets,
-                    new ICollectionMappingFunction<String, DatasetReference>()
-                        {
-                            @Override
-                            public String map(DatasetReference element)
-                            {
-                                return element.getCode();
-                            }
-                        });
+            Collection<String> codes =
+                    org.apache.commons.collections.CollectionUtils
+                            .collect(
+                                    datasets,
+                                    new org.apache.commons.collections.Transformer<DatasetReference, String>()
+                                        {
+                                            @Override
+                                            public String transform(DatasetReference element)
+                                            {
+                                                return element.getCode();
+                                            }
+                                        });
+            return new LinkedList<String>(codes);
         }
     }
 

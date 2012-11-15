@@ -17,18 +17,19 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import net.lemnik.eodsql.DataIterator;
 
+import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.time.StopWatch;
 
-import ch.systemsx.cisd.common.collection.CollectionUtils;
-import ch.systemsx.cisd.common.collection.CollectionUtils.ICollectionFilter;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
@@ -160,21 +161,28 @@ class WellDataLoader extends AbstractContentLoader
     private List<WellExtendedData> createWellExtendedData(List<WellData> wellsData,
             final Map<WellReference, Sample> wellRefToSampleMap)
     {
-        return CollectionUtils.map(wellsData,
-                new CollectionUtils.ICollectionMappingFunction<WellExtendedData, WellData>()
-                    {
-                        @Override
-                        public WellExtendedData map(WellData wellData)
-                        {
-                            WellReference wellReference = wellData.tryGetWellReference();
-                            assert wellReference != null : "wellReference not available for "
-                                    + wellData;
-                            Sample wellSample = wellRefToSampleMap.get(wellReference);
-                            assert wellSample != null : "Cannot find a sample for " + wellReference;
+        Collection<WellExtendedData> data =
+                org.apache.commons.collections.CollectionUtils
+                        .collect(
+                                wellsData,
+                                new org.apache.commons.collections.Transformer<WellData, WellExtendedData>()
+                                    {
+                                        @Override
+                                        public WellExtendedData transform(WellData wellData)
+                                        {
+                                            WellReference wellReference =
+                                                    wellData.tryGetWellReference();
+                                            assert wellReference != null : "wellReference not available for "
+                                                    + wellData;
+                                            Sample wellSample =
+                                                    wellRefToSampleMap.get(wellReference);
+                                            assert wellSample != null : "Cannot find a sample for "
+                                                    + wellReference;
 
-                            return new WellExtendedData(wellData, wellSample);
-                        }
-                    });
+                                            return new WellExtendedData(wellData, wellSample);
+                                        }
+                                    });
+        return new LinkedList<WellExtendedData>(data);
     }
 
     private static Map<Long, Sample> asSampleIdMap(List<Sample> samples)
@@ -399,14 +407,18 @@ class WellDataLoader extends AbstractContentLoader
     private static List<BasicWellContentQueryResult> filterExperimentWells(
             List<BasicWellContentQueryResult> wells, final String experimentPermId)
     {
-        return CollectionUtils.filter(wells, new ICollectionFilter<BasicWellContentQueryResult>()
-            {
-                @Override
-                public boolean isPresent(BasicWellContentQueryResult well)
-                {
-                    return belongsToExperiment(well, experimentPermId);
-                }
-            });
+
+        Collection<BasicWellContentQueryResult> filtered =
+                org.apache.commons.collections.CollectionUtils.select(wells,
+                        new Predicate<BasicWellContentQueryResult>()
+                            {
+                                @Override
+                                public boolean evaluate(BasicWellContentQueryResult well)
+                                {
+                                    return belongsToExperiment(well, experimentPermId);
+                                }
+                            });
+        return new LinkedList<BasicWellContentQueryResult>(filtered);
     }
 
     private static boolean belongsToExperiment(BasicWellContentQueryResult well,

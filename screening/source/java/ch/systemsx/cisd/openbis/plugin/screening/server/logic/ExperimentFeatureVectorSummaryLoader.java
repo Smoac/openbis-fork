@@ -18,15 +18,15 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.collection.IKeyExtractor;
 import ch.systemsx.cisd.common.collection.TableMap;
-import ch.systemsx.cisd.common.collection.CollectionUtils.ICollectionMappingFunction;
 import ch.systemsx.cisd.common.collection.TableMap.UniqueKeyViolationStrategy;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
@@ -114,7 +114,7 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
                     Collections.<MaterialFeatureVectorSummary> emptyList(),
                     Collections.<CodeAndLabel> emptyList(), tabelModel);
         }
-        
+
         return calculatedSummary(experimentId, analysisProcedureCriteria, experiment);
     }
 
@@ -135,7 +135,8 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
                 summaries.getFeatureNames(), null);
     }
 
-    private UserFailureException decorateException(Exception ex, ExternalData dataSet, String message)
+    private UserFailureException decorateException(Exception ex, ExternalData dataSet,
+            String message)
     {
         return new UserFailureException("Analysis summary for data set " + dataSet.getCode()
                 + " couldn't retrieved from Data Store Server. " + message, ex);
@@ -171,17 +172,21 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
             List<MaterialIdFeatureVectorSummary> summaries, List<Material> materials)
     {
         final TableMap<Long, Material> materialMap = createMaterialMap(materials);
-        return CollectionUtils
-                .map(summaries,
-                        new ICollectionMappingFunction<MaterialFeatureVectorSummary, MaterialIdFeatureVectorSummary>()
-                            {
-                                @Override
-                                public MaterialFeatureVectorSummary map(
-                                        MaterialIdFeatureVectorSummary summary)
-                                {
-                                    return convert(summary, materialMap);
-                                }
-                            });
+
+        Collection<MaterialFeatureVectorSummary> collection =
+                org.apache.commons.collections.CollectionUtils
+                        .collect(
+                                summaries,
+                                new org.apache.commons.collections.Transformer<MaterialIdFeatureVectorSummary, MaterialFeatureVectorSummary>()
+                                    {
+                                        @Override
+                                        public MaterialFeatureVectorSummary transform(
+                                                MaterialIdFeatureVectorSummary summary)
+                                        {
+                                            return convert(summary, materialMap);
+                                        }
+                                    });
+        return new LinkedList<MaterialFeatureVectorSummary>(collection);
     }
 
     private List<Material> fetchMaterials(Set<Long> materialIds)

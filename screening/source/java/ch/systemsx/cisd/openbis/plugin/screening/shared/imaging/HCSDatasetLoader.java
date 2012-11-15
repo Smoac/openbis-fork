@@ -17,12 +17,13 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.security.MD5ChecksumCalculator;
@@ -212,7 +213,7 @@ public class HCSDatasetLoader implements IImageDatasetLoader
         params.setInternalChannels(convertChannels());
         return params;
     }
-    
+
     private List<InternalImageChannel> convertChannels()
     {
         List<InternalImageChannel> convertedChannels = new ArrayList<InternalImageChannel>();
@@ -241,19 +242,20 @@ public class HCSDatasetLoader implements IImageDatasetLoader
             return new ArrayList<InternalImageTransformationInfo>();
         } else
         {
-            List<InternalImageTransformationInfo> transformations =
-                    CollectionUtils
-                            .map(transformationsOrNull,
-                                    new CollectionUtils.ICollectionMappingFunction<InternalImageTransformationInfo, ImgImageTransformationDTO>()
+            Collection<InternalImageTransformationInfo> transformations =
+                    org.apache.commons.collections.CollectionUtils
+                            .collect(
+                                    transformationsOrNull,
+                                    new org.apache.commons.collections.Transformer<ImgImageTransformationDTO, InternalImageTransformationInfo>()
                                         {
                                             @Override
-                                            public InternalImageTransformationInfo map(
+                                            public InternalImageTransformationInfo transform(
                                                     ImgImageTransformationDTO transformation)
                                             {
                                                 return convert(transformation);
                                             }
                                         });
-            return transformations;
+            return new LinkedList<InternalImageTransformationInfo>(transformations);
         }
     }
 

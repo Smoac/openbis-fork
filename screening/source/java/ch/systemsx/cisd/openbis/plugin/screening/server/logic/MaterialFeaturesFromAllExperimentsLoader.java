@@ -17,12 +17,12 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.time.StopWatch;
 
-import ch.systemsx.cisd.common.collection.CollectionUtils;
-import ch.systemsx.cisd.common.collection.CollectionUtils.ICollectionMappingFunction;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -80,17 +80,20 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
     private static List<ExperimentReference> asExperimentReferences(
             List<ExperimentReferenceQueryResult> experiments)
     {
-        return CollectionUtils
-                .map(experiments,
-                        new ICollectionMappingFunction<ExperimentReference, ExperimentReferenceQueryResult>()
-                            {
-                                @Override
-                                public ExperimentReference map(
-                                        ExperimentReferenceQueryResult experiment)
-                                {
-                                    return createExperimentReference(experiment);
-                                }
-                            });
+        Collection<ExperimentReference> references =
+                org.apache.commons.collections.CollectionUtils
+                        .collect(
+                                experiments,
+                                new org.apache.commons.collections.Transformer<ExperimentReferenceQueryResult, ExperimentReference>()
+                                    {
+                                        @Override
+                                        public ExperimentReference transform(
+                                                ExperimentReferenceQueryResult experiment)
+                                        {
+                                            return createExperimentReference(experiment);
+                                        }
+                                    });
+        return new LinkedList<ExperimentReference>(references);
     }
 
     private static ExperimentReference createExperimentReference(ExperimentReferenceQueryResult exp)
@@ -161,7 +164,8 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
     private int countAnalysisDatasets(ExperimentReference experiment)
     {
         IDatasetLister lister = businessObjectFactory.createDatasetLister(session);
-        List<ExternalData> datasets = lister.listByExperimentTechId(new TechId(experiment.getId()), true);
+        List<ExternalData> datasets =
+                lister.listByExperimentTechId(new TechId(experiment.getId()), true);
         return ScreeningUtils.filterImageAnalysisDatasets(datasets).size();
     }
 
