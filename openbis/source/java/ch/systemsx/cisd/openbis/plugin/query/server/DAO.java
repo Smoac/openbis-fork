@@ -38,7 +38,6 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
@@ -271,6 +270,10 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
      */
     private static class ParameterTypeProvider
     {
+        private static final String TYPE_PREFIX = "type=";
+
+        private static final String META_DATA_SEPARATOR = "::";
+
         private final Template template;
 
         private final Map<Integer, Entry<String, String>> indexMap;
@@ -294,7 +297,7 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
         {
             final Entry<String, String> entry = indexMap.get(param - 1);
             final String overrideTypeCode =
-                    StringUtils.upperCase(template.tryGetMetadata(entry.getKey()));
+                    tryGetOverrideTypeCode(entry);
             if (overrideTypeCode != null)
             {
                 final Integer paramType = SQL_TYPE_CODE_TO_TYPE_MAP.get(overrideTypeCode);
@@ -307,6 +310,24 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
             {
                 return paramMD.getParameterType(param);
             }
+        }
+
+        private String tryGetOverrideTypeCode(final Entry<String, String> entry)
+        {
+            final String md = template.tryGetMetadata(entry.getKey());
+            if (md == null)
+            {
+                return null;
+            }
+            final String[] splitMD = md.split(META_DATA_SEPARATOR);
+            for (String field : splitMD)
+            {
+                if (field.startsWith(TYPE_PREFIX))
+                {
+                    return field.substring(TYPE_PREFIX.length()).toUpperCase();
+                }
+            }
+            return null;
         }
 
         String getParameterTypeName(int param) throws SQLException

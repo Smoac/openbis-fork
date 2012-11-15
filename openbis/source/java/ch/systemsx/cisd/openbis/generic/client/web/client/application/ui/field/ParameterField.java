@@ -57,42 +57,65 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
 
     private static String QUERY_LIST_EXPRESSION_PREFIX = "query=";
 
+    private static String TYPE_EXPRESSION_PREFIX = "type=";
+
     public static IParameterField create(IViewContext<?> viewContextOrNull, String parameterName,
             String initialValueOrNull, IDelegatedAction onValueChangeAction,
             IParameterValuesLoader loaderOrNull)
     {
-        String[] split = parameterName.split(PARAMETER_METADATA_SEPARATOR);
+        String[] split = parameterName.split(PARAMETER_METADATA_SEPARATOR, 2);
+        final String name = split[0];
         if (split.length == 2)
         {
-            final String namePart = split[0];
-            final String expressionPart = split[1];
-            final String idSuffix = namePart.replaceAll(" ", "_");
+            final String[] expressionParts = split[1].split(PARAMETER_METADATA_SEPARATOR);
+            final String idSuffix = name.replaceAll(" ", "_");
+            checkMetadata(name, expressionParts);
+            for (String expressionPart : expressionParts)
+            {
+                if (expressionPart.startsWith(ENUM_LIST_EXPRESSION_PREFIX))
+                {
+                    String itemList =
+                            expressionPart.substring(ENUM_LIST_EXPRESSION_PREFIX.length());
+                    String[] values = itemList.split(ENUM_LIST_SEPARATOR);
+                    List<ParameterValue> parameterValues = new ArrayList<ParameterValue>();
+                    for (String value : values)
+                    {
+                        parameterValues.add(new ParameterValue(value, null));
+                    }
+                    return ParameterSelectionField.createWithValues(name, idSuffix,
+                            parameterValues, initialValueOrNull, onValueChangeAction);
+                } else if (expressionPart.startsWith(QUERY_LIST_EXPRESSION_PREFIX))
+                {
+                    String queryExpression =
+                            expressionPart.substring(QUERY_LIST_EXPRESSION_PREFIX.length());
+                    return ParameterSelectionField.createWithLoader(name, queryExpression,
+                            idSuffix, viewContextOrNull, loaderOrNull, initialValueOrNull,
+                            onValueChangeAction);
+                }
+            }
+        }
+        return new ParameterField(name, onValueChangeAction, initialValueOrNull);
+    }
+
+    static void checkMetadata(final String namePart, final String[] expressionParts)
+    {
+        for (String expressionPart : expressionParts)
+        {
             if (expressionPart.startsWith(ENUM_LIST_EXPRESSION_PREFIX))
             {
-                String itemList = expressionPart.substring(ENUM_LIST_EXPRESSION_PREFIX.length());
-                String[] values = itemList.split(ENUM_LIST_SEPARATOR);
-                List<ParameterValue> parameterValues = new ArrayList<ParameterValue>();
-                for (String value : values)
-                {
-                    parameterValues.add(new ParameterValue(value, null));
-                }
-                return ParameterSelectionField.createWithValues(namePart, idSuffix,
-                        parameterValues, initialValueOrNull, onValueChangeAction);
+                // OK
             } else if (expressionPart.startsWith(QUERY_LIST_EXPRESSION_PREFIX))
             {
-                String queryExpression =
-                        expressionPart.substring(QUERY_LIST_EXPRESSION_PREFIX.length());
-                return ParameterSelectionField.createWithLoader(namePart, queryExpression,
-                        idSuffix, viewContextOrNull, loaderOrNull, initialValueOrNull,
-                        onValueChangeAction);
+                // OK
+            } else if (expressionPart.startsWith(TYPE_EXPRESSION_PREFIX))
+            {
+                // OK
             } else
             {
                 MessageBox.alert("Error", "Filter parameter '" + namePart
                         + "' is not defined properly.", null);
-                return new ParameterField(namePart, onValueChangeAction, initialValueOrNull);
             }
         }
-        return new ParameterField(parameterName, onValueChangeAction, initialValueOrNull);
     }
 
     private final String parameterName;
