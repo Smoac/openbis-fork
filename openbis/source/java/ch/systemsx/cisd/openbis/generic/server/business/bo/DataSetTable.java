@@ -21,7 +21,6 @@ import static ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslat
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -921,10 +920,10 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
 
         loadByDataSetCodes(Code.extractCodes(updates), true, true);
 
-        Map<String, Date> versionsMap = new HashMap<String, Date>();
+        Map<String, Integer> versionsMap = new HashMap<String, Integer>();
         for (DataPE dataSet : dataSets)
         {
-            versionsMap.put(dataSet.getCode(), dataSet.getModificationDate());
+            versionsMap.put(dataSet.getCode(), dataSet.getVersion());
         }
 
         for (DataSetBatchUpdatesDTO update : updates)
@@ -935,7 +934,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                         "Data set doesn't have a specified code and therefore cannot be updated.");
             }
 
-            Date version = versionsMap.get(update.getCode());
+            Integer version = versionsMap.get(update.getCode());
 
             if (version == null)
             {

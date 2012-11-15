@@ -302,7 +302,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
                 createDataSetUpdateDTO(dataSetToUpdate, "COMMENT",
                         "This is a new comment. This is not the old comment.");
 
-        update.setVersion(new Date());
+        update.setVersion(123456);
         performDataSetUpdates(Arrays.asList(update), 1);
     }
 
@@ -396,7 +396,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         updates.setDatasetCode(dataSet.getCode());
         updates.setDatasetId(TechId.create(dataSet));
         updates.setDetails(updateDetails);
-        updates.setVersion(dataSet.getModificationDate());
+        updates.setVersion(dataSet.getVersion());
 
         String identifierString = dataSet.getExperiment().getIdentifier();
         ExperimentIdentifier experimentIdentifier =

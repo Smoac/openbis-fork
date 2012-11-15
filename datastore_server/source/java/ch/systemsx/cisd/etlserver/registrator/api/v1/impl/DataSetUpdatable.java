@@ -76,7 +76,7 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
         updates.setDatasetCode(dataSet.getCode());
         updates.setDatasetId(TechId.create(dataSet));
         updates.setDetails(updateDetails);
-        updates.setVersion(dataSet.getModificationDate());
+        updates.setVersion(dataSet.getVersion());
         List<IEntityProperty> emptyProps = Collections.emptyList();
         updates.setProperties(emptyProps);
         updateDetails.setPropertiesToUpdate(new HashSet<String>());

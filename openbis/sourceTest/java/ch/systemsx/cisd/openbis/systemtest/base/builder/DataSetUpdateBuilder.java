@@ -20,7 +20,6 @@ import static ch.systemsx.cisd.openbis.systemtest.base.BaseTest.id;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
@@ -39,7 +38,7 @@ public class DataSetUpdateBuilder extends UpdateBuilder<DataSetUpdatesDTO>
 {
     private TechId datasetId;
 
-    private Date version;
+    private int version;
 
     private ExperimentIdentifier experimentIdentifier;
 
@@ -58,7 +57,7 @@ public class DataSetUpdateBuilder extends UpdateBuilder<DataSetUpdatesDTO>
     {
         super(commonServer, genericServer);
         this.datasetId = new TechId(data.getId());
-        this.version = data.getModificationDate();
+        this.version = data.getVersion();
         if (data instanceof DataSet)
         {
             this.fileFormatTypeCode = ((DataSet) data).getFileFormatType().getCode();

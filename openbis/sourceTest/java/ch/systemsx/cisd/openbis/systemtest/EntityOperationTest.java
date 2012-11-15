@@ -253,7 +253,7 @@ public class EntityOperationTest extends SystemTestCase
             dataSetUpdate.setDetails(new DataSetBatchUpdateDetails());
             dataSetUpdate.setDatasetId(new TechId(dataSet));
             dataSetUpdate.setDatasetCode(dataSet.getCode());
-            dataSetUpdate.setVersion(dataSet.getModificationDate());
+            dataSetUpdate.setVersion(dataSet.getVersion());
             if (dataSet instanceof DataSet)
             {
                 DataSet realDataSet = (DataSet) dataSet;

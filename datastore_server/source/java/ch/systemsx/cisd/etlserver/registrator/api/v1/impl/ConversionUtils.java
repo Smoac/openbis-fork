@@ -290,7 +290,7 @@ public class ConversionUtils
 
         DataSetUpdatesDTO dataSetUpdate = new DataSetUpdatesDTO();
         dataSetUpdate.setDatasetId(new TechId(externalData));
-        dataSetUpdate.setVersion(externalData.getModificationDate());
+        dataSetUpdate.setVersion(externalData.getVersion());
         dataSetUpdate.setFileFormatTypeCode(dataSet.getFileFormatType());
         dataSetUpdate.setProperties(externalData.getProperties());
 
@@ -338,7 +338,7 @@ public class ConversionUtils
         ExternalData externalData = dataSet.getExternalData();
 
         dataSetUpdate.setDatasetId(new TechId(externalData));
-        dataSetUpdate.setVersion(externalData.getModificationDate());
+        dataSetUpdate.setVersion(externalData.getVersion());
         dataSetUpdate.setFileFormatTypeCode(dataSet.getFileFormatType());
         dataSetUpdate.setProperties(externalData.getProperties());
 

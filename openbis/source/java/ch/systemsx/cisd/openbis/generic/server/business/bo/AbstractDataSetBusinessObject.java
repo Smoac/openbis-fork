@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
@@ -429,11 +430,17 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
             {
                 throw new UserFailureException(String.format("File type '%s' does not exist.",
                         fileFormatTypeCode));
-            } else
+            } else if (equalFileFormatTypes(externalData.getFileFormatType(), fileFormatTypeOrNull) == false)
             {
                 externalData.setFileFormatType(fileFormatTypeOrNull);
+                RelationshipUtils.updateModificationDateAndModifier(data, session);
             }
         }
+    }
+
+    private boolean equalFileFormatTypes(FileFormatTypePE type1, FileFormatTypePE type2)
+    {
+        return type1 == null ? type1 == type2 : type1.equals(type2);
     }
 
     protected void checkSameSpace(DataPE container, DataPE component)

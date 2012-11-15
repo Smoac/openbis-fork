@@ -311,7 +311,7 @@ public class EntityValidationTest extends GenericSystemTestCase
 
         DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
         updates.setDatasetId(new TechId(26));
-        updates.setVersion(dataset.getModificationDate());
+        updates.setVersion(dataset.getVersion());
         updates.setExperimentIdentifierOrNull(new ExperimentIdentifier(dataset.getExperiment()));
         updates.setProperties(Collections.<IEntityProperty> emptyList());
 
@@ -329,7 +329,7 @@ public class EntityValidationTest extends GenericSystemTestCase
 
             DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
             updates.setDatasetId(new TechId(26));
-            updates.setVersion(dataset.getModificationDate());
+            updates.setVersion(dataset.getVersion());
             updates.setExperimentIdentifierOrNull(new ExperimentIdentifier(dataset.getExperiment()));
             updates.setProperties(Collections.<IEntityProperty> emptyList());
 

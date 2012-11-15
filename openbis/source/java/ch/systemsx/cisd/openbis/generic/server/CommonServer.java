@@ -1353,7 +1353,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         dataSetBO.update(updates);
         DataSetUpdateResult result = new DataSetUpdateResult();
         DataPE data = dataSetBO.getData();
-        result.setModificationDate(data.getModificationDate());
+        result.setVersion(data.getVersion());
         List<String> parents = IdentifierExtractor.extract(data.getParents());
         Collections.sort(parents);
         result.setParentCodes(parents);
@@ -3255,7 +3255,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
             updates.setDatasetId(entityId);
-            updates.setVersion(dataSet.getModificationDate());
+            updates.setVersion(dataSet.getVersion());
             Map<String, String> properties = createPropertiesMap(modifiedProperties);
             updates.setProperties(EntityHelper.translatePropertiesMapToList(properties));
             Experiment exp = dataSet.getExperiment();

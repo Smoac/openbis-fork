@@ -132,7 +132,7 @@ public final class GenericDataSetEditForm extends
         final DataSetUpdates result = new DataSetUpdates();
         result.setDatasetId(techIdOrNull);
         result.setProperties(extractProperties());
-        result.setVersion(originalDataSet.getModificationDate());
+        result.setVersion(originalDataSet.getVersion());
         if (isConnectedWithSample())
         {
             result.setSampleIdentifierOrNull(extractSampleIdentifier());
@@ -193,7 +193,7 @@ public final class GenericDataSetEditForm extends
 
     private void updateOriginalValues(final DataSetUpdateResult result)
     {
-        originalDataSet.setModificationDate(result.getModificationDate());
+        originalDataSet.setVersion(result.getVersion());
         updatePropertyFieldsOriginalValues();
         final List<String> parentCodes = result.getParentCodes();
         parentsArea.setDataSetCodes(parentCodes);

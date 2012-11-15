@@ -95,6 +95,12 @@ public abstract class AbstractDataSetBuilder<T extends AbstractDataSetBuilder<?>
         return asConcreteSubclass();
     }
 
+    public T version(int version)
+    {
+        dataSet.setVersion(version);
+        return asConcreteSubclass();
+    }
+
     public PropertyBuilder property(String key)
     {
         List<IEntityProperty> properties = dataSet.getProperties();

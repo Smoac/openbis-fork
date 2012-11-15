@@ -846,7 +846,7 @@ public class DataBOTest extends AbstractBOTest
     {
         DataSetUpdatesDTO dataSetUpdatesDTO = new DataSetUpdatesDTO();
         dataSetUpdatesDTO.setDatasetId(TECH_ID);
-        dataSetUpdatesDTO.setVersion(dataSet.getModificationDate());
+        dataSetUpdatesDTO.setVersion(dataSet.getVersion());
         dataSetUpdatesDTO.setSampleIdentifierOrNull(sampleIdentifierOrNull);
         dataSetUpdatesDTO.setExperimentIdentifierOrNull(experimentIdentifierOrNull);
         if (dataSet.isExternalData())

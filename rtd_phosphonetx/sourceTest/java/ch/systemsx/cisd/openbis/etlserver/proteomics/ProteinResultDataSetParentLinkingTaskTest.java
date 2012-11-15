@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.etlserver.proteomics;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Level;
@@ -94,13 +93,13 @@ public class ProteinResultDataSetParentLinkingTaskTest extends AssertJUnit
                         .property(BASE_EXPERIMENT_KEY, "/S/P1/E1").getExperiment();
         final DataSet ds1 =
                 new DataSetBuilder(1).code("ds1").fileFormat("A").experiment(e1)
-                        .modificationDate(new Date(11)).getDataSet();
+                        .version(11).getDataSet();
         final DataSet ds2 =
                 new DataSetBuilder(2).code("ds2").fileFormat("B").experiment(e4)
-                        .modificationDate(new Date(22)).getDataSet();
+                        .version(22).getDataSet();
         final DataSet ds3 =
                 new DataSetBuilder(3).code("ds3").fileFormat("C").experiment(e3)
-                        .modificationDate(new Date(33)).property("ALPHA", "3.1").getDataSet();
+                        .version(33).property("ALPHA", "3.1").getDataSet();
         final RecordingMatcher<AtomicEntityOperationDetails> operationRecorder =
                 new RecordingMatcher<AtomicEntityOperationDetails>();
         context.checking(new Expectations()
@@ -154,7 +153,7 @@ public class ProteinResultDataSetParentLinkingTaskTest extends AssertJUnit
         List<DataSetBatchUpdatesDTO> dataSetUpdates =
                 operationRecorder.recordedObject().getDataSetUpdates();
         assertEquals(2L, dataSetUpdates.get(0).getDatasetId().getId().longValue());
-        assertEquals(22L, dataSetUpdates.get(0).getVersion().getTime());
+        assertEquals(22, dataSetUpdates.get(0).getVersion());
         assertEquals("B", dataSetUpdates.get(0).getFileFormatTypeCode());
         assertEquals("[]", dataSetUpdates.get(0).getProperties().toString());
         assertEquals(e4.getIdentifier(), dataSetUpdates.get(0).getExperimentIdentifierOrNull()
@@ -163,7 +162,7 @@ public class ProteinResultDataSetParentLinkingTaskTest extends AssertJUnit
                 Arrays.asList(dataSetUpdates.get(0).getModifiedParentDatasetCodesOrNull())
                         .toString());
         assertEquals(3L, dataSetUpdates.get(1).getDatasetId().getId().longValue());
-        assertEquals(33L, dataSetUpdates.get(1).getVersion().getTime());
+        assertEquals(33, dataSetUpdates.get(1).getVersion());
         assertEquals("C", dataSetUpdates.get(1).getFileFormatTypeCode());
         assertEquals("[ALPHA: 3.1]", dataSetUpdates.get(1).getProperties().toString());
         assertEquals(e3.getIdentifier(), dataSetUpdates.get(1).getExperimentIdentifierOrNull()

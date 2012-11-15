@@ -48,6 +48,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
+import org.hibernate.annotations.OptimisticLock;
 import org.hibernate.annotations.OrderBy;
 import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.DocumentId;
@@ -81,7 +82,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Indexed(index = "DataPE")
 public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         IEntityInformationWithPropertiesHolder, IMatchingEntity, IIdentifierHolder, IDeletablePE,
-        IEntityWithMetaprojects
+        IEntityWithMetaprojects, IModifierAndModificationDateBean
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -112,6 +113,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private Date modificationDate;
 
+    private int version;
+
     private String dataProducerCode;
 
     private DataPE container = null;
@@ -140,6 +143,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private Set<DataSetRelationshipPE> childRelationships = new HashSet<DataSetRelationshipPE>();
 
+    @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentDataSet")
     @Fetch(FetchMode.SUBSELECT)
     private Set<DataSetRelationshipPE> getDataSetChildRelationships()
@@ -166,6 +170,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         getDataSetChildRelationships().add(relationship);
     }
 
+    @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "childDataSet", orphanRemoval = true)
     @Fetch(FetchMode.SUBSELECT)
     private Set<DataSetRelationshipPE> getDataSetParentRelationships()
@@ -276,6 +281,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.registrator = registrator;
     }
 
+    @Override
+    @OptimisticLock(excluded = true)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.PERSON_MODIFIER_COLUMN)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_MODIFIER)
@@ -284,6 +291,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return modifier;
     }
 
+    @Override
     public void setModifier(final PersonPE modifier)
     {
         this.modifier = modifier;
@@ -478,6 +486,19 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     @Version
+    @Column(name = ColumnNames.VERSION_COLUMN, nullable = false)
+    public int getVersion()
+    {
+        return version;
+    }
+
+    public void setVersion(int version)
+    {
+        this.version = version;
+    }
+
+    @Override
+    @OptimisticLock(excluded = true)
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
     @Field(name = SearchFieldConstants.MODIFICATION_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
     @DateBridge(resolution = Resolution.SECOND)
@@ -486,6 +507,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return modificationDate;
     }
 
+    @Override
     public void setModificationDate(Date versionDate)
     {
         this.modificationDate = versionDate;
@@ -554,6 +576,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         component.setOrderInContainer(null);
     }
 
+    @OptimisticLock(excluded = true)
     @OneToMany(mappedBy = "containerInternal", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @OrderBy(clause = ColumnNames.DATA_CONTAINER_ORDER_COLUMN)
     public List<DataPE> getContainedDataSets()

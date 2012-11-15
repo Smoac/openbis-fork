@@ -126,7 +126,7 @@ public class ProteinResultDataSetParentLinkingTask implements IMaintenanceTask
                     DataSet dataSet = (DataSet) ds;
                     DataSetBatchUpdatesDTO update = new DataSetBatchUpdatesDTO();
                     update.setDatasetId(new TechId(dataSet.getId()));
-                    update.setVersion(dataSet.getModificationDate());
+                    update.setVersion(dataSet.getVersion());
                     update.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse(dataSet
                             .getExperiment().getIdentifier()));
                     update.setFileFormatTypeCode(dataSet.getFileFormatType().getCode());

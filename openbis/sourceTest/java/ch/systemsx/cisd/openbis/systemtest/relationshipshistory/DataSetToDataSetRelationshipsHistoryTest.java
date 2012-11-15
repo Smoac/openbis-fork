@@ -45,7 +45,7 @@ public class DataSetToDataSetRelationshipsHistoryTest extends AbstractRelationsh
         DataSetUpdates updates = new DataSetUpdates();
         updates.setDatasetId(containerId);
         updates.setFileFormatTypeCode("PROPRIETARY");
-        updates.setVersion(container.getModificationDate());
+        updates.setVersion(container.getVersion());
         updates.setProperties(container.getProperties());
         updates.setExperimentIdentifierOrNull(container.getExperiment().getIdentifier());
         updates.setSampleIdentifierOrNull(container.getSampleIdentifier());
@@ -64,7 +64,7 @@ public class DataSetToDataSetRelationshipsHistoryTest extends AbstractRelationsh
         updates = new DataSetUpdates();
         updates.setDatasetId(containerId);
         updates.setFileFormatTypeCode("PROPRIETARY");
-        updates.setVersion(container.getModificationDate());
+        updates.setVersion(container.getVersion());
         updates.setProperties(container.getProperties());
         updates.setExperimentIdentifierOrNull(container.getExperiment().getIdentifier());
         updates.setSampleIdentifierOrNull(container.getSampleIdentifier());
@@ -90,7 +90,7 @@ public class DataSetToDataSetRelationshipsHistoryTest extends AbstractRelationsh
         updates = new DataSetUpdates();
         updates.setDatasetId(containerId);
         updates.setFileFormatTypeCode("PROPRIETARY");
-        updates.setVersion(container.getModificationDate());
+        updates.setVersion(container.getVersion());
         updates.setProperties(container.getProperties());
         updates.setExperimentIdentifierOrNull(container.getExperiment().getIdentifier());
         updates.setSampleIdentifierOrNull(container.getSampleIdentifier());
@@ -127,7 +127,7 @@ public class DataSetToDataSetRelationshipsHistoryTest extends AbstractRelationsh
         DataSetUpdates updates = new DataSetUpdates();
         updates.setDatasetId(childId);
         updates.setFileFormatTypeCode("PROPRIETARY");
-        updates.setVersion(child.getModificationDate());
+        updates.setVersion(child.getVersion());
         updates.setProperties(child.getProperties());
         updates.setExperimentIdentifierOrNull(child.getExperiment().getIdentifier());
         updates.setSampleIdentifierOrNull(child.getSampleIdentifier());
@@ -148,7 +148,7 @@ public class DataSetToDataSetRelationshipsHistoryTest extends AbstractRelationsh
         updates = new DataSetUpdates();
         updates.setDatasetId(childId);
         updates.setFileFormatTypeCode("PROPRIETARY");
-        updates.setVersion(child.getModificationDate());
+        updates.setVersion(child.getVersion());
         updates.setProperties(child.getProperties());
         updates.setExperimentIdentifierOrNull(child.getExperiment().getIdentifier());
         updates.setSampleIdentifierOrNull(child.getSampleIdentifier());
@@ -192,7 +192,7 @@ public class DataSetToDataSetRelationshipsHistoryTest extends AbstractRelationsh
         updates = new DataSetUpdates();
         updates.setDatasetId(childId);
         updates.setFileFormatTypeCode("PROPRIETARY");
-        updates.setVersion(child.getModificationDate());
+        updates.setVersion(child.getVersion());
         updates.setProperties(child.getProperties());
         updates.setExperimentIdentifierOrNull(child.getExperiment().getIdentifier());
         updates.setSampleIdentifierOrNull(child.getSampleIdentifier());

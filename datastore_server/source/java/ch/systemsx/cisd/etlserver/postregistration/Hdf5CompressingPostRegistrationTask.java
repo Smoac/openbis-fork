@@ -373,7 +373,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
                 String hdf5DataSetCode)
         {
             DataSetUpdatesDTO updatesDTO = new DataSetUpdatesDTO();
-            updatesDTO.setVersion(container.getModificationDate());
+            updatesDTO.setVersion(container.getVersion());
 
             updatesDTO.setDatasetId(new TechId(container.getId()));
             updatesDTO.setProperties(container.getProperties());

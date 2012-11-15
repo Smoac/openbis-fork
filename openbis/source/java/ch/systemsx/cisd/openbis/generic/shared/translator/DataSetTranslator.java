@@ -209,6 +209,7 @@ public class DataSetTranslator
         setChildren(dataPE, externalData);
         externalData.setProductionDate(dataPE.getProductionDate());
         externalData.setModificationDate(dataPE.getModificationDate());
+        externalData.setVersion(dataPE.getVersion());
         externalData.setRegistrator(PersonTranslator.translate(dataPE.getRegistrator()));
         externalData.setModifier(PersonTranslator.translate(dataPE.getRegistrator()));
         externalData.setRegistrationDate(dataPE.getRegistrationDate());

@@ -711,7 +711,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         Sample sample = new Sample(s1);
         ExternalData dataSetInfo = genericServer.getDataSetInfo(sessionToken, new TechId(13));
         DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
-        updates.setVersion(dataSetInfo.getModificationDate());
+        updates.setVersion(dataSetInfo.getVersion());
         updates.setDatasetId(new TechId(dataSetInfo.getId()));
         updates.setProperties(dataSetInfo.getProperties());
         updates.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse(dataSetInfo

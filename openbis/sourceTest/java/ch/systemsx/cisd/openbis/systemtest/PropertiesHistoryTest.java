@@ -241,7 +241,7 @@ public class PropertiesHistoryTest extends SystemTestCase
 
         DataSetUpdates updates = new DataSetUpdates();
         updates.setDatasetId(id);
-        updates.setVersion(dataSet.getModificationDate());
+        updates.setVersion(dataSet.getVersion());
         updates.setExperimentIdentifierOrNull(dataSet.getExperiment().getIdentifier());
         updates.setFileFormatTypeCode(((DataSet) dataSet).getFileFormatType().getCode());
         IEntityProperty p1 = new PropertyBuilder("COMMENT").value("hello world").getProperty();
@@ -293,7 +293,7 @@ public class PropertiesHistoryTest extends SystemTestCase
 
         DataSetUpdates updates = new DataSetUpdates();
         updates.setDatasetId(id);
-        updates.setVersion(dataSet.getModificationDate());
+        updates.setVersion(dataSet.getVersion());
         updates.setExperimentIdentifierOrNull(dataSet.getExperiment().getIdentifier());
         updates.setFileFormatTypeCode(((DataSet) dataSet).getFileFormatType().getCode());
         IEntityProperty p1 = new PropertyBuilder("COMMENT").value((String) null).getProperty();

@@ -322,7 +322,7 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
         assertEquals(dataSet.getCode(), loadedDataSet.getCode());
         DataSetUpdatesDTO update = new DataSetUpdatesDTO();
         update.setDatasetId(new TechId(loadedDataSet));
-        update.setVersion(loadedDataSet.getModificationDate());
+        update.setVersion(loadedDataSet.getVersion());
         update.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse(exp2.getIdentifier()));
         update.setProperties(ToolBox.NO_PROPERTIES);
         update.setFileFormatTypeCode(dataSet.getFileFormatType().getCode());

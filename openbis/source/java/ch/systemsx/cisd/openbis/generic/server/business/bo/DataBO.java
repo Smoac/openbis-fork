@@ -325,8 +325,9 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
                 .getStorageFormat()));
         externalData.setLocatorType(getLocatorTypeDAO().tryToFindLocatorTypeByCode(
                 locatorType.getCode()));
-        externalData.setRegistrator(tryToGetRegistrator(newData));
-        externalData.setModifier(externalData.getRegistrator());
+        PersonPE registrator = tryToGetRegistrator(newData);
+        externalData.setRegistrator(registrator);
+        RelationshipUtils.updateModificationDateAndModifier(externalData, registrator);
         dataStore = getDataStoreDAO().tryToFindDataStoreByCode(newData.getDataStoreCode());
         externalData.setDataStore(dataStore);
         defineDataSetProperties(externalData,
@@ -349,7 +350,9 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         dataPE.setProductionDate(newData.getProductionDate());
         dataPE.setCode(newData.getCode());
         dataPE.setDataSetType(getDataSetType(dataSetType, DataSetKind.CONTAINER));
-        dataPE.setRegistrator(tryToGetRegistrator(newData));
+        PersonPE registrator = tryToGetRegistrator(newData);
+        dataPE.setRegistrator(registrator);
+        RelationshipUtils.updateModificationDateAndModifier(dataPE, registrator);
         dataStore = getDataStoreDAO().tryToFindDataStoreByCode(newData.getDataStoreCode());
         dataPE.setDataStore(dataStore);
         defineDataSetProperties(dataPE, convertToDataSetProperties(newData.getDataSetProperties()));
@@ -516,7 +519,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             data.setPlaceholder(false);
             data.setId(HibernateUtils.getId(placeholder));
             data.setRegistrationDate(new Date());
-            data.setModificationDate(placeholder.getModificationDate());
+            RelationshipUtils.updateModificationDateAndModifier(data, findPerson());
 
             dataDAO.updateDataSet(data, findPerson());
         }
@@ -581,7 +584,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     public void update(DataSetUpdatesDTO updates)
     {
         loadDataByTechId(updates.getDatasetId());
-        if (updates.getVersion().equals(data.getModificationDate()) == false)
+        if (updates.getVersion() != data.getVersion())
         {
             throwModifiedEntityException("Data set");
         }
@@ -601,7 +604,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         updateContainer(updates.getModifiedContainerDatasetCodeOrNull());
         updateComponents(updates.getModifiedContainedDatasetCodesOrNull());
         updateFileFormatType(data, updates.getFileFormatTypeCode());
-        updateProperties(data, updates.getProperties());
+        updateProperties(data.getEntityType(), updates.getProperties(), data, data);
 
         if (data.getContainer() != null)
         {

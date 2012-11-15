@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -31,7 +30,7 @@ public class BasicDataSetUpdates implements Serializable
 
     private TechId datasetId;
 
-    private Date version;
+    private int version;
 
     // ----- the data which should be changed:
 
@@ -61,7 +60,7 @@ public class BasicDataSetUpdates implements Serializable
     {
     }
 
-    public BasicDataSetUpdates(TechId datasetId, List<IEntityProperty> properties, Date version)
+    public BasicDataSetUpdates(TechId datasetId, List<IEntityProperty> properties, int version)
     {
         this.datasetId = datasetId;
         this.version = version;
@@ -78,12 +77,12 @@ public class BasicDataSetUpdates implements Serializable
         this.datasetId = datasetId;
     }
 
-    public Date getVersion()
+    public int getVersion()
     {
         return version;
     }
 
-    public void setVersion(Date version)
+    public void setVersion(int version)
     {
         this.version = version;
     }
