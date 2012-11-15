@@ -116,4 +116,24 @@ public interface ISearchService
      *         given code is not found.
      */
     public IVocabularyImmutable getVocabulary(String code);
+
+    /**
+     * @return the list of property definitions for a data set type.
+     */
+    public List<IPropertyDefinitionImmutable> listPropertiesDefinitionsForDataSetType(String code);
+
+    /**
+     * @return the list of property definitions for a sample type.
+     */
+    public List<IPropertyDefinitionImmutable> listPropertiesDefinitionsForSampleType(String code);
+
+    /**
+     * @return the list of property definitions for an experiment type.
+     */
+    public List<IPropertyDefinitionImmutable> listPropertiesDefinitionsForExperimentType(String code);
+
+    /**
+     * @return the list of property definitions for a material type.
+     */
+    public List<IPropertyDefinitionImmutable> listPropertiesDefinitionsForMaterialType(String code);
 }

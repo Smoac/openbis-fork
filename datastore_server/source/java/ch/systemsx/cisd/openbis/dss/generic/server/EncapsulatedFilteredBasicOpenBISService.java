@@ -24,9 +24,11 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AuthorizationHelper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedBasicOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ManagedAuthentication;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -35,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * The basic version of encapsulated openbis service, that calls the etl service and filters the
@@ -123,8 +126,8 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
         List<Experiment> datasets =
                 etlService.listExperiments(systemSessionToken, projectIdentifier);
 
-        return AuthorizationHelper.filterToVisible(encapsulatedService, userName,
-                datasets, codeMapper, AuthorizationHelper.EntityKind.EXPERIMENT);
+        return AuthorizationHelper.filterToVisible(encapsulatedService, userName, datasets,
+                codeMapper, AuthorizationHelper.EntityKind.EXPERIMENT);
     }
 
     @Override
@@ -144,5 +147,13 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
     public List<Material> listMaterials(ListMaterialCriteria criteria, boolean withProperties)
     {
         return etlService.listMaterials(systemSessionToken, criteria, withProperties);
+    }
+
+    @Override
+    @ManagedAuthentication
+    public List<? extends EntityTypePropertyType<?>> listPropertyDefinitionsForEntityType(
+            String code, EntityKind entityKind)
+    {
+        return encapsulatedService.listPropertyDefinitionsForEntityType(code, entityKind);
     }
 }

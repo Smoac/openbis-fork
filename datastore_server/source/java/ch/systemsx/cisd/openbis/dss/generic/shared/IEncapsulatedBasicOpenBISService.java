@@ -23,6 +23,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -85,4 +86,13 @@ public interface IEncapsulatedBasicOpenBISService
      */
     @ManagedAuthentication
     public List<Material> listMaterials(ListMaterialCriteria criteria, boolean withProperties);
+
+    /**
+     * List property definitions for the given entity type
+     */
+    @ManagedAuthentication
+    public List<? extends EntityTypePropertyType<?>> listPropertyDefinitionsForEntityType(
+            String code,
+            ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind entityKind);
+
 }

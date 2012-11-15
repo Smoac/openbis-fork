@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabula
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -793,6 +794,14 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public void setConversationClient(IServiceConversationClientManagerLocal conversationClient)
     {
         this.conversationClient = conversationClient;
+    }
+
+    @Override
+    public List<? extends EntityTypePropertyType<?>> listPropertyDefinitionsForEntityType(
+            String code,
+            ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind entityKind)
+    {
+        return service.listPropertyDefinitionsForType(session.getSessionToken(), code, entityKind);
     }
 
 }

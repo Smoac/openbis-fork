@@ -17,10 +17,14 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.collections.Transformer;
 
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.collection.CollectionUtils.ICollectionFilter;
@@ -28,6 +32,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedBasicOpenBISServ
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IPropertyDefinitionImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IVocabularyImmutable;
@@ -36,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -46,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -219,5 +226,56 @@ public class SearchService implements ISearchService
     {
         Vocabulary vocabulary = openBisService.tryGetVocabulary(code);
         return (vocabulary == null) ? null : new VocabularyImmutable(vocabulary);
+    }
+
+    @Override
+    public List<IPropertyDefinitionImmutable> listPropertiesDefinitionsForDataSetType(String code)
+    {
+        return listPropertyDefinitions(code,
+                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.DATA_SET);
+    }
+
+    @Override
+    public List<IPropertyDefinitionImmutable> listPropertiesDefinitionsForExperimentType(String code)
+    {
+        return listPropertyDefinitions(code,
+                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT);
+    }
+
+    @Override
+    public List<IPropertyDefinitionImmutable> listPropertiesDefinitionsForMaterialType(String code)
+    {
+        return listPropertyDefinitions(code,
+                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL);
+    }
+
+    @Override
+    public List<IPropertyDefinitionImmutable> listPropertiesDefinitionsForSampleType(String code)
+    {
+        return listPropertyDefinitions(code,
+                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.SAMPLE);
+    }
+
+    private List<IPropertyDefinitionImmutable> listPropertyDefinitions(String code, EntityKind kind)
+    {
+        List<? extends EntityTypePropertyType<?>> apiList =
+                openBisService.listPropertyDefinitionsForEntityType(code, kind);
+
+        // long version of for (etpt) => new PropertyDefinitionImmutable(etpt)
+        Transformer<EntityTypePropertyType<?>, IPropertyDefinitionImmutable> transformer =
+                new Transformer<EntityTypePropertyType<?>, IPropertyDefinitionImmutable>()
+                    {
+                        @Override
+                        public IPropertyDefinitionImmutable transform(
+                                EntityTypePropertyType<?> input)
+                        {
+                            return new PropertyDefinitionImmutable(input);
+                        }
+                    };
+
+        Collection<IPropertyDefinitionImmutable> transformed =
+                org.apache.commons.collections.CollectionUtils.collect(apiList, transformer);
+
+        return new LinkedList<IPropertyDefinitionImmutable>(transformed);
     }
 }

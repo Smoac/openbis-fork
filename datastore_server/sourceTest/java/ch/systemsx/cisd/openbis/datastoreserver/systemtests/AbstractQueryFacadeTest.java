@@ -398,4 +398,52 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
         assertEquals(1, table.getRows().size());
         return Integer.parseInt(table.getRows().get(0)[0].toString());
     }
+
+    @Test
+    public void testJythonReportListingProperties() throws Exception
+    {
+        Map<String, Object> parameters = new HashMap<String, Object>();
+
+        parameters.put("dataSetTypes", Arrays.asList("HCS_IMAGE", "UNKNOWN"));
+
+        parameters.put("sampleTypes", Arrays.asList("MASTER_PLATE", "DILUTION_PLATE"));
+
+        parameters.put("experimentTypes", Arrays.asList("COMPOUND_HCS"));
+
+        parameters.put("materialTypes", Arrays.asList("BACTERIUM"));
+
+        QueryTableModel table =
+                createReportFromAggregationService("property-definitions-aggregation-service",
+                        parameters);
+
+        assertEquals("[Entity Kind, Entity Type, Property Definition]", getHeaders(table)
+                .toString());
+
+        assertRowsContent(
+                table,
+                "[Data Set, HCS_IMAGE, COMMENT Any other comments Comment True 1 False]",
+                "[Data Set, HCS_IMAGE, ANY_MATERIAL any_material any_material False 2 False]",
+                "[Data Set, HCS_IMAGE, BACTERIUM bacterium bacterium False 3 False]",
+                "[Data Set, HCS_IMAGE, GENDER The gender of the living organism Gender False 4 False]",
+                "[Data Set, UNKNOWN, N/A]",
+                "[Sample, MASTER_PLATE, $PLATE_GEOMETRY Plate Geometry Plate Geometry True 1 True]",
+                "[Sample, MASTER_PLATE, DESCRIPTION A Description Description False 2 False]",
+                "[Sample, DILUTION_PLATE, OFFSET Offset from the start of the sequence Offset False 1 False]",
+                "[Experiment, COMPOUND_HCS, DESCRIPTION A Description Description True 1 True]",
+                "[Experiment, COMPOUND_HCS, COMMENT Any other comments Comment False 2 False]",
+                "[Material, BACTERIUM, DESCRIPTION A Description Description True 1 True]",
+                "[Material, BACTERIUM, ORGANISM The organism from which cells come Organism False 2 False]"
+
+        );
+
+    }
+
+    private void assertRowsContent(QueryTableModel table, String... contents)
+    {
+        for (int i = 0; i < contents.length; i++)
+        {
+            assertEquals(contents[i], Arrays.asList(table.getRows().get(i)).toString());
+        }
+        assertEquals(contents.length, table.getRows().size());
+    }
 }
